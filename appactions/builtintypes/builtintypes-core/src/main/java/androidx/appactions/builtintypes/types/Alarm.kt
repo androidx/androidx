@@ -132,6 +132,7 @@ public interface Alarm : Thing {
 public abstract class AbstractAlarm<
   Self : AbstractAlarm<Self, Builder>, Builder : AbstractAlarm.Builder<Builder, Self>>
 internal constructor(
+  public final override val namespace: String?,
   public final override val alarmSchedule: Schedule?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
@@ -154,13 +155,20 @@ internal constructor(
   /** A copy-constructor that copies over properties from another [Alarm] instance. */
   public constructor(
     alarm: Alarm
-  ) : this(alarm.alarmSchedule, alarm.disambiguatingDescription, alarm.identifier, alarm.name)
+  ) : this(
+    alarm.namespace,
+    alarm.alarmSchedule,
+    alarm.disambiguatingDescription,
+    alarm.identifier,
+    alarm.name
+  )
 
   /** Returns a concrete [Builder] with the additional, non-[Alarm] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setNamespace(namespace)
       .setAlarmSchedule(alarmSchedule)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
@@ -174,15 +182,26 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
+    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(alarmSchedule, disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(
+      alarmSchedule,
+      disambiguatingDescription,
+      identifier,
+      name,
+      namespace,
+      additionalProperties
+    )
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (namespace != null) {
+      attributes["namespace"] = namespace
+    }
     if (alarmSchedule != null) {
       attributes["alarmSchedule"] = alarmSchedule.toString()
     }
@@ -269,6 +288,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var namespace: String? = null
+
     private var alarmSchedule: Schedule? = null
 
     private var disambiguatingDescription: DisambiguatingDescription? = null
@@ -288,7 +309,20 @@ internal constructor(
     @Suppress("BuilderSetStyle") protected abstract fun buildFromAlarm(alarm: Alarm): Built
 
     public final override fun build(): Built =
-      buildFromAlarm(AlarmImpl(alarmSchedule, disambiguatingDescription, identifier, name))
+      buildFromAlarm(
+        AlarmImpl(
+          namespace,
+          alarmSchedule,
+          disambiguatingDescription,
+          identifier,
+          name
+        )
+      )
+
+    public final override fun setNamespace(namespace: String?): Self {
+      this.namespace = namespace
+      return this as Self
+    }
 
     public final override fun setAlarmSchedule(schedule: Schedule?): Self {
       this.alarmSchedule = schedule
@@ -321,17 +355,28 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
+      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(alarmSchedule, disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(
+        alarmSchedule,
+        disambiguatingDescription,
+        identifier,
+        name,
+        namespace,
+        additionalProperties
+      )
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (namespace != null) {
+        attributes["namespace"] = namespace!!
+      }
       if (alarmSchedule != null) {
         attributes["alarmSchedule"] = alarmSchedule!!.toString()
       }
@@ -353,7 +398,7 @@ internal constructor(
   }
 }
 
-internal class AlarmImpl : AbstractAlarm<AlarmImpl, AlarmImpl.Builder> {
+private class AlarmImpl : AbstractAlarm<AlarmImpl, AlarmImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Alarm"
 
@@ -361,17 +406,18 @@ internal class AlarmImpl : AbstractAlarm<AlarmImpl, AlarmImpl.Builder> {
     get() = emptyMap()
 
   public constructor(
+    namespace: String?,
     alarmSchedule: Schedule?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(alarmSchedule, disambiguatingDescription, identifier, name)
+  ) : super(namespace, alarmSchedule, disambiguatingDescription, identifier, name)
 
   public constructor(alarm: Alarm) : super(alarm)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : AbstractAlarm.Builder<Builder, AlarmImpl>() {
+  public class Builder : AbstractAlarm.Builder<Builder, AlarmImpl>() {
     protected override val selfTypeName: String
       get() = "Alarm.Builder"
 

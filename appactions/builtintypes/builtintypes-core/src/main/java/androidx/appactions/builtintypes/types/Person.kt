@@ -107,6 +107,7 @@ public interface Person : Thing {
 public abstract class AbstractPerson<
   Self : AbstractPerson<Self, Builder>, Builder : AbstractPerson.Builder<Builder, Self>>
 internal constructor(
+  public final override val namespace: String?,
   public final override val email: String?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
@@ -129,13 +130,20 @@ internal constructor(
   /** A copy-constructor that copies over properties from another [Person] instance. */
   public constructor(
     person: Person
-  ) : this(person.email, person.disambiguatingDescription, person.identifier, person.name)
+  ) : this(
+    person.namespace,
+    person.email,
+    person.disambiguatingDescription,
+    person.identifier,
+    person.name
+  )
 
   /** Returns a concrete [Builder] with the additional, non-[Person] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setNamespace(namespace)
       .setEmail(email)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
@@ -149,15 +157,26 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
+    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(email, disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(
+      email,
+      disambiguatingDescription,
+      identifier,
+      name,
+      namespace,
+      additionalProperties
+    )
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (namespace != null) {
+      attributes["namespace"] = namespace
+    }
     if (email != null) {
       attributes["email"] = email
     }
@@ -244,6 +263,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var namespace: String? = null
+
     private var email: String? = null
 
     private var disambiguatingDescription: DisambiguatingDescription? = null
@@ -263,7 +284,12 @@ internal constructor(
     @Suppress("BuilderSetStyle") protected abstract fun buildFromPerson(person: Person): Built
 
     public final override fun build(): Built =
-      buildFromPerson(PersonImpl(email, disambiguatingDescription, identifier, name))
+      buildFromPerson(PersonImpl(namespace, email, disambiguatingDescription, identifier, name))
+
+    public final override fun setNamespace(namespace: String?): Self {
+      this.namespace = namespace
+      return this as Self
+    }
 
     public final override fun setEmail(text: String?): Self {
       this.email = text
@@ -296,17 +322,28 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
+      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(email, disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(
+        email,
+        disambiguatingDescription,
+        identifier,
+        name,
+        namespace,
+        additionalProperties
+      )
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (namespace != null) {
+        attributes["namespace"] = namespace!!
+      }
       if (email != null) {
         attributes["email"] = email!!
       }
@@ -328,7 +365,7 @@ internal constructor(
   }
 }
 
-internal class PersonImpl : AbstractPerson<PersonImpl, PersonImpl.Builder> {
+private class PersonImpl : AbstractPerson<PersonImpl, PersonImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Person"
 
@@ -336,17 +373,18 @@ internal class PersonImpl : AbstractPerson<PersonImpl, PersonImpl.Builder> {
     get() = emptyMap()
 
   public constructor(
+    namespace: String?,
     email: String?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(email, disambiguatingDescription, identifier, name)
+  ) : super(namespace, email, disambiguatingDescription, identifier, name)
 
   public constructor(person: Person) : super(person)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : AbstractPerson.Builder<Builder, PersonImpl>() {
+  public class Builder : AbstractPerson.Builder<Builder, PersonImpl>() {
     protected override val selfTypeName: String
       get() = "Person.Builder"
 

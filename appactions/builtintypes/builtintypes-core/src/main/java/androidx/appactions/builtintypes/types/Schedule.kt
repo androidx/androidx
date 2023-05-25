@@ -347,6 +347,7 @@ public interface Schedule : Intangible {
 public abstract class AbstractSchedule<
   Self : AbstractSchedule<Self, Builder>, Builder : AbstractSchedule.Builder<Builder, Self>>
 internal constructor(
+  public final override val namespace: String?,
   public final override val byDays: List<ByDay>,
   public final override val byMonths: List<Long>,
   public final override val byMonthDays: List<Long>,
@@ -381,6 +382,7 @@ internal constructor(
   public constructor(
     schedule: Schedule
   ) : this(
+    schedule.namespace,
     schedule.byDays,
     schedule.byMonths,
     schedule.byMonthDays,
@@ -403,6 +405,7 @@ internal constructor(
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setNamespace(namespace)
       .addByDays(byDays)
       .addByMonths(byMonths)
       .addByMonthDays(byMonthDays)
@@ -438,6 +441,7 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
+    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
@@ -459,11 +463,15 @@ internal constructor(
       disambiguatingDescription,
       identifier,
       name,
+      namespace,
       additionalProperties
     )
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (namespace != null) {
+      attributes["namespace"] = namespace
+    }
     if (byDays.isNotEmpty()) {
       attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
     }
@@ -583,6 +591,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var namespace: String? = null
+
     private val byDays: MutableList<ByDay> = mutableListOf()
 
     private val byMonths: MutableList<Long> = mutableListOf()
@@ -626,6 +636,7 @@ internal constructor(
     public final override fun build(): Built =
       buildFromSchedule(
         ScheduleImpl(
+          namespace,
           byDays.toList(),
           byMonths.toList(),
           byMonthDays.toList(),
@@ -643,6 +654,11 @@ internal constructor(
           name
         )
       )
+
+    public final override fun setNamespace(namespace: String?): Self {
+      this.namespace = namespace
+      return this as Self
+    }
 
     public final override fun addByDay(byDay: ByDay): Self {
       byDays += byDay
@@ -781,6 +797,7 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
+      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
@@ -803,12 +820,16 @@ internal constructor(
         disambiguatingDescription,
         identifier,
         name,
+        namespace,
         additionalProperties
       )
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (namespace != null) {
+        attributes["namespace"] = namespace!!
+      }
       if (byDays.isNotEmpty()) {
         attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
       }
@@ -863,7 +884,7 @@ internal constructor(
   }
 }
 
-internal class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder> {
+private class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Schedule"
 
@@ -871,6 +892,7 @@ internal class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builde
     get() = emptyMap()
 
   public constructor(
+    namespace: String?,
     byDays: List<ByDay>,
     byMonths: List<Long>,
     byMonthDays: List<Long>,
@@ -887,6 +909,7 @@ internal class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builde
     identifier: String?,
     name: Name?,
   ) : super(
+    namespace,
     byDays,
     byMonths,
     byMonthDays,
@@ -908,7 +931,7 @@ internal class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builde
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : AbstractSchedule.Builder<Builder, ScheduleImpl>() {
+  public class Builder : AbstractSchedule.Builder<Builder, ScheduleImpl>() {
     protected override val selfTypeName: String
       get() = "Schedule.Builder"
 

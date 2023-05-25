@@ -108,6 +108,7 @@ public interface Timer : Thing {
 public abstract class AbstractTimer<
   Self : AbstractTimer<Self, Builder>, Builder : AbstractTimer.Builder<Builder, Self>>
 internal constructor(
+  public final override val namespace: String?,
   public final override val duration: Duration?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
@@ -130,13 +131,20 @@ internal constructor(
   /** A copy-constructor that copies over properties from another [Timer] instance. */
   public constructor(
     timer: Timer
-  ) : this(timer.duration, timer.disambiguatingDescription, timer.identifier, timer.name)
+  ) : this(
+    timer.namespace,
+    timer.duration,
+    timer.disambiguatingDescription,
+    timer.identifier,
+    timer.name
+  )
 
   /** Returns a concrete [Builder] with the additional, non-[Timer] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setNamespace(namespace)
       .setDuration(duration)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
@@ -150,15 +158,26 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
+    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(duration, disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(
+      duration,
+      disambiguatingDescription,
+      identifier,
+      name,
+      namespace,
+      additionalProperties
+    )
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (namespace != null) {
+      attributes["namespace"] = namespace
+    }
     if (duration != null) {
       attributes["duration"] = duration.toString()
     }
@@ -245,6 +264,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var namespace: String? = null
+
     private var duration: Duration? = null
 
     private var disambiguatingDescription: DisambiguatingDescription? = null
@@ -264,7 +285,12 @@ internal constructor(
     @Suppress("BuilderSetStyle") protected abstract fun buildFromTimer(timer: Timer): Built
 
     public final override fun build(): Built =
-      buildFromTimer(TimerImpl(duration, disambiguatingDescription, identifier, name))
+      buildFromTimer(TimerImpl(namespace, duration, disambiguatingDescription, identifier, name))
+
+    public final override fun setNamespace(namespace: String?): Self {
+      this.namespace = namespace
+      return this as Self
+    }
 
     public final override fun setDuration(duration: Duration?): Self {
       this.duration = duration
@@ -297,17 +323,28 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
+      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(duration, disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(
+        duration,
+        disambiguatingDescription,
+        identifier,
+        name,
+        namespace,
+        additionalProperties
+      )
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (namespace != null) {
+        attributes["namespace"] = namespace!!
+      }
       if (duration != null) {
         attributes["duration"] = duration!!.toString()
       }
@@ -329,7 +366,7 @@ internal constructor(
   }
 }
 
-internal class TimerImpl : AbstractTimer<TimerImpl, TimerImpl.Builder> {
+private class TimerImpl : AbstractTimer<TimerImpl, TimerImpl.Builder> {
   protected override val selfTypeName: String
     get() = "Timer"
 
@@ -337,17 +374,18 @@ internal class TimerImpl : AbstractTimer<TimerImpl, TimerImpl.Builder> {
     get() = emptyMap()
 
   public constructor(
+    namespace: String?,
     duration: Duration?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(duration, disambiguatingDescription, identifier, name)
+  ) : super(namespace, duration, disambiguatingDescription, identifier, name)
 
   public constructor(timer: Timer) : super(timer)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : AbstractTimer.Builder<Builder, TimerImpl>() {
+  public class Builder : AbstractTimer.Builder<Builder, TimerImpl>() {
     protected override val selfTypeName: String
       get() = "Timer.Builder"
 
