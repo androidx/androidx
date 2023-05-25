@@ -18,6 +18,7 @@
     <application>
         <activity
             android:name=".action.ActionTrampolineActivity"
+            android:excludeFromRecents="true"
             android:exported="false"
             android:enabled="true" />
         <activity
