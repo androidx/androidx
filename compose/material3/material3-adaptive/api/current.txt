@@ -54,6 +54,24 @@ package androidx.compose.material3.adaptive {
     property public final boolean isTabletop;
   }
 
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldArrangement {
+    ctor public ThreePaneScaffoldArrangement(androidx.compose.material3.adaptive.ThreePaneScaffoldRole firstPane, androidx.compose.material3.adaptive.ThreePaneScaffoldRole secondPane, androidx.compose.material3.adaptive.ThreePaneScaffoldRole thirdPane);
+    method public androidx.compose.material3.adaptive.ThreePaneScaffoldRole getFirstPane();
+    method public androidx.compose.material3.adaptive.ThreePaneScaffoldRole getSecondPane();
+    method public androidx.compose.material3.adaptive.ThreePaneScaffoldRole getThirdPane();
+    property public final androidx.compose.material3.adaptive.ThreePaneScaffoldRole firstPane;
+    property public final androidx.compose.material3.adaptive.ThreePaneScaffoldRole secondPane;
+    property public final androidx.compose.material3.adaptive.ThreePaneScaffoldRole thirdPane;
+  }
+
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum ThreePaneScaffoldRole {
+    method public static androidx.compose.material3.adaptive.ThreePaneScaffoldRole valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.material3.adaptive.ThreePaneScaffoldRole[] values();
+    enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Primary;
+    enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Secondary;
+    enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Tertiary;
+  }
+
   @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class WindowAdaptiveInfo {
     ctor public WindowAdaptiveInfo(androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass, androidx.compose.material3.adaptive.Posture posture);
     method public androidx.compose.material3.adaptive.Posture getPosture();
