@@ -155,7 +155,7 @@ public final class LifecycleCameraController extends CameraController {
     @SuppressWarnings("FutureReturnValueIgnored")
     void shutDownForTests() {
         if (mCameraProvider != null) {
-            mCameraProvider.shutdown();
+            mCameraProvider.shutdownAsync();
         }
     }
 }

@@ -3,7 +3,7 @@
 -keep class androidx.camera.integration.extensions.CameraExtensionsActivity {*;}
 
 -keepclassmembers class androidx.camera.lifecycle.ProcessCameraProvider {
-    ** shutdown();
+    ** shutdownAsync();
 }
 
 -keepclassmembers class androidx.camera.extensions.ExtensionsManager {
