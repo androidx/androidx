@@ -1067,6 +1067,84 @@ class SemanticsTests {
 
         assertNotEquals(oldId, newId)
     }
+
+    @Test
+    fun testSetTextSubstitution_annotatedString() {
+        rule.setContent {
+            Surface {
+                Text(
+                    AnnotatedString("hello"),
+                    Modifier
+                        .testTag(TestTag)
+                )
+            }
+        }
+
+        val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.SetTextSubstitution)?.action?.invoke(
+                AnnotatedString("bonjour"))
+        }
+
+        rule.waitForIdle()
+
+        var newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // SetTextSubstitution doesn't trigger text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("hello"))
+
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
+        }
+
+        rule.waitForIdle()
+
+        newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // ShowTextSubstitution triggers text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("bonjour"))
+        assertEquals(
+            AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
+    }
+
+    @Test
+    fun testSetTextSubstitution_simpleString() {
+        rule.setContent {
+            Surface {
+                Text(
+                    "hello",
+                    Modifier
+                        .testTag(TestTag)
+                )
+            }
+        }
+
+        val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.SetTextSubstitution)?.action?.invoke(
+                AnnotatedString("bonjour"))
+        }
+
+        rule.waitForIdle()
+
+        var newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // SetTextSubstitution doesn't trigger text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("hello"))
+
+        rule.runOnUiThread {
+            config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
+        }
+
+        rule.waitForIdle()
+
+        newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        // ShowTextSubstitution triggers text update
+        assertThat(newConfig.getOrNull(SemanticsProperties.Text))
+            .containsExactly(AnnotatedString("bonjour"))
+        assertEquals(
+            AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
+    }
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {

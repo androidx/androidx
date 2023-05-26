@@ -17,6 +17,9 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -44,7 +47,12 @@ import androidx.compose.ui.node.invalidateLayer
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearTextSubstitution
 import androidx.compose.ui.semantics.getTextLayoutResult
+import androidx.compose.ui.semantics.isShowingTextSubstitution
+import androidx.compose.ui.semantics.originalText
+import androidx.compose.ui.semantics.setTextSubstitution
+import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
@@ -96,6 +104,13 @@ internal class TextAnnotatedStringNode(
         }
 
     private fun getLayoutCache(density: Density): MultiParagraphLayoutCache {
+        textSubstitution?.let { textSubstitutionValue ->
+            if (textSubstitutionValue.isShowingSubstitution) {
+                textSubstitutionValue.layoutCache?.let { cache ->
+                    return cache.also { it.density = density }
+                }
+            }
+        }
         return layoutCache.also { it.density = density }
     }
 
@@ -118,6 +133,7 @@ internal class TextAnnotatedStringNode(
     fun updateText(text: AnnotatedString): Boolean {
         if (this.text == text) return false
         this.text = text
+        clearSubstitution()
         return true
     }
 
@@ -232,6 +248,56 @@ internal class TextAnnotatedStringNode(
 
     private var semanticsTextLayoutResult: ((MutableList<TextLayoutResult>) -> Boolean)? = null
 
+    data class TextSubstitutionValue(
+        val original: AnnotatedString,
+        var substitution: AnnotatedString,
+        var isShowingSubstitution: Boolean = false,
+        var layoutCache: MultiParagraphLayoutCache? = null,
+        // TODO(klikli): add animation
+    )
+
+    private var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
+
+    private fun setSubstitution(updatedText: AnnotatedString): Boolean {
+        val currentTextSubstitution = textSubstitution
+        if (currentTextSubstitution != null) {
+            if (updatedText == currentTextSubstitution.substitution) {
+                return false
+            }
+            currentTextSubstitution.substitution = updatedText
+            currentTextSubstitution.layoutCache?.update(
+                updatedText,
+                style,
+                fontFamilyResolver,
+                overflow,
+                softWrap,
+                maxLines,
+                minLines,
+                placeholders
+            ) ?: return false
+        } else {
+            val newTextSubstitution = TextSubstitutionValue(text, updatedText)
+            val substitutionLayoutCache = MultiParagraphLayoutCache(
+                updatedText,
+                style,
+                fontFamilyResolver,
+                overflow,
+                softWrap,
+                maxLines,
+                minLines,
+                placeholders
+            )
+            substitutionLayoutCache.density = layoutCache.density
+            newTextSubstitution.layoutCache = substitutionLayoutCache
+            textSubstitution = newTextSubstitution
+        }
+        return true
+    }
+
+    private fun clearSubstitution() {
+        textSubstitution = null
+    }
+
     override fun SemanticsPropertyReceiver.applySemantics() {
         var localSemanticsTextLayoutResult = semanticsTextLayoutResult
         if (localSemanticsTextLayoutResult == null) {
@@ -259,7 +325,47 @@ internal class TextAnnotatedStringNode(
             }
             semanticsTextLayoutResult = localSemanticsTextLayoutResult
         }
-        text = this@TextAnnotatedStringNode.text
+
+        val currentTextSubstitution = textSubstitution
+        if (currentTextSubstitution == null) {
+            text = this@TextAnnotatedStringNode.text
+        } else {
+            isShowingTextSubstitution = currentTextSubstitution.isShowingSubstitution
+            if (currentTextSubstitution.isShowingSubstitution) {
+                text = currentTextSubstitution.substitution
+                originalText = currentTextSubstitution.original
+            } else {
+                text = currentTextSubstitution.original
+            }
+        }
+
+        setTextSubstitution { updatedText ->
+            setSubstitution(updatedText)
+
+            true
+        }
+        showTextSubstitution {
+            if (textSubstitution == null) {
+                return@showTextSubstitution false
+            }
+
+            textSubstitution?.isShowingSubstitution = it
+
+            invalidateSemantics()
+            invalidateMeasurement()
+            invalidateDraw()
+
+            true
+        }
+        clearTextSubstitution {
+            clearSubstitution()
+
+            invalidateSemantics()
+            invalidateMeasurement()
+            invalidateDraw()
+
+            true
+        }
         getTextLayoutResult(action = localSemanticsTextLayoutResult)
     }
 
@@ -375,6 +481,7 @@ internal class TextAnnotatedStringNode(
     override fun ContentDrawScope.draw() {
         selectionController?.draw(this)
         drawIntoCanvas { canvas ->
+            val layoutCache = getLayoutCache(this)
             val textLayoutResult = layoutCache.textLayoutResult
             val localParagraph = textLayoutResult.multiParagraph
             val willClip = textLayoutResult.hasVisualOverflow && overflow != TextOverflow.Visible
