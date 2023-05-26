@@ -610,6 +610,16 @@ object Shell {
             .trim()
             .toIntOrNull()
     }
+
+    @RequiresApi(21)
+    fun isSELinuxEnforced(): Boolean {
+        return when (val value = executeScriptCaptureStdout("getenforce").trim()) {
+            "Permissive" -> false
+            "Disabled" -> false
+            "Enforcing" -> true
+            else -> throw IllegalStateException("unexpected result from getenforce: $value")
+        }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
