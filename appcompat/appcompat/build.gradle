@@ -32,7 +32,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
     implementation("androidx.profileinstaller:profileinstaller:1.2.1")
     implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
-    api("androidx.savedstate:savedstate:1.2.1")
+    api("androidx.savedstate:savedstate:1.2.0")
 
     // Due to experimental annotations used in core.
     compileOnly(libs.kotlinStdlib)
