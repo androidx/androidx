@@ -248,7 +248,7 @@ public class StreamSharing extends UseCase {
         mSharingInputEdge = getSharingInputEdge(mCameraEdge, camera);
 
         mSharingNode = new SurfaceProcessorNode(camera,
-                DefaultSurfaceProcessor.Factory.newInstance(streamSpec.getDynamicRange()));
+                DefaultSurfaceProcessor.Factory.newInstance());
 
         // Transform the input based on virtual camera configuration.
         Map<UseCase, SurfaceProcessorNode.OutConfig> outConfigMap =

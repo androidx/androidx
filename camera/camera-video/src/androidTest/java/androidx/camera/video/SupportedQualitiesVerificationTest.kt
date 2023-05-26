@@ -247,7 +247,7 @@ class SupportedQualitiesVerificationTest(
     }
 
     private fun createEffect(): CameraEffect {
-        val fakeSurfaceProcessor = DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR)
+        val fakeSurfaceProcessor = DefaultSurfaceProcessor.Factory.newInstance()
         surfaceProcessorsToRelease.add(fakeSurfaceProcessor)
         return FakeSurfaceEffect(
             VIDEO_CAPTURE,
