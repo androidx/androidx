@@ -16,7 +16,7 @@
 
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CancellationSignal
@@ -50,13 +50,13 @@ import org.json.JSONException
  * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePublicKeyCredentialController(private val activity: Activity) :
+class CredentialProviderCreatePublicKeyCredentialController(private val context: Context) :
         CredentialProviderController<
             CreatePublicKeyCredentialRequest,
             PublicKeyCredentialCreationOptions,
             PublicKeyCredential,
             CreateCredentialResponse,
-            CreateCredentialException>(activity) {
+            CreateCredentialException>(context) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -121,11 +121,11 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
         }
-        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent,
             CREATE_PUBLIC_KEY_CREDENTIAL_TAG)
-        activity.startActivity(hiddenIntent)
+        context.startActivity(hiddenIntent)
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
@@ -196,14 +196,14 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
          * [CredentialProviderCreatePublicKeyCredentialController] if it exists, otherwise
          * it generates a new instance.
          *
-         * @param activity the calling activity for this controller
+         * @param context the calling context for this controller
          * @return a credential provider controller for CreatePublicKeyCredential
          */
         @JvmStatic
-        fun getInstance(activity: Activity):
+        fun getInstance(context: Context):
             CredentialProviderCreatePublicKeyCredentialController {
             if (controller == null) {
-                controller = CredentialProviderCreatePublicKeyCredentialController(activity)
+                controller = CredentialProviderCreatePublicKeyCredentialController(context)
             }
             return controller!!
         }

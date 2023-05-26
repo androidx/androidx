@@ -17,6 +17,7 @@
 package androidx.credentials.playservices.controllers
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.os.CancellationSignal
 import androidx.credentials.CredentialManagerCallback
@@ -45,7 +46,7 @@ import java.util.concurrent.Executor
  */
 @Suppress("deprecation")
 abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
-    E1 : Any>(private val activity: Activity) : CredentialProviderBaseController(activity) {
+    E1 : Any>(private val context: Context) : CredentialProviderBaseController(context) {
 
     companion object {
 
