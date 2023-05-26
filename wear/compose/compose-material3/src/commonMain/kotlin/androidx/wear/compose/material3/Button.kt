@@ -803,8 +803,8 @@ object ButtonDefaults {
     fun outlinedButtonBorder(
         enabled: Boolean,
         borderColor: Color = MaterialTheme.colorScheme.outline,
-        disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
+        disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
         ),
         borderWidth: Dp = 1.dp
     ): BorderStroke {
@@ -853,18 +853,13 @@ object ButtonDefaults {
         contentColor: Color = contentColorFor(containerColor),
         secondaryContentColor: Color = contentColor,
         iconColor: Color = contentColor,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
+        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
         ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = ContentAlpha.disabled
-        ),
-        disabledSecondaryContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = ContentAlpha.disabled
-        ),
-        disabledIconColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = ContentAlpha.disabled
-        ),
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(),
+        disabledSecondaryContentColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(),
+        disabledIconColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,
