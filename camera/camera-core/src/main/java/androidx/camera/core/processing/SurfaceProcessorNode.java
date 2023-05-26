@@ -157,7 +157,7 @@ public class SurfaceProcessorNode implements
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/input.getRotationDegrees() - rotationDegrees,
-                // Once copied, the target rotation will no longer be useful.
+                // Once copied, the target rotation is no longer useful.
                 /*targetRotation*/ ROTATION_NOT_SPECIFIED,
                 /*mirroring=*/input.getMirroring() != mirroring);
 
@@ -250,7 +250,8 @@ public class SurfaceProcessorNode implements
                     rotationDegrees = -rotationDegrees;
                 }
                 rotationDegrees = within360(rotationDegrees);
-                output.getValue().updateTransformation(rotationDegrees);
+                // Once copied, the target rotation is no longer useful.
+                output.getValue().updateTransformation(rotationDegrees, ROTATION_NOT_SPECIFIED);
             }
         });
     }

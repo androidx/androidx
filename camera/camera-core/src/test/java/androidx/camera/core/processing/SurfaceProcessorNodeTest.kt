@@ -31,7 +31,6 @@ import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.StreamSpec
@@ -130,7 +129,7 @@ class SurfaceProcessorNodeTest {
                 false,
                 PREVIEW_CROP_RECT,
                 0,
-                ImageOutputConfig.ROTATION_NOT_SPECIFIED,
+                ROTATION_NOT_SPECIFIED,
                 false
             )
         )
@@ -160,7 +159,7 @@ class SurfaceProcessorNodeTest {
             true,
             PREVIEW_CROP_RECT,
             0,
-            ImageOutputConfig.ROTATION_NOT_SPECIFIED,
+            ROTATION_NOT_SPECIFIED,
             false
         )
         val outConfig = OutConfig.of(
