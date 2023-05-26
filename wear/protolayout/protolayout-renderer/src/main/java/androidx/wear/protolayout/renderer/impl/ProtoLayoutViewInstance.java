@@ -34,9 +34,11 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.collection.ArrayMap;
+import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
+import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.StateProto.State;
@@ -53,11 +55,14 @@ import androidx.wear.protolayout.renderer.inflater.RenderedMetadata;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers;
 import androidx.wear.protolayout.renderer.inflater.StandardResourceResolvers;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.SettableFuture;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -297,7 +302,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull private final Resources mRendererResources;
         @NonNull private final ResourceResolversProvider mResourceResolversProvider;
         @NonNull private final ProtoLayoutTheme mProtoLayoutTheme;
-        @Nullable private final SensorGateway mSensorGateway;
+
+        @NonNull
+        private final Map<PlatformDataProvider, Set<PlatformDataKey<?>>> mPlatformDataProviders;
+
         @Nullable private final StateStore mStateStore;
         @NonNull private final LoadActionListener mLoadActionListener;
         @NonNull private final ListeningExecutorService mUiExecutorService;
@@ -316,7 +324,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @NonNull Resources rendererResources,
                 @NonNull ResourceResolversProvider resourceResolversProvider,
                 @NonNull ProtoLayoutTheme protoLayoutTheme,
-                @Nullable SensorGateway sensorGateway,
+                @NonNull Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders,
                 @Nullable StateStore stateStore,
                 @NonNull LoadActionListener loadActionListener,
                 @NonNull ListeningExecutorService uiExecutorService,
@@ -332,7 +340,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mRendererResources = rendererResources;
             this.mResourceResolversProvider = resourceResolversProvider;
             this.mProtoLayoutTheme = protoLayoutTheme;
-            this.mSensorGateway = sensorGateway;
+            this.mPlatformDataProviders = platformDataProviders;
             this.mStateStore = stateStore;
             this.mLoadActionListener = loadActionListener;
             this.mUiExecutorService = uiExecutorService;
@@ -372,10 +380,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return mProtoLayoutTheme;
         }
 
-        /** Returns gateway for sensor data. */
-        @Nullable
-        public SensorGateway getSensorGateway() {
-            return mSensorGateway;
+        /** Returns the registered platform data providers. */
+        @NonNull
+        public Map<PlatformDataProvider, Set<PlatformDataKey<?>>> getPlatformDataProviders() {
+            return mPlatformDataProviders;
         }
 
         /** Returns state store. */
@@ -452,7 +460,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @Nullable private Resources mRendererResources;
             @Nullable private ResourceResolversProvider mResourceResolversProvider;
             @Nullable private ProtoLayoutTheme mProtoLayoutTheme;
-            @Nullable private SensorGateway mSensorGateway;
+
+            @NonNull
+            private final Map<PlatformDataProvider, Set<PlatformDataKey<?>>>
+                    mPlatformDataProviders = new ArrayMap<>();
+
             @Nullable private StateStore mStateStore;
             @Nullable private LoadActionListener mLoadActionListener;
             @NonNull private final ListeningExecutorService mUiExecutorService;
@@ -507,13 +519,13 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 return this;
             }
 
-            /**
-             * Sets the gateway for accessing sensor data. If not set, sensor data won't be
-             * accessible.
-             */
+            /** Adds a {@link PlatformDataProvider} for accessing {@code supportedKeys}. */
             @NonNull
-            public Builder setSensorGateway(@NonNull SensorGateway sensorGateway) {
-                this.mSensorGateway = sensorGateway;
+            public Builder addPlatformDataProvider(
+                    @NonNull PlatformDataProvider platformDataProvider,
+                    @NonNull PlatformDataKey<?>... supportedKeys) {
+                this.mPlatformDataProviders.put(
+                        platformDataProvider, ImmutableSet.copyOf(supportedKeys));
                 return this;
             }
 
@@ -614,7 +626,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mRendererResources,
                         mResourceResolversProvider,
                         mProtoLayoutTheme,
-                        mSensorGateway,
+                        mPlatformDataProviders,
                         mStateStore,
                         loadActionListener,
                         mUiExecutorService,
@@ -649,12 +661,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             mDataPipeline =
                     config.getAnimationEnabled()
                             ? new ProtoLayoutDynamicDataPipeline(
-                            config.getSensorGateway(),
+                                    config.getPlatformDataProviders(),
                                     stateStore,
                                     new FixedQuotaManagerImpl(config.getRunningAnimationsLimit()),
                                     new FixedQuotaManagerImpl(DYNAMIC_NODES_MAX_COUNT))
                             : new ProtoLayoutDynamicDataPipeline(
-                                    config.getSensorGateway(), stateStore);
+                                    config.getPlatformDataProviders(), stateStore);
             mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());
         } else {
             mDataPipeline = null;
@@ -818,9 +830,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         if (mRenderFuture == null) {
             mPrevLayout = layout;
             mRenderFuture =
-                    mBgExecutorService.submit(() ->
-                                            renderOrComputeMutations(
-                                                    layout, resources, prevRenderedMetadata));
+                    mBgExecutorService.submit(
+                            () ->
+                                    renderOrComputeMutations(
+                                            layout, resources, prevRenderedMetadata));
             mCanReattachWithoutRendering = false;
         }
         SettableFuture<Void> result = SettableFuture.create();

@@ -16,8 +16,12 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HEART_RATE_BPM;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -27,7 +31,7 @@ import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
-import androidx.wear.protolayout.expression.PlatformHealthSources;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -48,8 +52,13 @@ import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,9 +66,10 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class FloatNodeTest {
-
     private static final AppDataKey<DynamicFloat> KEY_FOO = new AppDataKey<>("foo");
-
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Mock private PlatformDataProvider mMockDataProvider;
     @Test
     public void fixedFloatNodesTest() {
         List<Float> results = new ArrayList<>();
@@ -130,17 +140,15 @@ public class FloatNodeTest {
 
     @Test
     public void stateFloatSource_canSubscribeToHeartRateUpdates() {
-        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
         PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
-                        PlatformHealthSources.Keys.HEART_RATE_BPM,
-                        new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM)));
+                        HEART_RATE_BPM,
+                        mMockDataProvider));
         StateFloatSource dailyStepsSource =
                 StateFloatSource.newBuilder()
-                        .setSourceKey(PlatformHealthSources.Keys.HEART_RATE_BPM.getKey())
+                        .setSourceKey(HEART_RATE_BPM.getKey())
                         .setSourceNamespace(
-                                PlatformHealthSources.Keys.HEART_RATE_BPM.getNamespace())
+                                HEART_RATE_BPM.getNamespace())
                         .build();
         List<Float> results = new ArrayList<>();
         StateFloatSourceNode dailyStepsSourceNode =
@@ -151,13 +159,20 @@ public class FloatNodeTest {
 
         dailyStepsSourceNode.preInit();
         dailyStepsSourceNode.init();
-        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+        ArgumentCaptor<PlatformDataReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(PlatformDataReceiver.class);
+        verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(70.0);
+        PlatformDataReceiver receiver = receiverCaptor.getValue();
+        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
+                DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
+
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70.0f);
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(80.0);
+        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
+                DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
+
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70.0f, 80.0f);
     }
