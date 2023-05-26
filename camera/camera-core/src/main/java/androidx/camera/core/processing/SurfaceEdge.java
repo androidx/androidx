@@ -30,6 +30,7 @@ import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
@@ -49,6 +50,7 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -104,6 +106,11 @@ public class SurfaceEdge {
     @CameraEffect.Targets
     private final int mTargets;
     private final StreamSpec mStreamSpec;
+
+    // Guarded by main thread.
+    @ImageOutputConfig.OptionalRotationValue
+    private int mTargetRotation;
+
     // Guarded by main thread.
     private int mRotationDegrees;
 
@@ -141,6 +148,7 @@ public class SurfaceEdge {
             boolean hasCameraTransform,
             @NonNull Rect cropRect,
             int rotationDegrees,
+            @ImageOutputConfig.OptionalRotationValue int targetRotation,
             boolean mirroring) {
         mTargets = targets;
         mFormat = format;
@@ -149,6 +157,7 @@ public class SurfaceEdge {
         mHasCameraTransform = hasCameraTransform;
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
+        mTargetRotation = targetRotation;
         mMirroring = mirroring;
         mSettableSurface = new SettableSurface(streamSpec.getResolution(), mFormat);
     }
@@ -461,21 +470,44 @@ public class SurfaceEdge {
     }
 
     /**
-     * Sets the rotation degrees.
+     * @see #updateTransformation(int, int)
+     */
+    public void updateTransformation(int rotationDegrees) {
+        updateTransformation(rotationDegrees, ROTATION_NOT_SPECIFIED);
+    }
+
+    /**
+     * Updates the transformation info.
      *
      * <p>If the surface provider is created via {@link #createSurfaceRequest(CameraInternal)}, the
      * returned SurfaceRequest will receive the rotation update by
      * {@link SurfaceRequest.TransformationInfoListener}.
+     *
+     * @param rotationDegrees the suggested clockwise rotation degrees of the buffer.
+     * @param targetRotation  the UseCase target rotation configured by the app. This value is
+     *                        needed if the SurfaceProvider is a TextureView without GL processing.
+     *                        TextureView will combine this value and the value in
+     *                        {@link SurfaceTexture#getTransformMatrix} to correct the output.
+     * @ TODO(b/284336967): allow setting the crop rect and propagate it to the SurfaceProcessor.
      */
-    public void setRotationDegrees(int rotationDegrees) {
+    public void updateTransformation(
+            int rotationDegrees,
+            @ImageOutputConfig.OptionalRotationValue int targetRotation) {
         // This method is not limited to the main thread because UseCase#setTargetRotation calls
         // this method and can be called from a background thread.
         runOnMain(() -> {
-            if (mRotationDegrees == rotationDegrees) {
-                return;
+            boolean isDirty = false;
+            if (mRotationDegrees != rotationDegrees) {
+                isDirty = true;
+                mRotationDegrees = rotationDegrees;
             }
-            mRotationDegrees = rotationDegrees;
-            notifyTransformationInfoUpdate();
+            if (mTargetRotation != targetRotation) {
+                isDirty = true;
+                mTargetRotation = targetRotation;
+            }
+            if (isDirty) {
+                notifyTransformationInfoUpdate();
+            }
         });
     }
 
@@ -483,9 +515,8 @@ public class SurfaceEdge {
     private void notifyTransformationInfoUpdate() {
         checkMainThread();
         if (mProviderSurfaceRequest != null) {
-            mProviderSurfaceRequest.updateTransformationInfo(
-                    TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED,
-                            hasCameraTransform()));
+            mProviderSurfaceRequest.updateTransformationInfo(TransformationInfo.of(
+                    mCropRect, mRotationDegrees, mTargetRotation, hasCameraTransform()));
         }
     }
 
