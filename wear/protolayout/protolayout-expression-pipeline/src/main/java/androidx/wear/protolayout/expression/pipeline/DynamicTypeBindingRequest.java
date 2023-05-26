@@ -17,6 +17,7 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import android.icu.util.ULocale;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -28,6 +29,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInstant;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Executor;

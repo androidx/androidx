@@ -16,46 +16,70 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import androidx.collection.SimpleArrayMap;
-import androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.time.Instant;
-import java.util.concurrent.Executor;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Utility for time data source. */
 class EpochTimePlatformDataSource {
-    private final Executor mUiExecutor;
-    private final TimeGateway mGateway;
-    private final SimpleArrayMap<
-            DynamicTypeValueReceiverWithPreUpdate<Instant>, TimeCallback>
-            mConsumerToTimeCallback = new SimpleArrayMap<>();
+    @NonNull private final MainThreadExecutor mExecutor = new MainThreadExecutor();
 
-    EpochTimePlatformDataSource(Executor uiExecutor, TimeGateway gateway) {
-        mUiExecutor = uiExecutor;
-        mGateway = gateway;
+    @NonNull final List<DynamicTypeValueReceiverWithPreUpdate<Instant>> mConsumerToTimeCallback =
+            new ArrayList<>();
+    @Nullable private final PlatformTimeUpdateNotifier mUpdateNotifier;
+
+    EpochTimePlatformDataSource(
+            @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier) {
+        this.mUpdateNotifier = platformTimeUpdateNotifier;
     }
 
-    public void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
-        TimeCallback timeCallback =
-                new TimeCallback() {
-                    @Override
-                    public void onPreUpdate() {
-                        consumer.onPreUpdate();
-                    }
-
-                    @Override
-                    public void onData() {
-                        consumer.onData(Instant.now());
-                    }
-                };
-        mGateway.registerForUpdates(mUiExecutor, timeCallback);
-        mConsumerToTimeCallback.put(consumer, timeCallback);
-    }
-
-    public void unregisterForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
-        TimeCallback timeCallback = mConsumerToTimeCallback.remove(consumer);
-        if (timeCallback != null) {
-            mGateway.unregisterForUpdates(timeCallback);
+    @UiThread
+    void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
+        if (mConsumerToTimeCallback.isEmpty() && mUpdateNotifier != null) {
+            mUpdateNotifier.setReceiver(this::tick);
         }
+        mConsumerToTimeCallback.add(consumer);
+    }
+
+    @UiThread
+    void unregisterForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
+        mConsumerToTimeCallback.remove(consumer);
+        if (mConsumerToTimeCallback.isEmpty() && mUpdateNotifier != null) {
+            mUpdateNotifier.clearReceiver();
+        }
+    }
+
+    /**
+     * Updates all registered consumers with the new time.
+     */
+    @SuppressWarnings("NullAway")
+    private ListenableFuture<Void> tick() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(() -> {
+                try {
+                    mConsumerToTimeCallback.forEach(
+                            DynamicTypeValueReceiverWithPreUpdate::onPreUpdate);
+                    Instant currentTime = Instant.now();
+                    mConsumerToTimeCallback.forEach(c -> c.onData(currentTime));
+                    completer.set(null);
+                } catch (RuntimeException e) {
+                    completer.setException(e);
+                }
+            });
+            return "EpochTImePlatformDataSource#tick";
+        });
+    }
+
+    @VisibleForTesting
+    int getRegisterConsumersCount() {
+        return mConsumerToTimeCallback.size();
     }
 }

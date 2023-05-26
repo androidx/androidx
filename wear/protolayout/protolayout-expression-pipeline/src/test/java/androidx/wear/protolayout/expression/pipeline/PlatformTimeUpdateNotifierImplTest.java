@@ -16,16 +16,16 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,108 +36,92 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.time.Duration;
-import java.util.concurrent.Executor;
+import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
-public class TimeGatewayImplTest {
-    @Rule public MockitoRule mMockRule = MockitoJUnit.rule();
+// For mocking the receiver.
+@SuppressWarnings("unchecked")
+public class PlatformTimeUpdateNotifierImplTest {
+    @Rule
+    public MockitoRule mMockRule = MockitoJUnit.rule();
 
     private final ShadowLooper mMainLooper = ShadowLooper.shadowMainLooper();
-    private final Handler mTestHandler = new Handler(Looper.getMainLooper());
-    private final Executor mImmediateExecutor = Runnable::run;
-    @Mock private TimeCallback mCallback;
 
-    private final TimeGatewayImpl mGatewayUnderTest = new TimeGatewayImpl(mTestHandler);
+    private final PlatformTimeUpdateNotifierImpl mNotifierUnderTest =
+            new PlatformTimeUpdateNotifierImpl();
+    @Mock private Callable<ListenableFuture<Void>> mTick;
+
 
     @Test
-    public void registerForUpdates_callsCallbackEverySecondWhenEnabled() {
-        mGatewayUnderTest.enableUpdates();
-        mGatewayUnderTest.registerForUpdates(mImmediateExecutor, mCallback);
+    public void registerForUpdates_callsCallbackEverySecondWhenEnabled() throws Exception {
+        mNotifierUnderTest.setUpdatesEnabled(true);
+        mNotifierUnderTest.setReceiver(mTick);
         mMainLooper.idle();
 
         // First callback to initialize clients
-        verify(mCallback).onPreUpdate();
-        verify(mCallback).onData();
-        reset(mCallback);
+        verify(mTick).call();
+        reset(mTick);
 
         for (int i = 0; i < 5; i++) {
             runFor(500);
-            verifyNoInteractions(mCallback);
+            verifyNoInteractions(mTick);
             runFor(500);
 
-            verify(mCallback).onPreUpdate();
-            verify(mCallback).onData();
-            reset(mCallback);
+            verify(mTick).call();
+            reset(mTick);
         }
     }
 
     @Test
     public void disableUpdates_stopsCallingCallback() {
-        mGatewayUnderTest.enableUpdates();
-        mGatewayUnderTest.registerForUpdates(mImmediateExecutor, mCallback);
+        mNotifierUnderTest.setUpdatesEnabled(true);
+        mNotifierUnderTest.setReceiver(mTick);
         mMainLooper.idle();
 
         // Run a little so it gets set up.
         runFor(2500);
-        reset(mCallback);
+        reset(mTick);
 
-        mGatewayUnderTest.disableUpdates();
+        mNotifierUnderTest.setUpdatesEnabled(false);
         runFor(1000);
 
-        verifyNoInteractions(mCallback);
+        verifyNoInteractions(mTick);
     }
 
     @Test
-    public void enableUpdates_reenablesCallback() {
-        mGatewayUnderTest.enableUpdates();
-        mGatewayUnderTest.registerForUpdates(mImmediateExecutor, mCallback);
+    public void enableUpdates_reenablesCallback() throws Exception {
+        mNotifierUnderTest.setUpdatesEnabled(true);
+        mNotifierUnderTest.setReceiver(mTick);
         mMainLooper.idle();
 
         // Run a little so it gets set up.
         runFor(2500);
-        reset(mCallback);
+        reset(mTick);
 
-        mGatewayUnderTest.disableUpdates();
+        mNotifierUnderTest.setUpdatesEnabled(false);
         runFor(1000);
 
-        mGatewayUnderTest.enableUpdates();
+        mNotifierUnderTest.setUpdatesEnabled(true);
         runFor(500);
-        verifyNoInteractions(mCallback);
+        verifyNoInteractions(mTick);
         runFor(500);
-        verify(mCallback).onPreUpdate();
-        verify(mCallback).onData();
+        verify(mTick).call();
     }
 
     @Test
-    public void close_stopsUpdates() throws Exception {
-        mGatewayUnderTest.enableUpdates();
-        mGatewayUnderTest.registerForUpdates(mImmediateExecutor, mCallback);
+    public void clearReceiver_stopsUpdates() {
+        mNotifierUnderTest.setUpdatesEnabled(true);
+        mNotifierUnderTest.setReceiver(mTick);
         mMainLooper.idle();
 
         // Run a little so it gets set up.
         runFor(2500);
-        reset(mCallback);
+        reset(mTick);
 
-        mGatewayUnderTest.close();
-
-        runFor(2000);
-        verifyNoInteractions(mCallback);
-    }
-
-    @Test
-    public void unregisterForUpdates() {
-        mGatewayUnderTest.enableUpdates();
-        mGatewayUnderTest.registerForUpdates(mImmediateExecutor, mCallback);
-        mMainLooper.idle();
-
-        // Run a little so it gets set up.
-        runFor(2500);
-        reset(mCallback);
-
-        mGatewayUnderTest.unregisterForUpdates(mCallback);
+        mNotifierUnderTest.clearReceiver();
 
         runFor(2000);
-        verifyNoInteractions(mCallback);
+        verifyNoInteractions(mTick);
     }
 
     @Test
@@ -154,14 +138,13 @@ public class TimeGatewayImplTest {
         // This means that we can fake this behaviour to simulate a "missed" call; just advance the
         // system clock, then call ShadowLooper#idle() to trigger any tasks that should have been
         // dispatched in that time.
-        mGatewayUnderTest.enableUpdates();
-        mGatewayUnderTest.registerForUpdates(mImmediateExecutor, mCallback);
+        mNotifierUnderTest.setUpdatesEnabled(true);
+        mNotifierUnderTest.setReceiver(mTick);
         mMainLooper.idle();
 
         // First callback to initialize clients
-        verify(mCallback).onPreUpdate();
-        verify(mCallback).onData();
-        reset(mCallback);
+        verify(mTick).call();
+        reset(mTick);
 
         // Advance by a few seconds...
         long advanceBy = 5500;
@@ -172,15 +155,29 @@ public class TimeGatewayImplTest {
 
         // The callback should have fired **once**, and another single callback scheduled in 500ms
         // time.
-        verify(mCallback).onPreUpdate();
-        verify(mCallback).onData();
+        verify(mTick).call();
 
-        reset(mCallback);
+        reset(mTick);
 
         runFor(500);
 
-        verify(mCallback).onPreUpdate();
-        verify(mCallback).onData();
+        verify(mTick).call();
+    }
+
+    @Test
+    public void attemptToSetMultipleReceivers_replacesFirstOne() throws Exception {
+        mNotifierUnderTest.setUpdatesEnabled(true);
+        mNotifierUnderTest.setReceiver(mTick);
+        mMainLooper.idle();
+
+        // First callback to initialize clients
+        verify(mTick).call();
+        reset(mTick);
+
+        mNotifierUnderTest.setReceiver(() -> null);
+
+        runFor(2000);
+        verifyNoInteractions(mTick);
     }
 
     private void runFor(long runMillis) {

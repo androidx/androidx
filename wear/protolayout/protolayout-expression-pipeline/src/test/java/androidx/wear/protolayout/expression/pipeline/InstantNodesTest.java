@@ -16,12 +16,10 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import static org.mockito.Mockito.mock;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
@@ -32,10 +30,7 @@ import org.junit.runner.RunWith;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class InstantNodesTest {
@@ -55,38 +50,17 @@ public class InstantNodesTest {
 
     @Test
     public void testPlatformTimeSourceNodeDestroy() {
-        FakeTimeGateway fakeTimeGateway = new FakeTimeGateway();
         EpochTimePlatformDataSource timeSource =
-                new EpochTimePlatformDataSource(
-                        ContextCompat.getMainExecutor(getApplicationContext()), fakeTimeGateway);
+                new EpochTimePlatformDataSource(mock(PlatformTimeUpdateNotifier.class));
         List<Instant> results = new ArrayList<>();
 
         PlatformTimeSourceNode node =
                 new PlatformTimeSourceNode(timeSource, new AddToListCallback<>(results));
         node.preInit();
         node.init();
-        assertThat(fakeTimeGateway.getNumRegisteredCallbacks()).isEqualTo(1);
+        assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(1);
 
         node.destroy();
-        assertThat(fakeTimeGateway.getNumRegisteredCallbacks()).isEqualTo(0);
-    }
-
-    private static class FakeTimeGateway implements TimeGateway {
-        private final Set<TimeCallback> mRegisteredCallbacks = new HashSet<>();
-
-        @Override
-        public void registerForUpdates(
-                @NonNull Executor executor, @NonNull TimeGateway.TimeCallback callback) {
-            mRegisteredCallbacks.add(callback);
-        }
-
-        @Override
-        public void unregisterForUpdates(@NonNull TimeGateway.TimeCallback callback) {
-            mRegisteredCallbacks.remove(callback);
-        }
-
-        public int getNumRegisteredCallbacks() {
-            return mRegisteredCallbacks.size();
-        }
+        assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(0);
     }
 }
