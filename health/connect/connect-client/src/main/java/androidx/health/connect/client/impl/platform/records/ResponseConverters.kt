@@ -32,12 +32,21 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
 import java.time.ZoneOffset
 
 fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
-    buildAggregationResult(metrics, ::get)
+    buildAggregationResult(
+        metrics,
+        ::get,
+        buildSet {
+            metrics.flatMapTo(hashSetOf()) { metric ->
+                getDataOrigins(metric.toAggregationType()).map { it.toSdkDataOrigin() }
+            }
+        }
+    )
 
 fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
     metrics: Set<AggregateMetric<Any>>
@@ -55,7 +64,8 @@ fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(metrics: Set<Aggr
 
 private fun buildAggregationResult(
     metrics: Set<AggregateMetric<Any>>,
-    aggregationValueGetter: (AggregationType<Any>) -> Any?
+    aggregationValueGetter: (AggregationType<Any>) -> Any?,
+    contributingDataOrigins: Set<DataOrigin> = emptySet()
 ): AggregationResult {
     val metricValueMap = buildMap {
         metrics.forEach { metric ->
@@ -65,7 +75,7 @@ private fun buildAggregationResult(
     return AggregationResult(
         getLongMetricValues(metricValueMap),
         getDoubleMetricValues(metricValueMap),
-        setOf()
+        contributingDataOrigins
     )
 }
 
