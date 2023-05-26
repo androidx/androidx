@@ -16,6 +16,7 @@ package androidx.webkit {
   }
 
   public abstract class JavaScriptReplyProxy {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(byte[]);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
 
@@ -123,10 +124,16 @@ package androidx.webkit {
   }
 
   public class WebMessageCompat {
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[]);
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat![]?);
     ctor public WebMessageCompat(String?);
     ctor public WebMessageCompat(String?, androidx.webkit.WebMessagePortCompat![]?);
+    method public byte[] getArrayBuffer();
     method public String? getData();
     method public androidx.webkit.WebMessagePortCompat![]? getPorts();
+    method public int getType();
+    field public static final int TYPE_ARRAY_BUFFER = 1; // 0x1
+    field public static final int TYPE_STRING = 0; // 0x0
   }
 
   public abstract class WebMessagePortCompat {
@@ -285,6 +292,7 @@ package androidx.webkit {
     field public static final String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final String TRACING_CONTROLLER_BASIC_USAGE = "TRACING_CONTROLLER_BASIC_USAGE";
     field public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+    field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
     field public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
     field public static final String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";
