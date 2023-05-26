@@ -109,7 +109,12 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     val initialItemOffsets: IntArray
 
     Snapshot.withoutReadObservation {
-        val firstVisibleIndices = state.scrollPosition.indices
+        // ensure scroll position is up to date
+        val firstVisibleIndices =
+            state.updateScrollPositionIfTheFirstItemWasMoved(
+                itemProvider,
+                state.scrollPosition.indices
+            )
         val firstVisibleOffsets = state.scrollPosition.offsets
 
         initialItemIndices =
@@ -181,13 +186,20 @@ internal class LazyStaggeredGridMeasureContext(
     val reverseLayout: Boolean,
     val mainAxisSpacing: Int,
 ) {
-    val measuredItemProvider = LazyStaggeredGridMeasureProvider(
+    val measuredItemProvider = object : LazyStaggeredGridMeasureProvider(
         isVertical = isVertical,
         itemProvider = itemProvider,
         measureScope = measureScope,
         resolvedSlots = resolvedSlots,
-    ) { index, lane, span, key, contentType, placeables ->
-        LazyStaggeredGridMeasuredItem(
+    ) {
+        override fun createItem(
+            index: Int,
+            lane: Int,
+            span: Int,
+            key: Any,
+            contentType: Any?,
+            placeables: List<Placeable>
+        ) = LazyStaggeredGridMeasuredItem(
             index = index,
             key = key,
             placeables = placeables,
@@ -751,13 +763,12 @@ private fun LazyStaggeredGridMeasureContext.measure(
         extraItemOffset = itemScrollOffsets[0]
         val extraItemsAfter = calculateExtraItems(
             position = {
-                val positionedItem = it.position(
+                it.position(
                     mainAxis = extraItemOffset,
                     crossAxis = 0,
                     mainAxisLayoutSize = mainAxisLayoutSize
                 )
                 extraItemOffset += it.sizeWithSpacings
-                positionedItem
             },
             filter = { itemIndex ->
                 if (itemIndex >= itemCount) {
@@ -775,7 +786,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             }
         )
 
-        val positionedItems = mutableListOf<LazyStaggeredGridPositionedItem>()
+        val positionedItems = mutableListOf<LazyStaggeredGridMeasuredItem>()
         positionedItems.addAll(extraItemsBefore)
         positionedItems.addAll(visibleItems)
         positionedItems.addAll(extraItemsAfter)
@@ -830,8 +841,8 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
     measuredItems: Array<ArrayDeque<LazyStaggeredGridMeasuredItem>>,
     itemScrollOffsets: IntArray,
     mainAxisLayoutSize: Int,
-): List<LazyStaggeredGridPositionedItem> {
-    val positionedItems = ArrayList<LazyStaggeredGridPositionedItem>(
+): List<LazyStaggeredGridMeasuredItem> {
+    val positionedItems = ArrayList<LazyStaggeredGridMeasuredItem>(
         measuredItems.sumOf { it.size }
     )
     while (measuredItems.any { it.isNotEmpty() }) {
@@ -853,14 +864,12 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
             // nothing to place, ignore spacings
             continue
         }
-
-        positionedItems +=
-            item.position(
-                mainAxis = mainAxisOffset,
-                crossAxis = crossAxisOffset,
-                mainAxisLayoutSize = mainAxisLayoutSize,
-                lane = laneIndex
-            )
+        item.position(
+            mainAxis = mainAxisOffset,
+            crossAxis = crossAxisOffset,
+            mainAxisLayoutSize = mainAxisLayoutSize,
+        )
+        positionedItems += item
         spanRange.forEach { lane ->
             itemScrollOffsets[lane] = mainAxisOffset + item.sizeWithSpacings
         }
@@ -870,10 +879,10 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
 
 @ExperimentalFoundationApi
 private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
-    position: (LazyStaggeredGridMeasuredItem) -> LazyStaggeredGridPositionedItem,
+    position: (LazyStaggeredGridMeasuredItem) -> Unit,
     filter: (itemIndex: Int) -> Boolean
-): List<LazyStaggeredGridPositionedItem> {
-    var result: MutableList<LazyStaggeredGridPositionedItem>? = null
+): List<LazyStaggeredGridMeasuredItem> {
+    var result: MutableList<LazyStaggeredGridMeasuredItem>? = null
 
     pinnedItems.fastForEach { index ->
         if (filter(index)) {
@@ -882,7 +891,8 @@ private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
                 result = mutableListOf()
             }
             val measuredItem = measuredItemProvider.getAndMeasure(index, spanRange)
-            result?.add(position(measuredItem))
+            position(measuredItem)
+            result?.add(measuredItem)
         }
     }
 
@@ -987,12 +997,11 @@ private fun LazyStaggeredGridMeasureContext.findPreviousItemIndex(item: Int, lan
     laneInfo.findPreviousItemIndex(item, lane)
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyStaggeredGridMeasureProvider(
+internal abstract class LazyStaggeredGridMeasureProvider(
     private val isVertical: Boolean,
     private val itemProvider: LazyStaggeredGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
-    private val resolvedSlots: LazyStaggeredGridSlots,
-    private val measuredItemFactory: MeasuredItemFactory,
+    private val resolvedSlots: LazyStaggeredGridSlots
 ) {
     private fun childConstraints(requestedSlot: Int, requestedSpan: Int): Constraints {
         val slotCount = resolvedSlots.sizes.size
@@ -1020,7 +1029,7 @@ internal class LazyStaggeredGridMeasureProvider(
         val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, childConstraints(span.start, span.size))
-        return measuredItemFactory.createItem(
+        return createItem(
             index,
             span.start,
             span.size,
@@ -1031,11 +1040,8 @@ internal class LazyStaggeredGridMeasureProvider(
     }
 
     val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
-}
 
-// This interface allows to avoid autoboxing on index param
-internal fun interface MeasuredItemFactory {
-    fun createItem(
+    abstract fun createItem(
         index: Int,
         lane: Int,
         span: Int,
@@ -1046,17 +1052,17 @@ internal fun interface MeasuredItemFactory {
 }
 
 internal class LazyStaggeredGridMeasuredItem(
-    val index: Int,
-    val key: Any,
+    override val index: Int,
+    override val key: Any,
     private val placeables: List<Placeable>,
-    private val isVertical: Boolean,
+    val isVertical: Boolean,
     spacing: Int,
-    val lane: Int,
+    override val lane: Int,
     val span: Int,
     private val beforeContentPadding: Int,
     private val afterContentPadding: Int,
-    private val contentType: Any?
-) {
+    override val contentType: Any?
+) : LazyStaggeredGridItemInfo {
     var isVisible = true
 
     val placeablesCount: Int get() = placeables.size
@@ -1073,63 +1079,40 @@ internal class LazyStaggeredGridMeasuredItem(
         if (isVertical) it.width else it.height
     } ?: 0
 
+    private var mainAxisLayoutSize: Int = Unset
+    private var minMainAxisOffset: Int = 0
+    private var maxMainAxisOffset: Int = 0
+
+    override val size: IntSize = if (isVertical) {
+        IntSize(crossAxisSize, mainAxisSize)
+    } else {
+        IntSize(mainAxisSize, crossAxisSize)
+    }
+    override var offset: IntOffset = IntOffset.Zero
+        private set
+
     fun position(
         mainAxis: Int,
         crossAxis: Int,
         mainAxisLayoutSize: Int,
-        lane: Int = 0
-    ): LazyStaggeredGridPositionedItem =
-        LazyStaggeredGridPositionedItem(
-            offset = if (isVertical) {
-                IntOffset(crossAxis, mainAxis)
-            } else {
-                IntOffset(mainAxis, crossAxis)
-            },
-            lane = lane,
-            index = index,
-            key = key,
-            size = if (isVertical) {
-                IntSize(crossAxisSize, mainAxisSize)
-            } else {
-                IntSize(mainAxisSize, crossAxisSize)
-            },
-            placeables = placeables,
-            isVertical = isVertical,
-            mainAxisLayoutSize = mainAxisLayoutSize,
-            minMainAxisOffset = -beforeContentPadding,
-            maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding,
-            span = span,
-            contentType = contentType
-        )
-}
-
-internal class LazyStaggeredGridPositionedItem(
-    override val offset: IntOffset,
-    override val index: Int,
-    override val lane: Int,
-    override val key: Any,
-    override val size: IntSize,
-    private val placeables: List<Placeable>,
-    val isVertical: Boolean,
-    private val mainAxisLayoutSize: Int,
-    private val minMainAxisOffset: Int,
-    private val maxMainAxisOffset: Int,
-    val span: Int,
-    override val contentType: Any?
-) : LazyStaggeredGridItemInfo {
-
-    val placeablesCount: Int get() = placeables.size
-
-    val mainAxisSize get() = if (isVertical) size.height else size.width
+    ) {
+        this.mainAxisLayoutSize = mainAxisLayoutSize
+        minMainAxisOffset = -beforeContentPadding
+        maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
+        offset = if (isVertical) {
+            IntOffset(crossAxis, mainAxis)
+        } else {
+            IntOffset(mainAxis, crossAxis)
+        }
+    }
 
     val crossAxisOffset get() = if (isVertical) offset.x else offset.y
-
-    fun getParentData(index: Int) = placeables[index].parentData
 
     fun place(
         scope: Placeable.PlacementScope,
         context: LazyStaggeredGridMeasureContext
     ) = with(context) {
+        require(mainAxisLayoutSize != Unset) { "position() should be called first" }
         with(scope) {
             placeables.fastForEachIndexed { index, placeable ->
                 val minOffset = minMainAxisOffset - placeable.mainAxisSize
@@ -1170,3 +1153,5 @@ internal class LazyStaggeredGridPositionedItem(
             super.toString()
         }
 }
+
+private const val Unset = Int.MIN_VALUE

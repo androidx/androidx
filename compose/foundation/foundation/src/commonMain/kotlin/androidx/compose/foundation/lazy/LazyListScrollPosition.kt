@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 
 /**
  * Contains the current scroll position represented by the first visible item index and the first
@@ -54,12 +53,8 @@ internal class LazyListScrollPosition(
             val scrollOffset = measureResult.firstVisibleItemScrollOffset
             check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
 
-            Snapshot.withoutReadObservation {
-                update(
-                    measureResult.firstVisibleItem?.index ?: 0,
-                    scrollOffset
-                )
-            }
+            val firstIndex = measureResult.firstVisibleItem?.index ?: 0
+            update(firstIndex, scrollOffset)
         }
     }
 
@@ -88,22 +83,18 @@ internal class LazyListScrollPosition(
      * as the first visible one even given that its index has been changed.
      */
     @ExperimentalFoundationApi
-    fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyListItemProvider) {
-        Snapshot.withoutReadObservation {
-            update(
-                itemProvider.findIndexByKey(lastKnownFirstItemKey, index),
-                scrollOffset
-            )
-        }
+    fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyListItemProvider,
+        index: Int
+    ): Int {
+        val newIndex = itemProvider.findIndexByKey(lastKnownFirstItemKey, index)
+        this.index = newIndex
+        return newIndex
     }
 
     private fun update(index: Int, scrollOffset: Int) {
         require(index >= 0f) { "Index should be non-negative ($index)" }
-        if (index != this.index) {
-            this.index = index
-        }
-        if (scrollOffset != this.scrollOffset) {
-            this.scrollOffset = scrollOffset
-        }
+        this.index = index
+        this.scrollOffset = scrollOffset
     }
 }

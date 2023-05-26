@@ -26,11 +26,10 @@ import androidx.compose.ui.unit.Constraints
  * Abstracts away the subcomposition from the measuring logic.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi constructor(
+internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi constructor(
     private val itemProvider: LazyGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
-    private val defaultMainAxisSpacing: Int,
-    private val measuredItemFactory: MeasuredItemFactory
+    private val defaultMainAxisSpacing: Int
 ) {
     /**
      * Used to subcompose individual items of lazy grids. Composed placeables will be measured
@@ -50,7 +49,7 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
             require(constraints.hasFixedHeight)
             constraints.minHeight
         }
-        return measuredItemFactory.createItem(
+        return createItem(
             index,
             key,
             contentType,
@@ -65,11 +64,8 @@ internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi construct
      * the list as an optimization.
      **/
     val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
-}
 
-// This interface allows to avoid autoboxing on index param
-internal fun interface MeasuredItemFactory {
-    fun createItem(
+    abstract fun createItem(
         index: Int,
         key: Any,
         contentType: Any?,
