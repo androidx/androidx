@@ -17,6 +17,8 @@
 package androidx.window.testing.layout
 
 import android.app.Activity
+import android.content.Context
+import androidx.annotation.UiContext
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +29,10 @@ internal class PublishLayoutInfoTracker(
 ) : WindowInfoTracker by core {
 
     override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {
+        return flow
+    }
+
+    override fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
         return flow
     }
 }
