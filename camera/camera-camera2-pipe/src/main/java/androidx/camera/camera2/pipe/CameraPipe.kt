@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.HandlerThread
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.CameraPipeComponent
 import androidx.camera.camera2.pipe.config.CameraPipeConfigModule
@@ -49,6 +50,7 @@ internal val cameraPipeIds = atomic(0)
  * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
  * the [CameraGraph] interface.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent =

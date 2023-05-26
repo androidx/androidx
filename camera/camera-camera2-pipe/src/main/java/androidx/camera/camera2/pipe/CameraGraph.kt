@@ -24,6 +24,7 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.SessionConfiguration
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior.Companion.OFF
@@ -37,6 +38,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
 
 /** A [CameraGraph] represents the combined configuration and state of a camera. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CameraGraph : AutoCloseable {
     val streams: StreamGraph
@@ -113,6 +115,7 @@ interface CameraGraph : AutoCloseable {
      * @param customCameraBackend If defined, this [customCameraBackend] will be created an used for
      *   _only_ this [CameraGraph]. This cannot be defined if [cameraBackendId] is defined.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     data class Config(
         val camera: CameraId,
         val streams: List<CameraStream.Config>,
@@ -145,6 +148,7 @@ interface CameraGraph : AutoCloseable {
      * camera2. These flags should default to the ideal behavior and should be overridden on
      * specific devices to be faster or to work around bad behavior.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
         val abortCapturesOnStop: Boolean = false,
@@ -268,6 +272,7 @@ interface CameraGraph : AutoCloseable {
      * While this object is thread-safe, it should not shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     interface Session : AutoCloseable {
         /**
          * Causes the CameraGraph to start or update the current repeating request with the provided
@@ -443,6 +448,7 @@ interface CameraGraph : AutoCloseable {
  * [GraphStateStarting], and [CameraGraph.stop] puts the graph into [GraphStateStopping]. Remaining
  * states are produced by the underlying camera as a result of these start/stop calls.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class GraphState internal constructor() {
     /**
      * When the [CameraGraph] is starting. This means we're in the process of opening a (virtual)
