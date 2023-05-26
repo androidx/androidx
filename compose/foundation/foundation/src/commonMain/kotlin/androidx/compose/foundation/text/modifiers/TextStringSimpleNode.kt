@@ -169,6 +169,7 @@ internal class TextStringSimpleNode(
     ) {
         if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
             if (isAttached) {
+                // isAttached check because invalidateSemantics will throw otherwise
                 invalidateSemantics()
             }
         }
@@ -184,6 +185,7 @@ internal class TextStringSimpleNode(
                 minLines = minLines
             )
             if (isAttached) {
+                // isAttached check because invalidateMeasurement will throw otherwise
                 invalidateMeasurement()
             }
             invalidateDraw()
