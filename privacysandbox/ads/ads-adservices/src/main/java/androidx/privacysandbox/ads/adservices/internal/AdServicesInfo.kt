@@ -16,7 +16,10 @@
 
 package androidx.privacysandbox.ads.adservices.internal
 
+import android.os.Build
 import android.os.ext.SdkExtensions
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 
 /**
  * Temporary replacement for BuildCompat.AD_SERVICES_EXTENSION_INT.
@@ -27,6 +30,17 @@ import android.os.ext.SdkExtensions
 internal object AdServicesInfo {
 
     fun version(): Int {
-        return SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        return if (Build.VERSION.SDK_INT >= 30) {
+            Extensions30Impl.getAdServicesVersion()
+        } else {
+            0
+        }
+    }
+
+    @RequiresApi(30)
+    private object Extensions30Impl {
+        @DoNotInline
+        fun getAdServicesVersion() =
+            SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
     }
 }
