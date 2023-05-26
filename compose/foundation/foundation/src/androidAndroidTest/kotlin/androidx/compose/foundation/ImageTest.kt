@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
@@ -40,12 +41,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -69,6 +72,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -651,6 +656,45 @@ class ImageTest {
                 for (j in height / 2 + 1 until height) {
                     assertEquals("invalid color at $i, $j", Color.Blue, pixelMap[i, j])
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testLoadWebpImage() {
+        val testTag = "imageTag"
+        var bitmapDrawable: BitmapDrawable? = null
+        rule.setContent {
+            bitmapDrawable = LocalContext.current.getDrawable(R.drawable.webp_test)
+                as BitmapDrawable
+            Image(
+                painter = painterResource(id = R.drawable.webp_test),
+                null,
+                contentScale = ContentScale.None,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .testTag(testTag)
+            )
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().apply {
+            val expectedDrawable = bitmapDrawable
+            if (expectedDrawable != null) {
+                val expectedBitmap = expectedDrawable.bitmap
+
+                assertNotNull(expectedBitmap)
+                assertEquals(expectedBitmap.width, width)
+                assertEquals(expectedBitmap.height, height)
+
+                val expectedPixelMap = expectedBitmap.asImageBitmap().toPixelMap()
+                val actualPixelMap = toPixelMap()
+                for (i in 0 until width) {
+                    for (j in 0 until height) {
+                        assertEquals(expectedPixelMap[i, j], actualPixelMap[i, j])
+                    }
+                }
+            } else {
+                fail("Unable to load expected webp asset")
             }
         }
     }
