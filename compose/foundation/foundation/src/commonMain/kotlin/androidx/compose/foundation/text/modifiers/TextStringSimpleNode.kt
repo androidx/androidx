@@ -184,7 +184,9 @@ internal class TextStringSimpleNode(
         layoutChanged: Boolean
     ) {
         if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            invalidateSemantics()
+            if (isAttached) {
+                invalidateSemantics()
+            }
         }
 
         if (textChanged || layoutChanged) {
@@ -197,7 +199,9 @@ internal class TextStringSimpleNode(
                 maxLines = maxLines,
                 minLines = minLines
             )
-            invalidateMeasurement()
+            if (isAttached) {
+                invalidateMeasurement()
+            }
             invalidateDraw()
         }
         if (drawChanged) {

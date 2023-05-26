@@ -224,7 +224,9 @@ internal class TextAnnotatedStringNode(
         callbacksChanged: Boolean
     ) {
         if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            invalidateSemantics()
+            if (isAttached) {
+                invalidateSemantics()
+            }
         }
 
         if (textChanged || layoutChanged || callbacksChanged) {
@@ -238,7 +240,9 @@ internal class TextAnnotatedStringNode(
                 minLines = minLines,
                 placeholders = placeholders
             )
-            invalidateMeasurement()
+            if (isAttached) {
+                invalidateMeasurement()
+            }
             invalidateDraw()
         }
         if (drawChanged) {

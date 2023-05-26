@@ -142,8 +142,16 @@ abstract class NodeInvalidationTestParent {
         assertThat(textChange).isFalse()
     }
 
+    @Test
+    fun updateDoesntCrash_whenNotattached() {
+        createSubject(generateParams()).invalidateAll()
+    }
+
     abstract fun Any.updateDrawArgs(drawParams: DrawParams): Boolean
     abstract fun Any.updateAll(params: Params): Pair<Boolean, Boolean>
+
+    abstract fun Any.invalidateAll()
+
     abstract fun createSubject(params: Params): Any
     abstract fun createSubject(params: Params, drawParams: DrawParams): Any
     private fun generateParams(): Params {
