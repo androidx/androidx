@@ -29,6 +29,7 @@ class ComposeIssueRegistry : IssueRegistry() {
     override val issues get(): List<Issue> {
         return listOf(
             ListIteratorDetector.ISSUE,
+            SteppedForLoopDetector.ISSUE,
             UnnecessaryLambdaCreationDetector.ISSUE,
         )
     }

@@ -553,10 +553,12 @@ class MultiParagraph(
                 )
                 paragraph.fillBoundingBoxes(finalRange, array, currentArrayStart)
                 val currentArrayEnd = currentArrayStart + finalRange.length * 4
-                for (arrayIndex in currentArrayStart until currentArrayEnd step 4) {
+                var arrayIndex = currentArrayStart
+                while (arrayIndex < currentArrayEnd) {
                     // update top and bottom
                     array[arrayIndex + 1] += currentHeight
                     array[arrayIndex + 3] += currentHeight
+                    arrayIndex += 4
                 }
                 currentArrayStart = currentArrayEnd
                 currentHeight += paragraphInfo.paragraph.height
