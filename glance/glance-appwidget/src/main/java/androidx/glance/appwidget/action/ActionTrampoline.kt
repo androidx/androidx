@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.StrictMode
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
@@ -42,7 +43,8 @@ private const val ActionTrampolineScheme = "glance-action"
 internal fun Intent.applyTrampolineIntent(
     translationContext: TranslationContext,
     viewId: Int,
-    type: ActionTrampolineType
+    type: ActionTrampolineType,
+    activityOptions: Bundle? = null,
 ): Intent {
     val target = if (type == ActionTrampolineType.ACTIVITY) {
         ActionTrampolineActivity::class.java
@@ -53,6 +55,7 @@ internal fun Intent.applyTrampolineIntent(
         intent.data = createUniqueUri(translationContext, viewId, type)
         intent.putExtra(ActionTypeKey, type.name)
         intent.putExtra(ActionIntentKey, this)
+        activityOptions?.let { intent.putExtra(ActivityOptionsKey, it) }
     }
 }
 
@@ -99,9 +102,10 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
     val type = requireNotNull(intent.getStringExtra(ActionTypeKey)) {
         "List adapter activity trampoline invoked without trampoline type"
     }
+    val activityOptions = intent.getBundleExtra(ActivityOptionsKey)
     allowUnsafeIntentLaunch {
         when (ActionTrampolineType.valueOf(type)) {
-            ActionTrampolineType.ACTIVITY -> startActivity(actionIntent)
+            ActionTrampolineType.ACTIVITY -> startActivity(actionIntent, activityOptions)
             ActionTrampolineType.BROADCAST, ActionTrampolineType.CALLBACK ->
                 sendBroadcast(actionIntent)
             ActionTrampolineType.SERVICE -> startService(actionIntent)
@@ -136,6 +140,7 @@ internal fun allowUnsafeIntentLaunch(block: () -> Unit) {
 
 private const val ActionTypeKey = "ACTION_TYPE"
 private const val ActionIntentKey = "ACTION_INTENT"
+private const val ActivityOptionsKey = "ACTIVITY_OPTIONS"
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object ListAdapterTrampolineApi26Impl {

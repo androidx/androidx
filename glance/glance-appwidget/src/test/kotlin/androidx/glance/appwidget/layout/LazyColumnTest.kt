@@ -16,6 +16,8 @@
 
 package androidx.glance.appwidget.layout
 
+import android.os.Bundle
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -245,6 +247,18 @@ class LazyColumnTest {
         val column = assertIs<EmittableLazyColumn>(root.children.single())
         assertThat(column.getTextAtChild(0)).isEqualTo("1 - Alice")
         assertThat(column.getTextAtChild(1)).isEqualTo("2 - Bob")
+    }
+
+    @OptIn(ExperimentalGlanceApi::class)
+    @Test
+    fun canTranslateActivityOptions() = fakeCoroutineScope.runTest {
+        val options = Bundle()
+        val root = runTestingComposition {
+            LazyColumn(activityOptions = options) {}
+        }
+
+        val column = assertIs<EmittableLazyColumn>(root.children.single())
+        assertThat(column.activityOptions).isSameInstanceAs(options)
     }
 
     private fun EmittableLazyColumn.getTextAtChild(index: Int): String =

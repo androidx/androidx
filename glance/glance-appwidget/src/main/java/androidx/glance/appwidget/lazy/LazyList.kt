@@ -16,10 +16,12 @@
 
 package androidx.glance.appwidget.lazy
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 import androidx.glance.layout.Alignment
@@ -48,6 +50,40 @@ fun LazyColumn(
         update = {
             this.set(modifier) { this.modifier = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
+        },
+        content = applyListScope(
+            Alignment(horizontalAlignment, Alignment.Vertical.CenterVertically),
+            content
+        )
+    )
+}
+
+/**
+ * A vertical scrolling list that only lays out the currently visible items. The [content] block
+ * defines a DSL which allows you to emit different list items.
+ *
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
+ * an activity start.
+ * @param modifier the modifier to apply to this layout
+ * @param horizontalAlignment the horizontal alignment applied to the items.
+ * @param content a block which describes the content. Inside this block you can use methods like
+ * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items. If the
+ * item has more than one top-level child, they will be automatically wrapped in a Box.
+ */
+@ExperimentalGlanceApi
+@Composable
+fun LazyColumn(
+    activityOptions: Bundle,
+    modifier: GlanceModifier = GlanceModifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    content: LazyListScope.() -> Unit
+) {
+    GlanceNode(
+        factory = ::EmittableLazyColumn,
+        update = {
+            this.set(modifier) { this.modifier = it }
+            this.set(horizontalAlignment) { this.horizontalAlignment = it }
+            this.set(activityOptions) { this.activityOptions = it }
         },
         content = applyListScope(
             Alignment(horizontalAlignment, Alignment.Vertical.CenterVertically),
@@ -244,10 +280,11 @@ inline fun <T> LazyListScope.itemsIndexed(
 internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: GlanceModifier = GlanceModifier
     var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var activityOptions: Bundle? = null
 
     override fun toString() =
         "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +
-            "children=[\n${childrenToString()}\n])"
+            "activityOptions=$activityOptions, children=[\n${childrenToString()}\n])"
 }
 
 internal class EmittableLazyListItem : EmittableWithChildren() {
@@ -275,6 +312,7 @@ internal class EmittableLazyColumn : EmittableLazyList() {
     override fun copy(): Emittable = EmittableLazyColumn().also {
         it.modifier = modifier
         it.horizontalAlignment = horizontalAlignment
+        it.activityOptions = activityOptions
         it.children.addAll(children.map { it.copy() })
     }
 }
