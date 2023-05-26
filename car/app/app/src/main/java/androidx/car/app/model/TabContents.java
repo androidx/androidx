@@ -18,8 +18,6 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -123,7 +121,6 @@ public class TabContents implements Content {
          * @throws NullPointerException     if {@code template} is null
          * @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
-        @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull Template template) {
             TabContentsConstraints.DEFAULT.validateOrThrow(requireNonNull(template));
             mTemplate = template;
