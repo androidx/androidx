@@ -218,8 +218,9 @@ fun FilledTonalIconButton(
  * @param shape Defines the icon button's shape. It is strongly recommended to use the default
  * as this shape is a key characteristic of the Wear Material3 design.
  * @param colors [IconButtonColors] that will be used to resolve the background and icon color for
- * this button in different states. See [IconButtonDefaults.outlinedIconButtonBorder].
- * @param border Optional [BorderStroke] for the icon button border.
+ * this button in different states. See [IconButtonDefaults.outlinedIconButtonColors].
+ * @param border Optional [BorderStroke] for the icon button border -
+ * [ButtonDefaults.outlinedButtonBorder] by default.
  * @param interactionSource The [MutableInteractionSource] representing the stream of
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
@@ -233,7 +234,7 @@ fun OutlinedIconButton(
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.outlinedIconButtonColors(),
-    border: BorderStroke? = IconButtonDefaults.outlinedIconButtonBorder(enabled),
+    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable BoxScope.() -> Unit,
 ) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
@@ -332,42 +333,16 @@ object IconButtonDefaults {
     fun iconButtonColors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
+        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
         ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = ContentAlpha.disabled
-        )
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): IconButtonColors = IconButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,
         disabledContainerColor = disabledContainerColor,
         disabledContentColor = disabledContentColor,
     )
-
-    /**
-     * Creates a [BorderStroke], such as for an [OutlinedIconButton]
-     *
-     * @param borderColor The color to use for the border for this outline when enabled
-     * @param disabledBorderColor The color to use for the border for this outline when
-     * disabled
-     * @param borderWidth The width to use for the border for this outline. It is strongly
-     * recommended to use the default width as this outline is a key characteristic
-     * of Wear Material3.
-     */
-    @Composable
-    fun outlinedIconButtonBorder(
-        enabled: Boolean,
-        borderColor: Color = MaterialTheme.colorScheme.outline,
-        disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.copy(
-            alpha = DisabledBorderAndContainerAlpha
-        ),
-        borderWidth: Dp = 1.dp
-    ): BorderStroke {
-        return remember {
-            BorderStroke(borderWidth, if (enabled) borderColor else disabledBorderColor)
-        }
-    }
 
     /**
      * The recommended size of an icon when used inside an icon button with size
