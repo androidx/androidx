@@ -107,6 +107,10 @@ android {
     namespace "androidx.camera.camera2.pipe.integration"
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
+
 kapt {
     javacOptions {
         option("-Adagger.fastInit=enabled")

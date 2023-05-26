@@ -87,4 +87,7 @@ tasks {
     }
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
 afterEvaluate { tasks.named("test") { it.dependsOn(tasks.named("publish")) } }
