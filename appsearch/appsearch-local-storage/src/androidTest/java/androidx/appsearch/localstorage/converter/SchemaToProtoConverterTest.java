@@ -127,7 +127,10 @@ public class SchemaToProtoConverterTest {
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setJoinableValueType(AppSearchSchema.StringPropertyConfig
                                 .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        // @exportToFramework:startStrip()
+                        // TODO(b/274157614) start exporting this when it is unhidden in framework
                         .setDeletionPropagation(true)
+                        // @exportToFramework:endStrip()
                         .build()
                 ).build();
 
