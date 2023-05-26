@@ -542,6 +542,14 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun PreviewParametersComposableTest() {
+        assertRendersCorrectly(
+            "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+            "PreviewParametersComposablePreview"
+        )
+    }
+
+    @Test
     fun previewInClass() {
         assertRendersCorrectly(
             "androidx.compose.ui.tooling.TestGroup",

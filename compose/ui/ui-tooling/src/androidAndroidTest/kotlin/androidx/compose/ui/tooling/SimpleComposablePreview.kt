@@ -29,6 +29,8 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -151,4 +153,18 @@ fun Multipreview() {
     Surface(color = Color.Red) {
         Text("Hello world")
     }
+}
+
+class TestContentParameterProviderBoolean : PreviewParameterProvider<Boolean> {
+    override val values: Sequence<Boolean>
+        get() = sequenceOf(false, true)
+}
+
+@Preview
+@Composable
+fun PreviewParametersComposablePreview(
+    @PreviewParameter(TestContentParameterProviderBoolean::class)
+    valueParameter: Boolean
+) {
+    Text(valueParameter.toString())
 }
