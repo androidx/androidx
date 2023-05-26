@@ -29,6 +29,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import java.lang.Math.abs
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
@@ -46,6 +48,11 @@ private const val DEBUG = false
 private const val TAG = "ContentInViewModifier"
 
 /**
+ * A minimum amount of delta that it is considered a valid scroll.
+ */
+private const val MinScrollThreshold = 0.5f
+
+/**
  * A [Modifier] to be placed on a scrollable container (i.e. [Modifier.scrollable]) that animates
  * the [ScrollableState] to handle [BringIntoViewRequester] requests and keep the currently-focused
  * child in view when the viewport shrinks.
@@ -57,7 +64,7 @@ internal class ContentInViewNode(
     private var orientation: Orientation,
     private var scrollState: ScrollableState,
     private var reverseDirection: Boolean,
-    private var bringIntoViewCalculator: BringIntoViewCalculator
+    private var bringIntoViewScroller: BringIntoViewScroller
 ) : Modifier.Node(), BringIntoViewResponder, LayoutAwareModifierNode {
 
     /**
@@ -94,7 +101,8 @@ internal class ContentInViewNode(
     /** The size of the scrollable container. */
     private var viewportSize = IntSize.Zero
     private var isAnimationRunning = false
-    private val animationState = UpdatableAnimationState()
+    private val animationState =
+        UpdatableAnimationState(bringIntoViewScroller.scrollAnimationSpec)
 
     override fun calculateRectForParent(localRect: Rect): Rect {
         check(viewportSize != IntSize.Zero) {
@@ -197,7 +205,7 @@ internal class ContentInViewNode(
                             )
                             val consumedScroll = scrollMultiplier * scrollBy(adjustedDelta)
                             if (DEBUG) println("[$TAG] Consumed $consumedScroll of scroll")
-                            if (consumedScroll < delta) {
+                            if (consumedScroll.absoluteValue < delta.absoluteValue) {
                                 // If the scroll state didn't consume all the scroll on this frame,
                                 // it probably won't consume any more later either (we might have
                                 // hit the scroll bounds). This is a terminal condition for the
@@ -291,13 +299,13 @@ internal class ContentInViewNode(
 
         val size = viewportSize.toSize()
         return when (orientation) {
-            Vertical -> bringIntoViewCalculator.calculateScrollDistance(
+            Vertical -> bringIntoViewScroller.calculateScrollDistance(
                 rectangleToMakeVisible.top,
                 rectangleToMakeVisible.bottom - rectangleToMakeVisible.top,
                 size.height
             )
 
-            Horizontal -> bringIntoViewCalculator.calculateScrollDistance(
+            Horizontal -> bringIntoViewScroller.calculateScrollDistance(
                 rectangleToMakeVisible.left,
                 rectangleToMakeVisible.right - rectangleToMakeVisible.left,
                 size.width
@@ -342,7 +350,9 @@ internal class ContentInViewNode(
      * already filling the whole viewport.
      */
     private fun Rect.isMaxVisible(size: IntSize = viewportSize): Boolean {
-        return relocationOffset(this, size) == Offset.Zero
+        val relocationOffset = relocationOffset(this, size)
+        return abs(relocationOffset.x) <= MinScrollThreshold &&
+            abs(relocationOffset.y) <= MinScrollThreshold
     }
 
     private fun relocationOffset(childBounds: Rect, containerSize: IntSize): Offset {
@@ -350,7 +360,7 @@ internal class ContentInViewNode(
         return when (orientation) {
             Vertical -> Offset(
                 x = 0f,
-                y = bringIntoViewCalculator.calculateScrollDistance(
+                y = bringIntoViewScroller.calculateScrollDistance(
                     childBounds.top,
                     childBounds.bottom - childBounds.top,
                     size.height
@@ -358,7 +368,7 @@ internal class ContentInViewNode(
             )
 
             Horizontal -> Offset(
-                x = bringIntoViewCalculator.calculateScrollDistance(
+                x = bringIntoViewScroller.calculateScrollDistance(
                     childBounds.left,
                     childBounds.right - childBounds.left,
                     size.width
@@ -382,12 +392,12 @@ internal class ContentInViewNode(
         orientation: Orientation,
         state: ScrollableState,
         reverseDirection: Boolean,
-        bringIntoViewCalculator: BringIntoViewCalculator
+        bringIntoViewScroller: BringIntoViewScroller
     ) {
         this.orientation = orientation
         this.scrollState = state
         this.reverseDirection = reverseDirection
-        this.bringIntoViewCalculator = bringIntoViewCalculator
+        this.bringIntoViewScroller = bringIntoViewScroller
     }
 
     /**

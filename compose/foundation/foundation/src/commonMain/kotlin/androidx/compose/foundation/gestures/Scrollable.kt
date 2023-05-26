@@ -16,21 +16,24 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.FocusedBoundsObserverNode
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.OverscrollEffect
+import androidx.compose.foundation.gestures.BringIntoViewScroller.Companion.DefaultBringIntoViewScroller
 import androidx.compose.foundation.gestures.Orientation.Horizontal
-import androidx.compose.foundation.gestures.ScrollableDefaults.bringIntoViewCalculator
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewResponderNode
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -147,7 +150,7 @@ fun Modifier.scrollable(
  * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
- * @param bringIntoViewCalculator The configuration that this scrollable should use to perform
+ * @param bringIntoViewScroller The configuration that this scrollable should use to perform
  * scrolling when scroll requests are received from the focus system.
  */
 @ExperimentalFoundationApi
@@ -159,7 +162,7 @@ fun Modifier.scrollable(
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null,
-    bringIntoViewCalculator: BringIntoViewCalculator = ScrollableDefaults.bringIntoViewCalculator()
+    bringIntoViewScroller: BringIntoViewScroller = ScrollableDefaults.bringIntoViewScroller()
 ) = this then ScrollableElement(
     state,
     orientation,
@@ -168,7 +171,7 @@ fun Modifier.scrollable(
     reverseDirection,
     flingBehavior,
     interactionSource,
-    bringIntoViewCalculator
+    bringIntoViewScroller
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -180,7 +183,7 @@ private class ScrollableElement(
     val reverseDirection: Boolean,
     val flingBehavior: FlingBehavior?,
     val interactionSource: MutableInteractionSource?,
-    val bringIntoViewCalculator: BringIntoViewCalculator
+    val bringIntoViewScroller: BringIntoViewScroller
 ) : ModifierNodeElement<ScrollableNode>() {
     override fun create(): ScrollableNode {
         return ScrollableNode(
@@ -191,7 +194,7 @@ private class ScrollableElement(
             reverseDirection,
             flingBehavior,
             interactionSource,
-            bringIntoViewCalculator
+            bringIntoViewScroller
         )
     }
 
@@ -204,7 +207,7 @@ private class ScrollableElement(
             reverseDirection,
             flingBehavior,
             interactionSource,
-            bringIntoViewCalculator
+            bringIntoViewScroller
         )
     }
 
@@ -216,7 +219,7 @@ private class ScrollableElement(
         result = 31 * result + reverseDirection.hashCode()
         result = 31 * result + flingBehavior.hashCode()
         result = 31 * result + interactionSource.hashCode()
-        result = 31 * result + bringIntoViewCalculator.hashCode()
+        result = 31 * result + bringIntoViewScroller.hashCode()
         return result
     }
 
@@ -232,7 +235,7 @@ private class ScrollableElement(
         if (reverseDirection != other.reverseDirection) return false
         if (flingBehavior != other.flingBehavior) return false
         if (interactionSource != other.interactionSource) return false
-        if (bringIntoViewCalculator != other.bringIntoViewCalculator) return false
+        if (bringIntoViewScroller != other.bringIntoViewScroller) return false
 
         return true
     }
@@ -246,7 +249,7 @@ private class ScrollableElement(
         properties["reverseDirection"] = reverseDirection
         properties["flingBehavior"] = flingBehavior
         properties["interactionSource"] = interactionSource
-        properties["scrollableBringIntoViewConfig"] = bringIntoViewCalculator
+        properties["scrollableBringIntoViewConfig"] = bringIntoViewScroller
     }
 }
 
@@ -259,7 +262,7 @@ private class ScrollableNode(
     private var reverseDirection: Boolean,
     private var flingBehavior: FlingBehavior?,
     private var interactionSource: MutableInteractionSource?,
-    bringIntoViewCalculator: BringIntoViewCalculator
+    bringIntoViewScroller: BringIntoViewScroller
 ) : DelegatingNode(), ObserverModifierNode, CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
 
@@ -288,7 +291,7 @@ private class ScrollableNode(
                 orientation,
                 state,
                 reverseDirection,
-                bringIntoViewCalculator
+                bringIntoViewScroller
             )
         )
     val scrollableContainer = delegate(ModifierLocalScrollableContainerProvider(enabled))
@@ -329,7 +332,7 @@ private class ScrollableNode(
         reverseDirection: Boolean,
         flingBehavior: FlingBehavior?,
         interactionSource: MutableInteractionSource?,
-        bringIntoViewCalculator: BringIntoViewCalculator
+        bringIntoViewScroller: BringIntoViewScroller
     ) {
 
         if (this.enabled != enabled) { // enabled changed
@@ -359,7 +362,7 @@ private class ScrollableNode(
             orientation,
             state,
             reverseDirection,
-            bringIntoViewCalculator
+            bringIntoViewScroller
         )
 
         this.state = state
@@ -396,7 +399,14 @@ private class ScrollableNode(
  * The configuration of how a scrollable reacts to bring into view requests.
  */
 @ExperimentalFoundationApi
-interface BringIntoViewCalculator {
+@Stable
+interface BringIntoViewScroller {
+
+    /**
+     * A retargetable Animation Spec to be used as the animation to run to fulfill the
+     * BringIntoView requests.
+     */
+    val scrollAnimationSpec: AnimationSpec<Float>
 
     /**
      * Calculate the offset needed to bring one of the scrollable container's child into view.
@@ -420,30 +430,39 @@ interface BringIntoViewCalculator {
         size: Float,
         containerSize: Float
     ): Float
-}
 
-@ExperimentalFoundationApi
-private val DefaultBringIntoViewCalculator = object : BringIntoViewCalculator {
+    companion object {
 
-    override fun calculateScrollDistance(
-        offset: Float,
-        size: Float,
-        containerSize: Float
-    ): Float {
-        val trailingEdge = offset + size
-        val leadingEdge = offset
-        return when {
+        /**
+         * The default animation spec used by [Modifier.scrollable] to run Bring Into View requests.
+         */
+        val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
 
-            // If the item is already visible, no need to scroll.
-            leadingEdge >= 0 && trailingEdge <= containerSize -> 0f
+        internal val DefaultBringIntoViewScroller = object : BringIntoViewScroller {
 
-            // If the item is visible but larger than the parent, we don't scroll.
-            leadingEdge < 0 && trailingEdge > containerSize -> 0f
+            override val scrollAnimationSpec: AnimationSpec<Float> = DefaultScrollAnimationSpec
 
-            // Find the minimum scroll needed to make one of the edges coincide with the parent's
-            // edge.
-            abs(leadingEdge) < abs(trailingEdge - containerSize) -> leadingEdge
-            else -> trailingEdge - containerSize
+            override fun calculateScrollDistance(
+                offset: Float,
+                size: Float,
+                containerSize: Float
+            ): Float {
+                val trailingEdge = offset + size
+                val leadingEdge = offset
+                return when {
+
+                    // If the item is already visible, no need to scroll.
+                    leadingEdge >= 0 && trailingEdge <= containerSize -> 0f
+
+                    // If the item is visible but larger than the parent, we don't scroll.
+                    leadingEdge < 0 && trailingEdge > containerSize -> 0f
+
+                    // Find the minimum scroll needed to make one of the edges coincide with the parent's
+                    // edge.
+                    abs(leadingEdge) < abs(trailingEdge - containerSize) -> leadingEdge
+                    else -> trailingEdge - containerSize
+                }
+            }
         }
     }
 }
@@ -501,11 +520,11 @@ object ScrollableDefaults {
     }
 
     /**
-     * A default implementation for [BringIntoViewCalculator] that brings a child into view
+     * A default implementation for [BringIntoViewScroller] that brings a child into view
      * using the least amount of effort.
      */
     @ExperimentalFoundationApi
-    fun bringIntoViewCalculator(): BringIntoViewCalculator = DefaultBringIntoViewCalculator
+    fun bringIntoViewScroller(): BringIntoViewScroller = DefaultBringIntoViewScroller
 }
 
 internal interface ScrollConfig {

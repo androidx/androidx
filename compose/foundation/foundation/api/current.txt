@@ -234,8 +234,16 @@ package androidx.compose.foundation {
 
 package androidx.compose.foundation.gestures {
 
-  @androidx.compose.foundation.ExperimentalFoundationApi public interface BringIntoViewCalculator {
+  @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface BringIntoViewScroller {
     method public float calculateScrollDistance(float offset, float size, float containerSize);
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getScrollAnimationSpec();
+    property public abstract androidx.compose.animation.core.AnimationSpec<java.lang.Float> scrollAnimationSpec;
+    field public static final androidx.compose.foundation.gestures.BringIntoViewScroller.Companion Companion;
+  }
+
+  public static final class BringIntoViewScroller.Companion {
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getDefaultScrollAnimationSpec();
+    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> DefaultScrollAnimationSpec;
   }
 
   public final class DragGestureDetectorKt {
@@ -306,7 +314,7 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class ScrollableDefaults {
-    method @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.gestures.BringIntoViewCalculator bringIntoViewCalculator();
+    method @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.gestures.BringIntoViewScroller bringIntoViewScroller();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior();
     method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public androidx.compose.foundation.OverscrollEffect overscrollEffect();
     method public boolean reverseDirection(androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.foundation.gestures.Orientation orientation, boolean reverseScrolling);
@@ -314,7 +322,7 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class ScrollableKt {
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier scrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.gestures.BringIntoViewCalculator bringIntoViewCalculator);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier scrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.gestures.BringIntoViewScroller bringIntoViewScroller);
     method public static androidx.compose.ui.Modifier scrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
