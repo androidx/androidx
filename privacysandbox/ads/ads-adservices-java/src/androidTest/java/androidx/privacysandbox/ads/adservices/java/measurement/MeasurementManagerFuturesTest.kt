@@ -53,6 +53,7 @@ import org.mockito.invocation.InvocationOnMock
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 30)
 class MeasurementManagerFuturesTest {
 
     @Before
@@ -61,7 +62,7 @@ class MeasurementManagerFuturesTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testMeasurementOlderVersions() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
@@ -277,6 +278,7 @@ class MeasurementManagerFuturesTest {
         assertThat(result.get() == state)
     }
 
+    @SdkSuppress(minSdkVersion = 30)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     companion object {
 
