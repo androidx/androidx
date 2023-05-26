@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsF
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
-import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeState3AControlCreator
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
@@ -450,7 +449,6 @@ class StillCaptureRequestTest {
             ),
             configAdapter = fakeConfigAdapter,
             state = fakeUseCaseCameraState,
-            threads = useCaseThreads,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
         )
         fakeUseCaseCamera = FakeUseCaseCamera(

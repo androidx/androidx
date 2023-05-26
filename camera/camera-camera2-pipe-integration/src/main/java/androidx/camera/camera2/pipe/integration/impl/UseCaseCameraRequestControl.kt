@@ -24,8 +24,6 @@ import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
-import androidx.camera.camera2.pipe.AfMode
-import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -50,7 +48,6 @@ import dagger.Module
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 
 internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
@@ -160,7 +157,6 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     private val configAdapter: CaptureConfigAdapter,
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
-    private val threads: UseCaseThreads,
     private val useCaseGraphConfig: UseCaseGraphConfig,
 ) : UseCaseCameraRequestControl {
     private val graph = useCaseGraphConfig.graph
@@ -342,52 +338,23 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             }
         }
 
-    private fun InfoBundle.updateCameraStateAsync(
-        streams: Set<StreamId>? = null,
-    ): Deferred<Unit> {
-        return threads.sequentialScope.async {
-            val implConfig = options.build().apply {
-                // TODO(wenhungteng@): Camera-pipe will provide a way to let clients override some
-                // of the 3A parameters, we may need to use that way instead of using
-                // CameraGraph.Session#update3A to control the 3A state.
-                update3A()
+    private fun InfoBundle.updateCameraStateAsync(streams: Set<StreamId>? = null): Deferred<Unit> {
+        capturePipeline.template =
+            if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
+                template!!.value
+            } else {
+                DEFAULT_REQUEST_TEMPLATE
             }
 
-            capturePipeline.template =
-                if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
-                    template!!.value
-                } else {
-                    DEFAULT_REQUEST_TEMPLATE
-                }
-
-            state.updateAsync(
-                parameters = implConfig.toParameters(),
-                appendParameters = false,
-                internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
-                appendInternalParameters = false,
-                streams = streams,
-                template = template,
-                listeners = listeners,
-            ).join()
-        }
-    }
-
-    private suspend fun Camera2ImplConfig.update3A() {
-        val aeMode = getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)?.let {
-            AeMode.fromIntOrNull(it)
-        }
-        val afMode = getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE)?.let {
-            AfMode.fromIntOrNull(it)
-        }
-        val awbMode = getCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE)?.let {
-            AwbMode.fromIntOrNull(it)
-        }
-
-        if (aeMode != null || afMode != null || awbMode != null) {
-            graph.acquireSession().use {
-                it.update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
-            }
-        }
+        return state.updateAsync(
+            parameters = options.build().toParameters(),
+            appendParameters = false,
+            internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
+            appendInternalParameters = false,
+            streams = streams,
+            template = template,
+            listeners = listeners,
+        )
     }
 
     @Module

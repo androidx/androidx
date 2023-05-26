@@ -117,7 +117,6 @@ class TestUseCaseCamera(
             }
         },
         state = UseCaseCameraState(useCaseCameraGraphConfig, threads),
-        threads = threads,
         useCaseGraphConfig = useCaseCameraGraphConfig,
     ).apply {
         SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
