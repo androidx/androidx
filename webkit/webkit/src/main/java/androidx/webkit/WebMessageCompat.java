@@ -36,12 +36,10 @@ public class WebMessageCompat {
     /**
      * Indicates the payload of WebMessageCompat is String.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TYPE_STRING = 0;
     /**
      * Indicates the payload of WebMessageCompat is JavaScript ArrayBuffer.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TYPE_ARRAY_BUFFER = 1;
     private final @Nullable WebMessagePortCompat[] mPorts;
     private final @Nullable String mString;
@@ -75,7 +73,6 @@ public class WebMessageCompat {
      *
      * @param arrayBuffer the array buffer data of the message.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public WebMessageCompat(@NonNull byte[] arrayBuffer) {
@@ -88,7 +85,6 @@ public class WebMessageCompat {
      * @param arrayBuffer the array buffer data of the message.
      * @param ports       the ports that are sent with the message.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public WebMessageCompat(@NonNull byte[] arrayBuffer,
@@ -102,26 +98,49 @@ public class WebMessageCompat {
 
     /**
      * Returns the payload type of the message.
+     *
      * @return the payload type of WebMessageCompat.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @Type int getType() {
         return mType;
     }
 
     /**
      * Returns the ArrayBuffer data of message. A ArrayBuffer or Transferable ArrayBuffer can be
-     * received from JavaScript.
+     * received from JavaScript. This should only be called when {@link #getType()} returns
+     * {@link #TYPE_ARRAY_BUFFER}. Example:
+     * <pre class="prettyprint">
+     * WebMessageCompat message = ... // The WebMessageCompat received or prepared.
+     * if (message.getType() == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+     *     byte[] arrayBuffer = message.getArrayBuffer();
+     *     // Access arrayBuffer data here.
+     * }
+     * </pre>
+     *
+     * @return ArrayBuffer payload data.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @Nullable byte[] getArrayBuffer() {
+    public @NonNull byte[] getArrayBuffer() {
+        checkType(TYPE_ARRAY_BUFFER);
+        // Required for null check. ArrayBuffer is always non-null when mType == TYPE_ARRAY_BUFFER.
+        Objects.requireNonNull(mArrayBuffer);
         return mArrayBuffer;
     }
 
     /**
-     * Returns the String data of the message.
+     * Returns the String data of the message. This should only be called when {@link #getType()}
+     * returns {@link #TYPE_STRING}. Example:
+     * <pre class="prettyprint">
+     * WebMessageCompat message = ... // The WebMessageCompat received or prepared.
+     * if (message.getType() == WebMessageCompat.TYPE_STRING) {
+     *     String string = message.getData();
+     *     // Access string data here.
+     * }
+     * </pre>
+     *
+     * @return String payload data.
      */
     public @Nullable String getData() {
+        checkType(TYPE_STRING);
         return mString;
     }
 
@@ -134,8 +153,27 @@ public class WebMessageCompat {
         return mPorts;
     }
 
+    private @NonNull String typeToString(@Type int type) {
+        switch (type) {
+            case TYPE_STRING:
+                return "String";
+            case TYPE_ARRAY_BUFFER:
+                return "ArrayBuffer";
+            default:
+                return "Unknown";
+        }
+    }
+
+    private void checkType(@Type int typeForGetter) {
+        if (typeForGetter != mType) {
+            throw new IllegalStateException("Wrong data accessor type detected. "
+                    + typeToString(mType) + " expected, but got " + typeToString(typeForGetter));
+        }
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef({TYPE_STRING, TYPE_ARRAY_BUFFER})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Type {}
+    public @interface Type {
+    }
 }

@@ -484,6 +484,19 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#POST_WEB_MESSAGE}.
      *
+     * <p>
+     * When posting a {@link WebMessageCompat} with type {@link WebMessageCompat#TYPE_ARRAY_BUFFER},
+     * this method should check if {@link WebViewFeature#isFeatureSupported(String)} returns true
+     * for {@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER}. Example:
+     * <pre class="prettyprint">
+     * if (message.getType() == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+     *     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER) {
+     *         // ArrayBuffer message is supported, send message here.
+     *         WebViewCompat.postWebMessage(webview, message, ...);
+     *     }
+     * }
+     * </pre
+     *
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
