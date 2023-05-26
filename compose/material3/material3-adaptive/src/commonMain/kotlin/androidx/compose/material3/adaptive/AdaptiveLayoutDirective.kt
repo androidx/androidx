@@ -16,7 +16,125 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+/**
+ * Calculates the standard [AdaptiveLayoutDirective] from a given [WindowAdaptiveInfo]. Use this
+ * method with [calculateWindowAdaptiveInfo] to acquire Material-recommended adaptive layout
+ * settings of the current activity window.
+ *
+ * See more details on the [Material design guideline site]
+ * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
+ *
+ * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
+ *                           layout adaptation decisions like [WindowSizeClass].
+ * @return an [AdaptiveLayoutDirective] to be used to decide adaptive layout states.
+ */
+// TODO(b/285144647): Add more details regarding the use scenarios of this function.
+@ExperimentalMaterial3AdaptiveApi
+fun calculateStandardAdaptiveLayoutDirective(
+    windowAdaptiveInfo: WindowAdaptiveInfo
+): AdaptiveLayoutDirective {
+    val maxHorizontalPartitions: Int
+    val gutterOuterVertical: Dp
+    val gutterInnerVertical: Dp
+    when (windowAdaptiveInfo.windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            maxHorizontalPartitions = 1
+            gutterOuterVertical = 16.dp
+            gutterInnerVertical = 0.dp
+        }
+        WindowWidthSizeClass.Medium -> {
+            maxHorizontalPartitions = 1
+            gutterOuterVertical = 24.dp
+            gutterInnerVertical = 0.dp
+        }
+        else -> {
+            maxHorizontalPartitions = 2
+            gutterOuterVertical = 24.dp
+            gutterInnerVertical = 24.dp
+        }
+    }
+    val maxVerticalPartitions: Int
+    val gutterInnerHorizontal: Dp
+
+    // TODO(conradchen): Confirm the table top mode settings
+    if (windowAdaptiveInfo.posture.isTabletop) {
+        maxVerticalPartitions = 2
+        gutterInnerHorizontal = 24.dp
+    } else {
+        maxVerticalPartitions = 1
+        gutterInnerHorizontal = 0.dp
+    }
+
+    return AdaptiveLayoutDirective(
+        maxHorizontalPartitions,
+        GutterSizes(
+            gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
+        ),
+        maxVerticalPartitions
+    )
+}
+
+/**
+ * Calculates the dense-mode [AdaptiveLayoutDirective] from a given [WindowAdaptiveInfo]. Use this
+ * method with [calculateWindowAdaptiveInfo] to acquire Material-recommended dense-mode adaptive
+ * layout settings of the current activity window.
+ *
+ * See more details on the [Material design guideline site]
+ * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
+ *
+ * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
+ *                           layout adaptation decisions like [WindowSizeClass].
+ * @return an [AdaptiveLayoutDirective] to be used to decide adaptive layout states.
+ */
+// TODO(b/285144647): Add more details regarding the use scenarios of this function.
+@ExperimentalMaterial3AdaptiveApi
+fun calculateDenseAdaptiveLayoutDirective(
+    windowAdaptiveInfo: WindowAdaptiveInfo
+): AdaptiveLayoutDirective {
+    val maxHorizontalPartitions: Int
+    val gutterOuterVertical: Dp
+    val gutterInnerVertical: Dp
+    when (windowAdaptiveInfo.windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            maxHorizontalPartitions = 1
+            gutterOuterVertical = 16.dp
+            gutterInnerVertical = 0.dp
+        }
+        WindowWidthSizeClass.Medium -> {
+            // TODO(conradchen): Confirm the outer gutter size
+            maxHorizontalPartitions = 2
+            gutterOuterVertical = 24.dp
+            gutterInnerVertical = 24.dp
+        }
+        else -> {
+            maxHorizontalPartitions = 2
+            gutterOuterVertical = 24.dp
+            gutterInnerVertical = 24.dp
+        }
+    }
+    val maxVerticalPartitions: Int
+    val gutterInnerHorizontal: Dp
+
+    if (windowAdaptiveInfo.posture.isTabletop) {
+        maxVerticalPartitions = 2
+        gutterInnerHorizontal = 24.dp
+    } else {
+        maxVerticalPartitions = 1
+        gutterInnerHorizontal = 0.dp
+    }
+
+    return AdaptiveLayoutDirective(
+        maxHorizontalPartitions,
+        GutterSizes(
+            gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
+        ),
+        maxVerticalPartitions
+    )
+}
 
 /**
  * Top-level directives about how an adaptive layout should be arranged and spaced, like how many
