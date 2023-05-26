@@ -18,19 +18,28 @@ package androidx.camera.extensions.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 
 /**
- * The version of CameraX extension releases.
+ * The client version of the Extensions-Interface that CameraX extension library uses.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class VersionName {
+public class ClientVersion {
     // Current version of vendor library implementation that the CameraX extension supports. This
     // needs to be increased along with the version of vendor library interface.
-    private static final VersionName CURRENT = new VersionName("1.3.0");
+    private static ClientVersion sCurrent = new ClientVersion("1.3.0");
 
     @NonNull
-    public static VersionName getCurrentVersion() {
-        return CURRENT;
+    public static ClientVersion getCurrentVersion() {
+        return sCurrent;
+    }
+
+    /**
+     * Overrides the client version for testing.
+     */
+    @VisibleForTesting
+    public static void setCurrentVersion(@NonNull ClientVersion clientVersion) {
+        sCurrent = clientVersion;
     }
 
     private final Version mVersion;
@@ -40,12 +49,24 @@ public class VersionName {
         return mVersion;
     }
 
-    public VersionName(@NonNull String versionString) {
+    public ClientVersion(@NonNull String versionString) {
         mVersion = Version.parse(versionString);
     }
 
-    VersionName(int major, int minor, int patch, String description) {
-        mVersion = Version.create(major, minor, patch, description);
+    /**
+     * Check if the client version meets the minimum compatible version requirement. This implies
+     * that the client version is equal to or newer than the version.
+     *
+     * <p> The compatible version is comprised of the major and minor version numbers. The patch
+     * number is ignored.
+     *
+     * @param version The minimum compatible version required
+     * @return True if the client version meets the minimum version requirement and False
+     * otherwise.
+     */
+    public static boolean isMinimumCompatibleVersion(@NonNull Version version) {
+        return ClientVersion.getCurrentVersion().mVersion
+                .compareTo(version.getMajor(), version.getMinor()) >= 0;
     }
 
     /**

@@ -203,6 +203,7 @@ class AdvancedSessionProcessorTest {
 
     @Test
     fun canInvokeStartTrigger() = runBlocking {
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3))
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
         val advancedSessionProcessor = AdvancedSessionProcessor(
             fakeSessionProcessImpl, emptyList(), context)

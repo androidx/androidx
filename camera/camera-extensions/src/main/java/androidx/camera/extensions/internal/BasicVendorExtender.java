@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Pair;
@@ -314,30 +315,46 @@ public class BasicVendorExtender implements VendorExtender {
 
     @NonNull
     private List<CaptureRequest.Key> getSupportedParameterKeys(Context context) {
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
+        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
             try {
                 List<CaptureRequest.Key> keys =
-                        Collections.unmodifiableList(
-                                mAvailableKeysRetriever.getAvailableCaptureRequestKeys(
-                                        mImageCaptureExtenderImpl,
-                                        mCameraId,
-                                        mCameraCharacteristics,
-                                        context));
-                if (keys == null) {
-                    keys = Collections.emptyList();
+                        mAvailableKeysRetriever.getAvailableCaptureRequestKeys(
+                                mImageCaptureExtenderImpl,
+                                mCameraId,
+                                mCameraCharacteristics,
+                                context);
+                if (keys != null) {
+                    return Collections.unmodifiableList(keys);
                 }
-                return keys;
             } catch (Exception e) {
                 // it could crash on some OEMs.
                 Logger.e(TAG, "ImageCaptureExtenderImpl.getAvailableCaptureRequestKeys "
                         + "throws exceptions", e);
-                return Collections.emptyList();
             }
+            return Collections.emptyList();
         } else {
             // For Basic Extender implementing v1.2 or below, we assume zoom/tap-to-focus/flash/EC
             // are supported for compatibility reason.
             return Collections.unmodifiableList(sBaseSupportedKeys);
         }
+    }
+
+    @NonNull
+    private List<CaptureResult.Key> getSupportedCaptureResultKeys() {
+        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+            try {
+                List<CaptureResult.Key> keys =
+                        mImageCaptureExtenderImpl.getAvailableCaptureResultKeys();
+                if (keys != null) {
+                    return Collections.unmodifiableList(keys);
+                }
+            } catch (Exception e) {
+                // it could crash on some OEMs.
+                Logger.e(TAG, "ImageCaptureExtenderImpl.getAvailableCaptureResultKeys "
+                        + "throws exceptions", e);
+            }
+        }
+        return Collections.emptyList();
     }
 
     @Nullable
@@ -347,6 +364,7 @@ public class BasicVendorExtender implements VendorExtender {
         return new BasicExtenderSessionProcessor(
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
                 getSupportedParameterKeys(context),
+                getSupportedCaptureResultKeys(),
                 context);
     }
 }

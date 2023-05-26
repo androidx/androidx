@@ -154,7 +154,7 @@ class BasicExtenderSessionProcessorTest(
         fakePreviewExtenderImpl = FakePreviewExtenderImpl(previewProcessorType)
         fakeCaptureExtenderImpl = FakeImageCaptureExtenderImpl(hasCaptureProcessor)
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
         )
     }
 
@@ -209,7 +209,7 @@ class BasicExtenderSessionProcessorTest(
             hasCaptureProcessor, throwErrorOnProcess = true
         )
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
         )
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
