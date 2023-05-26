@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.impl.task;
+package androidx.appactions.interaction.capabilities.core.impl;
 
 /**
  * Represents different operations possible in the Search/Update protocol.
  */
 public enum OperationType {
     /** Supports adding to a field of the target object, for example adding to a list. */
-    ADD("Add");
+    ADD_OPERATION("AddOperation"),
+    /**
+     * Supports incrementing the value of a field of the target object, for example incrementing
+     * the remaining duration of a timer.
+     */
+    INCREMENT_OPERATION("IncrementOperation"),
+    /**
+     * Supports overwriting a field of the target object, for example overwriting the name of an
+     * alarm.
+     */
+    OVERWRITE_OPERATION("OverwriteOperation");
 
     private final String mOperationType;
 
