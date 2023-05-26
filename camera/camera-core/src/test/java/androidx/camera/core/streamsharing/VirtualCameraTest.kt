@@ -37,6 +37,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.defaultEmptySessionConfig
 import androidx.camera.core.impl.StreamSpec
@@ -312,6 +313,7 @@ class VirtualCameraTest {
             hasCameraTransform,
             cropRect,
             rotationDegrees,
+            ROTATION_NOT_SPECIFIED,
             mirroring
         ).also { surfaceEdgesToClose.add(it) }
     }

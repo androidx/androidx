@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
@@ -156,6 +157,8 @@ public class SurfaceProcessorNode implements
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/input.getRotationDegrees() - rotationDegrees,
+                // Once copied, the target rotation will no longer be useful.
+                /*targetRotation*/ ROTATION_NOT_SPECIFIED,
                 /*mirroring=*/input.getMirroring() != mirroring);
 
         return outputSurface;
@@ -247,7 +250,7 @@ public class SurfaceProcessorNode implements
                     rotationDegrees = -rotationDegrees;
                 }
                 rotationDegrees = within360(rotationDegrees);
-                output.getValue().setRotationDegrees(rotationDegrees);
+                output.getValue().updateTransformation(rotationDegrees);
             }
         });
     }

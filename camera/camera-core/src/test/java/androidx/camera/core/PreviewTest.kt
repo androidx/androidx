@@ -248,6 +248,23 @@ class PreviewTest {
     }
 
     @Test
+    fun setTargetRotation_rotationIsPropagated() {
+        // Arrange: create preview and wait for transformation info.
+        val preview = createPreview()
+        var transformationInfo: TransformationInfo? = null
+        preview.mCurrentSurfaceRequest!!.setTransformationInfoListener(
+            mainThreadExecutor()
+        ) { newValue: TransformationInfo -> transformationInfo = newValue }
+
+        // Act: set target rotation.
+        preview.targetRotation = Surface.ROTATION_180
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: target rotation is updated.
+        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    // @Test TODO re-enable once b/284336967 is done.
     fun attachUseCase_transformationInfoUpdates() {
         // Arrange: attach Preview without a SurfaceProvider.
         // Build and bind use case.

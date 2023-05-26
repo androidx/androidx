@@ -180,7 +180,7 @@ public final class Preview extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic accessor
     SessionConfig.Builder mSessionConfigBuilder;
 
     // TODO(b/259308680): remove mSessionDeferrableSurface and rely on mCameraEdge to get the
@@ -194,11 +194,6 @@ public final class Preview extends UseCase {
     @VisibleForTesting
     @Nullable
     SurfaceRequest mCurrentSurfaceRequest;
-
-    // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
-    // createPipeline().
-    @Nullable
-    private Size mSurfaceSize;
 
     @Nullable
     private SurfaceProcessorNode mNode;
@@ -242,6 +237,7 @@ public final class Preview extends UseCase {
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 getRelativeRotation(camera, isMirroringRequired(camera)),
+                getAppTargetRotation(),
                 shouldMirror(camera));
 
         CameraEffect effect = getEffect();
@@ -394,21 +390,11 @@ public final class Preview extends UseCase {
         // TODO(b/159659392): only send transformation after CameraCaptureCallback
         //  .onCaptureCompleted is called.
         CameraInternal cameraInternal = getCamera();
-        SurfaceProvider surfaceProvider = mSurfaceProvider;
-        Rect cropRect = getCropRect(mSurfaceSize);
-        SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        if (cameraInternal != null && surfaceProvider != null && cropRect != null
-                && surfaceRequest != null) {
-            if (mNode == null) {
-                surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
-                        cropRect,
-                        getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)),
-                        getAppTargetRotation(),
-                        cameraInternal.getHasTransform()));
-            } else {
-                mCameraEdge.setRotationDegrees(
-                        getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)));
-            }
+        SurfaceEdge cameraEdge = mCameraEdge;
+        if (cameraInternal != null && cameraEdge != null) {
+            cameraEdge.updateTransformation(
+                    getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)),
+                    getAppTargetRotation());
         }
     }
 
@@ -612,7 +598,6 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        mSurfaceSize = suggestedStreamSpec.getResolution();
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
                 suggestedStreamSpec);
         return suggestedStreamSpec;
@@ -632,7 +617,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY)
@@ -674,7 +658,7 @@ public final class Preview extends UseCase {
      * <p>This is just the frame rate range requested by the user, and may not necessarily be
      * equal to the range the camera is actually operating at.
      *
-     *  @return the target frame rate range of this Preview.
+     * @return the target frame rate range of this Preview.
      */
     @NonNull
     public Range<Integer> getTargetFrameRate() {

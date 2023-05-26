@@ -496,14 +496,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     private void sendTransformationInfoIfReady() {
         CameraInternal cameraInternal = getCamera();
-        SurfaceRequest surfaceRequest = mSurfaceRequest;
-        Rect cropRect = mCropRect;
         SurfaceEdge cameraEdge = mCameraEdge;
-        if (cameraInternal != null && surfaceRequest != null && cropRect != null
-                && cameraEdge != null) {
+        if (cameraInternal != null && cameraEdge != null) {
             int relativeRotation = getRelativeRotation(cameraInternal,
                     isMirroringRequired(cameraInternal));
-            cameraEdge.setRotationDegrees(relativeRotation);
+            cameraEdge.updateTransformation(relativeRotation);
         }
     }
 
@@ -589,6 +586,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 camera.getHasTransform(),
                 mCropRect,
                 getRelativeRotation(camera, isMirroringRequired(camera)),
+                getAppTargetRotation(),
                 shouldMirror(camera));
         mCameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
         if (mNode != null) {

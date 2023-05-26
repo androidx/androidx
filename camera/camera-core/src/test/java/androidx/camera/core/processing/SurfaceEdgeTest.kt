@@ -34,6 +34,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -77,7 +78,8 @@ class SurfaceEdgeTest {
     fun setUp() {
         surfaceEdge = SurfaceEdge(
             PREVIEW, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-            StreamSpec.builder(INPUT_SIZE).build(), Matrix(), true, Rect(), 0, false
+            StreamSpec.builder(INPUT_SIZE).build(), Matrix(), true, Rect(), 0,
+            ROTATION_NOT_SPECIFIED, false
         )
         fakeSurfaceTexture = SurfaceTexture(0)
         fakeSurface = Surface(fakeSurfaceTexture)
@@ -145,6 +147,7 @@ class SurfaceEdgeTest {
             true,
             Rect(),
             0,
+            ROTATION_NOT_SPECIFIED,
             false
         )
         assertThat(edge.streamSpec).isEqualTo(FRAME_SPEC)
@@ -342,6 +345,7 @@ class SurfaceEdgeTest {
             hasCameraTransform,
             Rect(),
             0,
+            ROTATION_NOT_SPECIFIED,
             false
         )
         var transformationInfo: TransformationInfo? = null
@@ -515,7 +519,7 @@ class SurfaceEdgeTest {
         }
 
         // Act.
-        surfaceEdge.rotationDegrees = 90
+        surfaceEdge.updateTransformation(90)
         shadowOf(getMainLooper()).idle()
 
         // Assert.
