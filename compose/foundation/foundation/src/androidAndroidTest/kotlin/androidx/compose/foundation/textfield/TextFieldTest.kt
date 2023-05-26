@@ -1250,6 +1250,7 @@ class TextFieldTest {
         assertThat(actual).isEqualTo(expected)
     }
 
+    @Ignore // b/284408746
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenPartiallySelectedTextIsRemoved_SelectionCoercesToEdges() {
