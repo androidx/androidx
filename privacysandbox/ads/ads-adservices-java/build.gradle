@@ -49,9 +49,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 30
-    }
     compileSdk = 33
     compileSdkExtension = 5
     namespace "androidx.privacysandbox.ads.adservices.java"
