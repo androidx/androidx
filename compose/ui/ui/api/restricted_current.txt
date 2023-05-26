@@ -3024,6 +3024,10 @@ package androidx.compose.ui.res {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static int integerResource(@IntegerRes int id);
   }
 
+  public final class ResourceResolutionException extends java.lang.RuntimeException {
+    ctor public ResourceResolutionException(String message, Throwable cause);
+  }
+
   public final class StringResources_androidKt {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static String pluralStringResource(@PluralsRes int id, int count);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static String pluralStringResource(@PluralsRes int id, int count, java.lang.Object... formatArgs);
