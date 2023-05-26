@@ -132,7 +132,7 @@ class PreviewProcessorTest {
             backgroundHandler
         )
 
-        previewProcessor.start()
+        previewProcessor.start { _, _ -> }
 
         imageReaderYuv.setOnImageAvailableListener({
             val image = it.acquireNextImage()
@@ -166,7 +166,7 @@ class PreviewProcessorTest {
             backgroundHandler
         )
 
-        previewProcessor.start()
+        previewProcessor.start { _, _ -> }
 
         imageReaderYuv.setOnImageAvailableListener({
             val image = it.acquireNextImage()

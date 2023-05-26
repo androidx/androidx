@@ -39,9 +39,7 @@ class ExtensionVersionMinimumCompatibleTest(private val config: TestConfig) {
     @Before
     @Throws(NoSuchFieldException::class, IllegalAccessException::class)
     fun setUp() {
-        val field = VersionName::class.java.getDeclaredField("CURRENT")
-        field.isAccessible = true
-        field[null] = VersionName(config.targetVersion)
+        ClientVersion.setCurrentVersion(ClientVersion(config.targetVersion))
     }
 
     @After
