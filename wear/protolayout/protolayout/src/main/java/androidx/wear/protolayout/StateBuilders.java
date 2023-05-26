@@ -57,7 +57,7 @@ public final class StateBuilders {
 
     /**
      * Returns the maximum number for state entries that can be added to the {@link State} using
-     * {@link Builder#addKeyToValueMapping(AppDataKey<?>, StateEntryValue)}.
+     * {@link Builder#addKeyToValueMapping(AppDataKey, DynamicDataValue)}.
      *
      * <p>The ProtoLayout state model is not designed to handle large volumes of layout provided
      * state. So we limit the number of state entries to keep the on-the-wire size and state
@@ -149,6 +149,8 @@ public final class StateBuilders {
       /**
        * Adds an entry into any shared state between the provider and renderer.
        *
+       * @throws IllegalStateException if adding the new key/value will make the state larger
+       * than the allowed limit ({@link #getMaxStateEntryCount()}).
        * @since 1.2
        */
       @SuppressLint("MissingGetterMatchingBuilder")
@@ -156,6 +158,12 @@ public final class StateBuilders {
       public Builder addKeyToValueMapping(
               @NonNull AppDataKey<?> sourceKey,
               @NonNull DynamicDataValue value) {
+        if (mImpl.getIdToValueMap().size() >= getMaxStateEntryCount()) {
+          throw new IllegalStateException(
+                  String.format(
+                          "Can't add more entries to the state. It is already at its "
+                                  + "maximum allowed size of %d.", getMaxStateEntryCount()));
+        }
         mImpl.putIdToValue(sourceKey.getKey(), value.toDynamicDataValueProto());
         mFingerprint.recordPropertyUpdate(
                 sourceKey.getKey().hashCode(),
@@ -163,7 +171,11 @@ public final class StateBuilders {
         return this;
       }
 
-      /** Builds an instance from accumulated values. */
+      /** Builds an instance from accumulated values.
+       *
+       * @throws IllegalStateException if number of key/value pairs are greater than
+       * {@link #getMaxStateEntryCount()}.
+       */
       @NonNull
       public State build() {
         if (mImpl.getIdToValueMap().size() > getMaxStateEntryCount()) {
