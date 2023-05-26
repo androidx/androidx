@@ -16,13 +16,14 @@
 
 package androidx.kruth
 
-internal data class FailureMetadata(
-    val messagesToPrepend: List<String> = emptyList(),
-) {
+import kotlin.test.assertEquals
+import kotlin.test.fail
 
-    fun withMessage(messageToPrepend: String): FailureMetadata =
-        copy(messagesToPrepend = messagesToPrepend + messageToPrepend)
-
-    fun formatMessage(vararg messages: String?): String =
-        (messagesToPrepend + messages.filterNotNull()).joinToString(separator = "\n")
+internal fun assertFailsWithMessage(message: String, block: () -> Unit) {
+    try {
+        block()
+        fail("Expected to fail but didn't")
+    } catch (e: AssertionError) {
+        assertEquals(expected = message, actual = e.message)
+    }
 }
