@@ -1168,7 +1168,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class GridTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getHeaderAction();
     method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemImageShape();
     method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemSize();
@@ -1184,7 +1184,7 @@ package androidx.car.app.model {
 
   public static final class GridTemplate.Builder {
     ctor public GridTemplate.Builder();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.GridTemplate.Builder addAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.GridTemplate build();
     method public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
@@ -1253,7 +1253,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class ListTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionedLists();
     method public androidx.car.app.model.ItemList? getSingleList();
@@ -1264,7 +1264,7 @@ package androidx.car.app.model {
 
   public static final class ListTemplate.Builder {
     ctor public ListTemplate.Builder();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.ListTemplate.Builder addAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.ListTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
     method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder clearSectionedLists();
