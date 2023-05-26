@@ -223,11 +223,11 @@ public class Person extends Thing {
     /**
      * Returns an external uri for this {@link Person}. Or {@code null} if no {@link Uri} is
      * provided. A {@link Uri} can be any of the following:
-     *
+     * <ul>
      * <li>A {@link android.provider.ContactsContract.Contacts#CONTENT_LOOKUP_URI}.
      * <li>A {@code mailto:} schema*
      * <li>A {@code tel:} schema*
-     *
+     * </ul>
      * <p>For mailto: and tel: URI schemes, it is recommended that the path portion
      * refers to a valid contact in the Contacts Provider.
      */
@@ -417,11 +417,11 @@ public class Person extends Thing {
         /**
          * Sets an external {@link Uri} for this {@link Person}. Or {@code null} if no
          * {@link Uri} is provided. A {@link Uri} can be any of the following:
-         *
+         * <ul>
          * <li>A {@link android.provider.ContactsContract.Contacts#CONTENT_LOOKUP_URI}.
          * <li>A {@code mailto:} schema*
          * <li>A {@code tel:} schema*
-         *
+         * </ul>
          * <p>For mailto: and tel: URI schemes, it is recommended that the path
          * portion refers to a valid contact in the Contacts Provider.
          */

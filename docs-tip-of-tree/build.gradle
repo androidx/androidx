@@ -28,6 +28,8 @@ dependencies {
     docs(project(":appcompat:appcompat"))
     docs(project(":appcompat:appcompat-resources"))
     docs(project(":appsearch:appsearch"))
+    docs(project(":appsearch:appsearch-builtin-types"))
+    docs(project(":appsearch:appsearch-platform-storage"))
     docs(project(":appsearch:appsearch-local-storage"))
     docs(project(":arch:core:core-common"))
     docs(project(":arch:core:core-runtime"))
