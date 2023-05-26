@@ -341,8 +341,10 @@ constructor(
             }
         }
 
-    override fun hasRepeatingRequest() = synchronized(lock) {
-        currentRepeatingRequest != null || repeatingQueue.isNotEmpty()
+    override fun hasRepeatingRequest() = synchronized(tryStartRepeatingExecutionLock) {
+        synchronized(lock) {
+            currentRepeatingRequest != null || repeatingQueue.isNotEmpty()
+        }
     }
 
     override fun invalidate() {
