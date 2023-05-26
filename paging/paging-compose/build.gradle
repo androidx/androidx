@@ -45,7 +45,6 @@ dependencies {
 androidx {
     name = "Paging-Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()
