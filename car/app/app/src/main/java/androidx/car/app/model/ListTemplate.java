@@ -140,7 +140,6 @@ public final class ListTemplate implements Template {
      *
      * @see ListTemplate.Builder#addAction(Action)
      */
-    @ExperimentalCarApi
     @NonNull
     @RequiresCarApi(6)
     public List<Action> getActions() {
@@ -385,7 +384,6 @@ public final class ListTemplate implements Template {
          *                                  background {@link CarColor}, or if exceeds the
          *                                  maximum number of allowed actions (1) for the template.
          */
-        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {
