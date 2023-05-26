@@ -51,6 +51,7 @@ android {
                                 "-Wl,--version-script=${versionScript}"
             }
         }
+        consumerProguardFiles 'proguard-rules.pro'
     }
     externalNativeBuild {
         cmake {

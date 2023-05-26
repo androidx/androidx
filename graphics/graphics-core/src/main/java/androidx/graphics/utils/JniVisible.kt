@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef ANDROIDX_BUFFER_TRANSFORM_HINT_RESOLVER_H
-#define ANDROIDX_BUFFER_TRANSFORM_HINT_RESOLVER_H
+package androidx.graphics.utils
 
-jint loadBufferTransformHintResolverMethods(JNIEnv* env);
-
-#endif //ANDROIDX_BUFFER_TRANSFORM_HINT_RESOLVER_H
+/**
+ * Annotation used to indicate that a class, method or field is referenced by
+ * JNI and should be exempt from code obfuscation tools (ex. proguard/r8)
+ */
+internal annotation class JniVisible()

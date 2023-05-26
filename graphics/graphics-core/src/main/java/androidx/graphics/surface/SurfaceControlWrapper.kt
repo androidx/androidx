@@ -23,25 +23,33 @@ import android.os.Build
 import android.view.Surface
 import android.view.SurfaceControl
 import androidx.annotation.RequiresApi
+import androidx.graphics.utils.JniVisible
 import androidx.hardware.SyncFenceV19
 import java.util.concurrent.Executor
 
+@JniVisible
 internal class JniBindings {
     companion object {
         @JvmStatic
+        @JniVisible
         external fun nCreate(surfaceControl: Long, debugName: String): Long
         @JvmStatic
+        @JniVisible
         external fun nCreateFromSurface(surface: Surface, debugName: String): Long
         @JvmStatic
+        @JniVisible
         external fun nRelease(surfaceControl: Long)
         @JvmStatic
-
+        @JniVisible
         external fun nTransactionCreate(): Long
         @JvmStatic
+        @JniVisible
         external fun nTransactionDelete(surfaceTransaction: Long)
         @JvmStatic
+        @JniVisible
         external fun nTransactionApply(surfaceTransaction: Long)
         @JvmStatic
+        @JniVisible
         external fun nTransactionReparent(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -49,23 +57,27 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
             listener: SurfaceControlCompat.TransactionCompletedListener
         )
 
         @JvmStatic
+        @JniVisible
         external fun nTransactionSetOnCommit(
             surfaceTransaction: Long,
             listener: SurfaceControlCompat.TransactionCommittedListener
         )
 
         @JvmStatic
+        @JniVisible
         external fun nDupFenceFd(
             syncFence: SyncFenceV19
         ): Int
 
         @JvmStatic
+        @JniVisible
         external fun nSetBuffer(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -74,6 +86,7 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetGeometry(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -85,6 +98,7 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetVisibility(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -92,8 +106,10 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetZOrder(surfaceTransaction: Long, surfaceControl: Long, zOrder: Int)
         @JvmStatic
+        @JniVisible
         external fun nSetDamageRegion(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -101,12 +117,14 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetDesiredPresentTime(
             surfaceTransaction: Long,
             desiredPresentTime: Long
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetBufferTransparency(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -114,6 +132,7 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetBufferAlpha(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -121,6 +140,7 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetCrop(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -131,6 +151,7 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetPosition(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -139,6 +160,7 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetScale(
             surfaceTransaction: Long,
             surfaceControl: Long,
@@ -147,11 +169,16 @@ internal class JniBindings {
         )
 
         @JvmStatic
+        @JniVisible
         external fun nSetBufferTransform(
             surfaceTransaction: Long,
             surfaceControl: Long,
             transformation: Int
         )
+
+        @JvmStatic
+        @JniVisible
+        external fun nGetDisplayOrientation(): String
 
         init {
             System.loadLibrary("graphics-core")
