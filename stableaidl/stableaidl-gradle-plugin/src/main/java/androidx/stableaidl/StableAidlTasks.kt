@@ -80,7 +80,7 @@ fun registerCompileAidlApi(
     depImports: List<FileCollection>,
     outputDir: Provider<Directory>
 ): TaskProvider<StableAidlCompile> = project.tasks.register(
-    computeTaskName("compile", variant, "AidlApi"),
+    computeTaskName("compile", variant),
     StableAidlCompile::class.java
 ) { task ->
     task.group = TASK_GROUP_API
@@ -142,7 +142,7 @@ fun registerPackageAidlApi(
     variant: Variant,
     compileAidlApiTask: TaskProvider<StableAidlCompile>
 ): TaskProvider<StableAidlPackageApi> = project.tasks.register(
-    computeTaskName("package", variant, "AidlApi"),
+    computeTaskName("package", variant),
     StableAidlPackageApi::class.java
 ) { task ->
     task.packagedDir.set(compileAidlApiTask.flatMap { it.packagedDir })
@@ -166,7 +166,7 @@ fun registerGenerateAidlApi(
     builtApiDir: Provider<Directory>,
     compileAidlApiTask: Provider<StableAidlCompile>
 ): TaskProvider<StableAidlCompile> = project.tasks.register(
-    computeTaskName("generate", variant, "AidlApi"),
+    computeTaskName("generate", variant),
     StableAidlCompile::class.java
 ) { task ->
     task.group = TASK_GROUP_API
@@ -187,37 +187,6 @@ fun registerGenerateAidlApi(
     task.dependsOn(compileAidlApiTask)
 }
 
-// Policy: If the artifact has previously been released, e.g. has a beta or later API file
-// checked in, then we must verify "release compatibility" against the work-in-progress
-// API file.
-fun registerCheckApiAidlRelease(
-    project: Project,
-    variant: Variant,
-    aidlExecutable: Provider<RegularFile>,
-    aidlFramework: Provider<RegularFile>,
-    importsDir: SourceDirectories.Flat,
-    depImports: List<FileCollection>,
-    lastReleasedApiDir: Directory,
-    generateAidlTask: Provider<StableAidlCompile>
-): TaskProvider<StableAidlCheckApi> = project.tasks.register(
-    computeTaskName("check", variant, "AidlApiRelease"),
-    StableAidlCheckApi::class.java
-) { task ->
-    task.group = TASK_GROUP_API
-    task.description = "Checks the AIDL source code API surface against the " +
-        "stabilized AIDL API files"
-    task.variantName = variant.name
-    task.aidlExecutable.set(aidlExecutable)
-    task.aidlFrameworkProvider.set(aidlFramework)
-    task.importDirs.set(importsDir.all)
-    depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
-    task.checkApiMode.set(StableAidlCheckApi.MODE_COMPATIBLE)
-    task.expectedApiDir.set(lastReleasedApiDir)
-    task.actualApiDir.set(generateAidlTask.flatMap { it.sourceOutputDir })
-    task.failOnMissingExpected.set(false)
-    task.cacheEvenIfNoOutputs()
-}
-
 // Policy: All changes to API surfaces for which compatibility is enforced must be
 // explicitly confirmed by running the updateApi task. To enforce this, the implementation
 fun registerCheckAidlApi(
@@ -228,10 +197,9 @@ fun registerCheckAidlApi(
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
     lastCheckedInApiFile: Directory,
-    generateAidlTask: Provider<StableAidlCompile>,
-    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>
+    generateAidlTask: Provider<StableAidlCompile>
 ): TaskProvider<StableAidlCheckApi> = project.tasks.register(
-    computeTaskName("check", variant, "AidlApi"),
+    computeTaskName("check", variant),
     StableAidlCheckApi::class.java
 ) { task ->
     task.group = TASK_GROUP_API
@@ -247,7 +215,6 @@ fun registerCheckAidlApi(
     task.actualApiDir.set(generateAidlTask.flatMap { it.sourceOutputDir })
     task.failOnMissingExpected.set(true)
     task.cacheEvenIfNoOutputs()
-    task.dependsOn(checkAidlApiReleaseTask)
 }
 
 fun registerUpdateAidlApi(
@@ -255,8 +222,9 @@ fun registerUpdateAidlApi(
     variant: Variant,
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
+    checkAidlApiTask: Provider<StableAidlCheckApi>
 ): TaskProvider<UpdateStableAidlApiTask> = project.tasks.register(
-    computeTaskName("update", variant, "AidlApi"),
+    computeTaskName("update", variant),
     UpdateStableAidlApiTask::class.java
 ) { task ->
     task.group = TASK_GROUP_API
@@ -265,6 +233,8 @@ fun registerUpdateAidlApi(
     task.apiLocation.set(generateAidlTask.flatMap { it.sourceOutputDir })
     task.outputApiLocations.set(listOf(lastCheckedInApiFile.asFile))
     task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
+    // We depend on the outputs, but we also depend
+    task.dependsOn(checkAidlApiTask)
 }
 
 /**
@@ -283,5 +253,5 @@ private fun Task.getPlaceholderOutput(): File {
     return File(this.project.buildDir, "placeholderOutput/" + this.name.replace(":", "-"))
 }
 
-private fun computeTaskName(prefix: String, variant: Variant, suffix: String) =
-    "$prefix${variant.name.usLocaleCapitalize()}$suffix"
+private fun computeTaskName(prefix: String, variant: Variant) =
+    "$prefix${variant.name.usLocaleCapitalize()}AidlApi"
