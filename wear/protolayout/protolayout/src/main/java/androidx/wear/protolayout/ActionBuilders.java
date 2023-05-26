@@ -564,18 +564,12 @@ public final class ActionBuilders {
    * @since 1.0
    */
   public interface AndroidExtra {
-    /**
-     * Get the protocol buffer representation of this object.
-     *
-     */
+    /** Get the protocol buffer representation of this object. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     ActionProto.AndroidExtra toAndroidExtraProto();
 
-    /**
-     * Get the fingerprint for this object or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Fingerprint getFingerprint();
@@ -667,10 +661,7 @@ public final class ActionBuilders {
       return Collections.unmodifiableMap(map);
     }
 
-    /**
-     * Get the fingerprint for this object, or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object, or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Fingerprint getFingerprint() {
@@ -969,18 +960,12 @@ public final class ActionBuilders {
    * @since 1.0
    */
   public interface Action {
-    /**
-     * Get the protocol buffer representation of this object.
-     *
-     */
+    /** Get the protocol buffer representation of this object. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     ActionProto.Action toActionProto();
 
-    /**
-     * Get the fingerprint for this object or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Fingerprint getFingerprint();
