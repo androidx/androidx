@@ -45,14 +45,12 @@ import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
@@ -2881,10 +2879,10 @@ public final class MediaRouter {
             mCallbackHandler.post(CallbackHandler.MSG_ROUTER_PARAMS_CHANGED, params);
         }
 
-        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         public void setRouteListingPreference(
                 @Nullable RouteListingPreference routeListingPreference) {
-            if (mMr2Provider != null && BuildCompat.isAtLeastU()) {
+            if (mMr2Provider != null
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 mMr2Provider.setRouteListingPreference(routeListingPreference);
             }
         }
