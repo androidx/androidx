@@ -38,8 +38,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
-import androidx.arch.core.util.Function;
-import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
@@ -48,6 +46,7 @@ import androidx.camera.core.impl.utils.MatrixExt;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Supplier;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -98,8 +97,8 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     private final List<PendingSnapshot> mPendingSnapshots = new ArrayList<>();
 
     /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
-    DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange) {
-        this(dynamicRange, ShaderProvider.DEFAULT);
+    DefaultSurfaceProcessor() {
+        this(ShaderProvider.DEFAULT);
     }
 
     /**
@@ -108,15 +107,14 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      * @param shaderProvider custom shader provider for OpenGL rendering.
      * @throws IllegalArgumentException if the shaderProvider provides invalid shader.
      */
-    DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
+    DefaultSurfaceProcessor(@NonNull ShaderProvider shaderProvider) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mGlRenderer = new OpenGlRenderer();
         try {
-            initGlRenderer(dynamicRange, shaderProvider);
+            initGlRenderer(shaderProvider);
         } catch (RuntimeException e) {
             release();
             throw e;
@@ -344,12 +342,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         }
     }
 
-    private void initGlRenderer(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
+    private void initGlRenderer(@NonNull ShaderProvider shaderProvider) {
         ListenableFuture<Void> initFuture = CallbackToFutureAdapter.getFuture(completer -> {
             executeSafely(() -> {
                 try {
-                    mGlRenderer.init(dynamicRange, shaderProvider);
+                    mGlRenderer.init(shaderProvider);
                     completer.set(null);
                 } catch (RuntimeException e) {
                     completer.setException(e);
@@ -426,23 +423,21 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         private Factory() {
         }
 
-        private static Function<DynamicRange, SurfaceProcessorInternal> sSupplier =
-                DefaultSurfaceProcessor::new;
+        private static Supplier<SurfaceProcessorInternal> sSupplier = DefaultSurfaceProcessor::new;
 
         /**
          * Creates a new {@link DefaultSurfaceProcessor} with no-op shader.
          */
         @NonNull
-        public static SurfaceProcessorInternal newInstance(@NonNull DynamicRange dynamicRange) {
-            return sSupplier.apply(dynamicRange);
+        public static SurfaceProcessorInternal newInstance() {
+            return sSupplier.get();
         }
 
         /**
          * Overrides the {@link DefaultSurfaceProcessor} supplier for testing.
          */
         @VisibleForTesting
-        public static void setSupplier(
-                @NonNull Function<DynamicRange, SurfaceProcessorInternal> supplier) {
+        public static void setSupplier(@NonNull Supplier<SurfaceProcessorInternal> supplier) {
             sSupplier = supplier;
         }
     }
