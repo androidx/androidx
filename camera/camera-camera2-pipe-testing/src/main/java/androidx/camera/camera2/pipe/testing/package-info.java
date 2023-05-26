@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+package androidx.camera.camera2.pipe.testing;
 
-ext {
-    CAMERA_PIPE_DEPS = [
-            API           : [
-                    "androidx.annotation:annotation:1.2.0",
-                    libs.kotlinStdlib,
-                    libs.kotlinCoroutinesAndroid,
-                    "org.jetbrains.kotlinx:atomicfu:0.13.1"
-            ],
-            IMPLEMENTATION: [libs.dagger]
-    ]
-}
+import androidx.annotation.RestrictTo;

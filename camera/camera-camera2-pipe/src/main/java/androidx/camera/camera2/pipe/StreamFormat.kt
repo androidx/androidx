@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * Platform-independent Android ImageFormats and their associated values.
@@ -25,6 +26,7 @@ import androidx.annotation.RequiresApi
  * not listed. // TODO: Consider adding data-space as a separate property, or finding a way to work
  * it in.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @JvmInline
 value class StreamFormat(val value: Int) {
