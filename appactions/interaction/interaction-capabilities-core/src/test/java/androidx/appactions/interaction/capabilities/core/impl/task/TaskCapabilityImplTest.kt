@@ -634,7 +634,6 @@ class TaskCapabilityImplTest {
 
     @Test
     @kotlin.Throws(Exception::class)
-    @Suppress("DEPRECATION")
     fun disambig_singleParam_disambigEntitiesInContext() {
         val capability: Capability =
             createCapability(
@@ -767,7 +766,6 @@ class TaskCapabilityImplTest {
      */
     @Test
     @kotlin.Throws(Exception::class)
-    @Suppress("DEPRECATION")
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
         val boundProperties = listOf(
             BoundProperty(

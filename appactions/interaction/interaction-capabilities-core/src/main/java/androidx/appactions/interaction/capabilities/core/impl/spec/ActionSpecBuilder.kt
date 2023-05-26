@@ -38,7 +38,6 @@ private constructor(
         ArrayList()
     private val outputBindings: MutableMap<String, Function<OutputT, List<ParamValue>>> = HashMap()
 
-    /** Sets the property type and returns a new `ActionSpecBuilder`.  */
     /** Sets the argument type and its builder and returns a new `ActionSpecBuilder`.  */
     @Suppress("UNUSED_PARAMETER")
     fun <NewArgumentsT, NewArgumentsBuilderT : BuilderOf<NewArgumentsT>> setArguments(
