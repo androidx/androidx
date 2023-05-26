@@ -20,6 +20,7 @@ import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpT
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_EQUAL;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_NOT_EQUAL;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_OR;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -27,16 +28,19 @@ import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.FixedBoolNode;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.StateBoolNode;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.LogicalBoolOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateBoolSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
+
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class BoolNodesTest {

@@ -23,15 +23,14 @@ import android.support.wearable.complications.ComplicationText as WireComplicati
 import android.util.Log
 import androidx.wear.protolayout.expression.AppDataKey
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
+import androidx.wear.protolayout.expression.PlatformHealthSources
+import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider
 import androidx.wear.protolayout.expression.pipeline.StateStore
-import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.watchface.complications.data.ComplicationDataEvaluator.Companion.INVALID_DATA
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
-import java.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -329,35 +328,35 @@ class ComplicationDataEvaluatorTest {
         // Arrange
         val expressed =
             WireComplicationData.Builder(TYPE_NO_DATA)
-                .setRangedDynamicValue(
-                    // Uses TimeGateway, which needs cleaning up.
-                    DynamicInstant.withSecondsPrecision(Instant.EPOCH)
-                        .durationUntil(DynamicInstant.platformTimeWithSecondsPrecision())
-                        .secondsPart
-                        .asFloat()
-                )
+                .setRangedDynamicValue(PlatformHealthSources.heartRateBpm())
                 .build()
-        val timeGateway = mock<TimeGateway>()
-        val evaluator = ComplicationDataEvaluator(timeGateway = timeGateway)
+
+        val provider = mock<PlatformDataProvider>()
+        val evaluator = ComplicationDataEvaluator(
+            platformDataProviders = mapOf(
+                provider to setOf(PlatformHealthSources.Keys.HEART_RATE_BPM)
+            )
+        )
         val flow = evaluator.evaluate(expressed)
 
-        // Validity check - TimeGateway not used until Flow collection.
-        verifyNoInteractions(timeGateway)
+        // Validity check - Platform provider not used until Flow collection.
+        verifyNoInteractions(provider)
         val job = launch(dispatcher) { flow.collect {} }
         try {
             advanceUntilIdle()
-            // Validity check - TimeGateway registered while collection is in progress.
-            verify(timeGateway).registerForUpdates(any(), any())
-            verifyNoMoreInteractions(timeGateway)
+            // Validity check - Platform provider registered while collection is in progress.
+            verify(provider).setReceiver(any(), any())
+            verifyNoMoreInteractions(provider)
         } finally {
             // Act
             job.cancel()
+            advanceUntilIdle()
         }
 
         // Assert
         advanceUntilIdle()
-        verify(timeGateway).unregisterForUpdates(any())
-        verifyNoMoreInteractions(timeGateway)
+        verify(provider).clearReceiver()
+        verifyNoMoreInteractions(provider)
     }
 
     @Test

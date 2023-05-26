@@ -24,19 +24,27 @@ import static org.mockito.Mockito.verify;
 
 import static java.lang.Integer.MAX_VALUE;
 
+import android.icu.util.ULocale;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
 public class DynamicTypeEvaluatorTest {
@@ -58,6 +66,36 @@ public class DynamicTypeEvaluatorTest {
         ArrayList<Boolean> results = new ArrayList<>();
         DynamicTypeBindingRequest request = createSingleNodeDynamicBoolRequest(results);
         assertThrows(EvaluationException.class, () -> evaluator.bind(request));
+    }
+
+    @Test
+    public void timeDataGetsPropagated() throws Exception {
+        TestPlatformTimeUpdateNotifier notifier = new TestPlatformTimeUpdateNotifier();
+        DynamicTypeEvaluator evaluator = createEvaluatorWithTime(notifier);
+        ArrayList<String> results = new ArrayList<>();
+        DynamicTypeBindingRequest request =
+                createSingleNodeDynamicStringFromTimePlatformRequest(results);
+        BoundDynamicType boundDynamicType = evaluator.bind(request);
+
+        // Evaluation hasn't started yet, nothing should be called.
+        ListenableFuture<Void> resultFuture = notifier.callReceiver();
+        assertThat(resultFuture).isNull();
+        assertThat(results).isEmpty();
+
+        // Start evaluation.
+        boundDynamicType.startEvaluation();
+
+        // Trigger reevaluation, which should send a result.
+        for (int i = 0; i < 5; i++) {
+            resultFuture = notifier.callReceiver();
+            assertThat(resultFuture).isNotNull();
+            assertThat(resultFuture.isDone()).isTrue();
+            assertThat(results).hasSize(i + 1);
+            assertThat(Integer.parseInt(results.get(i))).isAtLeast(0);
+            assertThat(Integer.parseInt(results.get(i))).isLessThan(60);
+        }
+
+        boundDynamicType.close();
     }
 
     @Test
@@ -109,6 +147,18 @@ public class DynamicTypeEvaluatorTest {
                 new AddToListCallback<>(results));
     }
 
+    @NonNull
+    private static DynamicTypeBindingRequest createSingleNodeDynamicStringFromTimePlatformRequest(
+            ArrayList<String> results) {
+        return DynamicTypeBindingRequest.forDynamicString(
+                DynamicBuilders.DynamicInstant.platformTimeWithSecondsPrecision().durationUntil(
+                        DynamicBuilders.DynamicInstant
+                                .withSecondsPrecision(Instant.now())).getSecondsPart().format(),
+                ULocale.ENGLISH,
+                new MainThreadExecutor(),
+                new AddToListCallback<>(results));
+    }
+
     private static DynamicTypeEvaluator createEvaluator() {
         return createEvaluatorWithQuota(unlimitedQuota(), unlimitedQuota());
     }
@@ -120,6 +170,16 @@ public class DynamicTypeEvaluatorTest {
                         .setAnimationQuotaManager(unlimitedQuota())
                         .setDynamicTypesQuotaManager(unlimitedQuota())
                         .addPlatformDataProvider(provider, Collections.singleton(key))
+                        .build());
+    }
+
+    private static DynamicTypeEvaluator createEvaluatorWithTime(
+            PlatformTimeUpdateNotifier notifier) {
+        return new DynamicTypeEvaluator(
+                new DynamicTypeEvaluator.Config.Builder()
+                        .setAnimationQuotaManager(unlimitedQuota())
+                        .setDynamicTypesQuotaManager(unlimitedQuota())
+                        .setPlatformTimeUpdateNotifier(notifier)
                         .build());
     }
 
@@ -140,5 +200,32 @@ public class DynamicTypeEvaluatorTest {
 
     private static QuotaManager noQuota() {
         return new FixedQuotaManagerImpl(0);
+    }
+
+    private static final class TestPlatformTimeUpdateNotifier
+            extends PlatformTimeUpdateNotifierImpl {
+        private Callable<ListenableFuture<Void>> mRegisteredReceiver;
+
+        @Nullable
+        ListenableFuture<Void> callReceiver() throws Exception {
+            if (mRegisteredReceiver != null) {
+                return mRegisteredReceiver.call();
+            }
+            return null;
+        }
+
+        @Override
+        public void setReceiver(@NonNull Callable<ListenableFuture<Void>> tick) {
+            super.setReceiver(tick);
+
+            mRegisteredReceiver = tick;
+        }
+
+        @Override
+        public void clearReceiver() {
+            super.clearReceiver();
+
+            mRegisteredReceiver = null;
+        }
     }
 }

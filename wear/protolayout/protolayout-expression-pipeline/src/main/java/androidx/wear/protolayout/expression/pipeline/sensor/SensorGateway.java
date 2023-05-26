@@ -21,9 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.PlatformDataKey;
-import androidx.wear.protolayout.expression.PlatformHealthSources;
 
 import java.util.concurrent.Executor;
 

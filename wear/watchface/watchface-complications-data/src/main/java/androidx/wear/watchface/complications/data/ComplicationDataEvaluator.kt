@@ -30,8 +30,8 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider
+import androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier
 import androidx.wear.protolayout.expression.pipeline.StateStore
-import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataEvaluator(
     private val stateStore: StateStore? = StateStore(emptyMap()),
-    private val timeGateway: TimeGateway? = null,
+    private val platformTimeUpdateNotifier: PlatformTimeUpdateNotifier? = null,
     private val platformDataProviders: Map<PlatformDataProvider, Set<PlatformDataKey<*>>> = mapOf(),
     private val keepDynamicValues: Boolean = false,
 ) {
@@ -66,7 +66,7 @@ class ComplicationDataEvaluator(
         DynamicTypeEvaluator(
             DynamicTypeEvaluator.Config.Builder()
                 .apply { stateStore?.let { setStateStore(it) } }
-                .apply { timeGateway?.let { setTimeGateway(it) } }
+                .apply { platformTimeUpdateNotifier?.let { setPlatformTimeUpdateNotifier(it) } }
                 .apply {
                     for ((platformDataProvider, dataKeys) in platformDataProviders) {
                         addPlatformDataProvider(platformDataProvider, dataKeys)
@@ -74,6 +74,7 @@ class ComplicationDataEvaluator(
                 }
                 .build()
         )
+
     /**
      * Returns a [Flow] that provides the evaluated [WireComplicationData].
      *
