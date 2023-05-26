@@ -78,3 +78,10 @@ dependencies {
     debugImplementation(libs.testCore)
 }
 
+androidx {
+    deviceTests {
+        // These tests only work on devices that ship extensions
+        // and androidx test infrastructure has no such devices b/284404606
+        enabled = false
+    }
+}
