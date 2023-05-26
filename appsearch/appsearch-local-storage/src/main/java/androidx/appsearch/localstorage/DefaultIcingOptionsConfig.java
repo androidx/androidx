@@ -61,7 +61,7 @@ public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
 
     @Override
     public boolean getUsePreMappingWithFileBackedVector() {
-        return true;
+        return false;
     }
 
     @Override
