@@ -271,6 +271,52 @@ inline fun DrawScope.withTransform(
 }
 
 /**
+ * Draws into the provided [Canvas] with the commands specified in the lambda with this
+ * [DrawScope] as a receiver
+ *
+ * @sample androidx.compose.ui.graphics.samples.DrawScopeRetargetingSample
+ *
+ * @param density [Density] used to assist in conversions of density independent pixels to raw
+ * pixels to draw
+ * @param layoutDirection [LayoutDirection] of the layout being drawn in.
+ * @param canvas target canvas to render into
+ * @param size bounds relative to the current canvas translation in which the [DrawScope]
+ * should draw within
+ * @param block lambda that is called to issue drawing commands on this [DrawScope]
+ */
+inline fun DrawScope.draw(
+    density: Density,
+    layoutDirection: LayoutDirection,
+    canvas: Canvas,
+    size: Size,
+    block: DrawScope.() -> Unit
+) {
+    // Remember the previous drawing parameters in case we are temporarily re-directing our
+    // drawing to a separate Layer/RenderNode only to draw that content back into the original
+    // Canvas. If there is no previous canvas that was being drawing into, this ends up
+    // resetting these parameters back to defaults defensively
+    val prevDensity = drawContext.density
+    val prevLayoutDirection = drawContext.layoutDirection
+    val prevCanvas = drawContext.canvas
+    val prevSize = drawContext.size
+    drawContext.apply {
+        this.density = density
+        this.layoutDirection = layoutDirection
+        this.canvas = canvas
+        this.size = size
+    }
+    canvas.save()
+    this.block()
+    canvas.restore()
+    drawContext.apply {
+        this.density = prevDensity
+        this.layoutDirection = prevLayoutDirection
+        this.canvas = prevCanvas
+        this.size = prevSize
+    }
+}
+
+/**
  * Creates a scoped drawing environment with the provided [Canvas]. This provides a
  * declarative, stateless API to draw shapes and paths without requiring
  * consumers to maintain underlying [Canvas] state information.

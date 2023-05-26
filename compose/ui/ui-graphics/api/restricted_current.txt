@@ -1210,11 +1210,18 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   public interface DrawContext {
-    method public androidx.compose.ui.graphics.Canvas getCanvas();
+    method public default androidx.compose.ui.graphics.Canvas getCanvas();
+    method public default androidx.compose.ui.unit.Density getDensity();
+    method public default androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getSize();
     method public androidx.compose.ui.graphics.drawscope.DrawTransform getTransform();
+    method public default void setCanvas(androidx.compose.ui.graphics.Canvas);
+    method public default void setDensity(androidx.compose.ui.unit.Density);
+    method public default void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setSize(long);
-    property public abstract androidx.compose.ui.graphics.Canvas canvas;
+    property public default androidx.compose.ui.graphics.Canvas canvas;
+    property public default androidx.compose.ui.unit.Density density;
+    property public default androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract long size;
     property public abstract androidx.compose.ui.graphics.drawscope.DrawTransform transform;
   }
@@ -1260,6 +1267,7 @@ package androidx.compose.ui.graphics.drawscope {
   public final class DrawScopeKt {
     method public static inline void clipPath(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Path path, optional int clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void clipRect(androidx.compose.ui.graphics.drawscope.DrawScope, optional float left, optional float top, optional float right, optional float bottom, optional int clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void draw(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void drawIntoCanvas(androidx.compose.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Canvas,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, float left, float top, float right, float bottom, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, optional float horizontal, optional float vertical, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
