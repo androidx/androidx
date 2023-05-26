@@ -32,11 +32,13 @@ import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import java.time.Duration
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -49,6 +51,44 @@ import org.junit.runner.RunWith
 class ResponseConvertersTest {
 
     private val tolerance = Correspondence.tolerance(1e-6)
+
+    @Test
+    fun buildAggregationResult() {
+        val aggregationResult =
+            buildAggregationResult(
+                metrics =
+                    setOf(HeartRateRecord.BPM_MIN, ExerciseSessionRecord.EXERCISE_DURATION_TOTAL),
+                aggregationValueGetter = { aggregationType ->
+                    when (aggregationType) {
+                        PlatformHeartRateRecord.BPM_MIN -> 53L
+                        PlatformExerciseSessionRecord.EXERCISE_DURATION_TOTAL -> 60_000L
+                        else -> null
+                    }
+                },
+                platformDataOriginsGetter = { aggregationType ->
+                    when (aggregationType) {
+                        PlatformHeartRateRecord.BPM_MIN ->
+                            setOf(
+                                PlatformDataOriginBuilder().setPackageName("HR App1").build(),
+                                PlatformDataOriginBuilder().setPackageName("HR App2").build()
+                            )
+                        PlatformExerciseSessionRecord.EXERCISE_DURATION_TOTAL ->
+                            setOf(PlatformDataOriginBuilder().setPackageName("Workout app").build())
+                        else -> emptySet()
+                    }
+                }
+            )
+
+        assertThat(aggregationResult[HeartRateRecord.BPM_MIN]).isEqualTo(53L)
+        assertThat(aggregationResult[ExerciseSessionRecord.EXERCISE_DURATION_TOTAL])
+            .isEqualTo(Duration.ofMinutes(1))
+        assertThat(aggregationResult.dataOrigins)
+            .containsExactly(
+                DataOrigin("HR App1"),
+                DataOrigin("HR App2"),
+                DataOrigin("Workout app")
+            )
+    }
 
     @Test
     fun getLongMetricValues_convertsValueAccurately() {

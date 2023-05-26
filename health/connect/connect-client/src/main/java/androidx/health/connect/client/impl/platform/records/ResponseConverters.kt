@@ -32,7 +32,6 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
-import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
 import java.time.ZoneOffset
@@ -41,11 +40,7 @@ fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any
     buildAggregationResult(
         metrics,
         ::get,
-        buildSet {
-            metrics.flatMapTo(hashSetOf()) { metric ->
-                getDataOrigins(metric.toAggregationType()).map { it.toSdkDataOrigin() }
-            }
-        }
+        ::getDataOrigins,
     )
 
 fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
@@ -62,10 +57,13 @@ fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
 fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
     AggregationResultGroupedByPeriod(buildAggregationResult(metrics, ::get), startTime, endTime)
 
-private fun buildAggregationResult(
+@VisibleForTesting
+internal fun buildAggregationResult(
     metrics: Set<AggregateMetric<Any>>,
     aggregationValueGetter: (AggregationType<Any>) -> Any?,
-    contributingDataOrigins: Set<DataOrigin> = emptySet()
+    platformDataOriginsGetter: (AggregationType<Any>) -> Set<PlatformDataOrigin> = { _ ->
+        emptySet()
+    }
 ): AggregationResult {
     val metricValueMap = buildMap {
         metrics.forEach { metric ->
@@ -75,7 +73,9 @@ private fun buildAggregationResult(
     return AggregationResult(
         getLongMetricValues(metricValueMap),
         getDoubleMetricValues(metricValueMap),
-        contributingDataOrigins
+        metrics.flatMapTo(hashSetOf()) { metric ->
+            platformDataOriginsGetter(metric.toAggregationType()).map { it.toSdkDataOrigin() }
+        }
     )
 }
 
