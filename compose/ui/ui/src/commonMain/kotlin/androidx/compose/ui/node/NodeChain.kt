@@ -745,6 +745,7 @@ private fun Modifier.fillVector(
 ): MutableVector<Modifier.Element> {
     val capacity = result.size.coerceAtLeast(16)
     val stack = MutableVector<Modifier>(capacity).also { it.add(this) }
+    var predicate: ((Modifier.Element) -> Boolean)? = null
     while (stack.isNotEmpty()) {
         when (val next = stack.removeAt(stack.size - 1)) {
             is CombinedModifier -> {
@@ -753,10 +754,11 @@ private fun Modifier.fillVector(
             }
             is Modifier.Element -> result.add(next)
             // some other androidx.compose.ui.node.Modifier implementation that we don't know about...
-            else -> next.all {
-                result.add(it)
+            // late-allocate the predicate only once for the entire stack
+            else -> next.all(predicate ?: { element: Modifier.Element ->
+                result.add(element)
                 true
-            }
+            }.also { predicate = it })
         }
     }
     return result

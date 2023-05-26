@@ -156,6 +156,22 @@ data class Rect(
         )
     }
 
+    /**
+     * Returns a new rectangle that is the intersection of the given
+     * rectangle and this rectangle. The two rectangles must overlap
+     * for this to be meaningful. If the two rectangles do not overlap,
+     * then the resulting Rect will have a negative width or height.
+     */
+    @Stable
+    fun intersect(otherLeft: Float, otherTop: Float, otherRight: Float, otherBottom: Float): Rect {
+        return Rect(
+            max(left, otherLeft),
+            max(top, otherTop),
+            min(right, otherRight),
+            min(bottom, otherBottom)
+        )
+    }
+
     /** Whether `other` has a nonzero area of overlap with this rectangle. */
     fun overlaps(other: Rect): Boolean {
         if (right <= other.left || other.right <= left)
