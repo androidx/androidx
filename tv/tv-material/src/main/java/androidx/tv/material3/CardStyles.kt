@@ -143,6 +143,17 @@ class CardScale internal constructor(
     override fun toString(): String {
         return "CardScale(scale=$scale, focusedScale=$focusedScale, pressedScale=$pressedScale)"
     }
+
+    companion object {
+        /**
+         * Signifies the absence of a [ScaleIndication] in Card component.
+         */
+        val None = CardScale(
+            scale = 1f,
+            focusedScale = 1f,
+            pressedScale = 1f
+        )
+    }
 }
 
 /**
