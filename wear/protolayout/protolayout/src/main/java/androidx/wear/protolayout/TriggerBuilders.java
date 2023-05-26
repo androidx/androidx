@@ -133,7 +133,7 @@ public final class TriggerBuilders {
     }
 
     /**
-     * Gets dynamic boolean used as trigger. Intended for testing purposes only.
+     * Gets dynamic boolean used as trigger.
      *
      * @since 1.2
      */
@@ -191,7 +191,7 @@ public final class TriggerBuilders {
     public static final class Builder implements Trigger.Builder {
       private final TriggerProto.OnConditionMetTrigger.Builder mImpl =
           TriggerProto.OnConditionMetTrigger.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(1952746052);
+      private final Fingerprint mFingerprint = new Fingerprint(756642641);
 
       public Builder() {}
 
@@ -223,25 +223,17 @@ public final class TriggerBuilders {
    * @since 1.2
    */
   public interface Trigger {
-    /**
-     * Get the protocol buffer representation of this object.
-     *
-     */
+    /** Get the protocol buffer representation of this object. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     TriggerProto.Trigger toTriggerProto();
 
-    /**
-     * Get the fingerprint for this object or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Fingerprint getFingerprint();
 
-    /** Builder to create {@link Trigger} objects.
-     *
-     */
+    /** Builder to create {@link Trigger} objects. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 

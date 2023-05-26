@@ -108,20 +108,14 @@ public final class AnimationParameterBuilders {
       }
     }
 
-    /**
-     * Get the fingerprint for this object, or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object, or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Fingerprint getFingerprint() {
       return mFingerprint;
     }
 
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static AnimationSpec fromProto(
@@ -132,7 +126,6 @@ public final class AnimationParameterBuilders {
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -140,10 +133,7 @@ public final class AnimationParameterBuilders {
       return fromProto(proto, null);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public AnimationParameterProto.AnimationSpec toProto() {
@@ -445,10 +435,7 @@ public final class AnimationParameterBuilders {
     @Nullable
     Fingerprint getFingerprint();
 
-    /**
-     * Builder to create {@link Easing} objects.
-     *
-     */
+    /** Builder to create {@link Easing} objects. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 
@@ -458,10 +445,7 @@ public final class AnimationParameterBuilders {
     }
   }
 
-  /**
-   * Creates a new wrapper instance from the proto.
-   *
-   */
+  /** Creates a new wrapper instance from the proto. */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
   public static Easing easingFromProto(
@@ -540,10 +524,7 @@ public final class AnimationParameterBuilders {
       return mFingerprint;
     }
 
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static CubicBezierEasing fromProto(
@@ -557,10 +538,7 @@ public final class AnimationParameterBuilders {
       return fromProto(proto, null);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     AnimationParameterProto.CubicBezierEasing toProto() {

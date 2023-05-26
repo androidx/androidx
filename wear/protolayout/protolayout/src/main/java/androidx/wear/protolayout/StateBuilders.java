@@ -102,10 +102,8 @@ public final class StateBuilders {
     public Fingerprint getFingerprint() {
       return mFingerprint;
     }
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static State fromProto(
@@ -116,7 +114,6 @@ public final class StateBuilders {
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -124,10 +121,7 @@ public final class StateBuilders {
       return fromProto(proto, null);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public StateProto.State toProto() {
@@ -168,8 +162,6 @@ public final class StateBuilders {
                 checkNotNull(value.getFingerprint()).aggregateValueAsInt());
         return this;
       }
-
-
 
       /** Builds an instance from accumulated values. */
       @NonNull
