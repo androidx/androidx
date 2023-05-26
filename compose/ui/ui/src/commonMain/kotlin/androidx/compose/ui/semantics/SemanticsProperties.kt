@@ -202,6 +202,16 @@ object SemanticsProperties {
     )
 
     /**
+     * @see SemanticsPropertyReceiver.originalText
+     */
+    val OriginalText = SemanticsPropertyKey<AnnotatedString>(name = "OriginalText")
+
+    /**
+     * @see SemanticsPropertyReceiver.isShowingTextSubstitution
+     */
+    val IsShowingTextSubstitution = SemanticsPropertyKey<Boolean>("IsShowingTextSubstitution")
+
+    /**
      * @see SemanticsPropertyReceiver.editableText
      */
     val EditableText = SemanticsPropertyKey<AnnotatedString>(name = "EditableText")
@@ -291,6 +301,21 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.setText
      */
     val SetText = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetText")
+
+    /**
+     * @see SemanticsPropertyReceiver.setTextSubstitution
+     */
+    val SetTextSubstitution = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetTextSubstitution")
+
+    /**
+     * @see SemanticsPropertyReceiver.showTextSubstitution
+     */
+    val ShowTextSubstitution = ActionPropertyKey<(Boolean) -> Boolean>("ShowTextSubstitution")
+
+    /**
+     * @see SemanticsPropertyReceiver.clearTextSubstitution
+     */
+    val ClearTextSubstitution = ActionPropertyKey<() -> Boolean>("ClearTextSubstitution")
 
     /**
      * @see SemanticsPropertyReceiver.insertTextAtCursor
@@ -902,6 +927,8 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
 /**
  * Text of the semantics node. It must be real text instead of developer-set content description.
  *
+ * Represents the text substitution if [SemanticsActions.ShowTextSubstitution] is called.
+ *
  * @see SemanticsPropertyReceiver.editableText
  */
 var SemanticsPropertyReceiver.text: AnnotatedString
@@ -909,6 +936,20 @@ var SemanticsPropertyReceiver.text: AnnotatedString
     set(value) {
         set(SemanticsProperties.Text, listOf(value))
     }
+
+/**
+ * Original text of the semantics node. This property is only available after calling
+ * [SemanticsActions.ShowTextSubstitution]. The value should be equal to the [text] before calling
+ * [SemanticsActions.SetTextSubstitution].
+ */
+var SemanticsPropertyReceiver.originalText by SemanticsProperties.OriginalText
+
+/**
+ * Whether this element is showing the text substitution. This property is only available after
+ * calling [SemanticsActions.SetTextSubstitution].
+ */
+var SemanticsPropertyReceiver.isShowingTextSubstitution
+    by SemanticsProperties.IsShowingTextSubstitution
 
 /**
  * Input text of the text field with visual transformation applied to it. It must be a real text
@@ -1093,6 +1134,56 @@ fun SemanticsPropertyReceiver.setText(
     action: ((AnnotatedString) -> Boolean)?
 ) {
     this[SemanticsActions.SetText] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to set the text substitution of this node.
+ *
+ * Expected to be used on non-editable text.
+ *
+ * Note, this action doesn't show the text substitution. Please call
+ * [SemanticsPropertyReceiver.showTextSubstitution] to show the text substitution.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.SetTextSubstitution] is called.
+ */
+fun SemanticsPropertyReceiver.setTextSubstitution(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.SetTextSubstitution] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to show or hide the text substitution of this node.
+ *
+ * Expected to be used on non-editable text.
+ *
+ * Note, this action only takes effect when the node has the text substitution.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.ShowTextSubstitution] is called.
+ */
+fun SemanticsPropertyReceiver.showTextSubstitution(
+    label: String? = null,
+    action: ((Boolean) -> Boolean)?
+) {
+    this[SemanticsActions.ShowTextSubstitution] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to clear the text substitution of this node.
+ *
+ * Expected to be used on non-editable text.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.ClearTextSubstitution] is called.
+ */
+fun SemanticsPropertyReceiver.clearTextSubstitution(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.ClearTextSubstitution] = AccessibilityAction(label, action)
 }
 
 /**

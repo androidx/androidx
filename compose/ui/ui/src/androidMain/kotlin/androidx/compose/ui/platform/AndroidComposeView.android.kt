@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import android.util.LongSparseArray
 import android.util.SparseArray
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
@@ -47,6 +48,9 @@ import android.view.animation.AnimationUtils
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import android.view.translation.ViewTranslationCallback
+import android.view.translation.ViewTranslationRequest
+import android.view.translation.ViewTranslationResponse
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -157,6 +161,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
+import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
@@ -579,6 +584,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Support for this feature in Compose is tracked here: b/207654434
             AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(
+                this, AndroidComposeViewTranslationCallback())
         }
     }
 
@@ -1289,6 +1299,23 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (autofillSupported()) _autofill?.performAutofill(values)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onCreateVirtualViewTranslationRequests(
+        virtualIds: LongArray,
+        supportedFormats: IntArray,
+        requestsCollector: Consumer<ViewTranslationRequest?>
+    ) {
+        accessibilityDelegate.onCreateVirtualViewTranslationRequests(
+            virtualIds, supportedFormats, requestsCollector)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onVirtualViewTranslationResponses(
+        response: LongSparseArray<ViewTranslationResponse?>
+    ) {
+        accessibilityDelegate.onVirtualViewTranslationResponses(response)
+    }
+
     override fun dispatchGenericMotionEvent(event: MotionEvent) = when (event.actionMasked) {
         ACTION_SCROLL -> when {
             event.isFromSource(SOURCE_ROTARY_ENCODER) -> handleRotaryEvent(event)
@@ -1838,6 +1865,27 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
          */
         val savedStateRegistryOwner: SavedStateRegistryOwner
     )
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private class AndroidComposeViewTranslationCallback : ViewTranslationCallback {
+        override fun onShowTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.accessibilityDelegate.onShowTranslation()
+            return true
+        }
+
+        override fun onHideTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.accessibilityDelegate.onHideTranslation()
+            return true
+        }
+
+        override fun onClearTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.accessibilityDelegate.onClearTranslation()
+            return true
+        }
+    }
 }
 
 /**
@@ -1906,6 +1954,15 @@ private object AndroidComposeViewForceDarkModeQ {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun disallowForceDark(view: View) {
         view.isForceDarkAllowed = false
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object AndroidComposeViewTranslationCallbackS {
+    @DoNotInline
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun setViewTranslationCallback(view: View, translationCallback: ViewTranslationCallback) {
+        view.setViewTranslationCallback(translationCallback)
     }
 }
 
