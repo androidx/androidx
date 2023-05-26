@@ -1123,6 +1123,7 @@ public class ChecksumsTest {
             mContext.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
 
             Intent intent = new Intent(action);
+            intent.setPackage(mContext.getPackageName());
             PendingIntent sender = PendingIntent.getBroadcast(mContext, resultId, intent,
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT
                             | PendingIntent.FLAG_MUTABLE);
