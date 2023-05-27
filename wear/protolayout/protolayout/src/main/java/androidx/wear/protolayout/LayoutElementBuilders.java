@@ -3196,7 +3196,7 @@ public final class LayoutElementBuilders {
         Fingerprint getFingerprint();
 
         /** Builder to create {@link Span} objects. */
-        @SuppressLint("StaticFinalBuilder")
+        @RestrictTo(Scope.LIBRARY_GROUP)
         interface Builder {
 
             /** Builds an instance with values accumulated in this Builder. */
@@ -5460,7 +5460,7 @@ public final class LayoutElementBuilders {
         Fingerprint getFingerprint();
 
         /** Builder to create {@link LayoutElement} objects. */
-        @SuppressLint("StaticFinalBuilder")
+        @RestrictTo(Scope.LIBRARY_GROUP)
         interface Builder {
 
             /** Builds an instance with values accumulated in this Builder. */
@@ -5528,7 +5528,7 @@ public final class LayoutElementBuilders {
         Fingerprint getFingerprint();
 
         /** Builder to create {@link ArcLayoutElement} objects. */
-        @SuppressLint("StaticFinalBuilder")
+        @RestrictTo(Scope.LIBRARY_GROUP)
         interface Builder {
 
             /** Builds an instance with values accumulated in this Builder. */
