@@ -161,4 +161,43 @@ class BaselineProfileProducerPluginTest(agpVersion: String?) {
                 assertThat(notFound).isEmpty()
             }
     }
+
+    @Test
+    fun skipGenerationPropertyShouldDisableTestTasks() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            managedDevices = listOf("somePixelDevice"),
+            baselineProfileBlock = """
+                managedDevices = ["somePixelDevice"]
+            """.trimIndent(),
+            additionalGradleCodeBlock = """
+                afterEvaluate {
+                    for (String taskName : [
+                            "somePixelDeviceNonMinifiedReleaseAndroidTest",
+                            "collectNonMinifiedReleaseBaselineProfile"]) {
+                        def task = tasks.getByName(taskName)
+                        println(taskName + "=" + task.enabled)
+                    }
+                }
+            """.trimIndent()
+        )
+
+        // Execute any task and check the expected output.
+        // Note that executing `somePixelDeviceSetup` will fail for `LicenseNotAcceptedException`.
+        projectSetup
+            .producer
+            .gradleRunner
+            .build(
+                "tasks",
+                "-Pandroidx.baselineprofile.skipgeneration"
+            ) {
+                val notFound = it.lines().require(
+                    "somePixelDeviceNonMinifiedReleaseAndroidTest=false",
+                    "collectNonMinifiedReleaseBaselineProfile=false"
+                )
+                assertThat(notFound).isEmpty()
+            }
+    }
 }

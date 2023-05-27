@@ -311,7 +311,13 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
     }
 
     private fun Iterable<File>.readLines(filterBlock: (File) -> (Boolean)): List<String> = this
-        .flatMap { if (it.isFile) listOf(it) else listOf(*it.listFiles()!!) }
+        .flatMap {
+            if (it.isFile) {
+                listOf(it)
+            } else {
+                listOf(*(it.listFiles() ?: arrayOf()))
+            }
+        }
         .filter(filterBlock)
         .flatMap { it.readLines() }
 }
