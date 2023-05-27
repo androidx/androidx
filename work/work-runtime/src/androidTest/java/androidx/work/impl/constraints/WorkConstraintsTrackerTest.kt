@@ -18,9 +18,9 @@ package androidx.work.impl.constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
-import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.testutils.ConstraintsNotMet
 import androidx.work.impl.testutils.TestConstraintController
 import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.testutils.launchTester

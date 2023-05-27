@@ -16,6 +16,7 @@
 package androidx.work.impl.constraints
 
 import androidx.work.Logger
+import androidx.work.StopReason
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
 import androidx.work.impl.constraints.controllers.BatteryChargingController
 import androidx.work.impl.constraints.controllers.BatteryNotLowController
@@ -37,9 +38,7 @@ import kotlinx.coroutines.launch
 
 sealed class ConstraintsState {
     object ConstraintsMet : ConstraintsState()
-
-    // TODO: will have a reason
-    object ConstraintsNotMet : ConstraintsState()
+    data class ConstraintsNotMet(val reason: StopReason) : ConstraintsState()
 }
 
 fun WorkConstraintsTracker.listen(
