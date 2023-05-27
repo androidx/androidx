@@ -347,6 +347,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionContainsKey(key: K): Boolean {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == buffer[i]) return true
         }
@@ -354,6 +355,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionGet(key: K): V? {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) {
                 return valueAtKeyIndex(i)
@@ -363,6 +365,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionPut(key: K, value: V): ModificationResult<K, V>? {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) {
                 if (value === valueAtKeyIndex(i)) {
@@ -379,6 +382,7 @@ internal class TrieNode<K, V>(
 
     private fun mutableCollisionPut(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
         // Check if there is an entry with the specified key.
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) { // found entry with the specified key
                 mutator.operationResult = valueAtKeyIndex(i)
@@ -404,6 +408,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionRemove(key: K): TrieNode<K, V>? {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) {
                 return collisionRemoveEntryAtIndex(i)
@@ -413,6 +418,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun mutableCollisionRemove(key: K, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) {
                 return mutableCollisionRemoveEntryAtIndex(i, mutator)
@@ -422,6 +428,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionRemove(key: K, value: V): TrieNode<K, V>? {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i) && value == valueAtKeyIndex(i)) {
                 return collisionRemoveEntryAtIndex(i)
@@ -431,6 +438,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun mutableCollisionRemove(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i) && value == valueAtKeyIndex(i)) {
                 return mutableCollisionRemoveEntryAtIndex(i, mutator)
@@ -448,6 +456,7 @@ internal class TrieNode<K, V>(
         assert(otherNode.dataMap == 0)
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
         var i = this.buffer.size
+        @Suppress("SteppedForLoop")
         for (j in 0 until otherNode.buffer.size step ENTRY_SIZE) {
             @Suppress("UNCHECKED_CAST")
             if (!this.collisionContainsKey(otherNode.buffer[j] as K)) {
@@ -548,6 +557,7 @@ internal class TrieNode<K, V>(
         if (this === otherNode) return true
         if (nodeMap != otherNode.nodeMap) return false
         if (dataMap != otherNode.dataMap) return false
+        @Suppress("SteppedForLoop")
         for (i in 0 until buffer.size) {
             if(buffer[i] !== otherNode.buffer[i]) return false
         }
