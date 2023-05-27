@@ -16,12 +16,14 @@
 
 package androidx.work.impl.constraints.controllers
 
+import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_DEVICE_IDLE
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.work.Constraints
 import androidx.work.OneTimeWorkRequest
+import androidx.work.StopReason
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.trackers.ConstraintTracker
@@ -70,6 +72,8 @@ class ConstraintControllerTest {
     private class TestDeviceIdleConstraintController(
         tracker: ConstraintTracker<Boolean>
     ) : ConstraintController<Boolean>(tracker) {
+        override val reason = StopReason(STOP_REASON_CONSTRAINT_DEVICE_IDLE)
+
         override fun hasConstraint(workSpec: WorkSpec): Boolean {
             return workSpec.constraints.requiresDeviceIdle()
         }
@@ -104,3 +108,7 @@ class ConstraintControllerTest {
         override fun readSystemState() = deviceIdle
     }
 }
+
+private val ConstraintsNotMet: ConstraintsNotMet = ConstraintsNotMet(
+    StopReason(STOP_REASON_CONSTRAINT_DEVICE_IDLE)
+)
