@@ -994,7 +994,11 @@ internal class LazyStaggeredGridMeasureProvider(
     private val resolvedSlots: LazyStaggeredGridSlots,
     private val measuredItemFactory: MeasuredItemFactory,
 ) {
-    private fun childConstraints(slot: Int, span: Int): Constraints {
+    private fun childConstraints(requestedSlot: Int, requestedSpan: Int): Constraints {
+        val slotCount = resolvedSlots.sizes.size
+        val slot = requestedSlot.coerceAtMost(slotCount - 1)
+        val span = requestedSpan.coerceAtMost(slotCount - slot)
+
         // resolved slots contain [offset, size] pair per each slot.
         val crossAxisSize = if (span == 1) {
             resolvedSlots.sizes[slot]
