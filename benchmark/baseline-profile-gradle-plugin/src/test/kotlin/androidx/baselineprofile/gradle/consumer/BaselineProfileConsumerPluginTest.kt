@@ -1157,6 +1157,65 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             }
         }
     }
+
+    @Test
+    fun testSkipGeneration() {
+        projectSetup.consumer.setup(ANDROID_APPLICATION_PLUGIN)
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1
+            )
+        )
+
+        gradleRunner.build(
+            "generateBaselineProfile",
+            "-Pandroidx.baselineprofile.skipgeneration"
+        ) {
+            assertThat(baselineProfileFile("release").exists()).isFalse()
+        }
+    }
+
+    @Test
+    fun testSkipGenerationWithPreviousResults() {
+        projectSetup.consumer.setup(ANDROID_APPLICATION_PLUGIN)
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1
+            )
+        )
+
+        gradleRunner.build("generateBaselineProfile") {
+            assertThat(readBaselineProfileFileContent("release"))
+                .containsExactly(
+                    Fixtures.CLASS_1_METHOD_1,
+                    Fixtures.CLASS_1
+                )
+        }
+
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2
+            )
+        )
+
+        gradleRunner.build(
+            "generateBaselineProfile",
+            "-Pandroidx.baselineprofile.skipgeneration"
+        ) {
+
+            // Note that the baseline profile should still contain the previous profile rules
+            // and not the updated ones, as running with `skipgeneration` will disable the
+            // generation tasks.
+            assertThat(readBaselineProfileFileContent("release"))
+                .containsExactly(
+                    Fixtures.CLASS_1_METHOD_1,
+                    Fixtures.CLASS_1
+                )
+        }
+    }
 }
 
 @RunWith(JUnit4::class)
