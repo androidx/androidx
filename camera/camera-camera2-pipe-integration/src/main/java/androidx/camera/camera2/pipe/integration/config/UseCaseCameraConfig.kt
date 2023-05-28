@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCameraDeviceOnCameraGraphCloseQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnDisconnectQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
@@ -162,8 +163,11 @@ class UseCaseCameraConfig(
                     DeviceQuirks[CloseCaptureSessionOnDisconnectQuirk::class.java] != null
                 }
             }
+        val shouldCloseCameraDeviceOnClose =
+            DeviceQuirks[CloseCameraDeviceOnCameraGraphCloseQuirk::class.java] != null
         val combinedFlags = cameraGraphFlags.copy(
             quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
+            quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
         )
 
         // Build up a config (using TEMPLATE_PREVIEW by default)

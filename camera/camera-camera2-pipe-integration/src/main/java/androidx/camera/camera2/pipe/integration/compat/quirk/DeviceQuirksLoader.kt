@@ -34,6 +34,9 @@ object DeviceQuirksLoader {
         val quirks: MutableList<Quirk> = mutableListOf()
 
         // Load all device specific quirks, preferably in lexicographical order
+        if (CloseCameraDeviceOnCameraGraphCloseQuirk.isEnabled()) {
+            quirks.add(CloseCameraDeviceOnCameraGraphCloseQuirk())
+        }
         if (CloseCaptureSessionOnDisconnectQuirk.isEnabled()) {
             quirks.add(CloseCaptureSessionOnDisconnectQuirk())
         }
