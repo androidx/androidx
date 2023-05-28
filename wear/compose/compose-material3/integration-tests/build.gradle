@@ -37,6 +37,7 @@ dependencies {
     implementation(project(':wear:compose:compose-material3'))
     implementation(project(':wear:compose:compose-material3-samples'))
     implementation(project(':wear:compose:integration-tests:demos:common'))
+    implementation(project(':compose:material:material-icons-core'))
 }
 
 androidx {
