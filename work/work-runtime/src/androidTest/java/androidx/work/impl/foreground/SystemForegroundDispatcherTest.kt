@@ -434,7 +434,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
-        processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
+        processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)), 0)
         val state = workDatabase.workSpecDao().getState(request.stringId)
         assertThat(state, `is`(WorkInfo.State.RUNNING))
         val stopAndCancelIntent = createCancelWorkIntent(context, request.stringId)

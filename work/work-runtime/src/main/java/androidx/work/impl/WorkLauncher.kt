@@ -16,8 +16,10 @@
 
 package androidx.work.impl
 
+import androidx.work.StopReason
 import androidx.work.WorkerParameters
 import androidx.work.WorkerParameters.RuntimeExtras
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.StartWorkRunnable
 import androidx.work.impl.utils.StopWorkRunnable
@@ -38,7 +40,15 @@ interface WorkLauncher {
     /**
      * @param workSpecId The [WorkSpec] id to stop
      */
-    fun stopWork(workSpecId: StartStopToken)
+    fun stopWork(workSpecId: StartStopToken) {
+        stopWork(workSpecId, StopReason.Undefined)
+    }
+
+    fun stopWork(workSpecId: StartStopToken, reason: StopReason)
+
+    // compat scheme for java callers
+    fun stopWork(workSpecId: StartStopToken, constraintsNotMet: ConstraintsNotMet) =
+        stopWork(workSpecId, constraintsNotMet.reason)
 }
 
 class WorkLauncherImpl(
@@ -50,7 +60,9 @@ class WorkLauncherImpl(
         workTaskExecutor.executeOnTaskThread(startWork)
     }
 
-    override fun stopWork(workSpecId: StartStopToken) {
-        workTaskExecutor.executeOnTaskThread(StopWorkRunnable(processor, workSpecId, false))
+    override fun stopWork(workSpecId: StartStopToken, reason: StopReason) {
+        workTaskExecutor.executeOnTaskThread(
+            StopWorkRunnable(processor, workSpecId, false, reason)
+        )
     }
 }
