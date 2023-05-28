@@ -35,7 +35,9 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * This represents the core state loop for a CameraGraph instance.
@@ -146,10 +148,7 @@ constructor(
 
         controllerState = ControllerState.STOPPING
         Log.debug { "Stopping Camera2CameraController" }
-        scope.launch {
-            session?.disconnect()
-            camera?.disconnect()
-        }
+        disconnectSessionAndCamera(session, camera)
     }
 
     override fun tryRestart(cameraStatus: CameraStatus): Unit = synchronized(lock) {
@@ -196,10 +195,7 @@ constructor(
         currentCameraStateJob?.cancel()
         currentCameraStateJob = null
 
-        scope.launch {
-            session?.disconnect()
-            camera?.disconnect()
-        }
+        disconnectSessionAndCamera(session, camera)
     }
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
@@ -270,6 +266,16 @@ constructor(
             lastCameraError = cameraState.cameraErrorCode
         } else {
             controllerState = ControllerState.STOPPED
+        }
+    }
+
+    private fun disconnectSessionAndCamera(session: CaptureSessionState?, camera: VirtualCamera?) {
+        val deferred = scope.async {
+            session?.disconnect()
+            camera?.disconnect()
+        }
+        if (config.flags.quirkCloseCaptureSessionOnDisconnect) {
+            runBlocking { deferred.await() }
         }
     }
 }
