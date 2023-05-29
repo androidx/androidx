@@ -23,7 +23,6 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.DeviceParametersProto;
 
 import java.lang.annotation.Retention;
@@ -109,16 +108,13 @@ public final class DeviceParametersBuilders {
             return mImpl.getScreenShape().getNumber();
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static DeviceParameters fromProto(
-                @NonNull DeviceParametersProto.DeviceParameters proto) {
+        static DeviceParameters fromProto(@NonNull DeviceParametersProto.DeviceParameters proto) {
             return new DeviceParameters(proto);
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public DeviceParametersProto.DeviceParameters toProto() {
+        DeviceParametersProto.DeviceParameters toProto() {
             return mImpl;
         }
 
