@@ -16,15 +16,31 @@
 
 package androidx.wear.compose.material
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.text.format.DateFormat
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
@@ -40,6 +56,7 @@ import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.timeFormat
+import java.util.Calendar
 
 /**
  * Layout to show the current time and a label at the top of the screen.
@@ -279,4 +296,85 @@ private fun PaddingValues.toArcPadding() = object : ArcPaddingValues {
     ) = calculateLeftPadding(layoutDirection)
 }
 
-internal expect class DefaultTimeSource(timeFormat: String) : TimeSource
+internal class DefaultTimeSource constructor(timeFormat: String) : TimeSource {
+    private val _timeFormat = timeFormat
+
+    override val currentTime: String
+        @Composable
+        get() = currentTime({ currentTimeMillis() }, _timeFormat).value
+}
+
+@Composable
+@VisibleForTesting
+internal fun currentTime(
+    time: () -> Long,
+    timeFormat: String
+): State<String> {
+
+    var calendar by remember { mutableStateOf(Calendar.getInstance()) }
+    var currentTime by remember { mutableLongStateOf(time()) }
+
+    val timeText = remember {
+        derivedStateOf { formatTime(calendar, currentTime, timeFormat) }
+    }
+
+    val context = LocalContext.current
+    val updatedTimeLambda by rememberUpdatedState(time)
+
+    DisposableEffect(context, updatedTimeLambda) {
+        val receiver = TimeBroadcastReceiver(
+            onTimeChanged = { currentTime = updatedTimeLambda() },
+            onTimeZoneChanged = { calendar = Calendar.getInstance() }
+        )
+        receiver.register(context)
+        onDispose {
+            receiver.unregister(context)
+        }
+    }
+    return timeText
+}
+
+/**
+ * A [BroadcastReceiver] to receive time tick, time change, and time zone change events.
+ */
+private class TimeBroadcastReceiver(
+    val onTimeChanged: () -> Unit,
+    val onTimeZoneChanged: () -> Unit
+) : BroadcastReceiver() {
+    private var registered = false
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_TIMEZONE_CHANGED) {
+            onTimeZoneChanged()
+        } else {
+            onTimeChanged()
+        }
+    }
+
+    fun register(context: Context) {
+        if (!registered) {
+            val filter = IntentFilter()
+            filter.addAction(Intent.ACTION_TIME_TICK)
+            filter.addAction(Intent.ACTION_TIME_CHANGED)
+            filter.addAction(Intent.ACTION_TIMEZONE_CHANGED)
+            context.registerReceiver(this, filter)
+            registered = true
+        }
+    }
+
+    fun unregister(context: Context) {
+        if (registered) {
+            context.unregisterReceiver(this)
+            registered = false
+        }
+    }
+}
+
+private fun formatTime(
+    calendar: Calendar,
+    currentTime: Long,
+    timeFormat: String
+): String {
+    calendar.timeInMillis = currentTime
+    return DateFormat.format(timeFormat, calendar).toString()
+}

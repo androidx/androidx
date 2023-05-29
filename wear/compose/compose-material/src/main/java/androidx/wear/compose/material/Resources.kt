@@ -26,16 +26,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
-@Composable
-internal actual fun isRoundDevice(): Boolean {
-    val configuration = LocalConfiguration.current
-    return remember(configuration) {
-        configuration.isScreenRound
-    }
+internal enum class ImageResources {
+    CircularVignetteBottom,
+    CircularVignetteTop,
+    RectangularVignetteBottom,
+    RectangularVignetteTop,
 }
 
 @Composable
-internal actual fun imageResource(image: ImageResources): Painter =
+internal fun imageResource(image: ImageResources): Painter =
     painterResource(
         when (image) {
             ImageResources.CircularVignetteBottom -> R.drawable.circular_vignette_bottom
@@ -46,12 +45,20 @@ internal actual fun imageResource(image: ImageResources): Painter =
     )
 
 @Composable
-internal actual fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
-
-internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+internal fun isRoundDevice(): Boolean {
+    val configuration = LocalConfiguration.current
+    return remember(configuration) {
+        configuration.isScreenRound
+    }
+}
 
 @Composable
-internal actual fun isLeftyModeEnabled(): Boolean {
+internal fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
+
+internal fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+@Composable
+internal fun isLeftyModeEnabled(): Boolean {
     val context = LocalContext.current
     return remember(context) {
         Settings.System.getInt(
@@ -63,7 +70,7 @@ internal actual fun isLeftyModeEnabled(): Boolean {
 }
 
 @Composable
-internal actual fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp
+internal fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp
 
 @Composable
-internal actual fun screenWidthDp() = LocalContext.current.resources.configuration.screenWidthDp
+internal fun screenWidthDp() = LocalContext.current.resources.configuration.screenWidthDp
