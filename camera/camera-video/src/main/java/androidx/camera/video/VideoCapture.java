@@ -500,7 +500,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (cameraInternal != null && cameraEdge != null) {
             int relativeRotation = getRelativeRotation(cameraInternal,
                     isMirroringRequired(cameraInternal));
-            cameraEdge.updateTransformation(relativeRotation);
+            cameraEdge.updateTransformation(relativeRotation, getAppTargetRotation());
         }
     }
 
