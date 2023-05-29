@@ -16,14 +16,14 @@
 
 package androidx.camera.extensions.internal.compat.workaround
 
-import android.os.SystemClock
 import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck.MIN_DURATION_FOR_ENABLE_DISABLE_SESSION
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
+import kotlin.system.measureTimeMillis
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,32 +35,28 @@ class OnEnableDisableSessionDurationCheckTest {
         const val TOLERANCE = 60L
     }
 
-    @Ignore("b/270962873")
     @Test
-    fun enabled_ensureMinimalDuration() {
+    fun enabled_ensureMinimalDuration() = runBlocking {
         // Arrange
         val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */true)
 
         val duration = 80L
         // Act
-        val startTime = SystemClock.elapsedRealtime()
         check.onEnableSessionInvoked()
-        Thread.sleep(duration)
-        check.onDisableSessionInvoked()
-        val endTime = SystemClock.elapsedRealtime()
+        val actualDuration = measureTimeMillis {
+            delay(duration)
+        }
+        val elapsedTime = measureTimeMillis {
+            check.onDisableSessionInvoked()
+        }
 
         // Assert
-        assertThat((endTime - startTime))
-            .isIn(
-                Range.closed(
-                    MIN_DURATION_FOR_ENABLE_DISABLE_SESSION,
-                    MIN_DURATION_FOR_ENABLE_DISABLE_SESSION + TOLERANCE
-                ))
+        val min = (MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - actualDuration).coerceAtLeast(0)
+        assertThat(elapsedTime).isAtLeast(min)
     }
 
-    @Ignore("b/283351331")
     @Test
-    fun enabled_doNotWaitExtraIfDurationExceeds() {
+    fun enabled_doNotWaitExtraIfDurationExceeds() = runBlocking {
         // 1. Arrange
         val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */true)
 
@@ -68,18 +64,15 @@ class OnEnableDisableSessionDurationCheckTest {
         val duration = MIN_DURATION_FOR_ENABLE_DISABLE_SESSION
 
         // 2. Act
-        val startTime = SystemClock.elapsedRealtime()
         check.onEnableSessionInvoked()
         // make the duration of onEnable to onDisable to be the minimal duration.
-        Thread.sleep(duration)
-        check.onDisableSessionInvoked()
-        val endTime = SystemClock.elapsedRealtime()
+        delay(duration)
+        val elapsedTime = measureTimeMillis {
+            check.onDisableSessionInvoked()
+        }
 
         // 3. Assert: no extra time waited.
-        assertThat((endTime - startTime))
-            .isLessThan(
-                duration + TOLERANCE
-            )
+        assertThat(elapsedTime).isLessThan(TOLERANCE)
     }
 
     @Test
@@ -88,13 +81,12 @@ class OnEnableDisableSessionDurationCheckTest {
         val check = OnEnableDisableSessionDurationCheck(/* enabledMinimumDuration */ false)
 
         // 2. Act
-        val startTime = SystemClock.elapsedRealtime()
-        check.onEnableSessionInvoked()
-        check.onDisableSessionInvoked()
-        val endTime = SystemClock.elapsedRealtime()
+        val elapsedTime = measureTimeMillis {
+            check.onEnableSessionInvoked()
+            check.onDisableSessionInvoked()
+        }
 
         // 3. Assert
-        assertThat((endTime - startTime))
-            .isLessThan(TOLERANCE)
+        assertThat(elapsedTime).isLessThan(TOLERANCE)
     }
 }
