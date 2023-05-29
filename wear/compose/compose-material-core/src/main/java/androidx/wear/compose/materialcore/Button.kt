@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.Dp
  * @param border Resolves the border for this button in different states.
  * @param buttonSize The default size of the button unless overridden by Modifier.size.
  * @param content The content displayed on the [Button] such as text, icon or image.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
