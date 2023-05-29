@@ -44,12 +44,13 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
-// @Config() is left out since there currently aren't any API level dependencies in this workaround
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = 21)
 class PreviewPixelHDRnetQuirkTest(
     private val manufacturer: String,
     private val device: String,

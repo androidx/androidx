@@ -28,6 +28,7 @@ import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowDisplay
@@ -37,6 +38,7 @@ import org.robolectric.shadows.ShadowDisplayManager.removeDisplay
 @Suppress("DEPRECATION") // getRealSize
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = 21)
 class DisplayInfoManagerTest {
     private val displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext())
 

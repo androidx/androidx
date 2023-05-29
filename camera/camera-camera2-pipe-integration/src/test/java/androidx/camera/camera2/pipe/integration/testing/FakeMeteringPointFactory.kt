@@ -17,8 +17,10 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.graphics.PointF
+import androidx.annotation.RequiresApi
 import androidx.camera.core.MeteringPointFactory
 
+@RequiresApi(21)
 class FakeMeteringPointFactory : MeteringPointFactory() {
     override fun convertPoint(x: Float, y: Float): PointF {
         return PointF(x, y)
