@@ -257,7 +257,9 @@ class UseCaseCameraState @Inject constructor(
                     it.update3A(request.parameters)
 
                     result?.let { result ->
-                        updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
+                        synchronized(lock) {
+                            updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
+                        }
                     }
                     Log.debug { "Update RepeatingRequest: $request" }
                     it.startRepeating(request)
