@@ -16,6 +16,7 @@
 
 package androidx.camera.view
 
+import androidx.annotation.RequiresApi
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
@@ -31,6 +32,7 @@ import com.google.common.util.concurrent.ListenableFuture
  * @param bindToLifecycleException the [Exception] to throw when [bindToLifecycle] is called.
  * If null, [bindToLifecycle] will not throw any error.
  */
+@RequiresApi(21)
 class FakeProcessCameraProviderWrapper(
     private val camera: Camera = FakeCamera(),
     private val bindToLifecycleException: Throwable? = null
