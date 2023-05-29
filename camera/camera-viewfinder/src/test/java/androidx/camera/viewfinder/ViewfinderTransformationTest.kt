@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.viewfinder
 
 import android.graphics.Rect
@@ -22,6 +24,7 @@ import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType
 import androidx.camera.viewfinder.internal.transform.Rotation.RotationValue
 import androidx.camera.viewfinder.internal.transform.TransformationInfo
