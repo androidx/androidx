@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.graphics.Rect
@@ -27,6 +29,7 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.util.Rational
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Lock3ABehavior
