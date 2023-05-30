@@ -64,7 +64,7 @@ class StartSafetyCheck private constructor() {
         ): CapabilityBuilder = setProperty(
             SlotMetadata.CHECK_IN_TIME.path,
             checkInTime,
-            TypeConverters.ZONED_DATE_TIME_ENTITY_CONVERTER
+            TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
         )
     }
 
@@ -238,7 +238,7 @@ class StartSafetyCheck private constructor() {
                 .bindParameter(
                     SlotMetadata.CHECK_IN_TIME.path,
                     Arguments.Builder::setCheckInTime,
-                    TypeConverters.ZONED_DATE_TIME_PARAM_VALUE_CONVERTER
+                    TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "safetyCheck",
