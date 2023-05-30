@@ -23,8 +23,8 @@ import android.content.res.AssetFileDescriptor;
  * sandbox to the embedding app.
  * This interface is not marked 'oneway' like IJsSandboxIsolateCallback and should be preferred for
  * ordering correctness.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxIsolateSyncCallback {
     // An exception was thrown during the JS evaluation.
     const int JS_EVALUATION_ERROR = 0;

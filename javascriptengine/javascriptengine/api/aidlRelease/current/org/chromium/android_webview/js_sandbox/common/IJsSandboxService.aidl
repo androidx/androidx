@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package org.chromium.android_webview.js_sandbox.common;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxService {
   org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate createIsolate() = 0;
   List<String> getSupportedFeatures() = 1;
