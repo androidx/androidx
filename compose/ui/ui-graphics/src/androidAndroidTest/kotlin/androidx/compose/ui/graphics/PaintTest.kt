@@ -66,7 +66,7 @@ class PaintTest {
     @Test
     fun testToComposePaintForColor() {
         val nativePaint = android.graphics.Paint()
-        val composePaint = nativePaint.toComposePaint()
+        val composePaint = nativePaint.asComposePaint()
         composePaint.color = Color(android.graphics.Color.GREEN)
         assertEquals(nativePaint.color, android.graphics.Color.GREEN)
     }
@@ -74,7 +74,7 @@ class PaintTest {
     @Test
     fun testToComposePaintForShader() {
         val nativePaint = android.graphics.Paint()
-        val composePaint = nativePaint.toComposePaint()
+        val composePaint = nativePaint.asComposePaint()
         val green = android.graphics.Color.GREEN
         val red = android.graphics.Color.RED
         val shader = android.graphics.LinearGradient(
