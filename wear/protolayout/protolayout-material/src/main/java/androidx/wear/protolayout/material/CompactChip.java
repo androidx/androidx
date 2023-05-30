@@ -19,9 +19,9 @@ package androidx.wear.protolayout.material;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT;
-import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
+import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_HEIGHT;
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.Helper.checkTag;
 import static androidx.wear.protolayout.material.Helper.getTagBytes;
@@ -173,7 +173,7 @@ public class CompactChip implements LayoutElement {
                                                             .build())
                                             .build())
                             .setWidth(wrap())
-                            .setHeight(COMPACT_HEIGHT_TAPPABLE)
+                            .setHeight(MIN_TAPPABLE_HEIGHT)
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                             .addContent(chipBuilder.build())
                             .build();
