@@ -42,7 +42,7 @@ import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
@@ -63,8 +63,6 @@ class ScannerFragment : Fragment() {
 
         internal const val MANUAL_DISCONNECT = "MANUAL_DISCONNECT"
     }
-
-    private lateinit var scannerViewModel: ScannerViewModel
 
     // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
     private lateinit var bluetoothLe: BluetoothLe
@@ -103,7 +101,7 @@ class ScannerFragment : Fragment() {
         override fun onTabSelected(tab: Tab) {
             showingScanResults = tab.position == TAB_RESULTS_POSITION
             if (tab.position != TAB_RESULTS_POSITION) {
-                updateDeviceUI(scannerViewModel.deviceConnection(tab.position))
+                updateDeviceUI(viewModel.deviceConnection(tab.position))
             }
         }
 
@@ -132,9 +130,9 @@ class ScannerFragment : Fragment() {
         }
     }
 
-    private var _binding: FragmentScannerBinding? = null
+    private val viewModel: ScannerViewModel by viewModels()
 
-    // This property is only valid between onCreateView and onDestroyView.
+    private var _binding: FragmentScannerBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -142,8 +140,6 @@ class ScannerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        scannerViewModel = ViewModelProvider(this)[ScannerViewModel::class.java]
-
         bluetoothLe = BluetoothLe(requireContext())
 
         _binding = FragmentScannerBinding.inflate(inflater, container, false)
@@ -172,11 +168,11 @@ class ScannerFragment : Fragment() {
         }
 
         binding.buttonReconnect.setOnClickListener {
-            connectTo(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+            connectTo(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
         }
 
         binding.buttonDisconnect.setOnClickListener {
-            disconnect(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+            disconnect(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
         }
 
         initData()
@@ -191,10 +187,10 @@ class ScannerFragment : Fragment() {
     }
 
     private fun initData() {
-        scannerAdapter?.submitList(scannerViewModel.scanResults)
-        scannerAdapter?.notifyItemRangeChanged(0, scannerViewModel.scanResults.size)
+        scannerAdapter?.submitList(viewModel.scanResults)
+        scannerAdapter?.notifyItemRangeChanged(0, viewModel.scanResults.size)
 
-        scannerViewModel.deviceConnections.map { it.bluetoothDevice }.forEach(::addNewTab)
+        viewModel.deviceConnections.map { it.bluetoothDevice }.forEach(::addNewTab)
     }
 
     private fun startScan() {
@@ -209,9 +205,9 @@ class ScannerFragment : Fragment() {
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
-                    if (scannerViewModel.addScanResultIfNew(it)) {
-                        scannerAdapter?.submitList(scannerViewModel.scanResults)
-                        scannerAdapter?.notifyItemInserted(scannerViewModel.scanResults.size)
+                    if (viewModel.addScanResultIfNew(it)) {
+                        scannerAdapter?.submitList(viewModel.scanResults)
+                        scannerAdapter?.notifyItemInserted(viewModel.scanResults.size)
                     }
                 }
         }
@@ -220,7 +216,7 @@ class ScannerFragment : Fragment() {
     private fun onClickScanResult(bluetoothDevice: BluetoothDevice) {
         isScanning = false
 
-        val index = scannerViewModel.addDeviceConnectionIfNew(bluetoothDevice)
+        val index = viewModel.addDeviceConnectionIfNew(bluetoothDevice)
 
         val deviceTab = if (index == ScannerViewModel.NEW_DEVICE) {
             addNewTab(bluetoothDevice)
@@ -235,7 +231,7 @@ class ScannerFragment : Fragment() {
 
         showingScanResults = false
 
-        connectTo(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+        connectTo(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
     }
 
     @SuppressLint("MissingPermission")
@@ -252,7 +248,7 @@ class ScannerFragment : Fragment() {
         textViewName?.text = deviceName
         textViewName?.isVisible = deviceName.isNullOrEmpty().not()
         customView?.findViewById<Button>(R.id.image_button_remove)?.setOnClickListener {
-            scannerViewModel.remove(bluetoothDevice)
+            viewModel.remove(bluetoothDevice)
             binding.tabLayout.removeTab(newTab)
         }
 

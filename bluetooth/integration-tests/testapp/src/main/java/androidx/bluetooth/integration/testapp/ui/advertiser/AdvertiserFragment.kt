@@ -41,7 +41,7 @@ import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayout
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
@@ -56,8 +56,6 @@ class AdvertiserFragment : Fragment() {
 
         private const val TAB_ADVERTISER_POSITION = 0
     }
-
-    private lateinit var advertiserViewModel: AdvertiserViewModel
 
     private lateinit var bluetoothLe: BluetoothLe
 
@@ -124,9 +122,9 @@ class AdvertiserFragment : Fragment() {
         }
     }
 
-    private var _binding: FragmentAdvertiserBinding? = null
+    private val viewModel: AdvertiserViewModel by viewModels()
 
-    // This property is only valid between onCreateView and onDestroyView.
+    private var _binding: FragmentAdvertiserBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -134,8 +132,6 @@ class AdvertiserFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        advertiserViewModel = ViewModelProvider(this)[AdvertiserViewModel::class.java]
-
         bluetoothLe = BluetoothLe(requireContext())
 
         bluetoothLeExperimental = BluetoothLeExperimental(requireContext())
@@ -145,15 +141,15 @@ class AdvertiserFragment : Fragment() {
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
         binding.checkBoxIncludeDeviceName.setOnCheckedChangeListener { _, isChecked ->
-            advertiserViewModel.includeDeviceName = isChecked
+            viewModel.includeDeviceName = isChecked
         }
 
         binding.checkBoxConnectable.setOnCheckedChangeListener { _, isChecked ->
-            advertiserViewModel.connectable = isChecked
+            viewModel.connectable = isChecked
         }
 
         binding.checkBoxDiscoverable.setOnCheckedChangeListener { _, isChecked ->
-            advertiserViewModel.discoverable = isChecked
+            viewModel.discoverable = isChecked
         }
 
         binding.buttonAddData.setOnClickListener {
@@ -171,7 +167,7 @@ class AdvertiserFragment : Fragment() {
         }
 
         advertiseDataAdapter = AdvertiseDataAdapter(
-            advertiserViewModel.advertiseData,
+            viewModel.advertiseData,
             ::onClickRemoveAdvertiseData
         )
         binding.recyclerViewAdvertiseData.adapter = advertiseDataAdapter
@@ -215,9 +211,9 @@ class AdvertiserFragment : Fragment() {
                     .adapter.name
             )
         }
-        binding.checkBoxIncludeDeviceName.isChecked = advertiserViewModel.includeDeviceName
-        binding.checkBoxConnectable.isChecked = advertiserViewModel.connectable
-        binding.checkBoxDiscoverable.isChecked = advertiserViewModel.discoverable
+        binding.checkBoxIncludeDeviceName.isChecked = viewModel.includeDeviceName
+        binding.checkBoxConnectable.isChecked = viewModel.connectable
+        binding.checkBoxDiscoverable.isChecked = viewModel.discoverable
     }
 
     private fun showDialogFor(title: String) {
@@ -238,7 +234,7 @@ class AdvertiserFragment : Fragment() {
             .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val editTextInput = editText.text.toString()
 
-                advertiserViewModel.serviceUuids.add(UUID.fromString(editTextInput))
+                viewModel.serviceUuids.add(UUID.fromString(editTextInput))
                 refreshAdvertiseData()
             }
             .setNegativeButton(getString(R.string.cancel), null)
@@ -263,7 +259,7 @@ class AdvertiserFragment : Fragment() {
                     UUID.fromString(editTextUuidOrServiceNameInput),
                     editTextDataHexInput.toByteArray()
                 )
-                advertiserViewModel.serviceDatas.add(serviceData)
+                viewModel.serviceDatas.add(serviceData)
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .create()
@@ -288,7 +284,7 @@ class AdvertiserFragment : Fragment() {
                     editText16BitCompanyIdentifierInput.toInt(),
                     editTextDataHexInput.toByteArray()
                 )
-                advertiserViewModel.manufacturerDatas.add(manufacturerData)
+                viewModel.manufacturerDatas.add(manufacturerData)
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .create()
@@ -297,13 +293,13 @@ class AdvertiserFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshAdvertiseData() {
-        advertiseDataAdapter?.advertiseData = advertiserViewModel.advertiseData
+        advertiseDataAdapter?.advertiseData = viewModel.advertiseData
         advertiseDataAdapter?.notifyDataSetChanged()
     }
 
     private fun onClickRemoveAdvertiseData(index: Int) {
-        advertiserViewModel.removeAdvertiseDataAtIndex(index)
-        advertiseDataAdapter?.advertiseData = advertiserViewModel.advertiseData
+        viewModel.removeAdvertiseDataAtIndex(index)
+        advertiseDataAdapter?.advertiseData = viewModel.advertiseData
         advertiseDataAdapter?.notifyItemRemoved(index)
     }
 
@@ -313,7 +309,7 @@ class AdvertiserFragment : Fragment() {
         advertiseJob = advertiseScope.launch {
             isAdvertising = true
 
-            bluetoothLe.advertise(advertiserViewModel.advertiseParams)
+            bluetoothLe.advertise(viewModel.advertiseParams)
                 .collect {
                     Log.d(TAG, "AdvertiseResult collected: $it")
 
