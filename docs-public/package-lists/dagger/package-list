@@ -1,3 +1,4 @@
+$dokka.format:javadoc-v1
 dagger
 dagger.android
 dagger.android.internal

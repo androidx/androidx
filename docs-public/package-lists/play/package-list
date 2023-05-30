@@ -1,3 +1,4 @@
+$dokka.format:javadoc1
 com.google.android.play.core.appupdate
 com.google.android.play.core.appupdate.testing
 com.google.android.play.core.assetpacks
