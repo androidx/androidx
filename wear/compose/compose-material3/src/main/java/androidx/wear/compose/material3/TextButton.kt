@@ -102,6 +102,71 @@ fun TextButton(
 }
 
 /**
+ * Wear Material [TextToggleButton] is a filled text toggle button which switches between primary
+ * colors and tonal colors depending on [checked] value, and offers a single slot for
+ * text.
+ *
+ * Set the size of the [TextToggleButton] with Modifier.[touchTargetAwareSize]
+ * to ensure that the background padding will correctly reach the edge of the minimum touch target.
+ * The recommended text button sizes are [TextButtonDefaults.DefaultButtonSize],
+ * [TextButtonDefaults.LargeButtonSize], [TextButtonDefaults.SmallButtonSize] and
+ * [TextButtonDefaults.ExtraSmallButtonSize].
+ *
+ * [TextToggleButton] can be enabled or disabled. A disabled button will not respond to
+ * click events. When enabled, the checked and unchecked events are propagated by [onCheckedChange].
+ *
+ * A simple text toggle button using the default colors
+ * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
+ *
+ * @param checked Boolean flag indicating whether this toggle button is currently checked.
+ * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
+ * @param modifier Modifier to be applied to the toggle button.
+ * @param enabled Controls the enabled state of the toggle button. When `false`,
+ * this toggle button will not be clickable.
+ * @param colors [ToggleButtonColors] that will be used to resolve the container and
+ * content color for this toggle button.
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this toggle button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
+ * default as this shape is a key characteristic of the Wear Material 3 Theme.
+ * @param border Optional [BorderStroke] for the [TextToggleButton].
+ * @param content The text to be drawn inside the toggle button.
+ */
+@Composable
+public fun TextToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ToggleButtonColors = TextButtonDefaults.textToggleButtonColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = CircleShape,
+    border: BorderStroke? = null,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    androidx.wear.compose.materialcore.ToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.minimumInteractiveComponentSize(),
+        enabled = enabled,
+        backgroundColor = { isEnabled, isChecked ->
+            colors.containerColor(enabled = isEnabled, checked = isChecked)
+        },
+        border = { _, _ -> rememberUpdatedState(border) },
+        toggleButtonSize = TextButtonDefaults.DefaultButtonSize,
+        interactionSource = interactionSource,
+        shape = shape,
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled, checked = checked),
+            MaterialTheme.typography.buttonMedium,
+            content
+        )
+    )
+}
+
+/**
  * Contains the default values used by [TextButton].
  */
 object TextButtonDefaults {
@@ -201,6 +266,52 @@ object TextButtonDefaults {
         disabledContainerColor = disabledContainerColor,
         disabledContentColor = disabledContentColor,
     )
+
+    /**
+     * Creates a [ToggleButtonColors] for a [TextToggleButton]
+     * - by default, a colored background with a contrasting content color.
+     * If the button is disabled, then the
+     * colors will have an alpha ([ContentAlpha.disabled]) value applied.
+     *
+     * @param checkedContainerColor the container color of this [TextToggleButton] when enabled
+     * and checked
+     * @param checkedContentColor the content color of this [TextToggleButton] when enabled and
+     * checked
+     * @param uncheckedContainerColor the container color of this [TextToggleButton] when enabled
+     * and unchecked
+     * @param uncheckedContentColor the content color of this [TextToggleButton] when enabled and
+     * unchecked
+     * @param disabledCheckedContainerColor the container color of this [TextToggleButton] when
+     * checked and not enabled
+     * @param disabledCheckedContentColor the content color of this [TextToggleButton] when checked
+     * and not enabled
+     * @param disabledUncheckedContainerColor the container color of this [TextToggleButton] when
+     * unchecked and not enabled
+     * @param disabledUncheckedContentColor the content color of this [TextToggleButton] when
+     * unchecked and not enabled
+     */
+    @Composable
+    public fun textToggleButtonColors(
+        checkedContainerColor: Color = MaterialTheme.colorScheme.primary,
+        checkedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+        uncheckedContainerColor: Color = MaterialTheme.colorScheme.surface,
+        uncheckedContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledCheckedContainerColor: Color = checkedContainerColor.toDisabledColor(),
+        disabledCheckedContentColor: Color = checkedContentColor.toDisabledColor(),
+        disabledUncheckedContainerColor: Color = uncheckedContainerColor.toDisabledColor(),
+        disabledUncheckedContentColor: Color = uncheckedContentColor.toDisabledColor(),
+    ): ToggleButtonColors {
+        return ToggleButtonColors(
+            checkedContainerColor = checkedContainerColor,
+            checkedContentColor = checkedContentColor,
+            uncheckedContainerColor = uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor,
+            disabledCheckedContainerColor = disabledCheckedContainerColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
+        )
+    }
 
     /**
      * The recommended background size of an extra small, compact button.

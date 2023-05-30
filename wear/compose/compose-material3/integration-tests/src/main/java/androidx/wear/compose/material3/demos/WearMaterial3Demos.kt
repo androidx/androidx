@@ -115,6 +115,12 @@ val WearMaterial3Demos = DemoCategory(
                 ListHeaderDemo()
             }
         },
+        ComposableDemo("Text Toggle Button") {
+            TextToggleButtonDemo()
+        },
+        ComposableDemo("Icon Toggle Button") {
+            IconToggleButtonDemo()
+        },
         ComposableDemo(
             title = "Fixed Font Size"
         ) {
