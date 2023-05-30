@@ -95,6 +95,22 @@ import kotlin.math.ln
  * @property outlineVariant Utility color used for boundaries for decorative elements when strong
  * contrast is not required.
  * @property scrim Color of a scrim that obscures content.
+ * @property surfaceBright A [surface] variant that is always brighter than surface, whether in
+ * light or dark mode.
+ * @property surfaceDim A [surface] variant that is always dimmer than [surface], whether in
+ * light or dark mode.
+ * @property surfaceContainer A [surface] variant that affects containers of components, such as
+ * cards, sheets, and menus.
+ * @property surfaceContainerHigh A [surface] variant for containers with higher emphasis than
+ * [surfaceContainer]. Use this role for content which requires more emphasis than surfaceContainer.
+ * @property surfaceContainerHighest A [surface] variant for containers with higher emphasis than
+ * [surfaceContainerHigh]. Use this role for content which requires more emphasis than
+ * surfaceContainer.
+ * @property surfaceContainerLow A [surface] variant for containers with lower emphasis than
+ * [surfaceContainer]. Use this role for content which requires less emphasis than surfaceContainer.
+ * @property surfaceContainerLowest A [surface] variant for containers with lower emphasis than
+ * [surfaceContainerLow]. Use this role for content which requires less emphasis than
+ * surfaceContainerLow.
  */
 @Stable
 class ColorScheme(
@@ -127,7 +143,82 @@ class ColorScheme(
     outline: Color,
     outlineVariant: Color,
     scrim: Color,
+    surfaceBright: Color,
+    surfaceDim: Color,
+    surfaceContainer: Color,
+    surfaceContainerHigh: Color,
+    surfaceContainerHighest: Color,
+    surfaceContainerLow: Color,
+    surfaceContainerLowest: Color,
 ) {
+    constructor(
+        primary: Color,
+        onPrimary: Color,
+        primaryContainer: Color,
+        onPrimaryContainer: Color,
+        inversePrimary: Color,
+        secondary: Color,
+        onSecondary: Color,
+        secondaryContainer: Color,
+        onSecondaryContainer: Color,
+        tertiary: Color,
+        onTertiary: Color,
+        tertiaryContainer: Color,
+        onTertiaryContainer: Color,
+        background: Color,
+        onBackground: Color,
+        surface: Color,
+        onSurface: Color,
+        surfaceVariant: Color,
+        onSurfaceVariant: Color,
+        surfaceTint: Color,
+        inverseSurface: Color,
+        inverseOnSurface: Color,
+        error: Color,
+        onError: Color,
+        errorContainer: Color,
+        onErrorContainer: Color,
+        outline: Color,
+        outlineVariant: Color,
+        scrim: Color,
+    ) : this(
+        primary = primary,
+        onPrimary = onPrimary,
+        primaryContainer = primaryContainer,
+        onPrimaryContainer = onPrimaryContainer,
+        inversePrimary = inversePrimary,
+        secondary = secondary,
+        onSecondary = onSecondary,
+        secondaryContainer = secondaryContainer,
+        onSecondaryContainer = onSecondaryContainer,
+        tertiary = tertiary,
+        onTertiary = onTertiary,
+        tertiaryContainer = tertiaryContainer,
+        onTertiaryContainer = onTertiaryContainer,
+        background = background,
+        onBackground = onBackground,
+        surface = surface,
+        onSurface = onSurface,
+        surfaceVariant = surfaceVariant,
+        onSurfaceVariant = onSurfaceVariant,
+        surfaceTint = surfaceTint,
+        inverseSurface = inverseSurface,
+        inverseOnSurface = inverseOnSurface,
+        error = error,
+        onError = onError,
+        errorContainer = errorContainer,
+        onErrorContainer = onErrorContainer,
+        outline = outline,
+        outlineVariant = outlineVariant,
+        scrim = scrim,
+        surfaceBright = Color.Unspecified,
+        surfaceDim = Color.Unspecified,
+        surfaceContainer = Color.Unspecified,
+        surfaceContainerHigh = Color.Unspecified,
+        surfaceContainerHighest = Color.Unspecified,
+        surfaceContainerLow = Color.Unspecified,
+        surfaceContainerLowest = Color.Unspecified,
+    )
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
     var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
@@ -186,6 +277,21 @@ class ColorScheme(
         internal set
     var scrim by mutableStateOf(scrim, structuralEqualityPolicy())
         internal set
+    var surfaceBright by mutableStateOf(surfaceBright, structuralEqualityPolicy())
+        internal set
+    var surfaceDim by mutableStateOf(surfaceDim, structuralEqualityPolicy())
+        internal set
+    var surfaceContainer by mutableStateOf(surfaceContainer, structuralEqualityPolicy())
+        internal set
+    var surfaceContainerHigh by mutableStateOf(surfaceContainerHigh, structuralEqualityPolicy())
+        internal set
+    var surfaceContainerHighest by mutableStateOf(
+        surfaceContainerHighest, structuralEqualityPolicy())
+        internal set
+    var surfaceContainerLow by mutableStateOf(surfaceContainerLow, structuralEqualityPolicy())
+        internal set
+    var surfaceContainerLowest by mutableStateOf(surfaceContainerLowest, structuralEqualityPolicy())
+        internal set
 
     /** Returns a copy of this ColorScheme, optionally overriding some of the values. */
     fun copy(
@@ -218,8 +324,90 @@ class ColorScheme(
         outline: Color = this.outline,
         outlineVariant: Color = this.outlineVariant,
         scrim: Color = this.scrim,
+        surfaceBright: Color = this.surfaceBright,
+        surfaceDim: Color = this.surfaceDim,
+        surfaceContainer: Color = this.surfaceContainer,
+        surfaceContainerHigh: Color = this.surfaceContainerHigh,
+        surfaceContainerHighest: Color = this.surfaceContainerHighest,
+        surfaceContainerLow: Color = this.surfaceContainerLow,
+        surfaceContainerLowest: Color = this.surfaceContainerLowest,
     ): ColorScheme =
         ColorScheme(
+            primary = primary,
+            onPrimary = onPrimary,
+            primaryContainer = primaryContainer,
+            onPrimaryContainer = onPrimaryContainer,
+            inversePrimary = inversePrimary,
+            secondary = secondary,
+            onSecondary = onSecondary,
+            secondaryContainer = secondaryContainer,
+            onSecondaryContainer = onSecondaryContainer,
+            tertiary = tertiary,
+            onTertiary = onTertiary,
+            tertiaryContainer = tertiaryContainer,
+            onTertiaryContainer = onTertiaryContainer,
+            background = background,
+            onBackground = onBackground,
+            surface = surface,
+            onSurface = onSurface,
+            surfaceVariant = surfaceVariant,
+            onSurfaceVariant = onSurfaceVariant,
+            surfaceTint = surfaceTint,
+            inverseSurface = inverseSurface,
+            inverseOnSurface = inverseOnSurface,
+            error = error,
+            onError = onError,
+            errorContainer = errorContainer,
+            onErrorContainer = onErrorContainer,
+            outline = outline,
+            outlineVariant = outlineVariant,
+            scrim = scrim,
+            surfaceBright = surfaceBright,
+            surfaceDim = surfaceDim,
+            surfaceContainer = surfaceContainer,
+            surfaceContainerHigh = surfaceContainerHigh,
+            surfaceContainerHighest = surfaceContainerHighest,
+            surfaceContainerLow = surfaceContainerLow,
+            surfaceContainerLowest = surfaceContainerLowest,
+        )
+
+    @Deprecated(
+        message =
+            "Maintained for binary compatibility. Use version additional surface roles instead",
+        level = DeprecationLevel.HIDDEN
+    )
+    fun copy(
+        primary: Color = this.primary,
+        onPrimary: Color = this.onPrimary,
+        primaryContainer: Color = this.primaryContainer,
+        onPrimaryContainer: Color = this.onPrimaryContainer,
+        inversePrimary: Color = this.inversePrimary,
+        secondary: Color = this.secondary,
+        onSecondary: Color = this.onSecondary,
+        secondaryContainer: Color = this.secondaryContainer,
+        onSecondaryContainer: Color = this.onSecondaryContainer,
+        tertiary: Color = this.tertiary,
+        onTertiary: Color = this.onTertiary,
+        tertiaryContainer: Color = this.tertiaryContainer,
+        onTertiaryContainer: Color = this.onTertiaryContainer,
+        background: Color = this.background,
+        onBackground: Color = this.onBackground,
+        surface: Color = this.surface,
+        onSurface: Color = this.onSurface,
+        surfaceVariant: Color = this.surfaceVariant,
+        onSurfaceVariant: Color = this.onSurfaceVariant,
+        surfaceTint: Color = this.surfaceTint,
+        inverseSurface: Color = this.inverseSurface,
+        inverseOnSurface: Color = this.inverseOnSurface,
+        error: Color = this.error,
+        onError: Color = this.onError,
+        errorContainer: Color = this.errorContainer,
+        onErrorContainer: Color = this.onErrorContainer,
+        outline: Color = this.outline,
+        outlineVariant: Color = this.outlineVariant,
+        scrim: Color = this.scrim,
+    ): ColorScheme =
+        copy(
             primary = primary,
             onPrimary = onPrimary,
             primaryContainer = primaryContainer,
@@ -282,6 +470,13 @@ class ColorScheme(
             "outline=$outline" +
             "outlineVariant=$outlineVariant" +
             "scrim=$scrim" +
+            "surfaceBright=$surfaceBright" +
+            "surfaceDim=$surfaceDim" +
+            "surfaceContainer=$surfaceContainer" +
+            "surfaceContainerHigh=$surfaceContainerHigh" +
+            "surfaceContainerHighest=$surfaceContainerHighest" +
+            "surfaceContainerLow=$surfaceContainerLow" +
+            "surfaceContainerLowest=$surfaceContainerLowest" +
             ")"
     }
 }
@@ -319,8 +514,90 @@ fun lightColorScheme(
     outline: Color = ColorLightTokens.Outline,
     outlineVariant: Color = ColorLightTokens.OutlineVariant,
     scrim: Color = ColorLightTokens.Scrim,
+    surfaceBright: Color = ColorLightTokens.SurfaceBright,
+    surfaceContainer: Color = ColorLightTokens.SurfaceContainer,
+    surfaceContainerHigh: Color = ColorLightTokens.SurfaceContainerHigh,
+    surfaceContainerHighest: Color = ColorLightTokens.SurfaceContainerHighest,
+    surfaceContainerLow: Color = ColorLightTokens.SurfaceContainerLow,
+    surfaceContainerLowest: Color = ColorLightTokens.SurfaceContainerLowest,
+    surfaceDim: Color = ColorLightTokens.SurfaceDim,
 ): ColorScheme =
     ColorScheme(
+        primary = primary,
+        onPrimary = onPrimary,
+        primaryContainer = primaryContainer,
+        onPrimaryContainer = onPrimaryContainer,
+        inversePrimary = inversePrimary,
+        secondary = secondary,
+        onSecondary = onSecondary,
+        secondaryContainer = secondaryContainer,
+        onSecondaryContainer = onSecondaryContainer,
+        tertiary = tertiary,
+        onTertiary = onTertiary,
+        tertiaryContainer = tertiaryContainer,
+        onTertiaryContainer = onTertiaryContainer,
+        background = background,
+        onBackground = onBackground,
+        surface = surface,
+        onSurface = onSurface,
+        surfaceVariant = surfaceVariant,
+        onSurfaceVariant = onSurfaceVariant,
+        surfaceTint = surfaceTint,
+        inverseSurface = inverseSurface,
+        inverseOnSurface = inverseOnSurface,
+        error = error,
+        onError = onError,
+        errorContainer = errorContainer,
+        onErrorContainer = onErrorContainer,
+        outline = outline,
+        outlineVariant = outlineVariant,
+        scrim = scrim,
+        surfaceBright = surfaceBright,
+        surfaceContainer = surfaceContainer,
+        surfaceContainerHigh = surfaceContainerHigh,
+        surfaceContainerHighest = surfaceContainerHighest,
+        surfaceContainerLow = surfaceContainerLow,
+        surfaceContainerLowest = surfaceContainerLowest,
+        surfaceDim = surfaceDim,
+    )
+
+@Deprecated(
+    message =
+        "Maintained for binary compatibility. Use version additional surface roles instead",
+    level = DeprecationLevel.HIDDEN
+)
+fun lightColorScheme(
+    primary: Color = ColorLightTokens.Primary,
+    onPrimary: Color = ColorLightTokens.OnPrimary,
+    primaryContainer: Color = ColorLightTokens.PrimaryContainer,
+    onPrimaryContainer: Color = ColorLightTokens.OnPrimaryContainer,
+    inversePrimary: Color = ColorLightTokens.InversePrimary,
+    secondary: Color = ColorLightTokens.Secondary,
+    onSecondary: Color = ColorLightTokens.OnSecondary,
+    secondaryContainer: Color = ColorLightTokens.SecondaryContainer,
+    onSecondaryContainer: Color = ColorLightTokens.OnSecondaryContainer,
+    tertiary: Color = ColorLightTokens.Tertiary,
+    onTertiary: Color = ColorLightTokens.OnTertiary,
+    tertiaryContainer: Color = ColorLightTokens.TertiaryContainer,
+    onTertiaryContainer: Color = ColorLightTokens.OnTertiaryContainer,
+    background: Color = ColorLightTokens.Background,
+    onBackground: Color = ColorLightTokens.OnBackground,
+    surface: Color = ColorLightTokens.Surface,
+    onSurface: Color = ColorLightTokens.OnSurface,
+    surfaceVariant: Color = ColorLightTokens.SurfaceVariant,
+    onSurfaceVariant: Color = ColorLightTokens.OnSurfaceVariant,
+    surfaceTint: Color = primary,
+    inverseSurface: Color = ColorLightTokens.InverseSurface,
+    inverseOnSurface: Color = ColorLightTokens.InverseOnSurface,
+    error: Color = ColorLightTokens.Error,
+    onError: Color = ColorLightTokens.OnError,
+    errorContainer: Color = ColorLightTokens.ErrorContainer,
+    onErrorContainer: Color = ColorLightTokens.OnErrorContainer,
+    outline: Color = ColorLightTokens.Outline,
+    outlineVariant: Color = ColorLightTokens.OutlineVariant,
+    scrim: Color = ColorLightTokens.Scrim,
+): ColorScheme =
+    lightColorScheme(
         primary = primary,
         onPrimary = onPrimary,
         primaryContainer = primaryContainer,
@@ -385,8 +662,90 @@ fun darkColorScheme(
     outline: Color = ColorDarkTokens.Outline,
     outlineVariant: Color = ColorDarkTokens.OutlineVariant,
     scrim: Color = ColorDarkTokens.Scrim,
+    surfaceBright: Color = ColorDarkTokens.SurfaceBright,
+    surfaceContainer: Color = ColorDarkTokens.SurfaceContainer,
+    surfaceContainerHigh: Color = ColorDarkTokens.SurfaceContainerHigh,
+    surfaceContainerHighest: Color = ColorLightTokens.SurfaceContainerHighest,
+    surfaceContainerLow: Color = ColorDarkTokens.SurfaceContainerLow,
+    surfaceContainerLowest: Color = ColorDarkTokens.SurfaceContainerLowest,
+    surfaceDim: Color = ColorDarkTokens.SurfaceDim,
 ): ColorScheme =
     ColorScheme(
+        primary = primary,
+        onPrimary = onPrimary,
+        primaryContainer = primaryContainer,
+        onPrimaryContainer = onPrimaryContainer,
+        inversePrimary = inversePrimary,
+        secondary = secondary,
+        onSecondary = onSecondary,
+        secondaryContainer = secondaryContainer,
+        onSecondaryContainer = onSecondaryContainer,
+        tertiary = tertiary,
+        onTertiary = onTertiary,
+        tertiaryContainer = tertiaryContainer,
+        onTertiaryContainer = onTertiaryContainer,
+        background = background,
+        onBackground = onBackground,
+        surface = surface,
+        onSurface = onSurface,
+        surfaceVariant = surfaceVariant,
+        onSurfaceVariant = onSurfaceVariant,
+        surfaceTint = surfaceTint,
+        inverseSurface = inverseSurface,
+        inverseOnSurface = inverseOnSurface,
+        error = error,
+        onError = onError,
+        errorContainer = errorContainer,
+        onErrorContainer = onErrorContainer,
+        outline = outline,
+        outlineVariant = outlineVariant,
+        scrim = scrim,
+        surfaceBright = surfaceBright,
+        surfaceContainer = surfaceContainer,
+        surfaceContainerHigh = surfaceContainerHigh,
+        surfaceContainerHighest = surfaceContainerHighest,
+        surfaceContainerLow = surfaceContainerLow,
+        surfaceContainerLowest = surfaceContainerLowest,
+        surfaceDim = surfaceDim,
+    )
+
+@Deprecated(
+    message =
+        "Maintained for binary compatibility. Use version additional surface roles instead",
+    level = DeprecationLevel.HIDDEN
+)
+fun darkColorScheme(
+    primary: Color = ColorDarkTokens.Primary,
+    onPrimary: Color = ColorDarkTokens.OnPrimary,
+    primaryContainer: Color = ColorDarkTokens.PrimaryContainer,
+    onPrimaryContainer: Color = ColorDarkTokens.OnPrimaryContainer,
+    inversePrimary: Color = ColorDarkTokens.InversePrimary,
+    secondary: Color = ColorDarkTokens.Secondary,
+    onSecondary: Color = ColorDarkTokens.OnSecondary,
+    secondaryContainer: Color = ColorDarkTokens.SecondaryContainer,
+    onSecondaryContainer: Color = ColorDarkTokens.OnSecondaryContainer,
+    tertiary: Color = ColorDarkTokens.Tertiary,
+    onTertiary: Color = ColorDarkTokens.OnTertiary,
+    tertiaryContainer: Color = ColorDarkTokens.TertiaryContainer,
+    onTertiaryContainer: Color = ColorDarkTokens.OnTertiaryContainer,
+    background: Color = ColorDarkTokens.Background,
+    onBackground: Color = ColorDarkTokens.OnBackground,
+    surface: Color = ColorDarkTokens.Surface,
+    onSurface: Color = ColorDarkTokens.OnSurface,
+    surfaceVariant: Color = ColorDarkTokens.SurfaceVariant,
+    onSurfaceVariant: Color = ColorDarkTokens.OnSurfaceVariant,
+    surfaceTint: Color = primary,
+    inverseSurface: Color = ColorDarkTokens.InverseSurface,
+    inverseOnSurface: Color = ColorDarkTokens.InverseOnSurface,
+    error: Color = ColorDarkTokens.Error,
+    onError: Color = ColorDarkTokens.OnError,
+    errorContainer: Color = ColorDarkTokens.ErrorContainer,
+    onErrorContainer: Color = ColorDarkTokens.OnErrorContainer,
+    outline: Color = ColorDarkTokens.Outline,
+    outlineVariant: Color = ColorDarkTokens.OutlineVariant,
+    scrim: Color = ColorDarkTokens.Scrim,
+): ColorScheme =
+    darkColorScheme(
         primary = primary,
         onPrimary = onPrimary,
         primaryContainer = primaryContainer,
@@ -442,13 +801,19 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
         tertiary -> onTertiary
         background -> onBackground
         error -> onError
-        surface -> onSurface
-        surfaceVariant -> onSurfaceVariant
         primaryContainer -> onPrimaryContainer
         secondaryContainer -> onSecondaryContainer
         tertiaryContainer -> onTertiaryContainer
         errorContainer -> onErrorContainer
         inverseSurface -> inverseOnSurface
+        surface -> onSurface
+        surfaceVariant -> onSurfaceVariant
+        surfaceBright -> onSurface
+        surfaceContainer -> onSurface
+        surfaceContainerHigh -> onSurface
+        surfaceContainerHighest -> onSurface
+        surfaceContainerLow -> onSurface
+        surfaceContainerLowest -> onSurface
         else -> Color.Unspecified
     }
 
@@ -477,12 +842,22 @@ fun contentColorFor(backgroundColor: Color) =
     }
 
 /**
- * Returns the new background [Color] to use, representing the original background [color] with an
- * overlay corresponding to [elevation] applied. The overlay will only be applied to
- * [ColorScheme.surface].
+ * Returns [ColorScheme.surfaceColorAtElevation] with the provided elevation if
+ * [LocalTonalElevationEnabled] is set to true, and the provided background color matches
+ * [ColorScheme.surface]. Otherwise, the provided color is returned unchanged.
+ *
+ * @param backgroundColor The background color to compare to [ColorScheme.surface]
+ * @param elevation The elevation provided to [ColorScheme.surfaceColorAtElevation] if
+ * [backgroundColor] matches surface.
+ *
+ * @return [ColorScheme.surfaceColorAtElevation] at [elevation] if [backgroundColor] ==
+ * [ColorScheme.surface] and [LocalTonalElevationEnabled] is set to true. Else [backgroundColor]
  */
+@Composable
+@ReadOnlyComposable
 internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: Dp): Color {
-    return if (backgroundColor == surface) {
+    val tonalElevationEnabled = LocalTonalElevationEnabled.current
+    return if (backgroundColor == surface && tonalElevationEnabled) {
         surfaceColorAtElevation(elevation)
     } else {
         backgroundColor
@@ -496,7 +871,6 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  *
  * @return the [ColorScheme.surface] color with an alpha of the [ColorScheme.surfaceTint] color
  * overlaid on top of it.
-
  */
 fun ColorScheme.surfaceColorAtElevation(
     elevation: Dp,
@@ -550,6 +924,13 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
     outline = other.outline
     outlineVariant = other.outlineVariant
     scrim = other.scrim
+    surfaceBright = other.surfaceBright
+    surfaceDim = other.surfaceDim
+    surfaceContainer = other.surfaceContainer
+    surfaceContainerHigh = other.surfaceContainerHigh
+    surfaceContainerHighest = other.surfaceContainerHighest
+    surfaceContainerLow = other.surfaceContainerLow
+    surfaceContainerLowest = other.surfaceContainerLowest
 }
 
 /**
@@ -586,8 +967,16 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
         ColorSchemeKeyTokens.SecondaryContainer -> secondaryContainer
         ColorSchemeKeyTokens.Surface -> surface
         ColorSchemeKeyTokens.SurfaceVariant -> surfaceVariant
+        ColorSchemeKeyTokens.SurfaceBright -> surfaceBright
+        ColorSchemeKeyTokens.SurfaceContainer -> surfaceContainer
+        ColorSchemeKeyTokens.SurfaceContainerHigh -> surfaceContainerHigh
+        ColorSchemeKeyTokens.SurfaceContainerHighest -> surfaceContainerHighest
+        ColorSchemeKeyTokens.SurfaceContainerLow -> surfaceContainerLow
+        ColorSchemeKeyTokens.SurfaceContainerLowest -> surfaceContainerLowest
+        ColorSchemeKeyTokens.SurfaceDim -> surfaceDim
         ColorSchemeKeyTokens.Tertiary -> tertiary
         ColorSchemeKeyTokens.TertiaryContainer -> tertiaryContainer
+        else -> Color.Unspecified
     }
 }
 
@@ -600,6 +989,15 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
  * [MaterialTheme.colorScheme].
  */
 internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
+
+/**
+ * Composition Local used to check if [ColorScheme.applyTonalElevation] will be applied down the
+ * tree.
+ *
+ * Setting this value to false will cause all subsequent surfaces down the tree to not apply
+ * tonalElevation.
+ */
+internal val LocalTonalElevationEnabled = staticCompositionLocalOf { true }
 
 /**
  * A low level of alpha used to represent disabled components, such as text in a disabled Button.
