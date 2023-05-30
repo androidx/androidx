@@ -1,5 +1,5 @@
-import androidx.build.LibraryType
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -44,8 +44,8 @@ android {
 
 androidx {
     name = "Android Wear Tiles Tooling"
-    type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    publish = Publish.SNAPSHOT_ONLY // Library is not ready to be released yet.
+    runApiTasks = new RunApiTasks.Yes()
     inceptionYear = "2023"
     description = "A set of tools that are used to preview TilesService in Android Studio"
 }
