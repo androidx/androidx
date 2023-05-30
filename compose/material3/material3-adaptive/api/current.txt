@@ -78,12 +78,7 @@ package androidx.compose.material3.adaptive {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldAdaptStrategies {
     ctor public ThreePaneScaffoldAdaptStrategies(androidx.compose.material3.adaptive.AdaptStrategy primaryPaneAdaptStrategy, androidx.compose.material3.adaptive.AdaptStrategy secondaryPaneAdaptStrategy, androidx.compose.material3.adaptive.AdaptStrategy tertiaryPaneAdaptStrategy);
-    method public androidx.compose.material3.adaptive.AdaptStrategy getPrimaryPaneAdaptStrategy();
-    method public androidx.compose.material3.adaptive.AdaptStrategy getSecondaryPaneAdaptStrategy();
-    method public androidx.compose.material3.adaptive.AdaptStrategy getTertiaryPaneAdaptStrategy();
-    property public final androidx.compose.material3.adaptive.AdaptStrategy primaryPaneAdaptStrategy;
-    property public final androidx.compose.material3.adaptive.AdaptStrategy secondaryPaneAdaptStrategy;
-    property public final androidx.compose.material3.adaptive.AdaptStrategy tertiaryPaneAdaptStrategy;
+    method public operator androidx.compose.material3.adaptive.AdaptStrategy get(androidx.compose.material3.adaptive.ThreePaneScaffoldRole role);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldArrangement {
@@ -106,12 +101,17 @@ package androidx.compose.material3.adaptive {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue {
     ctor public ThreePaneScaffoldValue(String primary, String secondary, String tertiary);
+    method public operator String get(androidx.compose.material3.adaptive.ThreePaneScaffoldRole role);
     method public String getPrimary();
     method public String getSecondary();
     method public String getTertiary();
     property public final String primary;
     property public final String secondary;
     property public final String tertiary;
+  }
+
+  public final class ThreePaneScaffoldValueKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional androidx.compose.material3.adaptive.ThreePaneScaffoldRole? currentFocus);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class WindowAdaptiveInfo {
