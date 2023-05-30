@@ -34,6 +34,7 @@ CORE_ANIMATION = "1.0.0-beta02"
 CORE_ANIMATION_TESTING = "1.0.0-beta01"
 CORE_APPDIGEST = "1.0.0-alpha01"
 CORE_GOOGLE_SHORTCUTS = "1.2.0-alpha01"
+CORE_HAPTICS = "1.0.0-alpha01"
 CORE_I18N = "1.0.0-alpha01"
 CORE_LOCATION_ALTITUDE = "1.0.0-alpha01"
 CORE_PERFORMANCE = "1.0.0-alpha03"
@@ -190,6 +191,7 @@ CONSTRAINTLAYOUT = { group = "androidx.constraintlayout" }
 CONTENTPAGER = { group = "androidx.contentpager", atomicGroupVersion = "versions.CONTENTPAGER" }
 COORDINATORLAYOUT = { group = "androidx.coordinatorlayout", atomicGroupVersion = "versions.COORDINATORLAYOUT" }
 CORE = { group = "androidx.core" }
+CORE_HAPTICS = { group = "androidx.core.haptics", atomicGroupVersion = "versions.CORE_HAPTICS" }
 CORE_UWB = { group = "androidx.core.uwb", atomicGroupVersion = "versions.CORE_UWB" }
 CREDENTIALS = { group = "androidx.credentials", atomicGroupVersion = "versions.CREDENTIALS" }
 CURSORADAPTER = { group = "androidx.cursoradapter", atomicGroupVersion = "versions.CURSORADAPTER" }
