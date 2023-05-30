@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.Origin
 
 internal class KspAnnotation(
     val env: KspProcessingEnv,
@@ -40,6 +41,12 @@ internal class KspAnnotation(
 
     override val type: XType by lazy {
         env.wrap(ksType, allowPrimitives = true)
+    }
+
+    override val declaredAnnotationValues: List<XAnnotationValue> by lazy {
+        annotationValues.filterNot {
+          (it as KspAnnotationValue).valueArgument.origin == Origin.SYNTHETIC
+        }
     }
 
     override val annotationValues: List<XAnnotationValue> by lazy {

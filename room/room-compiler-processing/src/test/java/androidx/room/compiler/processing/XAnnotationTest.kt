@@ -641,6 +641,11 @@ class XAnnotationTest(
                         ).isEqualTo(
                             listOf(LinkedHashMap::class.asKTypeName())
                         )
+                    } else {
+                        assertThat(annotation.toAnnotationSpec(includeDefaultValues = false))
+                            .isEqualTo(JAnnotationSpec.get(annotation.toJavac()))
+                        assertThat(annotation.toAnnotationSpec())
+                            .isNotEqualTo(JAnnotationSpec.get(annotation.toJavac()))
                     }
 
                     val enumValueEntry = annotation.getAsEnum("enumVal")
@@ -648,7 +653,6 @@ class XAnnotationTest(
                     val javaEnumType = invocation.processingEnv.requireTypeElement(JavaEnum::class)
                     assertThat(enumValueEntry.enclosingElement)
                         .isEqualTo(javaEnumType)
-
                     val enumList = annotation.getAsEnumList("enumArrayVal")
                     assertThat(enumList[0].name).isEqualTo("VAL1")
                     assertThat(enumList[1].name).isEqualTo("VAL2")
