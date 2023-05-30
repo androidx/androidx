@@ -151,7 +151,7 @@ fun Project.findAllTasksByOutput(): Map<File, Task> {
     // find list of all tasks
     val allTasks = mutableListOf<Task>()
     project.allprojects { otherProject ->
-        otherProject.tasks.all { task ->
+        otherProject.tasks.forEach { task ->
             allTasks.add(task)
         }
     }
