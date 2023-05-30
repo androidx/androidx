@@ -49,6 +49,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -108,6 +109,7 @@ fun Surface(
  * @param onClick callback to be called when the surface is clicked. Note: DPad Enter button won't
  * work if this value is null
  * @param modifier Modifier to be applied to the layout corresponding to the surface
+ * @param onLongClick callback to be called when the surface is long clicked (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
  * clickable or focusable.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
@@ -129,6 +131,7 @@ fun Surface(
 fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     tonalElevation: Dp = 0.dp,
     shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
@@ -145,6 +148,7 @@ fun Surface(
         modifier = modifier.tvClickable(
             enabled = enabled,
             onClick = onClick,
+            onLongClick = onLongClick,
             interactionSource = interactionSource,
         ),
         checked = false,
@@ -206,8 +210,10 @@ fun Surface(
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
  * @param checked whether or not this Surface is toggled on or off
- * @param onCheckedChange callback to be invoked when the toggleable Surface is clicked
- * @param modifier Modifier to be applied to the layout corresponding to the surface
+ * @param onCheckedChange callback to be invoked when the toggleable Surface is clicked.
+ * @param modifier [Modifier] to be applied to the layout corresponding to the surface
+ * @param onLongClick callback to be called when the toggleable surface is long clicked
+ * (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
  * clickable or focusable.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
@@ -231,6 +237,7 @@ fun Surface(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    onLongClick: (() -> Unit)? = null,
     tonalElevation: Dp = Elevation.Level0,
     shape: ToggleableSurfaceShape = ToggleableSurfaceDefaults.shape(),
     colors: ToggleableSurfaceColors = ToggleableSurfaceDefaults.colors(),
@@ -249,6 +256,7 @@ fun Surface(
             checked = checked,
             onCheckedChange = onCheckedChange,
             interactionSource = interactionSource,
+            onLongClick = onLongClick
         ),
         checked = checked,
         enabled = enabled,
@@ -408,18 +416,21 @@ private fun SurfaceImpl(
 /**
  * This modifier handles click, press, and focus events for a TV composable.
  * @param enabled decides whether [onClick] is executed
- * @param onClick executes the provided lambda
+ * @param onClick executes the provided lambda on click.
+ * @param onLongClick executes the provided lambda on long press.
  * @param interactionSource used to emit [PressInteraction] events
  */
 private fun Modifier.tvClickable(
     enabled: Boolean,
     onClick: (() -> Unit)?,
+    onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource
 ) = handleDPadEnter(
-    enabled = enabled,
-    interactionSource = interactionSource,
-    onClick = onClick
-)
+        enabled = enabled,
+        interactionSource = interactionSource,
+        onClick = onClick,
+        onLongClick = onLongClick
+    )
     // We are not using "clickable" modifier here because if we set "enabled" to false
     // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
     // should be focusable
@@ -432,6 +443,13 @@ private fun Modifier.tvClickable(
             }
             false
         }
+        onLongClick {
+            onLongClick?.let { nnOnLongClick ->
+                nnOnLongClick()
+                return@onLongClick true
+            }
+            false
+        }
         if (!enabled) {
             disabled()
         }
@@ -441,20 +459,24 @@ private fun Modifier.tvClickable(
  * This modifier handles click, press, and focus events for a TV composable.
  * @param enabled decides whether [onCheckedChange] is executed
  * @param checked differentiates whether the current item is checked or unchecked
- * @param onCheckedChange executes the provided lambda while returning the inverse state of
- * [checked]
+ * @param onCheckedChange executes the provided lambda on click, while returning the inverse state
+ * of [checked].
+ * @param onLongClick executes the provided lambda on long press.
+ * @param interactionSource used to emit [PressInteraction] events
  */
 private fun Modifier.tvToggleable(
     enabled: Boolean,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource,
 ) = handleDPadEnter(
-    enabled = enabled,
-    interactionSource = interactionSource,
-    checked = checked,
-    onCheckedChanged = onCheckedChange
-)
+        enabled = enabled,
+        interactionSource = interactionSource,
+        checked = checked,
+        onCheckedChanged = onCheckedChange,
+        onLongClick = onLongClick
+    )
     // We are not using "toggleable" modifier here because if we set "enabled" to false
     // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
     // should be focusable
@@ -463,6 +485,13 @@ private fun Modifier.tvToggleable(
         onClick {
             onCheckedChange(!checked)
             true
+        }
+        onLongClick {
+            onLongClick?.let { nnOnLongClick ->
+                nnOnLongClick()
+                return@onLongClick true
+            }
+            false
         }
         if (!enabled) {
             disabled()
@@ -475,6 +504,7 @@ private fun Modifier.tvToggleable(
  * @param enabled if this is false, the D-PAD enter event is ignored
  * @param interactionSource used to emit [PressInteraction] events
  * @param onClick this lambda will be triggered on D-PAD enter event
+ * @param onLongClick this lambda will be triggered when D-PAD enter is long pressed.
  * @param checked differentiates whether the current item is checked or unchecked
  * @param onCheckedChanged executes the provided lambda while returning the inverse state of
  * [checked]
@@ -483,6 +513,7 @@ private fun Modifier.handleDPadEnter(
     enabled: Boolean,
     interactionSource: MutableInteractionSource,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     checked: Boolean = false,
     onCheckedChanged: ((Boolean) -> Unit)? = null
 ) = composed(
@@ -491,40 +522,56 @@ private fun Modifier.handleDPadEnter(
         properties["enabled"] = enabled
         properties["interactionSource"] = interactionSource
         properties["onClick"] = onClick
+        properties["onLongClick"] = onLongClick
         properties["checked"] = checked
         properties["onCheckedChanged"] = onCheckedChanged
     }
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
-    var isPressed by remember { mutableStateOf(false) }
-    onKeyEvent { keyEvent ->
-        if (AcceptableKeys.any { keyEvent.nativeKeyEvent.keyCode == it } && enabled) {
-            when (keyEvent.nativeKeyEvent.action) {
-                NativeKeyEvent.ACTION_DOWN -> {
-                    if (!isPressed) {
-                        isPressed = true
-                        coroutineScope.launch {
-                            interactionSource.emit(pressInteraction)
-                        }
-                    }
-                }
+    var isLongClick by remember { mutableStateOf(false) }
 
-                NativeKeyEvent.ACTION_UP -> {
-                    if (isPressed) {
-                        isPressed = false
-                        coroutineScope.launch {
-                            interactionSource.emit(PressInteraction.Release(pressInteraction))
+    this.then(
+        onKeyEvent { keyEvent ->
+            if (AcceptableKeys.any { keyEvent.nativeKeyEvent.keyCode == it } && enabled) {
+                when (keyEvent.nativeKeyEvent.action) {
+                    NativeKeyEvent.ACTION_DOWN -> {
+                        when (keyEvent.nativeKeyEvent.repeatCount) {
+                            0 ->
+                                coroutineScope.launch {
+                                    interactionSource.emit(pressInteraction)
+                                }
+
+                            1 ->
+                                onLongClick?.let {
+                                    isLongClick = true
+                                    coroutineScope.launch {
+                                        interactionSource.emit(
+                                            PressInteraction.Release(
+                                                pressInteraction
+                                            )
+                                        )
+                                    }
+                                    it.invoke()
+                                }
                         }
-                        onClick?.invoke()
-                        onCheckedChanged?.invoke(!checked)
+                    }
+
+                    NativeKeyEvent.ACTION_UP -> {
+                        if (!isLongClick) {
+                            coroutineScope.launch {
+                                interactionSource.emit(PressInteraction.Release(pressInteraction))
+                            }
+                            onClick?.invoke()
+                            onCheckedChanged?.invoke(!checked)
+                        } else isLongClick = false
                     }
                 }
+                return@onKeyEvent KeyEventPropagation.StopPropagation
             }
-            return@onKeyEvent KeyEventPropagation.StopPropagation
+            KeyEventPropagation.ContinuePropagation
         }
-        KeyEventPropagation.ContinuePropagation
-    }
+    )
 }
 
 @Composable
