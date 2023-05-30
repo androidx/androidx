@@ -29,6 +29,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static java.util.UUID.randomUUID;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
@@ -134,7 +135,7 @@ public class SurfaceProcessorNode implements
         android.graphics.Matrix sensorToBufferTransform =
                 new android.graphics.Matrix(input.getSensorToBufferTransform());
         android.graphics.Matrix imageTransform = getRectToRect(
-                sizeToRectF(input.getStreamSpec().getResolution()),
+                new RectF(cropRect),
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
         sensorToBufferTransform.postConcat(imageTransform);
 
