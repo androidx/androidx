@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.core.util.Preconditions;
@@ -59,7 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * OpenGLRenderer renders texture image to the output surface.
  *
  * <p>OpenGLRenderer's methods must run on the same thread, so called GL thread. The GL thread is
- * locked as the thread running the {@link #init(ShaderProvider)} method, otherwise an
+ * locked as the thread running the {@link #init(DynamicRange, ShaderProvider)} method, otherwise an
  * {@link IllegalStateException} will be thrown when other methods are called.
  */
 @WorkerThread
@@ -144,7 +145,7 @@ public final class OpenGlRenderer {
      * @throws IllegalArgumentException if the ShaderProvider fails to create shader or provides
      *                                  invalid shader string.
      */
-    public void init(@NonNull ShaderProvider shaderProvider) {
+    public void init(@NonNull DynamicRange dynamicRange, @NonNull ShaderProvider shaderProvider) {
         checkInitializedOrThrow(false);
         try {
             createEglContext();
