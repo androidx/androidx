@@ -135,8 +135,8 @@ object Debug {
                     stream.outputs.forEachIndexed { i, output ->
                         append("  ")
                         val streamId = if (i == 0) output.stream.id.toString() else ""
-                        append(streamId.padEnd(10, ' '))
-                        append(output.id.toString().padEnd(10, ' '))
+                        append(streamId.padEnd(12, ' '))
+                        append(output.id.toString().padEnd(12, ' '))
                         append(output.size.toString().padEnd(12, ' '))
                         append(output.format.name.padEnd(16, ' '))
                         output.mirrorMode?.let { append(" [$it]") }
