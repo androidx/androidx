@@ -81,6 +81,7 @@ class UnionTypeSpec<T : Any> internal constructor(
     class Builder<T : Any> {
         private val bindings = mutableListOf<MemberBinding<T, *>>()
 
+        /** During deserialization, bindings will be tried in the order they are bound. */
         fun <M> bindMemberType(
             memberGetter: (T) -> M?,
             ctor: (M) -> T,
