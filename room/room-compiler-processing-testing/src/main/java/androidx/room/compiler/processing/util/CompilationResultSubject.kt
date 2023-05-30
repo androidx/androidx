@@ -31,6 +31,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
 import java.util.regex.Pattern
 import javax.tools.Diagnostic
+import org.junit.AssumptionViolatedException
 
 /**
  * Holds the information about a test compilation result.
@@ -415,6 +416,11 @@ class CompilationResultSubject internal constructor(
     internal fun assertNoProcessorAssertionErrors() {
         val processingException = compilationResult.processor.getProcessingException()
         if (processingException != null) {
+            // processor has an assumption violation, re-throw so test case does not generate
+            // a failure
+            if (processingException is AssumptionViolatedException) {
+                throw processingException
+            }
             // processor has an error which we want to throw but we also want the subject, hence
             // we wrap it
             throw CompilationAssertionError(

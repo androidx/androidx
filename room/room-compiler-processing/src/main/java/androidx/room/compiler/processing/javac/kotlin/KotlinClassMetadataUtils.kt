@@ -166,12 +166,23 @@ internal class KmClassContainer(
                     element
                 )
             }
-            // TODO: Support more metadata kind (file facade, synthetic class, etc...)
             return when (classMetadata) {
                 is KotlinClassMetadata.Class -> KmClassContainer(classMetadata.toKmClass())
+                // Synthetic classes generated for various Kotlin features ($DefaultImpls,
+                // $WhenMappings, etc) are ignored because the data contained does not affect
+                // the metadata derived APIs. These classes are never referenced by user code but
+                // could be discovered by processors when inspecting inner classes.
+                is KotlinClassMetadata.SyntheticClass,
+                // Multi file classes are also ignored, the elements contained in these might be
+                // referenced by user code in method bodies but not part of the AST, however it
+                // is possible for a processor to discover them by inspecting elements under a
+                // package.
+                is KotlinClassMetadata.FileFacade,
+                is KotlinClassMetadata.MultiFileClassFacade,
+                is KotlinClassMetadata.MultiFileClassPart -> null
                 else -> {
                     env.delegate.messager.printMessage(
-                        Diagnostic.Kind.WARNING,
+                        Diagnostic.Kind.ERROR,
                         "Unable to read Kotlin metadata due to unsupported metadata " +
                             "kind: $classMetadata.",
                         element
