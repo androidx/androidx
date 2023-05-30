@@ -34,6 +34,7 @@ import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
+import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.tiles.TileService;
 
 import com.google.common.collect.ImmutableMap;
@@ -101,6 +102,7 @@ public final class TileRenderer {
             @NonNull LoadActionListener loadActionListener) {
         this(
                 uiContext,
+                /* tilesTheme= */ 0,
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
@@ -129,9 +131,9 @@ public final class TileRenderer {
             @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        // TODO(b/272527869): Enable setting theme.
         this(
                 uiContext,
+                tilesTheme,
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
@@ -149,6 +151,7 @@ public final class TileRenderer {
             @NonNull Consumer<StateBuilders.State> loadActionListener) {
         this(
                 uiContext,
+                /* tilesTheme= */ 0,
                 loadActionExecutor,
                 loadActionListener,
                 /* layout= */ null,
@@ -157,10 +160,12 @@ public final class TileRenderer {
 
     private TileRenderer(
             @NonNull Context uiContext,
+            @StyleRes int tilesTheme,
             @NonNull Executor loadActionExecutor,
             @NonNull Consumer<StateBuilders.State> loadActionListener,
             @Nullable LayoutElementProto.Layout layout,
             @Nullable ResourceProto.Resources resources) {
+
         this.mLayout = layout;
         this.mResources = resources;
         this.mUiExecutor = MoreExecutors.newDirectExecutorService();
@@ -178,6 +183,9 @@ public final class TileRenderer {
                         .setIsViewFullyVisible(true)
                         .setStateStore(mStateStore)
                         .setLoadActionListener(instanceListener);
+        if (tilesTheme != 0) {
+            config.setProtoLayoutTheme(new ProtoLayoutThemeImpl(uiContext, tilesTheme));
+        }
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
 
