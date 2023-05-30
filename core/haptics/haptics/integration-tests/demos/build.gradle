@@ -23,7 +23,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":appcompat:appcompat"))
+    implementation(projectOrArtifact(":appcompat:appcompat"))
     implementation(project(":core:haptics:haptics"))
 }
 
