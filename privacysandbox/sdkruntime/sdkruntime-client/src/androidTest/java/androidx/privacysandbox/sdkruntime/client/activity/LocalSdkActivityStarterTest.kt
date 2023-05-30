@@ -17,6 +17,7 @@
 package androidx.privacysandbox.sdkruntime.client.activity
 
 import android.os.Binder
+import android.view.Window
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
@@ -45,6 +46,8 @@ class LocalSdkActivityStarterTest {
         assertThat(activityHolder.getActivity()).isInstanceOf(SdkActivity::class.java)
 
         val sdkActivity = activityHolder.getActivity() as SdkActivity
+        assertThat(sdkActivity.window.hasFeature(Window.FEATURE_NO_TITLE)).isTrue()
+
         assertThat(activityHolder.lifecycle).isSameInstanceAs(sdkActivity.lifecycle)
         assertThat(activityHolder.getOnBackPressedDispatcher())
             .isSameInstanceAs(sdkActivity.onBackPressedDispatcher)
