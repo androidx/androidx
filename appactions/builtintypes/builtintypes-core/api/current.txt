@@ -39,63 +39,63 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class EndDate {
+    ctor public EndDate(java.time.Instant instant);
     ctor public EndDate(java.time.LocalDate date);
     ctor public EndDate(java.time.LocalDateTime localDateTime);
-    ctor public EndDate(java.time.ZonedDateTime zonedDateTime);
     method public java.time.LocalDate? getAsDate();
+    method public java.time.Instant? getAsInstant();
     method public java.time.LocalDateTime? getAsLocalDateTime();
-    method public java.time.ZonedDateTime? getAsZonedDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.EndDate.Mapper<R> mapper);
     property public final java.time.LocalDate? asDate;
+    property public final java.time.Instant? asInstant;
     property public final java.time.LocalDateTime? asLocalDateTime;
-    property public final java.time.ZonedDateTime? asZonedDateTime;
   }
 
   public static interface EndDate.Mapper<R> {
     method public default R date(java.time.LocalDate instance);
+    method public default R instant(java.time.Instant instance);
     method public default R localDateTime(java.time.LocalDateTime instance);
     method public R orElse();
-    method public default R zonedDateTime(java.time.ZonedDateTime instance);
   }
 
   public final class EndTime {
+    ctor public EndTime(java.time.Instant instant);
     ctor public EndTime(java.time.LocalDateTime localDateTime);
     ctor public EndTime(java.time.LocalTime time);
-    ctor public EndTime(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.Instant? getAsInstant();
     method public java.time.LocalDateTime? getAsLocalDateTime();
     method public java.time.LocalTime? getAsTime();
-    method public java.time.ZonedDateTime? getAsZonedDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.EndTime.Mapper<R> mapper);
+    property public final java.time.Instant? asInstant;
     property public final java.time.LocalDateTime? asLocalDateTime;
     property public final java.time.LocalTime? asTime;
-    property public final java.time.ZonedDateTime? asZonedDateTime;
   }
 
   public static interface EndTime.Mapper<R> {
+    method public default R instant(java.time.Instant instance);
     method public default R localDateTime(java.time.LocalDateTime instance);
     method public R orElse();
     method public default R time(java.time.LocalTime instance);
-    method public default R zonedDateTime(java.time.ZonedDateTime instance);
   }
 
   public final class ExceptDate {
+    ctor public ExceptDate(java.time.Instant instant);
     ctor public ExceptDate(java.time.LocalDate date);
     ctor public ExceptDate(java.time.LocalDateTime localDateTime);
-    ctor public ExceptDate(java.time.ZonedDateTime zonedDateTime);
     method public java.time.LocalDate? getAsDate();
+    method public java.time.Instant? getAsInstant();
     method public java.time.LocalDateTime? getAsLocalDateTime();
-    method public java.time.ZonedDateTime? getAsZonedDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.ExceptDate.Mapper<R> mapper);
     property public final java.time.LocalDate? asDate;
+    property public final java.time.Instant? asInstant;
     property public final java.time.LocalDateTime? asLocalDateTime;
-    property public final java.time.ZonedDateTime? asZonedDateTime;
   }
 
   public static interface ExceptDate.Mapper<R> {
     method public default R date(java.time.LocalDate instance);
+    method public default R instant(java.time.Instant instance);
     method public default R localDateTime(java.time.LocalDateTime instance);
     method public R orElse();
-    method public default R zonedDateTime(java.time.ZonedDateTime instance);
   }
 
   public final class Name {
@@ -121,43 +121,43 @@ package androidx.appactions.builtintypes.properties {
   }
 
   public final class StartDate {
+    ctor public StartDate(java.time.Instant instant);
     ctor public StartDate(java.time.LocalDate date);
     ctor public StartDate(java.time.LocalDateTime localDateTime);
-    ctor public StartDate(java.time.ZonedDateTime zonedDateTime);
     method public java.time.LocalDate? getAsDate();
+    method public java.time.Instant? getAsInstant();
     method public java.time.LocalDateTime? getAsLocalDateTime();
-    method public java.time.ZonedDateTime? getAsZonedDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.StartDate.Mapper<R> mapper);
     property public final java.time.LocalDate? asDate;
+    property public final java.time.Instant? asInstant;
     property public final java.time.LocalDateTime? asLocalDateTime;
-    property public final java.time.ZonedDateTime? asZonedDateTime;
   }
 
   public static interface StartDate.Mapper<R> {
     method public default R date(java.time.LocalDate instance);
+    method public default R instant(java.time.Instant instance);
     method public default R localDateTime(java.time.LocalDateTime instance);
     method public R orElse();
-    method public default R zonedDateTime(java.time.ZonedDateTime instance);
   }
 
   public final class StartTime {
+    ctor public StartTime(java.time.Instant instant);
     ctor public StartTime(java.time.LocalDateTime localDateTime);
     ctor public StartTime(java.time.LocalTime time);
-    ctor public StartTime(java.time.ZonedDateTime zonedDateTime);
+    method public java.time.Instant? getAsInstant();
     method public java.time.LocalDateTime? getAsLocalDateTime();
     method public java.time.LocalTime? getAsTime();
-    method public java.time.ZonedDateTime? getAsZonedDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.StartTime.Mapper<R> mapper);
+    property public final java.time.Instant? asInstant;
     property public final java.time.LocalDateTime? asLocalDateTime;
     property public final java.time.LocalTime? asTime;
-    property public final java.time.ZonedDateTime? asZonedDateTime;
   }
 
   public static interface StartTime.Mapper<R> {
+    method public default R instant(java.time.Instant instance);
     method public default R localDateTime(java.time.LocalDateTime instance);
     method public R orElse();
     method public default R time(java.time.LocalTime instance);
-    method public default R zonedDateTime(java.time.ZonedDateTime instance);
   }
 
 }
@@ -172,6 +172,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -182,6 +183,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -197,6 +199,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -209,6 +212,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -218,6 +222,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -232,6 +237,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -244,6 +250,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -253,6 +260,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -267,6 +275,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -279,6 +288,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -288,6 +298,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -302,6 +313,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -314,6 +326,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -323,6 +336,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -337,6 +351,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -350,6 +365,7 @@ package androidx.appactions.builtintypes.types {
     method public final String? getEmail();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -360,6 +376,7 @@ package androidx.appactions.builtintypes.types {
     property public final String? email;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -375,6 +392,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setEmail(String? text);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -394,6 +412,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method public final Long? getRepeatCount();
     method public final androidx.appactions.builtintypes.properties.RepeatFrequency? getRepeatFrequency();
     method public final String? getScheduleTimezone();
@@ -415,6 +434,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property public final Long? repeatCount;
     property public final androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency;
     property public final String? scheduleTimezone;
@@ -449,6 +469,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setExceptDate(androidx.appactions.builtintypes.properties.ExceptDate? exceptDate);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final Self setRepeatCount(Long? integer);
     method public final Self setRepeatFrequency(androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency);
     method public final Self setScheduleTimezone(String? text);
@@ -466,6 +487,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -475,6 +497,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -489,6 +512,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -501,6 +525,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -510,6 +535,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -524,6 +550,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -537,6 +564,7 @@ package androidx.appactions.builtintypes.types {
     method public final java.time.Duration? getDuration();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -547,6 +575,7 @@ package androidx.appactions.builtintypes.types {
     property public final java.time.Duration? duration;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -562,6 +591,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDuration(java.time.Duration? duration);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -574,6 +604,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public final String? getIdentifier();
     method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
     method public final Builder toBuilder();
@@ -583,6 +614,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
     property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
     property protected abstract String selfTypeName;
   }
 
@@ -597,6 +629,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -780,30 +813,30 @@ package androidx.appactions.builtintypes.types {
     method public Self clearByMonthWeeks();
     method public Self clearByMonths();
     method public Self setEndDate(androidx.appactions.builtintypes.properties.EndDate? endDate);
+    method public default Self setEndDate(java.time.Instant instant);
     method public default Self setEndDate(java.time.LocalDate date);
     method public default Self setEndDate(java.time.LocalDateTime localDateTime);
-    method public default Self setEndDate(java.time.ZonedDateTime zonedDateTime);
     method public Self setEndTime(androidx.appactions.builtintypes.properties.EndTime? endTime);
+    method public default Self setEndTime(java.time.Instant instant);
     method public default Self setEndTime(java.time.LocalDateTime localDateTime);
     method public default Self setEndTime(java.time.LocalTime time);
-    method public default Self setEndTime(java.time.ZonedDateTime zonedDateTime);
     method public Self setExceptDate(androidx.appactions.builtintypes.properties.ExceptDate? exceptDate);
+    method public default Self setExceptDate(java.time.Instant instant);
     method public default Self setExceptDate(java.time.LocalDate date);
     method public default Self setExceptDate(java.time.LocalDateTime localDateTime);
-    method public default Self setExceptDate(java.time.ZonedDateTime zonedDateTime);
     method public Self setRepeatCount(Long? integer);
     method public Self setRepeatFrequency(androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency);
     method public default Self setRepeatFrequency(String text);
     method public default Self setRepeatFrequency(java.time.Duration duration);
     method public Self setScheduleTimezone(String? text);
     method public Self setStartDate(androidx.appactions.builtintypes.properties.StartDate? startDate);
+    method public default Self setStartDate(java.time.Instant instant);
     method public default Self setStartDate(java.time.LocalDate date);
     method public default Self setStartDate(java.time.LocalDateTime localDateTime);
-    method public default Self setStartDate(java.time.ZonedDateTime zonedDateTime);
     method public Self setStartTime(androidx.appactions.builtintypes.properties.StartTime? startTime);
+    method public default Self setStartTime(java.time.Instant instant);
     method public default Self setStartTime(java.time.LocalDateTime localDateTime);
     method public default Self setStartTime(java.time.LocalTime time);
-    method public default Self setStartTime(java.time.ZonedDateTime zonedDateTime);
   }
 
   public static final class Schedule.Companion {
@@ -829,10 +862,12 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public String? getIdentifier();
     method public androidx.appactions.builtintypes.properties.Name? getName();
+    method public String? getNamespace();
     method public androidx.appactions.builtintypes.types.Thing.Builder<?> toBuilder();
     property public abstract androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public abstract String? identifier;
     property public abstract androidx.appactions.builtintypes.properties.Name? name;
+    property public abstract String? namespace;
     field public static final androidx.appactions.builtintypes.types.Thing.Companion Companion;
   }
 
@@ -843,6 +878,7 @@ package androidx.appactions.builtintypes.types {
     method public Self setIdentifier(String? text);
     method public Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public default Self setName(String text);
+    method public Self setNamespace(String? namespace);
   }
 
   public static final class Thing.Companion {

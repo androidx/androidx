@@ -103,6 +103,7 @@ public abstract class AbstractObjectCreationLimitReachedStatus<
   Self : AbstractObjectCreationLimitReachedStatus<Self, Builder>,
   Builder : AbstractObjectCreationLimitReachedStatus.Builder<Builder, Self>>
 internal constructor(
+  public final override val namespace: String?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
@@ -128,6 +129,7 @@ internal constructor(
   public constructor(
     objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus
   ) : this(
+    objectCreationLimitReachedStatus.namespace,
     objectCreationLimitReachedStatus.disambiguatingDescription,
     objectCreationLimitReachedStatus.identifier,
     objectCreationLimitReachedStatus.name
@@ -141,6 +143,7 @@ internal constructor(
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setNamespace(namespace)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -152,15 +155,19 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
+    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (namespace != null) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
@@ -245,6 +252,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var namespace: String? = null
+
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
@@ -267,8 +276,13 @@ internal constructor(
 
     public final override fun build(): Built =
       buildFromObjectCreationLimitReachedStatus(
-        ObjectCreationLimitReachedStatusImpl(disambiguatingDescription, identifier, name)
+        ObjectCreationLimitReachedStatusImpl(namespace, disambiguatingDescription, identifier, name)
       )
+
+    public final override fun setNamespace(namespace: String?): Self {
+      this.namespace = namespace
+      return this as Self
+    }
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -295,17 +309,21 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
+      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (namespace != null) {
+        attributes["namespace"] = namespace!!
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
@@ -324,7 +342,7 @@ internal constructor(
   }
 }
 
-internal class ObjectCreationLimitReachedStatusImpl :
+private class ObjectCreationLimitReachedStatusImpl :
   AbstractObjectCreationLimitReachedStatus<
     ObjectCreationLimitReachedStatusImpl, ObjectCreationLimitReachedStatusImpl.Builder
   > {
@@ -335,10 +353,11 @@ internal class ObjectCreationLimitReachedStatusImpl :
     get() = emptyMap()
 
   public constructor(
+    namespace: String?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(disambiguatingDescription, identifier, name)
+  ) : super(namespace, disambiguatingDescription, identifier, name)
 
   public constructor(
     objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus
@@ -346,7 +365,7 @@ internal class ObjectCreationLimitReachedStatusImpl :
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder :
+  public class Builder :
     AbstractObjectCreationLimitReachedStatus.Builder<
       Builder, ObjectCreationLimitReachedStatusImpl
     >() {

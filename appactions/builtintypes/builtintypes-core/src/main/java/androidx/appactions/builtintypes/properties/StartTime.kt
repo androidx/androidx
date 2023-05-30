@@ -13,9 +13,9 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZonedDateTime
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -37,7 +37,7 @@ import kotlin.jvm.JvmName
  * Holds one of:
  * * Time i.e. [LocalTime]
  * * [LocalDateTime]
- * * [ZonedDateTime]
+ * * [Instant]
  *
  * May hold more types over time.
  */
@@ -47,8 +47,8 @@ internal constructor(
   @get:JvmName("asTime") public val asTime: LocalTime? = null,
   /** The [LocalDateTime] variant, or null if constructed using a different variant. */
   @get:JvmName("asLocalDateTime") public val asLocalDateTime: LocalDateTime? = null,
-  /** The [ZonedDateTime] variant, or null if constructed using a different variant. */
-  @get:JvmName("asZonedDateTime") public val asZonedDateTime: ZonedDateTime? = null,
+  /** The [Instant] variant, or null if constructed using a different variant. */
+  @get:JvmName("asInstant") public val asInstant: Instant? = null,
   /**
    * The AppSearch document's identifier.
    *
@@ -63,8 +63,8 @@ internal constructor(
   /** Constructor for the [LocalDateTime] variant. */
   public constructor(localDateTime: LocalDateTime) : this(asLocalDateTime = localDateTime)
 
-  /** Constructor for the [ZonedDateTime] variant. */
-  public constructor(zonedDateTime: ZonedDateTime) : this(asZonedDateTime = zonedDateTime)
+  /** Constructor for the [Instant] variant. */
+  public constructor(instant: Instant) : this(asInstant = instant)
 
   /**
    * Maps each of the possible underlying variants to some [R].
@@ -78,7 +78,7 @@ internal constructor(
     when {
       asTime != null -> mapper.time(asTime)
       asLocalDateTime != null -> mapper.localDateTime(asLocalDateTime)
-      asZonedDateTime != null -> mapper.zonedDateTime(asZonedDateTime)
+      asInstant != null -> mapper.instant(asInstant)
       else -> error("No variant present in StartTime")
     }
 
@@ -98,11 +98,11 @@ internal constructor(
         } else {
           asLocalDateTime.toString()
         }
-      asZonedDateTime != null ->
+      asInstant != null ->
         if (includeWrapperName) {
-          """StartTime($asZonedDateTime)"""
+          """StartTime($asInstant)"""
         } else {
-          asZonedDateTime.toString()
+          asInstant.toString()
         }
       else -> error("No variant present in StartTime")
     }
@@ -112,11 +112,11 @@ internal constructor(
     if (other !is StartTime) return false
     if (asTime != other.asTime) return false
     if (asLocalDateTime != other.asLocalDateTime) return false
-    if (asZonedDateTime != other.asZonedDateTime) return false
+    if (asInstant != other.asInstant) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asTime, asLocalDateTime, asZonedDateTime)
+  public override fun hashCode(): Int = Objects.hash(asTime, asLocalDateTime, asInstant)
 
   /** Maps each of the possible variants of [StartTime] to some [R]. */
   public interface Mapper<R> {
@@ -126,8 +126,8 @@ internal constructor(
     /** Returns some [R] when the [StartTime] holds some [LocalDateTime] instance. */
     public fun localDateTime(instance: LocalDateTime): R = orElse()
 
-    /** Returns some [R] when the [StartTime] holds some [ZonedDateTime] instance. */
-    public fun zonedDateTime(instance: ZonedDateTime): R = orElse()
+    /** Returns some [R] when the [StartTime] holds some [Instant] instance. */
+    public fun instant(instance: Instant): R = orElse()
 
     /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
     public fun orElse(): R
