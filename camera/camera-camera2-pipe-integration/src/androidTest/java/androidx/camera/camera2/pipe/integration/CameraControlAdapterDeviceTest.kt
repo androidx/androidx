@@ -102,7 +102,6 @@ import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeThat
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -287,7 +286,6 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
-    @Ignore("b/283797757")
     @Test
     fun startFocusAndMetering_3ARegionsUpdated() = runBlocking {
         Assume.assumeTrue(
