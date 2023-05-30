@@ -3409,7 +3409,7 @@ public class ProtoLayoutInflaterTest {
             FixedQuotaManagerImpl quotaManager) {
         mDataPipeline =
                 new ProtoLayoutDynamicDataPipeline(
-                        /* sensorGateway= */ null,
+                        /* platformDataProviders= */ ImmutableMap.of(),
                         mStateStore,
                         quotaManager,
                         new FixedQuotaManagerImpl(MAX_VALUE));

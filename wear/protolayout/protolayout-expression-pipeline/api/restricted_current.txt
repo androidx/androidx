@@ -68,36 +68,12 @@ package androidx.wear.protolayout.expression.pipeline {
     method public boolean tryAcquireQuota(int);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SensorGatewaySingleDataProvider implements androidx.wear.protolayout.expression.pipeline.PlatformDataProvider {
-    ctor public SensorGatewaySingleDataProvider(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway, androidx.wear.protolayout.expression.PlatformDataKey<?>);
-    method public void clearReceiver();
-    method public void setReceiver(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver);
-  }
-
   public class StateStore {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public StateStore(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue!>);
     method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
     method public static int getMaxStateEntryCount();
     method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @UiThread public void setAppStateEntryValuesProto(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue!>);
-  }
-
-}
-
-package androidx.wear.protolayout.expression.pipeline.sensor {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SensorGateway {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void disableUpdates();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void enableUpdates();
-    method @UiThread public void registerSensorGatewayConsumer(androidx.wear.protolayout.expression.PlatformDataKey<?>, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
-    method @UiThread public void registerSensorGatewayConsumer(androidx.wear.protolayout.expression.PlatformDataKey<?>, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
-    method @UiThread public void unregisterSensorGatewayConsumer(androidx.wear.protolayout.expression.PlatformDataKey<?>, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.Consumer);
-  }
-
-  public static interface SensorGateway.Consumer {
-    method @AnyThread public void onData(double);
-    method @AnyThread public default void onInvalidated();
-    method @AnyThread public default void onPreUpdate();
   }
 
 }
