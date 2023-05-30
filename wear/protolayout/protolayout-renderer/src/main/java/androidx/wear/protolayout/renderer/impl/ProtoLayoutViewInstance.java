@@ -376,7 +376,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         /** Returns theme used for this instance. */
         @NonNull
-        ProtoLayoutTheme getProtoLayoutTheme() {
+        @RestrictTo(Scope.LIBRARY)
+        public ProtoLayoutTheme getProtoLayoutTheme() {
             return mProtoLayoutTheme;
         }
 
@@ -516,6 +517,16 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @RestrictTo(Scope.LIBRARY)
             public Builder setRendererResources(@NonNull Resources rendererResources) {
                 this.mRendererResources = rendererResources;
+                return this;
+            }
+
+            /**
+             * Sets theme for this ProtoLayout instance. If not set, default theme would be used.
+             */
+            @RestrictTo(Scope.LIBRARY)
+            @NonNull
+            public Builder setProtoLayoutTheme(@NonNull ProtoLayoutTheme protoLayoutTheme) {
+                this.mProtoLayoutTheme = protoLayoutTheme;
                 return this;
             }
 
