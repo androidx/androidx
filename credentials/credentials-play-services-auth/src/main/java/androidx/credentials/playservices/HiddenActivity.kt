@@ -23,6 +23,7 @@ import android.content.IntentSender
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
@@ -38,8 +39,8 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationO
 
 /**
  * An activity used to ensure all required API versions work as intended.
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("Deprecation", "ForbiddenSuperClass")
 open class HiddenActivity : Activity() {
 

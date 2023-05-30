@@ -54,9 +54,7 @@ class ProviderGetCredentialRequest constructor(
     val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo
 ) {
-
-    /** @hide */
-    companion object {
+    internal companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
             ProviderGetCredentialRequest {
             return ProviderGetCredentialRequest(

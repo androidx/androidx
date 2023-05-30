@@ -22,7 +22,7 @@ import android.app.slice.SliceSpec
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import java.util.Collections
 
 /**
@@ -45,17 +45,13 @@ import java.util.Collections
 class RemoteEntry constructor(
     val pendingIntent: PendingIntent
 ) {
-
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
+    internal companion object {
         private const val TAG = "RemoteEntry"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_PENDING_INTENT =
+        private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @JvmStatic
         fun toSlice(
@@ -78,8 +74,8 @@ class RemoteEntry constructor(
          *
          * @param slice the [Slice] object constructed through [toSlice]
          *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic

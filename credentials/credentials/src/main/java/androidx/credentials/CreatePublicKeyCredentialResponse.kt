@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -39,10 +38,8 @@ class CreatePublicKeyCredentialResponse(
             "empty" }
     }
 
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_REGISTRATION_RESPONSE_JSON =
+    internal companion object {
+        internal const val BUNDLE_KEY_REGISTRATION_RESPONSE_JSON =
             "androidx.credentials.BUNDLE_KEY_REGISTRATION_RESPONSE_JSON"
 
         @JvmStatic

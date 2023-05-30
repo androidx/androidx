@@ -26,10 +26,8 @@ import androidx.core.os.BuildCompat
 
 /**
  * Factory that returns the credential provider to be used by Credential Manager.
- *
- * @hide
  */
-class CredentialProviderFactory {
+internal class CredentialProviderFactory {
     companion object {
         private const val TAG = "CredProviderFactory"
         private const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU

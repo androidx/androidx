@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -155,16 +156,15 @@ class GetCredentialRequest
         }
     }
 
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
-        internal const val BUNDLE_KEY_PREFER_IDENTITY_DOC_UI =
+        private const val BUNDLE_KEY_PREFER_IDENTITY_DOC_UI =
             "androidx.credentials.BUNDLE_KEY_PREFER_IDENTITY_DOC_UI"
-        internal const val BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME =
+        private const val BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME =
             "androidx.credentials.BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME"
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun toRequestDataBundle(
             request: GetCredentialRequest
@@ -178,7 +178,7 @@ class GetCredentialRequest
             return bundle
         }
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun createFrom(
             credentialOptions: List<CredentialOption>,
@@ -192,7 +192,7 @@ class GetCredentialRequest
                 @Suppress("DEPRECATION")
                 val preferUiBrandingComponentName = data.getParcelable<ComponentName>(
                     BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME)
-                var getCredentialBuilder = Builder().setCredentialOptions(credentialOptions)
+                val getCredentialBuilder = Builder().setCredentialOptions(credentialOptions)
                     .setPreferIdentityDocUi(preferIdentityDocUi)
                     .setPreferUiBrandingComponentName(preferUiBrandingComponentName)
                     .setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentials)

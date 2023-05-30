@@ -18,7 +18,7 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -58,19 +58,16 @@ abstract class CredentialOption internal constructor(
         candidateQueryData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
     }
 
-    /** @hide */
-    companion object {
-        /** @hide */
-        @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-        const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
+    internal companion object {
+        internal const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
 
         internal fun extractAutoSelectValue(data: Bundle): Boolean {
             return data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)
         }
 
-        /** @hide */
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         fun createFrom(
             type: String,
             requestData: Bundle,

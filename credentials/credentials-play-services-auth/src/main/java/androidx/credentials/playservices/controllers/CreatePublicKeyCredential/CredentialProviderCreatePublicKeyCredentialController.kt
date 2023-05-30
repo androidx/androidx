@@ -47,10 +47,9 @@ import org.json.JSONException
 /**
  * A controller to handle the CreatePublicKeyCredential flow with play services.
  *
- * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePublicKeyCredentialController(private val context: Context) :
+internal class CredentialProviderCreatePublicKeyCredentialController(private val context: Context) :
         CredentialProviderController<
             CreatePublicKeyCredentialRequest,
             PublicKeyCredentialCreationOptions,

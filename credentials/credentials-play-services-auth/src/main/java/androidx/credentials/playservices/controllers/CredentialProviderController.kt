@@ -42,10 +42,9 @@ import java.util.concurrent.Executor
  * @param R1 the credential response type converted back to that used by credential manager
  * @param E1 the credential error type to throw
  *
- * @hide
  */
 @Suppress("deprecation")
-abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
+internal abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : Any,
     E1 : Any>(private val context: Context) : CredentialProviderBaseController(context) {
 
     companion object {

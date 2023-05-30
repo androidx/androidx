@@ -51,11 +51,9 @@ import java.util.concurrent.Executor
 
 /**
  * A controller to handle the BeginSignIn flow with play services.
- *
- * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderBeginSignInController(private val context: Context) :
+internal class CredentialProviderBeginSignInController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
         BeginSignInRequest,

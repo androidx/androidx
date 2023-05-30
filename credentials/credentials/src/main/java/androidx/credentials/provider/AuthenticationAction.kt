@@ -22,7 +22,7 @@ import android.app.slice.SliceSpec
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import java.util.Collections
 
 /**
@@ -54,22 +54,19 @@ class AuthenticationAction constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
 ) {
-    /** @hide **/
     @Suppress("AcronymName")
-    companion object {
+    internal companion object {
         private const val TAG = "AuthenticationAction"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "AuthenticationAction"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_TITLE =
+        private const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_TITLE"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_PENDING_INTENT =
+        private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_PENDING_INTENT"
 
-        /** @hide **/
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @JvmStatic
         fun toSlice(authenticationAction: AuthenticationAction): Slice {
@@ -99,8 +96,8 @@ class AuthenticationAction constructor(
          * @param slice the [Slice] object that contains the information required for
          * constructing an instance of this class.
          *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic

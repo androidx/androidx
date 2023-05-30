@@ -45,11 +45,9 @@ import java.util.concurrent.Executor
 /**
  * Framework credential provider implementation that allows credential
  * manager requests to be routed to the framework.
- *
- * @hide
  */
 @RequiresApi(34)
-class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
+internal class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     private val credentialManager: CredentialManager? =
         context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager?
 
@@ -372,8 +370,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         )
     }
 
-    /** @hide */
-    companion object {
+    private companion object {
         private const val TAG = "CredManProvService"
     }
 }

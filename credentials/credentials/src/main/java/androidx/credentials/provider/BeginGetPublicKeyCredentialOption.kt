@@ -54,10 +54,7 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
     }
 
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
-        /** @hide */
+    internal companion object {
         @JvmStatic
         internal fun createFrom(data: Bundle, id: String): BeginGetPublicKeyCredentialOption {
             try {
@@ -71,7 +68,6 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
             }
         }
 
-        /** @hide */
         @JvmStatic
         internal fun createFromEntrySlice(data: Bundle, id: String):
             BeginGetPublicKeyCredentialOption {
