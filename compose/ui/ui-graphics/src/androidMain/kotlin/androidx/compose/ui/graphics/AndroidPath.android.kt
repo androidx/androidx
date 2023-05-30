@@ -132,7 +132,7 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     }
 
     override fun addRect(rect: Rect) {
-        check(_rectIsValid(rect))
+        check(_rectIsValid(rect)) { "invalid rect" }
         rectF.set(rect.left, rect.top, rect.right, rect.bottom)
         internalPath.addRect(rectF, android.graphics.Path.Direction.CCW)
     }
@@ -147,7 +147,7 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     }
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-        check(_rectIsValid(oval))
+        check(_rectIsValid(oval)) { "invalid rect" }
         rectF.set(oval.left, oval.top, oval.right, oval.bottom)
         internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
     }

@@ -132,6 +132,6 @@ internal class BringIntoViewRequestPriorityQueue {
         requests.map { it.continuation }.forEach {
             it.cancel(cause)
         }
-        check(requests.isEmpty())
+        check(requests.isEmpty()) { "uncancelled requests present" }
     }
 }

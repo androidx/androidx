@@ -95,7 +95,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun updateRootConstraints(constraints: Constraints) {
         if (rootConstraints != constraints) {
-            require(!duringMeasureLayout)
+            require(!duringMeasureLayout) { "updateRootConstraints called while measuring" }
             rootConstraints = constraints
             if (root.lookaheadRoot != null) {
                 root.markLookaheadMeasurePending()
@@ -380,7 +380,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     }
 
     fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
-        require(layoutNode != root)
+        require(layoutNode != root) { "measureAndLayout called on root" }
         performMeasureAndLayout {
             relayoutNodes.remove(layoutNode)
             // we don't check for the layoutState as even if the node doesn't need remeasure
@@ -401,9 +401,9 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     }
 
     private inline fun performMeasureAndLayout(block: () -> Unit) {
-        require(root.isAttached)
-        require(root.isPlaced)
-        require(!duringMeasureLayout)
+        require(root.isAttached) { "performMeasureAndLayout called with unattached root" }
+        require(root.isPlaced) { "performMeasureAndLayout called with unplaced root" }
+        require(!duringMeasureLayout) { "performMeasureAndLayout called during measure layout" }
         // we don't need to measure any children unless we have the correct root constraints
         if (rootConstraints != null) {
             duringMeasureLayout = true
@@ -516,7 +516,9 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         }
 
         // assert that it is executed during the `measureAndLayout` pass.
-        check(duringMeasureLayout)
+        check(duringMeasureLayout) {
+            "forceMeasureTheSubtree should be executed during the measureAndLayout pass"
+        }
 
         val pending: (LayoutNode) -> Boolean = {
             if (affectsLookahead) {
@@ -526,7 +528,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             }
         }
         // if this node is not yet measured this invocation shouldn't be needed.
-        require(!pending(layoutNode))
+        require(!pending(layoutNode)) { "node not yet measured" }
 
         layoutNode.forEachChild { child ->
             if (pending(child) && relayoutNodes.remove(child, affectsLookahead)) {

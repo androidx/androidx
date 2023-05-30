@@ -40,7 +40,7 @@ interface PaneScaffoldScope {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private object PaneScaffoldScopeInstance : PaneScaffoldScope {
     override fun Modifier.preferredWidth(width: Dp): Modifier {
-        require(width == Dp.Unspecified || width > 0.dp)
+        require(width == Dp.Unspecified || width > 0.dp) { "invalid width" }
         return this.then(PreferredWidthElement(width))
     }
 }

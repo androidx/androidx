@@ -258,15 +258,15 @@ interface Modifier {
         internal inline fun isKind(kind: NodeKind<*>) = kindSet and kind.mask != 0
 
         internal open fun attach() {
-            check(!isAttached)
-            check(coordinator != null)
+            check(!isAttached) { "node attached multiple times" }
+            check(coordinator != null) { "attach invoked on a node without a coordinator" }
             isAttached = true
             onAttach()
         }
 
         internal open fun detach() {
-            check(isAttached)
-            check(coordinator != null)
+            check(isAttached) { "node detached multiple times" }
+            check(coordinator != null) { "detach invoked on a node without a coordinator" }
             onDetach()
             isAttached = false
 
@@ -277,7 +277,7 @@ interface Modifier {
         }
 
         internal open fun reset() {
-            check(isAttached)
+            check(isAttached) { "reset() called on an unattached node" }
             onReset()
         }
 

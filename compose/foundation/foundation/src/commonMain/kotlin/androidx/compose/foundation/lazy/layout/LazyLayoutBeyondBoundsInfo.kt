@@ -89,7 +89,7 @@ internal class LazyLayoutBeyondBoundsInfo {
                     minIndex = it.start
                 }
             }
-            require(minIndex >= 0)
+            require(minIndex >= 0) { "negative minIndex" }
             return minIndex
         }
 
@@ -118,8 +118,8 @@ internal class LazyLayoutBeyondBoundsInfo {
         val end: Int
     ) {
         init {
-            require(start >= 0)
-            require(end >= start)
+            require(start >= 0) { "negative start index" }
+            require(end >= start) { "end index greater than start" }
         }
     }
 }

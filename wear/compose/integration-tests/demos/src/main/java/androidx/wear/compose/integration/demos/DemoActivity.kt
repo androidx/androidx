@@ -146,9 +146,9 @@ private class Navigator private constructor(
                 (navigator.backStack + navigator.currentDemo).map { it.title }
             },
             restore = { restored ->
-                require(restored.isNotEmpty())
+                require(restored.isNotEmpty()) { "restored demo is empty" }
                 val backStack = restored.mapTo(mutableListOf()) {
-                    requireNotNull(findDemo(rootDemo, it))
+                    requireNotNull(findDemo(rootDemo, it)) { "No root demo" }
                 }
                 val initial = backStack.removeAt(backStack.lastIndex)
                 Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)

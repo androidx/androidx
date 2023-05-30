@@ -228,9 +228,13 @@ private fun rememberLazyGridMeasurePolicy(
         state.slotsPerLine = slotsPerLine
 
         val spaceBetweenLinesDp = if (isVertical) {
-            requireNotNull(verticalArrangement).spacing
+            requireNotNull(verticalArrangement) {
+                "null verticalArrangement when isVertical == true"
+            }.spacing
         } else {
-            requireNotNull(horizontalArrangement).spacing
+            requireNotNull(horizontalArrangement) {
+                "null horizontalArrangement when isVertical == false"
+            }.spacing
         }
         val spaceBetweenLines = spaceBetweenLinesDp.roundToPx()
         val itemsCount = itemProvider.itemCount

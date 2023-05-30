@@ -635,6 +635,7 @@ internal class TrieNode<K, V>(
             else newNodeMap = newNodeMap or positionMask
             // we can use this later to skip calling equals() again
         }
+        @Suppress("ExceptionMessage")
         check(newNodeMap and newDataMap == 0)
         val mutableNode = when {
             this.ownedBy == mutator.ownership && this.dataMap == newDataMap && this.nodeMap == newNodeMap -> this

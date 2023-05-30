@@ -124,7 +124,9 @@ public fun CurvedLayout(
             curvedRowChild.SubComposition()
         }
     ) { measurables, constraints ->
-        require(constraints.hasBoundedHeight || constraints.hasBoundedWidth)
+        require(constraints.hasBoundedHeight || constraints.hasBoundedWidth) {
+            "either height or width should be bounded"
+        }
         // We take as much room as possible, the same in both dimensions, within the constraints
         val diameter = min(
             if (constraints.hasBoundedWidth) constraints.maxWidth else Int.MAX_VALUE,
@@ -138,7 +140,7 @@ public fun CurvedLayout(
             with(curvedRowChild) {
                 val iterator = measurables.iterator()
                 initializeMeasure(iterator)
-                require(!iterator.hasNext())
+                require(!iterator.hasNext()) { "unused measurable" }
             }
         }
 

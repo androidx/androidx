@@ -70,8 +70,8 @@ class GlanceAppWidgetManager(private val context: Context) {
         receiver: R,
         provider: P,
     ) {
-        val receiverName = requireNotNull(receiver.javaClass.canonicalName)
-        val providerName = requireNotNull(provider.javaClass.canonicalName)
+        val receiverName = requireNotNull(receiver.javaClass.canonicalName) { "no receiver name" }
+        val providerName = requireNotNull(provider.javaClass.canonicalName) { "no provider name" }
         dataStore.updateData { pref ->
             pref.toMutablePreferences().also { builder ->
                 builder[providersKey] = (pref[providersKey] ?: emptySet()) + receiverName
@@ -100,7 +100,7 @@ class GlanceAppWidgetManager(private val context: Context) {
      */
     suspend fun <T : GlanceAppWidget> getGlanceIds(provider: Class<T>): List<GlanceId> {
         val state = getState()
-        val providerName = requireNotNull(provider.canonicalName)
+        val providerName = requireNotNull(provider.canonicalName) { "no canonical provider name" }
         val receivers = state.providerNameToReceivers[providerName] ?: return emptyList()
         return receivers.flatMap { receiver ->
             appWidgetManager.getAppWidgetIds(receiver).map { AppWidgetId(it) }
