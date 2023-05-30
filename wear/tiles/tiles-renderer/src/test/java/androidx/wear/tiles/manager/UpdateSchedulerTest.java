@@ -292,6 +292,7 @@ public class UpdateSchedulerTest {
         expect.that(mFired).isEmpty();
     }
 
+    @SuppressWarnings("deprecation") // ScheduledAlarm usage, see b/284981234
     private void advanceToTime(Long targetTime) {
         while (mShadowAlarmManager.peekNextScheduledAlarm() != null
                 && mShadowAlarmManager.peekNextScheduledAlarm().triggerAtTime <= targetTime) {
