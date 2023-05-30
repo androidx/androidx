@@ -31,7 +31,7 @@ class DeviceConnection(
     var job: Job? = null
     var onClickReadCharacteristic: OnClickCharacteristic? = null
     var onClickWriteCharacteristic: OnClickCharacteristic? = null
-    var status = Status.NOT_CONNECTED
+    var status = Status.DISCONNECTED
     var services = emptyList<BluetoothGattService>()
 
     private val values = mutableMapOf<UUID, ByteArray?>()
