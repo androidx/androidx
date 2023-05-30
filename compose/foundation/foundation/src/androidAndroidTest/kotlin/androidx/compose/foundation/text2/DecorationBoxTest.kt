@@ -20,6 +20,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
@@ -45,6 +47,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -210,6 +213,36 @@ class DecorationBoxTest {
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("hello")
         }
+    }
+
+    @Test
+    fun minConstraintsArePropagated() {
+        val state = TextFieldState()
+        var decorationBoxConstraints: Constraints? = null
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                decorationBox = {
+                    Layout { _, constraints ->
+                        decorationBoxConstraints = constraints
+                        layout(0, 0) {}
+                    }
+                }
+            )
+        }
+
+        rule.waitForIdle()
+
+        assertThat(decorationBoxConstraints?.minWidth)
+            .isNotEqualTo(0)
+        assertThat(decorationBoxConstraints?.minWidth)
+            .isEqualTo(decorationBoxConstraints?.maxWidth)
+
+        assertThat(decorationBoxConstraints?.minHeight)
+            .isNotEqualTo(0)
+        assertThat(decorationBoxConstraints?.minHeight)
+            .isEqualTo(decorationBoxConstraints?.maxHeight)
     }
 
     @Ignore // TODO(halilibo): enable when pointerInput gestures are enabled
