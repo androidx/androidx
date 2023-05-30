@@ -17,6 +17,7 @@
 package androidx.benchmark.junit4
 
 import androidx.annotation.CallSuper
+import androidx.benchmark.Arguments
 import androidx.benchmark.IsolationActivity
 import androidx.benchmark.Shell
 import androidx.test.runner.AndroidJUnitRunner
@@ -82,7 +83,8 @@ public open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         runOnMainSync {
             isResumed = IsolationActivity.resumed
         }
-        if (!isResumed) {
+        // dryRunMode doesn't care about isolation or sustained perf mode, so skip launch cost
+        if (!isResumed && !Arguments.dryRunMode) {
             IsolationActivity.launchSingleton()
         }
     }
