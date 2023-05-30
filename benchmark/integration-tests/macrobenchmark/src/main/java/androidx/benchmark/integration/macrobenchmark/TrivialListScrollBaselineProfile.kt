@@ -18,7 +18,6 @@ package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
 import android.graphics.Point
-import androidx.benchmark.macro.ExperimentalStableBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -48,7 +47,6 @@ class TrivialListScrollBaselineProfile {
     fun baselineProfiles() {
         baselineRule.collectBaselineProfile(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
-            iterations = 5,
             profileBlock = {
                 val intent = Intent()
                 intent.action = ACTION
@@ -74,9 +72,8 @@ class TrivialListScrollBaselineProfile {
     }
 
     @Test
-    @OptIn(ExperimentalStableBaselineProfilesApi::class)
     fun stableBaselineProfiles() {
-        baselineRule.collectStableBaselineProfile(
+        baselineRule.collectBaselineProfile(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             stableIterations = 3,
             maxIterations = 10,
