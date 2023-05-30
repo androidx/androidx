@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.activity
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -35,6 +36,7 @@ class SdkActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         notifySdkOnActivityCreation()
     }
 
