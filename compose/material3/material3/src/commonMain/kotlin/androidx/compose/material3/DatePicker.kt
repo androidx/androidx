@@ -1778,11 +1778,10 @@ private fun YearPicker(
                 )
             )
         // Match the years container color to any elevated surface color that is composed under it.
-        val containerColor = if (colors.containerColor == MaterialTheme.colorScheme.surface) {
-            MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
-        } else {
-            colors.containerColor
-        }
+        val containerColor = MaterialTheme.colorScheme.applyTonalElevation(
+            backgroundColor = colors.containerColor,
+            elevation = LocalAbsoluteTonalElevation.current
+        )
         val coroutineScope = rememberCoroutineScope()
         val scrollToEarlierYearsLabel = getString(Strings.DatePickerScrollToShowEarlierYears)
         val scrollToLaterYearsLabel = getString(Strings.DatePickerScrollToShowLaterYears)
