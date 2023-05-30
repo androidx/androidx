@@ -22,6 +22,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpe
 import androidx.appactions.interaction.capabilities.serializers.properties.NAME_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.serializers.properties.TEXT_ONLY_DISAMBIGUATING_DESCRIPTION_TYPE_SPEC
 
+@JvmField
 val TIMER_TYPE_SPEC: TypeSpec<Timer> = TypeSpecBuilder.newBuilder(
   "Timer",
   Timer::Builder,

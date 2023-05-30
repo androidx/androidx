@@ -25,7 +25,7 @@ import static androidx.appactions.interaction.capabilities.core.impl.converters.
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC;
-import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.TIMER_TYPE_SPEC;
+import static androidx.appactions.interaction.capabilities.serializers.types.TimerSerializerKt.TIMER_TYPE_SPEC;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -41,7 +41,7 @@ import androidx.appactions.builtintypes.experimental.types.ListItem;
 import androidx.appactions.builtintypes.experimental.types.Message;
 import androidx.appactions.builtintypes.experimental.types.Person;
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
-import androidx.appactions.builtintypes.experimental.types.Timer;
+import androidx.appactions.builtintypes.types.Timer;
 import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.proto.Entity;

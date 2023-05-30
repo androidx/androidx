@@ -16,11 +16,12 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.builtintypes.experimental.types.Timer
+import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
+import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
 import java.util.Objects
 
 class TimerValue
@@ -52,14 +53,14 @@ private constructor(
                 .bindMemberType(
                     memberGetter = TimerValue::asTimer,
                     ctor = { TimerValue(it) },
-                    typeSpec = TypeConverters.TIMER_TYPE_SPEC,
+                    typeSpec = TIMER_TYPE_SPEC,
                 )
                 .bindMemberType(
                     memberGetter = TimerValue::asTimerFilter,
                     ctor = { TimerValue(it) },
                     typeSpec =
                         TypeConverters.createSearchActionTypeSpec(
-                            TypeConverters.TIMER_TYPE_SPEC,
+                            TIMER_TYPE_SPEC,
                         ),
                 )
                 .build()

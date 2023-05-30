@@ -25,7 +25,6 @@ import androidx.appactions.builtintypes.experimental.properties.Participant;
 import androidx.appactions.builtintypes.experimental.properties.Recipient;
 import androidx.appactions.builtintypes.experimental.properties.StartDate;
 import androidx.appactions.builtintypes.experimental.properties.Text;
-import androidx.appactions.builtintypes.experimental.types.Alarm;
 import androidx.appactions.builtintypes.experimental.types.CalendarEvent;
 import androidx.appactions.builtintypes.experimental.types.Call;
 import androidx.appactions.builtintypes.experimental.types.ItemList;
@@ -33,7 +32,6 @@ import androidx.appactions.builtintypes.experimental.types.ListItem;
 import androidx.appactions.builtintypes.experimental.types.Message;
 import androidx.appactions.builtintypes.experimental.types.Person;
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
-import androidx.appactions.builtintypes.experimental.types.Timer;
 import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
@@ -89,12 +87,6 @@ public final class TypeConverters {
                                             .orElse(null),
                             Person.Builder::setName)
                     .build();
-    public static final TypeSpec<Alarm> ALARM_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing(
-                    "Alarm", Alarm::Builder, Alarm.Builder::build).build();
-    public static final TypeSpec<Timer> TIMER_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing(
-                    "Timer", Timer::Builder, Timer.Builder::build).build();
     public static final TypeSpec<Attendee> ATTENDEE_TYPE_SPEC =
             new UnionTypeSpec.Builder<Attendee>()
                     .bindMemberType(
