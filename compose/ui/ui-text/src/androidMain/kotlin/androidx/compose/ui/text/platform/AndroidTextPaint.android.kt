@@ -28,12 +28,12 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asComposePaint
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toComposePaint
 import androidx.compose.ui.text.platform.extensions.correctBlurRadius
 import androidx.compose.ui.text.style.TextDecoration
 import kotlin.math.roundToInt
@@ -44,7 +44,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
     }
 
     // A wrapper to use Compose Paint APIs on this TextPaint
-    private val composePaint: Paint = this.toComposePaint()
+    private val composePaint: Paint = this.asComposePaint()
 
     private var textDecoration: TextDecoration = TextDecoration.None
 
