@@ -110,6 +110,10 @@ android {
     namespace "androidx.camera.core"
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
+
 androidx {
     name = "Camera Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
