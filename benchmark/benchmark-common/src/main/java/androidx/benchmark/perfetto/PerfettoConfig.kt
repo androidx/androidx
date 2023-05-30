@@ -132,6 +132,10 @@ private fun ftraceDataSource(
                 "ion/ion_stat",
                 "oom/oom_score_adj_update",
 
+                // Disk I/O
+                "disk",
+                "ufs/ufshcd_clk_gating",
+
                 // Old (kernel) LMK
                 "lowmemorykiller/lowmemory_kill",
             ),
