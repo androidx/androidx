@@ -158,13 +158,13 @@ class MyTestComposableWithIntPreviewParams {
     @Preview
     @Composable
     private fun TestContent(
-        @PreviewParameter(TestContentParameterProviderBoolean::class)
+        @PreviewParameter(TestContentParameterProviderInt::class)
         @Suppress("UNUSED_PARAMETER")
-        valueParameter: Boolean
+        valueParameter: Int
     ) {
     }
 
-    private class TestContentParameterProviderBoolean : PreviewParameterProvider<Int> {
+    private class TestContentParameterProviderInt : PreviewParameterProvider<Int> {
         override val values = sequenceOf(42, 45, 92)
     }
 }
