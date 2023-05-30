@@ -98,8 +98,9 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
-tasks.withType(Test).configureEach {
-   it.systemProperty("androidx.room.compiler.processing.strict", "true")
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+    test.systemProperty("androidx.room.compiler.processing.strict", "true")
 }
 
 androidx {

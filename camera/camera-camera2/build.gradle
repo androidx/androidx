@@ -87,6 +87,10 @@ android {
     namespace "androidx.camera.camera2"
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
+
 androidx {
     name = "Camera2"
     publish = Publish.SNAPSHOT_AND_RELEASE
