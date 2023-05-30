@@ -28,7 +28,8 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'),
+                    "proguard-benchmark.pro")
         }
     }
 }
@@ -48,6 +49,9 @@ dependencies {
     implementation project(path: ':wear:compose:compose-foundation')
     implementation project(path: ':wear:compose:compose-material')
     implementation project(path: ':wear:compose:compose-navigation')
+    implementation(project(path:':compose:runtime:runtime-tracing'))
+    implementation(project(path:':tracing:tracing-perfetto'))
+    implementation(project(path:':tracing:tracing-perfetto-binary'))
 }
 
 android.defaultConfig.minSdkVersion 25
