@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.loader.impl
 
 import android.annotation.SuppressLint
 import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.client.loader.impl.injector.AppOwnedSdkInterfaceProxyFactory
 import androidx.privacysandbox.sdkruntime.client.loader.impl.injector.SdkActivityHandlerWrapper
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
@@ -68,12 +69,18 @@ internal object SandboxControllerInjector {
         else
             null
 
+        val appOwnedSdkInterfaceProxyFactory = if (sdkVersion >= 4)
+            AppOwnedSdkInterfaceProxyFactory.createFor(sdkClassLoader)
+        else
+            null
+
         val proxy = Proxy.newProxyInstance(
             sdkClassLoader,
             arrayOf(controllerImplClass),
             Handler(
                 controller,
                 sdkCompatBuilder,
+                appOwnedSdkInterfaceProxyFactory,
                 sdkActivityHandlerWrapper
             )
         )
@@ -84,6 +91,7 @@ internal object SandboxControllerInjector {
     private class Handler(
         private val controller: SdkSandboxControllerCompat.SandboxControllerImpl,
         private val compatSdkBuilder: CompatSdkBuilder,
+        private val appOwnedSdkInterfaceProxyFactory: AppOwnedSdkInterfaceProxyFactory?,
         private val sdkActivityHandlerWrapper: SdkActivityHandlerWrapper?
     ) : InvocationHandler {
 
@@ -93,6 +101,8 @@ internal object SandboxControllerInjector {
         override fun invoke(proxy: Any, method: Method, args: Array<out Any?>?): Any {
             return when (method.name) {
                 "getSandboxedSdks" -> getSandboxedSdks()
+
+                "getAppOwnedSdkSandboxInterfaces" -> getAppOwnedSdkSandboxInterfaces()
 
                 "registerSdkSandboxActivityHandler" ->
                     registerSdkSandboxActivityHandler(args!![0]!!)
@@ -112,6 +122,18 @@ internal object SandboxControllerInjector {
             return controller
                 .getSandboxedSdks()
                 .map { compatSdkBuilder.createFrom(it) }
+        }
+
+        private fun getAppOwnedSdkSandboxInterfaces(): List<Any> {
+            if (appOwnedSdkInterfaceProxyFactory == null) {
+                throw IllegalStateException(
+                    "Unexpected call from SDK without AppOwnedInterfaces support"
+                )
+            }
+
+            return controller
+                .getAppOwnedSdkSandboxInterfaces()
+                .map { appOwnedSdkInterfaceProxyFactory.createFrom(it) }
         }
 
         private fun registerSdkSandboxActivityHandler(sdkSideHandler: Any): Any {

@@ -133,6 +133,32 @@ internal class LocalSdkProviderTest(
     }
 
     @Test
+    fun getAppOwnedSdkSandboxInterfaces_delegateToSdkController() {
+        assumeTrue(
+            "Requires Versions.API_VERSION >= 4",
+            sdkVersion >= 4
+        )
+
+        val expectedResult = AppOwnedSdkSandboxInterfaceCompat(
+            name = "TestAppOwnedSdk",
+            version = 42,
+            binder = Binder(),
+        )
+        controller.appOwnedSdksResult = listOf(
+            expectedResult
+        )
+
+        val testSdk = loadedSdk.loadTestSdk()
+        val appOwnedSdks = testSdk.getAppOwnedSdkSandboxInterfaces()
+        assertThat(appOwnedSdks).hasSize(1)
+        val result = appOwnedSdks[0]
+
+        assertThat(result.getName()).isEqualTo(expectedResult.getName())
+        assertThat(result.getVersion()).isEqualTo(expectedResult.getVersion())
+        assertThat(result.getInterface()).isEqualTo(expectedResult.getInterface())
+    }
+
+    @Test
     fun registerSdkSandboxActivityHandler_delegateToSdkController() {
         assumeTrue(
             "Requires Versions.API_VERSION >= 3",
@@ -244,6 +270,9 @@ internal class LocalSdkProviderTest(
         fun getSandboxedSdks(): List<SandboxedSdkCompat> =
             SdkSandboxControllerCompat.from(context).getSandboxedSdks()
 
+        fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+            SdkSandboxControllerCompat.from(context).getAppOwnedSdkSandboxInterfaces()
+
         fun registerSdkSandboxActivityHandler(handler: SdkSandboxActivityHandlerCompat): IBinder =
             SdkSandboxControllerCompat.from(context).registerSdkSandboxActivityHandler(handler)
 
@@ -303,6 +332,11 @@ internal class LocalSdkProviderTest(
                 3,
                 "RuntimeEnabledSdks/V3/classes.dex",
                 "androidx.privacysandbox.sdkruntime.test.v3.CompatProvider"
+            ),
+            TestSdkInfo(
+                4,
+                "RuntimeEnabledSdks/V4/classes.dex",
+                "androidx.privacysandbox.sdkruntime.test.v4.CompatProvider"
             )
         )
 
@@ -384,6 +418,7 @@ internal class LocalSdkProviderTest(
     internal class TestStubController : SdkSandboxControllerCompat.SandboxControllerImpl {
 
         var sandboxedSdksResult: List<SandboxedSdkCompat> = emptyList()
+        var appOwnedSdksResult: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList()
         var sdkActivityHandlers: MutableMap<IBinder, SdkSandboxActivityHandlerCompat> =
             mutableMapOf()
 
@@ -391,9 +426,8 @@ internal class LocalSdkProviderTest(
             return sandboxedSdksResult
         }
 
-        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-            throw IllegalStateException("Should not be called in this test")
-        }
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+            appOwnedSdksResult
 
         override fun registerSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat

@@ -35,6 +35,8 @@ import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.LocalController
 import androidx.privacysandbox.sdkruntime.client.controller.LocallyLoadedSdks
+import androidx.privacysandbox.sdkruntime.client.controller.impl.LocalAppOwnedSdkRegistry
+import androidx.privacysandbox.sdkruntime.client.controller.impl.PlatformAppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
@@ -444,14 +446,19 @@ class SdkSandboxManagerCompat private constructor(
                 if (instance == null) {
                     val configHolder = LocalSdkConfigsHolder.load(context)
                     val localSdks = LocallyLoadedSdks()
-                    val controller = LocalController(localSdks)
+                    val appOwnedSdkRegistry = if (AdServicesInfo.isDeveloperPreview()) {
+                        PlatformAppOwnedSdkRegistry(context)
+                    } else {
+                        LocalAppOwnedSdkRegistry()
+                    }
+                    val controller = LocalController(localSdks, appOwnedSdkRegistry)
                     val sdkLoader = SdkLoader.create(context, controller)
                     val platformApi = PlatformApiFactory.create(context)
                     instance = SdkSandboxManagerCompat(
                         platformApi,
                         configHolder,
                         localSdks,
-                        AppOwnedSdkRegistry.create(context),
+                        appOwnedSdkRegistry,
                         sdkLoader
                     )
                     sInstances[context] = WeakReference(instance)

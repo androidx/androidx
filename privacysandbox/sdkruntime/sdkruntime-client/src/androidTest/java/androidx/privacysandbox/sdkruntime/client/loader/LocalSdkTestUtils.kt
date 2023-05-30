@@ -21,6 +21,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.lifecycle.Lifecycle
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
@@ -77,8 +78,9 @@ internal fun LocalSdkProvider.extractSdkProviderClassloader(): ClassLoader =
  * Underlying TestSDK should implement and delegate to
  * [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat]:
  *  1) getSandboxedSdks() : List<SandboxedSdkCompat>
- *  2) registerSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat) : IBinder
- *  3) unregisterSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat)
+ *  2) getAppOwnedSdkSandboxInterfaces() : List<AppOwnedSdkSandboxInterfaceCompat>
+ *  3) registerSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat) : IBinder
+ *  4) unregisterSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat)
  */
 internal class TestSdkWrapper(
     private val sdk: Any
@@ -88,6 +90,13 @@ internal class TestSdkWrapper(
             methodName = "getSandboxedSdks"
         ) as List<*>
         return sdks.map { SandboxedSdkWrapper(it!!) }
+    }
+
+    fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkWrapper> {
+        val sdks = sdk.callMethod(
+            methodName = "getAppOwnedSdkSandboxInterfaces"
+        ) as List<*>
+        return sdks.map { AppOwnedSdkWrapper(it!!) }
     }
 
     fun registerSdkSandboxActivityHandler(handler: CatchingSdkActivityHandler): IBinder {
@@ -175,6 +184,31 @@ internal class SandboxedSdkWrapper(
         return sdk.callMethod(
             methodName = "getSdkInfo"
         )
+    }
+}
+
+/**
+ * Reflection wrapper for [AppOwnedSdkSandboxInterfaceCompat]
+ */
+internal class AppOwnedSdkWrapper(
+    private val sdk: Any
+) {
+    fun getName(): String {
+        return sdk.callMethod(
+            methodName = "getName"
+        ) as String
+    }
+
+    fun getVersion(): Long {
+        return sdk.callMethod(
+            methodName = "getVersion"
+        ) as Long
+    }
+
+    fun getInterface(): IBinder {
+        return sdk.callMethod(
+            methodName = "getInterface"
+        ) as IBinder
     }
 }
 
