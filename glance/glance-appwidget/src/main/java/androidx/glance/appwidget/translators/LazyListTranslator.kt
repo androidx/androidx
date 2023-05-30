@@ -67,6 +67,7 @@ private fun RemoteViews.translateEmittableLazyList(
             0,
             Intent(),
             FILL_IN_COMPONENT or FLAG_MUTABLE or FLAG_UPDATE_CURRENT,
+            element.activityOptions,
         )
     )
     val items = RemoteCollectionItems.Builder().apply {

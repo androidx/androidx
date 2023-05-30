@@ -209,6 +209,7 @@ private fun getFillInIntentForAction(
             translationContext,
             viewId = viewId,
             type = ActionTrampolineType.ACTIVITY,
+            activityOptions = action.activityOptions,
         )
     }
     is StartServiceAction -> {
