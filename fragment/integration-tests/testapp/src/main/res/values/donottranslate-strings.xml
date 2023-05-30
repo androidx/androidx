@@ -16,4 +16,6 @@
   -->
 <resources>
     <string name="app_name">Fragment Effects Tests</string>
+    <string name="details_title_text">Cupcake ipsum dolor</string>
+    <string name="details_body_text">Sit amet chocolate cake sweet macaroon chupa chups. Bear claw carrot cake chocolate bar biscuit chocolate cookie. Chocolate sesame snaps candy canes bear claw dragée tootsie roll.</string>
 </resources>
