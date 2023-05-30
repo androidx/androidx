@@ -82,12 +82,12 @@ public final class StateBuilders {
      * @since 1.2
      */
     @NonNull
-    public Map<String, DynamicDataValue> getIdToValueMapping() {
-      Map<String, DynamicDataValue> map = new HashMap<>();
+    public Map<AppDataKey<?>, DynamicDataValue> getKeyToValueMapping() {
+      Map<AppDataKey<?>, DynamicDataValue> map = new HashMap<>();
       for (Entry<String, DynamicDataProto.DynamicDataValue> entry :
           mImpl.getIdToValueMap().entrySet()) {
         map.put(
-                entry.getKey(),
+                new AppDataKey<>(entry.getKey()),
                 DynamicDataBuilders.dynamicDataValueFromProto(entry.getValue()));
       }
       return Collections.unmodifiableMap(map);
@@ -134,8 +134,8 @@ public final class StateBuilders {
       return "State{"
           + "lastClickableId="
           + getLastClickableId()
-          + ", idToValueMapping="
-          + getIdToValueMapping()
+          + ", keyToValueMapping="
+          + getKeyToValueMapping()
           + "}";
     }
 
