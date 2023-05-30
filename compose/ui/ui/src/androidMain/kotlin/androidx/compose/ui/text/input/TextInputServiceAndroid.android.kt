@@ -500,6 +500,9 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         ImeAction.Done -> EditorInfo.IME_ACTION_DONE
         else -> error("invalid ImeAction")
     }
+    (imeOptions.platformImeOptions as? AndroidImeOptions)?.privateImeOptions?.let {
+        privateImeOptions = it
+    }
     when (imeOptions.keyboardType) {
         KeyboardType.Text -> this.inputType = InputType.TYPE_CLASS_TEXT
         KeyboardType.Ascii -> {
