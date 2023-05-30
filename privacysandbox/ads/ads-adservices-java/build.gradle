@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
+    api(libs.kotlinCoroutinesCore171)
     implementation("androidx.core:core-ktx:1.8.0")
     api("androidx.annotation:annotation:1.2.0")
 
