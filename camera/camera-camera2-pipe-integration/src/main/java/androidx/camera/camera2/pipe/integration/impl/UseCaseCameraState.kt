@@ -93,6 +93,19 @@ class UseCaseCameraState @Inject constructor(
 
     private val requestListener = RequestListener()
 
+    /**
+     * Updates the camera state by applying the provided parameters to a repeating request and
+     * returns a [Deferred] signal that is completed only when a capture request with equal or
+     * larger request number is completed or failed.
+     *
+     * In case the corresponding capture request of a signal is aborted, it is not completed right
+     * then. This is because a quick succession of update requests may lead to the previous request
+     * being aborted while the request parameters should still be applied unless it was changed in
+     * the new request. If the new request has a value change for some parameter, it is the
+     * responsibility of the caller to keep track of that and take necessary action.
+     *
+     * @return A [Deferred] signal to represent if the update operation has been completed.
+     */
     fun updateAsync(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
         appendParameters: Boolean = true,
@@ -319,11 +332,6 @@ class UseCaseCameraState @Inject constructor(
         ) {
             super.onFailed(requestMetadata, frameNumber, captureFailure)
             completeExceptionally(requestMetadata, captureFailure)
-        }
-
-        override fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
-            super.onRequestSequenceAborted(requestMetadata)
-            completeExceptionally(requestMetadata)
         }
 
         private fun completeExceptionally(
