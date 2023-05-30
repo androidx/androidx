@@ -38,18 +38,17 @@ import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
-import androidx.wear.protolayout.expression.PlatformHealthSources;
+import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
+import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifierImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
-import androidx.wear.protolayout.expression.pipeline.SensorGatewaySingleDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
@@ -65,7 +64,6 @@ import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -101,11 +99,11 @@ public class ProtoLayoutDynamicDataPipeline {
     /** Creates a {@link ProtoLayoutDynamicDataPipeline} without animation support. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public ProtoLayoutDynamicDataPipeline(
-            @Nullable SensorGateway sensorGateway,
+            @NonNull Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders,
             @NonNull StateStore stateStore) {
         // Build pipeline with quota that doesn't allow any animations.
         this(
-                sensorGateway,
+                platformDataProviders,
                 stateStore,
                 /* enableAnimations= */ false,
                 DISABLED_ANIMATIONS_QUOTA_MANAGER,
@@ -118,12 +116,12 @@ public class ProtoLayoutDynamicDataPipeline {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public ProtoLayoutDynamicDataPipeline(
-            @Nullable SensorGateway sensorGateway,
+            @NonNull Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders,
             @NonNull StateStore stateStore,
             @NonNull QuotaManager animationQuotaManager,
             @NonNull QuotaManager dynamicNodesQuotaManager) {
         this(
-                sensorGateway,
+                platformDataProviders,
                 stateStore,
                 /* enableAnimations= */ true,
                 animationQuotaManager,
@@ -132,7 +130,7 @@ public class ProtoLayoutDynamicDataPipeline {
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline}. */
     private ProtoLayoutDynamicDataPipeline(
-            @Nullable SensorGateway sensorGateway,
+            @NonNull Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders,
             @NonNull StateStore stateStore,
             boolean enableAnimations,
             @NonNull QuotaManager animationQuotaManager,
@@ -140,22 +138,14 @@ public class ProtoLayoutDynamicDataPipeline {
         this.mEnableAnimations = enableAnimations;
         this.mAnimationQuotaManager = animationQuotaManager;
         DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
-                new DynamicTypeEvaluator.Config.Builder()
-                        .setStateStore(stateStore);
+                new DynamicTypeEvaluator.Config.Builder().setStateStore(stateStore);
         evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
         this.mTimeNotifier = new PlatformTimeUpdateNotifierImpl();
         evaluatorConfigBuilder.setPlatformTimeUpdateNotifier(this.mTimeNotifier);
-        if (sensorGateway != null) {
+        for (Map.Entry<PlatformDataProvider, Set<PlatformDataKey<?>>> providerEntry :
+                platformDataProviders.entrySet()) {
             evaluatorConfigBuilder.addPlatformDataProvider(
-                    new SensorGatewaySingleDataProvider(
-                            sensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM),
-                    Collections.singleton(PlatformHealthSources.Keys.HEART_RATE_BPM)
-            );
-            evaluatorConfigBuilder.addPlatformDataProvider(
-                    new SensorGatewaySingleDataProvider(
-                            sensorGateway, PlatformHealthSources.Keys.DAILY_STEPS),
-                    Collections.singleton(PlatformHealthSources.Keys.DAILY_STEPS)
-            );
+                    providerEntry.getKey(), providerEntry.getValue());
         }
         if (enableAnimations) {
             evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
@@ -209,8 +199,6 @@ public class ProtoLayoutDynamicDataPipeline {
     @SuppressWarnings("RestrictTo")
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setUpdatesEnabled(boolean canUpdate) {
-        // SensorGateway is not owned by ProtoLayoutDynamicDataPipeline, so the callers who create
-        // it are responsible for updates.
         mTimeNotifier.setUpdatesEnabled(canUpdate);
     }
 
@@ -649,8 +637,8 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
             DynamicTypeBindingRequest bindingRequest =
-                    DynamicTypeBindingRequest.forDynamicFloatInternal(dpProp.getDynamicValue(),
-                            consumer);
+                    DynamicTypeBindingRequest.forDynamicFloatInternal(
+                            dpProp.getDynamicValue(), consumer);
             tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
@@ -971,10 +959,7 @@ public class ProtoLayoutDynamicDataPipeline {
         mPositionIdTree.forEach(info -> info.setVisibility(visible));
     }
 
-    /**
-     * Reset the avd animations with the given trigger type.
-     *
-     */
+    /** Reset the avd animations with the given trigger type. */
     @UiThread
     @VisibleForTesting
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -982,10 +967,7 @@ public class ProtoLayoutDynamicDataPipeline {
         mPositionIdTree.forEach(info -> info.resetAvdAnimations(triggerCase));
     }
 
-    /**
-     * Stops running avd animations and releases their quota.
-     *
-     */
+    /** Stops running avd animations and releases their quota. */
     @UiThread
     @VisibleForTesting
     @RestrictTo(Scope.LIBRARY_GROUP)

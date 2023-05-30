@@ -16,8 +16,12 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.DAILY_STEPS;
+import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HEART_RATE_BPM;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -28,6 +32,7 @@ import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
@@ -46,11 +51,13 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -67,6 +74,8 @@ public class Int32NodesTest {
 
     @Mock
     private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+    @Mock
+    private PlatformDataProvider mMockDataProvider;
 
     private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
 
@@ -226,12 +235,10 @@ public class Int32NodesTest {
 
     @Test
     public void stateInt32Source_canSubscribeToDailyStepsUpdates() {
-        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
         PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.DAILY_STEPS,
-                        new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.Keys.DAILY_STEPS)));
+                        mMockDataProvider));
         StateInt32Source dailyStepsSource =
                 StateInt32Source.newBuilder()
                         .setSourceKey(PlatformHealthSources.Keys.DAILY_STEPS.getKey())
@@ -246,13 +253,18 @@ public class Int32NodesTest {
 
         dailyStepsSourceNode.preInit();
         dailyStepsSourceNode.init();
-        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+        ArgumentCaptor<PlatformDataReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(PlatformDataReceiver.class);
+        verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(70);
+        PlatformDataReceiver receiver = receiverCaptor.getValue();
+        receiver.onData(ImmutableMap.of(DAILY_STEPS,
+                DynamicDataBuilders.DynamicDataValue.fromInt(70)));
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(80);
+        receiver.onData(ImmutableMap.of(DAILY_STEPS,
+                DynamicDataBuilders.DynamicDataValue.fromInt(80)));
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70, 80);
     }
@@ -392,12 +404,10 @@ public class Int32NodesTest {
 
     @Test
     public void platformInt32Source_canSubscribeToHeartRateUpdates() {
-        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
         PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.HEART_RATE_BPM,
-                        new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM)));
+                        mMockDataProvider));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -413,25 +423,30 @@ public class Int32NodesTest {
 
         platformSourceNode.preInit();
         platformSourceNode.init();
-        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+        ArgumentCaptor<PlatformDataReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(PlatformDataReceiver.class);
+        verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(70);
+        PlatformDataReceiver receiver = receiverCaptor.getValue();
+        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
+                DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
+
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(80);
+        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
+                DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
+
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70, 80);
     }
 
     @Test
     public void platformInt32Source_canSubscribeToDailyStepsUpdates() {
-        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
         PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.DAILY_STEPS,
-                        new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.Keys.DAILY_STEPS)));
+                        mMockDataProvider));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -447,25 +462,30 @@ public class Int32NodesTest {
 
         platformSourceNode.preInit();
         platformSourceNode.init();
-        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+        ArgumentCaptor<PlatformDataReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(PlatformDataReceiver.class);
+        verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(70.0);
+        PlatformDataReceiver receiver = receiverCaptor.getValue();
+        receiver.onData(ImmutableMap.of(DAILY_STEPS,
+                DynamicDataBuilders.DynamicDataValue.fromInt(70)));
+
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        fakeSensorGateway.registeredConsumers.get(0).onData(80.0);
+        receiver.onData(ImmutableMap.of(DAILY_STEPS,
+                DynamicDataBuilders.DynamicDataValue.fromInt(80)));
+
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70, 80);
     }
 
     @Test
     public void platformInt32Source_propagatesInvalidatedSignal() {
-        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
         PlatformDataStore platformDataStore = new PlatformDataStore(
                 Collections.singletonMap(
                         PlatformHealthSources.Keys.HEART_RATE_BPM,
-                        new SensorGatewaySingleDataProvider(
-                                fakeSensorGateway, PlatformHealthSources.Keys.HEART_RATE_BPM)));
+                        mMockDataProvider));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -482,9 +502,13 @@ public class Int32NodesTest {
         verify(mMockValueReceiver).onPreUpdate();
 
         platformSourceNode.init();
-        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+        ArgumentCaptor<PlatformDataReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(PlatformDataReceiver.class);
+        verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
-        fakeSensorGateway.registeredConsumers.get(0).onInvalidated();
+        PlatformDataReceiver receiver = receiverCaptor.getValue();
+        receiver.onInvalidated(ImmutableSet.of(HEART_RATE_BPM));
+
         verify(mMockValueReceiver).onInvalidated();
     }
 }
