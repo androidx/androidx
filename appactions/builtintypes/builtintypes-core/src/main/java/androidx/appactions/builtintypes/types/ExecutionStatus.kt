@@ -98,6 +98,7 @@ public abstract class AbstractExecutionStatus<
   Self : AbstractExecutionStatus<Self, Builder>,
   Builder : AbstractExecutionStatus.Builder<Builder, Self>>
 internal constructor(
+  public final override val namespace: String?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
@@ -120,6 +121,7 @@ internal constructor(
   public constructor(
     executionStatus: ExecutionStatus
   ) : this(
+    executionStatus.namespace,
     executionStatus.disambiguatingDescription,
     executionStatus.identifier,
     executionStatus.name
@@ -132,6 +134,7 @@ internal constructor(
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
+      .setNamespace(namespace)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -143,15 +146,19 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
+    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
+    if (namespace != null) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
@@ -236,6 +243,8 @@ internal constructor(
      */
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
+    private var namespace: String? = null
+
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
@@ -254,7 +263,14 @@ internal constructor(
     protected abstract fun buildFromExecutionStatus(executionStatus: ExecutionStatus): Built
 
     public final override fun build(): Built =
-      buildFromExecutionStatus(ExecutionStatusImpl(disambiguatingDescription, identifier, name))
+      buildFromExecutionStatus(
+        ExecutionStatusImpl(namespace, disambiguatingDescription, identifier, name)
+      )
+
+    public final override fun setNamespace(namespace: String?): Self {
+      this.namespace = namespace
+      return this as Self
+    }
 
     public final override fun setDisambiguatingDescription(
       disambiguatingDescription: DisambiguatingDescription?
@@ -281,17 +297,21 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
+      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
+      if (namespace != null) {
+        attributes["namespace"] = namespace!!
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
@@ -310,7 +330,7 @@ internal constructor(
   }
 }
 
-internal class ExecutionStatusImpl :
+private class ExecutionStatusImpl :
   AbstractExecutionStatus<ExecutionStatusImpl, ExecutionStatusImpl.Builder> {
   protected override val selfTypeName: String
     get() = "ExecutionStatus"
@@ -319,16 +339,17 @@ internal class ExecutionStatusImpl :
     get() = emptyMap()
 
   public constructor(
+    namespace: String?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(disambiguatingDescription, identifier, name)
+  ) : super(namespace, disambiguatingDescription, identifier, name)
 
   public constructor(executionStatus: ExecutionStatus) : super(executionStatus)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  internal class Builder : AbstractExecutionStatus.Builder<Builder, ExecutionStatusImpl>() {
+  public class Builder : AbstractExecutionStatus.Builder<Builder, ExecutionStatusImpl>() {
     protected override val selfTypeName: String
       get() = "ExecutionStatus.Builder"
 

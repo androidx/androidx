@@ -15,9 +15,9 @@ package androidx.appactions.builtintypes.samples.properties
 
 import androidx.`annotation`.Sampled
 import androidx.appactions.builtintypes.properties.StartTime
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZonedDateTime
 import kotlin.String
 
 @Sampled
@@ -29,8 +29,8 @@ public fun startTimeMapWhenUsage(startTime: StartTime) =
       public override fun localDateTime(instance: LocalDateTime): String =
         """Got a local DateTime: $instance"""
 
-      public override fun zonedDateTime(instance: ZonedDateTime): String =
-        """Got a zoned/absolute DateTime: $instance"""
+      public override fun instant(instance: Instant): String =
+        """Got an absolute DateTime: $instance"""
 
       public override fun orElse(): String = """Got some unrecognized variant: $startTime"""
     }
