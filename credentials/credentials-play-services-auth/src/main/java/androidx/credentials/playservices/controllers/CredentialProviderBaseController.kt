@@ -33,9 +33,8 @@ import com.google.android.gms.common.api.CommonStatusCodes
 
 /**
  * Holds all non type specific details shared by the controllers.
- * @hide
  */
-open class CredentialProviderBaseController(private val context: Context) {
+internal open class CredentialProviderBaseController(private val context: Context) {
     companion object {
 
         // Common retryable status codes from the play modules found

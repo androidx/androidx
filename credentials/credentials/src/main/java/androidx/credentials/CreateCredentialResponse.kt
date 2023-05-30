@@ -25,17 +25,14 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * [CreateCredentialRequest].
  */
 abstract class CreateCredentialResponse internal constructor(
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val data: Bundle,
 ) {
-    /** @hide */
-    companion object {
-        /** @hide */
+    internal companion object {
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         fun createFrom(type: String, data: Bundle): CreateCredentialResponse {
             return try {
                 when (type) {

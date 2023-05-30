@@ -19,13 +19,13 @@ package androidx.credentials.playservices
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import androidx.annotation.RestrictTo
 
 /**
  * Metadata holder service for the purpose of defining the class that implements
  * the [androidx.credentials.CredentialProvider] interface
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class CredentialProviderMetadataHolder : Service() {
     override fun onBind(p0: Intent?): IBinder? {
         TODO("Not yet implemented")

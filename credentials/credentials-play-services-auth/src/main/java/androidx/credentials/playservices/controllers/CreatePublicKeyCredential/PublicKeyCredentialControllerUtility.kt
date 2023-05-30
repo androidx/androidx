@@ -67,10 +67,8 @@ import org.json.JSONObject
 
 /**
  * A utility class to handle logic for the begin sign in controller.
- *
- * @hide
  */
-class PublicKeyCredentialControllerUtility {
+internal class PublicKeyCredentialControllerUtility {
 
     companion object {
 

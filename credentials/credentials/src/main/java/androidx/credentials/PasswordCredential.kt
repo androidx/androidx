@@ -17,7 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -38,17 +38,15 @@ class PasswordCredential constructor(
         require(password.isNotEmpty()) { "password should not be empty" }
     }
 
-    /** @hide */
-    companion object {
+    internal companion object {
         // TODO: this type is officially defined in the framework. This definition should be
         // removed when the framework type is available in jetpack.
-        /** @hide */
-        const val TYPE_PASSWORD_CREDENTIAL: String = "android.credentials.TYPE_PASSWORD_CREDENTIAL"
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        const val TYPE_PASSWORD_CREDENTIAL: String =
+            "android.credentials.TYPE_PASSWORD_CREDENTIAL"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
+        internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        internal const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
 
         @JvmStatic
         internal fun toBundle(id: String, password: String): Bundle {

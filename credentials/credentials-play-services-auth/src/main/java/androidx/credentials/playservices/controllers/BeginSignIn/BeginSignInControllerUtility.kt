@@ -30,11 +30,9 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 
 /**
  * A utility class to handle logic for the begin sign in controller.
- *
- * @hide
  */
 @Suppress("deprecation")
-class BeginSignInControllerUtility {
+internal class BeginSignInControllerUtility {
 
     companion object {
 

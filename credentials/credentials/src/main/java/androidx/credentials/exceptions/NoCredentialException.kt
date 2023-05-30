@@ -29,8 +29,7 @@ class NoCredentialException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : GetCredentialException(TYPE_FRAMEWORK_TYPE_NO_CREDENTIAL, errorMessage) {
 
-    /** @hide */
-    companion object {
+    internal companion object {
         /** Maintain a copy of the framework type so that we aren't restricted by the API level. */
         internal const val TYPE_FRAMEWORK_TYPE_NO_CREDENTIAL =
             "android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL"

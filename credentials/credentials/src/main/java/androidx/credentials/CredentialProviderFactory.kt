@@ -22,10 +22,8 @@ import android.util.Log
 
 /**
  * Factory that returns the credential provider to be used by Credential Manager.
- *
- * @hide
  */
-class CredentialProviderFactory {
+internal class CredentialProviderFactory {
     companion object {
         private const val TAG = "CredProviderFactory"
 

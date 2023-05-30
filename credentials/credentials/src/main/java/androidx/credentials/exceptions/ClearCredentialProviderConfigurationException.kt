@@ -26,8 +26,7 @@ package androidx.credentials.exceptions
 class ClearCredentialProviderConfigurationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
             "androidx.credentials.TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION"
     }
