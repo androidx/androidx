@@ -44,7 +44,7 @@ import java.util.stream.Stream;
  * the main thread, and because updates will eventually affect the main thread, this whole class
  * must only be used from the UI thread.
  */
-public class StateStore extends DataStore {
+public final class StateStore extends DataStore {
     @SuppressLint("MinMaxConstant")
     private static final int MAX_STATE_ENTRY_COUNT = 30;
 
