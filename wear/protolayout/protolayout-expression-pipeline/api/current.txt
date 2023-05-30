@@ -68,7 +68,7 @@ package androidx.wear.protolayout.expression.pipeline {
     method public boolean tryAcquireQuota(int);
   }
 
-  public class StateStore {
+  public final class StateStore {
     method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
     method public static int getMaxStateEntryCount();
     method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!>);
