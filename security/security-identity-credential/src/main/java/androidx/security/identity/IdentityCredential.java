@@ -32,15 +32,12 @@ import java.util.Map;
 
 /**
  * Class used to read data from a previously provisioned credential.
- *
+ * <p>
  * Use {@link IdentityCredentialStore#getCredentialByName(String, int)} to get a
  * {@link IdentityCredential} instance.
  */
 public abstract class IdentityCredential {
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected IdentityCredential() {}
 
     /**
