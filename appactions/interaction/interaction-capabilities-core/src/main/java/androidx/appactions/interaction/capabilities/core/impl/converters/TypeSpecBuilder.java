@@ -18,6 +18,8 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import static androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors.toImmutableList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.builtintypes.experimental.types.Thing;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.protobuf.ListValue;
@@ -35,8 +37,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** Builder for {@link TypeSpec}. */
-final class TypeSpecBuilder<T, BuilderT> {
+/**
+ * Builder for {@link TypeSpec}. TypeSpec converts T instance to and from {@code Value.structValue}
+ * @param <T> the type this TypeSpec is for
+ * @param <BuilderT> the type that builds T objects
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class TypeSpecBuilder<T, BuilderT> {
     private final List<FieldBinding<T, BuilderT>> mBindings = new ArrayList<>();
     private final Supplier<BuilderT> mBuilderSupplier;
     private final Function<BuilderT, T> mBuilderFinalizer;
@@ -90,10 +97,18 @@ final class TypeSpecBuilder<T, BuilderT> {
         }
     }
 
-    static <T, BuilderT> TypeSpecBuilder<T, BuilderT> newBuilder(
-            String typeName,
-            Supplier<BuilderT> builderSupplier,
-            Function<BuilderT, T> builderFinalizer) {
+    /**
+     * Creates a new instance of TypeSpecBuilder.
+     *
+     * @param typeName the name of the type.
+     * @param builderSupplier a function which supplies new Builder instances for the type.
+     * @param builderFinalizer a function that gets the built object from the builder.
+     */
+    @NonNull
+    public static <T, BuilderT> TypeSpecBuilder<T, BuilderT> newBuilder(
+            @NonNull String typeName,
+            @NonNull Supplier<BuilderT> builderSupplier,
+            @NonNull Function<BuilderT, T> builderFinalizer) {
         return new TypeSpecBuilder<>(typeName, builderSupplier, builderFinalizer);
     }
 
@@ -127,7 +142,13 @@ final class TypeSpecBuilder<T, BuilderT> {
         return this;
     }
 
-    TypeSpecBuilder<T, BuilderT> bindIdentifier(Function<T, String> identifierGetter) {
+    /**
+     * Binds a function that returns the identifier of the object.
+     */
+    @NonNull
+    public TypeSpecBuilder<T, BuilderT> bindIdentifier(
+            @NonNull Function<T, String> identifierGetter
+    ) {
         this.mIdentifierGetter = identifierGetter;
         return this;
     }
@@ -175,10 +196,11 @@ final class TypeSpecBuilder<T, BuilderT> {
     }
 
     /** binds a String field to read from / write to Struct */
-    TypeSpecBuilder<T, BuilderT> bindStringField(
-            String name,
-            Function<T, String> stringGetter,
-            BiConsumer<BuilderT, String> stringSetter) {
+    @NonNull
+    public TypeSpecBuilder<T, BuilderT> bindStringField(
+            @NonNull String name,
+            @NonNull Function<T, String> stringGetter,
+            @NonNull BiConsumer<BuilderT, String> stringSetter) {
         return bindFieldInternal(
                 name,
                 (object) -> {
@@ -291,11 +313,13 @@ final class TypeSpecBuilder<T, BuilderT> {
     }
 
     /** Binds a spec field to read from / write to Struct. */
-    <V> TypeSpecBuilder<T, BuilderT> bindSpecField(
-            String name,
-            Function<T, V> valueGetter,
-            BiConsumer<BuilderT, V> valueSetter,
-            TypeSpec<V> spec) {
+    @SuppressWarnings("LambdaLast")
+    @NonNull
+    public <V> TypeSpecBuilder<T, BuilderT> bindSpecField(
+            @NonNull String name,
+            @NonNull Function<T, V> valueGetter,
+            @NonNull BiConsumer<BuilderT, V> valueSetter,
+            @NonNull TypeSpec<V> spec) {
         return bindFieldInternal(
                 name,
                 (object) -> {
@@ -309,11 +333,13 @@ final class TypeSpecBuilder<T, BuilderT> {
     }
 
     /** binds a repeated spec field to read from / write to Struct. */
-    <V> TypeSpecBuilder<T, BuilderT> bindRepeatedSpecField(
-            String name,
-            Function<T, List<V>> valueGetter,
-            BiConsumer<BuilderT, List<V>> valueSetter,
-            TypeSpec<V> spec) {
+    @SuppressWarnings("LambdaLast")
+    @NonNull
+    public <V> TypeSpecBuilder<T, BuilderT> bindRepeatedSpecField(
+            @NonNull String name,
+            @NonNull Function<T, List<V>> valueGetter,
+            @NonNull BiConsumer<BuilderT, List<V>> valueSetter,
+            @NonNull TypeSpec<V> spec) {
         return bindRepeatedFieldInternal(
                 name,
                 valueGetter,
@@ -322,7 +348,11 @@ final class TypeSpecBuilder<T, BuilderT> {
                 spec::fromValue);
     }
 
-    TypeSpec<T> build() {
+    /**
+     * Builds the TypeSpec instance.
+     */
+    @NonNull
+    public TypeSpec<T> build() {
         return new TypeSpecImpl<>(
                 mIdentifierGetter,
                 mBindings,

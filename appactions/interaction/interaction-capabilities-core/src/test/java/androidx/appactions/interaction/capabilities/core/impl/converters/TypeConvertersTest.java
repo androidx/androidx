@@ -86,10 +86,7 @@ public final class TypeConvertersTest {
                     .addAttendee(new Attendee(PERSON_JAVA_THING_2))
                     .build();
     private static final Call CALL_JAVA_THING =
-            Call.Builder()
-                    .setIdentifier("id")
-                    .addParticipant(PERSON_JAVA_THING)
-                    .build();
+            Call.Builder().setIdentifier("id").addParticipant(PERSON_JAVA_THING).build();
     private static final Message MESSAGE_JAVA_THING =
             Message.Builder()
                     .setIdentifier("id")
@@ -107,8 +104,7 @@ public final class TypeConvertersTest {
             Struct.newBuilder()
                     .putFields("@type", Value.newBuilder().setStringValue("Person").build())
                     .putFields("identifier", Value.newBuilder().setStringValue("id").build())
-                    .putFields("name",
-                            Value.newBuilder().setStringValue("name").build())
+                    .putFields("name", Value.newBuilder().setStringValue("name").build())
                     .putFields("email", Value.newBuilder().setStringValue("email").build())
                     .putFields("telephone", Value.newBuilder().setStringValue("telephone").build())
                     .build();
@@ -209,8 +205,8 @@ public final class TypeConvertersTest {
                         ParamValue.newBuilder().setStringValue("hello world").build());
 
         assertThat(
-                SlotTypeConverter.ofSingular(TypeConverters.STRING_PARAM_VALUE_CONVERTER)
-                        .convert(input))
+                        SlotTypeConverter.ofSingular(TypeConverters.STRING_PARAM_VALUE_CONVERTER)
+                                .convert(input))
                 .isEqualTo("hello world");
     }
 
@@ -238,8 +234,8 @@ public final class TypeConvertersTest {
         assertThat(EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC).convert(listItem))
                 .isEqualTo(listItemProto);
         assertThat(
-                ParamValueConverter.Companion.of(LIST_ITEM_TYPE_SPEC)
-                        .fromParamValue(toParamValue(listItemStruct, "itemId")))
+                        ParamValueConverter.Companion.of(LIST_ITEM_TYPE_SPEC)
+                                .fromParamValue(toParamValue(listItemStruct, "itemId")))
                 .isEqualTo(listItem);
     }
 
@@ -330,8 +326,10 @@ public final class TypeConvertersTest {
 
         assertThat(EntityConverter.Companion.of(ITEM_LIST_TYPE_SPEC).convert(itemList))
                 .isEqualTo(itemListProto);
-        assertThat(ParamValueConverter.Companion.of(ITEM_LIST_TYPE_SPEC)
-                .fromParamValue(toParamValue(itemListStruct, "testList"))).isEqualTo(itemList);
+        assertThat(
+                        ParamValueConverter.Companion.of(ITEM_LIST_TYPE_SPEC)
+                                .fromParamValue(toParamValue(itemListStruct, "testList")))
+                .isEqualTo(itemList);
     }
 
     @Test
@@ -363,8 +361,10 @@ public final class TypeConvertersTest {
                 ParamValueConverter.Companion.of(RECIPIENT_TYPE_SPEC);
         ParamValue paramValue =
                 ParamValue.newBuilder()
-                        .setIdentifier(PERSON_JAVA_THING.getIdentifier() == null ? "id" :
-                                PERSON_JAVA_THING.getIdentifier())
+                        .setIdentifier(
+                                PERSON_JAVA_THING.getIdentifier() == null
+                                        ? "id"
+                                        : PERSON_JAVA_THING.getIdentifier())
                         .setStructValue(PERSON_STRUCT)
                         .build();
         Recipient recipient = new Recipient(PERSON_JAVA_THING);
@@ -452,9 +452,7 @@ public final class TypeConvertersTest {
                         () ->
                                 SlotTypeConverter.ofSingular(BOOLEAN_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown)
-                .hasMessageThat()
-                .matches("cannot convert .+ into Value.");
+        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
     }
 
     @Test
@@ -467,9 +465,7 @@ public final class TypeConvertersTest {
                         () ->
                                 SlotTypeConverter.ofSingular(INTEGER_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown)
-                .hasMessageThat()
-                .matches("cannot convert .+ into Value.");
+        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
     }
 
     @Test
@@ -511,9 +507,7 @@ public final class TypeConvertersTest {
                                 SlotTypeConverter.ofSingular(
                                                 TypeConverters.LOCAL_DATE_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown)
-                .hasMessageThat()
-                .isEqualTo("Cannot parse date because string_value is missing from ParamValue.");
+        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
     }
 
     @Test
@@ -554,9 +548,7 @@ public final class TypeConvertersTest {
                                 SlotTypeConverter.ofSingular(
                                                 TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown)
-                .hasMessageThat()
-                .isEqualTo("Cannot parse time because string_value is missing from ParamValue.");
+        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
     }
 
     @Test
@@ -604,7 +596,7 @@ public final class TypeConvertersTest {
     @Test
     public void zonedDateTime_success() throws Exception {
         ParamValueConverter<ZonedDateTime> converter =
-                TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER;
+                TypeConverters.ZONED_DATE_TIME_PARAM_VALUE_CONVERTER;
         ParamValue paramValue =
                 ParamValue.newBuilder().setStringValue("2018-06-17T15:10:05Z").build();
         ZonedDateTime zonedDateTime = ZonedDateTime.of(2018, 6, 17, 15, 10, 5, 0, ZoneOffset.UTC);
@@ -626,7 +618,8 @@ public final class TypeConvertersTest {
                         StructConversionException.class,
                         () ->
                                 SlotTypeConverter.ofSingular(
-                                                TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER)
+                                                TypeConverters
+                                                        .ZONED_DATE_TIME_PARAM_VALUE_CONVERTER)
                                         .convert(input));
         assertThat(thrown)
                 .hasMessageThat()
@@ -643,19 +636,16 @@ public final class TypeConvertersTest {
                         StructConversionException.class,
                         () ->
                                 SlotTypeConverter.ofSingular(
-                                                TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER)
+                                                TypeConverters
+                                                        .ZONED_DATE_TIME_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown)
-                .hasMessageThat()
-                .isEqualTo(
-                        "Cannot parse datetime because string_value is missing from ParamValue.");
+        assertThat(thrown).hasMessageThat().contains("expected Value.stringValue to be present");
     }
 
     @Test
     public void duration_success() throws Exception {
         ParamValueConverter<Duration> converter = TypeConverters.DURATION_PARAM_VALUE_CONVERTER;
-        ParamValue paramValue =
-                ParamValue.newBuilder().setStringValue("PT5M").build();
+        ParamValue paramValue = ParamValue.newBuilder().setStringValue("PT5M").build();
         Duration duration = Duration.ofMinutes(5);
 
         assertThat(converter.fromParamValue(paramValue)).isEqualTo(duration);
@@ -676,8 +666,7 @@ public final class TypeConvertersTest {
                                         .convert(input));
         assertThat(thrown)
                 .hasMessageThat()
-                .isEqualTo(
-                        "Cannot parse duration because string_value is missing from ParamValue.");
+                .contains("expected Value.stringValue to be present");
     }
 
     @Test
@@ -753,21 +742,21 @@ public final class TypeConvertersTest {
         Timer timer = Timer.Builder().setIdentifier("abc").build();
 
         assertThat(
-                paramValueConverter.fromParamValue(
-                        ParamValue.newBuilder()
-                                .setStructValue(
-                                        Struct.newBuilder()
-                                                .putFields(
-                                                        "@type",
-                                                        Value.newBuilder()
-                                                                .setStringValue("Timer")
-                                                                .build())
-                                                .putFields(
-                                                        "identifier",
-                                                        Value.newBuilder()
-                                                                .setStringValue("abc")
-                                                                .build()))
-                                .build()))
+                        paramValueConverter.fromParamValue(
+                                ParamValue.newBuilder()
+                                        .setStructValue(
+                                                Struct.newBuilder()
+                                                        .putFields(
+                                                                "@type",
+                                                                Value.newBuilder()
+                                                                        .setStringValue("Timer")
+                                                                        .build())
+                                                        .putFields(
+                                                                "identifier",
+                                                                Value.newBuilder()
+                                                                        .setStringValue("abc")
+                                                                        .build()))
+                                        .build()))
                 .isEqualTo(timer);
     }
 
@@ -784,8 +773,8 @@ public final class TypeConvertersTest {
     @Test
     public void toParamValues_message_success() {
         assertThat(
-                ParamValueConverter.Companion.of(MESSAGE_TYPE_SPEC)
-                        .toParamValue(MESSAGE_JAVA_THING))
+                        ParamValueConverter.Companion.of(MESSAGE_TYPE_SPEC)
+                                .toParamValue(MESSAGE_JAVA_THING))
                 .isEqualTo(
                         ParamValue.newBuilder()
                                 .setStructValue(MESSAGE_STRUCT)
@@ -796,8 +785,8 @@ public final class TypeConvertersTest {
     @Test
     public void toParamValues_safetyCheck_success() {
         assertThat(
-                ParamValueConverter.Companion.of(SAFETY_CHECK_TYPE_SPEC)
-                        .toParamValue(SAFETY_CHECK_JAVA_THING))
+                        ParamValueConverter.Companion.of(SAFETY_CHECK_TYPE_SPEC)
+                                .toParamValue(SAFETY_CHECK_JAVA_THING))
                 .isEqualTo(
                         ParamValue.newBuilder()
                                 .setStructValue(SAFETY_CHECK_STRUCT)

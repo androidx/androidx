@@ -35,6 +35,7 @@ fun interface EntityConverter<T> {
         /**
          * @param typeSpec the TypeSpec of the structured type.
          */
+        @JvmStatic
         fun <T> of(typeSpec: TypeSpec<T>): EntityConverter<T> {
             return EntityConverter { obj ->
                 val builder = valueToEntity(typeSpec.toValue(obj)).toBuilder()
@@ -43,7 +44,7 @@ fun interface EntityConverter<T> {
             }
         }
 
-        private fun valueToEntity(value: Value): Entity {
+        internal fun valueToEntity(value: Value): Entity {
             val builder = Entity.newBuilder()
             when {
                 value.hasStringValue() -> builder.stringValue = value.stringValue
