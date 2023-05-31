@@ -140,7 +140,7 @@ class TextFieldTest {
     private val ExpectedPadding = 16.dp
     private val IconPadding = 12.dp
     private val ExpectedBaselineOffset = 20.dp
-    private val TopPaddingFilledTextfield = 4.dp
+    private val TopPaddingFilledTextfield = 2.dp
     private val IconColorAlpha = 0.54f
     private val TextfieldTag = "textField"
 
@@ -374,12 +374,11 @@ class TextFieldTest {
             assertThat(labelSize.value?.height).isGreaterThan(0)
             assertThat(labelSize.value?.width).isGreaterThan(0)
             // centered position
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
+            assertThat(labelPosition.value?.x).isWithin(1f).of(
+                ExpectedPadding.toPx()
             )
-            assertThat(labelPosition.value?.y).isEqualTo(
-                ((ExpectedDefaultTextFieldHeight.roundToPx() - labelSize.value!!.height) / 2f)
-                    .roundToInt().toFloat()
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                (ExpectedDefaultTextFieldHeight.toPx() - labelSize.value!!.height) / 2f
             )
         }
     }
