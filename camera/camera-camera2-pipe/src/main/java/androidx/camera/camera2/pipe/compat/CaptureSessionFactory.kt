@@ -207,6 +207,7 @@ constructor(
         )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
+            captureSessionState.onSessionFinalized()
             return emptyMap()
         }
 
@@ -270,6 +271,7 @@ constructor(
         )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
+            captureSessionState.onSessionFinalized()
             return emptyMap()
         }
 
@@ -431,6 +433,7 @@ constructor(
         )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
+            captureSessionState.onSessionFinalized()
             return emptyMap()
         }
 
