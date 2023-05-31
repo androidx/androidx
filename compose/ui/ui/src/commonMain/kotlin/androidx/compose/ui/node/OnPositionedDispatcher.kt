@@ -26,6 +26,8 @@ internal class OnPositionedDispatcher {
     private val layoutNodes = mutableVectorOf<LayoutNode>()
     private var cachedNodes: Array<LayoutNode?>? = null
 
+    fun isNotEmpty() = layoutNodes.isNotEmpty()
+
     fun onNodePositioned(node: LayoutNode) {
         layoutNodes += node
         node.needsOnPositionedDispatch = true

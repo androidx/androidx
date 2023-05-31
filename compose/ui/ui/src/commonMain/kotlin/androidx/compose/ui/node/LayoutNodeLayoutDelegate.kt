@@ -26,7 +26,6 @@ import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastForEach
 
 /**
  * This class works as a layout delegate for [LayoutNode]. It delegates all the measure/layout
@@ -173,9 +172,30 @@ internal class LayoutNodeLayoutDelegate(
             val oldValue = field
             if (oldValue != value) {
                 field = value
-                if (value) {
+                if (value && !coordinatesAccessedDuringModifierPlacement) {
+                    // if first out of both flags changes to true increment
                     childrenAccessingCoordinatesDuringPlacement++
-                } else {
+                } else if (!value && !coordinatesAccessedDuringModifierPlacement) {
+                    // if both flags changes to false decrement
+                    childrenAccessingCoordinatesDuringPlacement--
+                }
+            }
+        }
+
+    /**
+     * Similar to [coordinatesAccessedDuringPlacement], but tracks the coordinates read happening
+     * during the modifier layout blocks run.
+     */
+    var coordinatesAccessedDuringModifierPlacement = false
+        set(value) {
+            val oldValue = field
+            if (oldValue != value) {
+                field = value
+                if (value && !coordinatesAccessedDuringPlacement) {
+                    // if first out of both flags changes to true increment
+                    childrenAccessingCoordinatesDuringPlacement++
+                } else if (!value && !coordinatesAccessedDuringPlacement) {
+                    // if both flags changes to false decrement
                     childrenAccessingCoordinatesDuringPlacement--
                 }
             }
@@ -215,6 +235,25 @@ internal class LayoutNodeLayoutDelegate(
      */
     internal var lookaheadPassDelegate: LookaheadPassDelegate? = null
         private set
+
+    fun onCoordinatesUsed() {
+        val state = layoutNode.layoutState
+        if (state == LayoutState.LayingOut || state == LayoutState.LookaheadLayingOut) {
+            if (measurePassDelegate.layingOutChildren) {
+                coordinatesAccessedDuringPlacement = true
+            } else {
+                coordinatesAccessedDuringModifierPlacement = true
+            }
+        }
+        if (state == LayoutState.LookaheadLayingOut) {
+            // TODO lookahead should have its own flags b/284153462
+            if (lookaheadPassDelegate?.layingOutChildren == true) {
+                coordinatesAccessedDuringPlacement = true
+            } else {
+                coordinatesAccessedDuringModifierPlacement = true
+            }
+        }
+    }
 
     /**
      * [MeasurePassDelegate] manages the measure/layout and alignmentLine related queries for the
@@ -293,7 +332,11 @@ internal class LayoutNodeLayoutDelegate(
                 return _childDelegates.asMutableList()
             }
 
+        var layingOutChildren = false
+            private set
+
         override fun layoutChildren() {
+            layingOutChildren = true
             alignmentLines.recalculateQueryOwner()
 
             if (layoutPending) {
@@ -308,6 +351,7 @@ internal class LayoutNodeLayoutDelegate(
                 layoutPending = false
                 val oldLayoutState = layoutState
                 layoutState = LayoutState.LayingOut
+                coordinatesAccessedDuringPlacement = false
                 with(layoutNode) {
                     val owner = requireOwner()
                     owner.snapshotObserver.observeLayoutSnapshotReads(
@@ -341,6 +385,8 @@ internal class LayoutNodeLayoutDelegate(
                 alignmentLines.previousUsedDuringParentLayout = true
             }
             if (alignmentLines.dirty && alignmentLines.required) alignmentLines.recalculate()
+
+            layingOutChildren = false
         }
 
         private fun checkChildrenPlaceOrderForUpdates() {
@@ -463,7 +509,7 @@ internal class LayoutNodeLayoutDelegate(
         }
 
         private inline fun forEachChildDelegate(block: (MeasurePassDelegate) -> Unit) {
-            layoutNode.children.fastForEach {
+            layoutNode.forEachChild {
                 block(it.measurePassDelegate)
             }
         }
@@ -581,6 +627,10 @@ internal class LayoutNodeLayoutDelegate(
             layerBlock: (GraphicsLayerScope.() -> Unit)?
         ) {
             if (position != lastPosition) {
+                if (coordinatesAccessedDuringModifierPlacement ||
+                    coordinatesAccessedDuringPlacement) {
+                    layoutPending = true
+                }
                 notifyChildrenUsingCoordinatesWhilePlacing()
             }
             // This can actually be called as soon as LookaheadMeasure is done, but devs may expect
@@ -603,9 +653,7 @@ internal class LayoutNodeLayoutDelegate(
             }
 
             // Post-lookahead (if any) placement
-            layoutState = LayoutState.LayingOut
             placeOuterCoordinator(position, zIndex, layerBlock)
-            layoutState = LayoutState.Idle
         }
 
         private fun placeOuterCoordinator(
@@ -613,26 +661,34 @@ internal class LayoutNodeLayoutDelegate(
             zIndex: Float,
             layerBlock: (GraphicsLayerScope.() -> Unit)?
         ) {
+            layoutState = LayoutState.LayingOut
+
             lastPosition = position
             lastZIndex = zIndex
             lastLayerBlock = layerBlock
-
             placedOnce = true
-            alignmentLines.usedByModifierLayout = false
-            coordinatesAccessedDuringPlacement = false
+
             val owner = layoutNode.requireOwner()
-            owner.snapshotObserver.observeLayoutModifierSnapshotReads(
-                layoutNode,
-                affectsLookahead = false
-            ) {
-                with(PlacementScope) {
-                    if (layerBlock == null) {
-                        outerCoordinator.place(position, zIndex)
-                    } else {
-                        outerCoordinator.placeWithLayer(position, zIndex, layerBlock)
+            if (!layoutPending && isPlaced) {
+                outerCoordinator.placeSelfApparentToRealOffset(position, zIndex, layerBlock)
+                onNodePlaced()
+            } else {
+                alignmentLines.usedByModifierLayout = false
+                coordinatesAccessedDuringModifierPlacement = false
+                owner.snapshotObserver.observeLayoutModifierSnapshotReads(
+                    layoutNode, affectsLookahead = false
+                ) {
+                    with(PlacementScope) {
+                        if (layerBlock == null) {
+                            outerCoordinator.place(position, zIndex)
+                        } else {
+                            outerCoordinator.placeWithLayer(position, zIndex, layerBlock)
+                        }
                     }
                 }
             }
+
+            layoutState = LayoutState.Idle
         }
 
         /**
@@ -730,7 +786,7 @@ internal class LayoutNodeLayoutDelegate(
             get() = layoutNode.parent?.layoutDelegate?.alignmentLinesOwner
 
         override fun forEachChildAlignmentLinesOwner(block: (AlignmentLinesOwner) -> Unit) {
-            layoutNode.children.fastForEach {
+            layoutNode.forEachChild {
                 block(it.layoutDelegate.alignmentLinesOwner)
             }
         }
@@ -756,11 +812,11 @@ internal class LayoutNodeLayoutDelegate(
          */
         fun notifyChildrenUsingCoordinatesWhilePlacing() {
             if (childrenAccessingCoordinatesDuringPlacement > 0) {
-                layoutNode.children.fastForEach { child ->
+                layoutNode.forEachChild { child ->
                     val childLayoutDelegate = child.layoutDelegate
-                    if (childLayoutDelegate.coordinatesAccessedDuringPlacement &&
-                        !childLayoutDelegate.layoutPending
-                    ) {
+                    val accessed = childLayoutDelegate.coordinatesAccessedDuringPlacement ||
+                        childLayoutDelegate.coordinatesAccessedDuringModifierPlacement
+                    if (accessed && !childLayoutDelegate.layoutPending) {
                         child.requestRelayout()
                     }
                     childLayoutDelegate.measurePassDelegate
@@ -939,12 +995,16 @@ internal class LayoutNodeLayoutDelegate(
                 return _childDelegates.asMutableList()
             }
 
+        var layingOutChildren = false
+            private set
+
         private inline fun forEachChildDelegate(block: (LookaheadPassDelegate) -> Unit) =
             layoutNode.forEachChild {
                 block(it.layoutDelegate.lookaheadPassDelegate!!)
             }
 
         override fun layoutChildren() {
+            layingOutChildren = true
             alignmentLines.recalculateQueryOwner()
 
             if (lookaheadLayoutPending) {
@@ -961,6 +1021,7 @@ internal class LayoutNodeLayoutDelegate(
                 val oldLayoutState = layoutState
                 layoutState = LayoutState.LookaheadLayingOut
                 val owner = layoutNode.requireOwner()
+                coordinatesAccessedDuringPlacement = false
                 owner.snapshotObserver.observeLayoutSnapshotReads(layoutNode) {
                     clearPlaceOrder()
                     forEachChildAlignmentLinesOwner { child ->
@@ -985,6 +1046,8 @@ internal class LayoutNodeLayoutDelegate(
                 alignmentLines.previousUsedDuringParentLayout = true
             }
             if (alignmentLines.dirty && alignmentLines.required) alignmentLines.recalculate()
+
+            layingOutChildren = false
         }
 
         private fun checkChildrenPlaceOrderForUpdates() {
@@ -1030,7 +1093,7 @@ internal class LayoutNodeLayoutDelegate(
             get() = layoutNode.parent?.layoutDelegate?.lookaheadAlignmentLinesOwner
 
         override fun forEachChildAlignmentLinesOwner(block: (AlignmentLinesOwner) -> Unit) {
-            layoutNode.children.fastForEach {
+            layoutNode.forEachChild {
                 block(it.layoutDelegate.lookaheadAlignmentLinesOwner!!)
             }
         }
@@ -1056,11 +1119,11 @@ internal class LayoutNodeLayoutDelegate(
          */
         fun notifyChildrenUsingCoordinatesWhilePlacing() {
             if (childrenAccessingCoordinatesDuringPlacement > 0) {
-                layoutNode.children.fastForEach { child ->
+                layoutNode.forEachChild { child ->
                     val childLayoutDelegate = child.layoutDelegate
-                    if (childLayoutDelegate.coordinatesAccessedDuringPlacement &&
-                        !childLayoutDelegate.layoutPending
-                    ) {
+                    val accessed = childLayoutDelegate.coordinatesAccessedDuringPlacement ||
+                        childLayoutDelegate.coordinatesAccessedDuringModifierPlacement
+                    if (accessed && !childLayoutDelegate.layoutPending) {
                         child.requestLookaheadRelayout()
                     }
                     childLayoutDelegate.lookaheadPassDelegate
@@ -1160,14 +1223,23 @@ internal class LayoutNodeLayoutDelegate(
             layoutState = LayoutState.LookaheadLayingOut
             placedOnce = true
             if (position != lastPosition) {
+                if (coordinatesAccessedDuringModifierPlacement ||
+                    coordinatesAccessedDuringPlacement) {
+                    lookaheadLayoutPending = true
+                }
                 notifyChildrenUsingCoordinatesWhilePlacing()
             }
-            alignmentLines.usedByModifierLayout = false
             val owner = layoutNode.requireOwner()
-            coordinatesAccessedDuringPlacement = false
-            owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
-                with(PlacementScope) {
-                    outerCoordinator.lookaheadDelegate!!.place(position)
+
+            if (!lookaheadLayoutPending && isPlaced) {
+                onNodePlaced()
+            } else {
+                coordinatesAccessedDuringModifierPlacement = false
+                alignmentLines.usedByModifierLayout = false
+                owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
+                    with(PlacementScope) {
+                        outerCoordinator.lookaheadDelegate!!.place(position)
+                    }
                 }
             }
             lastPosition = position
@@ -1294,8 +1366,8 @@ internal class LayoutNodeLayoutDelegate(
             }
             if (parent != null) {
                 if (!relayoutWithoutParentInProgress &&
-                    parent.layoutState == LayoutState.LayingOut ||
-                    parent.layoutState == LayoutState.LookaheadLayingOut
+                    (parent.layoutState == LayoutState.LayingOut ||
+                        parent.layoutState == LayoutState.LookaheadLayingOut)
                 ) {
                     // the parent is currently placing its children
                     check(placeOrder == NotPlacedPlaceOrder) {
