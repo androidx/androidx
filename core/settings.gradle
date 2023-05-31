@@ -11,6 +11,7 @@ rootProject.name = "core-playground"
 playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
+        if (name.contains("haptics")) return false // b/285039694
         if (name.startsWith(":core")) return true
         if (name == ":internal-testutils-mockito") return true
         if (name == ":internal-testutils-fonts") return true
