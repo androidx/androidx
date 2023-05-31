@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.entity
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.builtintypes.experimental.types.Thing
+import androidx.appactions.builtintypes.types.Thing
 import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
@@ -53,6 +53,7 @@ constructor(
      *
      * @param request The request includes e.g. entity, search metadata, etc.
      * @return an [EntityLookupResponse] instance
+     * * TODO(dennistwo) lookup request should contain a different generic type (filter type)
      */
     open suspend fun lookup(request: EntityLookupRequest<T>): EntityLookupResponse<T> {
         return lookupAsync(request).await()

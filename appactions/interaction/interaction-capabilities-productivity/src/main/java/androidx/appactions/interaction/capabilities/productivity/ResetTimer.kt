@@ -18,7 +18,7 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
-import androidx.appactions.builtintypes.experimental.types.Timer
+import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
@@ -27,6 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.EntityC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
@@ -51,7 +52,7 @@ class ResetTimer private constructor() {
         fun setTimerProperty(timer: Property<Timer>): CapabilityBuilder = setProperty(
             SlotMetadata.TIMER.path,
             timer,
-            EntityConverter.of(TypeConverters.TIMER_TYPE_SPEC)
+            EntityConverter.of(TIMER_TYPE_SPEC)
         )
     }
 

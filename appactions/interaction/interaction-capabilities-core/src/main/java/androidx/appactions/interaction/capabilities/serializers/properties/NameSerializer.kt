@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.entity
+package androidx.appactions.interaction.capabilities.serializers.properties
 
-import androidx.appactions.builtintypes.types.Alarm
-import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
+import androidx.appactions.builtintypes.properties.Name
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
+import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 
-/**  Internal testing object for entity provider */
-class AlarmProvider internal constructor(
-    override val id: String,
-    private var response: EntityLookupResponse<Alarm>,
-) : EntityProvider<Alarm>(ALARM_TYPE_SPEC) {
-    override suspend fun lookup(request: EntityLookupRequest<Alarm>):
-        EntityLookupResponse<Alarm> = response
-}
+val NAME_TYPE_SPEC = UnionTypeSpec.Builder<Name>().bindMemberType(
+  memberGetter = Name::asText,
+  ctor = { Name(it) },
+  typeSpec = TypeSpec.STRING_TYPE_SPEC,
+).build()
