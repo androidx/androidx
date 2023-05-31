@@ -204,6 +204,60 @@ public class TestSchedulerTest {
         assertThat(CountingTestWorker.COUNT.get(), is(2));
     }
 
+
+    @Test
+    public void testOverrideWorker_doesntRunYet() {
+        // No initialdelay. Generally a Periodic worker would run immediately.
+        PeriodicWorkRequest request = createNextScheduleOverrideWorkRequest();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+
+        // Override behaves like periodic, so the first run still would have needed setPeriodMet()
+        assertThat(CountingTestWorker.COUNT.get(), is(0));
+    }
+
+    @Test
+    public void testOverrideWorker_firstRun_initialDelayMet_doesntRun() {
+        PeriodicWorkRequest request = createNextScheduleOverrideWorkRequestWithInitialDelay();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        // Override behaves like periodic, so meeting initialdelay does nothing.
+        mTestDriver.setInitialDelayMet(request.getId());
+        assertThat(CountingTestWorker.COUNT.get(), is(0));
+    }
+
+    @Test
+    public void testOverrideWorker_firstRun_periodDelayMet_runs()
+            throws InterruptedException, ExecutionException {
+        // Even with initialdelay, only .setPeriodMet() is needed to unblock.
+        PeriodicWorkRequest request = createNextScheduleOverrideWorkRequestWithInitialDelay();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        // Override behaves like periodic, so meeting initialdelay does nothing.
+        mTestDriver.setPeriodDelayMet(request.getId());
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
+    }
+
+    @Test
+    public void testOverrideWorker_afterExpiring_periodDelayMetRuns()
+            throws ExecutionException, InterruptedException {
+        PeriodicWorkRequest request =
+                createNextScheduleOverrideWorkRequest();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        mTestDriver.setPeriodDelayMet(request.getId());
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
+
+        // Subsequent periods (overrideMet has cleared) work normally
+        for (int i = 0; i < 5; ++i) {
+            mTestDriver.setPeriodDelayMet(request.getId());
+            assertThat(CountingTestWorker.COUNT.get(), is(i + 2));
+            WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
+            assertThat(requestStatus.getState().isFinished(), is(false));
+        }
+    }
+
     @Test
     public void testWorker_withPeriodicWorkerFlex_shouldRun() {
         PeriodicWorkRequest request = createPeriodicWorkRequestWithFlex();
@@ -408,6 +462,18 @@ public class TestSchedulerTest {
         return new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialDelay(10L, TimeUnit.DAYS)
                 .build();
+    }
+
+    private static PeriodicWorkRequest createNextScheduleOverrideWorkRequest() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 1L, TimeUnit.DAYS)
+                .setNextScheduleTimeOverride(TimeUnit.DAYS.toMillis(10))
+                .build();
+    }
+
+    private static PeriodicWorkRequest createNextScheduleOverrideWorkRequestWithInitialDelay() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 1L,
+                TimeUnit.DAYS).setInitialDelay(2L, TimeUnit.DAYS).setNextScheduleTimeOverride(
+                TimeUnit.DAYS.toMillis(10)).build();
     }
 
     private static PeriodicWorkRequest createPeriodicWorkRequest() {
