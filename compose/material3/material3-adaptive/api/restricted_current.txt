@@ -11,6 +11,11 @@ package androidx.compose.material3.adaptive {
     property public final int maxVerticalPartitions;
   }
 
+  public final class AdaptiveLayoutDirectiveKt {
+    method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateDenseAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo);
+    method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateStandardAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo);
+  }
+
   public final class AndroidWindowInfo_androidKt {
     method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize> windowSizeAsState(optional @UiContext android.content.Context context);
   }
