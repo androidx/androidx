@@ -257,20 +257,13 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
 
-internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = defaultPlatformTextStyle()
-)
-
 private const val DefaultIncludeFontPadding = true
 
-@Suppress("DEPRECATION")
-private val DefaultPlatformTextStyle = PlatformTextStyle(
-    includeFontPadding = DefaultIncludeFontPadding
+internal val DefaultTextStyle = TextStyle.Default.copy(
+    platformStyle = PlatformTextStyle(
+        includeFontPadding = DefaultIncludeFontPadding
+    )
 )
-/**
- * Returns Default [PlatformTextStyle].
- */
-internal fun defaultPlatformTextStyle(): PlatformTextStyle = DefaultPlatformTextStyle
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
