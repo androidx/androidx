@@ -52,6 +52,8 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = false
+
     override val name: String by lazy {
         // KAPT uses `$completion` but it doesn't check for conflicts, we do. Be aware that before
         // Kotlin 1.8.0 the param was named 'continuation'.

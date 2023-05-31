@@ -245,6 +245,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
             override fun isKotlinPropertyParam() = true
 
+            override fun isVarArgs() = false
+
             override val name: String by lazy {
                 val originalName = enclosingElement.accessor.parameter.name?.asString()
                 originalName.sanitizeAsJavaParameterName(0)

@@ -126,7 +126,9 @@ class XExecutableElementTest {
             """
             interface Subject {
                 fun method(vararg inputs: String)
-                suspend fun suspendMethod(vararg inputs: String);
+                suspend fun suspendMethod(vararg inputs: String)
+                fun method2(vararg inputs: String, arg: Int)
+                fun String.extFun(vararg inputs: String)
             }
             """.trimIndent()
         )
@@ -134,11 +136,34 @@ class XExecutableElementTest {
             sources = listOf(subject)
         ) {
             val element = it.processingEnv.requireTypeElement("Subject")
-            assertThat(element.getMethodByJvmName("method").isVarArgs()).isTrue()
-            if (it.isKsp) {
-                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isTrue()
-            } else {
-                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isFalse()
+
+            element.getMethodByJvmName("method").let { method ->
+                assertThat(method.isVarArgs()).isTrue()
+                assertThat(method.parameters).hasSize(1)
+                assertThat(method.parameters.single().isVarArgs()).isTrue()
+            }
+
+            element.getMethodByJvmName("suspendMethod").let { suspendMethod ->
+                assertThat(suspendMethod.isVarArgs()).isFalse()
+                assertThat(suspendMethod.parameters).hasSize(2)
+                assertThat(
+                    suspendMethod.parameters.first { it.name == "inputs" }.isVarArgs()
+                ).isTrue()
+            }
+
+            element.getMethodByJvmName("extFun").let { extFun ->
+                assertThat(extFun.isVarArgs()).isTrue()
+                assertThat(extFun.parameters).hasSize(2)
+                // kapt messed with parameter names, sometimes the synthetic parameter can use the
+                // second parameter's name.
+                assertThat(extFun.parameters.get(1).isVarArgs()).isTrue()
+            }
+
+            element.getMethodByJvmName("method2").let { method2 ->
+                assertThat(method2.isVarArgs()).isFalse()
+                assertThat(method2.parameters).hasSize(2)
+                assertThat(method2.parameters.first { it.name == "inputs" }.isVarArgs())
+                    .isTrue()
             }
         }
     }
