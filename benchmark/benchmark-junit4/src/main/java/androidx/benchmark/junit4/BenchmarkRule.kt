@@ -217,7 +217,11 @@ public class BenchmarkRule internal constructor(
                     appTagPackages = packages,
                     useStackSamplingConfig = false
                 ),
-                userspaceTracingPackage = null
+                userspaceTracingPackage = null,
+
+                // optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                // expensive on some emulators. Could alternately use UserspaceTracing if desired
+                enableTracing = !Arguments.dryRunMode
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer
 
