@@ -140,6 +140,41 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
+    fun searchBar_shadow_inactive() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBar(
+                modifier = Modifier.testTag(testTag),
+                query = "",
+                onQueryChange = {},
+                onSearch = {},
+                active = false,
+                onActiveChange = {},
+                placeholder = { Text("Hint") },
+                shadowElevation = 6.dp,
+                content = {},
+            )
+        }
+        assertAgainstGolden("searchBar_shadow_inactive")
+    }
+
+    @Test
+    fun searchBar_shadow_active() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBar(
+                modifier = Modifier.testTag(testTag),
+                query = "Query",
+                onQueryChange = {},
+                onSearch = {},
+                active = true,
+                onActiveChange = {},
+                shadowElevation = 6.dp,
+                content = { Text("Content") },
+            )
+        }
+        assertAgainstGolden("searchBar_shadow_active")
+    }
+
+    @Test
     fun dockedSearchBar_inactive() {
         rule.setMaterialContent(scheme.colorScheme) {
             DockedSearchBar(
@@ -243,6 +278,41 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
         assertAgainstGolden("dockedSearchBar_active_customColors")
+    }
+
+    @Test
+    fun dockedSearchBar_shadow_inactive() {
+        rule.setMaterialContent(lightColorScheme()) {
+            DockedSearchBar(
+                modifier = Modifier.testTag(testTag),
+                query = "",
+                onQueryChange = {},
+                onSearch = {},
+                active = false,
+                onActiveChange = {},
+                placeholder = { Text("Hint") },
+                shadowElevation = 6.dp,
+                content = {},
+            )
+        }
+        assertAgainstGolden("dockedSearchBar_shadow_inactive")
+    }
+
+    @Test
+    fun dockedSearchBar_shadow_active() {
+        rule.setMaterialContent(lightColorScheme()) {
+            DockedSearchBar(
+                modifier = Modifier.testTag(testTag),
+                query = "Query",
+                onQueryChange = {},
+                onSearch = {},
+                active = true,
+                onActiveChange = {},
+                shadowElevation = 6.dp,
+                content = { Text("Content") },
+            )
+        }
+        assertAgainstGolden("dockedSearchBar_shadow_active")
     }
 
     private fun assertAgainstGolden(goldenName: String) {
