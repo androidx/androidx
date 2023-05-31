@@ -154,10 +154,10 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         try {
             if (status == Status.DESTROYED) {
                 if (updateRequest.assistantRequest != null) {
-                    FulfillmentResult(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+                    FulfillmentResult(ErrorStatusInternal.SESSION_NOT_FOUND)
                         .applyToCallback(updateRequest.assistantRequest.callbackInternal)
                 } else if (updateRequest.touchEventRequest != null && touchEventCallback != null) {
-                    touchEventCallback!!.onError(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+                    touchEventCallback!!.onError(ErrorStatusInternal.SESSION_NOT_FOUND)
                 }
             } else if (updateRequest.assistantRequest != null) {
                 processAssistantUpdateRequest(updateRequest.assistantRequest)

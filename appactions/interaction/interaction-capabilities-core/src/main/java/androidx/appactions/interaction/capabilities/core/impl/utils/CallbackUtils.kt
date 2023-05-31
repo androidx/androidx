@@ -73,20 +73,18 @@ private fun Throwable.toErrorStatusInternal(): ErrorStatusInternal {
         this.isCausedBy(
             ExternalException::class
         ) -> ErrorStatusInternal.EXTERNAL_EXCEPTION
-        this.isCausedBy(
-            StructConversionException::class
-        ) -> ErrorStatusInternal.STRUCT_CONVERSION_FAILURE
-        this.isCausedBy(
-            InvalidResolverException::class
-        ) -> ErrorStatusInternal.INVALID_RESOLVER
-        this.isCausedBy(
-            DisambigStateException::class
-        ) -> ErrorStatusInternal.UNCHANGED_DISAMBIG_STATE
+        // Handle StructConversion first, because it's a subtype of InvalidRequestException below.
+        this.isCausedBy(StructConversionException::class) ||
+            this.isCausedBy(InvalidResolverException::class) ||
+            this.isCausedBy(DisambigStateException::class)
+        -> ErrorStatusInternal.INTERNAL
+
         this.isCausedBy(
             InvalidRequestException::class
         ) -> ErrorStatusInternal.INVALID_REQUEST
+
         this is TimeoutCancellationException -> ErrorStatusInternal.TIMEOUT
-        else -> ErrorStatusInternal.CANCELLED
+        else -> ErrorStatusInternal.UNKNOWN_ERROR_STATUS
     }
 }
 

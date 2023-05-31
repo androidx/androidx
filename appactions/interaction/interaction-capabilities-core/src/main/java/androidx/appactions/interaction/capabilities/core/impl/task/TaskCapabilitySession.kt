@@ -105,7 +105,7 @@ internal class TaskCapabilitySession<
      */
     private fun enqueueAssistantRequest(request: AssistantUpdateRequest) {
         synchronized(requestLock) {
-            pendingAssistantRequest?.callbackInternal?.onError(ErrorStatusInternal.CANCELLED)
+            pendingAssistantRequest?.callbackInternal?.onError(ErrorStatusInternal.CANCELED)
             pendingAssistantRequest = request
             dispatchPendingRequestIfIdle()
         }

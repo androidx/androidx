@@ -20,12 +20,12 @@ import androidx.annotation.RestrictTo
 import io.grpc.BindableService
 
 /**
- * Factory for returning a [BindableService] from an []AppInteractionService].
+ * Factory for returning a [BindableService] from an [AppInteractionService].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object AppInteractionServiceFactory {
     /**
-     * Creates a new instance of the gRPC service from the developer's []AppInteractionService]
+     * Creates a new instance of the gRPC service from the developer's [AppInteractionService]
      * (android service).
      */
     fun create(appInteractionService: AppInteractionService): BindableService {

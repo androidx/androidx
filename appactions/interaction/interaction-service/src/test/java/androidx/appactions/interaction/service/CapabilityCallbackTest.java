@@ -70,7 +70,7 @@ public class CapabilityCallbackTest {
                 CallbackToFutureAdapter.getFuture(
                         completer -> {
                             CapabilityCallback cb = new CapabilityCallback(completer);
-                            cb.onError(ErrorStatusInternal.CANCELLED);
+                            cb.onError(ErrorStatusInternal.CANCELED);
                             return "test future";
                         });
 
