@@ -101,6 +101,7 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
+import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTabs
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
@@ -903,6 +904,13 @@ val TabsExamples = listOf(
         sourceUrl = TabsExampleSourceUrl
     ) {
         PrimaryTabs()
+    },
+    Example(
+        name = ::PrimaryIconTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        PrimaryIconTabs()
     },
     Example(
         name = ::SecondaryTabs.name,
