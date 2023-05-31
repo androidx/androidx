@@ -390,6 +390,24 @@ class ToggleableSurfaceScale internal constructor(
             "selectedDisabledScale=$selectedDisabledScale, " +
             "focusedSelectedDisabledScale=$focusedSelectedDisabledScale)"
     }
+
+    companion object {
+        /**
+         * Signifies the absence of a [ScaleIndication] in toggleable surface.
+         */
+        val None = ToggleableSurfaceScale(
+            scale = 1f,
+            focusedScale = 1f,
+            pressedScale = 1f,
+            selectedScale = 1f,
+            disabledScale = 1f,
+            focusedSelectedScale = 1f,
+            focusedDisabledScale = 1f,
+            pressedSelectedScale = 1f,
+            selectedDisabledScale = 1f,
+            focusedSelectedDisabledScale = 1f
+        )
+    }
 }
 
 /**
