@@ -181,7 +181,6 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     }
 
     /** Processes an assistant update request. */
-    @Suppress("DEPRECATION")
     private suspend fun processAssistantUpdateRequest(
         assistantUpdateRequest: AssistantUpdateRequest,
     ) = withUiHandleRegistered {
@@ -193,7 +192,6 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
             ) {
                 FulfillmentRequest.Fulfillment.Type.SYNC ->
                     handleSyncStatus(argumentsWrapper)
-                FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
                 FulfillmentRequest.Fulfillment.Type.CANCEL -> {
                     terminate()
                     FulfillmentResult(FulfillmentResponse.getDefaultInstance())
