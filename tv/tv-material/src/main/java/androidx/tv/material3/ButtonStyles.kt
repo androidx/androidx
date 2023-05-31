@@ -203,6 +203,19 @@ class ButtonScale internal constructor(
         return "ButtonScale(scale=$scale, focusedScale=$focusedScale, pressedScale=$pressedScale," +
             " disabledScale=$disabledScale, focusedDisabledScale=$focusedDisabledScale)"
     }
+
+    companion object {
+        /**
+         * Signifies the absence of a [ScaleIndication] in Button component.
+         */
+        val None = ButtonScale(
+            scale = 1f,
+            focusedScale = 1f,
+            pressedScale = 1f,
+            disabledScale = 1f,
+            focusedDisabledScale = 1f
+        )
+    }
 }
 
 /**

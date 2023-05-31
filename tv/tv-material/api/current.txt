@@ -50,6 +50,12 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonScale {
+    field public static final androidx.tv.material3.ButtonScale.Companion Companion;
+  }
+
+  public static final class ButtonScale.Companion {
+    method public androidx.tv.material3.ButtonScale getNone();
+    property public final androidx.tv.material3.ButtonScale None;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonShape {
@@ -101,6 +107,12 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardScale {
+    field public static final androidx.tv.material3.CardScale.Companion Companion;
+  }
+
+  public static final class CardScale.Companion {
+    method public androidx.tv.material3.CardScale getNone();
+    property public final androidx.tv.material3.CardScale None;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardShape {
@@ -524,6 +536,12 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceScale {
+    field public static final androidx.tv.material3.ToggleableSurfaceScale.Companion Companion;
+  }
+
+  public static final class ToggleableSurfaceScale.Companion {
+    method public androidx.tv.material3.ToggleableSurfaceScale getNone();
+    property public final androidx.tv.material3.ToggleableSurfaceScale None;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ToggleableSurfaceShape {
