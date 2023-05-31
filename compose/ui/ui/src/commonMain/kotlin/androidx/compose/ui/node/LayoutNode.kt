@@ -474,10 +474,11 @@ internal class LayoutNode(
             // is a virtual lookahead root
             lookaheadRoot = _foldedParent?.lookaheadRoot ?: lookaheadRoot
         }
-        nodes.attach()
+        nodes.markAsAttached()
         _foldedChildren.forEach { child ->
             child.attach(owner)
         }
+        nodes.runAttachLifecycle()
 
         invalidateMeasurements()
         parent?.invalidateMeasurements()
@@ -513,15 +514,18 @@ internal class LayoutNode(
         if (nodes.has(Nodes.Semantics)) {
             invalidateSemantics()
         }
-        nodes.detach()
+        nodes.runDetachLifecycle()
+        ignoreRemeasureRequests {
+            _foldedChildren.forEach { child ->
+                child.detach()
+            }
+        }
+        nodes.markAsDetached()
         owner.onDetach(this)
         this.owner = null
 
         lookaheadRoot = null
         depth = 0
-        _foldedChildren.forEach { child ->
-            child.detach()
-        }
         measurePassDelegate.onNodeDetached()
         lookaheadPassDelegate?.onNodeDetached()
     }
@@ -1321,8 +1325,9 @@ internal class LayoutNode(
             resetModifierState()
         }
         // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
-        nodes.attach()
         semanticsId = generateSemanticsId()
+        nodes.markAsAttached()
+        nodes.runAttachLifecycle()
     }
 
     override fun onDeactivate() {

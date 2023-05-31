@@ -172,8 +172,8 @@ class ModifierNodeVisitLocalAncestorsTest {
             )
         }
         rule.runOnIdle {
-            ancestor1.detach()
-            ancestor3.detach()
+            ancestor1.markAsDetached()
+            ancestor3.markAsDetached()
         }
 
         // Act.
