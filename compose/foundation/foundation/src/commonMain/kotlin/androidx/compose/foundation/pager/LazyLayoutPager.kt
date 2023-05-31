@@ -16,9 +16,11 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clipScrollableContainer
-import androidx.compose.foundation.gestures.BringIntoViewCalculator
+import androidx.compose.foundation.gestures.BringIntoViewScroller
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -169,7 +171,7 @@ internal fun Pager(
                 state = state,
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled,
-                bringIntoViewCalculator = PagerBringIntoViewCalculator
+                bringIntoViewScroller = PagerBringIntoViewScroller
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
@@ -277,7 +279,9 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-private val PagerBringIntoViewCalculator = object : BringIntoViewCalculator {
+private val PagerBringIntoViewScroller = object : BringIntoViewScroller {
+
+    override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
         val trailingEdge = offset + size
