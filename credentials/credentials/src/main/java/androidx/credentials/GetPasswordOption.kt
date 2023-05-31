@@ -33,8 +33,7 @@ class GetPasswordOption @JvmOverloads constructor(
     isAutoSelectAllowed = isAutoSelectAllowed,
 ) {
 
-    /** @hide */
-    companion object {
+    internal companion object {
         @Suppress("UNUSED_PARAMETER")
         @JvmStatic
         internal fun createFrom(data: Bundle): GetPasswordOption {

@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -33,22 +32,17 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * register a new user credential.
  */
 abstract class CreateCredentialRequest internal constructor(
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val credentialData: Bundle,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val candidateQueryData: Bundle,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val isSystemProviderRequired: Boolean,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val isAutoSelectAllowed: Boolean,
-    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val displayInfo: DisplayInfo,
     val origin: String?,
 ) {
@@ -69,12 +63,12 @@ abstract class CreateCredentialRequest internal constructor(
      * displayed next to the `userId` during the user consent to help your user better understand
      * the credential being created
      */
-    class DisplayInfo internal /** @hide */ constructor(
+    class DisplayInfo internal constructor(
         val userId: CharSequence,
         val userDisplayName: CharSequence?,
-        /** @hide */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         val credentialTypeIcon: Icon?,
-        /** @hide */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         val defaultProvider: String?,
     ) {
 
@@ -101,9 +95,8 @@ abstract class CreateCredentialRequest internal constructor(
             require(userId.isNotEmpty()) { "userId should not be empty" }
         }
 
-        /** @hide */
         @RequiresApi(23)
-        fun toBundle(): Bundle {
+        internal fun toBundle(): Bundle {
             val bundle = Bundle()
             bundle.putCharSequence(BUNDLE_KEY_USER_ID, userId)
             if (!TextUtils.isEmpty(userDisplayName)) {
@@ -118,38 +111,30 @@ abstract class CreateCredentialRequest internal constructor(
             return bundle
         }
 
-        /** @hide */
-        companion object {
-            /** @hide */
+        internal companion object {
+            @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
             const val BUNDLE_KEY_REQUEST_DISPLAY_INFO =
                 "androidx.credentials.BUNDLE_KEY_REQUEST_DISPLAY_INFO"
-
-            @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
             const val BUNDLE_KEY_USER_ID =
                 "androidx.credentials.BUNDLE_KEY_USER_ID"
 
-            @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-            /** @hide */
-            const val BUNDLE_KEY_USER_DISPLAY_NAME =
+            internal const val BUNDLE_KEY_USER_DISPLAY_NAME =
                 "androidx.credentials.BUNDLE_KEY_USER_DISPLAY_NAME"
-
-            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
             const val BUNDLE_KEY_CREDENTIAL_TYPE_ICON =
                 "androidx.credentials.BUNDLE_KEY_CREDENTIAL_TYPE_ICON"
 
-            /** @hide */
-            const val BUNDLE_KEY_DEFAULT_PROVIDER =
+            internal const val BUNDLE_KEY_DEFAULT_PROVIDER =
                 "androidx.credentials.BUNDLE_KEY_DEFAULT_PROVIDER"
 
             /**
              * Returns a RequestDisplayInfo from a `credentialData` Bundle, or otherwise `null` if
              * parsing fails.
-             *
-             * @hide
              */
             @JvmStatic
             @RequiresApi(23)
+            @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
             @Suppress("DEPRECATION") // bundle.getParcelable(key)
             fun parseFromCredentialDataBundle(from: Bundle): DisplayInfo? {
                 return try {
@@ -169,9 +154,8 @@ abstract class CreateCredentialRequest internal constructor(
         }
     }
 
-    /** @hide */
-    companion object {
-        /** @hide */
+    internal companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
 
@@ -179,9 +163,8 @@ abstract class CreateCredentialRequest internal constructor(
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
          * [CreatePublicKeyCredentialRequest], and
          * [CreateCustomCredentialRequest]. Otherwise returns null.
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         @JvmStatic
         @RequiresApi(23)
         fun createFrom(

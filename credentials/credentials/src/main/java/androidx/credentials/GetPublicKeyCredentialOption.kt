@@ -50,8 +50,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
     }
 
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
