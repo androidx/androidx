@@ -67,6 +67,7 @@ class SurfaceEdgeTest {
         private val FRAME_RATE = Range.create(30, 30)
         private val FRAME_SPEC =
             StreamSpec.builder(INPUT_SIZE).setExpectedFrameRateRange(FRAME_RATE).build()
+        private val SENSOR_TO_BUFFER = Matrix().apply { setScale(-1f, 1f) }
     }
 
     private lateinit var surfaceEdge: SurfaceEdge
@@ -78,7 +79,7 @@ class SurfaceEdgeTest {
     fun setUp() {
         surfaceEdge = SurfaceEdge(
             PREVIEW, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-            StreamSpec.builder(INPUT_SIZE).build(), Matrix(), true, Rect(), 0,
+            StreamSpec.builder(INPUT_SIZE).build(), SENSOR_TO_BUFFER, true, Rect(), 0,
             ROTATION_NOT_SPECIFIED, false
         )
         fakeSurfaceTexture = SurfaceTexture(0)
@@ -175,6 +176,20 @@ class SurfaceEdgeTest {
     fun createSurfaceRequest_throwsException() {
         surfaceEdge.close()
         surfaceEdge.createSurfaceRequest(FakeCamera())
+    }
+
+    @Test
+    fun createSurfaceRequest_transformationInfoContainsSensorToBufferTransform() {
+        // Act.
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        var transformationInfo: TransformationInfo? = null
+        surfaceRequest.setTransformationInfoListener(mainThreadExecutor()) {
+            transformationInfo = it
+        }
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(transformationInfo!!.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
     }
 
     @Test

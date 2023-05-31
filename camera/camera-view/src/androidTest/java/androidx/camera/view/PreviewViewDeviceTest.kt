@@ -17,6 +17,7 @@ package androidx.camera.view
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -1061,7 +1062,8 @@ class PreviewViewDeviceTest(
         for (surfaceRequest in surfaceRequestList) {
             surfaceRequest.updateTransformationInfo(
                 SurfaceRequest.TransformationInfo.of(cropRect, 0, Surface.ROTATION_0,
-                    /*hasCameraTransform=*/true)
+                    /*hasCameraTransform=*/true, /*sensorToBufferTransform=*/Matrix()
+                )
             )
         }
         instrumentation.waitForIdleSync()

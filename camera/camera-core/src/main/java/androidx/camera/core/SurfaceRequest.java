@@ -139,7 +139,6 @@ public final class SurfaceRequest {
 
     /**
      * Creates a new surface request with the given resolution and {@link Camera}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
@@ -152,7 +151,6 @@ public final class SurfaceRequest {
     /**
      * Creates a new surface request with the given resolution, {@link Camera}, dynamic range, and
      * expected frame rate.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
@@ -288,7 +286,6 @@ public final class SurfaceRequest {
     /**
      * Returns the {@link DeferrableSurface} instance used to track usage of the surface that
      * fulfills this request.
-     *
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -302,7 +299,6 @@ public final class SurfaceRequest {
      * <p>A surface request is considered serviced if
      * {@link #provideSurface(Surface, Executor, Consumer)} or {@link #willNotProvideSurface()}
      * has been called.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isServiced() {
@@ -371,7 +367,6 @@ public final class SurfaceRequest {
 
     /**
      * Returns the {@link Camera} which is requesting a {@link Surface}.
-     *
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -578,7 +573,6 @@ public final class SurfaceRequest {
 
     /**
      * Updates the {@link TransformationInfo} associated with this {@link SurfaceRequest}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
@@ -678,7 +672,6 @@ public final class SurfaceRequest {
 
         /**
          * Possible result codes.
-         *
          */
         @IntDef({RESULT_SURFACE_USED_SUCCESSFULLY, RESULT_REQUEST_CANCELLED, RESULT_INVALID_SURFACE,
                 RESULT_SURFACE_ALREADY_PROVIDED, RESULT_WILL_NOT_PROVIDE_SURFACE})
@@ -919,19 +912,33 @@ public final class SurfaceRequest {
         public abstract boolean hasCameraTransform();
 
         /**
+         * Returns the sensor to image buffer transform matrix.
+         *
+         * <p>The value is a mapping from sensor coordinates to buffer coordinates, which is,
+         * from the rect of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to the
+         * rect defined by {@code (0, 0, SurfaceRequest#getResolution#getWidth(),
+         * SurfaceRequest#getResolution#getHeight())}. The matrix can
+         * be used to map the coordinates from one {@link UseCase} to another. For example,
+         * detecting face with {@link ImageAnalysis}, and then highlighting the face in
+         * {@link Preview}.
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public abstract Matrix getSensorToBufferTransform();
+
+        /**
          * Creates new {@link TransformationInfo}
          *
          * <p> Internally public to be used in view artifact tests.
-         *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
                 @ImageOutputConfig.OptionalRotationValue int targetRotation,
-                boolean hasCameraTransform) {
+                boolean hasCameraTransform, @NonNull Matrix sensorToBufferTransform) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
-                    targetRotation, hasCameraTransform);
+                    targetRotation, hasCameraTransform, sensorToBufferTransform);
         }
 
         // Hides public constructor.
