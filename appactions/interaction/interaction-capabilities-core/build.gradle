@@ -64,9 +64,8 @@ android {
 }
 
 androidx {
-    name = "androidx.appactions.interaction:interaction-capabilities-core"
+    name = "App Actions Interaction Capabiliities Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "App Interaction library core capabilities API and implementation."
-    failOnDeprecationWarnings = false
 }

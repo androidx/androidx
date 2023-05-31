@@ -58,21 +58,12 @@ internal constructor(
             }
         }
 
-        @Suppress(
-            "DEPRECATION",
-        ) // Convert the deprecated "fp.valuesList" property to the new format.
         internal fun convertToArgumentMap(
             fulfillment: Fulfillment,
         ): Map<String, List<FulfillmentValue>> {
             val result = mutableMapOf<String, List<FulfillmentValue>>()
             for (fp in fulfillment.paramsList) {
-                // Normalize deprecated param value list into new FulfillmentValue.
-                if (fp.valuesList.isNotEmpty()) {
-                    result[fp.name] =
-                        fp.valuesList.map { FulfillmentValue.newBuilder().setValue(it).build() }
-                } else {
-                    result[fp.name] = fp.fulfillmentValuesList
-                }
+                result[fp.name] = fp.fulfillmentValuesList
             }
             return result.toMap()
         }
