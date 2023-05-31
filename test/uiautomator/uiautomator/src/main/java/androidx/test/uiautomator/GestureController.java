@@ -16,9 +16,7 @@
 
 package androidx.test.uiautomator;
 
-import android.app.Service;
 import android.graphics.Point;
-import android.hardware.display.DisplayManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
@@ -62,8 +60,6 @@ class GestureController {
 
     private final UiDevice mDevice;
 
-    private final DisplayManager mDisplayManager;
-
     /** Comparator for sorting PointerGestures by start times. */
     private static final Comparator<PointerGesture> START_TIME_COMPARATOR =
             (o1, o2) -> Long.compare(o1.delay(), o2.delay());
@@ -76,8 +72,6 @@ class GestureController {
     // Private constructor.
     private GestureController(UiDevice device) {
         mDevice = device;
-        mDisplayManager = (DisplayManager) mDevice.getInstrumentation().getContext()
-                .getSystemService(Service.DISPLAY_SERVICE);
     }
 
     /** Returns the {@link GestureController} instance for the given {@link UiDevice}. */
@@ -137,7 +131,7 @@ class GestureController {
         long injectionDelay = MOTION_EVENT_INJECTION_DELAY_MILLIS;
         try {
             int displayId = pending.peek().displayId();
-            Display display = mDisplayManager.getDisplay(displayId);
+            Display display = mDevice.getDisplayById(displayId);
             float displayRefreshRate = display.getRefreshRate();
             injectionDelay = (long) (500 / displayRefreshRate);
         } catch (Exception e) {
