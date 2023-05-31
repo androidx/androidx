@@ -31,6 +31,7 @@ import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLo
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger.LogLevel
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
 import androidx.appactions.interaction.proto.AppActionsContext
+import androidx.appactions.interaction.proto.AppInteractionMetadata.ErrorStatus
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.GroundingRequest
@@ -143,15 +144,15 @@ internal class AppInteractionServiceGrpcImpl(
             if (registeredCapabilities.isEmpty()) {
                 registeredCapabilities = appInteractionService.registeredCapabilities
             }
-            val targetCapability = registeredCapabilities
-                .filter { request.identifier == it.id }
-                .firstOrNull()
+            val targetCapability =
+                registeredCapabilities.firstOrNull { request.identifier == it.id }
             if (targetCapability == null) {
                 return respondWithError(
                     StatusRuntimeException(
                         Status.FAILED_PRECONDITION.withDescription(
                             ERROR_NO_ACTION_CAPABILITY,
                         ),
+                        AppInteractionGrpcMetadata.metadataOf(ErrorStatus.CAPABILITY_NOT_FOUND)
                     ),
                     startSessionResponseObserver,
                 )
@@ -200,6 +201,7 @@ internal class AppInteractionServiceGrpcImpl(
                     Status.FAILED_PRECONDITION.withDescription(
                         ERROR_NO_FULFILLMENT_REQUEST,
                     ),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.INVALID_REQUEST)
                 ),
                 responseObserver,
             )
@@ -213,6 +215,7 @@ internal class AppInteractionServiceGrpcImpl(
                     Status.FAILED_PRECONDITION.withDescription(
                         ERROR_NO_ACTION_CAPABILITY,
                     ),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.CAPABILITY_NOT_FOUND)
                 ),
                 responseObserver,
             )
@@ -223,6 +226,7 @@ internal class AppInteractionServiceGrpcImpl(
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)
                 ),
                 responseObserver,
             )
@@ -231,6 +235,7 @@ internal class AppInteractionServiceGrpcImpl(
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)
                 ),
                 responseObserver,
             )
@@ -267,9 +272,9 @@ internal class AppInteractionServiceGrpcImpl(
                             is CapabilityExecutionException -> convertToGrpcException(t)
                             is StatusRuntimeException, is StatusException -> t
                             else -> StatusRuntimeException(
-                                Status.INTERNAL.withDescription(
-                                    t.message,
-                                ).withCause(t),
+                                Status.INTERNAL.withDescription(t.message).withCause(t),
+                                AppInteractionGrpcMetadata.metadataOf(
+                                    ErrorStatus.UNKNOWN_ERROR_STATUS)
                             )
                         },
                         responseObserver,
@@ -291,6 +296,7 @@ internal class AppInteractionServiceGrpcImpl(
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)
                 ),
                 responseObserver,
             )
@@ -298,7 +304,8 @@ internal class AppInteractionServiceGrpcImpl(
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         if (uiCache == null) {
             return respondWithError(
-                StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
+                StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.NO_UI_ELEMENTS)),
                 responseObserver,
             )
         }
@@ -308,7 +315,8 @@ internal class AppInteractionServiceGrpcImpl(
         if (tileLayoutInternal == null && remoteViewsInternal == null) {
             UiSessions.removeUiCache(sessionId)
             return respondWithError(
-                StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
+                StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.NO_UI_ELEMENTS)),
                 responseObserver
             )
         }
@@ -331,11 +339,12 @@ internal class AppInteractionServiceGrpcImpl(
         req: CollectionRequest,
         responseObserver: StreamObserver<CollectionResponse>,
     ) {
-        val sessionId = req.getSessionIdentifier()!!
+        val sessionId = req.sessionIdentifier!!
         if (SessionManager.getSession(sessionId) == null) {
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)
                 ),
                 responseObserver,
             )
@@ -343,7 +352,10 @@ internal class AppInteractionServiceGrpcImpl(
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         if (uiCache == null) {
             return respondWithError(
-                StatusRuntimeException(Status.INTERNAL.withDescription(ERROR_NO_UI)),
+                StatusRuntimeException(
+                    Status.INTERNAL.withDescription(ERROR_NO_UI),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.NO_UI_ELEMENTS)
+                ),
                 responseObserver,
             )
         }
@@ -351,7 +363,8 @@ internal class AppInteractionServiceGrpcImpl(
         if (factory == null) {
             return respondWithError(
                 StatusRuntimeException(
-                    Status.UNIMPLEMENTED.withDescription(ERROR_NO_COLLECTION_SUPPORT),
+                    Status.INTERNAL.withDescription(ERROR_NO_COLLECTION_SUPPORT),
+                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.UNKNOWN_ERROR_STATUS),
                 ),
                 responseObserver,
             )
@@ -423,9 +436,8 @@ internal class AppInteractionServiceGrpcImpl(
                     when (t) {
                         is StatusRuntimeException, is StatusException -> t
                         else -> StatusRuntimeException(
-                            Status.INTERNAL.withDescription(
-                                t.message,
-                            ).withCause(t),
+                            Status.INTERNAL.withDescription(t.message,).withCause(t),
+                            AppInteractionGrpcMetadata.metadataOf(ErrorStatus.UNKNOWN_ERROR_STATUS)
                         )
                     },
                     responseObserver,
@@ -541,14 +553,20 @@ internal class AppInteractionServiceGrpcImpl(
     }
 
     internal fun convertToGrpcException(e: CapabilityExecutionException): StatusRuntimeException {
-        return when (e.errorStatus) {
-            ErrorStatusInternal.TIMEOUT -> StatusRuntimeException(
-                Status.DEADLINE_EXCEEDED.withDescription(e.message).withCause(e),
-            )
-            else -> StatusRuntimeException(
-                Status.INTERNAL.withDescription(e.message).withCause(e),
-            )
+        val rpcStatus = when (e.errorStatus) {
+            ErrorStatusInternal.UNKNOWN_ERROR_STATUS -> Status.UNKNOWN
+            ErrorStatusInternal.CANCELED -> Status.CANCELLED
+            ErrorStatusInternal.TIMEOUT -> Status.DEADLINE_EXCEEDED
+            ErrorStatusInternal.INVALID_REQUEST -> Status.INVALID_ARGUMENT
+            ErrorStatusInternal.SESSION_NOT_FOUND -> Status.FAILED_PRECONDITION
+            ErrorStatusInternal.INTERNAL,
+            ErrorStatusInternal.EXTERNAL_EXCEPTION,
+            -> Status.INTERNAL
         }
+        return StatusRuntimeException(
+            rpcStatus.withDescription(e.message).withCause(e),
+            AppInteractionGrpcMetadata.metadataOf(e.errorStatus)
+        )
     }
 
     internal fun convertFulfillmentResponse(

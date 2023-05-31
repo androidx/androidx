@@ -19,9 +19,11 @@ package androidx.appactions.interaction.service
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
+import androidx.appactions.interaction.proto.AppInteractionMetadata.ErrorStatus
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
@@ -196,6 +198,8 @@ class AppInteractionServiceGrpcImplTest {
             .isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exceptionCaptor.firstValue).description)
             .isEqualTo(ERROR_NO_ACTION_CAPABILITY)
+        val metadataErrorStatus = assertAndGetErrorStatus(exceptionCaptor.firstValue)
+        assertThat(metadataErrorStatus).isEqualTo(ErrorStatus.CAPABILITY_NOT_FOUND)
         verify(capability1, never()).createSession(any(), any())
 
         server.shutdownNow()
@@ -231,6 +235,45 @@ class AppInteractionServiceGrpcImplTest {
     }
 
     @Test
+    fun sendRequestFulfillment_errorFromCallback_errorPassedInGrpcMetadata(): Unit = runBlocking {
+        val mockCapabilitySession = createMockSession()
+        whenever(mockCapabilitySession.execute(any(), any())).thenAnswer { invocation ->
+            (invocation.arguments[1] as CallbackInternal)
+                .onError(ErrorStatusInternal.EXTERNAL_EXCEPTION)
+        }
+        whenever(capability1.createSession(any(), any())).thenReturn(mockCapabilitySession)
+
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor,
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+        assertStartupSession(stub)
+        verify(capability1, times(1)).createSession(any(), any())
+
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequest)
+                .build()
+        val exception =
+            assertFailsWith<StatusRuntimeException> {
+                futureStub.sendRequestFulfillment(request).await()
+            }
+        assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.INTERNAL)
+        assertThat(Status.fromThrowable(exception).description)
+            .isEqualTo("Error executing action capability")
+        val metadataErrorStatus = assertAndGetErrorStatus(exception)
+        assertThat(metadataErrorStatus).isEqualTo(ErrorStatus.EXTERNAL_EXCEPTION)
+
+        server.shutdownNow()
+    }
+
+    @Test
     fun sendRequestFulfillment_shouldFailWhenNoFulfillment(): Unit = runBlocking {
         val server =
             createInProcessServer(
@@ -256,6 +299,8 @@ class AppInteractionServiceGrpcImplTest {
         assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description)
             .isEqualTo(ERROR_NO_FULFILLMENT_REQUEST)
+        val metadataErrorStatus = assertAndGetErrorStatus(exception)
+        assertThat(metadataErrorStatus).isEqualTo(ErrorStatus.INVALID_REQUEST)
 
         server.shutdownNow()
     }
@@ -291,6 +336,8 @@ class AppInteractionServiceGrpcImplTest {
         assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description)
             .isEqualTo(ERROR_NO_ACTION_CAPABILITY)
+        val metadataErrorStatus = assertAndGetErrorStatus(exception)
+        assertThat(metadataErrorStatus).isEqualTo(ErrorStatus.CAPABILITY_NOT_FOUND)
 
         server.shutdownNow()
     }
@@ -323,6 +370,8 @@ class AppInteractionServiceGrpcImplTest {
             }
         assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description).isEqualTo(ERROR_NO_SESSION)
+        val metadataErrorStatus = assertAndGetErrorStatus(exception)
+        assertThat(metadataErrorStatus).isEqualTo(ErrorStatus.SESSION_NOT_FOUND)
 
         server.shutdownNow()
     }
@@ -358,6 +407,8 @@ class AppInteractionServiceGrpcImplTest {
             }
         assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description).isEqualTo(ERROR_SESSION_ENDED)
+        val metadataErrorStatus = assertAndGetErrorStatus(exception)
+        assertThat(metadataErrorStatus).isEqualTo(ErrorStatus.SESSION_NOT_FOUND)
 
         server.shutdownNow()
     }
@@ -415,5 +466,12 @@ class AppInteractionServiceGrpcImplTest {
         whenever(mockSession.isActive).thenReturn(true)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession
+    }
+
+    private fun assertAndGetErrorStatus(ex: StatusRuntimeException): ErrorStatus {
+        val appInteractionMetadata =
+            ex.trailers?.get(AppInteractionGrpcMetadata.INTERACTION_SERVICE_STATUS_KEY)
+        assertThat(appInteractionMetadata).isNotNull()
+        return appInteractionMetadata!!.errorStatus
     }
 }

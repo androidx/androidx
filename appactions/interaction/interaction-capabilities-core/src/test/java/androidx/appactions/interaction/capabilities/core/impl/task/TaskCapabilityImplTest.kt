@@ -1169,7 +1169,7 @@ class TaskCapabilityImplTest {
         )
         assertThat(session.isActive).isEqualTo(false)
         assertThat(callback2.receiveResponse().errorStatus)
-            .isEqualTo(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+            .isEqualTo(ErrorStatusInternal.SESSION_NOT_FOUND)
     }
     @Test
     @kotlin.Throws(Exception::class)
@@ -1206,15 +1206,13 @@ class TaskCapabilityImplTest {
 
         // TURN 1 (UNKNOWN).
         val errorCallback = FakeCallbackInternal()
-        session.execute(buildRequestArgs(SYNC, SyncStatus.UNKNOWN_SYNC_STATUS),
-            errorCallback)
+        session.execute(buildRequestArgs(SYNC, SyncStatus.UNKNOWN_SYNC_STATUS), errorCallback)
         assertThat(errorCallback.receiveResponse().errorStatus)
             .isEqualTo(ErrorStatusInternal.INVALID_REQUEST)
 
         // TURN 2 (UNRECOGNIZED)
         val errorCallback2 = FakeCallbackInternal()
-        session.execute(buildRequestArgs(SYNC, SyncStatus.UNRECOGNIZED),
-            errorCallback2)
+        session.execute(buildRequestArgs(SYNC, SyncStatus.UNRECOGNIZED), errorCallback2)
         assertThat(errorCallback2.receiveResponse().errorStatus)
             .isEqualTo(ErrorStatusInternal.INVALID_REQUEST)
     }
@@ -1420,7 +1418,7 @@ class TaskCapabilityImplTest {
     }
 
     @Test
-    fun structConversionException_shouldReportStructConversionFailure() {
+    fun structConversionException_shouldReportInternalFailure() {
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
             { _ ->
                 object : ExecutionSession {
@@ -1464,7 +1462,7 @@ class TaskCapabilityImplTest {
 
         assertThat(
             callback.receiveResponse().errorStatus
-        ).isEqualTo(ErrorStatusInternal.STRUCT_CONVERSION_FAILURE)
+        ).isEqualTo(ErrorStatusInternal.INTERNAL)
     }
 
     @Test
