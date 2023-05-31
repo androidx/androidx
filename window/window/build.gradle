@@ -49,8 +49,8 @@ dependencies {
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.8.0")
 
-    def extensions_core_version = "androidx.window.extensions.core:core:1.0.0-rc01"
-    def extensions_version = "androidx.window.extensions:extensions:1.1.0-rc01"
+    def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
+    def extensions_version = "androidx.window.extensions:extensions:1.1.0"
     implementation(extensions_core_version)
     compileOnly(project(":window:sidecar:sidecar"))
     compileOnly(extensions_version)
