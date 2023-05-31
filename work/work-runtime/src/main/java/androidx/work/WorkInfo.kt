@@ -141,9 +141,9 @@ class WorkInfo @JvmOverloads constructor(
         return ("WorkInfo{id='$id', state=$state, " +
             "outputData=$outputData, tags=$tags, progress=$progress, " +
             "runAttemptCount=$runAttemptCount, generation=$generation, " +
-            "constraints=$constraints}, initialDelayMillis=$initialDelayMillis, " +
+            "constraints=$constraints, initialDelayMillis=$initialDelayMillis, " +
             "periodicityInfo=$periodicityInfo, " +
-            "nextScheduleTimeMillis=$nextScheduleTimeMillis")
+            "nextScheduleTimeMillis=$nextScheduleTimeMillis}")
     }
 
     /**
