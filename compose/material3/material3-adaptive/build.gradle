@@ -36,6 +36,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:foundation:foundation"))
+                implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-window-size-class"))
             }
