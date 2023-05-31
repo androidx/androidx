@@ -17,7 +17,7 @@
 package androidx.navigation.compose
 
 import android.annotation.SuppressLint
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -199,23 +199,26 @@ public fun NavHost(
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
     }
-    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
+
+    // Intercept back only when there's a destination to pop
+    val currentBackStack by remember(navController.currentBackStack) {
+        navController.currentBackStack.map {
+            it.filter { entry ->
+                entry.destination.navigatorName == ComposeNavigator.NAME
+            }
+        }
+    }.collectAsState(emptyList())
+    BackHandler(currentBackStack.size > 1) {
+        navController.popBackStack()
+    }
 
     // Setup the navController with proper owners
-    navController.setLifecycleOwner(lifecycleOwner)
+    DisposableEffect(lifecycleOwner) {
+        // Setup the navController with proper owners
+        navController.setLifecycleOwner(lifecycleOwner)
+        onDispose { }
+    }
     navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
-    if (onBackPressedDispatcher != null) {
-        navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
-    }
-    // Ensure that the NavController only receives back events while
-    // the NavHost is in composition
-    DisposableEffect(navController) {
-        navController.enableOnBackPressed(true)
-        onDispose {
-            navController.enableOnBackPressed(false)
-        }
-    }
 
     // Then set the graph
     navController.graph = graph
