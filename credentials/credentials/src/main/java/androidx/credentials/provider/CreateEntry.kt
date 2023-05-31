@@ -59,7 +59,10 @@ class CreateEntry internal constructor(
      * @param pendingIntent the [PendingIntent] that will get invoked when user selects this entry
      * @param description the localized description shown on UI about where the credential is stored
      * @param icon the icon to be displayed with this entry on the UI
-     * @param lastUsedTime the last time the account underlying this entry was used by the user
+     * @param lastUsedTime the last time the account underlying this entry was used by the user.
+     * Note that this value will only be distinguishable up to the milli second mark. If two
+     * entries have the same millisecond precision, they will be considered to have been
+     * used at the same time
      * @param passwordCredentialCount the no. of password credentials saved by the provider
      * @param publicKeyCredentialCount the no. of public key credentials saved by the provider
      * @param totalCredentialCount the total no. of credentials saved by the provider

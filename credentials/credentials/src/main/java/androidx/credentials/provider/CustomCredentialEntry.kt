@@ -40,7 +40,9 @@ import java.util.Collections
  * @property title the title shown with this entry on the selector UI
  * @property subtitle the subTitle shown with this entry on the selector UI
  * @property lastUsedTime the last used time the credential underlying this entry was
- * used by the user
+ * used by the user. Note that this value will only be distinguishable up to the milli
+ * second mark. If two entries have the same millisecond precision, they will be considered to
+ * have been used at the same time
  * @property icon the icon to be displayed with this entry on the selector UI. If not set, a
  * default icon representing a custom credential type is set by the library
  * @property pendingIntent the [PendingIntent] to be invoked when this entry
