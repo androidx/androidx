@@ -29,6 +29,8 @@ import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
+import androidx.baselineprofile.gradle.utils.KOTLIN_MULTIPLATFORM_PLUGIN_ID
+import androidx.baselineprofile.gradle.utils.KotlinMultiPlatformUtils
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.R8Utils
@@ -42,8 +44,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 /**
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
@@ -214,14 +214,15 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // for apps.
         val mergeIntoMain = variantConfiguration.mergeIntoMain ?: isLibraryModule()
 
-        // Determines the target name for android in kmp projects.
-        val androidTargetName = project
-            .extensions
-            .findByType(KotlinMultiplatformExtension::class.java)
-            ?.targets
-            ?.firstOrNull { it.platformType == KotlinPlatformType.androidJvm }
-            ?.name
-            ?: ""
+        // Determines the target name for the Android target in kotlin multiplatform projects.
+        // Note that KotlinMultiPlatformUtils references the kmp extension that exists only if the
+        // multiplatform plugin has been applied.
+        val androidTargetName =
+            if (project.plugins.hasPlugin(KOTLIN_MULTIPLATFORM_PLUGIN_ID)) {
+                KotlinMultiPlatformUtils.androidTargetName(project)
+            } else {
+                ""
+            }
 
         // This part changes according to the AGP version of the module. `mergeIntoMain` merges
         // the profile of the generated profile for this variant into the main one. This can be
