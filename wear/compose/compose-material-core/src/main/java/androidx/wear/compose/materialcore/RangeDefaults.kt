@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material
+package androidx.wear.compose.materialcore
 
-import androidx.compose.foundation.progressSemantics
+import androidx.annotation.RestrictTo
 import androidx.compose.material.icons.materialIcon
 import androidx.compose.material.icons.materialPath
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
 
 /**
  * Icons which are used by Range controls like slider and stepper
  */
-internal object RangeIcons {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object RangeIcons {
 
     /**
      * An [ImageVector] with a minus sign.
@@ -57,7 +54,8 @@ internal object RangeIcons {
 /**
  * Defaults used by range controls like slider and stepper
  */
-internal object RangeDefaults {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object RangeDefaults {
     /**
      * Calculates value of [currentStep] in [valueRange] depending on number of [steps]
      */
@@ -81,41 +79,3 @@ internal object RangeDefaults {
         (valueRange.endInclusive - valueRange.start) * (steps + 1))
         .roundToInt().coerceIn(0, steps + 1)
 }
-
-internal fun Modifier.rangeSemantics(
-    step: Int,
-    enabled: Boolean,
-    onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
-): Modifier = semantics(mergeDescendants = true) {
-    if (!enabled) disabled()
-    setProgress(
-        action = { targetValue ->
-            val newStepIndex = RangeDefaults.snapValueToStep(targetValue, valueRange, steps)
-            if (step == newStepIndex) {
-                false
-            } else {
-                onValueChange(targetValue)
-                true
-            }
-        }
-    )
-}.progressSemantics(
-    RangeDefaults.calculateCurrentStepValue(step, steps, valueRange),
-    valueRange, steps
-)
-
-internal fun Modifier.rangeSemantics(
-    value: Float,
-    enabled: Boolean,
-    onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
-): Modifier {
-    val currentStep = RangeDefaults.snapValueToStep(value, valueRange, steps)
-
-    return rangeSemantics(currentStep, enabled, onValueChange, valueRange, steps)
-}
-
-internal fun IntProgression.stepsNumber(): Int = (last - first) / step - 1
