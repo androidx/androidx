@@ -170,7 +170,7 @@ to indicate the tip-of-tree version.
 dependencies {
     // Atomic group
     constraints {
-        implementation("androidx.paging:paging-compose:${LibraryVersions.PAGING}")
+        implementation("androidx.paging:paging-compose:${LibraryVersions.PAGING_COMPOSE}")
     }
 }
 ```
