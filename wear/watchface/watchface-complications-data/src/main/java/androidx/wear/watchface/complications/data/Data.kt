@@ -121,6 +121,9 @@ constructor(
     @ComplicationDisplayPolicy public val displayPolicy: Int,
     public val dynamicValueInvalidationFallback: ComplicationData?,
 ) {
+    /** Throws [IllegalArgumentException] if the [ComplicationData] is invalid. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open fun validate() {}
+
     /**
      * [tapAction] which is a [PendingIntent] unfortunately can't be serialized. This property is
      * 'true' if tapAction has been lost due to serialization (typically because it has been cached
@@ -187,10 +190,7 @@ constructor(
     override fun equals(other: Any?): Boolean =
         other is ComplicationData && asWireComplicationData() == other.asWireComplicationData()
 
-    /**
-     * Similar to [equals], but avoids comparing evaluated fields (if dynamic values exist).
-     *
-     */
+    /** Similar to [equals], but avoids comparing evaluated fields (if dynamic values exist). */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     infix fun equalsUnevaluated(other: ComplicationData): Boolean =
         asWireComplicationData() equalsUnevaluated other.asWireComplicationData()
@@ -791,7 +791,8 @@ public class ColorRamp(
     @ColorInt val colors: IntArray,
     @get:JvmName("isInterpolated") val interpolated: Boolean
 ) {
-    init {
+    /** Throws [IllegalArgumentException] if the [ColorRamp] is invalid. */
+    internal fun validate() {
         require(colors.size <= 7) { "colors can have no more than seven entries" }
     }
 
@@ -914,7 +915,9 @@ internal constructor(
         dynamicValueInvalidationFallback = dynamicValueInvalidationFallback,
     ) {
 
-    init {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun validate() {
+        super.validate()
         require(min <= max) { "min must be lower than or equal to max" }
         require(value == PLACEHOLDER || value in min..max) { "value must be between min and max" }
         require(max != Float.MAX_VALUE) { "Float.MAX_VALUE is reserved and can't be used for max" }
@@ -922,8 +925,8 @@ internal constructor(
             "At least one of monochromaticImage, smallImage, text or title must be set"
         }
         if (valueType == TYPE_PERCENTAGE) {
-            require(min == 0f)
-            require(max == 100f)
+            require(min == 0f) { "min must be 0 for TYPE_PERCENTAGE" }
+            require(max == 100f) { "max must be 100 for TYPE_PERCENTAGE" }
         }
     }
 
@@ -1275,13 +1278,16 @@ internal constructor(
         dynamicValueInvalidationFallback = dynamicValueInvalidationFallback,
     ) {
 
-    init {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun validate() {
+        super.validate()
         require(targetValue != Float.MAX_VALUE) {
             "Float.MAX_VALUE is reserved and can't be used for target"
         }
         require(monochromaticImage != null || smallImage != null || text != null || title != null) {
             "At least one of monochromaticImage, smallImage, text or title must be set"
         }
+        colorRamp?.validate()
     }
 
     /**
@@ -1575,9 +1581,14 @@ internal constructor(
         dynamicValueInvalidationFallback = dynamicValueInvalidationFallback,
     ) {
 
-    init {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun validate() {
+        super.validate()
         require(monochromaticImage != null || smallImage != null || text != null || title != null) {
             "At least one of monochromaticImage, smallImage, text or title must be set"
+        }
+        for (element in elements) {
+            element.validate()
         }
     }
     /**
@@ -1596,7 +1607,8 @@ internal constructor(
         @FloatRange(from = 0.0, fromInclusive = false) val weight: Float,
         @ColorInt val color: Int
     ) {
-        init {
+        /** Throws [IllegalArgumentException] if the [Element] is invalid. */
+        internal fun validate() {
             require(weight > 0) { "The weight must be > 0" }
         }
 
@@ -2452,15 +2464,17 @@ private fun WireComplicationData.toApiComplicationData(
                         } else {
                             val elementWeights = this.elementWeights!!
                             val elementColors = this.elementColors!!
-                            require(elementWeights.size == elementColors.size) {
-                                "elementWeights and elementColors must have the same size"
+                            if (elementWeights.size != elementColors.size) {
+                                Log.e(
+                                    TAG,
+                                    "elementWeights and elementColors must have the same size"
+                                )
                             }
                             elementWeights
-                                .mapIndexed { index, weight ->
-                                    WeightedElementsComplicationData.Element(
-                                        weight,
-                                        elementColors[index]
-                                    )
+                                .asSequence()
+                                .zip(elementColors.asSequence())
+                                .map { (weight, color) ->
+                                    WeightedElementsComplicationData.Element(weight, color)
                                 }
                                 .toList()
                         },

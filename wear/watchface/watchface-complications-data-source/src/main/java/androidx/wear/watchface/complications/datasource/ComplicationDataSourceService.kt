@@ -482,6 +482,7 @@ public abstract class ComplicationDataSourceService : Service() {
                         ),
                         object : ComplicationRequestListener {
                             override fun onComplicationData(complicationData: ComplicationData?) {
+                                complicationData?.validate()
                                 // This can be run on an arbitrary thread, but that's OK.
                                 val dataType = complicationData?.type ?: ComplicationType.NO_DATA
                                 require(
@@ -517,6 +518,7 @@ public abstract class ComplicationDataSourceService : Service() {
                             override fun onComplicationDataTimeline(
                                 complicationDataTimeline: ComplicationDataTimeline?
                             ) {
+                                complicationDataTimeline?.validate()
                                 // This can be run on an arbitrary thread, but that's OK.
                                 val defaultComplicationData =
                                     complicationDataTimeline?.defaultComplicationData
@@ -617,22 +619,21 @@ public abstract class ComplicationDataSourceService : Service() {
         override fun getComplicationPreviewData(type: Int): WireComplicationData? =
             aidlMethod(TAG, "getComplicationPreviewData") {
                 val expectedDataType = fromWireType(type)
-                val complicationData = getPreviewData(expectedDataType)
-                val dataType = complicationData?.type ?: ComplicationType.NO_DATA
+                val complicationData = getPreviewData(expectedDataType) ?: return null
+                complicationData.validate()
+                val dataType = complicationData.type
                 require(dataType == ComplicationType.NO_DATA || dataType == expectedDataType) {
                     "Preview data should match the requested type. " +
                         "Expected $expectedDataType got $dataType."
                 }
 
-                if (complicationData != null) {
-                    require(complicationData.validTimeRange == TimeRange.ALWAYS) {
-                        "Preview data should have time range set to ALWAYS."
-                    }
-                    require(!complicationData.asWireComplicationData().hasDynamicValues()) {
-                        "Preview data must not have dynamic values."
-                    }
+                require(complicationData.validTimeRange == TimeRange.ALWAYS) {
+                    "Preview data should have time range set to ALWAYS."
                 }
-                return complicationData?.asWireComplicationData()
+                require(!complicationData.asWireComplicationData().hasDynamicValues()) {
+                    "Preview data must not have dynamic values."
+                }
+                return complicationData.asWireComplicationData()
             }
 
         override fun onStartSynchronousComplicationRequests(complicationInstanceId: Int): Unit =
@@ -685,6 +686,7 @@ public abstract class ComplicationDataSourceService : Service() {
                         ),
                         object : ComplicationRequestListener {
                             override fun onComplicationData(complicationData: ComplicationData?) {
+                                complicationData?.validate()
                                 // This can be run on an arbitrary thread, but that's OK.
                                 val dataType = complicationData?.type ?: ComplicationType.NO_DATA
                                 require(
@@ -711,6 +713,7 @@ public abstract class ComplicationDataSourceService : Service() {
                             override fun onComplicationDataTimeline(
                                 complicationDataTimeline: ComplicationDataTimeline?
                             ) {
+                                complicationDataTimeline?.validate()
                                 // This can be run on an arbitrary thread, but that's OK.
                                 val dataType =
                                     complicationDataTimeline?.defaultComplicationData?.type

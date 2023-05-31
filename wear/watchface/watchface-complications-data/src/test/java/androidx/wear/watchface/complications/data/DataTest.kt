@@ -3011,7 +3011,7 @@ class ValidationTest {
 
     @Test
     fun rangedValue_valid(@TestParameter scenario: RangedValueValidScenario) {
-        scenario.build()
+        scenario.build().validate()
     }
 
     enum class RangedValueInvalidScenario(val build: () -> RangedValueComplicationData) {
@@ -3022,7 +3022,7 @@ class ValidationTest {
 
     @Test
     fun rangedValue_invalid(@TestParameter scenario: RangedValueInvalidScenario) {
-        assertFailsWith<IllegalArgumentException> { scenario.build() }
+        assertFailsWith<IllegalArgumentException> { scenario.build().validate() }
     }
 
     companion object {
