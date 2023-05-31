@@ -17,7 +17,7 @@ package androidx.room
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import io.reactivex.functions.Consumer
 import io.reactivex.observers.TestObserver
 import io.reactivex.subscribers.TestSubscriber

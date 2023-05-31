@@ -49,7 +49,7 @@ dependencies {
     kspAndroidTest(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-kmp"))
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(projectOrArtifact(":paging:paging-testing"))
