@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKaptTest
@@ -792,6 +793,111 @@ class KotlinMetadataElementTest(
         }
     }
 
+    @Test
+    fun ignore_syntheticMetadata_defaultImpls() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            interface Subject {
+              fun instance(): String = "Hello"
+            }
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(src),
+            kotlincArgs = listOf("-Xjvm-default=disable")
+        ) {
+            val subjectElement = processingEnv.requireTypeElement("Subject.DefaultImpls")
+            // Call metadata derived API causing it to be read
+            assertThat(subjectElement.isKotlinObject()).isFalse()
+            assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun ignore_syntheticMetadata_whenMappings() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class Subject {
+              enum class Fruit {
+                APPLE,
+                STRAWBERRY
+              }
+
+              fun printName(fruit: Fruit) {
+                println(
+                  when(fruit) {
+                    Fruit.APPLE -> "manzana"
+                    Fruit.STRAWBERRY -> "fresa"
+                  }
+                )
+              }
+            }
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(src),
+        ) {
+            assertThat(processingEnv.findTypeElement("Subject.Fruit")).isNotNull()
+            val subjectElement = processingEnv.findTypeElement("Subject.WhenMappings")
+                // Currently $WhenMapping has the ACC_SYNTHETIC flag making it unreadable by
+                // annotation processors making it impossible to verify synthetic metadata is
+                // ignored.
+                ?: throw AssumptionViolatedException("No test if WhenMappings is not found")
+            // Call metadata derived API causing it to be read
+            assertThat(subjectElement.isKotlinObject()).isFalse()
+            assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun ignore_fileFacadeMetadata() {
+        val aSrc = Source.kotlin(
+            "A.kt",
+            """
+            @file:JvmMultifileClass
+            @file:JvmName("Subject")
+
+            fun a() { }
+            """.trimIndent()
+        )
+        val bSrc = Source.kotlin(
+            "B.kt",
+            """
+            @file:JvmMultifileClass
+            @file:JvmName("Subject")
+
+            fun b() { }
+            """.trimIndent()
+        )
+        simpleRun(
+            sources = listOf(aSrc, bSrc),
+        ) {
+            // Find the multi file class facade element
+            val facadeElement = processingEnv.requireTypeElement("Subject")
+            // Call metadata derived API causing it to be read
+            assertThat(facadeElement.isKotlinObject()).isFalse()
+
+            // Try to find the multi file class part elements, currently these classes have the
+            // ACC_SYNTHETIC flag making them unreadable by annotation processors and impossible to
+            // verify that multi file metadata is ignored.
+            val facadePartOne = processingEnv.findTypeElement("Subject__AKt")
+                ?: throw AssumptionViolatedException("No test if MultiFileClassPart is not found")
+            assertThat(facadePartOne.isKotlinObject()).isFalse()
+            val facadePartTwo = processingEnv.findTypeElement("Subject__BKt")
+                ?: throw AssumptionViolatedException("No test if MultiFileClassPart is not found")
+            assertThat(facadePartTwo.isKotlinObject()).isFalse()
+            assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
     private fun TypeElement.getDeclaredMethods() = ElementFilter.methodsIn(enclosedElements)
 
     private fun TypeElement.getDeclaredMethod(name: String) = getDeclaredMethods().first {
@@ -803,19 +909,24 @@ class KotlinMetadataElementTest(
     @Suppress("NAME_SHADOWING") // intentional
     private fun simpleRun(
         sources: List<Source> = emptyList(),
-        handler: (ProcessingEnvironment) -> Unit
+        kotlincArgs: List<String> = emptyList(),
+        handler: XTestInvocation.(ProcessingEnvironment) -> Unit
     ) {
         val (sources, classpath) = if (preCompiled) {
             emptyList<Source>() to compileFiles(sources)
         } else {
             sources to emptyList()
         }
-        runKaptTest(sources = sources, classpath = classpath) {
+        runKaptTest(
+            sources = sources,
+            classpath = classpath,
+            kotlincArguments = kotlincArgs
+        ) {
             val processingEnv = it.processingEnv
             if (processingEnv !is JavacProcessingEnv) {
                 throw AssumptionViolatedException("This test only works for java/kapt compilation")
             }
-            handler(processingEnv.delegate)
+            it.handler(processingEnv.delegate)
         }
     }
 
