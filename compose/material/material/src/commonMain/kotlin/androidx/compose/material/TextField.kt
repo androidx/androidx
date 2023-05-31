@@ -928,4 +928,4 @@ internal val TextFieldBottomPadding = 10.dp
 
 /** Padding from label's baseline (or FirstBaselineOffset) to the input field */
 /*@VisibleForTesting*/
-internal val TextFieldTopPadding = 4.dp
+internal val TextFieldTopPadding = 2.dp

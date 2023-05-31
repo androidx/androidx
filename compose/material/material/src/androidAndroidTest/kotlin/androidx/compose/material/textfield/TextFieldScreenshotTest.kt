@@ -370,7 +370,7 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_disabled() {
-        rule.setContent {
+        rule.setMaterialContent {
             TextField(
                 value = TextFieldValue("Text"),
                 onValueChange = {},
@@ -385,7 +385,7 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_disabled_notFocusable() {
-        rule.setContent {
+        rule.setMaterialContent {
             TextField(
                 value = TextFieldValue("Text"),
                 onValueChange = {},
@@ -402,7 +402,7 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_disabled_notScrolled() {
-        rule.setContent {
+        rule.setMaterialContent {
             TextField(
                 value = longText,
                 onValueChange = { },
@@ -425,7 +425,7 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_readOnly() {
-        rule.setContent {
+        rule.setMaterialContent {
             TextField(
                 value = TextFieldValue("Text"),
                 onValueChange = {},
@@ -440,7 +440,7 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_readOnly_focused() {
-        rule.setContent {
+        rule.setMaterialContent {
             TextField(
                 value = TextFieldValue("Text"),
                 onValueChange = {},
@@ -457,7 +457,7 @@ class TextFieldScreenshotTest {
 
     @Test
     fun textField_readOnly_scrolled() {
-        rule.setContent {
+        rule.setMaterialContent {
             TextField(
                 value = longText,
                 onValueChange = { },
