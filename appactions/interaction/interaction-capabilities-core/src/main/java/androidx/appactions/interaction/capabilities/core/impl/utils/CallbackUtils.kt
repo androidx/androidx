@@ -39,16 +39,17 @@ internal fun <T> invokeExternalBlock(description: String, block: () -> T): T {
     }
 }
 
+/** Maximum allowed time for a single external async operation. e.g. invoking a slot listener. */
+internal const val EXTERNAL_TIMEOUT_MILLIS = 10000L
+
 /** invoke an externally implemented suspend method, wrapping any exceptions with
  * ExternalException.
  */
-
-private const val TIMEOUT_MILLIS = 3000L
 internal suspend fun <T> invokeExternalSuspendBlock(
     description: String,
     block: suspend () -> T
 ): T {
-    return withTimeout(TIMEOUT_MILLIS) {
+    return withTimeout(EXTERNAL_TIMEOUT_MILLIS) {
         try {
             block()
         } catch (t: Throwable) {

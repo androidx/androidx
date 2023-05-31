@@ -39,6 +39,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpe
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
+import androidx.appactions.interaction.capabilities.core.impl.utils.EXTERNAL_TIMEOUT_MILLIS
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
@@ -1528,7 +1529,7 @@ class TaskCapabilityImplTest {
                 override suspend fun onReceived(
                     value: String
                 ): ValidationResult {
-                    delay(4000) // will throw TimeoutCancellationException due to 3s timeout
+                    delay(EXTERNAL_TIMEOUT_MILLIS + 1000L)
                     return ValidationResult.newAccepted()
                 }
             }
@@ -1552,7 +1553,7 @@ class TaskCapabilityImplTest {
             externalSession,
             scope = this,
         )
-        val callback = FakeCallbackInternal(timeoutMs = 5000L)
+        val callback = FakeCallbackInternal(timeoutMs = EXTERNAL_TIMEOUT_MILLIS + 2000L)
 
         session.execute(
             buildRequestArgs(
@@ -1563,7 +1564,7 @@ class TaskCapabilityImplTest {
             callback
         )
 
-        advanceTimeBy(5000L)
+        advanceTimeBy(EXTERNAL_TIMEOUT_MILLIS + 2000L)
         val response = callback.receiveResponse()
         assertThat(
             response.errorStatus
