@@ -349,93 +349,6 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
     }
 
     @Test
-    fun testSrcSetAreAddedToVariantsForApplicationsWithKmp() {
-        projectSetup.producer.setupWithoutFlavors(releaseProfileLines = listOf())
-        projectSetup.consumer.setupWithBlocks(
-            androidPlugin = ANDROID_APPLICATION_PLUGIN,
-            otherPluginsBlock = """
-                id("org.jetbrains.kotlin.multiplatform")
-            """.trimIndent(),
-            additionalGradleCodeBlock = """
-                kotlin {
-                    jvm { }
-                    android { }
-                    sourceSets {
-                        androidMain { }
-                    }
-                }
-
-                androidComponents {
-                    onVariants(selector()) { variant ->
-                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
-                            t.srcs.set(variant.sources.baselineProfiles.all)
-                        }
-                    }
-                }
-            """.trimIndent()
-        )
-
-        val expected = listOf(
-            "src/main/baselineProfiles",
-            "src/release/baselineProfiles",
-            "src/androidRelease/generated/baselineProfiles",
-        )
-            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
-            .onEach { f ->
-                // Expected src set location. Note that src sets are not added if the folder does
-                // not exist so we need to create it.
-                f.mkdirs()
-                f.deleteOnExit()
-            }
-
-        gradleRunner.buildAndAssertThatOutput("releaseSources") {
-            expected.forEach { e -> contains(e.absolutePath) }
-        }
-    }
-
-    @Test
-    fun testSrcSetAreAddedToVariantsForLibrariesWithKmp() {
-        projectSetup.producer.setupWithoutFlavors(releaseProfileLines = listOf())
-        projectSetup.consumer.setupWithBlocks(
-            androidPlugin = ANDROID_LIBRARY_PLUGIN,
-            otherPluginsBlock = """
-                id("org.jetbrains.kotlin.multiplatform")
-            """.trimIndent(),
-            additionalGradleCodeBlock = """
-                kotlin {
-                    jvm { }
-                    android("androidTarget") { }
-                }
-
-                androidComponents {
-                    onVariants(selector()) { variant ->
-                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
-                            t.srcs.set(variant.sources.baselineProfiles.all)
-                        }
-                    }
-                }
-            """.trimIndent()
-        )
-
-        val expected = listOf(
-            "src/main/baselineProfiles",
-            "src/release/baselineProfiles",
-            "src/androidTargetMain/generated/baselineProfiles",
-        )
-            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
-            .onEach { f ->
-                // Expected src set location. Note that src sets are not added if the folder does
-                // not exist so we need to create it.
-                f.mkdirs()
-                f.deleteOnExit()
-            }
-
-        gradleRunner.buildAndAssertThatOutput("releaseSources") {
-            expected.forEach { e -> contains(e.absolutePath) }
-        }
-    }
-
-    @Test
     fun testWhenPluginIsAppliedAndNoDependencyIsSetShouldFailWithErrorMsg() {
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_APPLICATION_PLUGIN,
@@ -1594,5 +1507,110 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
             Fixtures.CLASS_2,
             Fixtures.CLASS_2_METHOD_1,
         )
+    }
+}
+
+@RunWith(Parameterized::class)
+class BaselineProfileConsumerPluginTestWithKmp(agpVersion: String?) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TEST_AGP_VERSION_ALL
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = agpVersion,
+        addKotlinGradlePluginToClasspath = true
+    )
+
+    private val gradleRunner by lazy { projectSetup.consumer.gradleRunner }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForApplicationsWithKmp() {
+        projectSetup.producer.setupWithoutFlavors(releaseProfileLines = listOf())
+        projectSetup.consumer.setupWithBlocks(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            otherPluginsBlock = """
+                id("org.jetbrains.kotlin.multiplatform")
+            """.trimIndent(),
+            additionalGradleCodeBlock = """
+                kotlin {
+                    jvm { }
+                    android { }
+                    sourceSets {
+                        androidMain { }
+                    }
+                }
+
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val expected = listOf(
+            "src/main/baselineProfiles",
+            "src/release/baselineProfiles",
+            "src/androidRelease/generated/baselineProfiles",
+        )
+            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+            .onEach { f ->
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                f.mkdirs()
+                f.deleteOnExit()
+            }
+
+        gradleRunner.buildAndAssertThatOutput("releaseSources") {
+            expected.forEach { e -> contains(e.absolutePath) }
+        }
+    }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForLibrariesWithKmp() {
+        projectSetup.producer.setupWithoutFlavors(releaseProfileLines = listOf())
+        projectSetup.consumer.setupWithBlocks(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            otherPluginsBlock = """
+                id("org.jetbrains.kotlin.multiplatform")
+            """.trimIndent(),
+            additionalGradleCodeBlock = """
+                kotlin {
+                    jvm { }
+                    android("androidTarget") { }
+                }
+
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val expected = listOf(
+            "src/main/baselineProfiles",
+            "src/release/baselineProfiles",
+            "src/androidTargetMain/generated/baselineProfiles",
+        )
+            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+            .onEach { f ->
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                f.mkdirs()
+                f.deleteOnExit()
+            }
+
+        gradleRunner.buildAndAssertThatOutput("releaseSources") {
+            expected.forEach { e -> contains(e.absolutePath) }
+        }
     }
 }

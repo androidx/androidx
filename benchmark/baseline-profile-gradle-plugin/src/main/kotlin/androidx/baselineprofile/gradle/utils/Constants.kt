@@ -47,3 +47,6 @@ internal const val TASK_NAME_SUFFIX = "baselineProfile"
 
 // Other constants
 internal const val RELEASE = "release"
+
+// Kotlin Multiplatform Plugin ID
+internal const val KOTLIN_MULTIPLATFORM_PLUGIN_ID = "org.jetbrains.kotlin.multiplatform"
