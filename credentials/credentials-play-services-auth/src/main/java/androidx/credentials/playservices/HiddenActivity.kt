@@ -24,12 +24,12 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.credentials.exceptions.CreateCredentialInterruptedException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
-import androidx.credentials.exceptions.GetCredentialInterruptedException
-import androidx.credentials.exceptions.GetCredentialUnknownException
-import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.CREATE_INTERRUPTED
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.CREATE_UNKNOWN
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_INTERRUPTED
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_NO_CREDENTIALS
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_UNKNOWN
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
@@ -108,16 +108,16 @@ open class HiddenActivity : Activity() {
                         )
                     } catch (e: IntentSender.SendIntentException) {
                         setupFailure(resultReceiver!!,
-                            CreateCredentialUnknownException::class.java.name,
+                            CREATE_UNKNOWN,
                             "During public key credential, found IntentSender " +
                                 "failure on public key creation: ${e.message}")
                     }
                 }
                 .addOnFailureListener { e: Exception ->
-                    var errName: String = CreateCredentialUnknownException::class.java.name
+                    var errName: String = CREATE_UNKNOWN
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
-                        errName = CreateCredentialInterruptedException::class.java.name
+                        errName = CREATE_INTERRUPTED
                     }
                     setupFailure(resultReceiver!!, errName,
                         "During create public key credential, fido registration " +
@@ -165,15 +165,15 @@ open class HiddenActivity : Activity() {
                     )
                 } catch (e: IntentSender.SendIntentException) {
                     setupFailure(resultReceiver!!,
-                        GetCredentialUnknownException::class.java.name,
+                        GET_UNKNOWN,
                             "During begin sign in, one tap ui intent sender " +
                                 "failure: ${e.message}")
                 }
             }.addOnFailureListener { e: Exception ->
-                var errName: String = NoCredentialException::class.java.name
+                var errName: String = GET_NO_CREDENTIALS
                 if (e is ApiException && e.statusCode in
                     CredentialProviderBaseController.retryables) {
-                    errName = GetCredentialInterruptedException::class.java.name
+                    errName = GET_INTERRUPTED
                 }
                 setupFailure(resultReceiver!!, errName,
                     "During begin sign in, failure response from one tap: ${e.message}")
@@ -207,15 +207,15 @@ open class HiddenActivity : Activity() {
                         )
                     } catch (e: IntentSender.SendIntentException) {
                         setupFailure(resultReceiver!!,
-                            CreateCredentialUnknownException::class.java.name,
+                            CREATE_UNKNOWN,
                                 "During save password, found UI intent sender " +
                                     "failure: ${e.message}")
                     }
             }.addOnFailureListener { e: Exception ->
-                    var errName: String = CreateCredentialUnknownException::class.java.name
+                    var errName: String = CREATE_UNKNOWN
                     if (e is ApiException && e.statusCode in
                         CredentialProviderBaseController.retryables) {
-                        errName = CreateCredentialInterruptedException::class.java.name
+                        errName = CREATE_INTERRUPTED
                     }
                     setupFailure(resultReceiver!!, errName, "During save password, found " +
                         "password failure response from one tap ${e.message}")
@@ -240,7 +240,7 @@ open class HiddenActivity : Activity() {
 
     companion object {
         private const val DEFAULT_VALUE: Int = 1
-        private val TAG: String = HiddenActivity::class.java.name
+        private const val TAG = "HiddenActivity"
         private const val KEY_AWAITING_RESULT = "androidx.credentials.playservices.AWAITING_RESULT"
     }
 }
