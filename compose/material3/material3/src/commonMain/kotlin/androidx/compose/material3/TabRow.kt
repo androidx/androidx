@@ -189,7 +189,9 @@ private fun TabRowImpl(
                 var contentWidth =
                     minOf(tabMeasurables[index].maxIntrinsicWidth(tabRowHeight), tabWidth).toDp()
                 contentWidth -= HorizontalTextPadding * 2
-                TabPosition(tabWidth.toDp() * index, tabWidth.toDp(), contentWidth)
+                // Enforce minimum touch target of 24.dp
+                val indicatorWidth = maxOf(contentWidth, 24.dp)
+                TabPosition(tabWidth.toDp() * index, tabWidth.toDp(), indicatorWidth)
             }
 
             layout(tabRowWidth, tabRowHeight) {
@@ -372,7 +374,7 @@ fun ScrollableTabRow(
  * @property left the left edge's x position from the start of the [TabRow]
  * @property right the right edge's x position from the start of the [TabRow]
  * @property width the width of this tab
- * @property contentWidth the content width of this tab
+ * @property contentWidth the content width of this tab. Should be a minimum of 24.dp
  */
 @Immutable
 class TabPosition internal constructor(val left: Dp, val width: Dp, val contentWidth: Dp) {
@@ -458,7 +460,7 @@ object TabRowDefaults {
     @Composable
     fun PrimaryIndicator(
         modifier: Modifier = Modifier,
-        width: Dp = 0.dp,
+        width: Dp = 24.dp,
         height: Dp = PrimaryNavigationTabTokens.ActiveIndicatorHeight,
         color: Color = PrimaryNavigationTabTokens.ActiveIndicatorColor.toColor(),
         shape: Shape = PrimaryNavigationTabTokens.ActiveIndicatorShape
