@@ -16,7 +16,12 @@
 
 package androidx.appactions.interaction.service
 
+import android.content.Context
+import android.util.SizeF
+import android.widget.RemoteViews
+import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
@@ -27,6 +32,8 @@ import androidx.appactions.interaction.proto.AppInteractionMetadata.ErrorStatus
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentParam
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentValue
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
@@ -37,11 +44,22 @@ import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Com
 import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_SESSION_ENDED
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc.AppInteractionServiceStub
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.GetCount
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.GetItemId
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.GetLoadingView
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.GetViewAt
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.GetViewTypeCount
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.HasStableIds
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.CollectionRequest.OnDestroy
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.Request
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionRequest
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionResponse
+import androidx.appactions.interaction.service.test.R
 import androidx.appactions.interaction.service.testing.internal.FakeAppInteractionService
+import androidx.appactions.interaction.service.testing.internal.FakeCapability
 import androidx.concurrent.futures.await
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import io.grpc.BindableService
@@ -59,6 +77,7 @@ import java.io.IOException
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -66,6 +85,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
@@ -103,6 +123,26 @@ class AppInteractionServiceGrpcImplTest {
                     .addOutputValues(OutputValue.newBuilder().setName("bio_arg1")),
             )
             .build()
+    private val testFulfillmentRequestUi =
+        FulfillmentRequest.newBuilder()
+            .addFulfillments(
+                Fulfillment.newBuilder()
+                    .setName(testBiiName)
+                    .setIdentifier(capabilityId)
+                    .addParams(
+                        FulfillmentParam.newBuilder()
+                            .setName("fieldOne")
+                            .addFulfillmentValues(
+                                FulfillmentValue.newBuilder()
+                                    .setValue(
+                                        ParamValue.newBuilder().setStringValue("hello").build())
+                                    .build())
+                            .build())
+                    .setType(Fulfillment.Type.SYNC)
+                    .setSyncStatus(Fulfillment.SyncStatus.SLOTS_COMPLETE)
+                    .build()
+            )
+            .build()
     private val testAppDialogState = AppDialogState.newBuilder().setFulfillmentIdentifier("id")
         .addParams(
             AppActionsContext.DialogParameter.newBuilder()
@@ -116,8 +156,31 @@ class AppInteractionServiceGrpcImplTest {
     private lateinit var capability1: Capability
     private lateinit var appInteractionService: FakeAppInteractionService
 
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val remoteViewsFactoryId = 123
+    private val remoteViews = RemoteViews(context.packageName, R.layout.remote_view)
+
+    private fun createFakeCapability(vararg uiResponses: UiResponse):
+        Capability {
+        return FakeCapability.CapabilityBuilder()
+            .setId(capabilityId)
+            .setExecutionSessionFactory { _ ->
+                object : FakeCapability.ExecutionSession {
+                    override suspend fun onExecute(
+                        arguments: FakeCapability.Arguments,
+                    ): ExecutionResult<FakeCapability.Output> {
+                        for (uiResponse in uiResponses) {
+                            this.updateUi(uiResponse)
+                        }
+                        return ExecutionResult.Builder<FakeCapability.Output>().build()
+                    }
+                }
+            }
+            .build()
+    }
+
     @Before
-    fun before() {
+    fun setup() {
         capability1 = mock()
         whenever(capability1.id).thenReturn(capabilityId)
         whenever(capability1.appAction).thenReturn(AppAction.getDefaultInstance())
@@ -127,6 +190,11 @@ class AppInteractionServiceGrpcImplTest {
             FakeAppInteractionService::class.java
         ).get()
         appInteractionService.registeredCapabilities = listOf(capability1)
+    }
+
+    @After
+    fun cleanup() {
+        UiSessions.removeUiCache(sessionId)
     }
 
     @Test
@@ -165,6 +233,496 @@ class AppInteractionServiceGrpcImplTest {
         // end startSession stream
         startSessionRequestObserver.onCompleted()
         assertThat(SessionManager.getSession(sessionId)).isNull()
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun requestUi_respondWithRemoteViewsInMetadata(): Unit = runBlocking {
+
+        val remoteViewsUiResponse =
+            UiResponse.RemoteViewsUiBuilder()
+                .setRemoteViews(remoteViews, SizeF(10f, 15f))
+                .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
+                .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val responseObserver = mock<StreamObserver<AppInteractionServiceProto.UiResponse>>()
+        stub.requestUi(
+            AppInteractionServiceProto.UiRequest.newBuilder()
+                .setSessionIdentifier(sessionId).build(),
+            responseObserver
+        )
+        val responseCaptor = argumentCaptor<AppInteractionServiceProto.UiResponse>()
+        verify(responseObserver).onNext(responseCaptor.capture())
+        assertThat(responseCaptor.firstValue).isEqualTo(
+            AppInteractionServiceProto.UiResponse.newBuilder().setRemoteViewsInfo(
+                AppInteractionServiceProto.RemoteViewsInfo.newBuilder()
+                    .setWidthDp(10f)
+                    .setHeightDp(15f)
+                    .build()
+            ).build()
+        )
+
+        server.shutdownNow()
+    }
+
+    @Test
+    @Suppress("deprecation")
+    fun requestUi_respondWithTileLayout(): Unit = runBlocking {
+
+        val layout = androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
+            .setRoot(androidx.wear.tiles.LayoutElementBuilders.Row.Builder().build())
+            .build()
+        val resource = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+            .setVersion("123").build()
+        val tileLayout = UiResponse.TileLayoutBuilder().setTileLayout(layout, resource).build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(tileLayout)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val uiResponse = futureStub.requestUi(AppInteractionServiceProto.UiRequest.newBuilder()
+            .setSessionIdentifier(sessionId).build()).await()
+
+        assertThat(uiResponse.uiTypeCase).isEqualTo(AppInteractionServiceProto
+            .UiResponse.UiTypeCase.TILE_LAYOUT)
+        assertThat(uiResponse.tileLayout.layout).isNotEmpty()
+        assertThat(uiResponse.tileLayout.resources).isNotEmpty()
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun requestUi_noUi_failWithStatusRuntimeException(): Unit = runBlocking {
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability() // Not setting any Ui response
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val responseObserver = mock<StreamObserver<AppInteractionServiceProto.UiResponse>>()
+        stub.requestUi(
+            AppInteractionServiceProto.UiRequest.newBuilder()
+                .setSessionIdentifier(sessionId).build(),
+            responseObserver
+        )
+
+        val errorCaptor = argumentCaptor<StatusRuntimeException>()
+        verify(responseObserver).onError(errorCaptor.capture())
+        assertThat(errorCaptor.firstValue.status.code).isEqualTo(
+            Status.INTERNAL.code
+        )
+        assertThat(errorCaptor.firstValue.status.description).isEqualTo("No UI set")
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersRemoteViewFactory(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setGetViewTypeCount(GetViewTypeCount.newBuilder().build()).build()
+        futureStub.requestCollection(collectionRequest)
+        verify(mockedRemoteViewFactory, times(1)).viewTypeCount
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersGetCount(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        whenever(mockedRemoteViewFactory.count) doReturn (3)
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setGetCount(GetCount.newBuilder().build())
+            .build()
+        val collectionResponse = futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory).count
+        assertThat(collectionResponse.getCount.count).isEqualTo(3)
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersOnDestroy(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setOnDestroy(OnDestroy.newBuilder().build()).build()
+        futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory, times(1)).onDestroy()
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersGetViewAt(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setGetViewAt(GetViewAt.newBuilder().setPosition(1).build()).build()
+        futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory, times(1)).getViewAt(1)
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersGetLoadingView(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setGetLoadingView(GetLoadingView.newBuilder().build()).build()
+        futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory, times(1)).loadingView
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersGetViewTypeCount(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        whenever(mockedRemoteViewFactory.viewTypeCount) doReturn (1)
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setGetViewTypeCount(GetViewTypeCount.newBuilder().build())
+            .build()
+        val collectionResponse = futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory).viewTypeCount
+        assertThat(collectionResponse.getViewTypeCount.viewTypeCount).isEqualTo(1)
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersGetItemId(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        whenever(mockedRemoteViewFactory.getItemId(any())) doReturn (2)
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setGetItemId(GetItemId.newBuilder().setPosition(2).build())
+            .build()
+        val collectionResponse = futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory).getItemId(2)
+        assertThat(collectionResponse.getItemId.itemId).isEqualTo(2)
+
+        server.shutdownNow()
+    }
+
+    @Test
+    fun collectionRequestTriggersHasStableIds(): Unit = runBlocking {
+
+        val mockedRemoteViewFactory = mock<RemoteViewsFactory>()
+        whenever(mockedRemoteViewFactory.hasStableIds()) doReturn (true)
+        val remoteViewsUiResponse = UiResponse.RemoteViewsUiBuilder()
+            .setRemoteViews(remoteViews, SizeF(10f, 15f))
+            .addRemoteViewsFactory(remoteViewsFactoryId, mockedRemoteViewFactory)
+            .build()
+
+        appInteractionService.registeredCapabilities = listOf(
+            createFakeCapability(remoteViewsUiResponse)
+        )
+        val server =
+            createInProcessServer(
+                AppInteractionServiceGrpcImpl(appInteractionService),
+                remoteViewsInterceptor
+            )
+        val channel = createInProcessChannel()
+        val stub = AppInteractionServiceGrpc.newStub(channel)
+        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
+
+        assertStartupSession(stub)
+        // Send fulfillment request
+        val request =
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequestUi)
+                .build()
+
+        val responseFuture = futureStub.sendRequestFulfillment(request)
+        responseFuture.await()
+
+        val collectionRequest = AppInteractionServiceProto.CollectionRequest.newBuilder()
+            .setSessionIdentifier(sessionId)
+            .setViewId(123)
+            .setHasStableIds(HasStableIds.newBuilder().build())
+            .build()
+        val collectionResponse = futureStub.requestCollection(collectionRequest).await()
+        verify(mockedRemoteViewFactory).hasStableIds()
+        assertThat(collectionResponse.hasStableIds.hasStableIds).isEqualTo(true)
 
         server.shutdownNow()
     }
