@@ -62,6 +62,26 @@ class TextTest {
     private val TestText = "TestText"
 
     @Test
+    fun testDefaultIncludeFontPadding() {
+        var localTextStyle: TextStyle? = null
+        var display1TextStyle: TextStyle? = null
+        rule.setContent {
+            MaterialTheme {
+                localTextStyle = LocalTextStyle.current
+                display1TextStyle = LocalTypography.current.display1
+            }
+        }
+
+        assertThat(
+            localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(true)
+
+        assertThat(
+            display1TextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(true)
+    }
+
+    @Test
     fun validateGreaterMinLinesResultsGreaterSize() {
         var size1: Int = 0
         var size2: Int = 0
