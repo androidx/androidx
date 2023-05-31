@@ -44,6 +44,7 @@ import androidx.work.impl.Processor;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkLauncher;
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet;
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.testutils.TestConstraintTracker;
@@ -165,9 +166,13 @@ public class GreedySchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mGreedyScheduler.onConstraintsStateChanged(work.getWorkSpec(), ConstraintsMet.INSTANCE);
         mGreedyScheduler.onConstraintsStateChanged(work.getWorkSpec(), getConstraintsNotMet());
-        ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
-        verify(mWorkLauncher).stopWork(captor.capture());
-        assertThat(captor.getValue().getId().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
+        ArgumentCaptor<StartStopToken> captorToken = ArgumentCaptor.forClass(StartStopToken.class);
+        ArgumentCaptor<ConstraintsNotMet> captorConstraints =
+                ArgumentCaptor.forClass(ConstraintsNotMet.class);
+        verify(mWorkLauncher).stopWork(captorToken.capture(), captorConstraints.capture());
+        assertThat(captorToken.getValue().getId().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
+        // doing this check because java vs inline classes
+        assertThat(captorConstraints.getValue()).isEqualTo(getConstraintsNotMet());
     }
 
     @Test

@@ -229,7 +229,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @param runId The work id to stop
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopWork(@NonNull StartStopToken runId) {
+    public boolean stopWork(@NonNull StartStopToken runId, int reason) {
         String id = runId.getId().getWorkSpecId();
         WorkerWrapper wrapper = null;
         synchronized (mLock) {
