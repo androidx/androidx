@@ -13,7 +13,7 @@ package androidx.wear.protolayout.material {
     method public String? getTextContent();
   }
 
-  public static final class Button.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class Button.Builder {
     ctor public Button.Builder(android.content.Context, androidx.wear.protolayout.ModifiersBuilders.Clickable);
     method public androidx.wear.protolayout.material.Button build();
     method public androidx.wear.protolayout.material.Button.Builder setButtonColors(androidx.wear.protolayout.material.ButtonColors);
@@ -62,7 +62,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.DimensionBuilders.ContainerDimension getWidth();
   }
 
-  public static final class Chip.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class Chip.Builder {
     ctor public Chip.Builder(android.content.Context, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.Chip build();
     method public androidx.wear.protolayout.material.Chip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
@@ -109,7 +109,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.DimensionBuilders.DpProp getStrokeWidth();
   }
 
-  public static final class CircularProgressIndicator.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class CircularProgressIndicator.Builder {
     ctor public CircularProgressIndicator.Builder();
     method public androidx.wear.protolayout.material.CircularProgressIndicator build();
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.protolayout.material.ProgressIndicatorColors);
@@ -140,7 +140,7 @@ package androidx.wear.protolayout.material {
     method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
 
-  public static final class CompactChip.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class CompactChip.Builder {
     ctor public CompactChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.CompactChip build();
     method public androidx.wear.protolayout.material.CompactChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
@@ -178,7 +178,7 @@ package androidx.wear.protolayout.material {
     method public boolean isUnderline();
   }
 
-  public static final class Text.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class Text.Builder {
     ctor public Text.Builder(android.content.Context, androidx.wear.protolayout.TypeBuilders.StringProp, androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint);
     ctor public Text.Builder(android.content.Context, String);
     method public androidx.wear.protolayout.material.Text build();
@@ -204,7 +204,7 @@ package androidx.wear.protolayout.material {
     method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
 
-  public static final class TitleChip.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class TitleChip.Builder {
     ctor public TitleChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.TitleChip build();
     method public androidx.wear.protolayout.material.TitleChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
@@ -241,7 +241,7 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
   }
 
-  public static final class EdgeContentLayout.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class EdgeContentLayout.Builder {
     ctor public EdgeContentLayout.Builder(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout build();
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
@@ -273,7 +273,7 @@ package androidx.wear.protolayout.material.layouts {
     field public static final int FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY = 1; // 0x1
   }
 
-  public static final class MultiButtonLayout.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class MultiButtonLayout.Builder {
     ctor public MultiButtonLayout.Builder();
     method public androidx.wear.protolayout.material.layouts.MultiButtonLayout.Builder addButtonContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.MultiButtonLayout build();
@@ -286,7 +286,7 @@ package androidx.wear.protolayout.material.layouts {
     method public java.util.List<androidx.wear.protolayout.LayoutElementBuilders.LayoutElement!> getSlotContents();
   }
 
-  public static final class MultiSlotLayout.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class MultiSlotLayout.Builder {
     ctor public MultiSlotLayout.Builder();
     method public androidx.wear.protolayout.material.layouts.MultiSlotLayout.Builder addSlotContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.MultiSlotLayout build();
@@ -302,7 +302,7 @@ package androidx.wear.protolayout.material.layouts {
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getVerticalSpacerHeight();
   }
 
-  public static final class PrimaryLayout.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
+  public static final class PrimaryLayout.Builder {
     ctor public PrimaryLayout.Builder(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout build();
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
