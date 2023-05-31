@@ -264,6 +264,18 @@ public final class DynamicRange {
                 && getBitDepth() != BIT_DEPTH_UNSPECIFIED;
     }
 
+    /**
+     * Returns true if this dynamic range is fully specified, the encoding is one of the HDR
+     * encodings and bit depth is 10-bit.
+     *
+     * @see #isFullySpecified()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean is10BitHdr() {
+        return isFullySpecified() && getEncoding() != ENCODING_SDR
+                && getBitDepth() == BIT_DEPTH_10_BIT;
+    }
+
     @NonNull
     @Override
     public String toString() {
