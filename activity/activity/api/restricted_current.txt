@@ -1,6 +1,26 @@
 // Signature format: 4.0
 package androidx.activity {
 
+  public final class BackEventCompat {
+    ctor @RequiresApi(34) public BackEventCompat(android.window.BackEvent backEvent);
+    ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, float progress, int swipeEdge);
+    method public float getProgress();
+    method public int getSwipeEdge();
+    method public float getTouchX();
+    method public float getTouchY();
+    method @RequiresApi(34) public android.window.BackEvent toBackEvent();
+    property public final float progress;
+    property public final int swipeEdge;
+    property public final float touchX;
+    property public final float touchY;
+    field public static final androidx.activity.BackEventCompat.Companion Companion;
+    field public static final int EDGE_LEFT = 0; // 0x0
+    field public static final int EDGE_RIGHT = 1; // 0x1
+  }
+
+  public static final class BackEventCompat.Companion {
+  }
+
   public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyDrawnReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
