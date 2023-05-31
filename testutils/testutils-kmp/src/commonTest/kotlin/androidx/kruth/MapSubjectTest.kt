@@ -22,6 +22,71 @@ import kotlin.test.assertFailsWith
 class MapSubjectTest {
 
     @Test
+    fun containsExactlyWithNullKey() {
+        val actual = mapOf<String?, String>(null to "value")
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyWithNullValue() {
+        val actual = mapOf<String, String?>("key" to null)
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyEmpty() {
+        val actual = mapOf<String, Int>()
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyEntriesInEmpty_fails() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf("jan" to 1)).containsExactlyEntriesIn(emptyMap())
+        }
+    }
+
+    @Test
+    fun containsExactlyOneEntry() {
+        val actual = mapOf("jan" to 1)
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyMultipleEntries() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyNotInOrder() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyBadNumberOfArgs() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3, "april" to 4, "may" to 5)
+        assertThat(actual).containsExactlyEntriesIn(actual)
+        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyInOrderWithReversedMap_fails() {
+        assertFailsWith<AssertionError> {
+            assertThat(mutableMapOf("jan" to 1, "feb" to 2, "march" to 3))
+                .containsExactlyEntriesIn(mutableMapOf("march" to 3, "feb" to 2, "jan" to 1))
+                .inOrder()
+        }
+    }
+
+    @Test
     fun isEmpty() {
         assertThat(mapOf<Any, Any>()).isEmpty()
     }
