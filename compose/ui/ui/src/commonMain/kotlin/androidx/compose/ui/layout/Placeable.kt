@@ -71,11 +71,11 @@ abstract class Placeable : Measured {
         set(value) {
             if (field != value) {
                 field = value
-                recalculateWidthAndHeight()
+                onMeasuredSizeChanged()
             }
         }
 
-    private fun recalculateWidthAndHeight() {
+    private fun onMeasuredSizeChanged() {
         width = measuredSize.width.coerceIn(
             measurementConstraints.minWidth,
             measurementConstraints.maxWidth
@@ -84,6 +84,8 @@ abstract class Placeable : Measured {
             measurementConstraints.minHeight,
             measurementConstraints.maxHeight
         )
+        apparentToRealOffset =
+            IntOffset((width - measuredSize.width) / 2, (height - measuredSize.height) / 2)
     }
 
     /**
@@ -110,7 +112,7 @@ abstract class Placeable : Measured {
         set(value) {
             if (field != value) {
                 field = value
-                recalculateWidthAndHeight()
+                onMeasuredSizeChanged()
             }
         }
 
@@ -119,8 +121,8 @@ abstract class Placeable : Measured {
      * The real layout will be centered on the space assigned by the parent, which computed the
      * child's position only seeing its apparent size.
      */
-    protected val apparentToRealOffset: IntOffset
-        get() = IntOffset((width - measuredSize.width) / 2, (height - measuredSize.height) / 2)
+    protected var apparentToRealOffset: IntOffset = IntOffset.Zero
+        private set
 
     /**
      * Receiver scope that permits explicit placement of a [Placeable].
@@ -157,6 +159,10 @@ abstract class Placeable : Measured {
          *
          * When [coordinates] is `null`, there will always be a follow-up placement call in which
          * [coordinates] is not-`null`.
+         *
+         * If you read a position from the coordinates during the placement block the block
+         * will be automatically re-executed when the parent layout changes a position. If you
+         * don't read it the placement block execution can be skipped as an optimization.
          *
          * @sample androidx.compose.ui.samples.PlacementScopeCoordinatesSample
          */
@@ -340,7 +346,11 @@ abstract class Placeable : Measured {
 
             override val coordinates: LayoutCoordinates?
                 get() {
-                    layoutDelegate?.coordinatesAccessedDuringPlacement = true
+                    // if coordinates are not null we will only set this flag when the inner
+                    // coordinate values are read. see NodeCoordinator.onCoordinatesUsed()
+                    if (_coordinates == null) {
+                        layoutDelegate?.onCoordinatesUsed()
+                    }
                     return _coordinates
                 }
 

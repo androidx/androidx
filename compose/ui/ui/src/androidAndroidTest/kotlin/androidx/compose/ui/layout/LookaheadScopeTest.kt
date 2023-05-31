@@ -1716,6 +1716,7 @@ class LookaheadScopeTest {
                     repeat(3) { id ->
                         subcompose(id) {
                             Box(Modifier.trackMainPassPlacement {
+                                iteration.toString() // state read to make callback called
                                 actualPlacementOrder.add(id)
                             })
                         }.fastMap { it.measure(constraints) }.let { placeables.addAll(it) }
@@ -1726,6 +1727,7 @@ class LookaheadScopeTest {
                             val id = index + 3
                             subcompose(id) {
                                 Box(Modifier.trackMainPassPlacement {
+                                    iteration.toString() // state read to make callback called
                                     actualPlacementOrder.add(id)
                                 })
                             }.fastMap { it.measure(constraints) }.let { allPlaceables.addAll(it) }
