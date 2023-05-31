@@ -114,11 +114,9 @@ annotation.
 
 ### `@RestrictTo` APIs {#restricted-api}
 
-Jetpack's library tooling supports hiding Java-visible (ex. `public` and
+Jetpack's library tooling supports hiding JVM-visible (ex. `public` and
 `protected`) APIs from developers using a combination of the `@RestrictTo`
-source annotation, and the `@hide` docs annotation (`@suppress` in Kotlin).
-These annotations **must** be paired together when used, and are validated as
-part of presubmit checks for Java code.
+source annotation.
 
 > `@RestrictTo` at-a-glance:
 >
@@ -135,24 +133,20 @@ about usage:
 *   Android Studio will not warn if hidden APIs are called using reflection
 *   Hidden APIs will still show in Android Studio's auto-complete
 
-#### When to use `@hide` {#restricted-api-usage}
+These annotations indicate that developers should not call an API that is
+*technically* public from a JVM visibility perspective. Hiding APIs is often a
+sign of a poorly-abstracted API surface, and priority should be given to
+creating public, maintainable APIs and using Java visibility modifiers.
 
-In other cases, avoid using `@hide` / `@suppress`. These annotations indicates
-that developers should not call an API that is *technically* public from a Java
-visibility perspective. Hiding APIs is often a sign of a poorly-abstracted API
-surface, and priority should be given to creating public, maintainable APIs and
-using Java visibility modifiers.
+*Do not* use `@RestrictTo` to bypass API tracking and review for production
+APIs; instead, rely on API+1 and API Council review to ensure APIs are reviewed
+on a timely basis.
 
-*Do not* use `@hide`/`@suppress` to bypass API tracking and review for
-production APIs; instead, rely on API+1 and API Council review to ensure APIs
-are reviewed on a timely basis.
+*Do not* use `@RestrictTo` for implementation detail APIs that are used between
+libraries and could reasonably be made public.
 
-*Do not* use `@hide`/`@suppress` for implementation detail APIs that are used
-between libraries and could reasonably be made public.
-
-*Do* use `@hide`/`@suppress` paired with `@RestrictTo(LIBRARY)` for
-implementation detail APIs used within a single library (but prefer Java
-language `private` or `default` visibility).
+*Do* use `@RestrictTo(LIBRARY)` for implementation detail APIs used within a
+single library (but prefer Java language `private` or `default` visibility).
 
 #### `RestrictTo.Scope` and inter- versus intra-library API surfaces {#private-api-types}
 
@@ -160,13 +154,13 @@ To maintain binary compatibility between different versions of libraries,
 restricted API surfaces that are used between libraries within Jetpack
 (inter-library APIs) must follow the same Semantic Versioning rules as public
 APIs. Inter-library APIs should be annotated with the
-`@RestrictTo(LIBRARY_GROUP)` source annotation and `@hide` docs annotation.
+`@RestrictTo(LIBRARY_GROUP)` source annotation.
 
 Restricted API surfaces used within a single library (intra-library APIs), on
 the other hand, may be added or removed without any compatibility
 considerations. It is safe to assume that developers *never* call these APIs,
 even though it is technically feasible. Intra-library APIs should be annotated
-with the `@RestrictTo(LIBRARY)` source annotation and `@hide` docs annotation.
+with the `@RestrictTo(LIBRARY)` source annotation.
 
 In all cases, correctness and compatibility tracking are handled by AndroidX's
 build system and lint checks.
@@ -216,12 +210,10 @@ as to which `@IntDef` defined the value of `1`. The annotations are extracted
 and packaged separately to be read by Android Studio and lint which enforces the
 types in application code.
 
-*   Libraries *must* `@hide` all `@IntDef`, `@StringDef`, and `@LongDef`
-    declarations.
+*   Libraries *must* `@RestrictTo` all `@IntDef`, `@StringDef`, and `@LongDef`
+    declarations to create a warning when the type is used incorrectly.
 *   Libraries *must* expose constants used to define the `@IntDef` etc at the
     same Java visibility as the hidden `@IntDef`
-*   Libraries *must* use `@RestrictTo` to create a warning when the type is used
-    incorrectly.
 
 Here is a complete example of an `@IntDef`
 
@@ -231,7 +223,6 @@ Here is a complete example of an `@IntDef`
 public static final int STREAM_TYPE_FULL_IMAGE_DATA = 1;
 public static final int STREAM_TYPE_EXIF_DATA_ONLY = 2;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY) // Don't export ExifStreamType outside module
 @Retention(RetentionPolicy.SOURCE)
 @IntDef({
