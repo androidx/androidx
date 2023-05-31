@@ -18,7 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -118,10 +118,10 @@ class CreatePasswordRequest private constructor(
         require(password.isNotEmpty()) { "password should not be empty" }
     }
 
-    /** @hide */
-    companion object {
-        internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
 
         @JvmStatic

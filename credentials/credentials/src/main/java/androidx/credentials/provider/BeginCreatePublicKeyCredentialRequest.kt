@@ -65,10 +65,7 @@ class BeginCreatePublicKeyCredentialRequest @JvmOverloads constructor(
         candidateQueryData.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
     }
 
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
-        /** @hide */
+    internal companion object {
         @JvmStatic
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePublicKeyCredentialRequest {

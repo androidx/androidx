@@ -43,8 +43,7 @@ abstract class BeginGetCredentialOption internal constructor(
     val type: String,
     val candidateQueryData: Bundle
 ) {
-    /** @hide **/
-    companion object {
+    internal companion object {
         @JvmStatic
         internal fun createFrom(id: String, type: String, candidateQueryData: Bundle):
             BeginGetCredentialOption {

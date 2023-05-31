@@ -25,9 +25,7 @@ package androidx.credentials.exceptions
 class CreateCredentialNoCreateOptionException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_NO_CREATE_OPTION, errorMessage) {
-
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_NO_CREATE_OPTION =
             "android.credentials.CreateCredentialException.TYPE_NO_CREATE_OPTIONS"
     }

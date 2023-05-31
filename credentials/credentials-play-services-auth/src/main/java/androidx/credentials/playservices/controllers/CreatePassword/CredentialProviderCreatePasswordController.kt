@@ -40,11 +40,9 @@ import java.util.concurrent.Executor
 
 /**
  * A controller to handle the CreatePassword flow with play services.
- *
- * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePasswordController(private val context: Context) :
+internal class CredentialProviderCreatePasswordController(private val context: Context) :
     CredentialProviderController<
         CreatePasswordRequest,
         SavePasswordRequest,

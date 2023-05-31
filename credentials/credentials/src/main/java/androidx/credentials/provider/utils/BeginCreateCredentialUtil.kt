@@ -30,12 +30,9 @@ import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.RemoteEntry
 import java.util.stream.Collectors
 
-/**
- * @hide
- */
 @RequiresApi(34)
-class BeginCreateCredentialUtil {
-    companion object {
+internal class BeginCreateCredentialUtil {
+    internal companion object {
         @JvmStatic
         internal fun convertToJetpackRequest(
             request: android.service.credentials.BeginCreateCredentialRequest

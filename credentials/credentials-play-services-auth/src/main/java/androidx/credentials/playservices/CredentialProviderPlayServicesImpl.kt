@@ -19,6 +19,7 @@ package androidx.credentials.playservices
 import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreateCredentialRequest
@@ -44,9 +45,8 @@ import java.util.concurrent.Executor
 /**
  * Entry point of all credential manager requests to the play-services-auth
  * module.
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("deprecation")
 class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 

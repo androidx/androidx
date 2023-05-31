@@ -26,8 +26,7 @@ package androidx.credentials.exceptions
 class GetCredentialProviderConfigurationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : GetCredentialException(TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
             "androidx.credentials.TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION"
     }

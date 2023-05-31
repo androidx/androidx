@@ -22,7 +22,7 @@ import android.app.slice.SliceSpec
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import java.util.Collections
 
 /**
@@ -96,29 +96,25 @@ class Action constructor(
         }
     }
 
-    /** @hide **/
     @Suppress("AcronymName")
-    companion object {
+    internal companion object {
         private const val TAG = "Action"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "Action"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_TITLE =
+        private const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.action.HINT_ACTION_TITLE"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_SUBTITLE =
+        private const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.action.HINT_ACTION_SUBTEXT"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_PENDING_INTENT =
+        private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.action.SLICE_HINT_PENDING_INTENT"
 
         /**
          * Converts to slice
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         @RequiresApi(28)
         fun toSlice(
@@ -155,8 +151,8 @@ class Action constructor(
          *
          * @param slice the [Slice] object constructed through [toSlice]
          *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic

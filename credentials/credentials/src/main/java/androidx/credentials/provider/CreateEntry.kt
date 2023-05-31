@@ -24,7 +24,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
@@ -248,37 +248,28 @@ class CreateEntry internal constructor(
         }
     }
 
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
+    internal companion object {
         private const val TAG = "CreateEntry"
         private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_ACCOUNT_NAME =
+        private const val SLICE_HINT_ACCOUNT_NAME =
             "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_NOTE =
+        private const val SLICE_HINT_NOTE =
             "androidx.credentials.provider.createEntry.SLICE_HINT_NOTE"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_ICON =
+        private const val SLICE_HINT_ICON =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
+        private const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
             "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_PENDING_INTENT =
+        private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
         private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
@@ -288,7 +279,7 @@ class CreateEntry internal constructor(
 
         private const val AUTO_SELECT_FALSE_STRING = "false"
 
-        /** @hide **/
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun toSlice(
             createEntry: CreateEntry
@@ -361,9 +352,8 @@ class CreateEntry internal constructor(
          * Returns an instance of [CreateEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
@@ -410,7 +400,6 @@ class CreateEntry internal constructor(
             }
         }
 
-        /** @hide **/
         @JvmStatic
         internal fun convertBundleToCredentialCountInfo(bundle: Bundle?):
             Map<String, Int?> {
@@ -428,7 +417,6 @@ class CreateEntry internal constructor(
             return credentialCountMap
         }
 
-        /** @hide **/
         @JvmStatic
         internal fun convertCredentialCountInfoToBundle(
             credentialCountInformationMap: Map<String, Int?>

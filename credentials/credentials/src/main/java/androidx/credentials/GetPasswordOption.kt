@@ -47,8 +47,7 @@ class GetPasswordOption @JvmOverloads constructor(
     allowedProviders,
 ) {
 
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val BUNDLE_KEY_ALLOWED_USER_IDS =
             "androidx.credentials.BUNDLE_KEY_ALLOWED_USER_IDS"
 

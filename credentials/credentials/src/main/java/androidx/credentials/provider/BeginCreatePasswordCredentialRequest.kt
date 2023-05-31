@@ -49,13 +49,8 @@ class BeginCreatePasswordCredentialRequest constructor(
     candidateQueryData,
     callingAppInfo,
 ) {
-
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
-        /** @hide **/
+    internal companion object {
         @JvmStatic
-        @Suppress("UNUSED_PARAMETER")
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePasswordCredentialRequest {
             try {

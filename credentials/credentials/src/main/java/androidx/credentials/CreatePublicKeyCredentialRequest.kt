@@ -116,8 +116,7 @@ class CreatePublicKeyCredentialRequest private constructor(
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
     }
 
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
             "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"

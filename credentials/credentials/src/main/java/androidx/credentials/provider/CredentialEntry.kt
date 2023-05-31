@@ -27,16 +27,13 @@ import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDEN
  * the selector.
  */
 abstract class CredentialEntry internal constructor(
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
     val beginGetCredentialOption: BeginGetCredentialOption,
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val slice: Slice
 ) {
-    /** @hide **/
-    companion object {
+    internal companion object {
         @JvmStatic
         @RequiresApi(34)
         internal fun createFrom(slice: Slice): CredentialEntry? {

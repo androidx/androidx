@@ -44,10 +44,7 @@ class BeginGetPasswordOption constructor(
     candidateQueryData
 ) {
 
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
-        /** @hide */
+    internal companion object {
         @JvmStatic
         internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
             val allowUserIdList = data.getStringArrayList(
@@ -55,7 +52,6 @@ class BeginGetPasswordOption constructor(
             return BeginGetPasswordOption(allowUserIdList?.toSet() ?: emptySet(), data, id)
         }
 
-        /** @hide */
         @JvmStatic
         internal fun createFromEntrySlice(data: Bundle, id: String): BeginGetPasswordOption {
             val allowUserIdList = data.getStringArrayList(

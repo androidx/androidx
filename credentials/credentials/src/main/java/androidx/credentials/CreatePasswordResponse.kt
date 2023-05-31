@@ -23,8 +23,7 @@ class CreatePasswordResponse : CreateCredentialResponse(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     Bundle(),
 ) {
-    /** @hide */
-    companion object {
+    internal companion object {
         @Suppress("UNUSED_PARAMETER")
         @JvmStatic
         internal fun createFrom(data: Bundle): CreatePasswordResponse {

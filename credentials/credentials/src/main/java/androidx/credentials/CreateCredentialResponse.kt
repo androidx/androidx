@@ -17,6 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -32,10 +33,9 @@ abstract class CreateCredentialResponse internal constructor(
     val type: String,
     val data: Bundle,
 ) {
-    /** @hide */
-    companion object {
-        /** @hide */
+    internal companion object {
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         fun createFrom(type: String, data: Bundle): CreateCredentialResponse {
             return try {
                 when (type) {

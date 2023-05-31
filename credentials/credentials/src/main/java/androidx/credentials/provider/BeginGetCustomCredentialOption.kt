@@ -47,10 +47,7 @@ open class BeginGetCustomCredentialOption constructor(
         require(type.isNotEmpty()) { "type should not be empty" }
     }
 
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
-        /** @hide */
+    internal companion object {
         @JvmStatic
         internal fun createFrom(
             data: Bundle,
@@ -60,7 +57,6 @@ open class BeginGetCustomCredentialOption constructor(
             return BeginGetCustomCredentialOption(id, type, data)
         }
 
-        /** @hide */
         @JvmStatic
         internal fun createFromEntrySlice(
             data: Bundle,

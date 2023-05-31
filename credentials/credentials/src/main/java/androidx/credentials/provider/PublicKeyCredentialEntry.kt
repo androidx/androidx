@@ -26,7 +26,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
@@ -69,10 +69,8 @@ class PublicKeyCredentialEntry internal constructor(
     val lastUsedTime: Instant?,
     val isAutoSelectAllowed: Boolean,
     beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
-    /** @hide */
-    val autoSelectAllowedFromOption: Boolean = false,
-    /** @hide */
-    val isDefaultIcon: Boolean = false
+    private val autoSelectAllowedFromOption: Boolean = false,
+    private val isDefaultIcon: Boolean = false
 ) : CredentialEntry(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     beginGetPublicKeyCredentialOption,
@@ -116,58 +114,44 @@ class PublicKeyCredentialEntry internal constructor(
         beginGetPublicKeyCredentialOption
     )
 
-    /** @hide **/
-    @Suppress("AcronymName")
-    companion object {
+    internal companion object {
         private const val TAG = "PublicKeyCredEntry"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
+        private const val SLICE_HINT_TYPE_DISPLAY_NAME =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_TITLE =
+        private const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_SUBTITLE =
+        private const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_ICON =
+        private const val SLICE_HINT_ICON =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_PENDING_INTENT =
+        private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_AUTO_ALLOWED =
+        private const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_OPTION_ID =
+        private const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+        private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+        private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val AUTO_SELECT_TRUE_STRING = "true"
+        private const val AUTO_SELECT_TRUE_STRING = "true"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val AUTO_SELECT_FALSE_STRING = "false"
+        private const val AUTO_SELECT_FALSE_STRING = "false"
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @JvmStatic
         fun toSlice(
@@ -259,9 +243,8 @@ class PublicKeyCredentialEntry internal constructor(
          * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
