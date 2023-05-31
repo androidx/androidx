@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.SurfaceRequest
@@ -332,7 +333,7 @@ class DefaultSurfaceProcessorTest {
     fun createByInvalidShaderString_throwException() {
         val shaderProvider = createCustomShaderProvider(shaderString = "Invalid shader")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -341,7 +342,7 @@ class DefaultSurfaceProcessorTest {
         val shaderProvider =
             createCustomShaderProvider(exceptionToThrow = RuntimeException("Failed Shader"))
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -349,7 +350,7 @@ class DefaultSurfaceProcessorTest {
     fun createByIncorrectSamplerName_throwException() {
         val shaderProvider = createCustomShaderProvider(samplerVarName = "_mySampler_")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -357,7 +358,7 @@ class DefaultSurfaceProcessorTest {
     fun createByIncorrectFragCoordsName_throwException() {
         val shaderProvider = createCustomShaderProvider(fragCoordsVarName = "_myFragCoords_")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -365,7 +366,7 @@ class DefaultSurfaceProcessorTest {
         outputType: OutputType,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
     ) {
-        createSurfaceProcessor(shaderProvider)
+        createSurfaceProcessor(shaderProvider = shaderProvider)
         // Prepare input
         val inputSurfaceRequest = createInputSurfaceRequest()
         surfaceProcessor.onInputSurface(inputSurfaceRequest)
@@ -396,8 +397,12 @@ class DefaultSurfaceProcessorTest {
         )
     }
 
-    private fun createSurfaceProcessor(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
+    private fun createSurfaceProcessor(
+        dynamicRange: DynamicRange = DynamicRange.SDR,
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
         surfaceProcessor = DefaultSurfaceProcessor(
+            dynamicRange,
             shaderProvider
         )
     }
