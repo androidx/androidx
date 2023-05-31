@@ -63,7 +63,7 @@ public class ProcessorTest extends DatabaseTest {
     @SmallTest
     public void testStopWork_invalidWorkId() {
         WorkGenerationalId id = new WorkGenerationalId("INVALID_WORK_ID", 0);
-        assertThat(mProcessor.stopWork(new StartStopToken(id)), is(false));
+        assertThat(mProcessor.stopWork(new StartStopToken(id), 0), is(false));
     }
 
     @Test

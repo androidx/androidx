@@ -20,15 +20,17 @@ import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW
+import android.app.job.JobParameters.STOP_REASON_UNDEFINED
 import androidx.annotation.RestrictTo
 
 @JvmInline
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-value class StopReason internal constructor(private val value: Int) {
+value class StopReason internal constructor(val value: Int) {
     companion object {
         val ConstraintBatteryNotLow = StopReason(STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW)
         val ConstraintCharging = StopReason(STOP_REASON_CONSTRAINT_CHARGING)
         val ConstraintConnectivity = StopReason(STOP_REASON_CONSTRAINT_CONNECTIVITY)
         val ConstraintStorageNotLow = StopReason(STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW)
+        val Undefined = StopReason(STOP_REASON_UNDEFINED)
     }
 }
