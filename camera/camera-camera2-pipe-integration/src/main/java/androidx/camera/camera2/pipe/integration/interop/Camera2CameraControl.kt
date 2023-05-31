@@ -154,9 +154,6 @@ private constructor(
             compat.applyAsync(useCaseCamera).asListenableFuture(tag)
         )
 
-    /**
-     * @hide
-     */
     companion object {
 
         /**

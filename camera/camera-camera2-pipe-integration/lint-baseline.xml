@@ -2,42 +2,6 @@
 <issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    companion object {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/interop/Camera2CameraControl.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    companion object {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/interop/Camera2CameraInfo.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    companion object {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/CameraPipeConfig.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        companion object {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/interop/CaptureRequestOptions.kt"/>
-    </issue>
-
-    <issue
         id="CameraXQuirksClassDetector"
         message="CameraX quirks should include this template in the javadoc:&#xA;&#xA;* &lt;p>QuirkSummary&#xA;*     Bug Id:&#xA;*     Description:&#xA;*     Device(s):&#xA;&#xA;"
         errorLine1="class AspectRatioLegacyApi21Quirk : Quirk {"
