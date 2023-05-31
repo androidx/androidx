@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import android.view.View"
+        errorLine2="       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/ComposeExecutionControl.kt"/>
+    </issue>
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import java.io.PrintWriter"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/Expect.kt"/>
+    </issue>
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import java.io.StringWriter"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/Expect.kt"/>
+    </issue>
+
+    <issue
+        id="PlatformImportInCommonModule"
+        message="Platform-dependent import in a common module"
+        errorLine1="import android.annotation.SuppressLint"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/testutils/ModifierTestUtils.kt"/>
+    </issue>
+
+</issues>

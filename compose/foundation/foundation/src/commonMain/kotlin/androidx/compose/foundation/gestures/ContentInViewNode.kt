@@ -29,7 +29,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import java.lang.Math.abs
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
