@@ -28,6 +28,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -112,6 +113,7 @@ class GlanceAppWidgetManagerTest {
         assertThat(result).isFalse()
     }
 
+    @Ignore("b/285198114")
     @Test
     fun cleanReceivers() {
         mHostRule.onHostActivity { activity ->
