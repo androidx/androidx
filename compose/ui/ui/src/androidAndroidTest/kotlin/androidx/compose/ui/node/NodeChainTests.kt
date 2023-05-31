@@ -21,7 +21,58 @@ import androidx.compose.ui.areObjectsOfSameType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
+private class AttachedStateDebuggerNode() : Modifier.Node() {
+
+    var localIsAttached: Boolean = false
+    fun validateHierarchy() {
+        check(isAttached)
+        visitAncestors(Nodes.Any) {
+            check(it.isAttached)
+        }
+        visitSubtree(Nodes.Any) {
+            check(it.isAttached)
+        }
+    }
+    override fun onAttach() {
+        localIsAttached = true
+        validateHierarchy()
+    }
+
+    override fun onDetach() {
+        localIsAttached = false
+        validateHierarchy()
+    }
+}
+
 class NodeChainTests {
+    @Test
+    fun testAttachDetach() {
+        val a = AttachedStateDebuggerNode()
+        val b = AttachedStateDebuggerNode()
+        chainTester()
+            .withModifierNodes(a, b)
+            .attach()
+            .validateAttached()
+
+        check(a.localIsAttached)
+        check(b.localIsAttached)
+        a.validateHierarchy()
+        b.validateHierarchy()
+    }
+
+    @Test
+    fun testAttachDetach2() {
+        val a = object : NodeModifierElementNode(object : Modifier.Node() {}) {}
+        val b = object : NodeModifierElementNode(object : Modifier.Node() {}) {}
+        val c = object : NodeModifierElementNode(AttachedStateDebuggerNode()) {}
+
+        chainTester()
+            .withModifiers(a)
+            .attach()
+            .validateAttached()
+            .withModifiers(c, a, b)
+            .validateAttached()
+    }
 
     @Test
     fun testInsertsAndDeletesAtTail() {
@@ -146,6 +197,7 @@ class NodeChainTests {
         val b = modifierB()
         val modifierInfo = chainTester()
             .withModifiers(a, b)
+            .attach()
             .chain
             .getModifierInfo()
 
