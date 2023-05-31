@@ -125,16 +125,16 @@ package androidx.core.uwb {
 
   public final class UwbDevice {
     ctor public UwbDevice(androidx.core.uwb.UwbAddress address);
-    method public static androidx.core.uwb.UwbDevice createForAddress(byte[] address);
     method public static androidx.core.uwb.UwbDevice createForAddress(String address);
+    method public static androidx.core.uwb.UwbDevice createForAddress(byte[] address);
     method public androidx.core.uwb.UwbAddress getAddress();
     property public final androidx.core.uwb.UwbAddress address;
     field public static final androidx.core.uwb.UwbDevice.Companion Companion;
   }
 
   public static final class UwbDevice.Companion {
-    method public androidx.core.uwb.UwbDevice createForAddress(byte[] address);
     method public androidx.core.uwb.UwbDevice createForAddress(String address);
+    method public androidx.core.uwb.UwbDevice createForAddress(byte[] address);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface UwbManager {
