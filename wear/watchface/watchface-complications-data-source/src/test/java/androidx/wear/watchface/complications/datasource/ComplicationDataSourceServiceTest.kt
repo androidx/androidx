@@ -250,6 +250,31 @@ class ComplicationDataSourceServiceTest {
 
         assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.get())
+            .hasMessageThat()
+            .isEqualTo(
+                "Complication data should match the requested type. " +
+                    "Expected SHORT_TEXT got LONG_TEXT."
+            )
+    }
+
+    @Test
+    fun testOnComplicationRequest_invalidData() {
+        mService.responseData = INVALID_DATA
+        val id = 123
+        val exception = AtomicReference<Throwable>()
+        val exceptionLatch = CountDownLatch(1)
+
+        mPretendMainThread.uncaughtExceptionHandler =
+            Thread.UncaughtExceptionHandler { _, throwable ->
+                exception.set(throwable)
+                exceptionLatch.countDown()
+            }
+        mProvider.onUpdate(id, INVALID_DATA.type.toWireComplicationType(), mLocalManager)
+
+        assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
     }
 
     @Test
@@ -283,8 +308,12 @@ class ComplicationDataSourceServiceTest {
             .isEqualTo("hello preview")
     }
 
-    enum class DataWithDynamicValueScenario(val data: ComplicationData) {
-        RANGED_VALUE(
+    enum class GetComplicationPreviewDataInvalidScenario(
+        val data: ComplicationData,
+        val message: String
+    ) {
+        INVALID_PREVIEW_DATA(INVALID_DATA, INVALID_DATA_ERROR_MESSAGE),
+        DYNAMIC_RANGED_VALUE(
             RangedValueComplicationData.Builder(
                     dynamicValue = DynamicFloat.constant(1f),
                     fallbackValue = 0f,
@@ -293,32 +322,36 @@ class ComplicationDataSourceServiceTest {
                     contentDescription = ComplicationText.EMPTY
                 )
                 .setText(ComplicationText.EMPTY)
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        LONG_TEXT(
+        DYNAMIC_LONG_TEXT(
             LongTextComplicationData.Builder(
                     text = DynamicComplicationText(DynamicString.constant("Long Text"), "fallback"),
                     contentDescription = ComplicationText.EMPTY
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        LONG_TITLE(
+        DYNAMIC_LONG_TITLE(
             LongTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription = ComplicationText.EMPTY
                 )
                 .setTitle(DynamicComplicationText(DynamicString.constant("Long Title"), "fallback"))
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        SHORT_TEXT(
+        DYNAMIC_SHORT_TEXT(
             ShortTextComplicationData.Builder(
                     text =
                         DynamicComplicationText(DynamicString.constant("Short Text"), "fallback"),
                     contentDescription = ComplicationText.EMPTY
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        SHORT_TITLE(
+        DYNAMIC_SHORT_TITLE(
             ShortTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription = ComplicationText.EMPTY
@@ -326,21 +359,23 @@ class ComplicationDataSourceServiceTest {
                 .setTitle(
                     DynamicComplicationText(DynamicString.constant("Short Title"), "fallback")
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        CONTENT_DESCRIPTION(
+        DYNAMIC_CONTENT_DESCRIPTION(
             LongTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription =
                         DynamicComplicationText(DynamicString.constant("Long Text"), "fallback"),
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
     }
 
     @Test
-    fun testGetComplicationPreviewData_withDynamicValue_fails() {
-        for (scenario in DataWithDynamicValueScenario.values()) {
+    fun testGetComplicationPreviewData_invalid_fails() {
+        for (scenario in GetComplicationPreviewDataInvalidScenario.values()) {
             mService.previewData = scenario.data
 
             val exception =
@@ -354,12 +389,12 @@ class ComplicationDataSourceServiceTest {
                 .withMessage(scenario.name)
                 .that(exception)
                 .hasMessageThat()
-                .isEqualTo("Preview data must not have dynamic values.")
+                .isEqualTo(scenario.message)
         }
     }
 
     @Test
-    fun testTimelineTestService() {
+    fun testTimeline() {
         mService.respondWithTimeline = true
         val timeline = ArrayList<TimelineEntry>()
         timeline.add(
@@ -410,6 +445,26 @@ class ComplicationDataSourceServiceTest {
         assertThat(timeLineEntries[1]!!.timelineEndEpochSecond).isEqualTo(8000)
         assertThat(timeLineEntries[1]!!.longText!!.getTextAt(Resources.getSystem(), 0))
             .isEqualTo("B")
+    }
+
+    @Test
+    fun testTimeline_invalidData() {
+        mService.respondWithTimeline = true
+        mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
+        val id = 123
+        val exception = AtomicReference<Throwable>()
+        val exceptionLatch = CountDownLatch(1)
+
+        mPretendMainThread.uncaughtExceptionHandler =
+            Thread.UncaughtExceptionHandler { _, throwable ->
+                exception.set(throwable)
+                exceptionLatch.countDown()
+            }
+        mProvider.onUpdate(id, INVALID_DATA.type.toWireComplicationType(), mLocalManager)
+
+        assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
     }
 
     @Test
@@ -542,6 +597,83 @@ class ComplicationDataSourceServiceTest {
         }
     }
 
+    @Test
+    fun testImmediateRequest_invalidData() {
+        mService.responseData = INVALID_DATA
+        val thread = HandlerThread("testThread")
+
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response = AtomicReference<WireComplicationData>()
+            val exception = AtomicReference<Throwable>()
+            val exceptionLatch = CountDownLatch(1)
+
+            mPretendMainThread.uncaughtExceptionHandler =
+                Thread.UncaughtExceptionHandler { _, throwable ->
+                    exception.set(throwable)
+                    exceptionLatch.countDown()
+                }
+            threadHandler.post {
+                try {
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest(
+                            123,
+                            INVALID_DATA.type.toWireComplicationType()
+                        )
+                    )
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+            assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    fun testImmediateRequest_invalidTimelineData() {
+        mService.respondWithTimeline = true
+        mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
+        val thread = HandlerThread("testThread")
+
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response = AtomicReference<WireComplicationData>()
+            val exception = AtomicReference<Throwable>()
+            val exceptionLatch = CountDownLatch(1)
+
+            mPretendMainThread.uncaughtExceptionHandler =
+                Thread.UncaughtExceptionHandler { _, throwable ->
+                    exception.set(throwable)
+                    exceptionLatch.countDown()
+                }
+            threadHandler.post {
+                try {
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest(
+                            123,
+                            INVALID_DATA.type.toWireComplicationType()
+                        )
+                    )
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+            assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
     private fun runUiThreadTasksWhileAwaitingDataLatch(timeout: Long) {
         // Allowing UI thread to execute while we wait for the data latch.
         var attempts: Long = 0
@@ -553,5 +685,16 @@ class ComplicationDataSourceServiceTest {
 
     companion object {
         private const val TAG = "ComplicationDataSourceServiceTest"
+
+        private val INVALID_DATA =
+            RangedValueComplicationData.Builder(
+                    value = 100f, // Higher than max.
+                    min = 0f,
+                    max = 10f,
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .setText(ComplicationText.EMPTY)
+                .build()
+        private val INVALID_DATA_ERROR_MESSAGE = "value must be between min and max"
     }
 }
