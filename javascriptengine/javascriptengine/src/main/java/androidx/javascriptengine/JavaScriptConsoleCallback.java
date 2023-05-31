@@ -19,6 +19,7 @@ package androidx.javascriptengine;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback;
 
@@ -35,8 +36,8 @@ public interface JavaScriptConsoleCallback {
     final class ConsoleMessage {
         /**
          * Console message (error) level
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef({LEVEL_LOG, LEVEL_DEBUG, LEVEL_INFO, LEVEL_ERROR, LEVEL_WARNING})
         @Retention(RetentionPolicy.SOURCE)
         public @interface Level {}

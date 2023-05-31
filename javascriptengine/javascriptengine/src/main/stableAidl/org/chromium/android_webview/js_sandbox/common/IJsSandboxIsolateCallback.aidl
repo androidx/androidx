@@ -20,8 +20,8 @@ package org.chromium.android_webview.js_sandbox.common;
  * Used to communicate the result of the JavaScript evaluation from the
  * sandbox to the embedding app.
  * DEPRECATED INTERFACE! Do not add methods or constants into this file.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IJsSandboxIsolateCallback {
     // An exception was thrown during the JS evaluation.
     const int JS_EVALUATION_ERROR = 0;
