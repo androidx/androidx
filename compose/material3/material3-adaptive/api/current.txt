@@ -1,11 +1,33 @@
 // Signature format: 4.0
 package androidx.compose.material3.adaptive {
 
+  public final class AdaptiveLayoutDirective {
+    ctor public AdaptiveLayoutDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, optional int maxVerticalPartitions);
+    method public androidx.compose.material3.adaptive.GutterSizes getGutterSizes();
+    method public int getMaxHorizontalPartitions();
+    method public int getMaxVerticalPartitions();
+    property public final androidx.compose.material3.adaptive.GutterSizes gutterSizes;
+    property public final int maxHorizontalPartitions;
+    property public final int maxVerticalPartitions;
+  }
+
   public final class AndroidWindowInfo_androidKt {
     method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize> windowSizeAsState(optional @UiContext android.content.Context context);
   }
 
   @kotlin.RequiresOptIn(message="This material3-adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
+  }
+
+  public final class GutterSizes {
+    ctor public GutterSizes(float outerVertical, float innerVertical, optional float outerHorizontal, optional float innerHorizontal);
+    method public float getInnerHorizontal();
+    method public float getInnerVertical();
+    method public float getOuterHorizontal();
+    method public float getOuterVertical();
+    property public final float innerHorizontal;
+    property public final float innerVertical;
+    property public final float outerHorizontal;
+    property public final float outerVertical;
   }
 
   @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public interface PaneScaffoldScope {
