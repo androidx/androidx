@@ -36,7 +36,7 @@ public class OnEnableDisableSessionDurationCheck {
     static final long MIN_DURATION_FOR_ENABLE_DISABLE_SESSION = 100L;
 
     public OnEnableDisableSessionDurationCheck() {
-        mEnabledMinimumDuration = DeviceQuirks.get(CrashWhenOnDisableTooSoon.class) != null;
+        this(DeviceQuirks.get(CrashWhenOnDisableTooSoon.class) != null);
     }
 
     @VisibleForTesting
@@ -76,7 +76,7 @@ public class OnEnableDisableSessionDurationCheck {
     private void ensureMinDurationAfterOnEnableSession() {
         long timeAfterOnEnableSession =
                 SystemClock.elapsedRealtime() - mOnEnableSessionTimeStamp;
-        if (timeAfterOnEnableSession < MIN_DURATION_FOR_ENABLE_DISABLE_SESSION) {
+        while (timeAfterOnEnableSession < MIN_DURATION_FOR_ENABLE_DISABLE_SESSION) {
             try {
                 long timeToWait =
                         MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - timeAfterOnEnableSession;
@@ -84,7 +84,9 @@ public class OnEnableDisableSessionDurationCheck {
                 Thread.sleep(timeToWait);
             } catch (InterruptedException e) {
                 Logger.e(TAG, "sleep interrupted");
+                return;
             }
+            timeAfterOnEnableSession = SystemClock.elapsedRealtime() - mOnEnableSessionTimeStamp;
         }
     }
 }
