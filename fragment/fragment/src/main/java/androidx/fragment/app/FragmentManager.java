@@ -120,6 +120,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
     static boolean USE_PREDICTIVE_BACK = true;
 
     /**
+     * Control whether FragmentManager uses the new state predictive back feature that allows
+     * seeing the previous Fragment when using gesture back.
+     * <p>
+     * This should only be changed <strong>before</strong> any fragment transactions are done
+     * (i.e., in your <code>Application</code> class or prior to <code>super.onCreate()</code>
+     * in every activity).
+     *
+     * @param enabled Whether predictive back should be enabled.
+     */
+    @PredictiveBackControl
+    public static void enablePredictiveBack(boolean enabled) {
+        FragmentManager.USE_PREDICTIVE_BACK = enabled;
+    }
+
+    /**
      * Control whether the framework's internal fragment manager debugging
      * logs are turned on.  If enabled, you will see output in logcat as
      * the framework performs fragment operations.
