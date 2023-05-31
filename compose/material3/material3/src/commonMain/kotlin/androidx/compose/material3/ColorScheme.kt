@@ -95,22 +95,22 @@ import kotlin.math.ln
  * @property outlineVariant Utility color used for boundaries for decorative elements when strong
  * contrast is not required.
  * @property scrim Color of a scrim that obscures content.
- * @property surfaceBright A [surface] variant that is always brighter than surface, whether in
+ * @property surfaceBright A [surface] variant that is always brighter than [surface], whether in
  * light or dark mode.
- * @property surfaceDim A [surface] variant that is always dimmer than [surface], whether in
- * light or dark mode.
+ * @property surfaceDim A [surface] variant that is always dimmer than [surface], whether in light or
+ * dark mode.
  * @property surfaceContainer A [surface] variant that affects containers of components, such as
  * cards, sheets, and menus.
  * @property surfaceContainerHigh A [surface] variant for containers with higher emphasis than
- * [surfaceContainer]. Use this role for content which requires more emphasis than surfaceContainer.
+ * [surfaceContainer]. Use this role for content which requires more emphasis than [surfaceContainer].
  * @property surfaceContainerHighest A [surface] variant for containers with higher emphasis than
  * [surfaceContainerHigh]. Use this role for content which requires more emphasis than
- * surfaceContainer.
+ * [surfaceContainerHigh].
  * @property surfaceContainerLow A [surface] variant for containers with lower emphasis than
- * [surfaceContainer]. Use this role for content which requires less emphasis than surfaceContainer.
+ * [surfaceContainer]. Use this role for content which requires less emphasis than [surfaceContainer].
  * @property surfaceContainerLowest A [surface] variant for containers with lower emphasis than
  * [surfaceContainerLow]. Use this role for content which requires less emphasis than
- * surfaceContainerLow.
+ * [surfaceContainerLow].
  */
 @Stable
 class ColorScheme(
@@ -373,7 +373,8 @@ class ColorScheme(
 
     @Deprecated(
         message =
-            "Maintained for binary compatibility. Use version additional surface roles instead",
+            "Maintained for binary compatibility. Use overload with additional surface roles " +
+                "instead",
         level = DeprecationLevel.HIDDEN
     )
     fun copy(
@@ -563,7 +564,7 @@ fun lightColorScheme(
 
 @Deprecated(
     message =
-        "Maintained for binary compatibility. Use version additional surface roles instead",
+        "Maintained for binary compatibility. Use overload with additional surface roles instead",
     level = DeprecationLevel.HIDDEN
 )
 fun lightColorScheme(
@@ -711,7 +712,7 @@ fun darkColorScheme(
 
 @Deprecated(
     message =
-        "Maintained for binary compatibility. Use version additional surface roles instead",
+        "Maintained for binary compatibility. Use overload with additional surface roles instead",
     level = DeprecationLevel.HIDDEN
 )
 fun darkColorScheme(
@@ -997,7 +998,7 @@ internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
  * Setting this value to false will cause all subsequent surfaces down the tree to not apply
  * tonalElevation.
  */
-internal val LocalTonalElevationEnabled = staticCompositionLocalOf { true }
+val LocalTonalElevationEnabled = staticCompositionLocalOf { true }
 
 /**
  * A low level of alpha used to represent disabled components, such as text in a disabled Button.
