@@ -41,6 +41,7 @@ kotlinBenchmark = "0.4.8"
 kotlinNative = "1.8.21"
 kotlinCompileTesting = "1.4.9"
 kotlinCoroutines = "1.6.4"
+kotlinCoroutines171 = "1.7.1"
 kotlinSerialization = "1.3.3"
 ksp = "1.8.20-1.0.11"
 ktlint = "0.46.0-20220520.192227-74"
@@ -168,6 +169,7 @@ kotlinCompileTestingKsp = { module = "com.github.tschuchortdev:kotlin-compile-te
 kotlinCoroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesCore = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+kotlinCoroutinesCore171 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines171" }
 kotlinCoroutinesGuava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesPlayServices = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }

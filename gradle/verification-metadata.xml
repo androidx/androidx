@@ -131,7 +131,10 @@
             <trusting group="com.google.auto.service"/>
          </trusted-key>
          <trusted-key id="32b92f2ff75fdf37dc811c3c2f566d4221d3ec52" group="com.ryanharter.auto.value"/>
-         <trusted-key id="33fd4bfd33554634053d73c0c2148900bcd3c2af" group="org.jetbrains.trove4j" name="trove4j"/>
+         <trusted-key id="33fd4bfd33554634053d73c0c2148900bcd3c2af">
+            <trusting group="org.jetbrains" name="annotations"/>
+            <trusting group="org.jetbrains.trove4j" name="trove4j"/>
+         </trusted-key>
          <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b" group="org.codehaus.groovy"/>
          <trusted-key id="3872ed7d5904493d23d78fa2c4c8cb73b1435348" group="com.android.tools.build"/>
          <trusted-key id="3d11126ea77e4e07fbabb38614a84c976d265b25" group="com.google.protobuf"/>
