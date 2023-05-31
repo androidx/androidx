@@ -18,8 +18,8 @@ package org.chromium.android_webview.js_sandbox.common;
 
 /**
  * Used to relay console messages to the embedding app.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxConsoleCallback {
     // These must be individual bits so that they can be trivially filtered using a bitmask.
     const int CONSOLE_MESSAGE_LEVEL_LOG = 1 << 0;
