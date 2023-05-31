@@ -24,8 +24,8 @@ import android.support.v4.media.session.MediaSessionCompat;
 /**
  * Callback interface for a MediaSessionCompat to send updates to a
  * MediaControllerCompat. This is only used on pre-Lollipop systems.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IMediaControllerCallback {
     void onEvent(String event, in Bundle extras);
     void onSessionDestroyed();
