@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.productivity
 
 import android.util.SizeF
-import androidx.appactions.builtintypes.experimental.types.Timer
+import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties

@@ -16,8 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.converters
 
-import androidx.appactions.builtintypes.experimental.types.Alarm
-import androidx.appactions.builtintypes.experimental.types.Timer
+import androidx.appactions.builtintypes.types.Alarm
+import androidx.appactions.builtintypes.types.Timer
+import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,12 +38,12 @@ private val ALARM_OR_TIMER_TYPE_SPEC = UnionTypeSpec.Builder<AlarmOrTimer>()
   .bindMemberType(
     memberGetter = AlarmOrTimer::asAlarm,
     ctor = { AlarmOrTimer(it) },
-    typeSpec = TypeConverters.ALARM_TYPE_SPEC,
+    typeSpec = ALARM_TYPE_SPEC,
   )
   .bindMemberType(
     memberGetter = AlarmOrTimer::asTimer,
     ctor = { AlarmOrTimer(it) },
-    typeSpec = TypeConverters.TIMER_TYPE_SPEC,
+    typeSpec = TIMER_TYPE_SPEC,
   ).build()
 
 @RunWith(JUnit4::class)
