@@ -1,3 +1,4 @@
+$dokka.format:javadoc1
 com.google.common.annotations
 com.google.common.base
 com.google.common.cache

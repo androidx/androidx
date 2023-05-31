@@ -1,3 +1,4 @@
+$dokka.format:javadoc1
 com.google.mlkit
 com.google.mlkit.common
 com.google.mlkit.common.model
