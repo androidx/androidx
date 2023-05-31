@@ -367,7 +367,7 @@ class MotionSceneScope internal constructor() {
      * The value is `Float.NaN` by default. Note that when all widgets are set to `Float.NaN`,
      * MotionLayout will use the default way of calculating the weight.
      *
-     * @see TransitionScope.staggered
+     * @see TransitionScope.maxStaggerDelay
      */
     var ConstrainScope.staggeredWeight: Float
         get() {
