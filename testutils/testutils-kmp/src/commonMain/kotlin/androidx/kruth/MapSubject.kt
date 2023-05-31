@@ -35,4 +35,40 @@ class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K,
             asserter.fail("Expected to contain $key, but was ${actual.keys}")
         }
     }
+
+    /** Fails if the map does not contain exactly the given set of entries in the given map. */
+    fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
+        requireNonNull(actual) { "Expected $expectedMap, but was null" }
+
+        if (expectedMap.isEmpty()) {
+            isEmpty()
+        } else if ((expectedMap.entries - actual.entries).isNotEmpty()) {
+            asserter.fail("Expected $expectedMap, but was $actual")
+        }
+
+        return MapInOrder(expectedMap)
+    }
+
+    private inner class MapInOrder(
+        private val expectedMap: Map<*, *>,
+    ) : Ordered {
+
+        /**
+         * Checks whether the common elements between actual and expected are in the same order.
+         *
+         * This doesn't check whether the keys have the same values or whether all the required keys
+         * are actually present. That was supposed to be done before the "in order" part.
+         */
+        override fun inOrder() {
+            // We're using the fact that Iterable#intersect keeps the order of the first set.
+            checkNotNull(actual)
+            val expectedKeyOrder = (expectedMap.keys intersect actual.keys).toList()
+            val actualKeyOrder = (actual.keys intersect expectedMap.keys).toList()
+            if (actualKeyOrder != expectedKeyOrder) {
+                asserter.fail(
+                    "Entries match, but order was wrong. Expected $expectedMap, but was $actual",
+                )
+            }
+        }
+    }
 }
