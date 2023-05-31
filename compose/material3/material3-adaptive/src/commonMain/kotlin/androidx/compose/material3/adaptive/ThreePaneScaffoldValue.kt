@@ -42,14 +42,17 @@ private inline fun buildThreePaneScaffoldValue(
  *
  * @param maxHorizontalPartitions The maximum allowed partitions along the horizontal axis, i.e.
  *                                how many expanded panes can be shown at the same time.
- * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports.
+ * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports,
+ *                        the default value will be
+ *                        [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
  * @param currentFocus The current focused pane, which will be treated as the highest priority, can
  *                     be `null`.
  */
 @ExperimentalMaterial3AdaptiveApi
 fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies,
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+        ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies(),
     currentFocus: ThreePaneScaffoldRole? = null,
 ): ThreePaneScaffoldValue {
     var expandedCount = if (currentFocus != null) 1 else 0

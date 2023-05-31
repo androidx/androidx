@@ -91,6 +91,13 @@ package androidx.compose.material3.adaptive {
     property public final androidx.compose.material3.adaptive.ThreePaneScaffoldRole thirdPane;
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldDefaults {
+    method public androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement getListDetailLayoutArrangement();
+    method public androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies threePaneScaffoldAdaptStrategies(optional androidx.compose.material3.adaptive.AdaptStrategy primaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy secondaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy tertiaryPaneAdaptStrategy);
+    property public final androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement ListDetailLayoutArrangement;
+    field public static final androidx.compose.material3.adaptive.ThreePaneScaffoldDefaults INSTANCE;
+  }
+
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum ThreePaneScaffoldRole {
     method public static androidx.compose.material3.adaptive.ThreePaneScaffoldRole valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.adaptive.ThreePaneScaffoldRole[] values();
@@ -111,7 +118,7 @@ package androidx.compose.material3.adaptive {
   }
 
   public final class ThreePaneScaffoldValueKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional androidx.compose.material3.adaptive.ThreePaneScaffoldRole? currentFocus);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, optional androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional androidx.compose.material3.adaptive.ThreePaneScaffoldRole? currentFocus);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class WindowAdaptiveInfo {
