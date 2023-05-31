@@ -273,6 +273,36 @@ fun ModalBottomSheet(
     }
 }
 
+@Deprecated(
+    message = "Use ModalBottomSheet overload with windowInset parameter.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+@ExperimentalMaterial3Api
+fun ModalBottomSheet(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    sheetState: SheetState = rememberModalBottomSheetState(),
+    shape: Shape = BottomSheetDefaults.ExpandedShape,
+    containerColor: Color = BottomSheetDefaults.ContainerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    tonalElevation: Dp = BottomSheetDefaults.Elevation,
+    scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    content: @Composable ColumnScope.() -> Unit,
+) = ModalBottomSheet(
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    sheetState = sheetState,
+    shape = shape,
+    containerColor = containerColor,
+    contentColor = contentColor,
+    tonalElevation = tonalElevation,
+    scrimColor = scrimColor,
+    dragHandle = dragHandle,
+    content = content,
+)
+
 /**
  * Create and [remember] a [SheetState] for [ModalBottomSheet].
  *
