@@ -38,7 +38,8 @@ internal const val ANDROID_LIBRARY_PLUGIN = "com.android.library"
 internal const val ANDROID_TEST_PLUGIN = "com.android.test"
 
 class BaselineProfileProjectSetupRule(
-    private val forceAgpVersion: String? = null
+    private val forceAgpVersion: String? = null,
+    private val addKotlinGradlePluginToClasspath: Boolean = false
 ) : ExternalResource() {
 
     /**
@@ -146,6 +147,15 @@ class BaselineProfileProjectSetupRule(
                     ("com.android.tools.build:gradle") { version { strictly "$forceAgpVersion" } }
                     """.trimIndent()
             }
+
+            val kotlinGradlePluginDependency = if (addKotlinGradlePluginToClasspath) {
+                """
+             "org.jetbrains.kotlin:kotlin-gradle-plugin:${appTargetSetupRule.props.kotlinVersion}"
+                    """.trimIndent()
+            } else {
+                null
+            }
+
             rootFolder.newFile("build.gradle").writeText(
                 """
                 buildscript {
@@ -153,7 +163,12 @@ class BaselineProfileProjectSetupRule(
                     dependencies {
 
                         // Specifies agp dependency
-                        classpath $agpDependency
+                        ${
+                    listOfNotNull(
+                        agpDependency,
+                        kotlinGradlePluginDependency
+                    ).joinToString("\n") { "classpath $it" }
+                }
 
                         // Specifies plugin dependency
                         classpath "androidx.baselineprofile.consumer:androidx.baselineprofile.consumer.gradle.plugin:+"
