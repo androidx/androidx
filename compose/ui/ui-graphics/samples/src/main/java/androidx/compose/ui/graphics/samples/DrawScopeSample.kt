@@ -18,16 +18,21 @@ package androidx.compose.ui.graphics.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.draw
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
 
 /**
@@ -104,4 +109,27 @@ fun DrawScopeOvalColorSample() {
             size = Size(size.width - 20f, size.height - 20f)
         )
     }
+}
+
+@Sampled
+@Composable
+fun DrawScopeRetargetingSample() {
+    Box(modifier = Modifier.size(120.dp)
+        .drawWithCache {
+            // Example that shows how to redirect rendering to an Android Picture and then
+            // draw the picture into the original destination
+            val picture = android.graphics.Picture()
+            val width = this.size.width.toInt()
+            val height = this.size.height.toInt()
+            onDrawWithContent {
+                val pictureCanvas =
+                    androidx.compose.ui.graphics.Canvas(picture.beginRecording(width, height))
+                draw(this, this.layoutDirection, pictureCanvas, this.size) {
+                    this@onDrawWithContent.drawContent()
+                }
+                picture.endRecording()
+
+                drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(picture) }
+            }
+        })
 }

@@ -41,15 +41,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.center
-
-/**
- * Default density value that is used as a stub to provide a non-null
- * density parameter within CanvasDrawScope.
- * Density is provided as a parameter as part of the draw call to
- * issue drawing commands into a target canvas so this Density value is never consumed
- */
-private val DefaultDensity = Density(1.0f, 1.0f)
 
 /**
  * Implementation of [DrawScope] that issues drawing commands
@@ -69,8 +60,9 @@ class CanvasDrawScope : DrawScope {
         get() = drawParams.density.fontScale
 
     override val drawContext = object : DrawContext {
-        override val canvas: Canvas
+        override var canvas: Canvas
             get() = drawParams.canvas
+            set(value) { drawParams.canvas = value }
 
         override var size: Size
             get() = drawParams.size
@@ -79,6 +71,13 @@ class CanvasDrawScope : DrawScope {
             }
 
         override val transform: DrawTransform = asDrawTransform()
+
+        override var layoutDirection: LayoutDirection
+            get() = drawParams.layoutDirection
+            set(value) { drawParams.layoutDirection = value }
+        override var density: Density
+            get() = drawParams.density
+            set(value) { drawParams.density = value }
     }
 
     /**
@@ -539,6 +538,9 @@ class CanvasDrawScope : DrawScope {
      * Draws into the provided [Canvas] with the commands specified in the lambda with this
      * [DrawScope] as a receiver
      *
+     * @param density [Density] used to assist in conversions of density independent pixels to raw
+     * pixels to draw
+     * @param layoutDirection [LayoutDirection] of the layout being drawn in.
      * @param canvas target canvas to render into
      * @param size bounds relative to the current canvas translation in which the [DrawScope]
      * should draw within
