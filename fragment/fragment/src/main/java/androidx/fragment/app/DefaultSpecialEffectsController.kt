@@ -26,7 +26,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
-import android.window.BackEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -216,7 +215,7 @@ internal class DefaultSpecialEffectsController(
                     } else {
                         if (animatorSet != null) {
                             val totalDuration = Api24Impl.totalDuration(animatorSet)
-                            var time = (Api34Impl.progress(backEvent) * totalDuration).toLong()
+                            var time = (backEvent.progress * totalDuration).toLong()
                             // We cannot let the time get to 0 or the totalDuration to avoid
                             // completing the operation accidentally.
                             if (time == 0L) {
@@ -935,14 +934,6 @@ internal class DefaultSpecialEffectsController(
         @DoNotInline
         fun setCurrentPlayTime(animatorSet: AnimatorSet, time: Long) {
             animatorSet.currentPlayTime = time
-        }
-    }
-
-    @RequiresApi(34)
-    internal object Api34Impl {
-        @DoNotInline
-        fun progress(backEvent: BackEvent): Float {
-            return backEvent.progress
         }
     }
 }

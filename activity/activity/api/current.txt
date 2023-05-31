@@ -105,10 +105,10 @@ package androidx.activity {
 
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean enabled);
-    method @MainThread @RequiresApi(34) public void handleOnBackCancelled();
+    method @MainThread public void handleOnBackCancelled();
     method @MainThread public abstract void handleOnBackPressed();
-    method @MainThread @RequiresApi(34) public void handleOnBackProgressed(android.window.BackEvent backEvent);
-    method @MainThread @RequiresApi(34) public void handleOnBackStarted(android.window.BackEvent backEvent);
+    method @MainThread public void handleOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread public void handleOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
@@ -121,9 +121,9 @@ package androidx.activity {
     ctor public OnBackPressedDispatcher(Runnable? fallbackOnBackPressed, androidx.core.util.Consumer<java.lang.Boolean>? onHasEnabledCallbacksChanged);
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
-    method @MainThread @RequiresApi(34) @VisibleForTesting public void dispatchOnBackCancelled();
-    method @MainThread @RequiresApi(34) @VisibleForTesting public void dispatchOnBackProgressed(android.window.BackEvent backEvent);
-    method @MainThread @RequiresApi(34) @VisibleForTesting public void dispatchOnBackStarted(android.window.BackEvent backEvent);
+    method @MainThread @VisibleForTesting public void dispatchOnBackCancelled();
+    method @MainThread @VisibleForTesting public void dispatchOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread @VisibleForTesting public void dispatchOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);

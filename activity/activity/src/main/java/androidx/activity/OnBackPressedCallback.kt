@@ -15,9 +15,7 @@
  */
 package androidx.activity
 
-import android.window.BackEvent
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresApi
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -71,20 +69,22 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     /**
      * Callback for handling the system UI generated equivalent to
      * [OnBackPressedDispatcher.dispatchOnBackStarted].
+     *
+     * This will only be called by the framework on API 34 and above.
      */
     @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
-    @RequiresApi(34)
     @MainThread
-    open fun handleOnBackStarted(backEvent: BackEvent) {}
+    open fun handleOnBackStarted(backEvent: BackEventCompat) {}
 
     /**
      * Callback for handling the system UI generated equivalent to
      * [OnBackPressedDispatcher.dispatchOnBackProgressed].
+     *
+     * This will only be called by the framework on API 34 and above.
      */
     @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
-    @RequiresApi(34)
     @MainThread
-    open fun handleOnBackProgressed(backEvent: BackEvent) {}
+    open fun handleOnBackProgressed(backEvent: BackEventCompat) {}
 
     /**
      * Callback for handling the [OnBackPressedDispatcher.onBackPressed] event.
@@ -95,9 +95,10 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     /**
      * Callback for handling the system UI generated equivalent to
      * [OnBackPressedDispatcher.dispatchOnBackCancelled].
+     *
+     * This will only be called by the framework on API 34 and above.
      */
     @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
-    @RequiresApi(34)
     @MainThread
     open fun handleOnBackCancelled() {}
 

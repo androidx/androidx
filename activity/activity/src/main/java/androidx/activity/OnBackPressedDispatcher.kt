@@ -226,15 +226,13 @@ class OnBackPressedDispatcher constructor(
     fun hasEnabledCallbacks(): Boolean = hasEnabledCallbacks
 
     @VisibleForTesting
-    @RequiresApi(34)
     @MainThread
-    fun dispatchOnBackStarted(backEvent: BackEvent) {
+    fun dispatchOnBackStarted(backEvent: BackEventCompat) {
         onBackStarted(backEvent)
     }
 
-    @RequiresApi(34)
     @MainThread
-    private fun onBackStarted(backEvent: BackEvent) {
+    private fun onBackStarted(backEvent: BackEventCompat) {
         val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
@@ -245,15 +243,13 @@ class OnBackPressedDispatcher constructor(
     }
 
     @VisibleForTesting
-    @RequiresApi(34)
     @MainThread
-    fun dispatchOnBackProgressed(backEvent: BackEvent) {
+    fun dispatchOnBackProgressed(backEvent: BackEventCompat) {
         onBackProgressed(backEvent)
     }
 
-    @RequiresApi(34)
     @MainThread
-    private fun onBackProgressed(backEvent: BackEvent) {
+    private fun onBackProgressed(backEvent: BackEventCompat) {
         val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
@@ -285,13 +281,11 @@ class OnBackPressedDispatcher constructor(
     }
 
     @VisibleForTesting
-    @RequiresApi(34)
     @MainThread
     fun dispatchOnBackCancelled() {
         onBackCancelled()
     }
 
-    @RequiresApi(34)
     @MainThread
     private fun onBackCancelled() {
         val callback = onBackPressedCallbacks.lastOrNull {
@@ -376,18 +370,18 @@ class OnBackPressedDispatcher constructor(
     internal object Api34Impl {
         @DoNotInline
         fun createOnBackAnimationCallback(
-            onBackStarted: (backEvent: BackEvent) -> Unit,
-            onBackProgressed: (backEvent: BackEvent) -> Unit,
+            onBackStarted: (backEvent: BackEventCompat) -> Unit,
+            onBackProgressed: (backEvent: BackEventCompat) -> Unit,
             onBackInvoked: () -> Unit,
             onBackCancelled: () -> Unit
         ): OnBackInvokedCallback {
             return object : OnBackAnimationCallback {
                 override fun onBackStarted(backEvent: BackEvent) {
-                    onBackStarted(backEvent)
+                    onBackStarted(BackEventCompat(backEvent))
                 }
 
                 override fun onBackProgressed(backEvent: BackEvent) {
-                    onBackProgressed(backEvent)
+                    onBackProgressed(BackEventCompat(backEvent))
                 }
 
                 override fun onBackInvoked() {

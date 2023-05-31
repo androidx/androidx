@@ -17,7 +17,7 @@
 package androidx.fragment.app
 
 import android.os.Build
-import android.window.BackEvent
+import androidx.activity.BackEventCompat
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.fragment.app.test.FragmentTestActivity
@@ -494,7 +494,7 @@ class OnBackStackChangedListenerTest {
             fragmentManager.addOnBackStackChangedListener(listener)
 
             withActivity {
-                onBackPressedDispatcher.dispatchOnBackStarted(BackEvent(0f, 0f, 0f, 0))
+                onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, 0))
                 executePendingTransactions()
             }
 
@@ -556,7 +556,7 @@ class OnBackStackChangedListenerTest {
             fragmentManager.addOnBackStackChangedListener(listener)
 
             withActivity {
-                onBackPressedDispatcher.dispatchOnBackStarted(BackEvent(0f, 0f, 0f, 0))
+                onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, 0))
                 executePendingTransactions()
             }
 
