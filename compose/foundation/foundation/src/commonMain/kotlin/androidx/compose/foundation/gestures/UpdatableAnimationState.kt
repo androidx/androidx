@@ -17,10 +17,10 @@
 package androidx.compose.foundation.gestures
 
 import androidx.compose.animation.core.AnimationConstants.UnspecifiedTime
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.spring
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.MotionDurationScale
 import kotlin.contracts.ExperimentalContracts
@@ -48,8 +48,9 @@ import kotlin.math.roundToLong
  * update the value, which makes for a more convenient API for this particular use case, and makes
  * it cheaper to update [value] on every frame.
  */
-internal class UpdatableAnimationState {
+internal class UpdatableAnimationState(animationSpec: AnimationSpec<Float>) {
 
+    private val vectorizedSpec = animationSpec.vectorize(Float.VectorConverter)
     private var lastFrameTime = UnspecifiedTime
     private var lastVelocity = ZeroVector
     private var isRunning = false
@@ -106,7 +107,7 @@ internal class UpdatableAnimationState {
                     val playTime = if (durationScale == 0f) {
                         // The duration scale will be 0 when animations are disabled via a11y
                         // settings or developer settings.
-                        RebasableAnimationSpec.getDurationNanos(
+                        vectorizedSpec.getDurationNanos(
                             initialValue = AnimationVector1D(value),
                             targetValue = ZeroVector,
                             initialVelocity = lastVelocity
@@ -114,13 +115,13 @@ internal class UpdatableAnimationState {
                     } else {
                         ((frameTime - lastFrameTime) / durationScale).roundToLong()
                     }
-                    val newValue = RebasableAnimationSpec.getValueFromNanos(
+                    val newValue = vectorizedSpec.getValueFromNanos(
                         playTimeNanos = playTime,
                         initialValue = vectorizedCurrentValue,
                         targetValue = ZeroVector,
                         initialVelocity = lastVelocity
                     ).value
-                    lastVelocity = RebasableAnimationSpec.getVelocityFromNanos(
+                    lastVelocity = vectorizedSpec.getVelocityFromNanos(
                         playTimeNanos = playTime,
                         initialValue = vectorizedCurrentValue,
                         targetValue = ZeroVector,
@@ -162,12 +163,6 @@ internal class UpdatableAnimationState {
     private companion object {
         const val VisibilityThreshold = 0.01f
         val ZeroVector = AnimationVector1D(0f)
-
-        /**
-         * Only the spring spec actually supports the way this class runs the animation, so we
-         * don't allow other specs to be passed in.
-         */
-        val RebasableAnimationSpec = spring<Float>().vectorize(Float.VectorConverter)
 
         fun Float.isZeroish() = absoluteValue < VisibilityThreshold
     }

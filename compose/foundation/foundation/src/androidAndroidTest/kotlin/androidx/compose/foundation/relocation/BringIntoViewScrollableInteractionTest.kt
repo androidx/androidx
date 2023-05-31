@@ -16,11 +16,13 @@
 
 package androidx.compose.foundation.relocation
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollingLayoutElement
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.BringIntoViewCalculator
+import androidx.compose.foundation.gestures.BringIntoViewScroller
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
@@ -1092,11 +1094,11 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
     }
 
     @Test
-    fun bringIntoViewCalculator_childIsAtTopOfParent_shouldReturnCorrectValues() {
+    fun bringIntoViewScroller_childIsAtTopOfParent_shouldReturnCorrectValues() {
         val bringIntoViewRequester = BringIntoViewRequester()
         val bringIntoViewItemCoordinates = mutableStateOf<LayoutCoordinates?>(null)
 
-        bringIntoViewCalculatorTest_wrapper(
+        bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
             expectedChildSize = 10.dp // child is visible
@@ -1115,11 +1117,11 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
     }
 
     @Test
-    fun bringIntoViewCalculator_childIsInTheMiddleOfParent_shouldReturnCorrectValues() {
+    fun bringIntoViewScroller_childIsInTheMiddleOfParent_shouldReturnCorrectValues() {
         val bringIntoViewRequester = BringIntoViewRequester()
         val bringIntoViewItemCoordinates = mutableStateOf<LayoutCoordinates?>(null)
 
-        bringIntoViewCalculatorTest_wrapper(
+        bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
             expectedChildSize = 10.dp // child is visible
@@ -1142,11 +1144,11 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
     }
 
     @Test
-    fun bringIntoViewCalculator_childIsPartOutOfBoundsOfParent_shouldReturnCorrectValues() {
+    fun bringIntoViewScroller_childIsPartOutOfBoundsOfParent_shouldReturnCorrectValues() {
         val bringIntoViewRequester = BringIntoViewRequester()
         val bringIntoViewItemCoordinates = mutableStateOf<LayoutCoordinates?>(null)
 
-        bringIntoViewCalculatorTest_wrapper(
+        bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
             expectedChildSize = 10.dp // child is part visible
@@ -1165,11 +1167,11 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
     }
 
     @Test
-    fun bringIntoViewCalculator_childIsOutOfBoundsOfParent_shouldReturnCorrectValues() {
+    fun bringIntoViewScroller_childIsOutOfBoundsOfParent_shouldReturnCorrectValues() {
         val bringIntoViewRequester = BringIntoViewRequester()
         val bringIntoViewItemCoordinates = mutableStateOf<LayoutCoordinates?>(null)
 
-        bringIntoViewCalculatorTest_wrapper(
+        bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
             expectedChildSize = 10.dp // child is not visible
@@ -1187,7 +1189,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         }
     }
 
-    private fun bringIntoViewCalculatorTest_wrapper(
+    private fun bringIntoViewScrollerTest_wrapper(
         requester: BringIntoViewRequester,
         expectedChildSize: Dp,
         childCoordinates: State<LayoutCoordinates?>,
@@ -1205,7 +1207,9 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         }
 
         val expectedContainerSize = with(rule.density) { containerSize.roundToPx() }
-        val customBringIntoViewScrollConfig = object : BringIntoViewCalculator {
+        val customBringIntoViewScroller = object : BringIntoViewScroller {
+            override val scrollAnimationSpec: AnimationSpec<Float> = spring()
+
             override fun calculateScrollDistance(
                 offset: Float,
                 size: Float,
@@ -1228,7 +1232,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                         state = state,
                         overscrollEffect = null,
                         orientation = orientation,
-                        bringIntoViewCalculator = customBringIntoViewScrollConfig
+                        bringIntoViewScroller = customBringIntoViewScroller
                     )
                     .then(ScrollingLayoutElement(state, false, orientation == Vertical))
             ) {
@@ -1244,12 +1248,14 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
     }
 
     @Test
-    fun bringIntoViewCalculator_shouldStopScrollingWhenReceivingZero() {
+    fun bringIntoViewScroller_shouldStopScrollingWhenReceivingZero() {
         val bringIntoViewRequests = listOf(300f, 150f, 0f)
         val scrollState = ScrollState(0)
         var requestsFulfilledScroll = 0
-        val customBringIntoViewScrollConfig = object : BringIntoViewCalculator {
+        val customBringIntoViewScroller = object : BringIntoViewScroller {
             var index = 0
+
+            override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 
             override fun calculateScrollDistance(
                 offset: Float,
@@ -1277,7 +1283,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                         state = scrollState,
                         overscrollEffect = null,
                         orientation = orientation,
-                        bringIntoViewCalculator = customBringIntoViewScrollConfig
+                        bringIntoViewScroller = customBringIntoViewScroller
                     )
             ) {
                 Box(
