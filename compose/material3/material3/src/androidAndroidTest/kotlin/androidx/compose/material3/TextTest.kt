@@ -72,11 +72,11 @@ class TextTest {
 
         assertThat(
             localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
-        ).isEqualTo(true)
+        ).isEqualTo(false)
 
         assertThat(
             displayMediumTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
-        ).isEqualTo(true)
+        ).isEqualTo(false)
     }
 
     @Test
