@@ -1455,6 +1455,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    @OptIn(InternalCoreApi::class)
     private fun sendMotionEvent(motionEvent: MotionEvent): ProcessResult {
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
@@ -1496,6 +1497,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    @OptIn(InternalCoreApi::class)
     private fun sendSimulatedEvent(
         motionEvent: MotionEvent,
         action: Int,
