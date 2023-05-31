@@ -42,8 +42,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.window.BackEvent;
 
+import androidx.activity.BackEventCompat;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
@@ -59,7 +59,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.core.app.MultiWindowModeChangedInfo;
@@ -465,17 +464,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
     boolean mBackStarted = false;
     private final OnBackPressedCallback mOnBackPressedCallback =
             new OnBackPressedCallback(false) {
-                @RequiresApi(api = 34)
+
                 @Override
-                public void handleOnBackStarted(@NonNull BackEvent backEvent) {
+                public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
                     if (USE_PREDICTIVE_BACK) {
                         prepareBackStackTransition();
                     }
                 }
 
-                @RequiresApi(api = 34)
                 @Override
-                public void handleOnBackProgressed(@NonNull BackEvent backEvent) {
+                public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
                     if (mTransitioningOp != null) {
                         // Collect the correct SpecialEffectsControllers and pass in the progress
                         Set<SpecialEffectsController> changedControllers  =
@@ -495,7 +493,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     FragmentManager.this.handleOnBackPressed();
                 }
 
-                @RequiresApi(api = 34)
                 @Override
                 public void handleOnBackCancelled() {
                     if (USE_PREDICTIVE_BACK) {

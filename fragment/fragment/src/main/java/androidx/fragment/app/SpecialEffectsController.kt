@@ -18,7 +18,7 @@ package androidx.fragment.app
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.window.BackEvent
+import androidx.activity.BackEventCompat
 import androidx.annotation.CallSuper
 import androidx.core.os.CancellationSignal
 import androidx.core.view.ViewCompat
@@ -345,7 +345,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         isPop: Boolean
     )
 
-    fun processProgress(backEvent: BackEvent) {
+    fun processProgress(backEvent: BackEventCompat) {
         runningOperations.forEach { operation ->
             operation.backInProgressListener?.invoke(backEvent)
         }
@@ -504,7 +504,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         private val completionListeners = mutableListOf<Runnable>()
         private val specialEffectsSignals = mutableSetOf<CancellationSignal>()
-        var backInProgressListener: ((BackEvent) -> Unit)? = null
+        var backInProgressListener: ((BackEventCompat) -> Unit)? = null
             private set
         var backOnCompleteListener: (() -> Unit)? = null
             private set
@@ -604,7 +604,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             completionListeners.add(listener)
         }
 
-        fun addBackProgressCallbacks(onProgress: (BackEvent) -> Unit, onComplete: () -> Unit) {
+        fun addBackProgressCallbacks(
+            onProgress: (BackEventCompat) -> Unit,
+            onComplete: () -> Unit
+        ) {
             backInProgressListener = onProgress
             backOnCompleteListener = onComplete
         }

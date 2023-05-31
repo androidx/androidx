@@ -17,7 +17,6 @@
 package androidx.activity
 
 import android.os.Build
-import android.window.BackEvent
 import android.window.BackEvent.EDGE_LEFT
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
@@ -184,8 +183,6 @@ class OnBackPressedDispatcherInvokerTest {
     }
 
     @Test
-    @RequiresApi(34)
-    @SdkSuppress(minSdkVersion = 34)
     fun testSimpleAnimatedCallback() {
         var registerCount = 0
         var unregisterCount = 0
@@ -207,11 +204,11 @@ class OnBackPressedDispatcherInvokerTest {
         var progressedCount = 0
         var cancelledCount = 0
         val callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackStarted(backEvent: BackEvent) {
+            override fun handleOnBackStarted(backEvent: BackEventCompat) {
                 startedCount++
             }
 
-            override fun handleOnBackProgressed(backEvent: BackEvent) {
+            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
                 progressedCount++
             }
             override fun handleOnBackPressed() { }
@@ -224,10 +221,10 @@ class OnBackPressedDispatcherInvokerTest {
 
         assertThat(registerCount).isEqualTo(1)
 
-        dispatcher.dispatchOnBackStarted(BackEvent(0.1F, 0.1F, 0.1F, EDGE_LEFT))
+        dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
         assertThat(startedCount).isEqualTo(1)
 
-        dispatcher.dispatchOnBackProgressed(BackEvent(0.1F, 0.1F, 0.1F, EDGE_LEFT))
+        dispatcher.dispatchOnBackProgressed(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
         assertThat(progressedCount).isEqualTo(1)
 
         dispatcher.dispatchOnBackCancelled()
