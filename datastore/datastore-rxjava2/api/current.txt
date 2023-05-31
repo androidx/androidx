@@ -13,6 +13,10 @@ package androidx.datastore.rxjava2 {
     method public boolean isDisposed();
     method public io.reactivex.Completable shutdownComplete();
     method @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Single<T> updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform);
+    field public static final androidx.datastore.rxjava2.RxDataStore.Companion Companion;
+  }
+
+  public static final class RxDataStore.Companion {
   }
 
   public final class RxDataStoreBuilder<T> {
