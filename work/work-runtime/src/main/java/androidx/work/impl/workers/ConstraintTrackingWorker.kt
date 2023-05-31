@@ -16,6 +16,7 @@
 package androidx.work.impl.workers
 
 import android.content.Context
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.work.ListenableWorker
@@ -139,7 +140,8 @@ class ConstraintTrackingWorker(
         val delegateInner = delegate
         if (delegateInner != null && !delegateInner.isStopped) {
             // Stop is the method that sets the stopped and cancelled bits and invokes onStopped.
-            delegateInner.stop()
+            val reason = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) stopReason else 0
+            delegateInner.stop(reason)
         }
     }
 

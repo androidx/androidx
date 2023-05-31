@@ -16,6 +16,8 @@
 
 package androidx.work.impl;
 
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING;
+
 import static androidx.work.WorkInfo.State.BLOCKED;
 import static androidx.work.WorkInfo.State.CANCELLED;
 import static androidx.work.WorkInfo.State.ENQUEUED;
@@ -39,6 +41,7 @@ import static org.mockito.Mockito.verify;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
@@ -1124,7 +1127,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         mExecutorService.submit(workerWrapper);
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(0);
         Thread.sleep(1000L);
         assertThat(listener.mResult, is(true));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
@@ -1140,7 +1143,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         mExecutorService.submit(workerWrapper);
         Thread.sleep(200);
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(0);
         Thread.sleep(1000L);
         assertThat(listener.mResult, is(true));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
@@ -1202,11 +1205,14 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkerWrapper workerWrapper =
                 createBuilder(work.getStringId()).withWorker(worker).build();
         mExecutorService.submit(workerWrapper);
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(0);
         assertThat(worker.isStopped(), is(true));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
     }
 
+    // getStopReason() requires API level 31, but only because JobScheduler provides them
+    // since API level 31, but in this isolated test we don't care.
+    @SuppressLint("NewApi")
     @Test
     @SmallTest
     public void testInterruptionWithCancellation_isMarkedOnRunningWorker() {
@@ -1235,8 +1241,9 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkerWrapper workerWrapper =
                 createBuilder(work.getStringId()).withWorker(worker).build();
         mExecutorService.submit(workerWrapper);
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(STOP_REASON_CONSTRAINT_CHARGING);
         assertThat(worker.isStopped(), is(true));
+        assertThat(worker.getStopReason(), is(STOP_REASON_CONSTRAINT_CHARGING));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
     }
 
@@ -1352,7 +1359,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.run();
         assertThat(listener.mResult, is(false));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(SUCCEEDED));
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(0);
         ListenableWorker worker = workerWrapper.mWorker;
         verify(worker, never()).onStopped();
     }
@@ -1399,7 +1406,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mDatabase.workTagDao().getWorkSpecIdsWithTag(work.getStringId())
         ).build();
 
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(0);
         workerWrapper.run();
         WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
         assertThat(workSpec.scheduleRequestedAt, is(-1L));
