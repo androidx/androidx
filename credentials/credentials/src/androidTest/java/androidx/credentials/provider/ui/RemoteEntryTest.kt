@@ -51,6 +51,17 @@ class RemoteEntryTest {
     }
 
     @Test
+    fun build_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        val entry = RemoteEntry.Builder(mPendingIntent).build()
+
+        assertNotNull(entry)
+        assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+    }
+
+    @Test
     fun fromSlice_success() {
         if (!BuildCompat.isAtLeastU()) {
             return

@@ -54,6 +54,25 @@ class AuthenticationAction constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
 ) {
+    /**
+     * A builder for [AuthenticationAction]
+     *
+     * @param title the title to be displayed with this authentication action entry
+     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
+     * this entry
+     */
+    class Builder constructor(
+        private val title: CharSequence,
+        private val pendingIntent: PendingIntent
+    ) {
+        /**
+         * Builds an instance of [AuthenticationAction]
+         */
+        fun build(): AuthenticationAction {
+            return AuthenticationAction(title, pendingIntent)
+        }
+    }
+
     @Suppress("AcronymName")
     internal companion object {
         private const val TAG = "AuthenticationAction"

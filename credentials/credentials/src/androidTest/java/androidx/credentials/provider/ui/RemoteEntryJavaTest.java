@@ -57,6 +57,17 @@ public class RemoteEntryJavaTest {
     }
 
     @Test
+    public void build_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return;
+        }
+        RemoteEntry entry = new RemoteEntry.Builder(mPendingIntent).build();
+
+        assertNotNull(entry);
+        assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
+    }
+
+    @Test
     public void constructor_nullPendingIntent_throwsNPE() {
         if (!BuildCompat.isAtLeastU()) {
             return;
