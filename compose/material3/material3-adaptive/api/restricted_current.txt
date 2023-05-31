@@ -16,6 +16,10 @@ package androidx.compose.material3.adaptive {
     method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateStandardAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo);
   }
 
+  public final class AndroidPosture_androidKt {
+    method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.Posture calculatePosture(java.util.List<? extends androidx.window.layout.FoldingFeature> foldingFeatures);
+  }
+
   public final class AndroidWindowInfo_androidKt {
     method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature>> foldingFeaturesAsState(optional @UiContext android.content.Context context);
     method @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize> windowSizeAsState(optional @UiContext android.content.Context context);
