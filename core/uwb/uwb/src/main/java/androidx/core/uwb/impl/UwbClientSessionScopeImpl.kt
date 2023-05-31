@@ -59,8 +59,16 @@ internal class UwbClientSessionScopeImpl(
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_1
             RangingParameters.CONFIG_MULTICAST_DS_TWR ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_2
-            RangingParameters.UWB_CONFIG_ID_3 ->
+            RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_3
+            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR ->
+                com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_4
+            RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR ->
+                com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_5
+            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA ->
+                com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_6
+            RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR ->
+                com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_7
             else ->
                 throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
         }
@@ -88,6 +96,11 @@ internal class UwbClientSessionScopeImpl(
                 })
         if (parameters.sessionKeyInfo != null) {
             parametersBuilder.setSessionKeyInfo(parameters.sessionKeyInfo)
+        }
+        if (configId == com.google.android.gms.nearby.uwb
+            .RangingParameters.UwbConfigId.CONFIG_ID_7) {
+            parametersBuilder.setSubSessionId(parameters.subSessionId)
+            parametersBuilder.setSubSessionKeyInfo(parameters.subSessionKeyInfo)
         }
         for (peer in parameters.peerDevices) {
             parametersBuilder.addPeerDevice(UwbDevice.createForAddress(peer.address.address))
