@@ -665,6 +665,12 @@ internal class CompositionImpl(
     }
 
     override fun observesAnyOf(values: Set<Any>): Boolean {
+        if (values is IdentityArraySet<Any>) {
+            values.fastForEach { value ->
+                if (value in observations || value in derivedStates) return true
+            }
+            return false
+        }
         for (value in values) {
             if (value in observations || value in derivedStates) return true
         }
