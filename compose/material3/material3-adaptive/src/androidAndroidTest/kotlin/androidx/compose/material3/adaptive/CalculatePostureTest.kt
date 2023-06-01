@@ -163,7 +163,7 @@ class CalculatePostureTest {
     }
 }
 
-private class MockFoldingFeature(
+internal class MockFoldingFeature(
     override val isSeparating: Boolean = false,
     override val occlusionType: FoldingFeature.OcclusionType = FoldingFeature.OcclusionType.NONE,
     override val orientation: FoldingFeature.Orientation = FoldingFeature.Orientation.VERTICAL,

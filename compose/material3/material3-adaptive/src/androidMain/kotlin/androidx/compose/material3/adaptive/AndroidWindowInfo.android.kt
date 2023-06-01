@@ -19,6 +19,8 @@ package androidx.compose.material3.adaptive
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.UiContext
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -26,11 +28,36 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.flow.map
+
+/**
+ * Calculates and returns [WindowAdaptiveInfo] of the provided context. It's a convenient function
+ * that uses the Material default [WindowSizeClass.calculateFromSize] and [calculatePosture]
+ * functions to retrieve [WindowSizeClass] and [Posture].
+ *
+ * @param context Optional [UiContext] of the window, defaulted to [LocalContext]'s current value
+ * @return [WindowAdaptiveInfo] of the provided context
+ */
+@ExperimentalMaterial3AdaptiveApi
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+fun calculateWindowAdaptiveInfo(
+    @UiContext context: Context = LocalContext.current
+): WindowAdaptiveInfo {
+    return WindowAdaptiveInfo(
+        WindowSizeClass.calculateFromSize(
+            windowSizeAsState(context).value.toSize(),
+            LocalDensity.current
+        ),
+        calculatePosture(foldingFeaturesAsState(context).value)
+    )
+}
 
 /**
  * Collects the current window size from [WindowMetricsCalculator] in to a [State].
