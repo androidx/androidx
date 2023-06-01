@@ -41,7 +41,10 @@ internal class KruthAsserter(
      */
     fun assertTrue(actual: Boolean, message: String? = null) {
         contract { returns() implies actual }
-        kotlin.test.assertTrue(actual = actual, message = formatMessage(message))
+
+        if (!actual) {
+            fail(message)
+        }
     }
 
     /**
@@ -51,7 +54,10 @@ internal class KruthAsserter(
      */
     fun assertFalse(actual: Boolean, message: String? = null) {
         contract { returns() implies !actual }
-        kotlin.test.assertFalse(actual = actual, message = formatMessage(message))
+
+        if (actual) {
+            fail(message)
+        }
     }
 
     /**
@@ -60,11 +66,7 @@ internal class KruthAsserter(
      * @param message the message to report if the assertion fails.
      */
     fun assertEquals(expected: Any?, actual: Any?, message: String? = null) {
-        kotlin.test.assertEquals(
-            expected = expected,
-            actual = actual,
-            message = formatMessage(message),
-        )
+        assertTrue(expected == actual, message)
     }
 
     /**
@@ -73,11 +75,7 @@ internal class KruthAsserter(
      * @param message the message to report if the assertion fails.
      */
     fun assertNotEquals(illegal: Any?, actual: Any?, message: String? = null) {
-        kotlin.test.assertNotEquals(
-            illegal = illegal,
-            actual = actual,
-            message = formatMessage(message),
-        )
+        assertFalse(illegal == actual, message)
     }
 
     /**
@@ -87,7 +85,7 @@ internal class KruthAsserter(
      */
     fun assertNull(actual: Any?, message: String? = null) {
         contract { returns() implies (actual == null) }
-        kotlin.test.assertNull(actual = actual, message = formatMessage(message))
+        assertTrue(actual == null, message)
     }
 
     /**
@@ -97,8 +95,8 @@ internal class KruthAsserter(
      */
     fun <T : Any> assertNotNull(actual: T?, message: String? = null): T {
         contract { returns() implies (actual != null) }
-        kotlin.test.assertNotNull(actual = actual, message = formatMessage(message))
+        assertFalse(actual == null, message)
 
-        return requireNonNull(actual)
+        return actual
     }
 }
