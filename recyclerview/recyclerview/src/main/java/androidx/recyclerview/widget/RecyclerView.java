@@ -48,6 +48,7 @@ import android.util.SparseArray;
 import android.view.Display;
 import android.view.FocusFinder;
 import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -1954,6 +1955,72 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     public void scrollTo(int x, int y) {
         Log.w(TAG, "RecyclerView does not support scrolling to an absolute position. "
                 + "Use scrollToPosition instead");
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(@Nullable KeyEvent event) {
+        // Let child to dispatch first, then handle ours if child didn't do it.
+        if (super.dispatchKeyEvent(event)) {
+            return true;
+        }
+
+        if (getLayoutManager().canScrollVertically()) {
+            final int keyCode = event.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    int height = getMeasuredHeight();
+                    if (keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
+                        smoothScrollBy(0, height, null, UNDEFINED_DURATION);
+                    } else {
+                        smoothScrollBy(0, -height, null, UNDEFINED_DURATION);
+                    }
+                    return true;
+
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                case KeyEvent.KEYCODE_MOVE_END:
+                    final boolean isReversed = getLayoutManager().isLayoutReversed();
+
+                    final int targetOffset;
+                    if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
+                        targetOffset = isReversed ? getAdapter().getItemCount() : 0;
+                    } else {
+                        targetOffset = isReversed ? 0 : getAdapter().getItemCount();
+                    }
+
+                    smoothScrollToPosition(targetOffset);
+                    return true;
+            }
+        } else if (getLayoutManager().canScrollHorizontally()) {
+            final int keyCode = event.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    int width = getMeasuredWidth();
+                    if (keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
+                        smoothScrollBy(width, 0, null, UNDEFINED_DURATION);
+                    } else {
+                        smoothScrollBy(-width, 0, null, UNDEFINED_DURATION);
+                    }
+                    return true;
+
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                case KeyEvent.KEYCODE_MOVE_END:
+                    final boolean isReversed = getLayoutManager().isLayoutReversed();
+
+                    final int targetOffset;
+                    if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
+                        targetOffset = isReversed ? getAdapter().getItemCount() : 0;
+                    } else {
+                        targetOffset = isReversed ? 0 : getAdapter().getItemCount();
+                    }
+
+                    smoothScrollToPosition(targetOffset);
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -9350,6 +9417,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         public int getLayoutDirection() {
             return ViewCompat.getLayoutDirection(mRecyclerView);
+        }
+
+        /**
+         * Query if the layout is in reverse order. This will affect, for example, keyboard
+         * navigation via page up/page down.  The default implementation returns false.
+         *
+         * @return true if this LayoutManager is currently in reverse order.
+         */
+        public boolean isLayoutReversed() {
+            return false;
         }
 
         /**
