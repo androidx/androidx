@@ -697,6 +697,54 @@ class SubjectTest {
         }
     }
 
+    @Test
+    fun failWithActual_printsAllMessagesPlusActualValue() {
+        val subject =
+            object : Subject<Int>(
+                actual = 0,
+                metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
+            ) {
+                fun fail() {
+                    failWithActual("msg3", "msg4")
+                }
+            }
+
+        assertFailsWithMessage(
+            """
+                msg1
+                msg2
+                msg3
+                msg4
+                But was: 0
+            """.trimIndent()
+        ) { subject.fail() }
+    }
+
+    @Test
+    fun failWithActual_printsAllMessagesPlusMultilineActualValue() {
+        val subject =
+            object : Subject<String>(
+                actual = "a\nb",
+                metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
+            ) {
+                fun fail() {
+                    failWithActual("msg3", "msg4")
+                }
+            }
+
+        assertFailsWithMessage(
+            """
+                msg1
+                msg2
+                msg3
+                msg4
+                But was:
+                    a
+                    b
+            """.trimIndent()
+        ) { subject.fail() }
+    }
+
     private fun <T> oneShotIterable(vararg values: T): Iterable<T> =
         object : Iterable<T> {
             private val iterator = values.iterator()

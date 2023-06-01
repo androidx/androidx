@@ -33,7 +33,30 @@ open class Subject<out T> internal constructor(
     private val metadata: FailureMetadata = FailureMetadata(),
 ) {
 
-    internal val asserter: KruthAsserter = KruthAsserter(formatMessage = metadata::formatMessage)
+    internal val asserter: KruthAsserter get() = asserter()
+
+    internal fun asserter(withActual: Boolean = false): KruthAsserter =
+        KruthAsserter(
+            formatMessage = { message ->
+                formatFailureMessage(message = message, withActual = withActual)
+            },
+        )
+
+    private fun formatFailureMessage(message: String?, withActual: Boolean): String =
+        if (withActual) {
+            val actualString = actual.toString()
+            if ('\n' in actualString) {
+                metadata.formatMessage(
+                    message,
+                    "But was:",
+                    actual.toString().prependIndent(),
+                )
+            } else {
+                metadata.formatMessage(message, "But was: $actualString")
+            }
+        } else {
+            metadata.formatMessage(message)
+        }
 
     /**
      *  Fails if the subject is not null.
@@ -116,6 +139,10 @@ open class Subject<out T> internal constructor(
         if (actual is V) {
             doFail("Expected $actual to be not an instance of ${typeOf<V>()} but it was")
         }
+    }
+
+    protected fun failWithActual(vararg messages: String): Nothing {
+        asserter(withActual = true).fail(messages.joinToString(separator = "\n"))
     }
 
     @PublishedApi
