@@ -32,11 +32,24 @@ class CheckApiTest {
     fun getRequiredCompatibilityApiFileFromDirTest() {
         val apiDir = createTempDir("api", CORE_API_FILES)
 
+        // If we haven't committed the current version's API surface to a file yet, use the most
+        // recent version that came before it.
         assertEquals(
             "1.1.0-beta02.txt",
             getRequiredCompatibilityApiFileFromDir(
                 apiDir,
                 Version("1.1.0-beta03"),
+                ApiType.CLASSAPI
+            )?.name
+        )
+
+        // If we already committed the current version's API surface to a file, then we should
+        // consider that the finalized API surface against which compatibility is checked.
+        assertEquals(
+            "1.1.0-beta02.txt",
+            getRequiredCompatibilityApiFileFromDir(
+                apiDir,
+                Version("1.1.0-beta02"),
                 ApiType.CLASSAPI
             )?.name
         )
