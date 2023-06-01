@@ -17,10 +17,11 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 /**
@@ -50,7 +51,6 @@ interface EmbeddingBackend {
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
-    @ExperimentalWindowApi
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     )
@@ -58,6 +58,20 @@ interface EmbeddingBackend {
     fun clearSplitAttributesCalculator()
 
     fun isSplitAttributesCalculatorSupported(): Boolean
+
+    fun getActivityStack(activity: Activity): ActivityStack?
+
+    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+
+    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
+
+    fun isFinishActivityStacksSupported(): Boolean
+
+    fun invalidateTopVisibleSplitAttributes()
+
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
+
+    fun areSplitAttributesUpdatesSupported(): Boolean
 
     companion object {
 

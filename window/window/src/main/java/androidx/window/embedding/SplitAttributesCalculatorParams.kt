@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.content.res.Configuration
 import androidx.annotation.RestrictTo
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 
@@ -27,7 +26,6 @@ import androidx.window.layout.WindowMetrics
  * [SplitController.setSplitAttributesCalculator] and references the corresponding [SplitRule] by
  * [splitRuleTag] if [SplitPairRule.tag] is specified.
  */
-@ExperimentalWindowApi
 class SplitAttributesCalculatorParams @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor(
     /** The parent container's [WindowMetrics] */
     val parentWindowMetrics: WindowMetrics,

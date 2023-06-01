@@ -18,11 +18,19 @@ package androidx.window.extensions;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.app.ActivityOptions;
+import android.os.IBinder;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.area.WindowAreaComponent;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
+import androidx.window.extensions.embedding.ActivityStack;
+import androidx.window.extensions.embedding.SplitAttributes;
+import androidx.window.extensions.embedding.SplitInfo;
 import androidx.window.extensions.layout.WindowLayoutComponent;
+
+import java.util.Set;
 
 /**
  * A class to provide instances of different WindowManager Jetpack extension components. An OEM must
@@ -55,6 +63,7 @@ public interface WindowExtensions {
      *     <li>{@link androidx.window.extensions.layout.FoldingFeature} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.WindowLayoutInfo} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.WindowLayoutComponent} APIs</li>
+     *     <li>{@link androidx.window.extensions.area.WindowAreaComponent} APIs</li>
      * </ul>
      * </p>
      */
@@ -75,6 +84,27 @@ public interface WindowExtensions {
      */
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_2 = 2;
+
+    // TODO(b/241323716) Removed after we have annotation to check API level
+    /**
+     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
+     * block.
+     * <p>
+     * The added APIs for Vendor API level 3 are:
+     * <ul>
+     *     <li>{@link ActivityStack#getToken()}</li>
+     *     <li>{@link SplitInfo#getToken()}</li>
+     *     <li>{@link ActivityEmbeddingComponent#setLaunchingActivityStack(ActivityOptions,
+     *     IBinder)}</li>
+     *     <li>{@link ActivityEmbeddingComponent#invalidateTopVisibleSplitAttributes()}</li>
+     *     <li>{@link ActivityEmbeddingComponent#updateSplitAttributes(IBinder, SplitAttributes)}
+     *     </li>
+     *     <li>{@link ActivityEmbeddingComponent#finishActivityStacks(Set)}</li>
+     * </ul>
+     * </p>
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int VENDOR_API_LEVEL_3 = 3;
 
     /**
      * Returns the API level of the vendor library on the device. If the returned version is not

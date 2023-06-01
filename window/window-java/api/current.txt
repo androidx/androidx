@@ -1,4 +1,14 @@
 // Signature format: 4.0
+package androidx.window.java.area {
+
+  public final class WindowAreaControllerCallbackAdapter implements androidx.window.area.WindowAreaController {
+    ctor public WindowAreaControllerCallbackAdapter(androidx.window.area.WindowAreaController controller);
+    method public void addWindowAreaInfoListListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowAreaInfo>> listener);
+    method public void removeWindowAreaInfoListListener(androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowAreaInfo>> listener);
+  }
+
+}
+
 package androidx.window.java.embedding {
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitControllerCallbackAdapter {

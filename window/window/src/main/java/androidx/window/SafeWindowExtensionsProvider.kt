@@ -16,12 +16,26 @@
 
 package androidx.window
 
+import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.reflection.ReflectionUtils
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.WindowExtensionsConstants
 
 internal class SafeWindowExtensionsProvider(private val loader: ClassLoader) {
+
+    val windowExtensions: WindowExtensions?
+        get() {
+            return try {
+                if (isWindowExtensionsPresent() && isWindowExtensionsValid()) {
+                    WindowExtensionsProvider.getWindowExtensions()
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+        }
+
     internal val windowExtensionsClass: Class<*>
         get() {
             return loader.loadClass(WindowExtensionsConstants.WINDOW_EXTENSIONS_CLASS)

@@ -53,11 +53,15 @@ package androidx.window.extensions.embedding {
   public interface ActivityEmbeddingComponent {
     method public void clearSplitAttributesCalculator();
     method public void clearSplitInfoCallback();
+    method public default void finishActivityStacks(java.util.Set<android.os.IBinder!>);
+    method public default void invalidateTopVisibleSplitAttributes();
     method public boolean isActivityEmbedded(android.app.Activity);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
+    method public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
     method public void setSplitAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.SplitAttributesCalculatorParams!,androidx.window.extensions.embedding.SplitAttributes!>);
     method public default void setSplitInfoCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
     method @Deprecated public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
+    method public default void updateSplitAttributes(android.os.IBinder, androidx.window.extensions.embedding.SplitAttributes);
   }
 
   public class ActivityRule extends androidx.window.extensions.embedding.EmbeddingRule {
@@ -135,6 +139,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.ActivityStack getSecondaryActivityStack();
     method public androidx.window.extensions.embedding.SplitAttributes getSplitAttributes();
     method @Deprecated public float getSplitRatio();
+    method public android.os.IBinder getToken();
   }
 
   public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {

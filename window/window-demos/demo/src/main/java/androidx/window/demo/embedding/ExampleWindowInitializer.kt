@@ -18,7 +18,6 @@ package androidx.window.demo.embedding
 
 import android.content.Context
 import androidx.startup.Initializer
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
@@ -46,7 +45,6 @@ import androidx.window.layout.WindowMetrics
 /**
  * Initializes SplitController with a set of statically defined rules.
  */
-@OptIn(ExperimentalWindowApi::class)
 class ExampleWindowInitializer : Initializer<RuleController> {
 
     override fun create(context: Context): RuleController {

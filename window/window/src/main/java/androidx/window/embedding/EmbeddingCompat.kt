@@ -17,16 +17,18 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.os.IBinder
 import android.util.Log
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_3
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
@@ -90,7 +92,6 @@ internal class EmbeddingCompat constructor(
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
-    @ExperimentalWindowApi
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -113,6 +114,50 @@ internal class EmbeddingCompat constructor(
 
     override fun isSplitAttributesCalculatorSupported(): Boolean =
         ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_2
+
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        if (!isFinishActivityStacksSupported()) {
+            throw UnsupportedOperationException("#finishActivityStacks is not " +
+                "supported on the device.")
+        }
+        val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
+        embeddingExtension.finishActivityStacks(stackTokens)
+    }
+
+    override fun isFinishActivityStacksSupported(): Boolean =
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3
+
+    override fun invalidateTopVisibleSplitAttributes() {
+        if (!areSplitAttributesUpdatesSupported()) {
+            throw UnsupportedOperationException("#invalidateTopVisibleSplitAttributes is not " +
+                "supported on the device.")
+        }
+        embeddingExtension.invalidateTopVisibleSplitAttributes()
+    }
+
+    override fun updateSplitAttributes(
+        splitInfo: SplitInfo,
+        splitAttributes: SplitAttributes
+    ) {
+        if (!areSplitAttributesUpdatesSupported()) {
+            throw UnsupportedOperationException("#updateSplitAttributes is not supported on the " +
+                "device.")
+        }
+        embeddingExtension.updateSplitAttributes(
+            splitInfo.token,
+            adapter.translateSplitAttributes(splitAttributes)
+        )
+    }
+
+    override fun areSplitAttributesUpdatesSupported(): Boolean =
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3
+
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions {
+        return embeddingExtension.setLaunchingActivityStack(options, token)
+    }
 
     companion object {
         const val DEBUG = true
