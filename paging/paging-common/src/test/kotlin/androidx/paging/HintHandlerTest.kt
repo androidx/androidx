@@ -16,10 +16,10 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,9 +51,7 @@ class HintHandlerTest {
         val refreshHints = kotlin.runCatching {
             hintHandler.hintFor(REFRESH)
         }
-        assertThat(refreshHints.exceptionOrNull()).isInstanceOf(
-            IllegalArgumentException::class.java
-        )
+        assertThat(refreshHints.exceptionOrNull()).isInstanceOf<IllegalArgumentException>()
     }
 
     @Test

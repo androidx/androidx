@@ -16,8 +16,8 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.PagingSource.LoadResult.Page
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
