@@ -134,7 +134,7 @@ internal class CredentialProviderCreatePasswordController(private val context: C
     }
 
     companion object {
-        private val TAG = CredentialProviderCreatePasswordController::class.java.name
+        private const val TAG = "CreatePassword"
         private var controller: CredentialProviderCreatePasswordController? = null
         // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
         /**

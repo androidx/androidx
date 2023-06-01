@@ -138,7 +138,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
 
     companion object {
-        private val TAG = CredentialProviderPlayServicesImpl::class.java.name
+        private const val TAG = "PlayServicesImpl"
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,
