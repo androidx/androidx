@@ -40,6 +40,8 @@ internal class KspExecutableParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = parameter.isVararg
+
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
 

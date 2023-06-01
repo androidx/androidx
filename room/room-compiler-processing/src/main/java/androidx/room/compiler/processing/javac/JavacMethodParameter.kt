@@ -40,6 +40,10 @@ internal class JavacMethodParameter(
         enclosingElement.isExtensionFunction() &&
         enclosingElement.parameters.first() == this
 
+    override fun isVarArgs() =
+        kotlinMetadata?.isVarArgs() ?: (enclosingElement.isVarArgs() &&
+            enclosingElement.parameters.last() == this)
+
     override fun isKotlinPropertyParam() =
         enclosingElement is JavacMethodElement &&
         enclosingElement.isKotlinPropertyMethod()
