@@ -27,6 +27,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -60,6 +61,7 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -73,7 +75,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.Dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tv.material3.tokens.Elevation
 import com.google.common.truth.Truth
@@ -91,7 +93,7 @@ private fun assertFloatPrecision(a: Float, b: Float) =
     ExperimentalTestApi::class,
     ExperimentalTvMaterial3Api::class
 )
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SurfaceTest {
@@ -459,6 +461,47 @@ class SurfaceTest {
         Truth.assertThat(isPressed).isTrue()
     }
 
+    @Test
+    fun clickableSurface_onFocusChange_releasesPressInteraction() {
+        val interactionSource = MutableInteractionSource()
+        var isPressed by mutableStateOf(false)
+
+        rule.setContent {
+            isPressed = interactionSource.collectIsPressedAsState().value
+            Column {
+                Surface(
+                    modifier = Modifier
+                        .testTag("surface-1")
+                        .size(100.toDp()),
+                    onClick = {},
+                    interactionSource = interactionSource
+                ) {}
+                Surface(
+                    modifier = Modifier
+                        .testTag("surface-2")
+                        .size(100.toDp()),
+                    onClick = {}
+                ) {}
+            }
+        }
+
+        with(rule.onNodeWithTag("surface-1")) {
+            performSemanticsAction(SemanticsActions.RequestFocus)
+            assertIsFocused()
+            performKeyInput { keyDown(Key.DirectionCenter) }
+        }
+
+        rule.waitUntil(condition = { isPressed })
+
+        Truth.assertThat(isPressed).isTrue()
+
+        rule.onNodeWithTag("surface-1")
+            .performKeyInput { pressKey(Key.DirectionDown) }
+            .assertIsNotFocused()
+
+        Truth.assertThat(isPressed).isFalse()
+    }
+
     @FlakyTest(bugId = 269229262)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -824,6 +867,48 @@ class SurfaceTest {
         rule.waitUntil(condition = { isPressed })
 
         Truth.assertThat(isPressed).isTrue()
+    }
+
+    @Test
+    fun toggleableSurface_onFocusChange_releasesPressInteraction() {
+        val interactionSource = MutableInteractionSource()
+        var isPressed by mutableStateOf(false)
+
+        rule.setContent {
+            isPressed = interactionSource.collectIsPressedAsState().value
+            Column {
+                Surface(
+                    checked = false,
+                    modifier = Modifier
+                        .testTag("surface-1")
+                        .size(100.toDp()),
+                    onCheckedChange = {},
+                    interactionSource = interactionSource
+                ) {}
+                Surface(
+                    modifier = Modifier
+                        .testTag("surface-2")
+                        .size(100.toDp()),
+                    onClick = {}
+                ) {}
+            }
+        }
+
+        with(rule.onNodeWithTag("surface-1")) {
+            performSemanticsAction(SemanticsActions.RequestFocus)
+            assertIsFocused()
+            performKeyInput { keyDown(Key.DirectionCenter) }
+        }
+
+        rule.waitUntil(condition = { isPressed })
+
+        Truth.assertThat(isPressed).isTrue()
+
+        rule.onNodeWithTag("surface-1")
+            .performKeyInput { pressKey(Key.DirectionDown) }
+            .assertIsNotFocused()
+
+        Truth.assertThat(isPressed).isFalse()
     }
 
     @FlakyTest(bugId = 269229262)

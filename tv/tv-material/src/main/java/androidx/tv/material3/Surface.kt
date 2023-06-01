@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -480,7 +481,7 @@ private fun Modifier.tvToggleable(
     // We are not using "toggleable" modifier here because if we set "enabled" to false
     // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
     // should be focusable
-    .focusable(enabled = enabled, interactionSource = interactionSource)
+    .focusable(interactionSource = interactionSource)
     .semantics(mergeDescendants = true) {
         onClick {
             onCheckedChange(!checked)
@@ -527,13 +528,23 @@ private fun Modifier.handleDPadEnter(
         properties["onCheckedChanged"] = onCheckedChanged
     }
 ) {
+    if (!enabled) return@composed this
+
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
     var isLongClick by remember { mutableStateOf(false) }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
-    this.then(
-        onKeyEvent { keyEvent ->
-            if (AcceptableKeys.any { keyEvent.nativeKeyEvent.keyCode == it } && enabled) {
+    this
+        .onFocusChanged {
+            if (!it.isFocused && isPressed) {
+                coroutineScope.launch {
+                    interactionSource.emit(PressInteraction.Release(pressInteraction))
+                }
+            }
+        }
+        .onKeyEvent { keyEvent ->
+            if (AcceptableKeys.contains(keyEvent.nativeKeyEvent.keyCode)) {
                 when (keyEvent.nativeKeyEvent.action) {
                     NativeKeyEvent.ACTION_DOWN -> {
                         when (keyEvent.nativeKeyEvent.repeatCount) {
@@ -571,7 +582,6 @@ private fun Modifier.handleDPadEnter(
             }
             KeyEventPropagation.ContinuePropagation
         }
-    )
 }
 
 @Composable
@@ -620,7 +630,7 @@ internal const val EnabledContentAlpha = 1f
  * calculating surface tonal colors, and is *not* used for drawing the shadow in a [SurfaceImpl].
  */
 val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
-private val AcceptableKeys = listOf(
+private val AcceptableKeys = hashSetOf(
     NativeKeyEvent.KEYCODE_DPAD_CENTER,
     NativeKeyEvent.KEYCODE_ENTER,
     NativeKeyEvent.KEYCODE_NUMPAD_ENTER
