@@ -26,8 +26,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.layout.WindowLayoutInfo;
 
-// TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to the
-//  latest library.
+// TODO(b/264546746): Remove deprecated Window Extensions APIs
 /**
  * @deprecated Use {@link androidx.window.extensions.core.util.function.Function} instead unless
  * {@link androidx.window.extensions.core.util.function.Function} cannot be used.
