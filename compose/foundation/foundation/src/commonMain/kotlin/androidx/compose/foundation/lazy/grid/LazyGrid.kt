@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -215,8 +216,6 @@ private fun rememberLazyGridMeasurePolicy(
         val contentConstraints =
             containerConstraints.offset(-totalHorizontalPadding, -totalVerticalPadding)
 
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-
         val spanLayoutProvider = itemProvider.spanLayoutProvider
         val resolvedSlots = slots(containerConstraints)
         val slotsPerLine = resolvedSlots.sizes.size
@@ -252,12 +251,19 @@ private fun rememberLazyGridMeasurePolicy(
             )
         }
 
-        val measuredItemProvider = LazyGridMeasuredItemProvider(
+        val measuredItemProvider = object : LazyGridMeasuredItemProvider(
             itemProvider,
             this,
             spaceBetweenLines
-        ) { index, key, contentType, crossAxisSize, mainAxisSpacing, placeables ->
-            LazyGridMeasuredItem(
+        ) {
+            override fun createItem(
+                index: Int,
+                key: Any,
+                contentType: Any?,
+                crossAxisSize: Int,
+                mainAxisSpacing: Int,
+                placeables: List<Placeable>
+            ) = LazyGridMeasuredItem(
                 index = index,
                 key = key,
                 isVertical = isVertical,
@@ -272,15 +278,20 @@ private fun rememberLazyGridMeasurePolicy(
                 contentType = contentType
             )
         }
-        val measuredLineProvider = LazyGridMeasuredLineProvider(
+        val measuredLineProvider = object : LazyGridMeasuredLineProvider(
             isVertical = isVertical,
             slots = resolvedSlots,
             gridItemsCount = itemsCount,
             spaceBetweenLines = spaceBetweenLines,
             measuredItemProvider = measuredItemProvider,
             spanLayoutProvider = spanLayoutProvider
-        ) { index, items, spans, mainAxisSpacing ->
-            LazyGridMeasuredLine(
+        ) {
+            override fun createLine(
+                index: Int,
+                items: Array<LazyGridMeasuredItem>,
+                spans: List<GridItemSpan>,
+                mainAxisSpacing: Int
+            ) = LazyGridMeasuredLine(
                 index = index,
                 items = items,
                 spans = spans,
@@ -307,10 +318,11 @@ private fun rememberLazyGridMeasurePolicy(
         val firstVisibleLineScrollOffset: Int
 
         Snapshot.withoutReadObservation {
-            if (state.firstVisibleItemIndex < itemsCount || itemsCount <= 0) {
-                firstVisibleLineIndex = spanLayoutProvider.getLineIndexOfItem(
-                    state.firstVisibleItemIndex
-                )
+            val index = state.updateScrollPositionIfTheFirstItemWasMoved(
+                itemProvider, state.firstVisibleItemIndex
+            )
+            if (index < itemsCount || itemsCount <= 0) {
+                firstVisibleLineIndex = spanLayoutProvider.getLineIndexOfItem(index)
                 firstVisibleLineScrollOffset = state.firstVisibleItemScrollOffset
             } else {
                 // the data set has been updated and now we have less items that we were

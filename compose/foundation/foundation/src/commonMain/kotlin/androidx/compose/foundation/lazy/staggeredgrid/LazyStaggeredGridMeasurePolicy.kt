@@ -68,9 +68,6 @@ internal fun rememberStaggeredGridMeasurePolicy(
         state.isVertical = isVertical
         state.spanProvider = itemProvider.spanProvider
 
-        // ensure scroll position is up to date
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-
         // setup measure
         val beforeContentPadding = contentPadding.beforePadding(
             orientation, reverseLayout, layoutDirection

@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.findIndexByKey
+import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,9 +31,11 @@ internal class LazyStaggeredGridScrollPosition(
     initialIndices: IntArray,
     initialOffsets: IntArray,
     private val fillIndices: (targetIndex: Int, laneCount: Int) -> IntArray
-) {
-    var indices by mutableStateOf(initialIndices)
-    var offsets by mutableStateOf(initialOffsets)
+) : SnapshotMutationPolicy<IntArray> {
+    var indices by mutableStateOf(initialIndices, this)
+        private set
+    var offsets by mutableStateOf(initialOffsets, this)
+        private set
 
     private var hadFirstNotEmptyLayout = false
 
@@ -91,27 +94,28 @@ internal class LazyStaggeredGridScrollPosition(
      * as the first visible one even given that its index has been changed.
      */
     @ExperimentalFoundationApi
-    fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyLayoutItemProvider) {
-        Snapshot.withoutReadObservation {
-            val lastIndex = itemProvider.findIndexByKey(
-                key = lastKnownFirstItemKey,
-                lastKnownIndex = indices.getOrNull(0) ?: 0
-            )
-            if (lastIndex !in indices) {
-                update(
-                    fillIndices(lastIndex, indices.size),
-                    offsets
-                )
-            }
+    fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyLayoutItemProvider,
+        indices: IntArray
+    ): IntArray {
+        val lastIndex = itemProvider.findIndexByKey(
+            key = lastKnownFirstItemKey,
+            lastKnownIndex = indices.getOrNull(0) ?: 0
+        )
+        return if (lastIndex !in indices) {
+            val newIndices = fillIndices(lastIndex, indices.size)
+            this.indices = newIndices
+            newIndices
+        } else {
+            indices
         }
     }
 
     private fun update(indices: IntArray, offsets: IntArray) {
-        if (!indices.contentEquals(this.indices)) {
-            this.indices = indices
-        }
-        if (!offsets.contentEquals(this.offsets)) {
-            this.offsets = offsets
-        }
+        this.indices = indices
+        this.offsets = offsets
     }
+
+    // mutation policy for int arrays
+    override fun equivalent(a: IntArray, b: IntArray) = a.contentEquals(b)
 }
