@@ -453,7 +453,7 @@ class PositionalDataSourceTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun verifyRefreshIsTerminal(counted: Boolean): Unit = testScope.runTest {
+    private fun verifyRefreshIsTerminal(counted: Boolean) = testScope.runTest {
         val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
         dataSource.load(
             DataSource.Params(

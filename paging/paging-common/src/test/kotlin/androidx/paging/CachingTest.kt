@@ -452,7 +452,7 @@ class CachingTest {
      * invalidations create new PagingData BUT a new collector only sees the latest one.
      */
     @Test
-    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.runTest {
+    public fun unusedPagingDataIsNeverCollectedByNewDownstream() = testScope.runTest {
         val factory = StringPagingSource.VersionedFactory()
         val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
         val collector = ItemCollector(flow)
@@ -517,7 +517,7 @@ class CachingTest {
     }
 
     @Test
-    public fun unusedPagingDataIsNeverCached(): Unit = testScope.runTest {
+    public fun unusedPagingDataIsNeverCached() = testScope.runTest {
         val factory = StringPagingSource.VersionedFactory()
         val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
         val collector = ItemCollector(flow)
