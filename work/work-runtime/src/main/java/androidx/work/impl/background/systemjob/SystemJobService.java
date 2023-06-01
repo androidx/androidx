@@ -50,7 +50,6 @@ import java.util.Map;
 
 /**
  * Service invoked by {@link JobScheduler} to run work tasks.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -180,7 +179,14 @@ public class SystemJobService extends JobService implements ExecutionListener {
         }
         StartStopToken runId = mStartStopTokens.remove(workGenerationalId);
         if (runId != null) {
-            mWorkLauncher.stopWork(runId);
+            int stopReason;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                stopReason = Api31Impl.getStopReason(params);
+            } else {
+                stopReason = 0;
+            }
+            //
+            mWorkLauncher.stopWorkWithReason(runId, stopReason);
         }
         return !mWorkManagerImpl.getProcessor().isCancelled(workGenerationalId.getWorkSpecId());
     }
@@ -241,6 +247,18 @@ public class SystemJobService extends JobService implements ExecutionListener {
         @DoNotInline
         static Network getNetwork(JobParameters jobParameters) {
             return jobParameters.getNetwork();
+        }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getStopReason(JobParameters jobParameters) {
+            return jobParameters.getStopReason();
         }
     }
 }
