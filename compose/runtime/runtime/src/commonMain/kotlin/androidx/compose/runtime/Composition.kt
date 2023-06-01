@@ -17,6 +17,7 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.IdentityScopeMap
@@ -416,7 +417,7 @@ internal class CompositionImpl(
      * [SlotTable] to reflect the result of composition. This is a list of lambdas that need to
      * be invoked in order to produce the desired effects.
      */
-    private val changes = mutableListOf<Change>()
+    private val changes = ChangeList()
 
     /**
      * A list of changes calculated by [Composer] to be applied after all other compositions have
@@ -426,7 +427,7 @@ internal class CompositionImpl(
      * inserts might be earlier in the composition than the position it is deleted, this move must
      * be done in two phases.
      */
-    private val lateChanges = mutableListOf<Change>()
+    private val lateChanges = ChangeList()
 
     /**
      * When an observable object is modified during composition any recompose scopes that are
@@ -810,7 +811,7 @@ internal class CompositionImpl(
         manager.dispatchRememberObservers()
     }
 
-    private fun applyChangesInLocked(changes: MutableList<Change>) {
+    private fun applyChangesInLocked(changes: ChangeList) {
         val manager = RememberEventDispatcher(abandonSet)
         try {
             if (changes.isEmpty()) return
@@ -819,11 +820,7 @@ internal class CompositionImpl(
 
                 // Apply all changes
                 slotTable.write { slots ->
-                    val applier = applier
-                    changes.fastForEach { change ->
-                        change(applier, slots, manager)
-                    }
-                    changes.clear()
+                    changes.executeAndFlushAllPendingChanges(applier, slots, manager)
                 }
                 applier.onEndChanges()
             }

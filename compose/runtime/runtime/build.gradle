@@ -41,6 +41,7 @@ androidXMultiplatform {
             dependencies {
                 implementation kotlin("test")
                 implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinReflect)
             }
         }
 
