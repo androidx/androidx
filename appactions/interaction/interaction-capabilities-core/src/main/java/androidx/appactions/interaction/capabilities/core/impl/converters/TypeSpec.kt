@@ -23,6 +23,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -161,7 +162,7 @@ interface TypeSpec<T> {
 
         @JvmField
         val ZONED_DATE_TIME_TYPE_SPEC = createStringBasedTypeSpec<ZonedDateTime>(
-            toString = { it.format(DateTimeFormatter.ISO_ZONED_DATE_TIME) },
+            toString = { it.toOffsetDateTime().toString() },
             fromString = { try {
                 ZonedDateTime.parse(it)
             } catch (e: DateTimeParseException) {
@@ -189,6 +190,17 @@ interface TypeSpec<T> {
             } catch (e: DateTimeParseException) {
                 throw StructConversionException(
                                     "Failed to parse ISO 8601 string to Duration", e)
+            } }
+        )
+
+        @JvmField
+        val ZONE_ID_TYPE_SPEC = createStringBasedTypeSpec<ZoneId>(
+            toString = ZoneId::toString,
+            fromString = { try {
+                ZoneId.of(it)
+            } catch (e: Exception) {
+                throw StructConversionException(
+                    "Failed to parse string to ZoneId", e)
             } }
         )
     }

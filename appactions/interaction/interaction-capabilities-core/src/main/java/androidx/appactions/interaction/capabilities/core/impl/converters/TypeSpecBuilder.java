@@ -26,9 +26,6 @@ import androidx.appactions.interaction.protobuf.ListValue;
 import androidx.appactions.interaction.protobuf.Struct;
 import androidx.appactions.interaction.protobuf.Value;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -213,101 +210,6 @@ public final class TypeSpecBuilder<T, BuilderT> {
                 (builder, value) -> {
                     if (value.hasStringValue()) {
                         stringSetter.accept(builder, value.getStringValue());
-                    }
-                });
-    }
-
-    /**
-     * Binds an enum field to read from / write to Struct. The enum will be represented as a string
-     * when converted to a Struct proto.
-     */
-    <E extends Enum<E>> TypeSpecBuilder<T, BuilderT> bindEnumField(
-            String name,
-            Function<T, E> valueGetter,
-            BiConsumer<BuilderT, E> valueSetter,
-            Class<E> enumClass) {
-        return bindFieldInternal(
-                name,
-                (object) -> {
-                    E enumVal = valueGetter.apply(object);
-                    if (enumVal == null) {
-                        return null;
-                    }
-                    return TypeSpecBuilder.getStringValue(enumVal.toString());
-                },
-                (builder, value) -> {
-                    if (value.hasStringValue()) {
-                        String stringValue = value.getStringValue();
-                        E[] enumValues = enumClass.getEnumConstants();
-                        if (enumValues != null) {
-                            for (E enumValue : enumValues) {
-                                if (enumValue.toString().equals(stringValue)) {
-                                    valueSetter.accept(builder, enumValue);
-                                    return;
-                                }
-                            }
-                        }
-                        throw new StructConversionException(
-                                String.format("Failed to get enum from string %s", stringValue));
-                    }
-                });
-    }
-
-    /**
-     * Binds a Duration field to read from / write to Struct. The Duration will be represented as an
-     * ISO 8601 string when converted to a Struct proto.
-     */
-    TypeSpecBuilder<T, BuilderT> bindDurationField(
-            String name,
-            Function<T, Duration> valueGetter,
-            BiConsumer<BuilderT, Duration> valueSetter) {
-        return bindFieldInternal(
-                name,
-                (object) -> {
-                    Duration duration = valueGetter.apply(object);
-                    if (duration == null) {
-                        return null;
-                    }
-                    return TypeSpecBuilder.getStringValue(duration.toString());
-                },
-                (builder, value) -> {
-                    try {
-                        valueSetter.accept(
-                                builder, Duration.parse(value.getStringValue()));
-                    } catch (DateTimeParseException e) {
-                        throw new StructConversionException(
-                                "Failed to parse ISO 8601 string to Duration", e);
-                    }
-                });
-    }
-
-    /**
-     * Binds a ZonedDateTime field to read from / write to Struct. The ZonedDateTime will be
-     * represented as an ISO 8601 string when converted to a Struct proto.
-     */
-    TypeSpecBuilder<T, BuilderT> bindZonedDateTimeField(
-            String name,
-            Function<T, ZonedDateTime> valueGetter,
-            BiConsumer<BuilderT, ZonedDateTime> valueSetter) {
-        return bindFieldInternal(
-                name,
-                (object) -> {
-                    ZonedDateTime zonedDateTime = valueGetter.apply(object);
-                    if (zonedDateTime == null) {
-                        return null;
-                    }
-                    return TypeSpecBuilder.getStringValue(
-                            zonedDateTime.toOffsetDateTime().toString());
-                },
-                (builder, value) -> {
-                    if (value.hasStringValue()) {
-                        try {
-                            valueSetter.accept(
-                                    builder, ZonedDateTime.parse(value.getStringValue()));
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to ZonedDateTime", e);
-                        }
                     }
                 });
     }
