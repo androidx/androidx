@@ -33,6 +33,7 @@ import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.devtools.ksp.KspExperimental
@@ -184,25 +185,27 @@ internal sealed class KspTypeElement(
         }
     }
 
-    private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        if (declaration.isCompanionObject) {
-            _declaredProperties.flatMap { field ->
-                field.syntheticAccessors
-            }
-        } else {
-            _declaredProperties.flatMap { field ->
-                // static fields are the properties that are coming from the
-                // companion. Whether we'll generate method for it or not depends on
-                // the JVMStatic annotation
-                if (field.isStatic() && !field.declaration.hasJvmStaticAnnotation()) {
-                    field.syntheticAccessors.filter {
-                        it.accessor.hasJvmStaticAnnotation()
-                    }
-                } else {
-                    field.syntheticAccessors
-                }
-            }
-        }.filterMethodsByConfig(env)
+    private fun syntheticGetterSetterMethods(field: KspFieldElement): List<XMethodElement> {
+      if (declaration.isCompanionObject) {
+        return field.syntheticAccessors
+      }
+      if (field.isStatic() && !field.declaration.hasJvmStaticAnnotation()) {
+        return field.syntheticAccessors.filter {
+          it.accessor.hasJvmStaticAnnotation()
+        }
+      }
+      if (field.isStatic() && field.declaration.hasJvmStaticAnnotation()) {
+        // Getter and setter are copied from companion object into current type
+        // element by Compiler in KAPT when @JvmStatic is present, in this case, the
+        // copied over method element should swap its enclosing element to be
+        // current type element instead of companion object.
+        return field.syntheticAccessors.map { element ->
+          KspSyntheticPropertyMethodElement.create(
+            env, field, element.accessor, isSyntheticStatic = true
+          )
+        }
+      }
+      return field.syntheticAccessors
     }
 
     override fun isNested(): Boolean {
@@ -266,22 +269,51 @@ internal sealed class KspTypeElement(
     }
 
     private val _declaredMethods by lazy {
-        val declaredMethods = buildList {
-            addAll(declaration.getDeclarationsInSourceOrder())
-            addAll(
-                declaration.findCompanionObject().getDeclarationsInSourceOrder()
-                    .filter { it.hasJvmStaticAnnotation() }
-            )
-        }.filterIsInstance(KSFunctionDeclaration::class.java)
-            .filterNot { it.isConstructor() }
-            .map {
-                KspMethodElement.create(
+      buildList {
+          declaration.getDeclarationsInSourceOrder()
+            .forEach {
+              if (it is KSFunctionDeclaration && !it.isConstructor()) {
+                add(
+                  KspMethodElement.create(
                     env = env,
                     declaration = it
+                  )
+                )
+             } else if (it is KSPropertyDeclaration) {
+                addAll(
+                  syntheticGetterSetterMethods(
+                    KspFieldElement(
+                      env = env,
+                      declaration = it
+                    )
+                  )
                 )
             }
-            .filterMethodsByConfig(env)
-        declaredMethods + syntheticGetterSetterMethods
+          }
+          declaration.findCompanionObject().getDeclarationsInSourceOrder()
+            .forEach {
+              if (it.hasJvmStaticAnnotation() &&
+                  it is KSFunctionDeclaration &&
+                  !it.isConstructor()) {
+                add(
+                  KspMethodElement.create(
+                    env = env,
+                    declaration = it,
+                    isSyntheticStatic = true
+                  )
+                )
+              } else if (it is KSPropertyDeclaration) {
+                addAll(
+                  syntheticGetterSetterMethods(
+                    KspFieldElement(
+                      env = env,
+                      declaration = it
+                    )
+                  )
+                )
+              }
+            }
+        }.filterMethodsByConfig(env)
     }
 
     override fun getDeclaredMethods(): List<XMethodElement> {
@@ -342,6 +374,13 @@ internal sealed class KspTypeElement(
     fun KSDeclarationContainer?.getDeclarationsInSourceOrder() = this?.let {
         env.resolver.getDeclarationsInSourceOrder(it)
     } ?: emptySequence()
+
+    @OptIn(KspExperimental::class)
+    fun KSDeclarationContainer?.getDeclaredMethods(): Sequence<KSFunctionDeclaration> {
+        return this.getDeclarationsInSourceOrder()
+            .filterIsInstance(KSFunctionDeclaration::class.java)
+            .filterNot { it.isConstructor() }
+    }
 
     companion object {
         fun create(
