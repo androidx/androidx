@@ -55,7 +55,6 @@ abstract class UpdateApiTask : DefaultTask() {
         return listOf(
             inputApi.publicApiFile,
             inputApi.restrictedApiFile,
-            inputApi.experimentalApiFile,
             inputApi.removedApiFile
         )
     }
@@ -67,7 +66,6 @@ abstract class UpdateApiTask : DefaultTask() {
             listOf(
                 outputApiLocation.publicApiFile,
                 outputApiLocation.restrictedApiFile,
-                outputApiLocation.experimentalApiFile,
                 outputApiLocation.removedApiFile
             )
         }
@@ -85,11 +83,6 @@ abstract class UpdateApiTask : DefaultTask() {
             copy(
                 source = inputApi.removedApiFile,
                 dest = outputApi.removedApiFile,
-                logger = logger
-            )
-            copy(
-                source = inputApi.experimentalApiFile,
-                dest = outputApi.experimentalApiFile,
                 logger = logger
             )
             copy(
