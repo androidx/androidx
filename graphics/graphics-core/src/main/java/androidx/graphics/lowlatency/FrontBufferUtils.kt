@@ -93,11 +93,7 @@ internal class UsageFlagsVerificationHelper private constructor() {
         fun obtainUsageFlagsV33(): Long {
             // First verify if the front buffer usage flag is supported along with the
             // "usage composer overlay" flag that was introduced in API level 33
-            // SF Seems to log errors when configuring HardwareBuffer instances with the
-            // front buffer usage flag on Cuttlefish, so only include it for actual devices.
-            // See b/280866371
-            return if (isSupported(HardwareBuffer.USAGE_FRONT_BUFFER) &&
-                !Build.MODEL.contains("Cuttlefish")) {
+            return if (isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
                 FrontBufferUtils.BaseFlags or HardwareBuffer.USAGE_FRONT_BUFFER
             } else {
                 FrontBufferUtils.BaseFlags
