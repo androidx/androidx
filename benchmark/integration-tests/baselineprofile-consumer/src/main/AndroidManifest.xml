@@ -18,6 +18,7 @@
 
     <application
         android:allowBackup="false"
+        android:name=".App"
         android:label="Jetpack Baselineprofiles Target"
         android:supportsRtl="true"
         tools:ignore="MissingApplicationIcon">
