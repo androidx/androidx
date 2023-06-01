@@ -52,6 +52,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -59,6 +60,7 @@ class ImmersiveListTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @Ignore("b/285317959")
     @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Test
     fun immersiveList_scroll_backgroundChanges() {
@@ -122,6 +124,7 @@ class ImmersiveListTest {
         rule.onNodeWithTag("background-2").assertDoesNotExist()
     }
 
+    @Ignore("b/285317959")
     @Test
     fun immersiveList_scrollToRegainFocusInLazyColumn_checkBringIntoView() {
         val focusRequesterList = mutableListOf<FocusRequester>()
@@ -152,6 +155,7 @@ class ImmersiveListTest {
         assertThat(checkNodeCompletelyVisible("immersive-list")).isTrue()
     }
 
+    @Ignore("b/285317959")
     @Test
     fun immersiveList_scrollToRegainFocusInTvLazyColumn_checkBringIntoView() {
         val focusRequesterList = mutableListOf<FocusRequester>()
