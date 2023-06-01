@@ -16,9 +16,7 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ
-import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY
-import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ
+import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import java.util.UUID
 import org.junit.Assert
 import org.junit.Test
@@ -29,19 +27,62 @@ import org.junit.runners.JUnit4
 class BluetoothGattCharacteristicTest {
     @Test
     fun constructorWithFwkInstance() {
-        val characteristicUuid = UUID.randomUUID()
-        val properties = PROPERTY_READ or PROPERTY_NOTIFY
-        val permissions = PERMISSION_READ
-
-        val fwkGattCharacteristic = android.bluetooth.BluetoothGattCharacteristic(
-            characteristicUuid,
-            properties,
-            permissions,
+        val propertiesMap = mapOf(
+            FwkBluetoothGattCharacteristic.PROPERTY_BROADCAST to
+                BluetoothGattCharacteristic.PROPERTY_BROADCAST,
+            FwkBluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS to
+                BluetoothGattCharacteristic.PROPERTY_EXTENDS_PROP,
+            FwkBluetoothGattCharacteristic.PROPERTY_INDICATE to
+                BluetoothGattCharacteristic.PROPERTY_INDICATE,
+            FwkBluetoothGattCharacteristic.PROPERTY_NOTIFY
+                to BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+            FwkBluetoothGattCharacteristic.PROPERTY_READ
+                to BluetoothGattCharacteristic.PROPERTY_READ,
+            FwkBluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+                to BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE,
+            FwkBluetoothGattCharacteristic.PROPERTY_WRITE
+                to BluetoothGattCharacteristic.PROPERTY_WRITE,
+            FwkBluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+                to BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
         )
-        val gattCharacteristic = BluetoothGattCharacteristic(fwkGattCharacteristic)
 
-        Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
-        Assert.assertEquals(fwkGattCharacteristic.properties, gattCharacteristic.properties)
-        Assert.assertEquals(fwkGattCharacteristic.permissions, gattCharacteristic.permissions)
+        val permissionMap = mapOf(
+            FwkBluetoothGattCharacteristic.PERMISSION_READ to
+                BluetoothGattCharacteristic.PERMISSION_READ,
+            FwkBluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED to
+                BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED,
+            FwkBluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM to
+                BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM,
+            FwkBluetoothGattCharacteristic.PERMISSION_WRITE to
+                BluetoothGattCharacteristic.PERMISSION_WRITE,
+            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED to
+                BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED,
+            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM to
+                BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM,
+            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED to
+                BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED,
+            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM to
+                BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
+        )
+
+        propertiesMap.forEach {
+            val charUuid = UUID.randomUUID()
+            val fwkGattCharacteristic = FwkBluetoothGattCharacteristic(charUuid, it.key,
+                /*permissions=*/0)
+            val gattCharacteristic = BluetoothGattCharacteristic(fwkGattCharacteristic)
+
+            Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
+            Assert.assertEquals(it.value, gattCharacteristic.properties)
+        }
+
+        permissionMap.forEach {
+            val charUuid = UUID.randomUUID()
+            val fwkGattCharacteristic = FwkBluetoothGattCharacteristic(charUuid,
+                /*properties=*/0, it.key)
+            val gattCharacteristic = BluetoothGattCharacteristic(fwkGattCharacteristic)
+
+            Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
+            Assert.assertEquals(it.value, gattCharacteristic.permissions)
+        }
     }
 }
