@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -41,6 +42,12 @@ internal class PagerScrollPosition(
     /** The last know key of the page at [firstVisiblePage] position. */
     private var lastKnownFirstPageKey: Any? = null
 
+    val nearestRangeState = LazyLayoutNearestRangeState(
+        initialPage,
+        NearestItemsSlidingWindowSize,
+        NearestItemsExtraItemCount
+    )
+
     /**
      * Updates the current scroll position based on the results of the last measurement.
      */
@@ -59,9 +66,7 @@ internal class PagerScrollPosition(
                 scrollOffset
             )
             measureResult.closestPageToSnapPosition?.index?.let {
-                if (it != this.currentPage) {
-                    this.currentPage = it
-                }
+                this.currentPage = it
             }
         }
     }
@@ -87,6 +92,18 @@ internal class PagerScrollPosition(
     private fun update(index: Int, scrollOffset: Int) {
         require(index >= 0f) { "Index should be non-negative ($index)" }
         this.firstVisiblePage = index
+        nearestRangeState.update(index)
         this.scrollOffset = scrollOffset
     }
 }
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+internal const val NearestItemsSlidingWindowSize = 30
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+internal const val NearestItemsExtraItemCount = 100

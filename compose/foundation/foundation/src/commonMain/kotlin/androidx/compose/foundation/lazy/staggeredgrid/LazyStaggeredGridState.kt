@@ -224,6 +224,8 @@ class LazyStaggeredGridState private constructor(
 
     internal val placementAnimator = LazyStaggeredGridItemPlacementAnimator()
 
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
+
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be
