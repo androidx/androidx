@@ -73,9 +73,6 @@ class Camera2CameraInfo private constructor(
 
     fun getCameraId(): String = cameraProperties.cameraId.value
 
-    /**
-     * @hide
-     */
     companion object {
 
         /**
