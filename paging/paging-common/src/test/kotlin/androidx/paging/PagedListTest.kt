@@ -31,10 +31,12 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PagedListTest {
     companion object {
@@ -78,99 +80,93 @@ class PagedListTest {
     }
 
     @Test
-    fun createNoInitialPageThrow() {
-        runBlocking {
-            val pagingSource = object : PagingSource<Int, String>() {
-                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-                    throw IllegalStateException()
-                }
+    fun createNoInitialPageThrow() = runTest {
+        val pagingSource = object : PagingSource<Int, String>() {
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                throw IllegalStateException()
+            }
 
-                override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
-            }
-            assertFailsWith<IllegalStateException> {
-                @Suppress("DEPRECATION")
-                PagedList.create(
-                    pagingSource,
-                    null,
-                    testCoroutineScope,
-                    Dispatchers.Default,
-                    Dispatchers.IO,
-                    null,
-                    Config(10),
-                    0
-                )
-            }
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
         }
-    }
-
-    @Test
-    fun createNoInitialPageError() {
-        runBlocking {
-            val exception = IllegalStateException()
-            val pagingSource = object : PagingSource<Int, String>() {
-                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-                    return LoadResult.Error(exception)
-                }
-
-                override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
-            }
-
-            // create doesn't differentiate between throw vs error runnable, which is why
-            // PagedList.Builder without the initial page is deprecated
-            assertFailsWith<IllegalStateException> {
-                @Suppress("DEPRECATION")
-                PagedList.create(
-                    pagingSource,
-                    null,
-                    testCoroutineScope,
-                    Dispatchers.Default,
-                    Dispatchers.IO,
-                    null,
-                    Config(10),
-                    0
-                )
-            }
-        }
-    }
-
-    @Test
-    fun createNoInitialPageInvalidResult() {
-        runBlocking {
-            val pagingSource = object : PagingSource<Int, String>() {
-                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-                    return LoadResult.Invalid()
-                }
-
-                override fun getRefreshKey(state: PagingState<Int, String>): Int? {
-                    fail("should not reach here")
-                }
-            }
-
-            val expectedException = assertFailsWith<IllegalStateException> {
-                @Suppress("DEPRECATION")
-                PagedList.create(
-                    pagingSource,
-                    initialPage = null,
-                    testCoroutineScope,
-                    Dispatchers.Default,
-                    Dispatchers.IO,
-                    boundaryCallback = null,
-                    Config(10),
-                    key = 0
-                )
-            }
-            assertThat(expectedException.message).isEqualTo(
-                "Failed to create PagedList. The provided PagingSource returned " +
-                    "LoadResult.Invalid, but a LoadResult.Page was expected. To use a " +
-                    "PagingSource which supports invalidation, use a PagedList builder that " +
-                    "accepts a factory method for PagingSource or DataSource.Factory, such as " +
-                    "LivePagedList."
+        assertFailsWith<IllegalStateException> {
+            @Suppress("DEPRECATION")
+            PagedList.create(
+                pagingSource,
+                null,
+                testCoroutineScope,
+                Dispatchers.Default,
+                Dispatchers.IO,
+                null,
+                Config(10),
+                0
             )
         }
     }
 
     @Test
-    fun defaults() = runBlocking {
+    fun createNoInitialPageError() = runTest {
+        val exception = IllegalStateException()
+        val pagingSource = object : PagingSource<Int, String>() {
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                return LoadResult.Error(exception)
+            }
+
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
+        }
+
+        // create doesn't differentiate between throw vs error runnable, which is why
+        // PagedList.Builder without the initial page is deprecated
+        assertFailsWith<IllegalStateException> {
+            @Suppress("DEPRECATION")
+            PagedList.create(
+                pagingSource,
+                null,
+                testCoroutineScope,
+                Dispatchers.Default,
+                Dispatchers.IO,
+                null,
+                Config(10),
+                0
+            )
+        }
+    }
+
+    @Test
+    fun createNoInitialPageInvalidResult() = runTest {
+        val pagingSource = object : PagingSource<Int, String>() {
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                return LoadResult.Invalid()
+            }
+
+            override fun getRefreshKey(state: PagingState<Int, String>): Int? {
+                fail("should not reach here")
+            }
+        }
+
+        val expectedException = assertFailsWith<IllegalStateException> {
+            @Suppress("DEPRECATION")
+            PagedList.create(
+                pagingSource,
+                initialPage = null,
+                testCoroutineScope,
+                Dispatchers.Default,
+                Dispatchers.IO,
+                boundaryCallback = null,
+                Config(10),
+                key = 0
+            )
+        }
+        assertThat(expectedException.message).isEqualTo(
+            "Failed to create PagedList. The provided PagingSource returned " +
+                "LoadResult.Invalid, but a LoadResult.Page was expected. To use a " +
+                "PagingSource which supports invalidation, use a PagedList builder that " +
+                "accepts a factory method for PagingSource or DataSource.Factory, such as " +
+                "LivePagedList."
+        )
+    }
+
+    @Test
+    fun defaults() = runTest {
         val initialPage = pagingSource.load(
             PagingSource.LoadParams.Refresh(
                 key = null,
