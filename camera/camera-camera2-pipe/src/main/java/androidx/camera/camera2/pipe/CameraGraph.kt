@@ -192,6 +192,17 @@ interface CameraGraph : AutoCloseable {
          * - API levels: All
          */
         val quirkCloseCaptureSessionOnDisconnect: Boolean = false,
+
+        /**
+         * A quirk that closes the camera device when the CameraGraph is closed. This is needed on
+         * devices where not closing the camera device before creating a new capture session can
+         * lead to crashes.
+         *
+         * - Bug(s): b/282871038
+         * - Device(s): Exynos7870 platforms.
+         * - API levels: All
+         */
+        val quirkCloseCameraDeviceOnClose: Boolean = false,
     ) {
 
         @JvmInline
