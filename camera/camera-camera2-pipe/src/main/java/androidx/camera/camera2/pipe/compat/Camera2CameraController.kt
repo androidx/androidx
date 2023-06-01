@@ -196,6 +196,10 @@ constructor(
         currentCameraStateJob = null
 
         disconnectSessionAndCamera(session, camera)
+        if (config.flags.quirkCloseCameraDeviceOnClose) {
+            Log.debug { "Quirk: Closing all camera devices" }
+            virtualCameraManager.closeAll()
+        }
     }
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
