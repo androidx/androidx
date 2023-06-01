@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
@@ -42,6 +43,12 @@ internal class LazyStaggeredGridScrollPosition(
     /** The last know key of the item at lowest of [indices] position. */
     private var lastKnownFirstItemKey: Any? = null
 
+    val nearestRangeState = LazyLayoutNearestRangeState(
+        initialIndices.minOrNull() ?: 0,
+        NearestItemsSlidingWindowSize,
+        NearestItemsExtraItemCount
+    )
+
     /**
      * Updates the current scroll position based on the results of the last measurement.
      */
@@ -53,6 +60,7 @@ internal class LazyStaggeredGridScrollPosition(
         lastKnownFirstItemKey = measureResult.visibleItemsInfo
             .fastFirstOrNull { it.index == firstVisibleIndex }
             ?.key
+        nearestRangeState.update(firstVisibleIndex)
         // we ignore the index and offset from measureResult until we get at least one
         // measurement with real items. otherwise the initial index and scroll passed to the
         // state would be lost and overridden with zeros.
@@ -82,6 +90,7 @@ internal class LazyStaggeredGridScrollPosition(
         val newIndices = fillIndices(index, indices.size)
         val newOffsets = IntArray(newIndices.size) { scrollOffset }
         update(newIndices, newOffsets)
+        nearestRangeState.update(index)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [updateScrollPositionIfTheFirstItemWasMoved] shouldn't override this.
         lastKnownFirstItemKey = null
@@ -98,12 +107,13 @@ internal class LazyStaggeredGridScrollPosition(
         itemProvider: LazyLayoutItemProvider,
         indices: IntArray
     ): IntArray {
-        val lastIndex = itemProvider.findIndexByKey(
+        val newIndex = itemProvider.findIndexByKey(
             key = lastKnownFirstItemKey,
             lastKnownIndex = indices.getOrNull(0) ?: 0
         )
-        return if (lastIndex !in indices) {
-            val newIndices = fillIndices(lastIndex, indices.size)
+        return if (newIndex !in indices) {
+            nearestRangeState.update(newIndex)
+            val newIndices = fillIndices(newIndex, indices.size)
             this.indices = newIndices
             newIndices
         } else {
@@ -119,3 +129,14 @@ internal class LazyStaggeredGridScrollPosition(
     // mutation policy for int arrays
     override fun equivalent(a: IntArray, b: IntArray) = a.contentEquals(b)
 }
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+private const val NearestItemsSlidingWindowSize = 90
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+private const val NearestItemsExtraItemCount = 200

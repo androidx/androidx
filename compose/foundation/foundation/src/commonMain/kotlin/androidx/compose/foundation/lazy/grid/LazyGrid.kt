@@ -76,12 +76,12 @@ internal fun LazyGrid(
 ) {
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
-    val itemProvider = rememberLazyGridItemProvider(state, content)
+    val itemProviderLambda = rememberLazyGridItemProviderLambda(state, content)
 
     val semanticState = rememberLazyGridSemanticState(state, reverseLayout)
 
     val measurePolicy = rememberLazyGridMeasurePolicy(
-        itemProvider,
+        itemProviderLambda,
         state,
         slots,
         contentPadding,
@@ -93,7 +93,7 @@ internal fun LazyGrid(
 
     state.isVertical = isVertical
 
-    ScrollPositionUpdater(itemProvider, state)
+    ScrollPositionUpdater(itemProviderLambda, state)
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
@@ -101,7 +101,7 @@ internal fun LazyGrid(
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
             .lazyLayoutSemantics(
-                itemProvider = itemProvider,
+                itemProviderLambda = itemProviderLambda,
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
@@ -129,7 +129,7 @@ internal fun LazyGrid(
             ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,
-        itemProvider = itemProvider
+        itemProvider = itemProviderLambda
     )
 }
 
@@ -137,9 +137,10 @@ internal fun LazyGrid(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ScrollPositionUpdater(
-    itemProvider: LazyGridItemProvider,
+    itemProviderLambda: () -> LazyGridItemProvider,
     state: LazyGridState
 ) {
+    val itemProvider = itemProviderLambda()
     if (itemProvider.itemCount > 0) {
         state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
     }
@@ -155,7 +156,7 @@ internal class LazyGridSlots(
 @Composable
 private fun rememberLazyGridMeasurePolicy(
     /** Items provider of the list. */
-    itemProvider: LazyGridItemProvider,
+    itemProviderLambda: () -> LazyGridItemProvider,
     /** The state of the list. */
     state: LazyGridState,
     /** Prefix sums of cross axis sizes of slots of the grid. */
@@ -216,6 +217,7 @@ private fun rememberLazyGridMeasurePolicy(
         val contentConstraints =
             containerConstraints.offset(-totalHorizontalPadding, -totalVerticalPadding)
 
+        val itemProvider = itemProviderLambda()
         val spanLayoutProvider = itemProvider.spanLayoutProvider
         val resolvedSlots = slots(containerConstraints)
         val slotsPerLine = resolvedSlots.sizes.size

@@ -17,11 +17,6 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.referentialEqualityPolicy
-import androidx.compose.runtime.structuralEqualityPolicy
 
 /**
  * A key-index mapping used inside the [LazyLayoutItemProvider]. It might not contain all items
@@ -51,50 +46,13 @@ internal interface LazyLayoutKeyIndexMap {
 }
 
 /**
- * State containing [LazyLayoutKeyIndexMap] precalculated for range of indexes near first visible
- * item.
- * It is optimized to return the same range for small changes in the firstVisibleItemIndex
- * value so we do not regenerate the map on each scroll.
- *
- * @param firstVisibleItemIndex Provider of the first item index currently visible on screen.
- * @param slidingWindowSize Number of items between current and `firstVisibleItem` until
- * [LazyLayoutKeyIndexMap] is regenerated.
- * @param extraItemCount The minimum amount of items in one direction near the first visible item
- * to calculate mapping for.
- * @param content Provider of [LazyLayoutIntervalContent] to generate key index mapping for.
- */
-@ExperimentalFoundationApi
-internal class NearestRangeKeyIndexMapState(
-    firstVisibleItemIndex: () -> Int,
-    slidingWindowSize: () -> Int,
-    extraItemCount: () -> Int,
-    content: () -> LazyLayoutIntervalContent<*>
-) : State<LazyLayoutKeyIndexMap> {
-    private val nearestRangeState by derivedStateOf(structuralEqualityPolicy()) {
-        if (content().itemCount < extraItemCount() * 2 + slidingWindowSize()) {
-            0 until content().itemCount
-        } else {
-            calculateNearestItemsRange(
-                firstVisibleItemIndex(),
-                slidingWindowSize(),
-                extraItemCount()
-            )
-        }
-    }
-
-    override val value: LazyLayoutKeyIndexMap by derivedStateOf(referentialEqualityPolicy()) {
-        NearestRangeKeyIndexMap(nearestRangeState, content())
-    }
-}
-
-/**
  * Implementation of [LazyLayoutKeyIndexMap] indexing over given [IntRange] of items.
  * Items outside of given range are considered unknown, with null returned as the index.
  */
 @ExperimentalFoundationApi
-private class NearestRangeKeyIndexMap(
+internal class NearestRangeKeyIndexMap(
     nearestRange: IntRange,
-    content: LazyLayoutIntervalContent<*>
+    intervalContent: LazyLayoutIntervalContent<*>
 ) : LazyLayoutKeyIndexMap {
     private val map: Map<Any, Int>
     private val keys: Array<Any?>
@@ -103,7 +61,7 @@ private class NearestRangeKeyIndexMap(
     init {
         // Traverses the interval [list] in order to create a mapping from the key to the index for
         // all the indexes in the passed [range].
-        val list = content.intervals
+        val list = intervalContent.intervals
         val first = nearestRange.first
         check(first >= 0)
         val last = minOf(nearestRange.last, list.size - 1)
@@ -137,21 +95,4 @@ private class NearestRangeKeyIndexMap(
 
     override fun getKey(index: Int) =
         keys.getOrElse(index - keysStartIndex) { null }
-}
-
-/**
- * Returns a range of indexes which contains at least [extraItemCount] items near
- * the first visible item. It is optimized to return the same range for small changes in the
- * firstVisibleItem value so we do not regenerate the map on each scroll.
- */
-private fun calculateNearestItemsRange(
-    firstVisibleItem: Int,
-    slidingWindowSize: Int,
-    extraItemCount: Int
-): IntRange {
-    val slidingWindowStart = slidingWindowSize * (firstVisibleItem / slidingWindowSize)
-
-    val start = maxOf(slidingWindowStart - extraItemCount, 0)
-    val end = slidingWindowStart + slidingWindowSize + extraItemCount
-    return start until end
 }

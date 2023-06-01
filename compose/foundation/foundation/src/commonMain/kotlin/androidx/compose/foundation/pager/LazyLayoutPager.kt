@@ -28,8 +28,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.NearestItemsExtraItemCount
-import androidx.compose.foundation.lazy.NearestItemsSlidingWindowSize
 import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
@@ -37,15 +35,14 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
-import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
+import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -102,7 +99,7 @@ internal fun Pager(
 
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
-    val pagerItemProvider = rememberPagerItemProvider(
+    val pagerItemProvider = rememberPagerItemProviderLambda(
         state = state,
         pageContent = pageContent,
         key = key
@@ -118,7 +115,7 @@ internal fun Pager(
         pageSize = pageSize,
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
-        itemProvider = pagerItemProvider,
+        itemProviderLambda = pagerItemProvider,
         pageCount = { state.pageCount },
     )
 
@@ -134,7 +131,6 @@ internal fun Pager(
 
     val semanticState = rememberPagerSemanticState(
         state,
-        pagerItemProvider,
         reverseLayout,
         orientation == Orientation.Vertical
     )
@@ -145,7 +141,7 @@ internal fun Pager(
             .then(state.awaitLayoutModifier)
             .then(pagerSemantics)
             .lazyLayoutSemantics(
-                itemProvider = pagerItemProvider,
+                itemProviderLambda = pagerItemProvider,
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
@@ -183,38 +179,42 @@ internal fun Pager(
 
 @ExperimentalFoundationApi
 internal class PagerLazyLayoutItemProvider(
-    val state: PagerState,
-    latestContent: () -> (@Composable PagerScope.(page: Int) -> Unit),
-    key: ((index: Int) -> Any)?,
-    pageCount: () -> Int
+    private val state: PagerState,
+    private val intervalContent: LazyLayoutIntervalContent<PagerIntervalContent>,
+    private val keyIndexMap: LazyLayoutKeyIndexMap,
 ) : LazyLayoutItemProvider {
-    private val pagerContent by derivedStateOf(structuralEqualityPolicy()) {
-        PagerLayoutIntervalContent(latestContent(), key = key, pageCount = pageCount())
-    }
-    private val keyToIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
-        firstVisibleItemIndex = { state.firstVisiblePage },
-        slidingWindowSize = { NearestItemsSlidingWindowSize },
-        extraItemCount = { NearestItemsExtraItemCount },
-        content = { pagerContent }
-    )
 
     private val pagerScopeImpl = PagerScopeImpl
 
     override val itemCount: Int
-        get() = pagerContent.itemCount
+        get() = intervalContent.itemCount
 
     @Composable
     override fun Item(index: Int, key: Any) {
         LazyLayoutPinnableItem(key, index, state.pinnedPages) {
-            pagerContent.withInterval(index) { localIndex, content ->
+            intervalContent.withInterval(index) { localIndex, content ->
                 content.item(pagerScopeImpl, localIndex)
             }
         }
     }
 
-    override fun getKey(index: Int): Any = keyToIndexMap.getKey(index) ?: pagerContent.getKey(index)
+    override fun getKey(index: Int): Any =
+        keyIndexMap.getKey(index) ?: intervalContent.getKey(index)
 
-    override fun getIndex(key: Any): Int = keyToIndexMap.getIndex(key)
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PagerLazyLayoutItemProvider) return false
+
+        // the identity of this class is represented by intervalContent object.
+        // having equals() allows us to skip items recomposition when intervalContent didn't change
+        return intervalContent == other.intervalContent
+    }
+
+    override fun hashCode(): Int {
+        return intervalContent.hashCode()
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -237,20 +237,27 @@ internal class PagerIntervalContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun rememberPagerItemProvider(
+private fun rememberPagerItemProviderLambda(
     state: PagerState,
     pageContent: @Composable PagerScope.(page: Int) -> Unit,
     key: ((index: Int) -> Any)?,
     pageCount: () -> Int
-): PagerLazyLayoutItemProvider {
+): () -> PagerLazyLayoutItemProvider {
     val latestContent = rememberUpdatedState(pageContent)
     return remember(state, latestContent, key, pageCount) {
-        PagerLazyLayoutItemProvider(
-            state = state,
-            latestContent = { latestContent.value },
-            key = key,
-            pageCount = pageCount
-        )
+        val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
+            PagerLayoutIntervalContent(latestContent.value, key, pageCount())
+        }
+        val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
+            val intervalContent = intervalContentState.value
+            val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
+            PagerLazyLayoutItemProvider(
+                state = state,
+                intervalContent = intervalContent,
+                keyIndexMap = map
+            )
+        }
+        itemProviderState::value
     }
 }
 
