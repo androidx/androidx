@@ -159,6 +159,7 @@ public class Chip implements LayoutElement {
         @NonNull private ContainerDimension mWidth;
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
         @NonNull private ChipColors mChipColors = PRIMARY_COLORS;
+        @NonNull private DpProp mIconSize = ICON_SIZE;
         @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_UNDEFINED;
         @TypographyName private int mPrimaryLabelTypography;
         @NonNull private DpProp mHorizontalPadding = HORIZONTAL_PADDING;
@@ -267,7 +268,7 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Used for creating CompactChip and TitleChip.
+         * Used for creating {@code CompactChip} and {@code TitleChip}.
          *
          * <p>Sets the font for the primary label and should only be used internally.
          */
@@ -278,7 +279,18 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Used for creating CompactChip and TitleChip.
+         * Used for creating {@code CompactChip} and {@code TitleChip}.
+         *
+         * <p>Sets the icon size and should only be used internally.
+         */
+        @NonNull
+        Builder setIconSize(@NonNull DpProp size) {
+            this.mIconSize = size;
+            return this;
+        }
+
+        /**
+         * Used for creating {@code CompactChip} and {@code TitleChip}.
          *
          * <p>Sets whether the font for the primary label is scalable.
          */
@@ -291,8 +303,9 @@ public class Chip implements LayoutElement {
         /**
          * Sets whether the font padding for the primary label is excluded.
          *
-         * <p>It should be used for creating CompactChip and TitleChip to make the label vertically
-         * aligned. Shouldn't be used if there is anything else in chip besides primary label.
+         * <p>It should be used for creating {@code CompactChip} and {@code TitleChip} to make the
+         * label vertically aligned. Shouldn't be used if there is anything else in chip besides
+         * primary label.
          *
          * @see Text.Builder#setExcludeFontPadding
          */
@@ -354,31 +367,24 @@ public class Chip implements LayoutElement {
             return this;
         }
 
-        /** Used for creating CompactChip and TitleChip. */
+        /** Used for creating {@code CompactChip} and {@code TitleChip}. */
         @NonNull
         Builder setHorizontalPadding(@NonNull DpProp horizontalPadding) {
             this.mHorizontalPadding = horizontalPadding;
             return this;
         }
 
-        /** Used for creating CompactChip and TitleChip. */
+        /** Used for creating {@code CompactChip} and {@code TitleChip}. */
         @NonNull
         Builder setHeight(@NonNull DpProp height) {
             this.mHeight = height;
             return this;
         }
 
-        /** Used for creating CompactChip and TitleChip. */
+        /** Used for creating {@code CompactChip} and {@code TitleChip}. */
         @NonNull
         Builder setMaxLines(int maxLines) {
             this.mMaxLines = maxLines;
-            return this;
-        }
-
-        /** Used for setting the correct tag in CompactChip and TitleChip. */
-        @NonNull
-        Builder setMetadataTag(@NonNull String metadataTag) {
-            this.mMetadataTag = metadataTag;
             return this;
         }
 
@@ -538,8 +544,8 @@ public class Chip implements LayoutElement {
                         .addContent(
                                 new Image.Builder()
                                         .setResourceId(mImageResourceId)
-                                        .setWidth(ICON_SIZE)
-                                        .setHeight(ICON_SIZE)
+                                        .setWidth(mIconSize)
+                                        .setHeight(mIconSize)
                                         .setColorFilter(
                                                 new ColorFilter.Builder()
                                                         .setTint(mChipColors.getIconColor())

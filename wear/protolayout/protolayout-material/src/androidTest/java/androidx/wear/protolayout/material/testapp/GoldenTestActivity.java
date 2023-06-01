@@ -46,6 +46,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 @SuppressWarnings("deprecation")
 public class GoldenTestActivity extends Activity {
     private static final String ICON_ID = "icon";
+    private static final String ICON_ID_SMALL = "icon_small";
     private static final String AVATAR = "avatar_image";
 
     @Override
@@ -98,6 +99,14 @@ public class GoldenTestActivity extends Activity {
                                 .setAndroidResourceByResId(
                                         new AndroidImageResourceByResId.Builder()
                                                 .setResourceId(R.drawable.icon)
+                                                .build())
+                                .build())
+                .addIdToImageMapping(
+                        ICON_ID_SMALL,
+                        new ImageResource.Builder()
+                                .setAndroidResourceByResId(
+                                        new AndroidImageResourceByResId.Builder()
+                                                .setResourceId(R.drawable.icon_small)
                                                 .build())
                                 .build())
                 .addIdToImageMapping(
