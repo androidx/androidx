@@ -41,6 +41,9 @@ import java.util.stream.Collectors
  * This handler can also be used to set [android.credentials.CreateCredentialResponse] and
  * [android.credentials.GetCredentialResponse] on the result of the activity
  * invoked by the [PendingIntent]
+ *
+ * PendingIntentHandlerConverters contains some utility methods to aid in testing of this
+ * class.
  */
 @RequiresApi(34)
 class PendingIntentHandler {
