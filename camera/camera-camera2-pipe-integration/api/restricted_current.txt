@@ -3,6 +3,11 @@ package androidx.camera.camera2.pipe.integration {
 
   @RequiresApi(21) public final class CameraPipeConfig {
     method public static androidx.camera.core.CameraXConfig defaultConfig();
+    field public static final androidx.camera.camera2.pipe.integration.CameraPipeConfig.Companion Companion;
+  }
+
+  public static final class CameraPipeConfig.Companion {
+    method public androidx.camera.core.CameraXConfig defaultConfig();
   }
 
 }
@@ -15,12 +20,22 @@ package androidx.camera.camera2.pipe.integration.interop {
     method public static androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl from(androidx.camera.core.CameraControl cameraControl);
     method public androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions getCaptureRequestOptions();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> setCaptureRequestOptions(androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions bundle);
+    field public static final androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl.Companion Companion;
+  }
+
+  public static final class Camera2CameraControl.Companion {
+    method public androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl from(androidx.camera.core.CameraControl cameraControl);
   }
 
   @RequiresApi(21) @androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop public final class Camera2CameraInfo {
     method public static androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo cameraInfo);
     method public <T> T? getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key<T> key);
     method public String getCameraId();
+    field public static final androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.Companion Companion;
+  }
+
+  public static final class Camera2CameraInfo.Companion {
+    method public androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo cameraInfo);
   }
 
   @RequiresApi(21) @androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop public final class Camera2Interop {
@@ -45,6 +60,10 @@ package androidx.camera.camera2.pipe.integration.interop {
     method public androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions build();
     method public <ValueT> androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key);
     method public <ValueT> androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key, ValueT value);
+    field public static final androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder.Companion Companion;
+  }
+
+  public static final class CaptureRequestOptions.Builder.Companion {
   }
 
   @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalCamera2Interop {

@@ -94,9 +94,6 @@ open class CaptureRequestOptions private constructor(
     class Builder : ExtendableBuilder<CaptureRequestOptions?> {
         private val mutableOptionsBundle = MutableOptionsBundle.create()
 
-        /**
-         * @hide
-         */
         companion object {
             /**
              * Generates a Builder from another Config object.
