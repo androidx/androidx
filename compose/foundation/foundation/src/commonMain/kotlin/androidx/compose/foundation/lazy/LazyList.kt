@@ -38,6 +38,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -216,8 +217,6 @@ private fun rememberLazyListMeasurePolicy(
         val contentConstraints =
             containerConstraints.offset(-totalHorizontalPadding, -totalVerticalPadding)
 
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-
         // Update the state's cached Density
         state.density = this
 
@@ -254,37 +253,46 @@ private fun rememberLazyListMeasurePolicy(
             )
         }
 
-        val measuredItemProvider = LazyListMeasuredItemProvider(
+        val measuredItemProvider = object : LazyListMeasuredItemProvider(
             contentConstraints,
             isVertical,
             itemProvider,
             this
-        ) { index, key, contentType, placeables ->
-            // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
-            // the lazy list measuring logic will take it into account.
-            val spacing = if (index == itemsCount - 1) 0 else spaceBetweenItems
-            LazyListMeasuredItem(
-                index = index,
-                placeables = placeables,
-                isVertical = isVertical,
-                horizontalAlignment = horizontalAlignment,
-                verticalAlignment = verticalAlignment,
-                layoutDirection = layoutDirection,
-                reverseLayout = reverseLayout,
-                beforeContentPadding = beforeContentPadding,
-                afterContentPadding = afterContentPadding,
-                spacing = spacing,
-                visualOffset = visualItemOffset,
-                key = key,
-                contentType = contentType
-            )
+        ) {
+            override fun createItem(
+                index: Int,
+                key: Any,
+                contentType: Any?,
+                placeables: List<Placeable>
+            ): LazyListMeasuredItem {
+                // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
+                // the lazy list measuring logic will take it into account.
+                val spacing = if (index == itemsCount - 1) 0 else spaceBetweenItems
+                return LazyListMeasuredItem(
+                    index = index,
+                    placeables = placeables,
+                    isVertical = isVertical,
+                    horizontalAlignment = horizontalAlignment,
+                    verticalAlignment = verticalAlignment,
+                    layoutDirection = layoutDirection,
+                    reverseLayout = reverseLayout,
+                    beforeContentPadding = beforeContentPadding,
+                    afterContentPadding = afterContentPadding,
+                    spacing = spacing,
+                    visualOffset = visualItemOffset,
+                    key = key,
+                    contentType = contentType
+                )
+            }
         }
         state.premeasureConstraints = measuredItemProvider.childConstraints
 
         val firstVisibleItemIndex: Int
         val firstVisibleScrollOffset: Int
         Snapshot.withoutReadObservation {
-            firstVisibleItemIndex = state.firstVisibleItemIndex
+            firstVisibleItemIndex = state.updateScrollPositionIfTheFirstItemWasMoved(
+                itemProvider, state.firstVisibleItemIndex
+            )
             firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
         }
 

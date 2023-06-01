@@ -36,6 +36,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
@@ -152,7 +153,7 @@ class LazyListState constructor(
     /**
      * Needed for [animateScrollToItem].  Updated on every measure.
      */
-    internal var density: Density by mutableStateOf(Density(1f, 1f))
+    internal var density: Density = Density(1f, 1f)
 
     /**
      * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
@@ -193,7 +194,7 @@ class LazyListState constructor(
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
      * synchronously during scroll.
      */
-    internal var remeasurement: Remeasurement? by mutableStateOf(null)
+    internal var remeasurement: Remeasurement? = null
         private set
 
     /**
@@ -218,7 +219,7 @@ class LazyListState constructor(
     /**
      * Constraints passed to the prefetcher for premeasuring the prefetched items.
      */
-    internal var premeasureConstraints by mutableStateOf(Constraints())
+    internal var premeasureConstraints = Constraints()
 
     /**
      * Stores currently pinned items which are always composed.
@@ -401,9 +402,10 @@ class LazyListState constructor(
      * items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
      */
-    internal fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyListItemProvider) {
-        scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
+    internal fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyListItemProvider,
+        firstItemIndex: Int = Snapshot.withoutReadObservation { scrollPosition.index }
+    ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     companion object {
         /**
