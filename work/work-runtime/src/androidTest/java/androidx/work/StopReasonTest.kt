@@ -16,6 +16,7 @@
 
 package androidx.work
 
+import android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
@@ -96,5 +97,17 @@ class StopReasonTest {
         } catch (e: IllegalStateException) {
             // it is expected to happen
         }
+    }
+
+    @Test
+    fun testStopReasonWhenCancelled() = runBlocking {
+        val request = OneTimeWorkRequest.Builder(InfiniteTestWorker::class.java).build()
+        workManager.enqueue(request)
+        val worker = workerFactory.await(request.id)
+        workManager.getWorkInfoByIdFlow(request.id).first { it.state == WorkInfo.State.RUNNING }
+        workManager.cancelWorkById(request.id)
+        workManager.getWorkInfoByIdFlow(request.id).first { it.state == WorkInfo.State.CANCELLED }
+        assertThat(worker.isStopped).isTrue()
+        assertThat(worker.stopReason).isEqualTo(STOP_REASON_CANCELLED_BY_APP)
     }
 }
