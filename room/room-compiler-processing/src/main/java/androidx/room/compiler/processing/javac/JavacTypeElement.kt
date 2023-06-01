@@ -159,12 +159,40 @@ internal sealed class JavacTypeElement(
     }
 
     private val _declaredMethods by lazy {
-        ElementFilter.methodsIn(element.enclosedElements).map {
+      val companionObjectMethodDescriptors =
+        getEnclosedTypeElements()
+          .firstOrNull {
+            it.isCompanionObject()
+          }?.getDeclaredMethods()
+          ?.map { it.jvmDescriptor } ?: emptyList()
+
+      val declaredMethods =
+        ElementFilter.methodsIn(element.enclosedElements)
+          .map {
             JavacMethodElement(
                 env = env,
                 element = it
             )
         }.filterMethodsByConfig(env)
+      if (companionObjectMethodDescriptors.isEmpty()) {
+        declaredMethods
+      } else {
+        buildList {
+          addAll(
+            declaredMethods.filterNot { method ->
+              companionObjectMethodDescriptors.any { it == method.jvmDescriptor }
+            }
+          )
+          companionObjectMethodDescriptors.forEach {
+            for (method in declaredMethods) {
+              if (method.jvmDescriptor == it) {
+                add(method)
+                break
+              }
+            }
+          }
+        }
+      }
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {

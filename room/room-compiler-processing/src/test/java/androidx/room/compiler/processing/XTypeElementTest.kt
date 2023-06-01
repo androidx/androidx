@@ -780,12 +780,15 @@ class XTypeElementTest(
             open class Base(x:Int) {
                 open fun baseFun(): Int = TODO()
                 suspend fun suspendFun(): Int = TODO()
-                private fun privateBaseFun(): Int = TODO()
                 companion object {
                     @JvmStatic
                     fun staticBaseFun(): Int = TODO()
                     fun companionMethod(): Int = TODO()
+                    @JvmStatic val name: String get() = "hello"
+                    @JvmStatic suspend fun suspendFun2():Int = TODO()
+                    @JvmStatic fun String.extFun(): Int = TODO()
                 }
+                private fun privateBaseFun(): Int = TODO()
             }
             open class SubClass : Base {
                 constructor(y:Int): super(y) {
@@ -804,10 +807,28 @@ class XTypeElementTest(
         )
         runTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
+            val baseCompanion = invocation.processingEnv.requireTypeElement("Base.Companion")
             val objectMethodNames = invocation.objectMethodNames()
-            assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
-                "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun"
-            )
+            val declaredMethods = base.getDeclaredMethods()
+            assertThat(declaredMethods.jvmNames()).containsExactly(
+                "baseFun",
+                "suspendFun",
+                "privateBaseFun",
+                "staticBaseFun",
+                "getName",
+                "suspendFun2",
+                "extFun"
+            ).inOrder()
+            declaredMethods.forEach { method ->
+              assertWithMessage("Enclosing element of method ${method.jvmName}")
+                .that(method.enclosingElement.name)
+                .isEqualTo("Base")
+            }
+            baseCompanion.getDeclaredMethods().forEach { method ->
+              assertWithMessage("Enclosing element of method ${method.jvmName}")
+                .that(method.enclosingElement.name)
+                .isEqualTo("Companion")
+            }
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(

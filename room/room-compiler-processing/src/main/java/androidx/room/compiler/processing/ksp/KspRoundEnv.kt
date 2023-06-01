@@ -44,30 +44,60 @@ internal class KspRoundEnv(
         if (annotationQualifiedName == "*") {
             return emptySet()
         }
-        return env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
-            .map { symbol ->
-                when (symbol) {
-                    is KSPropertyDeclaration -> {
-                        KspFieldElement.create(env, symbol)
-                    }
-                    is KSClassDeclaration -> {
-                        when (symbol.classKind) {
-                            ClassKind.ENUM_ENTRY -> KspEnumEntry.create(env, symbol)
-                            else -> KspTypeElement.create(env, symbol)
+        return buildSet {
+            env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
+                .forEach { symbol ->
+                    when (symbol) {
+                        is KSPropertyDeclaration -> {
+                           add(KspFieldElement.create(env, symbol))
                         }
+                        is KSClassDeclaration -> {
+                            when (symbol.classKind) {
+                                ClassKind.ENUM_ENTRY ->
+                                    add(KspEnumEntry.create(env, symbol))
+                                else -> add(KspTypeElement.create(env, symbol))
+                            }
+                        }
+                        is KSFunctionDeclaration -> {
+                            add(KspExecutableElement.create(env, symbol))
+                        }
+                        is KSPropertyAccessor -> {
+                            if (symbol.receiver.isStatic() &&
+                                symbol.receiver.parentDeclaration is KSClassDeclaration &&
+                                (symbol.receiver.hasJvmStaticAnnotation() ||
+                                    symbol.hasJvmStaticAnnotation())) {
+                                // Getter/setter can be copied from companion object to its
+                                // outer class if the field is annotated with @JvmStatic.
+                                add(
+                                    KspSyntheticPropertyMethodElement.create(
+                                        env, symbol, isSyntheticStatic = true
+                                    )
+                                )
+                            }
+                            // static fields are the properties that are coming from the companion.
+                            // Whether we'll generate method for it or not depends on the JVMStatic
+                            // annotation
+                            if (!symbol.receiver.isStatic() ||
+                                symbol.receiver.hasJvmStaticAnnotation() ||
+                                symbol.hasJvmStaticAnnotation() ||
+                                symbol.receiver.parentDeclaration !is KSClassDeclaration
+                            ) {
+                                add(
+                                    KspSyntheticPropertyMethodElement.create(
+                                        env, symbol, isSyntheticStatic = false
+                                    )
+                                )
+                            }
+                        }
+                        is KSValueParameter -> {
+                            add(KspExecutableParameterElement.create(env, symbol))
+                        }
+                        else ->
+                            error("Unsupported $symbol with annotation $annotationQualifiedName")
                     }
-                    is KSFunctionDeclaration -> {
-                        KspExecutableElement.create(env, symbol)
-                    }
-                    is KSPropertyAccessor -> {
-                        KspSyntheticPropertyMethodElement.create(env, symbol)
-                    }
-                    is KSValueParameter -> {
-                        KspExecutableParameterElement.create(env, symbol)
-                    }
-                    else -> error("Unsupported $symbol with annotation $annotationQualifiedName")
                 }
-            }.filter {
+            }
+            .filter {
                 // Due to the bug in https://github.com/google/ksp/issues/1198, KSP may incorrectly
                 // copy annotations from a constructor KSValueParameter to its KSPropertyDeclaration
                 // which we remove manually, so check here to make sure this is in sync with the
