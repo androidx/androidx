@@ -32,6 +32,7 @@ dependencies {
     docs(project(":appactions:interaction:interaction-service"))
     docs(project(":appactions:interaction:interaction-service-proto"))
     docs(project(":appactions:interaction:interaction-service-testing"))
+    docs(project(":appactions:interaction:interaction-service-wear"))
     docs(project(":appcompat:appcompat"))
     docs(project(":appcompat:appcompat-resources"))
     docs(project(":appsearch:appsearch"))
