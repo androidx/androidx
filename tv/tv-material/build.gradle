@@ -24,14 +24,23 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+// needed for the tv-foundation pinning. Can be removed later.
+configurations.all {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     api(libs.kotlinStdlib)
 
     def composeVersion = '1.4.3'
+    def composeBetaVersion = "1.5.0-beta01"
 
     api("androidx.compose.animation:animation:$composeVersion")
     api("androidx.compose.material:material-icons-core:$composeVersion")
-    api(project(":tv:tv-foundation"))
+    api("androidx.tv:tv-foundation:1.0.0-alpha06")
+    api("androidx.compose.foundation:foundation:$composeBetaVersion")
 
     implementation(libs.kotlinStdlibCommon)
     implementation("androidx.profileinstaller:profileinstaller:1.3.1")
