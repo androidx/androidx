@@ -17,11 +17,135 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 
+@ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun ThreePaneScaffold() {
-    // TODO(conradchen): implement the actual func
+internal fun ThreePaneScaffold(
+    modifier: Modifier,
+    layoutDirective: AdaptiveLayoutDirective,
+    scaffoldValue: ThreePaneScaffoldValue,
+    arrangement: ThreePaneScaffoldArrangement,
+    secondaryPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
+    tertiaryPane: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)? = null,
+    primaryPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit
+) {
+    val contents = listOf<@Composable () -> Unit>(
+        { PaneWrapper(scaffoldValue[ThreePaneScaffoldRole.Primary], primaryPane) },
+        { PaneWrapper(scaffoldValue[ThreePaneScaffoldRole.Secondary], secondaryPane) },
+        { PaneWrapper(scaffoldValue[ThreePaneScaffoldRole.Tertiary], tertiaryPane) },
+    )
+
+    Layout(
+        contents = contents,
+        modifier = modifier,
+    ) { (primaryMeasurables, secondaryMeasurables, tertiaryMeasurables), constraints ->
+        val paneMeasurables = buildList {
+            arrangement.forEach { role ->
+                when (role) {
+                    ThreePaneScaffoldRole.Primary -> {
+                        createPaneMeasurableIfNeeded(
+                            primaryMeasurables,
+                            ThreePaneScaffoldDefaults.PrimaryPanePriority,
+                            ThreePaneScaffoldDefaults.PrimaryPanePreferredWidth.toPx()
+                        )
+                    }
+                    ThreePaneScaffoldRole.Secondary -> {
+                        createPaneMeasurableIfNeeded(
+                            secondaryMeasurables,
+                            ThreePaneScaffoldDefaults.SecondaryPanePriority,
+                            ThreePaneScaffoldDefaults.SecondaryPanePreferredWidth.toPx()
+                        )
+                    }
+                    ThreePaneScaffoldRole.Tertiary -> {
+                        createPaneMeasurableIfNeeded(
+                            tertiaryMeasurables,
+                            ThreePaneScaffoldDefaults.TertiaryPanePriority,
+                            ThreePaneScaffoldDefaults.TertiaryPanePreferredWidth.toPx()
+                        )
+                    }
+                }
+            }
+        }
+
+        val outerVerticalGutterSize = layoutDirective.gutterSizes.outerVertical.toPx()
+        val innerVerticalGutterSize = layoutDirective.gutterSizes.innerVertical.toPx()
+        val outerHorizontalGutterSize = layoutDirective.gutterSizes.outerHorizontal.toPx()
+
+        val availableWidth =
+            constraints.maxWidth -
+                outerVerticalGutterSize * 2 -
+                innerVerticalGutterSize * (paneMeasurables.size - 1)
+        val availableHeight =
+            constraints.maxHeight -
+                outerHorizontalGutterSize * 2
+
+        val totalPreferredWidth = paneMeasurables.map { it.measuredWidth }.sum()
+        (if (availableWidth > totalPreferredWidth) {
+            paneMeasurables.maxBy { it.priority }
+        } else if (availableWidth < totalPreferredWidth) {
+            // TODO(conradchen): Confirm the behavior with designers and address negative widths
+            paneMeasurables.minBy { it.priority }
+        } else {
+            null
+        })?.apply {
+            measuredWidth += availableWidth - totalPreferredWidth
+        }
+        // TODO(conradchen): Address hinge position
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            var positionX = outerVerticalGutterSize
+            paneMeasurables.forEach {
+                it
+                    .measure(Constraints.fixed(it.measuredWidth.toInt(), availableHeight.toInt()))
+                    .place(positionX.toInt(), outerHorizontalGutterSize.toInt())
+                positionX += innerVerticalGutterSize + it.measuredWidth
+            }
+        }
+    }
 }
+
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+private fun PaneWrapper(
+    adaptedValue: PaneAdaptedValue,
+    pane: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)?
+) {
+    if (adaptedValue != PaneAdaptedValue.Hidden) {
+        pane?.invoke(ThreePaneScaffoldScopeImpl, adaptedValue)
+    }
+}
+
+private fun MutableList<PaneMeasurable>.createPaneMeasurableIfNeeded(
+    measurables: List<Measurable>,
+    priority: Int,
+    preferredWidth: Float
+) {
+    if (measurables.isNotEmpty()) {
+        add(PaneMeasurable(measurables[0], priority, preferredWidth))
+    }
+}
+
+private class PaneMeasurable(
+    val measurable: Measurable,
+    val priority: Int,
+    defaultPreferredWidth: Float
+) : Measurable by measurable {
+    private val data = ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
+
+    val preferredWidth =
+        if (data.preferredWidth.isNaN()) defaultPreferredWidth else data.preferredWidth
+
+    var measuredWidth = if (preferredWidth.isFinite() && preferredWidth > 0) preferredWidth else 0f
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal interface ThreePaneScaffoldScope : PaneScaffoldScope
+
+private object ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldScopeImpl()
 
 /**
  * Provides default values of [ThreePaneScaffold] and the calculation functions of
@@ -38,6 +162,16 @@ object ThreePaneScaffoldDefaults {
         ThreePaneScaffoldRole.Primary,
         ThreePaneScaffoldRole.Tertiary
     )
+
+    // TODO(conradchen): confirm with designers before we make these values public
+    internal val PrimaryPanePreferredWidth = 360.dp
+    internal val SecondaryPanePreferredWidth = 360.dp
+    internal val TertiaryPanePreferredWidth = 360.dp
+
+    // TODO(conradchen): consider declaring a value class for priority
+    internal const val PrimaryPanePriority = 10
+    internal const val SecondaryPanePriority = 5
+    internal const val TertiaryPanePriority = 1
 
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies].
