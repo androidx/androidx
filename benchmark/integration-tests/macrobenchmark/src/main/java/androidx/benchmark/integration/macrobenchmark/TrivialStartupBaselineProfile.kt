@@ -44,7 +44,6 @@ class TrivialStartupBaselineProfile {
     fun baselineProfiles() {
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
-            iterations = 5
         ) {
             device.pressHome()
             val intent = Intent()

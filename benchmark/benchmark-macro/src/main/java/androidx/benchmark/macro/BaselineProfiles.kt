@@ -32,81 +32,13 @@ import androidx.core.os.BuildCompat
 import java.io.File
 
 /**
- * Collects baseline profiles using a given [profileBlock].
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(28)
-fun collectBaselineProfile(
-    uniqueName: String,
-    packageName: String,
-    iterations: Int = 3,
-    includeInStartupProfile: Boolean,
-    filterPredicate: ((String) -> Boolean),
-    profileBlock: MacrobenchmarkScope.() -> Unit,
-) {
-    val scope = buildMacrobenchmarkScope(packageName)
-    val startTime = System.nanoTime()
-    val killProcessBlock = scope.killProcessBlock()
-    val finalIterations = if (Arguments.dryRunMode) 1 else iterations
-
-    // always kill the process at beginning of a collection.
-    killProcessBlock.invoke()
-    try {
-        userspaceTrace("generate profile for $packageName") {
-            var iteration = 0
-            // Disable because we're *creating* a baseline profile, not using it yet
-            CompilationMode.Partial(
-                baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = finalIterations
-            ).resetAndCompile(
-                packageName = packageName,
-                allowCompilationSkipping = false,
-                killProcessBlock = killProcessBlock
-            ) {
-                scope.iteration = iteration++
-                profileBlock(scope)
-            }
-        }
-
-        val unfilteredProfile = if (Build.VERSION.SDK_INT >= 33) {
-            extractProfile(packageName)
-        } else {
-            extractProfileRooted(packageName)
-        }
-
-        check(unfilteredProfile.isNotBlank()) {
-            """
-                Generated Profile is empty, before filtering.
-                Ensure your profileBlock invokes the target app, and
-                runs a non-trivial amount of code.
-            """.trimIndent()
-        }
-        val profile = filterProfileRulesToTargetP(
-            profile = unfilteredProfile,
-            sortRules = true,
-            filterPredicate = filterPredicate
-        )
-        reportResults(
-            profile = profile,
-            uniqueFilePrefix = uniqueName,
-            startTime = startTime,
-            includeInStartupProfile = includeInStartupProfile
-        )
-    } finally {
-        killProcessBlock.invoke()
-    }
-}
-
-/**
  * Collects baseline profiles using a given [profileBlock], while additionally
  * waiting until they are stable.
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
-fun collectStableBaselineProfile(
+fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
     stableIterations: Int,
