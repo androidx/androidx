@@ -113,6 +113,15 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class ButtonColors {
+    ctor public ButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
   }
 
   public final class ButtonDefaults {
@@ -175,6 +184,15 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class CardColors {
+    ctor public CardColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
   }
 
   public final class CardDefaults {
@@ -207,6 +225,29 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {
+    ctor public CheckboxColors(long checkedCheckmarkColor, long uncheckedCheckmarkColor, long checkedBoxColor, long uncheckedBoxColor, long disabledCheckedBoxColor, long disabledUncheckedBoxColor, long disabledIndeterminateBoxColor, long checkedBorderColor, long uncheckedBorderColor, long disabledBorderColor, long disabledIndeterminateBorderColor);
+    method public long getCheckedBorderColor();
+    method public long getCheckedBoxColor();
+    method public long getCheckedCheckmarkColor();
+    method public long getDisabledBorderColor();
+    method public long getDisabledCheckedBoxColor();
+    method public long getDisabledIndeterminateBorderColor();
+    method public long getDisabledIndeterminateBoxColor();
+    method public long getDisabledUncheckedBoxColor();
+    method public long getUncheckedBorderColor();
+    method public long getUncheckedBoxColor();
+    method public long getUncheckedCheckmarkColor();
+    property public final long checkedBorderColor;
+    property public final long checkedBoxColor;
+    property public final long checkedCheckmarkColor;
+    property public final long disabledBorderColor;
+    property public final long disabledCheckedBoxColor;
+    property public final long disabledIndeterminateBorderColor;
+    property public final long disabledIndeterminateBoxColor;
+    property public final long disabledUncheckedBoxColor;
+    property public final long uncheckedBorderColor;
+    property public final long uncheckedBoxColor;
+    property public final long uncheckedCheckmarkColor;
   }
 
   public final class CheckboxDefaults {
@@ -223,6 +264,23 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class ChipColors {
+    ctor public ChipColors(long containerColor, long labelColor, long leadingIconContentColor, long trailingIconContentColor, long disabledContainerColor, long disabledLabelColor, long disabledLeadingIconContentColor, long disabledTrailingIconContentColor);
+    method public long getContainerColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledLabelColor();
+    method public long getDisabledLeadingIconContentColor();
+    method public long getDisabledTrailingIconContentColor();
+    method public long getLabelColor();
+    method public long getLeadingIconContentColor();
+    method public long getTrailingIconContentColor();
+    property public final long containerColor;
+    property public final long disabledContainerColor;
+    property public final long disabledLabelColor;
+    property public final long disabledLeadingIconContentColor;
+    property public final long disabledTrailingIconContentColor;
+    property public final long labelColor;
+    property public final long leadingIconContentColor;
+    property public final long trailingIconContentColor;
   }
 
   @androidx.compose.runtime.Immutable public final class ChipElevation {
@@ -335,6 +393,57 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class DatePickerColors {
+    ctor public DatePickerColors(long containerColor, long titleContentColor, long headlineContentColor, long weekdayContentColor, long subheadContentColor, long navigationContentColor, long yearContentColor, long disabledYearContentColor, long currentYearContentColor, long selectedYearContentColor, long disabledSelectedYearContentColor, long selectedYearContainerColor, long disabledSelectedYearContainerColor, long dayContentColor, long disabledDayContentColor, long selectedDayContentColor, long disabledSelectedDayContentColor, long selectedDayContainerColor, long disabledSelectedDayContainerColor, long todayContentColor, long todayDateBorderColor, long dayInSelectionRangeContainerColor, long dayInSelectionRangeContentColor, long dividerColor, androidx.compose.material3.TextFieldColors dateTextFieldColors);
+    method public long getContainerColor();
+    method public long getCurrentYearContentColor();
+    method public androidx.compose.material3.TextFieldColors getDateTextFieldColors();
+    method public long getDayContentColor();
+    method public long getDayInSelectionRangeContainerColor();
+    method public long getDayInSelectionRangeContentColor();
+    method public long getDisabledDayContentColor();
+    method public long getDisabledSelectedDayContainerColor();
+    method public long getDisabledSelectedDayContentColor();
+    method public long getDisabledSelectedYearContainerColor();
+    method public long getDisabledSelectedYearContentColor();
+    method public long getDisabledYearContentColor();
+    method public long getDividerColor();
+    method public long getHeadlineContentColor();
+    method public long getNavigationContentColor();
+    method public long getSelectedDayContainerColor();
+    method public long getSelectedDayContentColor();
+    method public long getSelectedYearContainerColor();
+    method public long getSelectedYearContentColor();
+    method public long getSubheadContentColor();
+    method public long getTitleContentColor();
+    method public long getTodayContentColor();
+    method public long getTodayDateBorderColor();
+    method public long getWeekdayContentColor();
+    method public long getYearContentColor();
+    property public final long containerColor;
+    property public final long currentYearContentColor;
+    property public final androidx.compose.material3.TextFieldColors dateTextFieldColors;
+    property public final long dayContentColor;
+    property public final long dayInSelectionRangeContainerColor;
+    property public final long dayInSelectionRangeContentColor;
+    property public final long disabledDayContentColor;
+    property public final long disabledSelectedDayContainerColor;
+    property public final long disabledSelectedDayContentColor;
+    property public final long disabledSelectedYearContainerColor;
+    property public final long disabledSelectedYearContentColor;
+    property public final long disabledYearContentColor;
+    property public final long dividerColor;
+    property public final long headlineContentColor;
+    property public final long navigationContentColor;
+    property public final long selectedDayContainerColor;
+    property public final long selectedDayContentColor;
+    property public final long selectedYearContainerColor;
+    property public final long selectedYearContentColor;
+    property public final long subheadContentColor;
+    property public final long titleContentColor;
+    property public final long todayContentColor;
+    property public final long todayDateBorderColor;
+    property public final long weekdayContentColor;
+    property public final long yearContentColor;
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class DatePickerDefaults {
@@ -613,6 +722,15 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
+    ctor public IconButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
   }
 
   public final class IconButtonDefaults {
@@ -651,6 +769,19 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class IconToggleButtonColors {
+    ctor public IconToggleButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor, long checkedContainerColor, long checkedContentColor);
+    method public long getCheckedContainerColor();
+    method public long getCheckedContentColor();
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long checkedContainerColor;
+    property public final long checkedContentColor;
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api public final class InputChipDefaults {
@@ -677,6 +808,25 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class ListItemColors {
+    ctor public ListItemColors(long containerColor, long headlineColor, long leadingIconColor, long overlineColor, long supportingTextColor, long trailingIconColor, long disabledHeadlineColor, long disabledLeadingIconColor, long disabledTrailingIconColor);
+    method public long getContainerColor();
+    method public long getDisabledHeadlineColor();
+    method public long getDisabledLeadingIconColor();
+    method public long getDisabledTrailingIconColor();
+    method public long getHeadlineColor();
+    method public long getLeadingIconColor();
+    method public long getOverlineColor();
+    method public long getSupportingTextColor();
+    method public long getTrailingIconColor();
+    property public final long containerColor;
+    property public final long disabledHeadlineColor;
+    property public final long disabledLeadingIconColor;
+    property public final long disabledTrailingIconColor;
+    property public final long headlineColor;
+    property public final long leadingIconColor;
+    property public final long overlineColor;
+    property public final long supportingTextColor;
+    property public final long trailingIconColor;
   }
 
   public final class ListItemDefaults {
@@ -718,6 +868,19 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class MenuItemColors {
+    ctor public MenuItemColors(long textColor, long leadingIconColor, long trailingIconColor, long disabledTextColor, long disabledLeadingIconColor, long disabledTrailingIconColor);
+    method public long getDisabledLeadingIconColor();
+    method public long getDisabledTextColor();
+    method public long getDisabledTrailingIconColor();
+    method public long getLeadingIconColor();
+    method public long getTextColor();
+    method public long getTrailingIconColor();
+    property public final long disabledLeadingIconColor;
+    property public final long disabledTextColor;
+    property public final long disabledTrailingIconColor;
+    property public final long leadingIconColor;
+    property public final long textColor;
+    property public final long trailingIconColor;
   }
 
   public final class ModalBottomSheet_androidKt {
@@ -736,6 +899,21 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public final class NavigationBarItemColors {
+    ctor public NavigationBarItemColors(long selectedIconColor, long selectedTextColor, long selectedIndicatorColor, long unselectedIconColor, long unselectedTextColor, long disabledIconColor, long disabledTextColor);
+    method public long getDisabledIconColor();
+    method public long getDisabledTextColor();
+    method public long getSelectedIconColor();
+    method public long getSelectedIndicatorColor();
+    method public long getSelectedTextColor();
+    method public long getUnselectedIconColor();
+    method public long getUnselectedTextColor();
+    property public final long disabledIconColor;
+    property public final long disabledTextColor;
+    property public final long selectedIconColor;
+    property public final long selectedIndicatorColor;
+    property public final long selectedTextColor;
+    property public final long unselectedIconColor;
+    property public final long unselectedTextColor;
   }
 
   public final class NavigationBarItemDefaults {
@@ -783,6 +961,21 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public final class NavigationRailItemColors {
+    ctor public NavigationRailItemColors(long selectedIconColor, long selectedTextColor, long selectedIndicatorColor, long unselectedIconColor, long unselectedTextColor, long disabledIconColor, long disabledTextColor);
+    method public long getDisabledIconColor();
+    method public long getDisabledTextColor();
+    method public long getSelectedIconColor();
+    method public long getSelectedIndicatorColor();
+    method public long getSelectedTextColor();
+    method public long getUnselectedIconColor();
+    method public long getUnselectedTextColor();
+    property public final long disabledIconColor;
+    property public final long disabledTextColor;
+    property public final long selectedIconColor;
+    property public final long selectedIndicatorColor;
+    property public final long selectedTextColor;
+    property public final long unselectedIconColor;
+    property public final long unselectedTextColor;
   }
 
   public final class NavigationRailItemDefaults {
@@ -858,6 +1051,15 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
+    ctor public RadioButtonColors(long selectedColor, long unselectedColor, long disabledSelectedColor, long disabledUnselectedColor);
+    method public long getDisabledSelectedColor();
+    method public long getDisabledUnselectedColor();
+    method public long getSelectedColor();
+    method public long getUnselectedColor();
+    property public final long disabledSelectedColor;
+    property public final long disabledUnselectedColor;
+    property public final long selectedColor;
+    property public final long unselectedColor;
   }
 
   public final class RadioButtonDefaults {
@@ -937,9 +1139,22 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SelectableChipColors {
+    ctor public SelectableChipColors(long containerColor, long labelColor, long leadingIconColor, long trailingIconColor, long disabledContainerColor, long disabledLabelColor, long disabledLeadingIconColor, long disabledTrailingIconColor, long selectedContainerColor, long disabledSelectedContainerColor, long selectedLabelColor, long selectedLeadingIconColor, long selectedTrailingIconColor);
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SelectableChipElevation {
+    method public float getDisabledElevation();
+    method public float getDraggedElevation();
+    method public float getElevation();
+    method public float getFocusedElevation();
+    method public float getHoveredElevation();
+    method public float getPressedElevation();
+    property public final float disabledElevation;
+    property public final float draggedElevation;
+    property public final float elevation;
+    property public final float focusedElevation;
+    property public final float hoveredElevation;
+    property public final float pressedElevation;
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface SelectableDates {
@@ -1009,6 +1224,27 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class SliderColors {
+    ctor public SliderColors(long thumbColor, long activeTrackColor, long activeTickColor, long inactiveTrackColor, long inactiveTickColor, long disabledThumbColor, long disabledActiveTrackColor, long disabledActiveTickColor, long disabledInactiveTrackColor, long disabledInactiveTickColor);
+    method public long getActiveTickColor();
+    method public long getActiveTrackColor();
+    method public long getDisabledActiveTickColor();
+    method public long getDisabledActiveTrackColor();
+    method public long getDisabledInactiveTickColor();
+    method public long getDisabledInactiveTrackColor();
+    method public long getDisabledThumbColor();
+    method public long getInactiveTickColor();
+    method public long getInactiveTrackColor();
+    method public long getThumbColor();
+    property public final long activeTickColor;
+    property public final long activeTrackColor;
+    property public final long disabledActiveTickColor;
+    property public final long disabledActiveTrackColor;
+    property public final long disabledInactiveTickColor;
+    property public final long disabledInactiveTrackColor;
+    property public final long disabledThumbColor;
+    property public final long inactiveTickColor;
+    property public final long inactiveTrackColor;
+    property public final long thumbColor;
   }
 
   @androidx.compose.runtime.Stable public final class SliderDefaults {
@@ -1151,6 +1387,39 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class SwitchColors {
+    ctor public SwitchColors(long checkedThumbColor, long checkedTrackColor, long checkedBorderColor, long checkedIconColor, long uncheckedThumbColor, long uncheckedTrackColor, long uncheckedBorderColor, long uncheckedIconColor, long disabledCheckedThumbColor, long disabledCheckedTrackColor, long disabledCheckedBorderColor, long disabledCheckedIconColor, long disabledUncheckedThumbColor, long disabledUncheckedTrackColor, long disabledUncheckedBorderColor, long disabledUncheckedIconColor);
+    method public long getCheckedBorderColor();
+    method public long getCheckedIconColor();
+    method public long getCheckedThumbColor();
+    method public long getCheckedTrackColor();
+    method public long getDisabledCheckedBorderColor();
+    method public long getDisabledCheckedIconColor();
+    method public long getDisabledCheckedThumbColor();
+    method public long getDisabledCheckedTrackColor();
+    method public long getDisabledUncheckedBorderColor();
+    method public long getDisabledUncheckedIconColor();
+    method public long getDisabledUncheckedThumbColor();
+    method public long getDisabledUncheckedTrackColor();
+    method public long getUncheckedBorderColor();
+    method public long getUncheckedIconColor();
+    method public long getUncheckedThumbColor();
+    method public long getUncheckedTrackColor();
+    property public final long checkedBorderColor;
+    property public final long checkedIconColor;
+    property public final long checkedThumbColor;
+    property public final long checkedTrackColor;
+    property public final long disabledCheckedBorderColor;
+    property public final long disabledCheckedIconColor;
+    property public final long disabledCheckedThumbColor;
+    property public final long disabledCheckedTrackColor;
+    property public final long disabledUncheckedBorderColor;
+    property public final long disabledUncheckedIconColor;
+    property public final long disabledUncheckedThumbColor;
+    property public final long disabledUncheckedTrackColor;
+    property public final long uncheckedBorderColor;
+    property public final long uncheckedIconColor;
+    property public final long uncheckedThumbColor;
+    property public final long uncheckedTrackColor;
   }
 
   public final class SwitchDefaults {
@@ -1199,6 +1468,93 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class TextFieldColors {
+    ctor public TextFieldColors(long focusedTextColor, long unfocusedTextColor, long disabledTextColor, long errorTextColor, long focusedContainerColor, long unfocusedContainerColor, long disabledContainerColor, long errorContainerColor, long cursorColor, long errorCursorColor, androidx.compose.foundation.text.selection.TextSelectionColors textSelectionColors, long focusedIndicatorColor, long unfocusedIndicatorColor, long disabledIndicatorColor, long errorIndicatorColor, long focusedLeadingIconColor, long unfocusedLeadingIconColor, long disabledLeadingIconColor, long errorLeadingIconColor, long focusedTrailingIconColor, long unfocusedTrailingIconColor, long disabledTrailingIconColor, long errorTrailingIconColor, long focusedLabelColor, long unfocusedLabelColor, long disabledLabelColor, long errorLabelColor, long focusedPlaceholderColor, long unfocusedPlaceholderColor, long disabledPlaceholderColor, long errorPlaceholderColor, long focusedSupportingTextColor, long unfocusedSupportingTextColor, long disabledSupportingTextColor, long errorSupportingTextColor, long focusedPrefixColor, long unfocusedPrefixColor, long disabledPrefixColor, long errorPrefixColor, long focusedSuffixColor, long unfocusedSuffixColor, long disabledSuffixColor, long errorSuffixColor);
+    method public long getCursorColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledIndicatorColor();
+    method public long getDisabledLabelColor();
+    method public long getDisabledLeadingIconColor();
+    method public long getDisabledPlaceholderColor();
+    method public long getDisabledPrefixColor();
+    method public long getDisabledSuffixColor();
+    method public long getDisabledSupportingTextColor();
+    method public long getDisabledTextColor();
+    method public long getDisabledTrailingIconColor();
+    method public long getErrorContainerColor();
+    method public long getErrorCursorColor();
+    method public long getErrorIndicatorColor();
+    method public long getErrorLabelColor();
+    method public long getErrorLeadingIconColor();
+    method public long getErrorPlaceholderColor();
+    method public long getErrorPrefixColor();
+    method public long getErrorSuffixColor();
+    method public long getErrorSupportingTextColor();
+    method public long getErrorTextColor();
+    method public long getErrorTrailingIconColor();
+    method public long getFocusedContainerColor();
+    method public long getFocusedIndicatorColor();
+    method public long getFocusedLabelColor();
+    method public long getFocusedLeadingIconColor();
+    method public long getFocusedPlaceholderColor();
+    method public long getFocusedPrefixColor();
+    method public long getFocusedSuffixColor();
+    method public long getFocusedSupportingTextColor();
+    method public long getFocusedTextColor();
+    method public long getFocusedTrailingIconColor();
+    method public androidx.compose.foundation.text.selection.TextSelectionColors getTextSelectionColors();
+    method public long getUnfocusedContainerColor();
+    method public long getUnfocusedIndicatorColor();
+    method public long getUnfocusedLabelColor();
+    method public long getUnfocusedLeadingIconColor();
+    method public long getUnfocusedPlaceholderColor();
+    method public long getUnfocusedPrefixColor();
+    method public long getUnfocusedSuffixColor();
+    method public long getUnfocusedSupportingTextColor();
+    method public long getUnfocusedTextColor();
+    method public long getUnfocusedTrailingIconColor();
+    property public final long cursorColor;
+    property public final long disabledContainerColor;
+    property public final long disabledIndicatorColor;
+    property public final long disabledLabelColor;
+    property public final long disabledLeadingIconColor;
+    property public final long disabledPlaceholderColor;
+    property public final long disabledPrefixColor;
+    property public final long disabledSuffixColor;
+    property public final long disabledSupportingTextColor;
+    property public final long disabledTextColor;
+    property public final long disabledTrailingIconColor;
+    property public final long errorContainerColor;
+    property public final long errorCursorColor;
+    property public final long errorIndicatorColor;
+    property public final long errorLabelColor;
+    property public final long errorLeadingIconColor;
+    property public final long errorPlaceholderColor;
+    property public final long errorPrefixColor;
+    property public final long errorSuffixColor;
+    property public final long errorSupportingTextColor;
+    property public final long errorTextColor;
+    property public final long errorTrailingIconColor;
+    property public final long focusedContainerColor;
+    property public final long focusedIndicatorColor;
+    property public final long focusedLabelColor;
+    property public final long focusedLeadingIconColor;
+    property public final long focusedPlaceholderColor;
+    property public final long focusedPrefixColor;
+    property public final long focusedSuffixColor;
+    property public final long focusedSupportingTextColor;
+    property public final long focusedTextColor;
+    property public final long focusedTrailingIconColor;
+    property public final androidx.compose.foundation.text.selection.TextSelectionColors textSelectionColors;
+    property public final long unfocusedContainerColor;
+    property public final long unfocusedIndicatorColor;
+    property public final long unfocusedLabelColor;
+    property public final long unfocusedLeadingIconColor;
+    property public final long unfocusedPlaceholderColor;
+    property public final long unfocusedPrefixColor;
+    property public final long unfocusedSuffixColor;
+    property public final long unfocusedSupportingTextColor;
+    property public final long unfocusedTextColor;
+    property public final long unfocusedTrailingIconColor;
   }
 
   @androidx.compose.runtime.Immutable public final class TextFieldDefaults {
@@ -1260,6 +1616,35 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class TimePickerColors {
+    ctor public TimePickerColors(long clockDialColor, long selectorColor, long containerColor, long periodSelectorBorderColor, long clockDialSelectedContentColor, long clockDialUnselectedContentColor, long periodSelectorSelectedContainerColor, long periodSelectorUnselectedContainerColor, long periodSelectorSelectedContentColor, long periodSelectorUnselectedContentColor, long timeSelectorSelectedContainerColor, long timeSelectorUnselectedContainerColor, long timeSelectorSelectedContentColor, long timeSelectorUnselectedContentColor);
+    method public long getClockDialColor();
+    method public long getClockDialSelectedContentColor();
+    method public long getClockDialUnselectedContentColor();
+    method public long getContainerColor();
+    method public long getPeriodSelectorBorderColor();
+    method public long getPeriodSelectorSelectedContainerColor();
+    method public long getPeriodSelectorSelectedContentColor();
+    method public long getPeriodSelectorUnselectedContainerColor();
+    method public long getPeriodSelectorUnselectedContentColor();
+    method public long getSelectorColor();
+    method public long getTimeSelectorSelectedContainerColor();
+    method public long getTimeSelectorSelectedContentColor();
+    method public long getTimeSelectorUnselectedContainerColor();
+    method public long getTimeSelectorUnselectedContentColor();
+    property public final long clockDialColor;
+    property public final long clockDialSelectedContentColor;
+    property public final long clockDialUnselectedContentColor;
+    property public final long containerColor;
+    property public final long periodSelectorBorderColor;
+    property public final long periodSelectorSelectedContainerColor;
+    property public final long periodSelectorSelectedContentColor;
+    property public final long periodSelectorUnselectedContainerColor;
+    property public final long periodSelectorUnselectedContentColor;
+    property public final long selectorColor;
+    property public final long timeSelectorSelectedContainerColor;
+    property public final long timeSelectorSelectedContentColor;
+    property public final long timeSelectorUnselectedContainerColor;
+    property public final long timeSelectorUnselectedContentColor;
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TimePickerDefaults {
@@ -1336,6 +1721,17 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TopAppBarColors {
+    ctor public TopAppBarColors(long containerColor, long scrolledContainerColor, long navigationIconContentColor, long titleContentColor, long actionIconContentColor);
+    method public long getActionIconContentColor();
+    method public long getContainerColor();
+    method public long getNavigationIconContentColor();
+    method public long getScrolledContainerColor();
+    method public long getTitleContentColor();
+    property public final long actionIconContentColor;
+    property public final long containerColor;
+    property public final long navigationIconContentColor;
+    property public final long scrolledContainerColor;
+    property public final long titleContentColor;
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api public final class TopAppBarDefaults {

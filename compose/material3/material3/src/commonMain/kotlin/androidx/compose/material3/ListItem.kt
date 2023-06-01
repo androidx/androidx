@@ -325,19 +325,33 @@ object ListItemDefaults {
 /**
  * Represents the container and content colors used in a list item in different states.
  *
- * - See [ListItemDefaults.colors] for the default colors used in a [ListItem].
+ * @constructor create an instance with arbitrary colors.
+ * See [ListItemDefaults.colors] for the default colors used in a [ListItem].
+ *
+ * @param containerColor the container color of this list item when enabled.
+ * @param headlineColor the headline text content color of this list item when
+ * enabled.
+ * @param leadingIconColor the color of this list item's leading content when enabled.
+ * @param overlineColor the overline text color of this list item
+ * @param supportingTextColor the supporting text color of this list item
+ * @param trailingIconColor the color of this list item's trailing content when enabled.
+ * @param disabledHeadlineColor the content color of this list item when not enabled.
+ * @param disabledLeadingIconColor the color of this list item's leading content when not
+ * enabled.
+ * @param disabledTrailingIconColor the color of this list item's trailing content when not
+ * enabled.
  */
 @Immutable
-class ListItemColors internal constructor(
-    private val containerColor: Color,
-    private val headlineColor: Color,
-    private val leadingIconColor: Color,
-    private val overlineColor: Color,
-    private val supportingTextColor: Color,
-    private val trailingIconColor: Color,
-    private val disabledHeadlineColor: Color,
-    private val disabledLeadingIconColor: Color,
-    private val disabledTrailingIconColor: Color,
+class ListItemColors constructor(
+    val containerColor: Color,
+    val headlineColor: Color,
+    val leadingIconColor: Color,
+    val overlineColor: Color,
+    val supportingTextColor: Color,
+    val trailingIconColor: Color,
+    val disabledHeadlineColor: Color,
+    val disabledLeadingIconColor: Color,
+    val disabledTrailingIconColor: Color,
 ) {
     /** The container color of this [ListItem] based on enabled state */
     @Composable

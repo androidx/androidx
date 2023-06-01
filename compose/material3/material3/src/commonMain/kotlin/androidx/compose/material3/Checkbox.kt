@@ -373,22 +373,38 @@ private class CheckDrawingCache(
  * Represents the colors used by the three different sections (checkmark, box, and border) of a
  * [Checkbox] or [TriStateCheckbox] in different states.
  *
- * See [CheckboxDefaults.colors] for the default implementation that follows Material
- * specifications.
+ * @constructor create an instance with arbitrary colors, see [CheckboxDefaults.colors] for the
+ * default implementation that follows Material specifications.
+ *
+ * @param checkedCheckmarkColor color that will be used for the checkmark when checked
+ * @param uncheckedCheckmarkColor color that will be used for the checkmark when unchecked
+ * @param checkedBoxColor the color that will be used for the box when checked
+ * @param uncheckedBoxColor color that will be used for the box when unchecked
+ * @param disabledCheckedBoxColor color that will be used for the box when disabled and
+ * checked
+ * @param disabledUncheckedBoxColor color that will be used for the box and border when disabled
+ * and not checked
+ * @param disabledIndeterminateBoxColor color that will be used for the box and
+ * border in a [TriStateCheckbox] when disabled AND in an [ToggleableState.Indeterminate] state.
+ * @param checkedBorderColor color that will be used for the border when checked
+ * @param uncheckedBorderColor color that will be used for the border when unchecked
+ * @param disabledBorderColor color that will be used for the border when disabled
+ * @param disabledIndeterminateBorderColor color that will be used for the border when in an
+ * [ToggleableState.Indeterminate] state.
  */
 @Immutable
-class CheckboxColors internal constructor(
-    private val checkedCheckmarkColor: Color,
-    private val uncheckedCheckmarkColor: Color,
-    private val checkedBoxColor: Color,
-    private val uncheckedBoxColor: Color,
-    private val disabledCheckedBoxColor: Color,
-    private val disabledUncheckedBoxColor: Color,
-    private val disabledIndeterminateBoxColor: Color,
-    private val checkedBorderColor: Color,
-    private val uncheckedBorderColor: Color,
-    private val disabledBorderColor: Color,
-    private val disabledIndeterminateBorderColor: Color
+class CheckboxColors constructor(
+    val checkedCheckmarkColor: Color,
+    val uncheckedCheckmarkColor: Color,
+    val checkedBoxColor: Color,
+    val uncheckedBoxColor: Color,
+    val disabledCheckedBoxColor: Color,
+    val disabledUncheckedBoxColor: Color,
+    val disabledIndeterminateBoxColor: Color,
+    val checkedBorderColor: Color,
+    val uncheckedBorderColor: Color,
+    val disabledBorderColor: Color,
+    val disabledIndeterminateBorderColor: Color
 ) {
     /**
      * Represents the color used for the checkmark inside the checkbox, depending on [state].

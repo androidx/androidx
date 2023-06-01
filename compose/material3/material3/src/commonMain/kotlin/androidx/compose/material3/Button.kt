@@ -905,16 +905,21 @@ class ButtonElevation internal constructor(
 /**
  * Represents the container and content colors used in a button in different states.
  *
+ *  @constructor create an instance with arbitrary colors.
  * - See [ButtonDefaults.buttonColors] for the default colors used in a [Button].
  * - See [ButtonDefaults.elevatedButtonColors] for the default colors used in a [ElevatedButton].
  * - See [ButtonDefaults.textButtonColors] for the default colors used in a [TextButton].
+ * @param containerColor the container color of this [Button] when enabled.
+ * @param contentColor the content color of this [Button] when enabled.
+ * @param disabledContainerColor the container color of this [Button] when not enabled.
+ * @param disabledContentColor the content color of this [Button] when not enabled.
  */
 @Immutable
-class ButtonColors internal constructor(
-    private val containerColor: Color,
-    private val contentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledContentColor: Color,
+class ButtonColors constructor(
+    val containerColor: Color,
+    val contentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this button, depending on [enabled].
