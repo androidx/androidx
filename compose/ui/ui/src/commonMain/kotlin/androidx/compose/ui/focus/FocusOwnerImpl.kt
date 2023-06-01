@@ -87,8 +87,8 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
     override fun takeFocus() {
         // If the focus state is not Inactive, it indicates that the focus state is already
         // set (possibly by dispatchWindowFocusChanged). So we don't update the state.
-        if (rootFocusNode.focusStateImpl == Inactive) {
-            rootFocusNode.focusStateImpl = Active
+        if (rootFocusNode.focusState == Inactive) {
+            rootFocusNode.focusState = Active
             // TODO(b/152535715): propagate focus to children based on child focusability.
             //  moveFocus(FocusDirection.Enter)
         }
@@ -130,9 +130,9 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
         // If this hierarchy had focus before clearing it, it indicates that the host view has
         // focus. So after clearing focus within the compose hierarchy, we should restore focus to
         // the root focus modifier to maintain consistency with the host view.
-        val rootInitialState = rootFocusNode.focusStateImpl
+        val rootInitialState = rootFocusNode.focusState
         if (rootFocusNode.clearFocus(force, refreshFocusEvents)) {
-            rootFocusNode.focusStateImpl = when (rootInitialState) {
+            rootFocusNode.focusState = when (rootInitialState) {
                 Active, ActiveParent, Captured -> Active
                 Inactive -> Inactive
             }

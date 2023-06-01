@@ -18,7 +18,6 @@ package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusStateImpl.Active
@@ -32,7 +31,9 @@ import androidx.compose.ui.node.visitChildren
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 1-D focus search"
+@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 internal fun FocusTargetNode.oneDimensionalFocusSearch(
@@ -46,7 +47,7 @@ internal fun FocusTargetNode.oneDimensionalFocusSearch(
 
 private fun FocusTargetNode.forwardFocusSearch(
     onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (focusStateImpl) {
+): Boolean = when (focusState) {
     ActiveParent -> {
         val focusedChild = activeChild ?: error(NoActiveChild)
         focusedChild.forwardFocusSearch(onFound) ||
@@ -62,12 +63,12 @@ private fun FocusTargetNode.forwardFocusSearch(
 
 private fun FocusTargetNode.backwardFocusSearch(
     onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (focusStateImpl) {
+): Boolean = when (focusState) {
     ActiveParent -> {
         val focusedChild = activeChild ?: error(NoActiveChild)
 
         // Unlike forwardFocusSearch, backwardFocusSearch visits the children before the parent.
-        when (focusedChild.focusStateImpl) {
+        when (focusedChild.focusState) {
             ActiveParent -> focusedChild.backwardFocusSearch(onFound) ||
                 generateAndSearchChildren(focusedChild, Previous, onFound) ||
                 (focusedChild.fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
@@ -120,7 +121,7 @@ private fun FocusTargetNode.searchChildren(
     direction: FocusDirection,
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    check(focusStateImpl == ActiveParent) {
+    check(focusState == ActiveParent) {
         "This function should only be used within a parent that has focus."
     }
     val children = MutableVector<FocusTargetNode>().apply {
@@ -171,7 +172,6 @@ private fun FocusTargetNode.pickChildForBackwardSearch(
     return false
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.isRoot() = nearestAncestor(Nodes.FocusTarget) == null
 
 @Suppress("BanInlineOptIn")
@@ -217,7 +217,6 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
  * order index. This would be more expensive than sorting the items. In addition to this, sorting
  * the items makes the next focus search more efficient.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
     override fun compare(
         focusTarget1: FocusTargetNode?,

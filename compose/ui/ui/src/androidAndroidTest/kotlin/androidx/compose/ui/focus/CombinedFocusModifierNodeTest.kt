@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -40,7 +41,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun requestFocus() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget)
+        val combinedFocusNode = CombinedFocusNode()
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -59,7 +60,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun captureFocus() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget)
+        val combinedFocusNode = CombinedFocusNode()
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -82,7 +83,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun freeFocus() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget)
+        val combinedFocusNode = CombinedFocusNode()
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -106,7 +107,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun requestFocusWhenCanFocusIsTrue() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget).apply { canFocus = true }
+        val combinedFocusNode = CombinedFocusNode().apply { canFocus = true }
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -125,7 +126,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun requestFocusWhenCanFocusIsFalse() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget).apply { canFocus = false }
+        val combinedFocusNode = CombinedFocusNode().apply { canFocus = false }
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -148,7 +149,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun losesFocusWhenCanFocusChangesToFalse() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget)
+        val combinedFocusNode = CombinedFocusNode()
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -170,7 +171,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
     @Test
     fun doesNotGainFocusWhenCanFocusChangesToTrue() {
         // Arrange.
-        val combinedFocusNode = CombinedFocusNode(delegatedFocusTarget)
+        val combinedFocusNode = CombinedFocusNode()
         rule.setFocusableContent {
             Box(Modifier.combinedFocusElement(combinedFocusNode))
         }
@@ -190,48 +191,74 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
         }
     }
 
-    private fun Modifier.combinedFocusElement(combinedFocusNode: CombinedFocusNode): Modifier {
-        return this
-            .then(CombinedFocusElement(combinedFocusNode))
-            .then(if (delegatedFocusTarget) Modifier else Modifier.focusTarget())
+    private fun Modifier.combinedFocusElement(
+        combinedFocusNode: CombinedFocusModifierNode
+    ): Modifier = if (delegatedFocusTarget) {
+        this then DelegatedFocusTargetElement(combinedFocusNode as DelegatedFocusTargetNode)
+    } else {
+        this then AppendedFocusTargetElement(combinedFocusNode as AppendedFocusTargetNode)
+            .focusTarget()
     }
 
-    private data class CombinedFocusElement(
-        val combinedFocusNode: CombinedFocusNode
-    ) : ModifierNodeElement<CombinedFocusNode>() {
-        override fun create(): CombinedFocusNode = combinedFocusNode
-        override fun update(node: CombinedFocusNode) {
-            node.focusState = combinedFocusNode.focusState
-        }
+    private data class AppendedFocusTargetElement(
+        val appendedFocusTargetNode: AppendedFocusTargetNode
+    ) : ModifierNodeElement<AppendedFocusTargetNode>() {
+        override fun create(): AppendedFocusTargetNode = appendedFocusTargetNode
+        override fun update(node: AppendedFocusTargetNode) {}
+    }
+
+    private data class DelegatedFocusTargetElement(
+        val delegatedFocusTargetNode: DelegatedFocusTargetNode
+    ) : ModifierNodeElement<DelegatedFocusTargetNode>() {
+        override fun create(): DelegatedFocusTargetNode = delegatedFocusTargetNode
+        override fun update(node: DelegatedFocusTargetNode) {}
     }
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "delegatedFocusTarget = {0}")
-        fun initParameters() =
-            listOf(
-                false,
-                true
-            )
+        fun initParameters() = listOf(false, true)
     }
 
-    private class CombinedFocusNode(delegatedFocusTarget: Boolean) :
-        FocusRequesterModifierNode,
+    private fun CombinedFocusNode(): CombinedFocusModifierNode {
+        return if (delegatedFocusTarget) DelegatedFocusTargetNode() else AppendedFocusTargetNode()
+    }
+
+    private interface CombinedFocusModifierNode :
+        FocusRequesterModifierNode, FocusPropertiesModifierNode {
+        val focusState: FocusState
+        var canFocus: Boolean
+    }
+
+    private class AppendedFocusTargetNode :
+        CombinedFocusModifierNode,
         FocusEventModifierNode,
-        FocusPropertiesModifierNode,
         DelegatingNode() {
 
-        init {
-            if (delegatedFocusTarget) delegate(FocusTargetNode())
-        }
+        override lateinit var focusState: FocusState
 
-        lateinit var focusState: FocusState
-
-        var canFocus by mutableStateOf(true)
+        override var canFocus by mutableStateOf(true)
 
         override fun onFocusEvent(focusState: FocusState) {
             this.focusState = focusState
         }
+
+        override fun applyFocusProperties(focusProperties: FocusProperties) {
+            focusProperties.canFocus = canFocus
+        }
+    }
+
+    private class DelegatedFocusTargetNode :
+        CombinedFocusModifierNode,
+        DelegatingNode() {
+
+        val focusTargetModifierNode = delegate(FocusTargetModifierNode())
+
+        override val focusState: FocusState
+            @OptIn(ExperimentalComposeUiApi::class)
+            get() = focusTargetModifierNode.focusState
+
+        override var canFocus by mutableStateOf(true)
 
         override fun applyFocusProperties(focusProperties: FocusProperties) {
             focusProperties.canFocus = canFocus
