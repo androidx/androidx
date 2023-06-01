@@ -15,10 +15,10 @@
  */
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.ActiveFlowTracker.FlowType
 import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
@@ -106,7 +106,7 @@ class CachingTest {
     @Test
     fun cachedData() = testScope.runTest {
         val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
-        assertThat(pageFlow).isInstanceOf(SharedFlow::class.java)
+        assertThat(pageFlow).isInstanceOf<SharedFlow<PagingData<Item>>>()
         assertThat((pageFlow as SharedFlow<PagingData<Item>>).replayCache).isEmpty()
 
         pageFlow.collectItemsUntilSize(6)
@@ -655,7 +655,7 @@ class CachingTest {
     }
 
     private fun Flow<PagingData<Item>>.cachedData(): List<Item> {
-        assertThat(this).isInstanceOf(SharedFlow::class.java)
+        assertThat(this).isInstanceOf<SharedFlow<PagingData<Item>>>()
         val flow = this as SharedFlow<PagingData<Item>>
         assertThat(flow.replayCache).isNotEmpty()
 
@@ -663,7 +663,7 @@ class CachingTest {
         assertThat(pagingData).isNotNull()
 
         val event = pagingData!!.cachedEvent()
-        assertThat(event).isInstanceOf(PageEvent.Insert::class.java)
+        assertThat(event).isInstanceOf<PageEvent.Insert<Item>>()
 
         return (event as PageEvent.Insert<Item>).pages.flatMap { it.data }
     }

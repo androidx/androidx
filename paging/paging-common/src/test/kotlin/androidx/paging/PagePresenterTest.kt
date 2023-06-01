@@ -16,12 +16,12 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

@@ -16,13 +16,13 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PagingSource.LoadResult
 import androidx.testutils.MainDispatcherRule
-import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.Test
 import kotlin.test.assertEquals

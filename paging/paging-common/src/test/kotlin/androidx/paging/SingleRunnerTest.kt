@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
