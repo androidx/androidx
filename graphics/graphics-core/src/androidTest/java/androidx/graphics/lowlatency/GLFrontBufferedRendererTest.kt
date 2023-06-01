@@ -753,9 +753,7 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
         val usageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
-        // See b/280866371
-        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER) &&
-            !Build.MODEL.contains("Cuttlefish")) {
+        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
             assertNotEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         } else {
             assertEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
