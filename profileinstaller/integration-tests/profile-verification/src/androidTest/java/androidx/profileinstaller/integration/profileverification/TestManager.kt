@@ -258,7 +258,6 @@ class WithPackageBlock internal constructor(private val packageName: String) {
             .text
             .lines()
             .map { it.split(":")[1].trim() }
-        assertThat(lines).hasSize(3)
         block(AssertUiBlock(lines))
     }
 

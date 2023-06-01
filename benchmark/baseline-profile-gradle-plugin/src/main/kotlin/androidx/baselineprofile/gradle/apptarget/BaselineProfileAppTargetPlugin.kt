@@ -24,6 +24,7 @@ import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.copyBuildTypeSources
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.dsl.ApplicationExtension
@@ -52,7 +53,11 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
     maxAgpVersion = MAX_AGP_VERSION_REQUIRED
 ) {
 
-    private val extendedBuildTypesMapping = mutableMapOf<String, String>()
+    private val benchmarkExtendedToOriginalTypeMap = mutableMapOf<String, String>()
+    private val baselineProfileExtendedToOriginalTypeMap = mutableMapOf<String, String>()
+
+    private val ApplicationExtension.debugSigningConfig
+        get() = buildTypes.getByName("debug").signingConfig
 
     override fun onAgpPluginNotFound(pluginIds: Set<AgpPluginId>) {
 
@@ -102,6 +107,25 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         }
     }
 
+    override fun onApplicationVariants(variant: ApplicationVariant) {
+
+        // This behavior is only for AGP 8.0: since we cannot support multiple build types in the
+        // same gradle invocation (including `assemble` or `build` due to b/265438201), we use a
+        // single build type for both benchmark and baseline profile in the producer module.
+        // This build type is minified but not obfuscated. Here we add a fixed proguard file that
+        // disables the obfuscation. Also we want to skip the build types that were NOT created by
+        // this plugin.
+        if (agpVersion() < AndroidPluginVersion(8, 1, 0) &&
+            variant.buildType in baselineProfileExtendedToOriginalTypeMap.keys
+        ) {
+            variant.proguardFiles.add(
+                GenerateKeepRulesForBaselineProfilesTask.maybeRegister(project)
+                    .flatMap { it.keepRuleFile }
+            )
+            return
+        }
+    }
+
     private fun createBuildTypesWithAgp80(extension: ApplicationExtension) {
 
         // Creates baseline profile build types extending the currently existing ones.
@@ -109,7 +133,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         createExtendedBuildTypes(
             project = project,
             extensionBuildTypes = extension.buildTypes,
-            extendedBuildTypeToOriginalBuildTypeMapping = extendedBuildTypesMapping,
+            extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
@@ -126,25 +150,12 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
                 enableUnitTestCoverage = false
             }
         )
-    }
 
-    override fun onApplicationVariants(variant: ApplicationVariant) {
-
-        // This behavior is only for AGP 8.0.
-        if (agpVersion() >= AndroidPluginVersion(8, 1, 0)) {
-            return
-        }
-
-        // We can skip the build types that were NOT created by this plugin.
-        if (variant.buildType !in extendedBuildTypesMapping.keys) {
-            return
-        }
-
-        // Add a keep rule file to make sure the build is non obfuscated
-        val keepRuleFileProvider = GenerateKeepRulesForBaselineProfilesTask
-            .maybeRegister(project)
-            .flatMap { it.keepRuleFile }
-        variant.proguardFiles.add(keepRuleFileProvider)
+        // Copies the source sets for the newly created build types
+        copyBuildTypeSources(
+            extensionSourceSets = extension.sourceSets,
+            fromToMapping = baselineProfileExtendedToOriginalTypeMap
+        )
     }
 
     private fun createBuildTypesWithAgp81AndAbove(extension: ApplicationExtension) {
@@ -153,7 +164,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
         createExtendedBuildTypes(
             project = project,
-            extendedBuildTypeToOriginalBuildTypeMapping = extendedBuildTypesMapping,
+            extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             filterBlock = {
@@ -172,16 +183,23 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             }
         )
 
+        // Copies the source sets for the newly created build types
+        copyBuildTypeSources(
+            extensionSourceSets = extension.sourceSets,
+            fromToMapping = baselineProfileExtendedToOriginalTypeMap
+        )
+
         // Creates benchmark build types extending the currently existing ones.
         // They're named `<BUILD_TYPE_BENCHMARK_PREFIX><originalBuildTypeName>`.
         createExtendedBuildTypes(
             project = project,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
+            extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
             filterBlock = {
                 // Create benchmark type for non debuggable types, and without considering
                 // baseline profiles build types.
-                !it.isDebuggable && it.name !in extendedBuildTypesMapping
+                !it.isDebuggable && it.name !in baselineProfileExtendedToOriginalTypeMap
             },
             configureBlock = {
                 isJniDebuggable = false
@@ -194,8 +212,11 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
                 enableUnitTestCoverage = false
             }
         )
-    }
 
-    private val ApplicationExtension.debugSigningConfig
-        get() = buildTypes.getByName("debug").signingConfig
+        // Copies the source sets for the newly created build types
+        copyBuildTypeSources(
+            extensionSourceSets = extension.sourceSets,
+            fromToMapping = benchmarkExtendedToOriginalTypeMap
+        )
+    }
 }
