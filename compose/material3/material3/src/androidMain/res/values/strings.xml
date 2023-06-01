@@ -72,6 +72,8 @@
     Describes an invalid date range input when a user enters a start or end date [CHAR_LIMIT=NONE]
     -->
     <string name="date_range_input_invalid_range_input">Invalid date range input</string>
+    <!-- Spoken description of a bottom sheet -->
+    <string name="bottom_sheet_pane_title">Bottom Sheet</string>
     <!-- Names the drag handle visual for bottom sheet. -->
     <string name="bottom_sheet_drag_handle_description">Drag handle</string>
     <!-- Describes the collapse action for bottom sheet. -->

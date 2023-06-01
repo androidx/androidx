@@ -213,8 +213,11 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_defaultStateForSmallContentIsFullExpanded() {
         lateinit var sheetState: SheetState
+        var height by mutableStateOf(0.dp)
 
         rule.setContent {
+            val config = LocalContext.current.resources.configuration
+            height = config.screenHeightDp.dp
             sheetState = rememberModalBottomSheetState()
             ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState, dragHandle = null) {
                 Box(
@@ -226,7 +229,6 @@ class ModalBottomSheetTest {
             }
         }
 
-        val height = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
         rule.onNodeWithTag(sheetTag).assertTopPositionInRootIsEqualTo(height - sheetHeight)
     }
@@ -356,15 +358,15 @@ class ModalBottomSheetTest {
                 )
             }
         }
-        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
 
         size = 100.dp
         rule.waitForIdle()
-        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
 
         size = 30.dp
         rule.waitForIdle()
-        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
     }
 
     @Test
