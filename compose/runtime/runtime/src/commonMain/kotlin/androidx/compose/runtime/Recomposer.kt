@@ -504,6 +504,8 @@ class Recomposer(
         val toApply = mutableListOf<ControlledComposition>()
         val toLateApply = mutableSetOf<ControlledComposition>()
         val toComplete = mutableSetOf<ControlledComposition>()
+        val modifiedValues = IdentityArraySet<Any>()
+        val alreadyComposed = IdentityArraySet<ControlledComposition>()
 
         fun clearRecompositionState() {
             toRecompose.clear()
@@ -511,6 +513,8 @@ class Recomposer(
             toApply.clear()
             toLateApply.clear()
             toComplete.clear()
+            modifiedValues.clear()
+            alreadyComposed.clear()
         }
 
         fun fillToInsert() {
@@ -557,8 +561,8 @@ class Recomposer(
                     }
 
                     // Perform recomposition for any invalidated composers
-                    val modifiedValues = IdentityArraySet<Any>()
-                    val alreadyComposed = IdentityArraySet<ControlledComposition>()
+                    modifiedValues.clear()
+                    alreadyComposed.clear()
                     while (toRecompose.isNotEmpty() || toInsert.isNotEmpty()) {
                         try {
                             toRecompose.fastForEach { composition ->
@@ -613,7 +617,7 @@ class Recomposer(
                         // Perform apply changes
                         try {
                             // We could do toComplete += toApply but doing it like below
-                            // avoids unncessary allocations since toApply is a mutable list
+                            // avoids unnecessary allocations since toApply is a mutable list
                             // toComplete += toApply
                             toApply.fastForEach { composition ->
                                 toComplete.add(composition)
@@ -669,6 +673,8 @@ class Recomposer(
                     // sendApplyNotifications to ensure that objects that were _created_ in this
                     // snapshot are also considered changed after this point.
                     Snapshot.notifyObjectsInitialized()
+                    alreadyComposed.clear()
+                    modifiedValues.clear()
                 }
             }
 
