@@ -69,7 +69,7 @@ class Camera2CameraControlTest {
     private val comboRequestListener = ComboRequestListener()
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
     private val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-    private val camera2CameraControlCompatImpl = Camera2CameraControlCompatImpl(fakeUseCaseThreads)
+    private val camera2CameraControlCompatImpl = Camera2CameraControlCompatImpl()
     private lateinit var camera2CameraControl: Camera2CameraControl
 
     @Before
