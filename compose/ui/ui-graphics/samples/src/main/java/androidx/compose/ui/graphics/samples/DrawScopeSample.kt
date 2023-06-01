@@ -118,6 +118,10 @@ fun DrawScopeRetargetingSample() {
         .drawWithCache {
             // Example that shows how to redirect rendering to an Android Picture and then
             // draw the picture into the original destination
+            // Note:
+            // Canvas#drawPicture is supported with hardware acceleration on Android API 23+
+            // Check https://developer.android.com/topic/performance/hardware-accel#drawing-support
+            // for details of which drawing operations are supported with hardware acceleration
             val picture = android.graphics.Picture()
             val width = this.size.width.toInt()
             val height = this.size.height.toInt()
