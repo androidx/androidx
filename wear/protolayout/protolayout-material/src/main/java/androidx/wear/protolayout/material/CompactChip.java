@@ -47,9 +47,9 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
 /**
  * ProtoLayout component {@link CompactChip} that represents clickable object with the text.
  *
- * <p>The Chip is Stadium shape and has a max height designed to take no more than one line of text
- * of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to the text
- * size.
+ * <p>The CompactChip is Stadium shape and has a max height designed to take no more than one line
+ * of text of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to
+ * the text size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#COMPACT_PRIMARY_COLORS} to get a color scheme for a primary {@link
@@ -78,13 +78,10 @@ public class CompactChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
     static final String METADATA_TAG = "CMPCHP";
 
-    @NonNull private final Box mImpl;
     @NonNull private final Chip mElement;
 
-    CompactChip(@NonNull Box element) {
-        this.mImpl = element;
-        // We know for sure that content of the Box is Chip.
-        this.mElement = new Chip((Box) element.getContents().get(0));
+    CompactChip(@NonNull Chip element) {
+        this.mElement = element;
     }
 
     /** Builder class for {@link androidx.wear.protolayout.material.CompactChip}. */
@@ -162,23 +159,7 @@ public class CompactChip implements LayoutElement {
                             .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
-            Box tappableChip =
-                    new Box.Builder()
-                            .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setClickable(mClickable)
-                                            .setMetadata(
-                                                    new ElementMetadata.Builder()
-                                                            .setTagData(getTagBytes(METADATA_TAG))
-                                                            .build())
-                                            .build())
-                            .setWidth(wrap())
-                            .setHeight(MIN_TAPPABLE_HEIGHT)
-                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                            .addContent(chipBuilder.build())
-                            .build();
-
-            return new CompactChip(tappableChip);
+            return new CompactChip(chipBuilder.build());
         }
     }
 
@@ -223,18 +204,9 @@ public class CompactChip implements LayoutElement {
         if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
-        // Now to check that inner content of the Box is CompactChip's Chip.
-        LayoutElement innerElement = boxElement.getContents().get(0);
-        if (!(innerElement instanceof Box)) {
-            return null;
-        }
-        Box innerBoxElement = (Box) innerElement;
-        if (!checkTag(innerBoxElement.getModifiers(), METADATA_TAG)) {
-            return null;
-        }
 
         // Now we are sure that this element is a CompactChip.
-        return new CompactChip(boxElement);
+        return new CompactChip(new Chip(boxElement));
     }
 
     /**
@@ -249,13 +221,13 @@ public class CompactChip implements LayoutElement {
     @NonNull
     @Override
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
-        return mImpl.toLayoutElementProto();
+        return mElement.toLayoutElementProto();
     }
 
     @Nullable
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public Fingerprint getFingerprint() {
-        return mImpl.getFingerprint();
+        return mElement.getFingerprint();
     }
 }
