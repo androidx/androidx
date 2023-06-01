@@ -576,7 +576,7 @@ internal class PublicKeyCredentialControllerUtility {
         }
 
         private const val FLAGS = Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING
-        private val TAG = PublicKeyCredentialControllerUtility::class.java.name
+        private const val TAG = "PublicKeyUtility"
         internal val orderedErrorCodeToExceptions = linkedMapOf(ErrorCode.UNKNOWN_ERR to
             UnknownError(),
             ErrorCode.ABORT_ERR to AbortError(),

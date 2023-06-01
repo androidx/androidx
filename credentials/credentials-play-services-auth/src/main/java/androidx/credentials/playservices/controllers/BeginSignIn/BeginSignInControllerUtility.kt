@@ -36,7 +36,7 @@ internal class BeginSignInControllerUtility {
 
     companion object {
 
-        private val TAG = BeginSignInControllerUtility::class.java.name
+        private const val TAG = "BeginSignInUtility"
         private const val AUTH_MIN_VERSION_JSON_PARSING: Long = 231815000
         internal fun constructBeginSignInRequest(request: GetCredentialRequest, context: Context):
             BeginSignInRequest {
