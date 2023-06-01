@@ -75,7 +75,6 @@ object FunSpecHelper {
                 addModifiers(KModifier.SUSPEND)
             }
             // TODO(b/251316420): Add type variable names
-            val isVarArgs = executableElement.isVarArgs()
             val parameterTypes = resolvedType.parameterTypes.let {
                 // Drop the synthetic Continuation param of suspend functions, always at the last
                 // position.
@@ -86,7 +85,7 @@ object FunSpecHelper {
                 val typeName: XTypeName
                 val modifiers: Array<KModifier>
                 // TODO(b/253268357): In Kotlin the vararg is not always the last param
-                if (isVarArgs && index == parameterTypes.size - 1) {
+                if (executableElement.parameters.get(index).isVarArgs()) {
                     typeName = (paramType as XArrayType).componentType.asTypeName()
                     modifiers = arrayOf(KModifier.VARARG)
                 } else {

@@ -46,6 +46,8 @@ internal class KspSyntheticReceiverParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = false
+
     override val name: String by lazy {
         // KAPT uses `$this$<functionName>`
         "$" + "this" + "$" + enclosingElement.name

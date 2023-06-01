@@ -388,6 +388,7 @@ internal class KmValueParameterContainer(
         get() = kmValueParameter.flags
     val name: String
         get() = kmValueParameter.name
+    fun isVarArgs() = kmValueParameter.varargElementType != null
     fun isNullable() = type.isNullable()
     fun hasDefault() = Flag.ValueParameter.DECLARES_DEFAULT_VALUE(flags)
 }
