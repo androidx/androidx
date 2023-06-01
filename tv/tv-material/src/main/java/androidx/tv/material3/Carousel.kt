@@ -224,6 +224,10 @@ private fun AutoScrollSideEffect(
     doAutoScroll: Boolean,
     onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
+    if (autoScrollDurationMillis == Long.MAX_VALUE || autoScrollDurationMillis < 0) {
+        return
+    }
+
     // Needed to ensure that the code within LaunchedEffect receives updates to the itemCount.
     val updatedItemCount by rememberUpdatedState(newValue = itemCount)
     if (doAutoScroll) {
