@@ -43,7 +43,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 /** Converters for capability argument values. Convert from internal proto types to public types. */
@@ -99,22 +98,24 @@ public final class TypeConverters {
                             "CalendarEvent",
                             CalendarEvent::Builder,
                             CalendarEvent.Builder::build)
-                    .bindZonedDateTimeField(
+                    .bindSpecField(
                             "startDate",
                             calendarEvent ->
                                     Optional.ofNullable(calendarEvent)
                                             .map(CalendarEvent::getStartDate)
                                             .map(StartDate::asZonedDateTime)
                                             .orElse(null),
-                            CalendarEvent.Builder::setStartDate)
-                    .bindZonedDateTimeField(
+                            CalendarEvent.Builder::setStartDate,
+                            TypeSpec.ZONED_DATE_TIME_TYPE_SPEC)
+                    .bindSpecField(
                             "endDate",
                             calendarEvent ->
                                     Optional.ofNullable(calendarEvent)
                                             .map(CalendarEvent::getEndDate)
                                             .map(EndDate::asZonedDateTime)
                                             .orElse(null),
-                            CalendarEvent.Builder::setEndDate)
+                            CalendarEvent.Builder::setEndDate,
+                            TypeSpec.ZONED_DATE_TIME_TYPE_SPEC)
                     .bindRepeatedSpecField(
                             "attendee",
                             CalendarEvent::getAttendeeList,
@@ -126,14 +127,16 @@ public final class TypeConverters {
                             "SafetyCheck",
                             SafetyCheck::Builder,
                             SafetyCheck.Builder::build)
-                    .bindDurationField(
+                    .bindSpecField(
                             "duration",
                             SafetyCheck::getDuration,
-                            SafetyCheck.Builder::setDuration)
-                    .bindZonedDateTimeField(
+                            SafetyCheck.Builder::setDuration,
+                            TypeSpec.DURATION_TYPE_SPEC)
+                    .bindSpecField(
                             "checkInTime",
                             SafetyCheck::getCheckInTime,
-                            SafetyCheck.Builder::setCheckInTime)
+                            SafetyCheck.Builder::setCheckInTime,
+                            TypeSpec.ZONED_DATE_TIME_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Recipient> RECIPIENT_TYPE_SPEC =
             new UnionTypeSpec.Builder<Recipient>()
@@ -195,32 +198,14 @@ public final class TypeConverters {
             ParamValueConverter.of(TypeSpec.LOCAL_TIME_TYPE_SPEC);
 
     public static final ParamValueConverter<ZoneId> ZONE_ID_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<ZoneId>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(ZoneId value) {
-                    return ParamValue.newBuilder().setStringValue(value.getId()).build();
-                }
+            ParamValueConverter.of(TypeSpec.ZONE_ID_TYPE_SPEC);
 
-                @Override
-                public ZoneId fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasStringValue()) {
-                        try {
-                            return ZoneId.of(paramValue.getStringValue());
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to ZoneId", e);
-                        }
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse ZoneId because string_value is missing from ParamValue.");
-                }
-            };
     public static final ParamValueConverter<ZonedDateTime> ZONED_DATE_TIME_PARAM_VALUE_CONVERTER =
             ParamValueConverter.of(TypeSpec.ZONED_DATE_TIME_TYPE_SPEC);
+
     public static final ParamValueConverter<Duration> DURATION_PARAM_VALUE_CONVERTER =
             ParamValueConverter.of(TypeSpec.DURATION_TYPE_SPEC);
+
     public static final ParamValueConverter<Call.CanonicalValue.CallFormat>
             CALL_FORMAT_PARAM_VALUE_CONVERTER =
             new ParamValueConverter<Call.CanonicalValue.CallFormat>() {

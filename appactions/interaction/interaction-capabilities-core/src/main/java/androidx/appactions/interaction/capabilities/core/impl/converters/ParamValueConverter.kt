@@ -58,7 +58,8 @@ interface ParamValueConverter<T> {
                 paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue
                 paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue
                 paramValue.hasStructValue() -> builder.structValue = paramValue.structValue
-                else -> throw StructConversionException("cannot convert $paramValue into Value.")
+                else -> throw StructConversionException("cannot convert ParamValue into protobuf" +
+                    " Value because it has no data types set.")
             }
             return builder.build()
         }

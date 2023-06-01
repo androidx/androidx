@@ -60,7 +60,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.zone.ZoneRulesException;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,6 +69,8 @@ public final class TypeConvertersTest {
         return Value.newBuilder().setStructValue(struct).build();
     }
 
+    private static final String EMPTY_PARAM_VALUE_MESSAGE =
+            "cannot convert ParamValue into protobuf Value because it has no data types set.";
     private static final Person PERSON_JAVA_THING =
             Person.Builder()
                     .setName("name")
@@ -452,7 +453,7 @@ public final class TypeConvertersTest {
                         () ->
                                 SlotTypeConverter.ofSingular(BOOLEAN_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
+        assertThat(thrown).hasMessageThat().isEqualTo(EMPTY_PARAM_VALUE_MESSAGE);
     }
 
     @Test
@@ -465,7 +466,7 @@ public final class TypeConvertersTest {
                         () ->
                                 SlotTypeConverter.ofSingular(INTEGER_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
+        assertThat(thrown).hasMessageThat().isEqualTo(EMPTY_PARAM_VALUE_MESSAGE);
     }
 
     @Test
@@ -507,7 +508,7 @@ public final class TypeConvertersTest {
                                 SlotTypeConverter.ofSingular(
                                                 TypeConverters.LOCAL_DATE_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
+        assertThat(thrown).hasMessageThat().isEqualTo(EMPTY_PARAM_VALUE_MESSAGE);
     }
 
     @Test
@@ -548,7 +549,7 @@ public final class TypeConvertersTest {
                                 SlotTypeConverter.ofSingular(
                                                 TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown).hasMessageThat().matches("cannot convert .+ into Value.");
+        assertThat(thrown).hasMessageThat().isEqualTo(EMPTY_PARAM_VALUE_MESSAGE);
     }
 
     @Test
@@ -562,19 +563,22 @@ public final class TypeConvertersTest {
     }
 
     @Test
-    public void toZoneId_throwsException() {
-        List<ParamValue> input =
+    public void toZoneId_invalidZone_throwsException() {
+        List<ParamValue> invalidZoneInput =
                 Collections.singletonList(
                         ParamValue.newBuilder().setStringValue("America/New_Yo").build());
 
-        ZoneRulesException thrown =
+        StructConversionException thrown =
                 assertThrows(
-                        ZoneRulesException.class,
+                        StructConversionException.class,
                         () ->
                                 SlotTypeConverter.ofSingular(
                                                 TypeConverters.ZONE_ID_PARAM_VALUE_CONVERTER)
-                                        .convert(input));
-        assertThat(thrown).hasMessageThat().isEqualTo("Unknown time-zone ID: America/New_Yo");
+                                        .convert(invalidZoneInput));
+        assertThat(thrown).hasMessageThat().isEqualTo("Failed to parse string to ZoneId");
+        assertThat(thrown.getCause())
+                .hasMessageThat()
+                .isEqualTo("Unknown time-zone ID: America/New_Yo");
     }
 
     @Test
@@ -588,9 +592,7 @@ public final class TypeConvertersTest {
                                 SlotTypeConverter.ofSingular(
                                                 TypeConverters.ZONE_ID_PARAM_VALUE_CONVERTER)
                                         .convert(input));
-        assertThat(thrown)
-                .hasMessageThat()
-                .isEqualTo("Cannot parse ZoneId because string_value is missing from ParamValue.");
+        assertThat(thrown).hasMessageThat().isEqualTo(EMPTY_PARAM_VALUE_MESSAGE);
     }
 
     @Test
