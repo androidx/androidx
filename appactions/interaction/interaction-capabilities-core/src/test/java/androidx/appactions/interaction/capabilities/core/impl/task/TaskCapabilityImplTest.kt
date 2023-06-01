@@ -47,7 +47,6 @@ import androidx.appactions.interaction.capabilities.core.testing.spec.Capability
 import androidx.appactions.interaction.capabilities.core.testing.spec.Confirmation
 import androidx.appactions.interaction.capabilities.core.testing.spec.ExecutionSession
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
-import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
@@ -574,12 +573,12 @@ class TaskCapabilityImplTest {
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             ),
             BoundProperty(
-                "optionalEnum",
-                Property.Builder<TestEnum>()
-                    .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
+                "optional",
+                Property.Builder<StringValue>()
+                    .setPossibleValues(StringValue.of("VALUE_1"), StringValue.of("VALUE_2"))
                     .setRequired(true)
                     .build(),
-                { Entity.newBuilder().setIdentifier(it.toString()).build() }
+                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
         )
         val capability: Capability =
@@ -613,20 +612,20 @@ class TaskCapabilityImplTest {
                     .setStatus(CurrentValue.Status.ACCEPTED)
                     .build()
             )
-        assertThat(getCurrentValues("optionalEnum", session.state!!)).isEmpty()
+        assertThat(getCurrentValues("optional", session.state!!)).isEmpty()
 
         // TURN 2.
         val callback2 = FakeCallbackInternal()
         session.execute(
-            buildRequestArgs(SYNC, "optionalEnum", TestEnum.VALUE_2),
+            buildRequestArgs(SYNC, "optional", "VALUE_2"),
             callback2
         )
         assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(getCurrentValues("required", session.state!!)).isEmpty()
-        assertThat(getCurrentValues("optionalEnum", session.state!!))
+        assertThat(getCurrentValues("optional", session.state!!))
             .containsExactly(
                 CurrentValue.newBuilder()
-                    .setValue(ParamValue.newBuilder().setIdentifier("VALUE_2"))
+                    .setValue(ParamValue.newBuilder().setStringValue("VALUE_2"))
                     .setStatus(CurrentValue.Status.ACCEPTED)
                     .build()
             )
@@ -1658,16 +1657,6 @@ class TaskCapabilityImplTest {
         }
 
         private const val CAPABILITY_NAME = "actions.intent.TEST"
-        private val ENUM_CONVERTER: ParamValueConverter<TestEnum> =
-            object : ParamValueConverter<TestEnum> {
-                override fun fromParamValue(paramValue: ParamValue): TestEnum {
-                    return TestEnum.VALUE_1
-                }
-
-                override fun toParamValue(obj: TestEnum): ParamValue {
-                    return ParamValue.newBuilder().build()
-                }
-            }
         private val ACTION_SPEC: ActionSpec<Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                 CAPABILITY_NAME
@@ -1683,11 +1672,6 @@ class TaskCapabilityImplTest {
                     "optional",
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
-                )
-                .bindParameter(
-                    "optionalEnum",
-                    Arguments.Builder::setEnumField,
-                    ENUM_CONVERTER
                 )
                 .bindRepeatedParameter(
                     "repeated",
