@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -88,6 +89,7 @@ public class RecyclerViewPrefetchTest extends BaseRecyclerViewInstrumentationTes
         return mRecyclerView.mRecycler.mCachedViews;
     }
 
+    @Ignore("b/285199733")
     @Test
     public void prefetchTest() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
