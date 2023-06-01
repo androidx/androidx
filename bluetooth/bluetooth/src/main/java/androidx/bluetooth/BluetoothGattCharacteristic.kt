@@ -16,7 +16,7 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattCharacteristic as FwkGattCharacteristic
 import androidx.annotation.RestrictTo
 import java.util.UUID
 
@@ -25,12 +25,48 @@ import java.util.UUID
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class BluetoothGattCharacteristic internal constructor(
-    internal var characteristic: FwkBluetoothGattCharacteristic
+    internal var characteristic: FwkGattCharacteristic
 ) {
+    companion object {
+        const val PROPERTY_BROADCAST = FwkGattCharacteristic.PROPERTY_BROADCAST
+        const val PROPERTY_EXTENDS_PROP = FwkGattCharacteristic.PROPERTY_EXTENDED_PROPS
+        const val PROPERTY_INDICATE = FwkGattCharacteristic.PROPERTY_INDICATE
+        const val PROPERTY_NOTIFY = FwkGattCharacteristic.PROPERTY_NOTIFY
+        const val PROPERTY_READ = FwkGattCharacteristic.PROPERTY_READ
+        const val PROPERTY_SIGNED_WRITE = FwkGattCharacteristic.PROPERTY_SIGNED_WRITE
+        const val PROPERTY_WRITE = FwkGattCharacteristic.PROPERTY_WRITE
+        const val PROPERTY_WRITE_NO_RESPONSE = FwkGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+
+        const val PERMISSION_READ: Int = FwkGattCharacteristic.PERMISSION_READ
+        const val PERMISSION_READ_ENCRYPTED: Int =
+            FwkGattCharacteristic.PERMISSION_READ_ENCRYPTED
+        const val PERMISSION_READ_ENCRYPTED_MITM: Int =
+            FwkGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM
+        const val PERMISSION_WRITE: Int = FwkGattCharacteristic.PERMISSION_WRITE
+        const val PERMISSION_WRITE_ENCRYPTED: Int =
+            FwkGattCharacteristic.PERMISSION_WRITE_ENCRYPTED
+        const val PERMISSION_WRITE_ENCRYPTED_MITM: Int =
+            FwkGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM
+        const val PERMISSION_WRITE_SIGNED: Int = FwkGattCharacteristic.PERMISSION_WRITE_SIGNED
+        const val PERMISSION_WRITE_SIGNED_MITM: Int =
+            FwkGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
+    }
+
+    /**
+     * The UUID of the characteristic
+     */
     val uuid: UUID
         get() = characteristic.uuid
+
+    /**
+     * The properties of the characteristic
+     */
     val properties: Int
         get() = characteristic.properties
+
+    /**
+     * The permissions for the characteristic
+     */
     val permissions: Int
         get() = characteristic.permissions
 }
