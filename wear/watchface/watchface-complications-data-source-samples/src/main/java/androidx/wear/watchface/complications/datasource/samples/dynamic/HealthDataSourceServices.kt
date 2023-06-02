@@ -19,7 +19,9 @@ package androidx.wear.watchface.complications.datasource.samples.dynamic
 import android.Manifest.permission
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.PlatformHealthSources
+import androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.DynamicComplicationText
@@ -80,10 +82,26 @@ object HealthDataSourceServices {
         override val value: DynamicFloat?
             get() =
                 if (checkSelfPermission(permission.BODY_SENSORS) == PERMISSION_GRANTED) {
-                    PlatformHealthSources.heartRateBpm()
+                    DynamicFloat.onCondition(
+                            PlatformHealthSources.heartRateAccuracy()
+                                .gte(DynamicHeartRateAccuracy.MEDIUM)
+                        )
+                        .use(PlatformHealthSources.heartRateBpm())
+                        .elseUse(0f)
                 } else {
                     null
                 }
+
+        override val text: DynamicString
+            get() {
+                require(checkSelfPermission(permission.BODY_SENSORS) == PERMISSION_GRANTED)
+                return DynamicString.onCondition(
+                        PlatformHealthSources.heartRateAccuracy()
+                            .gte(DynamicHeartRateAccuracy.MEDIUM)
+                    )
+                    .use(PlatformHealthSources.heartRateBpm().format())
+                    .elseUse(getString(R.string.dynamic_data_low_accuracy))
+            }
     }
 
     class Steps :
@@ -108,6 +126,10 @@ object HealthDataSourceServices {
 
         /** Returns [DynamicFloat] or `null` if missing permissions. */
         abstract val value: DynamicFloat?
+
+        /** Only read if [value] is non-null. */
+        open val text: DynamicString
+            get() = value!!.format()
 
         override fun onComplicationRequest(
             request: ComplicationRequest,
@@ -135,10 +157,7 @@ object HealthDataSourceServices {
             }
 
             val text =
-                DynamicComplicationText(
-                    value.format(),
-                    getString(R.string.dynamic_data_not_supported)
-                )
+                DynamicComplicationText(this.text, getString(R.string.dynamic_data_not_supported))
             val fallbackText =
                 PlainComplicationText.Builder(
                         getString(R.string.dynamic_data_not_available_or_ready)
