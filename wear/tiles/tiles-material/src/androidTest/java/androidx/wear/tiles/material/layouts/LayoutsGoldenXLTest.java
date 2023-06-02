@@ -20,6 +20,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.tiles.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.tiles.material.RunnerUtils.SCREEN_WIDTH;
 import static androidx.wear.tiles.material.RunnerUtils.runSingleScreenshotTest;
+import static androidx.wear.tiles.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.tiles.material.layouts.TestCasesGenerator.XXXL_SCALE_SUFFIX;
 import static androidx.wear.tiles.material.layouts.TestCasesGenerator.generateTestCases;
 
@@ -28,7 +29,6 @@ import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 
@@ -125,6 +125,8 @@ public class LayoutsGoldenXLTest {
                 .getDisplayMetrics()
                 .setTo(currentDisplayMetrics);
 
+        waitForNotificationToDisappears();
+
         return testCases.entrySet().stream()
                 .map(test -> new Object[] {test.getKey(), test.getValue()})
                 .collect(Collectors.toList());
@@ -145,7 +147,6 @@ public class LayoutsGoldenXLTest {
         getApplicationContext().getResources().getDisplayMetrics().setTo(OLD_DISPLAY_METRICS);
     }
 
-    @SdkSuppress(maxSdkVersion = 32) // b/271486183
     @Test
     public void test() {
         runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);
