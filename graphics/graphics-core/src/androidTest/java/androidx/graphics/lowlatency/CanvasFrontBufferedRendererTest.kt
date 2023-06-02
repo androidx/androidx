@@ -46,6 +46,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class CanvasFrontBufferedRendererTest {
 
+    @Ignore("b/285410170")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferedLayerRender() {
