@@ -22,14 +22,14 @@ package androidx.core.telecom
  * presence of other calls on the device, requests relayed from a Bluetooth device, or from another
  * calling surface.
  *
- * <p>
+ *
  * All CallControlCallbacks are transactional, meaning that a client must
  * complete the suspend fun with a [Boolean] response in order to complete the
  * CallControlCallback. If the operation has been completed, the [suspend fun] should return
  * true. Otherwise, the suspend fun should be returned with a false to represent the
  * CallControlCallback cannot be completed on the client side.
  *
- * <p>
+ *
  * Note: Each CallEventCallback has a timeout of 5000 milliseconds. Failing to complete the
  * suspend fun before the timeout will result in a failed transaction.
  */

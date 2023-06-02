@@ -22,9 +22,9 @@ import kotlinx.coroutines.flow.Flow
 /**
  * DSL interface to provide and receive updates about a single call session. The scope should be
  * used to provide updates to the call state and receive updates about a call state.  Example usage:
- * <pre>
- *     // initiate a call and control via the CallControlScope
- *     mCallsManager.addCall(callAttributes) { // This block represents the CallControlScope
+ *
+ *    // initiate a call and control via the CallControlScope
+ *    mCallsManager.addCall(callAttributes) { // This block represents the CallControlScope
  *
  *          // set your implementation of [CallControlCallback]
  *         setCallback(myCallControlCallbackImplementation)
@@ -40,15 +40,13 @@ import kotlinx.coroutines.flow.Flow
  *           .onEach { // access the new [CallEndpoint] here }
  *           .launchIn(coroutineScope)
  *     }
- * <pre>
+ *
  */
 interface CallControlScope {
     /**
      * This method should be the first method called within the [CallControlScope] and your VoIP
-     * application should pass in a valid implementation of [CallControlCallback].
-     *
-     * <p>
-     * Failing to call this API may result in your VoIP process being killed or an error to occur.
+     * application should pass in a valid implementation of [CallControlCallback].  Failing to call
+     * this method first will result in a [CallException] to be thrown.
      */
     @Suppress("ExecutorRegistration")
     fun setCallback(callControlCallback: CallControlCallback)
@@ -120,8 +118,8 @@ interface CallControlScope {
      *
      * @param endpoint The [CallEndpointCompat] to change to.
      *
-     * Telecom will return true if your app is able to switch to the requested new endpoint.
-     * Otherwise false will be returned.
+     * @return true if Telecom is able to switch to the requested endpoint successfully.  Otherwise,
+     * false will be returned to represent a failure.
      */
     suspend fun requestEndpointChange(endpoint: CallEndpointCompat): Boolean
 
