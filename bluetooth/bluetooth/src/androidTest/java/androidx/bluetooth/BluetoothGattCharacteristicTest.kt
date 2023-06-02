@@ -17,6 +17,7 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import java.util.UUID
 import org.junit.Assert
 import org.junit.Test
@@ -84,5 +85,24 @@ class BluetoothGattCharacteristicTest {
             Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
             Assert.assertEquals(it.value, gattCharacteristic.permissions)
         }
+
+        val charUuid = UUID.randomUUID()
+        val fwkGattCharacteristic = FwkBluetoothGattCharacteristic(
+            charUuid,
+            /*properties=*/0, /*permissions=*/0
+        )
+        val descUuid1 = UUID.randomUUID()
+        val descUuid2 = UUID.randomUUID()
+
+        val desc1 = FwkBluetoothGattDescriptor(descUuid1, /*permission=*/0)
+        val desc2 = FwkBluetoothGattDescriptor(descUuid2, /*permission=*/0)
+        fwkGattCharacteristic.addDescriptor(desc1)
+        fwkGattCharacteristic.addDescriptor(desc2)
+
+        val characteristicWithDescriptors = BluetoothGattCharacteristic(fwkGattCharacteristic)
+
+        Assert.assertEquals(2, characteristicWithDescriptors.descriptors.size)
+        Assert.assertEquals(descUuid1, characteristicWithDescriptors.descriptors[0].uuid)
+        Assert.assertEquals(descUuid2, characteristicWithDescriptors.descriptors[1].uuid)
     }
 }
