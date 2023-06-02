@@ -71,12 +71,14 @@ import java.util.concurrent.TimeoutException;
  * such as pressing the d-pad or pressing the Home and Menu buttons.
  */
 public class UiDevice implements Searchable {
-    private static final String TAG = UiDevice.class.getSimpleName();
+    static final String TAG = UiDevice.class.getSimpleName();
 
     // Use a short timeout after HOME or BACK key presses, as no events might be generated if
     // already on the home page or if there is nothing to go back to.
     private static final long KEY_PRESS_EVENT_TIMEOUT = 1_000; // ms
     private static final long ROTATION_TIMEOUT = 2_000; // ms
+    private static final int MAX_UIAUTOMATION_RETRY = 3;
+    private static final int UIAUTOMATION_RETRY_INTERVAL = 500;
 
     // Singleton instance.
     private static UiDevice sInstance;
@@ -1174,7 +1176,7 @@ public class UiDevice implements Searchable {
         UiAutomation uiAutomation;
         int flags = Configurator.getInstance().getUiAutomationFlags();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uiAutomation = Api24Impl.getUiAutomation(getInstrumentation(), flags);
+            uiAutomation = Api24Impl.getUiAutomationWithRetry(getInstrumentation(), flags);
         } else {
             if (flags != Configurator.DEFAULT_UIAUTOMATION_FLAGS) {
                 Log.w(TAG, "UiAutomation flags not supported prior to API 24");
@@ -1182,6 +1184,9 @@ public class UiDevice implements Searchable {
             uiAutomation = getInstrumentation().getUiAutomation();
         }
 
+        if (uiAutomation == null) {
+            throw new NullPointerException("Got null UiAutomation from instrumentation.");
+        }
         // Verify and update the accessibility service flags if necessary. These might get reset
         // if the underlying UiAutomationConnection is recreated.
         AccessibilityServiceInfo serviceInfo = uiAutomation.getServiceInfo();
@@ -1243,8 +1248,19 @@ public class UiDevice implements Searchable {
         }
 
         @DoNotInline
-        static UiAutomation getUiAutomation(Instrumentation instrumentation, int flags) {
-            return instrumentation.getUiAutomation(flags);
+        static UiAutomation getUiAutomationWithRetry(Instrumentation instrumentation, int flags) {
+            UiAutomation uiAutomation = null;
+            for (int i = 0; i < MAX_UIAUTOMATION_RETRY; i++) {
+                uiAutomation = instrumentation.getUiAutomation(flags);
+                if (uiAutomation != null) {
+                    break;
+                }
+                if (i < MAX_UIAUTOMATION_RETRY - 1) {
+                    Log.e(TAG, "Got null UiAutomation from instrumentation - Retrying...");
+                    SystemClock.sleep(UIAUTOMATION_RETRY_INTERVAL);
+                }
+            }
+            return uiAutomation;
         }
     }
 
