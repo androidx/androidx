@@ -18,13 +18,14 @@ package com.example.androidx.webkit;
 
 import static org.junit.Assert.assertTrue;
 
+import android.annotation.SuppressLint;
+
 import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.WebViewFeature;
-import org.junit.Ignore;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,8 +43,8 @@ public class ProcessGlobalConfigActivityTestAppTest {
     public ActivityScenarioRule<ProcessGlobalConfigActivity> mRule =
             new ActivityScenarioRule<>(ProcessGlobalConfigActivity.class);
 
+    @SuppressLint("BanThreadSleep")
     @Test
-    @Ignore("b/280671406")
     public void testSetDataDirectorySuffix() throws Throwable {
         WebkitTestHelpers.assumeStartupFeature(
                 WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
@@ -69,6 +70,7 @@ public class ProcessGlobalConfigActivityTestAppTest {
         assertTrue(file.exists());
     }
 
+    @SuppressLint("BanThreadSleep")
     @Test
     public void testSetDirectoryBasePaths() throws Throwable {
         WebkitTestHelpers.assumeStartupFeature(
