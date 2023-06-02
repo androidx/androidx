@@ -4234,6 +4234,62 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_PropertyDefinedWithEnablingFeatureSucceeds() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Schema1")
+                .addProperty(new StringPropertyConfig.Builder("prop1")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("Schema2")
+                .addProperty(new StringPropertyConfig.Builder("prop2")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .setForceOverride(true).addSchemas(schema1, schema2).build()).get();
+
+        GenericDocument doc1 = new GenericDocument.Builder<>(
+                "namespace1", "id1", "Schema1")
+                .setPropertyString("prop1", "Hello, world!")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>(
+                "namespace1", "id2", "Schema2")
+                .setPropertyString("prop2", "Hello, world!")
+                .build();
+        mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc1, doc2).build()).get();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build();
+        // Support for function calls `search`, `createList` was added in list filters
+        SearchResults searchResults = mDb1.search("propertyDefined(\"prop1\")",
+                searchSpec);
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id1");
+
+        // Support for prefix operator * was added in list filters.
+        searchResults = mDb1.search("propertyDefined(\"prop2\")", searchSpec);
+        page = searchResults.getNextPageAsync().get();
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id2");
+
+        // Combining negations with compound statements and property restricts was added in list
+        // filters.
+        searchResults = mDb1.search("NOT propertyDefined(\"prop1\")", searchSpec);
+        page = searchResults.getNextPageAsync().get();
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id2");
+    }
+
+    @Test
     public void testQuery_listFilterQueryWithoutEnablingFeatureFails() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema")
@@ -4278,6 +4334,15 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchResults searchResults3 = mDb1.search("NOT (foo OR otherProp:hello)", searchSpec);
         executionException = assertThrows(ExecutionException.class,
                 () -> searchResults3.getNextPageAsync().get());
+        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
+        exception = (AppSearchException) executionException.getCause();
+        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(exception).hasMessageThat().contains("Attempted use of unenabled feature");
+        assertThat(exception).hasMessageThat().contains(Features.LIST_FILTER_QUERY_LANGUAGE);
+
+        SearchResults searchResults4 = mDb1.search("propertyDefined(\"prop\")", searchSpec);
+        executionException = assertThrows(ExecutionException.class,
+                () -> searchResults4.getNextPageAsync().get());
         assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
         exception = (AppSearchException) executionException.getCause();
         assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);

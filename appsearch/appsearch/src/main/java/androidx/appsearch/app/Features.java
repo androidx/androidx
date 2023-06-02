@@ -80,6 +80,9 @@ public interface Features {
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric search
      * features.
+     *
+     * <p>For details on the numeric search expressions in the query language, see
+     * {@link AppSearchSession#search}.
      */
     String NUMERIC_SEARCH = FeatureConstants.NUMERIC_SEARCH;
 
@@ -89,34 +92,16 @@ public interface Features {
      * verbatim search features within the query language that allows clients to search using the
      * verbatim string operator.
      *
-     * <p>Ex. '"foo/bar" OR baz' will ensure that 'foo/bar' is treated as a single 'verbatim' token.
+     * <p>For details on the verbatim string operator, see {@link AppSearchSession#search}.
      */
     String VERBATIM_SEARCH = FeatureConstants.VERBATIM_SEARCH;
 
     /**
-     * Feature for {@link #isFeatureSupported(String)}. This feature covers the
-     * expansion of the query language to conform to the definition of the list
-     * filters language (https://aip.dev/160). This includes:
-     * <ul>
-     * <li>addition of explicit 'AND' and 'NOT' operators</li>
-     * <li>property restricts are allowed with grouping (ex. "prop:(a OR b)")</li>
-     * <li>addition of custom functions to control matching</li>
-     * </ul>
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers the expansion of the
+     * query language to conform to the definition of the list filters language
+     * (https://aip.dev/160).
      *
-     * <p>The newly added custom functions covered by this feature are:
-     * <ul>
-     * <li>createList(String...)</li>
-     * <li>termSearch(String, List<String>)</li>
-     * </ul>
-     *
-     * <p>createList takes a variable number of strings and returns a list of strings.
-     * It is for use with termSearch.
-     *
-     * <p>termSearch takes a query string that will be parsed according to the supported
-     * query language and an optional list of strings that specify the properties to be
-     * restricted to. This exists as a convenience for multiple property restricts. So,
-     * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
-     * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
+     * <p>For more details, see {@link AppSearchSession#search}.
      */
     String LIST_FILTER_QUERY_LANGUAGE = FeatureConstants.LIST_FILTER_QUERY_LANGUAGE;
 
