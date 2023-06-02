@@ -70,13 +70,11 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.video.FallbackStrategy;
 import androidx.camera.video.FileDescriptorOutputOptions;
 import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
 import androidx.camera.video.PendingRecording;
-import androidx.camera.video.Quality;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
@@ -263,8 +261,8 @@ public abstract class CameraController {
     @NonNull
     Map<Consumer<VideoRecordEvent>, Recording> mRecordingMap = new HashMap<>();
 
-    @Nullable
-    Quality mVideoCaptureQuality;
+    @NonNull
+    QualitySelector mVideoCaptureQualitySelector = Recorder.DEFAULT_QUALITY_SELECTOR;
 
     // The latest bound camera.
     // Synthetic access
@@ -354,16 +352,8 @@ public abstract class CameraController {
         };
     }
 
-    private static Recorder generateVideoCaptureRecorder(Quality videoQuality) {
-        Recorder.Builder builder = new Recorder.Builder();
-        if (videoQuality != null) {
-            builder.setQualitySelector(QualitySelector.from(
-                    videoQuality,
-                    FallbackStrategy.lowerQualityOrHigherThan(videoQuality)
-            ));
-        }
-
-        return builder.build();
+    private static Recorder generateVideoCaptureRecorder(@NonNull QualitySelector qualitySelector) {
+        return new Recorder.Builder().setQualitySelector(qualitySelector).build();
     }
 
     /**
@@ -1391,42 +1381,40 @@ public abstract class CameraController {
     }
 
     /**
-     * Sets the intended video quality for {@code VideoCapture}.
+     * Sets the {@link QualitySelector} for {@link #VIDEO_CAPTURE}.
      *
-     * <p> The value is used as a hint when determining the resolution of the video.
-     * The actual output may differ from the requested value due to device constraints.
-     * The {@link FallbackStrategy#lowerQualityOrHigherThan(Quality)} fallback strategy
-     * will be applied when the quality is not supported.
+     * <p>The provided quality selector is used to select the resolution of the recording
+     * depending on the resolutions supported by the camera and codec capabilities.
      *
-     * <p> When set to null, the output will be based on the default config of {@link
-     * Recorder#DEFAULT_QUALITY_SELECTOR}.
+     * <p>If no quality selector is provided, the default is
+     * {@link Recorder#DEFAULT_QUALITY_SELECTOR}.
      *
-     * <p> Changing the value will reconfigure the camera which will cause video
-     * capture to stop. To avoid this, set the value before controller is bound to
-     * lifecycle.
+     * <p>Changing the value will reconfigure the camera which will cause video capture to stop.
+     * To avoid this, set the value before controller is bound to lifecycle.
      *
-     * @param targetQuality the intended video quality for {@code VideoCapture}.
+     * @param qualitySelector the quality selector for {@link #VIDEO_CAPTURE}.
+     * @see QualitySelector
      */
     @MainThread
-    public void setVideoCaptureTargetQuality(@Nullable Quality targetQuality) {
+    public void setVideoCaptureQualitySelector(@NonNull QualitySelector qualitySelector) {
         checkMainThread();
-        if (targetQuality == mVideoCaptureQuality) {
-            return;
-        }
-        mVideoCaptureQuality = targetQuality;
+        mVideoCaptureQualitySelector = qualitySelector;
         unbindVideoAndRecreate();
         startCameraAndTrackStates();
     }
 
     /**
-     * Returns the intended quality for {@code VideoCapture} set by
-     * {@link #setVideoCaptureTargetQuality(Quality)}, or null if not set.
+     * Returns the {@link QualitySelector} for {@link #VIDEO_CAPTURE}.
+     *
+     * @return the {@link QualitySelector} provided to
+     * {@link #setVideoCaptureQualitySelector(QualitySelector)} or the default value of
+     * {@link Recorder#DEFAULT_QUALITY_SELECTOR} if no quality selector was provided.
      */
     @MainThread
-    @Nullable
-    public Quality getVideoCaptureTargetQuality() {
+    @NonNull
+    public QualitySelector getVideoCaptureQualitySelector() {
         checkMainThread();
-        return mVideoCaptureQuality;
+        return mVideoCaptureQualitySelector;
     }
 
     /**
@@ -1440,7 +1428,7 @@ public abstract class CameraController {
     }
 
     private VideoCapture<Recorder> createNewVideoCapture() {
-        return VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
+        return VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQualitySelector));
     }
 
     // -----------------

@@ -20,7 +20,7 @@ package androidx.camera.view {
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
-    method @MainThread public androidx.camera.video.Quality? getVideoCaptureTargetQuality();
+    method @MainThread public androidx.camera.video.QualitySelector getVideoCaptureQualitySelector();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
     method @MainThread public boolean isImageAnalysisEnabled();
@@ -45,7 +45,7 @@ package androidx.camera.view {
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setTapToFocusEnabled(boolean);
-    method @MainThread public void setVideoCaptureTargetQuality(androidx.camera.video.Quality?);
+    method @MainThread public void setVideoCaptureQualitySelector(androidx.camera.video.QualitySelector);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method @MainThread @RequiresApi(26) public androidx.camera.video.Recording startRecording(androidx.camera.video.FileDescriptorOutputOptions, androidx.camera.view.video.AudioConfig, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
     method @MainThread public androidx.camera.video.Recording startRecording(androidx.camera.video.FileOutputOptions, androidx.camera.view.video.AudioConfig, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
