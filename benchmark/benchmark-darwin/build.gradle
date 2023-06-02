@@ -1,4 +1,3 @@
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
@@ -47,5 +46,4 @@ androidx {
     name = "Benchmarks - Darwin"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin"
-    publish = Publish.SNAPSHOT_ONLY
 }
