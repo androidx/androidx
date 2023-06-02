@@ -1,0 +1,142 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.benchmark
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
+import androidx.test.filters.SmallTest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+class BenchmarkStateConfigTest {
+    private fun validateConfig(
+        config: MicrobenchmarkPhase.Config,
+        expectedWarmups: Int?,
+        expectedMeasurements: Int,
+        expectedIterations: Int?,
+    ) {
+        val state = BenchmarkState(config)
+        var count = 0
+        while (state.keepRunning()) {
+            count++
+        }
+
+        assertEquals(state.warmupRepeats + expectedMeasurements * state.iterationsPerRepeat, count)
+        if (expectedIterations != null) {
+            assertEquals(expectedIterations, count)
+        }
+        if (expectedWarmups != null) {
+            assertEquals(expectedWarmups, state.warmupRepeats)
+        }
+        assertNotEquals(0.0, state.getMinTimeNanos()) // just verify some value is set
+    }
+
+    @Test
+    fun dryRunMode() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = true, // everything after is ignored
+            startupMode = true,
+            simplifiedTimingOnlyMode = true,
+            profiler = null,
+            warmupCount = 100,
+            measurementCount = 1000
+        ),
+        expectedWarmups = 0,
+        expectedMeasurements = 1,
+        expectedIterations = 1,
+    )
+
+    @Test
+    fun startupMode() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = false,
+            startupMode = true, // everything after is ignored
+            simplifiedTimingOnlyMode = true,
+            profiler = null,
+            warmupCount = 100,
+            measurementCount = 1000
+        ),
+        expectedWarmups = 0,
+        expectedMeasurements = 10,
+        expectedIterations = 10,
+    )
+
+    @LargeTest // due to dynamic warmup
+    @Test
+    fun basic() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = false,
+            startupMode = false,
+            simplifiedTimingOnlyMode = false,
+            profiler = null,
+            warmupCount = null,
+            measurementCount = null
+        ),
+        expectedWarmups = null,
+        expectedMeasurements = 55, // includes allocations
+        expectedIterations = null,
+    )
+
+    @Test
+    fun basicOverride() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = false,
+            startupMode = false,
+            simplifiedTimingOnlyMode = false,
+            profiler = null,
+            warmupCount = 10,
+            measurementCount = 100
+        ),
+        expectedWarmups = 10,
+        expectedMeasurements = 105, // includes allocations
+        expectedIterations = null,
+    )
+
+    @Test
+    fun profilerMethodTracing() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = false,
+            startupMode = false,
+            simplifiedTimingOnlyMode = false,
+            profiler = MethodTracing,
+            warmupCount = 10,
+            measurementCount = 1000 // ignored
+        ),
+        expectedWarmups = 10,
+        expectedMeasurements = 1,
+        expectedIterations = 11, // allocations are skipped
+    )
+
+    @Test
+    fun simplifiedTimingOnlyMode_ignoresProfiler() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = false,
+            startupMode = false,
+            simplifiedTimingOnlyMode = true,
+            profiler = MethodTracing, // if not simplified timing, would force 1 measurement
+            warmupCount = 100,
+            measurementCount = 10
+        ),
+        expectedWarmups = 100,
+        expectedMeasurements = 10,
+        expectedIterations = null,
+    )
+}
