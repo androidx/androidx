@@ -148,8 +148,28 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          */
         val Expanded = WindowWidthSizeClass(2)
 
-        /** The default set of size classes. Should never expand to ensure behavior consistency. */
-        internal val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+        /**
+         * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
+         * classes. Should never expand to ensure behavioral consistency.
+         */
+        val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+
+        /**
+         * The standard set of size classes. It's supposed to include all size classes and will be
+         * expanded whenever a new size class is defined. By default
+         * [WindowSizeClass.calculateFromSize] will only return size classes in [DefaultSizeClasses]
+         * in order to avoid behaviral changes when new size classes are added. You can opt in to
+         * support all available size classes by doing:
+         * ```
+         * WindowSizeClass.calculateFromSize(
+         *     size = size,
+         *     density = density,
+         *     supportedWidthSizeClasses = WindowWidthSizeClass.StandardSizeClasses,
+         *     supportedHeightSizeClasses = WindowHeightSizeClass.StandardSizeClasses
+         * )
+         * ```
+         */
+        val StandardSizeClasses get() = DefaultSizeClasses
 
         private fun WindowWidthSizeClass.breakpoint(): Dp {
             return when {
@@ -226,8 +246,28 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
         /** Represents the majority of tablets in portrait */
         val Expanded = WindowHeightSizeClass(2)
 
-        /** The default set of size classes. Should never expand to ensure behavior consistency. */
-        internal val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+        /**
+         * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
+         * classes. Should never expand to ensure behavioral consistency.
+         */
+        val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+
+        /**
+         * The standard set of size classes. It's supposed to include all size classes and will be
+         * expanded whenever a new size class is defined. By default
+         * [WindowSizeClass.calculateFromSize] will only return size classes in [DefaultSizeClasses]
+         * in order to avoid behavioral changes when new size classes are added. You can opt in to
+         * support all available size classes by doing:
+         * ```
+         * WindowSizeClass.calculateFromSize(
+         *     size = size,
+         *     density = density,
+         *     supportedWidthSizeClasses = WindowWidthSizeClass.StandardSizeClasses,
+         *     supportedHeightSizeClasses = WindowHeightSizeClass.StandardSizeClasses
+         * )
+         * ```
+         */
+        val StandardSizeClasses get() = DefaultSizeClasses
 
         private fun WindowHeightSizeClass.breakpoint(): Dp {
             return when {
