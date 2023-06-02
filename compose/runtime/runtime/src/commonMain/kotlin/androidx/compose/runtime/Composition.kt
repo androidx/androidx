@@ -594,6 +594,10 @@ internal class CompositionImpl(
 
     override fun dispose() {
         synchronized(lock) {
+            check(!composer.isComposing) {
+                "Composition is disposed while composing. If dispose is triggered by a call in " +
+                    "@Composable function, consider wrapping it with SideEffect block."
+            }
             if (!disposed) {
                 disposed = true
                 composable = {}
