@@ -22,13 +22,13 @@ import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
+import androidx.glance.EmittableLazyItemWithChildren
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
 import androidx.glance.appwidget.action.CompoundButtonAction
-import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.extractModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
@@ -49,7 +49,7 @@ internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
     coerceToOneChild(root)
     root.normalizeSizes()
     root.transformTree { view ->
-        if (view is EmittableLazyListItem) normalizeLazyListItem(view)
+        if (view is EmittableLazyItemWithChildren) normalizeLazyListItem(view)
         view.transformBackgroundImageAndActionRipple()
     }
 }
@@ -139,7 +139,9 @@ internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<La
     ) { index, actions, child ->
         val (action: LambdaAction?, modifiers: GlanceModifier) =
             child.modifier.extractLambdaAction()
-        if (action != null && child !is EmittableSizeBox && child !is EmittableLazyListItem) {
+        if (action != null &&
+            child !is EmittableSizeBox &&
+            child !is EmittableLazyItemWithChildren) {
             val newKey = action.key + "+$index"
             val newAction = LambdaAction(newKey, action.block)
             actions.getOrPut(newKey) { mutableListOf() }.add(newAction)
@@ -164,7 +166,7 @@ private fun GlanceModifier.extractLambdaAction(): Pair<LambdaAction?, GlanceModi
         }
     }
 
-private fun normalizeLazyListItem(view: EmittableLazyListItem) {
+private fun normalizeLazyListItem(view: EmittableLazyItemWithChildren) {
     if (view.children.size == 1 && view.alignment == Alignment.CenterStart) return
     val box = EmittableBox()
     box.children += view.children
@@ -184,9 +186,10 @@ private fun normalizeLazyListItem(view: EmittableLazyListItem) {
  * convert the target emittable to an [EmittableText]
  */
 private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
-    // EmittableLazyListItem and EmittableSizeBox are wrappers for their immediate only child,
-    // and do not get translated to their own element. We will transform their child instead.
-    if (this is EmittableLazyListItem || this is EmittableSizeBox) return this
+    // EmittableLazyItemWithChildren and EmittableSizeBox are wrappers for their immediate
+    // only child, and do not get translated to their own element. We will transform their child
+    // instead.
+    if (this is EmittableLazyItemWithChildren || this is EmittableSizeBox) return this
 
     var target = this
     val isButton = target is EmittableButton
