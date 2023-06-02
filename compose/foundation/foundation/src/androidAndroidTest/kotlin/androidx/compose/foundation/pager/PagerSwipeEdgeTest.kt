@@ -20,10 +20,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
+import kotlin.test.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -66,6 +69,26 @@ class PagerSwipeEdgeTest(
         // Assert
         rule.onNodeWithTag("1").assertIsDisplayed()
         confirmPageIsInCorrectPosition(1)
+    }
+
+    @Test
+    fun scrollForwardAtTheLastPage_withSpacing_shouldNotMovePage() {
+
+        createPager(
+            modifier = Modifier.fillMaxSize(),
+            initialPage = DefaultPageCount - 1,
+            pageSpacing = 40.dp // use a large spacing
+        )
+
+        val delta = pageSize * 0.4f * scrollForwardSign
+        val offsetDelta = if (vertical) Offset(0f, delta) else Offset(delta, 0f)
+
+        onPager().performTouchInput {
+            down(center)
+            moveBy(offsetDelta)
+        }
+
+        assertTrue { pagerState.currentPageOffsetFraction == 0.0f } // page didn't move
     }
 
     companion object {
