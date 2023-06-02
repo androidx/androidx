@@ -29,6 +29,9 @@ import androidx.annotation.RestrictTo.Scope;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 /**
  * Controls notifying for time-related updates using Android's clock. Updates can also be
@@ -38,13 +41,14 @@ import java.util.concurrent.Callable;
 public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifier {
     private static final String TAG = "PlatformTimeUpdateNotifierImpl";
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
-    @Nullable private Callable<ListenableFuture<Void>> mRegisteredReceiver;
+    @Nullable private Supplier<ListenableFuture<Void>> mRegisteredReceiver;
     private final Runnable mNotifyAndSchedule = this::notifyAndScheduleNextSecond;
     private long mLastScheduleTimeMillis = 0;
     private boolean mUpdatesEnabled = false;
+    private final MainThreadExecutor mExecutor = new MainThreadExecutor(mUiHandler);
 
     @Override
-    public void setReceiver(@NonNull Callable<ListenableFuture<Void>> tick) {
+    public void setReceiver(@NonNull Supplier<ListenableFuture<Void>> tick) {
         if (mRegisteredReceiver != null) {
             Log.w(TAG, "Clearing previously set receiver.");
             clearReceiver();
@@ -105,11 +109,16 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
             return;
         }
 
-        try {
-            mRegisteredReceiver.call();
-        } catch (Exception e) {
-            throw new RuntimeException("Attempt to run registered receiver has failed.", e);
-        }
+        ListenableFuture<Void> result;
+        result = mRegisteredReceiver.get();
+        result.addListener(() -> {
+            try {
+                result.get();
+            } catch (ExecutionException | InterruptedException | CancellationException e) {
+                Log.e(TAG, "There was an error while running receiver.", e);
+            }
+        }, mExecutor);
+
     }
 
     private void scheduleNextSecond() {

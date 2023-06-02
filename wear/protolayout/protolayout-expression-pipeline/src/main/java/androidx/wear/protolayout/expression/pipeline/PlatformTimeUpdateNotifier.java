@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 /**
  * Interface used to notify all time based dynamic types that they should be updated with the new
@@ -40,8 +40,11 @@ public interface PlatformTimeUpdateNotifier {
      *             {@link DynamicTypeValueReceiver} callbacks triggered by this reevaluation have
      *             been called. This callback should be invoked by the implementation of
      *             this interface whenever platform time needs to be reevaluated.
+     *             Because reevaluations triggered by a call to {@code tick} callback might execute
+     *             asynchronously, the caller should use the returned {@link @ListenableFuture} to
+     *             wait for the success/failure result.
      */
-    void setReceiver(@NonNull Callable<ListenableFuture<Void>> tick);
+    void setReceiver(@NonNull Supplier<ListenableFuture<Void>> tick);
 
     /**
      * Clears the receiver from the notifier.
