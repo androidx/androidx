@@ -20,6 +20,8 @@ import static androidx.work.WorkInfo.State.CANCELLED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 
+import android.app.job.JobParameters;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
@@ -71,7 +73,7 @@ public abstract class CancelWorkRunnable implements Runnable {
         iterativelyCancelWorkAndDependents(workManagerImpl.getWorkDatabase(), workSpecId);
 
         Processor processor = workManagerImpl.getProcessor();
-        processor.stopAndCancelWork(workSpecId);
+        processor.stopAndCancelWork(workSpecId, JobParameters.STOP_REASON_CANCELLED_BY_APP);
 
         for (Scheduler scheduler : workManagerImpl.getSchedulers()) {
             scheduler.cancel(workSpecId);

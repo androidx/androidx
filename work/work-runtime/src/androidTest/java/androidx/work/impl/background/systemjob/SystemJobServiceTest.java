@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY;
+
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
 import static androidx.work.impl.WorkManagerImplExtKt.schedulers;
@@ -46,6 +48,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
+import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
@@ -58,8 +61,11 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.InfiniteTestWorker;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -147,7 +153,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
             return;
         }
 
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest
+                .Builder(StopReasonLoggingWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getStringId());
@@ -163,6 +170,9 @@ public class SystemJobServiceTest extends WorkManagerTest {
         // TODO(rahulrav): Figure out why this test is flaky.
         Thread.sleep(5000L);
         assertThat(workSpecDao.getState(work.getStringId()), is(WorkInfo.State.ENQUEUED));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            assertThat(StopReasonLoggingWorker.sReason, is(STOP_REASON_CONSTRAINT_CONNECTIVITY));
+        }
     }
 
     @Test
@@ -276,11 +286,13 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
     private JobParameters createMockJobParameters(String id) {
         JobParameters jobParameters = mock(JobParameters.class);
-
         PersistableBundle persistableBundle = new PersistableBundle();
         persistableBundle.putString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID, id);
         when(jobParameters.getExtras()).thenReturn(persistableBundle);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            when(jobParameters.getStopReason())
+                    .thenReturn(STOP_REASON_CONSTRAINT_CONNECTIVITY);
+        }
         return jobParameters;
     }
 
@@ -329,6 +341,30 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 sNetwork = getNetwork();
             }
             return Result.success();
+        }
+    }
+
+    public static class StopReasonLoggingWorker extends ListenableWorker {
+
+        static int sReason = 0;
+
+        public StopReasonLoggingWorker(@NonNull Context appContext,
+                @NonNull WorkerParameters workerParams) {
+            super(appContext, workerParams);
+        }
+
+        @NonNull
+        @Override
+        public ListenableFuture<Result> startWork() {
+            return SettableFuture.create();
+        }
+
+        @Override
+        public void onStopped() {
+            super.onStopped();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                sReason = getStopReason();
+            }
         }
     }
 }

@@ -68,7 +68,7 @@ class ControlledWorkerWrapperTest {
             taskExecutor.serialTaskExecutor.drain()
             backgroundExecutor.drain()
         }
-        workerWrapper.interrupt()
+        workerWrapper.interrupt(0)
         drainAll()
         assertThat(workerWrapper.future.isDone).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
@@ -93,7 +93,7 @@ class ControlledWorkerWrapperTest {
                 NotificationCompat.Builder(context, "test").build()
             )
         )
-        workerWrapper.interrupt()
+        workerWrapper.interrupt(0)
         drainAll()
         assertThat(worker.startWorkWasCalled).isFalse()
         assertThat(workerWrapper.future.isDone).isTrue()

@@ -19,7 +19,6 @@ package androidx.work.impl
 import androidx.work.StopReason
 import androidx.work.WorkerParameters
 import androidx.work.WorkerParameters.RuntimeExtras
-import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.StartWorkRunnable
 import androidx.work.impl.utils.StopWorkRunnable
@@ -46,9 +45,8 @@ interface WorkLauncher {
 
     fun stopWork(workSpecId: StartStopToken, reason: StopReason)
 
-    // compat scheme for java callers
-    fun stopWork(workSpecId: StartStopToken, constraintsNotMet: ConstraintsNotMet) =
-        stopWork(workSpecId, constraintsNotMet.reason)
+    fun stopWorkWithReason(workSpecId: StartStopToken, reason: Int) =
+        stopWork(workSpecId, StopReason(reason))
 }
 
 class WorkLauncherImpl(

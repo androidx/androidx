@@ -268,7 +268,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         executorService.shutdown();
-        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt(0);
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
@@ -289,8 +289,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         executorService.shutdown();
-        mWorkerWrapper.interrupt();
-        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt(0);
+        mWorkerWrapper.interrupt(0);
         verify(mWorker.getDelegate(), times(1)).onStopped();
     }
 
@@ -307,7 +307,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         executorService.execute(mWorkerWrapper);
         Thread.sleep(TEST_TIMEOUT_IN_MS);
 
-        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt(0);
         executorService.shutdown();
         verify(mForegroundProcessor).isEnqueuedInForeground(mWork.getStringId());
         assertThat(mWorker.isStopped(), is(true));

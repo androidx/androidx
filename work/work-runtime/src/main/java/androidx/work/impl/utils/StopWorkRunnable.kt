@@ -42,7 +42,7 @@ class StopWorkRunnable(
 
     override fun run() {
         val isStopped = if (stopInForeground) {
-            processor.stopForegroundWork(token)
+            processor.stopForegroundWork(token, reason.value)
         } else {
             // This call is safe to make for foreground work because Processor ignores requests
             // to stop for foreground work.
