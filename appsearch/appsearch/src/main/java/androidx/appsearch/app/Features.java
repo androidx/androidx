@@ -16,6 +16,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * A class that encapsulates all features that are only supported in certain cases (e.g. only on
@@ -154,6 +155,16 @@ public interface Features {
      * {@link AppSearchSchema.StringPropertyConfig.Builder#setDeletionPropagation}.
      */
     String SCHEMA_SET_DELETION_PROPAGATION = "SCHEMA_SET_DELETION_PROPAGATION";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers setting schemas with
+     * circular references for {@link AppSearchSession#setSchemaAsync}
+     *
+     * @hide
+     * TODO(b/280698121): Unhide and request jetpack API approval after this is synced to framework.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String SET_SCHEMA_CIRCULAR_REFERENCES = "SET_SCHEMA_CIRCULAR_REFERENCES";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
