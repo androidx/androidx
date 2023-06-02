@@ -427,8 +427,7 @@ class MotionSceneScope internal constructor() {
         customPropertiesValue[name] = value.value
     }
 
-    private fun Color.toJsonHexString() =
-        "#${this.toArgb().toUInt().toString(16)}"
+    private fun Color.toJsonHexString(): String = String.format("#%08X", this.toArgb())
 }
 
 data class ConstraintSetRef internal constructor(
