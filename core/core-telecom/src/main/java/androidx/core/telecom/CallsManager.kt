@@ -129,7 +129,7 @@ class CallsManager constructor(context: Context) {
      * Note: Registering capabilities must be done before calling [addCall] or an exception will
      * be thrown by [addCall].
      *
-     * @Throws UnsupportedOperationException if the device is on an invalid build
+     * @throws UnsupportedOperationException if the device is on an invalid build
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     fun registerAppWithTelecom(@Capability capabilities: Int) {
@@ -155,14 +155,23 @@ class CallsManager constructor(context: Context) {
 
     /**
      * Adds a new call with the specified [CallAttributesCompat] to the telecom service. This method
-     * can be used to add both incoming and outgoing calls.
+     * can be used to add both incoming and outgoing calls. Once the call is ready to be
+     * disconnected, use the [CallControlScope.disconnect].
+     *
+     * <b>Call Lifecycle</b>: Your app is given foreground execution priority as long as you have an
+     * ongoing call and are posting a [android.app.Notification.CallStyle] notification.
+     * When your application is given foreground execution priority, your app is treated as a
+     * foreground service. Foreground execution priority will prevent the
+     * [android.app.ActivityManager] from killing your application when it is placed the
+     * background. Foreground execution priority is removed from your app when all of your app's
+     * calls terminate or your app no longer posts a valid notification.
      *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      * @param block              DSL interface block that will run when the call is ready
      *
-     * @Throws UnsupportedOperationException if the device is on an invalid build
-     * @Throws CancellationException if the call failed to be added
-     * @Throws CallException if [CallControlScope.setCallback] is not called first within the block
+     * @throws UnsupportedOperationException if the device is on an invalid build
+     * @throws CancellationException if the call failed to be added
+     * @throws CallException if [CallControlScope.setCallback] is not called first within the block
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)

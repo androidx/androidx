@@ -30,13 +30,8 @@ import java.util.UUID
  *
  * @param name Human-readable name associated with the endpoint
  * @param type The type of endpoint through which call media being routed
- *   Allowed values:
- *      [.TYPE_EARPIECE]
- *      [.TYPE_BLUETOOTH]
- *      [.TYPE_WIRED_HEADSET]
- *      [.TYPE_SPEAKER]
- *      [.TYPE_STREAMING]
- *      [.TYPE_UNKNOWN]
+ *   Allowed values: [TYPE_EARPIECE] , [TYPE_BLUETOOTH] , [TYPE_WIRED_HEADSET] , [TYPE_SPEAKER]
+ *      , [TYPE_STREAMING] , [TYPE_UNKNOWN]
  * @param identifier A unique identifier for this endpoint on the device
  */
 @RequiresApi(VERSION_CODES.O)
