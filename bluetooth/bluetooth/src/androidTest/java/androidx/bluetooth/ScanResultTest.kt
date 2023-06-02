@@ -56,7 +56,7 @@ class ScanResultTest {
         assertEquals(scanResult.device.name, BluetoothDevice(fwkBluetoothDevice).name)
         assertEquals(scanResult.device.bondState, BluetoothDevice(fwkBluetoothDevice).bondState)
         assertEquals(scanResult.deviceAddress.address, address)
-        assertEquals(scanResult.deviceAddress.addressType, AddressType.ADDRESS_TYPE_RANDOM)
+        assertEquals(scanResult.deviceAddress.addressType, AddressType.ADDRESS_TYPE_RANDOM_STATIC)
         assertEquals(scanResult.isConnectable(), true)
         assertEquals(scanResult.timestampNanos, timeStampNanos)
         assertEquals(scanResult.getManufacturerSpecificData(1), null)
