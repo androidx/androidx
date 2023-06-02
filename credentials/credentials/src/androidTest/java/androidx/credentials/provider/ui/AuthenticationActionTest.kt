@@ -38,6 +38,17 @@ class AuthenticationActionTest {
     private val mIntent = Intent()
     private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
         PendingIntent.FLAG_IMMUTABLE)
+
+    @Test
+    fun build_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        val action = AuthenticationAction.Builder(TITLE, mPendingIntent).build()
+
+        assertThat(mPendingIntent).isEqualTo(action.pendingIntent)
+    }
+
     @Test
     fun constructor_success() {
         if (!BuildCompat.isAtLeastU()) {

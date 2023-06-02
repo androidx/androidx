@@ -45,6 +45,23 @@ import java.util.Collections
 class RemoteEntry constructor(
     val pendingIntent: PendingIntent
 ) {
+    /**
+     * A builder for [RemoteEntry]
+     *
+     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
+     * this entry
+     */
+    class Builder constructor(
+        private val pendingIntent: PendingIntent
+    ) {
+        /**
+         * Builds an instance of [RemoteEntry]
+         */
+        fun build(): RemoteEntry {
+            return RemoteEntry(pendingIntent)
+        }
+    }
+
     internal companion object {
         private const val TAG = "RemoteEntry"
 

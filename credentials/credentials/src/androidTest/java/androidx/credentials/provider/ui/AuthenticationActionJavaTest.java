@@ -57,6 +57,17 @@ public class AuthenticationActionJavaTest {
     }
 
     @Test
+    public void build_success() {
+        if (!BuildCompat.isAtLeastU()) {
+            return;
+        }
+        AuthenticationAction action =
+                new AuthenticationAction.Builder(TITLE, mPendingIntent).build();
+
+        assertThat(mPendingIntent == action.getPendingIntent());
+    }
+
+    @Test
     public void constructor_nullPendingIntent_throwsNPE() {
         if (!BuildCompat.isAtLeastU()) {
             return;
