@@ -44,7 +44,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 @RunWith(AndroidJUnit4.class)
 public class DynamicTypeEvaluatorTest {
@@ -204,18 +204,18 @@ public class DynamicTypeEvaluatorTest {
 
     private static final class TestPlatformTimeUpdateNotifier
             extends PlatformTimeUpdateNotifierImpl {
-        private Callable<ListenableFuture<Void>> mRegisteredReceiver;
+        private Supplier<ListenableFuture<Void>> mRegisteredReceiver;
 
         @Nullable
-        ListenableFuture<Void> callReceiver() throws Exception {
+        ListenableFuture<Void> callReceiver() {
             if (mRegisteredReceiver != null) {
-                return mRegisteredReceiver.call();
+                return mRegisteredReceiver.get();
             }
             return null;
         }
 
         @Override
-        public void setReceiver(@NonNull Callable<ListenableFuture<Void>> tick) {
+        public void setReceiver(@NonNull Supplier<ListenableFuture<Void>> tick) {
             super.setReceiver(tick);
 
             mRegisteredReceiver = tick;
