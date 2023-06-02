@@ -357,8 +357,7 @@
 
         <activity
             android:name="androidx.appcompat.widget.TooltipCompatTestActivity" />
-        <activity android:name="androidx.appcompat.app.LocalesUpdateActivity"
-            android:label="@string/locale_test_title"/>
+        <activity android:name="androidx.appcompat.app.LocalesUpdateActivity"/>
 
         <activity
             android:name="androidx.appcompat.app.LocalesConfigChangesActivity"

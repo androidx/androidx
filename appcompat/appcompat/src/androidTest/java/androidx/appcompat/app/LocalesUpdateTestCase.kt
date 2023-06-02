@@ -16,12 +16,9 @@
 
 package androidx.appcompat.app
 
-import android.app.Activity
-import android.content.res.Configuration
 import android.os.Build
 import android.util.LayoutDirection.RTL
 import android.webkit.WebView
-import androidx.appcompat.test.R
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
@@ -29,13 +26,11 @@ import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEqual
 import androidx.appcompat.testutils.LocalesUtils.getRTLLocaleList
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWait
 import androidx.appcompat.testutils.LocalesUtils.setLocalesAndWaitForRecreate
-import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.waitForExecution
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -60,17 +55,6 @@ class LocalesUpdateTestCase() {
         expectedLocales = LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST,
             systemLocales)
     }
-
-    @After
-    fun teardown() {
-        rule.runOnUiThread {
-            // clean-up
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
-            // setting auto storage opt-in to false
-            AppCompatDelegate.setIsAutoStoreLocalesOptedIn(false)
-        }
-    }
-
     @Test
     fun testDialogDoesNotOverrideActivityConfiguration() {
         setLocalesAndWaitForRecreate(rule, CUSTOM_LOCALE_LIST)
@@ -148,21 +132,5 @@ class LocalesUpdateTestCase() {
 
         // Now assert that the layoutDirection of decorView is RTL
         assertEquals(rule.activity.window.decorView.layoutDirection, RTL)
-    }
-
-    @SdkSuppress(minSdkVersion = 17)
-    @Test
-    fun testTitleRespectPerAppLocale() {
-        // Set activity language as AR
-        setLocalesAndWaitForRecreate(rule, getRTLLocaleList())
-
-        // Verify the title string come from AR resource
-        val testActivity = rule.activity as Activity
-        val newConfig = Configuration(testActivity.resources.configuration)
-        ConfigurationCompat.setLocales(newConfig, getRTLLocaleList())
-        val newContext = testActivity.createConfigurationContext(newConfig)
-        assertEquals(
-            newContext.resources.getString(R.string.locale_test_title),
-            testActivity.title)
     }
 }

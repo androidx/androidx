@@ -550,12 +550,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // until after the Activity is created
         applyApplicationSpecificConfig(false);
 
-        // The default activity title is based on the label resource defined in the manifest, but it
-        // loads the resource string before we apply the per-app locale into the configuration on
-        // devices running Android 12 or earlier. To fix this, reload the label string after calling
-        // applyApplicationSpecificConfig(), which updates the configuration.
-        overrideTitleWithNewConfiguration();
-
         // We lazily fetch the Window for Activities, to allow DayNight to apply in
         // attachBaseContext
         ensureWindow();
@@ -3013,21 +3007,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Flip the checked flag so we don't check again
         mActivityHandlesConfigFlagsChecked = true;
         return mActivityHandlesConfigFlags;
-    }
-
-    private void overrideTitleWithNewConfiguration() {
-        if (mHost instanceof Activity && Build.VERSION.SDK_INT < 33) {
-            final PackageManager pm = mContext.getPackageManager();
-            try {
-                final ActivityInfo info = pm.getActivityInfo(
-                        new ComponentName(mContext, mHost.getClass()), 0);
-                if (info.labelRes != 0) {
-                    ((Activity) mHost).setTitle(info.labelRes);
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.d(TAG, "Exception while getting ActivityInfo", e);
-            }
-        }
     }
 
     /**
