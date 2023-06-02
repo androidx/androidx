@@ -39,7 +39,7 @@ dependencies {
     api("androidx.compose.animation:animation:$composeVersion")
     api("androidx.compose.runtime:runtime:$composeVersion")
 
-    api("androidx.compose.foundation:foundation:1.5.0-beta01")
+    api(project(":compose:foundation:foundation"))
     api("androidx.compose.ui:ui:$composeVersion")
     api("androidx.compose.foundation:foundation-layout:$composeVersion")
     api("androidx.compose.ui:ui-graphics:$composeVersion")
