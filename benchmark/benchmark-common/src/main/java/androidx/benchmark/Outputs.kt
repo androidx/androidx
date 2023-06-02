@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.FileMover.moveTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.text.SimpleDateFormat
@@ -130,8 +131,13 @@ object Outputs {
         if (dirUsableByAppAndShell != outputDirectory) {
             // We need to copy files over anytime `dirUsableByAppAndShell` is different from
             // `outputDirectory`.
-            Log.d(BenchmarkState.TAG, "Copying $file to $destination")
-            file.copyTo(destination, overwrite = true)
+            Log.d(BenchmarkState.TAG, "Moving $file to $destination")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                file.moveTo(destination)
+            } else {
+                file.copyTo(destination, overwrite = true)
+                file.delete()
+            }
         }
 
         InstrumentationResults.reportAdditionalFileToCopy(
