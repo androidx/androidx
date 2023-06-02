@@ -196,7 +196,13 @@ internal fun LazyLayoutMeasureScope.measurePager(
                 reverseLayout = reverseLayout,
                 pageAvailableSize = pageAvailableSize
             )
-            currentMainAxisOffset += pageSizeWithSpacing
+
+            // do not add space to the last page
+            currentMainAxisOffset += if (index == pageCount - 1) {
+                pageAvailableSize
+            } else {
+                pageSizeWithSpacing
+            }
 
             if (currentMainAxisOffset <= minOffset && index != pageCount - 1) {
                 // this page is offscreen and will not be placed. advance firstVisiblePage
