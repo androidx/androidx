@@ -110,8 +110,8 @@ import java.util.Set;
  *              }
  *          }
  *      }
- *  <pre/>
- * <p/>
+ *  </pre>
+ * </p>
  */
 public class ConstraintSet {
     private static final String TAG = "ConstraintSet";
