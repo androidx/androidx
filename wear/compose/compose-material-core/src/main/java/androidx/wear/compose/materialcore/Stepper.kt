@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 public fun Stepper(
     value: Float,
+    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     steps: Int,
     decreaseIcon: @Composable () -> Unit,
@@ -97,6 +98,7 @@ public fun Stepper(
         )
     }
 
+    @Suppress("PrimitiveInLambda")
     val updateValue: (Int) -> Unit = { stepDiff ->
         val newValue =
             RangeDefaults.calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)

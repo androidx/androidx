@@ -72,6 +72,7 @@ internal class MultiPageSnappingLayoutInfoProvider(
 internal class ViewPortBasedSnappingLayoutInfoProvider(
     private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
     private val decayAnimationSpec: DecayAnimationSpec<Float>,
+    @Suppress("PrimitiveInLambda")
     private val viewPortStep: () -> Float
 ) : SnapLayoutInfoProvider by baseSnapLayoutInfoProvider {
     override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
@@ -86,6 +87,7 @@ internal fun SnappingDemoMainLayout(
     lazyListState: LazyListState,
     flingBehavior: FlingBehavior,
     contentPaddingValues: PaddingValues = PaddingValues(8.dp),
+    @Suppress("PrimitiveInLambda")
     content: @Composable (Int) -> Unit
 ) {
     LazyRow(

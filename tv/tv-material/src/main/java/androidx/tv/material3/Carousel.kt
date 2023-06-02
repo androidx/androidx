@@ -121,6 +121,7 @@ fun Carousel(
                 .padding(16.dp),
         )
     },
+    @Suppress("PrimitiveInLambda")
     content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {
     CarouselStateUpdater(carouselState, itemCount)
@@ -532,6 +533,7 @@ internal fun Modifier.carouselSemantics(
                 reverseScrolling = false
             )
 
+            @Suppress("PrimitiveInLambda")
             val scrollByAction: ((x: Float, y: Float) -> Boolean) =
                 { x, _ ->
                     when {

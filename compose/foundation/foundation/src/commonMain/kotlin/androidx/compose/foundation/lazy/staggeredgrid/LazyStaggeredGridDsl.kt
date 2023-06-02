@@ -292,9 +292,13 @@ sealed interface LazyStaggeredGridScope {
      */
     fun items(
         count: Int,
+        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
+        @Suppress("PrimitiveInLambda")
         contentType: (index: Int) -> Any? = { null },
+        @Suppress("PrimitiveInLambda")
         span: ((index: Int) -> StaggeredGridItemSpan)? = null,
+        @Suppress("PrimitiveInLambda")
         itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit
     )
 }
@@ -359,8 +363,10 @@ inline fun <T> LazyStaggeredGridScope.items(
  */
 inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: List<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
+    @Suppress("PrimitiveInLambda")
     noinline span: ((index: Int, item: T) -> StaggeredGridItemSpan)? = null,
     crossinline itemContent: @Composable LazyStaggeredGridItemScope.(index: Int, item: T) -> Unit
 ) {
@@ -437,8 +443,10 @@ inline fun <T> LazyStaggeredGridScope.items(
  */
 inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: Array<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
+    @Suppress("PrimitiveInLambda")
     noinline span: ((index: Int, item: T) -> StaggeredGridItemSpan)? = null,
     crossinline itemContent: @Composable LazyStaggeredGridItemScope.(index: Int, item: T) -> Unit
 ) {

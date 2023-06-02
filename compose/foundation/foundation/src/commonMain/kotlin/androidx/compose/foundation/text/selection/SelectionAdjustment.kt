@@ -149,6 +149,7 @@ internal interface SelectionAdjustment {
         private fun adjustByBoundary(
             textLayoutResult: TextLayoutResult,
             newRawSelection: TextRange,
+            @Suppress("PrimitiveInLambda")
             boundaryFun: (Int) -> TextRange
         ): TextRange {
             if (textLayoutResult.layoutInput.text.isEmpty()) {

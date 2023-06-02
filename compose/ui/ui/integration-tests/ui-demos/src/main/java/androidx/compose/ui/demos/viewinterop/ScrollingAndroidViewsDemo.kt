@@ -78,6 +78,7 @@ fun ScrollingAndroidViewsDemo() {
 @Composable
 private fun RecyclingAndroidViewLazyColumn(
     checkedItems: Set<Int>,
+    @Suppress("PrimitiveInLambda")
     onChangeCheck: (Int, Boolean) -> Unit
 ) {
     var allocationCounter by remember { mutableIntStateOf(0) }

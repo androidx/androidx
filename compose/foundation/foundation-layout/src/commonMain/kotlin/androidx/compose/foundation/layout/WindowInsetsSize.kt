@@ -130,6 +130,7 @@ fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) = this.then(
 private class DerivedWidthModifier(
     private val insets: WindowInsets,
     inspectorInfo: InspectorInfo.() -> Unit,
+    @Suppress("PrimitiveInLambda")
     private val widthCalc: WindowInsets.(LayoutDirection, Density) -> Int
 ) : LayoutModifier, ModifierLocalConsumer, InspectorValueInfo(inspectorInfo) {
     private var unconsumedInsets: WindowInsets by mutableStateOf(insets)
@@ -175,6 +176,7 @@ private class DerivedWidthModifier(
 private class DerivedHeightModifier(
     private val insets: WindowInsets,
     inspectorInfo: InspectorInfo.() -> Unit,
+    @Suppress("PrimitiveInLambda")
     private val heightCalc: WindowInsets.(Density) -> Int
 ) : LayoutModifier, ModifierLocalConsumer, InspectorValueInfo(inspectorInfo) {
     private var unconsumedInsets: WindowInsets by mutableStateOf(insets)

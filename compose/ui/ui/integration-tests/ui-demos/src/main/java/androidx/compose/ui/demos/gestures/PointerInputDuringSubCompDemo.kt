@@ -90,6 +90,7 @@ fun PointerInputDuringSubComp() {
 }
 
 fun Modifier.pointerCounterGestureFilter(
+    @Suppress("PrimitiveInLambda")
     onPointerCountChanged: (Int) -> Unit
 ): Modifier =
     composed {
@@ -103,6 +104,7 @@ internal class PointerInputModifierImpl(override val pointerInputFilter: Pointer
 
 internal class PointerCounterGestureFilter : PointerInputFilter() {
 
+    @Suppress("PrimitiveInLambda")
     lateinit var onPointerCountChanged: (resultingPointerCount: Int) -> Unit
 
     override fun onPointerEvent(

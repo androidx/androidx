@@ -284,6 +284,7 @@ suspend fun PointerInputScope.detectDragGesturesAfterLongPress(
  */
 suspend fun AwaitPointerEventScope.awaitVerticalTouchSlopOrCancellation(
     pointerId: PointerId,
+    @Suppress("PrimitiveInLambda")
     onTouchSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
 ) = awaitPointerSlopOrCancellation(
     pointerId = pointerId,
@@ -295,6 +296,7 @@ suspend fun AwaitPointerEventScope.awaitVerticalTouchSlopOrCancellation(
 internal suspend fun AwaitPointerEventScope.awaitVerticalPointerSlopOrCancellation(
     pointerId: PointerId,
     pointerType: PointerType,
+    @Suppress("PrimitiveInLambda")
     onTouchSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
 ) = awaitPointerSlopOrCancellation(
     pointerId = pointerId,
@@ -382,9 +384,11 @@ suspend fun AwaitPointerEventScope.awaitVerticalDragOrCancellation(
  * @see detectHorizontalDragGestures
  */
 suspend fun PointerInputScope.detectVerticalDragGestures(
+    @Suppress("PrimitiveInLambda")
     onDragStart: (Offset) -> Unit = { },
     onDragEnd: () -> Unit = { },
     onDragCancel: () -> Unit = { },
+    @Suppress("PrimitiveInLambda")
     onVerticalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit
 ) {
     awaitEachGesture {
@@ -435,6 +439,7 @@ suspend fun PointerInputScope.detectVerticalDragGestures(
  */
 suspend fun AwaitPointerEventScope.awaitHorizontalTouchSlopOrCancellation(
     pointerId: PointerId,
+    @Suppress("PrimitiveInLambda")
     onTouchSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
 ) = awaitPointerSlopOrCancellation(
     pointerId = pointerId,
@@ -446,6 +451,7 @@ suspend fun AwaitPointerEventScope.awaitHorizontalTouchSlopOrCancellation(
 internal suspend fun AwaitPointerEventScope.awaitHorizontalPointerSlopOrCancellation(
     pointerId: PointerId,
     pointerType: PointerType,
+    @Suppress("PrimitiveInLambda")
     onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
 ) = awaitPointerSlopOrCancellation(
     pointerId = pointerId,
@@ -530,9 +536,11 @@ suspend fun AwaitPointerEventScope.awaitHorizontalDragOrCancellation(
  * @see detectDragGestures
  */
 suspend fun PointerInputScope.detectHorizontalDragGestures(
+    @Suppress("PrimitiveInLambda")
     onDragStart: (Offset) -> Unit = { },
     onDragEnd: () -> Unit = { },
     onDragCancel: () -> Unit = { },
+    @Suppress("PrimitiveInLambda")
     onHorizontalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit
 ) {
     awaitEachGesture {

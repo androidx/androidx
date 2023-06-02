@@ -829,6 +829,7 @@ private class TextFieldMeasurePolicy(
     private fun intrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int,
+        @Suppress("PrimitiveInLambda")
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
         val textFieldWidth =
@@ -866,6 +867,7 @@ private class TextFieldMeasurePolicy(
     private fun IntrinsicMeasureScope.intrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int,
+        @Suppress("PrimitiveInLambda")
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
         val textFieldHeight =

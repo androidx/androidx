@@ -124,7 +124,9 @@ internal interface AnchoredDragScope {
 @ExperimentalMaterialApi
 internal class AnchoredDraggableState<T>(
     initialValue: T,
+    @Suppress("PrimitiveInLambda")
     internal val positionalThreshold: (totalDistance: Float) -> Float,
+    @Suppress("PrimitiveInLambda")
     internal val velocityThreshold: () -> Float,
     val animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
@@ -497,8 +499,11 @@ internal class AnchoredDraggableState<T>(
         @ExperimentalMaterialApi
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
+            @Suppress("PrimitiveInLambda")
             confirmValueChange: (T) -> Boolean,
+            @Suppress("PrimitiveInLambda")
             positionalThreshold: (distance: Float) -> Float,
+            @Suppress("PrimitiveInLambda")
             velocityThreshold: () -> Float
         ) = Saver<AnchoredDraggableState<T>, T>(
             save = { it.currentValue },
@@ -607,7 +612,9 @@ internal fun <T : Any> rememberAnchoredDraggableState(
     animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmValueChange: (newValue: T) -> Boolean = { true }
 ): AnchoredDraggableState<T> {
+    @Suppress("PrimitiveInLambda")
     val positionalThreshold = AnchoredDraggableDefaults.positionalThreshold
+    @Suppress("PrimitiveInLambda")
     val velocityThreshold = AnchoredDraggableDefaults.velocityThreshold
     return rememberSaveable(
         initialValue, animationSpec, confirmValueChange, positionalThreshold, velocityThreshold,
@@ -650,6 +657,7 @@ internal object AnchoredDraggableDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
     val velocityThreshold: () -> Float
+        @Suppress("PrimitiveInLambda")
         @Composable get() = with(LocalDensity.current) { { 125.dp.toPx() } }
 
     /**
@@ -659,6 +667,7 @@ internal object AnchoredDraggableDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
     val positionalThreshold: (totalDistance: Float) -> Float
+        @Suppress("PrimitiveInLambda")
         @Composable get() = with(LocalDensity.current) {
             { 56.dp.toPx() }
         }

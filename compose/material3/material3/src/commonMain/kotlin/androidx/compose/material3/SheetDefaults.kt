@@ -354,6 +354,7 @@ object BottomSheetDefaults {
 internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     sheetState: SheetState,
     orientation: Orientation,
+    @Suppress("PrimitiveInLambda")
     onFling: (velocity: Float) -> Unit
 ): NestedScrollConnection = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {

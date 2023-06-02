@@ -45,6 +45,7 @@ import kotlin.math.roundToInt
 
 internal fun rowColumnMeasurePolicy(
     orientation: LayoutOrientation,
+    @Suppress("PrimitiveInLambda")
     arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
     arrangementSpacing: Dp,
     crossAxisSize: SizeMode,
@@ -404,6 +405,7 @@ internal val RowColumnParentData?.crossAxisAlignment: CrossAxisAlignment?
 internal val RowColumnParentData?.isRelative: Boolean
     get() = this.crossAxisAlignment?.isRelative ?: false
 
+@Suppress("PrimitiveInLambda")
 private fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
     if (orientation == LayoutOrientation.Horizontal) {
         IntrinsicMeasureBlocks.HorizontalMinWidth
@@ -411,6 +413,7 @@ private fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
         IntrinsicMeasureBlocks.VerticalMinWidth
     }
 
+@Suppress("PrimitiveInLambda")
 private fun MinIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
     if (orientation == LayoutOrientation.Horizontal) {
         IntrinsicMeasureBlocks.HorizontalMinHeight
@@ -418,6 +421,7 @@ private fun MinIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
         IntrinsicMeasureBlocks.VerticalMinHeight
     }
 
+@Suppress("PrimitiveInLambda")
 private fun MaxIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
     if (orientation == LayoutOrientation.Horizontal) {
         IntrinsicMeasureBlocks.HorizontalMaxWidth
@@ -425,6 +429,7 @@ private fun MaxIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
         IntrinsicMeasureBlocks.VerticalMaxWidth
     }
 
+@Suppress("PrimitiveInLambda")
 private fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
     if (orientation == LayoutOrientation.Horizontal) {
         IntrinsicMeasureBlocks.HorizontalMaxHeight
@@ -433,6 +438,7 @@ private fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
     }
 
 private object IntrinsicMeasureBlocks {
+    @Suppress("PrimitiveInLambda")
     val HorizontalMinWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableHeight, mainAxisSpacing ->
             intrinsicSize(
@@ -445,6 +451,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Horizontal
             )
         }
+    @Suppress("PrimitiveInLambda")
     val VerticalMinWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableHeight, mainAxisSpacing ->
             intrinsicSize(
@@ -457,6 +464,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Horizontal
             )
         }
+    @Suppress("PrimitiveInLambda")
     val HorizontalMinHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableWidth, mainAxisSpacing ->
             intrinsicSize(
@@ -469,6 +477,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Vertical
             )
         }
+    @Suppress("PrimitiveInLambda")
     val VerticalMinHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableWidth, mainAxisSpacing ->
             intrinsicSize(
@@ -481,6 +490,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Vertical
             )
         }
+    @Suppress("PrimitiveInLambda")
     val HorizontalMaxWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableHeight, mainAxisSpacing ->
             intrinsicSize(
@@ -493,6 +503,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Horizontal
             )
         }
+    @Suppress("PrimitiveInLambda")
     val VerticalMaxWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableHeight, mainAxisSpacing ->
             intrinsicSize(
@@ -505,6 +516,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Horizontal
             )
         }
+    @Suppress("PrimitiveInLambda")
     val HorizontalMaxHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableWidth, mainAxisSpacing ->
             intrinsicSize(
@@ -517,6 +529,7 @@ private object IntrinsicMeasureBlocks {
                 LayoutOrientation.Vertical
             )
         }
+    @Suppress("PrimitiveInLambda")
     val VerticalMaxHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
         { measurables, availableWidth, mainAxisSpacing ->
             intrinsicSize(
@@ -533,7 +546,9 @@ private object IntrinsicMeasureBlocks {
 
 private fun intrinsicSize(
     children: List<IntrinsicMeasurable>,
+    @Suppress("PrimitiveInLambda")
     intrinsicMainSize: IntrinsicMeasurable.(Int) -> Int,
+    @Suppress("PrimitiveInLambda")
     intrinsicCrossSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisAvailable: Int,
     mainAxisSpacing: Int,
@@ -553,6 +568,7 @@ private fun intrinsicSize(
 
 private fun intrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
+    @Suppress("PrimitiveInLambda")
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisAvailable: Int,
     mainAxisSpacing: Int
@@ -576,7 +592,9 @@ private fun intrinsicMainAxisSize(
 
 private fun intrinsicCrossAxisSize(
     children: List<IntrinsicMeasurable>,
+    @Suppress("PrimitiveInLambda")
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
+    @Suppress("PrimitiveInLambda")
     crossAxisSize: IntrinsicMeasurable.(Int) -> Int,
     mainAxisAvailable: Int,
     mainAxisSpacing: Int
@@ -675,6 +693,7 @@ internal class LayoutWeightNode(
 }
 
 internal class WithAlignmentLineBlockElement(
+    @Suppress("PrimitiveInLambda")
     val block: (Measured) -> Int
 ) : ModifierNodeElement<SiblingsAlignedNode.WithAlignmentLineBlockNode>() {
     override fun create(): SiblingsAlignedNode.WithAlignmentLineBlockNode {
@@ -728,6 +747,7 @@ internal sealed class SiblingsAlignedNode : ParentDataModifierNode, Modifier.Nod
     abstract override fun Density.modifyParentData(parentData: Any?): Any?
 
     internal class WithAlignmentLineBlockNode(
+        @Suppress("PrimitiveInLambda")
         var block: (Measured) -> Int,
     ) : SiblingsAlignedNode() {
         override fun Density.modifyParentData(parentData: Any?): Any {
@@ -833,7 +853,10 @@ internal data class RowColumnParentData(
  */
 internal sealed class AlignmentLineProvider {
     abstract fun calculateAlignmentLinePosition(placeable: Placeable): Int
-    data class Block(val lineProviderBlock: (Measured) -> Int) : AlignmentLineProvider() {
+    data class Block(
+        @Suppress("PrimitiveInLambda")
+        val lineProviderBlock: (Measured) -> Int
+    ) : AlignmentLineProvider() {
         override fun calculateAlignmentLinePosition(
             placeable: Placeable
         ): Int {

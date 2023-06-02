@@ -34,6 +34,7 @@ class Vertices(
     val indices: ShortArray
 
     init {
+        @Suppress("PrimitiveInLambda")
         val outOfBounds: (Int) -> Boolean = { it < 0 || it >= positions.size }
         if (textureCoordinates.size != positions.size)
             throw IllegalArgumentException("positions and textureCoordinates lengths must match.")

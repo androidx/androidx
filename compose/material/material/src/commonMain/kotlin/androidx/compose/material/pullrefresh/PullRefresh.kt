@@ -76,7 +76,9 @@ fun Modifier.pullRefresh(
  */
 @ExperimentalMaterialApi
 fun Modifier.pullRefresh(
+    @Suppress("PrimitiveInLambda")
     onPull: (pullDelta: Float) -> Float,
+    @Suppress("PrimitiveInLambda")
     onRelease: suspend (flingVelocity: Float) -> Float,
     enabled: Boolean = true
 ) = inspectable(inspectorInfo = debugInspectorInfo {
@@ -89,7 +91,9 @@ fun Modifier.pullRefresh(
 }
 
 private class PullRefreshNestedScrollConnection(
+    @Suppress("PrimitiveInLambda")
     private val onPull: (pullDelta: Float) -> Float,
+    @Suppress("PrimitiveInLambda")
     private val onRelease: suspend (flingVelocity: Float) -> Float,
     private val enabled: Boolean
 ) : NestedScrollConnection {

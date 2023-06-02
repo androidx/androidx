@@ -51,6 +51,7 @@ internal fun createCharSequence(
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
+    @Suppress("PrimitiveInLambda")
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
     useEmojiCompat: Boolean,
 ): CharSequence {

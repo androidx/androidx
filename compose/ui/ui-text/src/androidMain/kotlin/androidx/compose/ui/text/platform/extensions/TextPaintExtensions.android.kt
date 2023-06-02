@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.TextUnitType
  */
 internal fun AndroidTextPaint.applySpanStyle(
     style: SpanStyle,
+    @Suppress("PrimitiveInLambda")
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
     density: Density,
     requiresLetterSpacing: Boolean = false,

@@ -228,6 +228,7 @@ private fun NavigationRailTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
+    @Suppress("PrimitiveInLambda")
     content: @Composable (animationProgress: Float) -> Unit
 ) {
     val animationProgress by animateFloatAsState(

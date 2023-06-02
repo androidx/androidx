@@ -312,6 +312,7 @@ internal class DefaultTimeSource constructor(timeFormat: String) : TimeSource {
 @Composable
 @VisibleForTesting
 internal fun currentTime(
+    @Suppress("PrimitiveInLambda")
     time: () -> Long,
     timeFormat: String
 ): State<String> {
@@ -324,6 +325,7 @@ internal fun currentTime(
     }
 
     val context = LocalContext.current
+    @Suppress("PrimitiveInLambda")
     val updatedTimeLambda by rememberUpdatedState(time)
 
     DisposableEffect(context, updatedTimeLambda) {

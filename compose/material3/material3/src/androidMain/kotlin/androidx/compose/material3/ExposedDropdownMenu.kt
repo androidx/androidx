@@ -1043,6 +1043,7 @@ private fun updateHeight(
     view: View,
     anchorCoordinates: LayoutCoordinates?,
     verticalMarginInPx: Int,
+    @Suppress("PrimitiveInLambda")
     onHeightUpdate: (Int) -> Unit
 ) {
     anchorCoordinates ?: return

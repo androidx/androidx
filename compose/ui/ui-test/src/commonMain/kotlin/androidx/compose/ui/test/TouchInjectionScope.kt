@@ -455,6 +455,7 @@ fun TouchInjectionScope.swipe(
  * be sampled
  */
 fun TouchInjectionScope.swipe(
+    @Suppress("PrimitiveInLambda")
     curve: (Long) -> Offset,
     durationMillis: Long,
     keyTimes: List<Long> = emptyList()
