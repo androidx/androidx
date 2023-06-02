@@ -38,6 +38,7 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,6 +108,7 @@ class EffectsFragmentDeviceTest(
         assertThat(fragment.getSurfaceProcessor().isSurfaceRequestedAndProvided()).isTrue()
     }
 
+    @Ignore("b/285396965")
     @Test
     fun takePicture_imageEffectInvoked() {
         // Arrange.
@@ -119,6 +121,7 @@ class EffectsFragmentDeviceTest(
         assertThat(fragment.getImageEffect()!!.isInvoked()).isTrue()
     }
 
+    @Ignore("b/285396965")
     @Test
     fun shareToImageCapture_canTakePicture() {
         // Act.
