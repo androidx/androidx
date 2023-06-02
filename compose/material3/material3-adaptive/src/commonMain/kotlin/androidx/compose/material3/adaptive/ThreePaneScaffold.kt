@@ -18,10 +18,19 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.util.fastForEach
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A pane scaffold composable that can display up to three panes according to the instructions
@@ -66,65 +75,116 @@ fun ThreePaneScaffold(
         contents = contents,
         modifier = modifier,
     ) { (primaryMeasurables, secondaryMeasurables, tertiaryMeasurables), constraints ->
-        val paneMeasurables = buildList {
-            arrangement.forEach { role ->
-                when (role) {
-                    ThreePaneScaffoldRole.Primary -> {
-                        createPaneMeasurableIfNeeded(
-                            primaryMeasurables,
-                            ThreePaneScaffoldDefaults.PrimaryPanePriority,
-                            ThreePaneScaffoldDefaults.PrimaryPanePreferredWidth.toPx()
-                        )
-                    }
-                    ThreePaneScaffoldRole.Secondary -> {
-                        createPaneMeasurableIfNeeded(
-                            secondaryMeasurables,
-                            ThreePaneScaffoldDefaults.SecondaryPanePriority,
-                            ThreePaneScaffoldDefaults.SecondaryPanePreferredWidth.toPx()
-                        )
-                    }
-                    ThreePaneScaffoldRole.Tertiary -> {
-                        createPaneMeasurableIfNeeded(
-                            tertiaryMeasurables,
-                            ThreePaneScaffoldDefaults.TertiaryPanePriority,
-                            ThreePaneScaffoldDefaults.TertiaryPanePreferredWidth.toPx()
-                        )
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            if (coordinates == null) {
+                return@layout
+            }
+            val paneMeasurables = buildList {
+                arrangement.forEach { role ->
+                    when (role) {
+                        ThreePaneScaffoldRole.Primary -> {
+                            createPaneMeasurableIfNeeded(
+                                primaryMeasurables,
+                                ThreePaneScaffoldDefaults.PrimaryPanePriority,
+                                ThreePaneScaffoldDefaults.PrimaryPanePreferredWidth.roundToPx()
+                            )
+                        }
+                        ThreePaneScaffoldRole.Secondary -> {
+                            createPaneMeasurableIfNeeded(
+                                secondaryMeasurables,
+                                ThreePaneScaffoldDefaults.SecondaryPanePriority,
+                                ThreePaneScaffoldDefaults.SecondaryPanePreferredWidth.roundToPx()
+                            )
+                        }
+                        ThreePaneScaffoldRole.Tertiary -> {
+                            createPaneMeasurableIfNeeded(
+                                tertiaryMeasurables,
+                                ThreePaneScaffoldDefaults.TertiaryPanePriority,
+                                ThreePaneScaffoldDefaults.TertiaryPanePreferredWidth.roundToPx()
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        val outerVerticalGutterSize = layoutDirective.gutterSizes.outerVertical.toPx()
-        val innerVerticalGutterSize = layoutDirective.gutterSizes.innerVertical.toPx()
-        val outerHorizontalGutterSize = layoutDirective.gutterSizes.outerHorizontal.toPx()
+            val outerVerticalGutterSize = layoutDirective.gutterSizes.outerVertical.roundToPx()
+            val innerVerticalGutterSize = layoutDirective.gutterSizes.innerVertical.roundToPx()
+            val outerHorizontalGutterSize = layoutDirective.gutterSizes.outerHorizontal.roundToPx()
 
-        val availableWidth =
-            constraints.maxWidth -
-                outerVerticalGutterSize * 2 -
-                innerVerticalGutterSize * (paneMeasurables.size - 1)
-        val availableHeight =
-            constraints.maxHeight -
-                outerHorizontalGutterSize * 2
-
-        val totalPreferredWidth = paneMeasurables.map { it.measuredWidth }.sum()
-        (if (availableWidth > totalPreferredWidth) {
-            paneMeasurables.maxBy { it.priority }
-        } else if (availableWidth < totalPreferredWidth) {
-            // TODO(conradchen): Confirm the behavior with designers and address negative widths
-            paneMeasurables.minBy { it.priority }
-        } else {
-            null
-        })?.apply {
-            measuredWidth += availableWidth - totalPreferredWidth
-        }
-        // TODO(conradchen): Address hinge position
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            var positionX = outerVerticalGutterSize
-            paneMeasurables.forEach {
-                it
-                    .measure(Constraints.fixed(it.measuredWidth.toInt(), availableHeight.toInt()))
-                    .place(positionX.toInt(), outerHorizontalGutterSize.toInt())
-                positionX += innerVerticalGutterSize + it.measuredWidth
+            if (layoutDirective.excludedBounds.isNotEmpty()) {
+                val layoutBounds = coordinates!!.boundsInWindow()
+                val layoutPhysicalPartitions = mutableListOf<Rect>()
+                var actualLeft = layoutBounds.left + outerVerticalGutterSize
+                var actualRight = layoutBounds.right - outerVerticalGutterSize
+                // Assume hinge bounds are sorted from left to right, non-overlapped.
+                layoutDirective.excludedBounds.fastForEach { hingeBound ->
+                    if (hingeBound.left <= actualLeft) {
+                        // The hinge is at the left of the layout, adjust the left edge of
+                        // the current partition to the actual displayable bounds.
+                        actualLeft = max(actualLeft, hingeBound.right)
+                    } else if (hingeBound.right >= actualRight) {
+                        // The hinge is right at the right of the layout and there's no more room
+                        // for more partitions, adjust the right edge of the current partition to
+                        // the actual displayable bounds.
+                        actualRight = min(hingeBound.left, actualRight)
+                        return@fastForEach
+                    } else {
+                        // The hinge is inside the layout, add the current partition to the list and
+                        // move the left edge of the next partition to the right of the hinge.
+                        layoutPhysicalPartitions.add(
+                            Rect(actualLeft, layoutBounds.top, hingeBound.left, layoutBounds.bottom)
+                        )
+                        actualLeft +=
+                            max(hingeBound.right, hingeBound.left + innerVerticalGutterSize)
+                    }
+                }
+                if (actualLeft < actualRight) {
+                    // The last partition
+                    layoutPhysicalPartitions.add(
+                        Rect(actualLeft, layoutBounds.top, actualRight, layoutBounds.bottom)
+                    )
+                }
+                if (layoutPhysicalPartitions.size == 1) {
+                    measureAndPlacePanes(
+                        layoutPhysicalPartitions[0],
+                        innerVerticalGutterSize,
+                        paneMeasurables
+                    )
+                } else if (layoutPhysicalPartitions.size < paneMeasurables.size) {
+                    // Note that the only possible situation is we have only two physical partitions
+                    // but three expanded panes to show. In this case fit two panes in the larger
+                    // partition.
+                    if (layoutPhysicalPartitions[0].width > layoutPhysicalPartitions[1].width) {
+                        measureAndPlacePanes(
+                            layoutPhysicalPartitions[0],
+                            innerVerticalGutterSize,
+                            paneMeasurables.subList(0, 2)
+                        )
+                        measureAndPlacePane(layoutPhysicalPartitions[1], paneMeasurables[2])
+                    } else {
+                        measureAndPlacePane(layoutPhysicalPartitions[0], paneMeasurables[0])
+                        measureAndPlacePanes(
+                            layoutPhysicalPartitions[1],
+                            innerVerticalGutterSize,
+                            paneMeasurables.subList(1, 3)
+                        )
+                    }
+                } else {
+                    // Layout each pane in a physical partition
+                    paneMeasurables.forEachIndexed { index, paneMeasurable ->
+                        measureAndPlacePane(layoutPhysicalPartitions[index], paneMeasurable)
+                    }
+                }
+            } else {
+                measureAndPlacePanesWithLocalBounds(
+                    IntRect(
+                        outerVerticalGutterSize,
+                        outerHorizontalGutterSize,
+                        constraints.maxWidth - outerVerticalGutterSize,
+                        constraints.maxHeight - outerHorizontalGutterSize),
+                    innerVerticalGutterSize,
+                    paneMeasurables
+                )
             }
         }
     }
@@ -144,24 +204,84 @@ private fun PaneWrapper(
 private fun MutableList<PaneMeasurable>.createPaneMeasurableIfNeeded(
     measurables: List<Measurable>,
     priority: Int,
-    preferredWidth: Float
+    defaultPreferredWidth: Int
 ) {
     if (measurables.isNotEmpty()) {
-        add(PaneMeasurable(measurables[0], priority, preferredWidth))
+        add(PaneMeasurable(measurables[0], priority, defaultPreferredWidth))
     }
+}
+private fun Placeable.PlacementScope.measureAndPlacePane(
+    partitionBounds: Rect,
+    measurable: PaneMeasurable
+) {
+    val localBounds = getLocalBounds(partitionBounds)
+    measurable.measuredWidth = localBounds.width
+    measurable.apply {
+        measure(Constraints.fixed(measuredWidth, localBounds.height))
+            .place(localBounds.left, localBounds.top)
+    }
+}
+
+private fun Placeable.PlacementScope.measureAndPlacePanes(
+    partitionBounds: Rect,
+    spacerSize: Int,
+    measurables: List<PaneMeasurable>
+) {
+    measureAndPlacePanesWithLocalBounds(
+        getLocalBounds(partitionBounds),
+        spacerSize,
+        measurables
+    )
+}
+
+private fun Placeable.PlacementScope.measureAndPlacePanesWithLocalBounds(
+    partitionBounds: IntRect,
+    spacerSize: Int,
+    measurables: List<PaneMeasurable>
+) {
+    if (measurables.isEmpty()) {
+        return
+    }
+    val allocatableWidth = partitionBounds.width - (measurables.size - 1) * spacerSize
+    val totalPreferredWidth = measurables.sumOf { it.measuredWidth }
+    if (allocatableWidth > totalPreferredWidth) {
+        // Allocate the remaining space to the pane with the highest priority.
+        measurables.maxBy {
+            it.priority
+        }.measuredWidth += allocatableWidth - totalPreferredWidth
+    } else if (allocatableWidth < totalPreferredWidth) {
+        // Scale down all panes to fit in the available space.
+        val scale = allocatableWidth / totalPreferredWidth
+        measurables.forEach {
+            it.measuredWidth *= scale
+        }
+    }
+    val spacerSizeInt = spacerSize.toInt()
+    var positionX = partitionBounds.left
+    measurables.forEach {
+        it.measure(Constraints.fixed(it.measuredWidth, partitionBounds.height))
+            .place(positionX, partitionBounds.top)
+        positionX += it.measuredWidth + spacerSizeInt
+    }
+}
+
+private fun Placeable.PlacementScope.getLocalBounds(bounds: Rect): IntRect {
+    return bounds.translate(coordinates!!.localToWindow(Offset.Zero)).roundToIntRect()
 }
 
 private class PaneMeasurable(
     val measurable: Measurable,
     val priority: Int,
-    defaultPreferredWidth: Float
+    defaultPreferredWidth: Int
 ) : Measurable by measurable {
     private val data = ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
 
-    val preferredWidth =
-        if (data.preferredWidth.isNaN()) defaultPreferredWidth else data.preferredWidth
-
-    var measuredWidth = if (preferredWidth.isFinite() && preferredWidth > 0) preferredWidth else 0f
+    // TODO(conradchen): Handle the case of a low priority pane with no preferred with
+    var measuredWidth = when (data.preferredWidth) {
+        null -> defaultPreferredWidth
+        Float.NaN -> 0
+        else -> data.preferredWidth!!.toInt()
+    }
 }
 
 /**

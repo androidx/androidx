@@ -40,19 +40,18 @@ class ThreePaneScaffoldTest {
 
     @Test
     fun threePaneScaffold_allPanesHidden_noVisiblePanes() {
-        // TODO(conradchen): Enable this test after the Layout bug is fixed.
-        // val testScaffoldValue = ThreePaneScaffoldValue(
-        //     PaneAdaptedValue.Hidden,
-        //     PaneAdaptedValue.Hidden,
-        //     PaneAdaptedValue.Hidden
-        // )
-        // rule.setContent {
-        //     SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-        // }
-        //
-        // rule.onNodeWithTag("PrimaryPane").assertDoesNotExist()
-        // rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
-        // rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
+         val testScaffoldValue = ThreePaneScaffoldValue(
+             PaneAdaptedValue.Hidden,
+             PaneAdaptedValue.Hidden,
+             PaneAdaptedValue.Hidden
+         )
+         rule.setContent {
+             SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
+         }
+
+         rule.onNodeWithTag("PrimaryPane").assertDoesNotExist()
+         rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
+         rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
     }
 
     @Test
@@ -110,29 +109,45 @@ private val MockLayoutDirective = AdaptiveLayoutDirective(
     gutterSizes = GutterSizes(0.dp, 0.dp)
 )
 
+internal const val ThreePaneScaffoldTestTag = "SampleThreePaneScaffold"
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun SampleThreePaneScaffold(scaffoldValue: ThreePaneScaffoldValue) {
+    SampleThreePaneScaffold(
+        MockLayoutDirective,
+        scaffoldValue,
+        ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
+    )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+internal fun SampleThreePaneScaffold(
+    layoutDirective: AdaptiveLayoutDirective,
+    scaffoldValue: ThreePaneScaffoldValue,
+    arrangement: ThreePaneScaffoldArrangement
+) {
     ThreePaneScaffold(
-        modifier = Modifier.fillMaxSize(),
-        layoutDirective = MockLayoutDirective,
+        modifier = Modifier.fillMaxSize().testTag(ThreePaneScaffoldTestTag),
+        layoutDirective = layoutDirective,
         scaffoldValue = scaffoldValue,
-        arrangement = ThreePaneScaffoldDefaults.ListDetailLayoutArrangement,
+        arrangement = arrangement,
         secondaryPane = {
             Surface(
-                modifier = Modifier.testTag(tag = "SecondaryPane").preferredWidth(50.dp),
+                modifier = Modifier.testTag(tag = "SecondaryPane"),
                 color = MaterialTheme.colorScheme.secondary
             ) {}
         },
         tertiaryPane = {
             Surface(
-                modifier = Modifier.testTag(tag = "TertiaryPane").preferredWidth(50.dp),
+                modifier = Modifier.testTag(tag = "TertiaryPane"),
                 color = MaterialTheme.colorScheme.tertiary
             ) {}
         }
     ) {
         Surface(
-            modifier = Modifier.testTag(tag = "PrimaryPane").preferredWidth(50.dp),
+            modifier = Modifier.testTag(tag = "PrimaryPane"),
             color = MaterialTheme.colorScheme.primary
         ) {}
     }
