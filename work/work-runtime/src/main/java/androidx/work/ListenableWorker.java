@@ -64,6 +64,7 @@ public abstract class ListenableWorker {
     private @NonNull WorkerParameters mWorkerParams;
 
     private volatile boolean mStopped;
+    private volatile int mStopReason;
 
     private boolean mUsed;
 
@@ -264,7 +265,6 @@ public abstract class ListenableWorker {
      * task. In these cases, the results of the work will be ignored by WorkManager and it is safe
      * to stop the computation.  WorkManager will retry the work at a later time if necessary.
      *
-     *
      * @return {@code true} if the work operation has been interrupted
      */
     public final boolean isStopped() {
@@ -272,10 +272,27 @@ public abstract class ListenableWorker {
     }
 
     /**
+     * Returns a reason why this worker has been stopped. Return values match values of
+     * {@code JobParameters.STOP_REASON_*} constants, e.g.
+     * {@link android.app.job.JobParameters#STOP_REASON_CONSTRAINT_CHARGING}
+     * <p>
+     * Throws if workers hasn't been stopped ({@link #isStopped()} returns {@code false})
+     */
+    @RequiresApi(31)
+    public final int getStopReason() {
+        if (!mStopped) {
+            throw new IllegalStateException("getStopReason() can be called only if the "
+                    + "worker is stopped (isStopped() returns true)");
+        }
+        return mStopReason;
+    }
+
+    /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final void stop() {
+    public final void stop(int reason) {
         mStopped = true;
+        mStopReason = reason;
         onStopped();
     }
 

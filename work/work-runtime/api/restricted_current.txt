@@ -229,6 +229,7 @@ package androidx.work {
     method public final androidx.work.Data getInputData();
     method @RequiresApi(28) public final android.net.Network? getNetwork();
     method @IntRange(from=0) public final int getRunAttemptCount();
+    method @RequiresApi(31) public final int getStopReason();
     method public final java.util.Set<java.lang.String!> getTags();
     method @RequiresApi(24) public final java.util.List<java.lang.String!> getTriggeredContentAuthorities();
     method @RequiresApi(24) public final java.util.List<android.net.Uri!> getTriggeredContentUris();

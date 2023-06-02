@@ -38,7 +38,9 @@ import kotlinx.coroutines.launch
 
 sealed class ConstraintsState {
     object ConstraintsMet : ConstraintsState()
-    data class ConstraintsNotMet(val reason: StopReason) : ConstraintsState()
+    data class ConstraintsNotMet(
+        @get:JvmName("reasonInt") val reason: StopReason
+    ) : ConstraintsState()
 }
 
 fun WorkConstraintsTracker.listen(

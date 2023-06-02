@@ -234,7 +234,8 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
             Logger.get().debug(TAG, "Constraints not met: Cancelling work ID " + id);
             StartStopToken runId = mStartStopTokens.remove(id);
             if (runId != null) {
-                mWorkLauncher.stopWork(runId, (ConstraintsState.ConstraintsNotMet) state);
+                int reason = ((ConstraintsState.ConstraintsNotMet) state).reasonInt();
+                mWorkLauncher.stopWorkWithReason(runId, reason);
             }
         }
     }

@@ -371,7 +371,7 @@ public class WorkerWrapper implements Runnable {
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void interrupt() {
+    public void interrupt(int stopReason) {
         mInterrupted = true;
         // Resolve WorkerWrapper's future so we do the right thing and setup a reschedule
         // if necessary. mInterrupted is always true here, we don't really care about the return
@@ -382,7 +382,7 @@ public class WorkerWrapper implements Runnable {
         // Worker can be null if run() hasn't been called yet
         // only call stop if it wasn't completed normally.
         if (mWorker != null && mWorkerResultFuture.isCancelled()) {
-            mWorker.stop();
+            mWorker.stop(stopReason);
         } else {
             String message = "WorkSpec " + mWorkSpec + " is already done. Not interrupting.";
             Logger.get().debug(TAG, message);

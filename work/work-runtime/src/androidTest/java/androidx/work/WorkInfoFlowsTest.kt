@@ -18,6 +18,7 @@ package androidx.work
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.ExistingWorkPolicy.APPEND
 import androidx.work.ExistingWorkPolicy.KEEP
@@ -39,7 +40,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 @SmallTest
 class WorkInfoFlowsTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
