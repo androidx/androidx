@@ -1,3 +1,4 @@
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 
 plugins {
@@ -42,4 +43,5 @@ androidx {
     name = "Benchmarks - Darwin Core"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Core"
+    publish = Publish.SNAPSHOT_ONLY
 }
