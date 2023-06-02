@@ -32,8 +32,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -290,7 +290,7 @@ class LegacyPagingSourceTest {
 
     @Suppress("DEPRECATION")
     @Test
-    fun createDataSourceOnFetchDispatcher() {
+    fun createDataSourceOnFetchDispatcher() = runTest {
         val methodCalls = mutableMapOf<String, MutableList<Thread>>()
 
         val dataSourceFactory = object : DataSource.Factory<Int, String>() {
@@ -320,14 +320,12 @@ class LegacyPagingSourceTest {
         )
         // collect from pager. we take only 2 paging data generations and only take 1 PageEvent
         // from them
-        runBlocking {
-            pager.flow.take(2).collectLatest { pagingData ->
-                // wait until first insert happens
-                pagingData.flow.filter {
-                    it is PageEvent.Insert
-                }.first()
-                pagingData.uiReceiver.refresh()
-            }
+        pager.flow.take(2).collectLatest { pagingData ->
+            // wait until first insert happens
+            pagingData.flow.filter {
+                it is PageEvent.Insert
+            }.first()
+            pagingData.uiReceiver.refresh()
         }
         // validate method calls (to ensure test did run as expected) and their threads.
         assertThat(methodCalls["<init>"]).hasSize(2)

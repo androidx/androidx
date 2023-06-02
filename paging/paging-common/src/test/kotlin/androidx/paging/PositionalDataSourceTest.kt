@@ -22,7 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -112,7 +111,8 @@ class PositionalDataSourceTest {
         )
     }
 
-    private fun validatePositionOffset(enablePlaceholders: Boolean) = runBlocking {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun validatePositionOffset(enablePlaceholders: Boolean) = testScope.runTest {
         val config = PagedList.Config.Builder()
             .setPageSize(10)
             .setEnablePlaceholders(enablePlaceholders)
@@ -159,11 +159,12 @@ class PositionalDataSourceTest {
         validatePositionOffset(false)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun performLoadInitial(
         enablePlaceholders: Boolean = true,
         invalidateDataSource: Boolean = false,
         callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit
-    ) {
+    ) = testScope.runTest {
         val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
@@ -193,7 +194,7 @@ class PositionalDataSourceTest {
             config.enablePlaceholders
         )
 
-        runBlocking { dataSource.loadInitial(params) }
+        dataSource.loadInitial(params)
     }
 
     @Test
