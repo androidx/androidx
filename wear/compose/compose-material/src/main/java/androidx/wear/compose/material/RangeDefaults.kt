@@ -85,6 +85,7 @@ internal object RangeDefaults {
 internal fun Modifier.rangeSemantics(
     step: Int,
     enabled: Boolean,
+    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int
@@ -109,6 +110,7 @@ internal fun Modifier.rangeSemantics(
 internal fun Modifier.rangeSemantics(
     value: Float,
     enabled: Boolean,
+    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int

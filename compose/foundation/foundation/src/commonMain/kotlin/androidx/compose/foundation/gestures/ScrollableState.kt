@@ -122,7 +122,10 @@ interface ScrollableState {
  * callback receives the delta in pixels. Callers should update their state in this lambda and
  * return the amount of delta consumed
  */
-fun ScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
+fun ScrollableState(
+    @Suppress("PrimitiveInLambda")
+    consumeScrollDelta: (Float) -> Float
+): ScrollableState {
     return DefaultScrollableState(consumeScrollDelta)
 }
 
@@ -141,7 +144,10 @@ fun ScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
  * return the amount of delta consumed
  */
 @Composable
-fun rememberScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
+fun rememberScrollableState(
+    @Suppress("PrimitiveInLambda")
+    consumeScrollDelta: (Float) -> Float
+): ScrollableState {
     val lambdaState = rememberUpdatedState(consumeScrollDelta)
     return remember { ScrollableState { lambdaState.value.invoke(it) } }
 }
@@ -158,7 +164,10 @@ interface ScrollScope {
     fun scrollBy(pixels: Float): Float
 }
 
-private class DefaultScrollableState(val onDelta: (Float) -> Float) : ScrollableState {
+private class DefaultScrollableState(
+    @Suppress("PrimitiveInLambda")
+    val onDelta: (Float) -> Float
+) : ScrollableState {
 
     private val scrollScope: ScrollScope = object : ScrollScope {
         override fun scrollBy(pixels: Float): Float {

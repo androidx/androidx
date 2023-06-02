@@ -235,7 +235,11 @@ private fun Resizable(
 
 @Suppress("NAME_SHADOWING")
 @Composable
-private fun ResizeHandle(orientation: Orientation, onDrag: (Float) -> Unit) {
+private fun ResizeHandle(
+    orientation: Orientation,
+    @Suppress("PrimitiveInLambda")
+    onDrag: (Float) -> Unit
+) {
     val dragState = rememberDraggableState(onDrag)
     val lineWidth = 24.dp
     val lineSpacing = 4.dp

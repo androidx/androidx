@@ -339,6 +339,7 @@ value class PositionIndicatorAlignment internal constructor(internal val pos: In
  */
 @Composable
 public fun PositionIndicator(
+    @Suppress("PrimitiveInLambda")
     value: () -> Float,
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -646,6 +647,7 @@ internal val DisplayStateTwoWayConverter: TwoWayConverter<DisplayState, Animatio
  * @VisibleForTesting
  */
 internal class FractionPositionIndicatorState(
+    @Suppress("PrimitiveInLambda")
     private val fraction: () -> Float
 ) : PositionIndicatorState {
     override val positionFraction = 1f // Position indicator always starts at the bottom|end

@@ -38,8 +38,11 @@ internal class TvLazyListIntervalContent(
 
     override fun items(
         count: Int,
+        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)?,
+        @Suppress("PrimitiveInLambda")
         contentType: (index: Int) -> Any?,
+        @Suppress("PrimitiveInLambda")
         itemContent: @Composable TvLazyListItemScope.(index: Int) -> Unit
     ) {
         intervals.addInterval(
@@ -84,7 +87,10 @@ internal class TvLazyListIntervalContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class TvLazyListInterval(
+    @Suppress("PrimitiveInLambda")
     override val key: ((index: Int) -> Any)?,
+    @Suppress("PrimitiveInLambda")
     override val type: ((index: Int) -> Any?),
+    @Suppress("PrimitiveInLambda")
     val item: @Composable TvLazyListItemScope.(index: Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval

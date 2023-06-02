@@ -92,7 +92,9 @@ public sealed interface ScalingLazyListScope {
      */
     fun items(
         count: Int,
+        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
+        @Suppress("PrimitiveInLambda")
         itemContent: @Composable ScalingLazyListItemScope.(index: Int) -> Unit
     )
 }
@@ -135,6 +137,7 @@ public inline fun <T> ScalingLazyListScope.items(
     "Please use it instead")
 inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: List<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
@@ -179,6 +182,7 @@ inline fun <T> ScalingLazyListScope.items(
     "Please use it instead")
 public inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: Array<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
@@ -583,6 +587,7 @@ public object ScalingLazyColumnDefaults {
         minTransitionArea: Float = 0.35f,
         maxTransitionArea: Float = 0.55f,
         scaleInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f),
+        @Suppress("PrimitiveInLambda")
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() }
     ): ScalingParams = DefaultScalingParams(
         edgeScale = edgeScale,
@@ -699,7 +704,10 @@ private fun ScalingLazyColumnItemWrapper(
     }
 }
 
-private fun Modifier.autoCenteringHeight(getHeight: () -> Int) =
+private fun Modifier.autoCenteringHeight(
+    @Suppress("PrimitiveInLambda")
+    getHeight: () -> Int
+) =
     layout { measurable, constraints ->
         val height = getHeight()
         val placeable = measurable.measure(

@@ -88,6 +88,7 @@ fun EnterExitCombination() {
         var alignment by remember { mutableStateOf(TopStart) }
         var visible by remember { mutableStateOf(true) }
         val selectedOptions = remember { mutableStateListOf(false, true, false) }
+        @Suppress("PrimitiveInLambda")
         val onOptionSelected: (Int) -> Unit = remember {
             { selectedOptions[it] = !selectedOptions[it] }
         }
@@ -290,7 +291,11 @@ fun CenterMenu(
 }
 
 @Composable
-fun TransitionOptions(selectedOptions: List<Boolean>, onOptionSelected: (Int) -> Unit) {
+fun TransitionOptions(
+    selectedOptions: List<Boolean>,
+    @Suppress("PrimitiveInLambda")
+    onOptionSelected: (Int) -> Unit
+) {
     Column {
         val radioOptions =
             listOf("Fade", "Expand/Shrink", "Slide")

@@ -44,6 +44,7 @@ suspend fun animate(
     targetValue: Float,
     initialVelocity: Float = 0f,
     animationSpec: AnimationSpec<Float> = spring(),
+    @Suppress("PrimitiveInLambda")
     block: (value: Float, velocity: Float) -> Unit
 ) {
     animate(
@@ -75,6 +76,7 @@ suspend fun animateDecay(
     initialValue: Float,
     initialVelocity: Float,
     animationSpec: FloatDecayAnimationSpec,
+    @Suppress("PrimitiveInLambda")
     block: (value: Float, velocity: Float) -> Unit
 ) {
     val anim = DecayAnimation(animationSpec, initialValue, initialVelocity)
@@ -295,6 +297,7 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
  * variant of `withFrameNanos`, depending on the value of [Animation.isInfinite].
  */
 private suspend fun <R, T, V : AnimationVector> Animation<T, V>.callWithFrameNanos(
+    @Suppress("PrimitiveInLambda")
     onFrame: (frameTimeNanos: Long) -> R
 ): R {
     return if (isInfinite) {

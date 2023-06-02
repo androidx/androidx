@@ -391,6 +391,7 @@ sealed interface LazyGridScope {
      */
     fun item(
         key: Any? = null,
+        @Suppress("PrimitiveInLambda")
         span: (LazyGridItemSpanScope.() -> GridItemSpan)? = null,
         contentType: Any? = null,
         content: @Composable LazyGridItemScope.() -> Unit
@@ -416,9 +417,13 @@ sealed interface LazyGridScope {
      */
     fun items(
         count: Int,
+        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
+        @Suppress("PrimitiveInLambda")
         span: (LazyGridItemSpanScope.(index: Int) -> GridItemSpan)? = null,
+        @Suppress("PrimitiveInLambda")
         contentType: (index: Int) -> Any? = { null },
+        @Suppress("PrimitiveInLambda")
         itemContent: @Composable LazyGridItemScope.(index: Int) -> Unit
     )
 }
@@ -443,7 +448,9 @@ sealed interface LazyGridScope {
  */
 inline fun <T> LazyGridScope.items(
     items: List<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((item: T) -> Any)? = null,
+    @Suppress("PrimitiveInLambda")
     noinline span: (LazyGridItemSpanScope.(item: T) -> GridItemSpan)? = null,
     noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable LazyGridItemScope.(item: T) -> Unit
@@ -476,7 +483,9 @@ inline fun <T> LazyGridScope.items(
  */
 inline fun <T> LazyGridScope.itemsIndexed(
     items: List<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
+    @Suppress("PrimitiveInLambda")
     noinline span: (LazyGridItemSpanScope.(index: Int, item: T) -> GridItemSpan)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyGridItemScope.(index: Int, item: T) -> Unit
@@ -510,6 +519,7 @@ inline fun <T> LazyGridScope.itemsIndexed(
 inline fun <T> LazyGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
+    @Suppress("PrimitiveInLambda")
     noinline span: (LazyGridItemSpanScope.(item: T) -> GridItemSpan)? = null,
     noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable LazyGridItemScope.(item: T) -> Unit
@@ -542,7 +552,9 @@ inline fun <T> LazyGridScope.items(
  */
 inline fun <T> LazyGridScope.itemsIndexed(
     items: Array<T>,
+    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
+    @Suppress("PrimitiveInLambda")
     noinline span: (LazyGridItemSpanScope.(index: Int, item: T) -> GridItemSpan)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyGridItemScope.(index: Int, item: T) -> Unit

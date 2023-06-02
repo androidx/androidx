@@ -143,6 +143,9 @@ internal fun Color.modulate(alpha: Float): Color = when {
     else -> this.copy(alpha = this.alpha * alpha)
 }
 
-private fun Float.takeOrElse(block: () -> Float): Float {
+private fun Float.takeOrElse(
+    @Suppress("PrimitiveInLambda")
+    block: () -> Float
+): Float {
     return if (this.isNaN()) block() else this
 }

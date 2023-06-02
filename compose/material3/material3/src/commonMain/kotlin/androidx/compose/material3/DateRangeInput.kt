@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 internal fun DateRangeInputContent(
     selectedStartDateMillis: Long?,
     selectedEndDateMillis: Long?,
+    @Suppress("PrimitiveInLambda")
     onDatesSelectionChange: (startDateMillis: Long?, endDateMillis: Long?) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,

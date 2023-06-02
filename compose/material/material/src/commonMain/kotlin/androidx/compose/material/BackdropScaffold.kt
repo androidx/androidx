@@ -453,6 +453,7 @@ private fun BackdropStack(
     modifier: Modifier,
     backLayer: @Composable @UiComposable () -> Unit,
     calculateBackLayerConstraints: (Constraints) -> Constraints,
+    @Suppress("PrimitiveInLambda")
     frontLayer: @Composable @UiComposable (Constraints, Float) -> Unit
 ) {
     SubcomposeLayout(modifier) { constraints ->

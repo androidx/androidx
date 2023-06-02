@@ -84,6 +84,7 @@ internal class UpdatableAnimationState {
      */
     @OptIn(ExperimentalContracts::class)
     suspend fun animateToZero(
+        @Suppress("PrimitiveInLambda")
         beforeFrame: (valueDelta: Float) -> Unit,
         afterFrame: () -> Unit
     ) {

@@ -233,6 +233,7 @@ internal constructor(
      * @see eotf
      * @see Rgb.transferParameters
      */
+    @Suppress("PrimitiveInLambda")
     val oetf: (Double) -> Double = { x ->
         oetfOrig(x).coerceIn(min.toDouble(), max.toDouble())
     }
@@ -262,6 +263,7 @@ internal constructor(
      * @see oetf
      * @see Rgb.transferParameters
      */
+    @Suppress("PrimitiveInLambda")
     val eotf: (Double) -> Double = { x ->
         eotfOrig(x.coerceIn(min.toDouble(), max.toDouble()))
     }
@@ -382,7 +384,9 @@ internal constructor(
         name: String,
         /*@Size(9)*/
         toXYZ: FloatArray,
+        @Suppress("PrimitiveInLambda")
         oetf: (Double) -> Double,
+        @Suppress("PrimitiveInLambda")
         eotf: (Double) -> Double
     ) : this(
         name,
@@ -436,7 +440,9 @@ internal constructor(
         /*@Size(min = 6, max = 9)*/
         primaries: FloatArray,
         whitePoint: WhitePoint,
+        @Suppress("PrimitiveInLambda")
         oetf: (Double) -> Double,
+        @Suppress("PrimitiveInLambda")
         eotf: (Double) -> Double,
         min: Float,
         max: Float

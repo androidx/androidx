@@ -214,6 +214,7 @@ private fun BoxScope.SwitchImpl(
     checked: Boolean,
     enabled: Boolean,
     colors: SwitchColors,
+    @Suppress("PrimitiveInLambda")
     thumbValue: () -> Float,
     interactionSource: InteractionSource
 ) {

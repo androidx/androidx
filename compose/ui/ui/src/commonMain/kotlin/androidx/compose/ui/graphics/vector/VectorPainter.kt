@@ -79,6 +79,7 @@ fun rememberVectorPainter(
     name: String = RootGroupName,
     tintColor: Color = Color.Unspecified,
     tintBlendMode: BlendMode = BlendMode.SrcIn,
+    @Suppress("PrimitiveInLambda")
     content: @Composable @VectorComposable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter =
     rememberVectorPainter(
@@ -122,6 +123,7 @@ fun rememberVectorPainter(
     tintColor: Color = Color.Unspecified,
     tintBlendMode: BlendMode = BlendMode.SrcIn,
     autoMirror: Boolean = false,
+    @Suppress("PrimitiveInLambda")
     content: @Composable @VectorComposable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter {
     val density = LocalDensity.current
@@ -198,6 +200,7 @@ class VectorPainter internal constructor() : Painter() {
 
     private fun composeVector(
         parent: CompositionContext,
+        @Suppress("PrimitiveInLambda")
         composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
     ): Composition {
         val existing = composition
@@ -223,6 +226,7 @@ class VectorPainter internal constructor() : Painter() {
         name: String,
         viewportWidth: Float,
         viewportHeight: Float,
+        @Suppress("PrimitiveInLambda")
         content: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
     ) {
         vector.apply {

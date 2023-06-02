@@ -266,6 +266,7 @@ private object TextFieldTransitionScope {
         unfocusedTextStyleColor: Color,
         contentColor: @Composable (InputPhase) -> Color,
         showLabel: Boolean,
+        @Suppress("PrimitiveInLambda")
         content: @Composable (
             labelProgress: Float,
             labelTextStyleColor: Color,

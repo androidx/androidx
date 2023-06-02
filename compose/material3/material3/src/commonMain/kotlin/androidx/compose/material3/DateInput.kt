@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun DateInputContent(
     selectedDateMillis: Long?,
+    @Suppress("PrimitiveInLambda")
     onDateSelectionChange: (dateInMillis: Long?) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -105,6 +106,7 @@ internal fun DateInputContent(
 internal fun DateInputTextField(
     modifier: Modifier,
     initialDateMillis: Long?,
+    @Suppress("PrimitiveInLambda")
     onDateSelectionChange: (Long?) -> Unit,
     calendarModel: CalendarModel,
     label: @Composable (() -> Unit)?,

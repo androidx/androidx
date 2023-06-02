@@ -201,6 +201,7 @@ open class SwipeableState<T>(
         }
     }
 
+    @Suppress("PrimitiveInLambda")
     internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })
 
     internal var velocityThreshold by mutableFloatStateOf(0f)
@@ -766,6 +767,7 @@ private fun computeTarget(
     offset: Float,
     lastValue: Float,
     anchors: Set<Float>,
+    @Suppress("PrimitiveInLambda")
     thresholds: (Float, Float) -> Float,
     velocity: Float,
     velocityThreshold: Float

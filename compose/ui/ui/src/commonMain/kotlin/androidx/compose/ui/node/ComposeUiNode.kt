@@ -55,7 +55,7 @@ internal interface ComposeUiNode {
         val SetViewConfiguration: ComposeUiNode.(ViewConfiguration) -> Unit =
             { this.viewConfiguration = it }
         @get:ExperimentalComposeUiApi
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET", "PrimitiveInLambda")
         @ExperimentalComposeUiApi
         val SetCompositeKeyHash: ComposeUiNode.(Int) -> Unit =
             { this.compositeKeyHash = it }
