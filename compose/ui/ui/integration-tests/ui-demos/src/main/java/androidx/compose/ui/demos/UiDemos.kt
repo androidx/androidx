@@ -20,7 +20,6 @@ import androidx.compose.foundation.demos.text.SoftwareKeyboardControllerDemo
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.compose.ui.demos.focus.AdjacentScrollablesFocusDemo
 import androidx.compose.ui.demos.focus.CancelFocusDemo
@@ -32,6 +31,7 @@ import androidx.compose.ui.demos.focus.ExplicitEnterExitWithCustomFocusEnterExit
 import androidx.compose.ui.demos.focus.FocusInDialogDemo
 import androidx.compose.ui.demos.focus.FocusInPopupDemo
 import androidx.compose.ui.demos.focus.FocusManagerMoveFocusDemo
+import androidx.compose.ui.demos.focus.FocusRestorationDemo
 import androidx.compose.ui.demos.focus.FocusableDemo
 import androidx.compose.ui.demos.focus.LazyListChildFocusDemos
 import androidx.compose.ui.demos.focus.NestedLazyListFocusSearchDemo
@@ -154,6 +154,7 @@ private val FocusDemos = DemoCategory(
         ComposableDemo("Cancel Focus Move") { CancelFocusDemo() },
         ComposableDemo("FocusManager.moveFocus()") { FocusManagerMoveFocusDemo() },
         ComposableDemo("Capture/Free Focus") { CaptureFocusDemo() },
+        ComposableDemo("Focus Restoration") { FocusRestorationDemo() },
         ComposableDemo("Focus In Scrollable Row") { ScrollableRowFocusDemo() },
         ComposableDemo("Focus in Lazy Row") { ScrollableLazyRowFocusDemo() },
         ComposableDemo("LazyList Child Focusability") { LazyListChildFocusDemos() },
@@ -184,7 +185,6 @@ private val GraphicsDemos = DemoCategory(
     )
 )
 
-@OptIn(ExperimentalComposeUiApi::class)
 private val NestedScrollInteropDemos = DemoCategory(
     "Nested Scroll Interop",
     listOf(

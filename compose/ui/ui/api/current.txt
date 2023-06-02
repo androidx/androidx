@@ -497,6 +497,8 @@ package androidx.compose.ui.focus {
     method public boolean captureFocus();
     method public boolean freeFocus();
     method public void requestFocus();
+    method @androidx.compose.ui.ExperimentalComposeUiApi public boolean restoreFocusedChild();
+    method @androidx.compose.ui.ExperimentalComposeUiApi public boolean saveFocusedChild();
     field public static final androidx.compose.ui.focus.FocusRequester.Companion Companion;
   }
 
@@ -544,6 +546,12 @@ package androidx.compose.ui.focus {
     method public static boolean captureFocus(androidx.compose.ui.focus.FocusRequesterModifierNode);
     method public static boolean freeFocus(androidx.compose.ui.focus.FocusRequesterModifierNode);
     method public static boolean requestFocus(androidx.compose.ui.focus.FocusRequesterModifierNode);
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static boolean restoreFocusedChild(androidx.compose.ui.focus.FocusRequesterModifierNode);
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static boolean saveFocusedChild(androidx.compose.ui.focus.FocusRequesterModifierNode);
+  }
+
+  public final class FocusRestorerKt {
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier focusRestorer(androidx.compose.ui.Modifier);
   }
 
   public interface FocusState {
