@@ -152,7 +152,8 @@ internal class MotionLayoutTest {
                     ) {
                         keyAttributes(element) {
                             frame(50) {
-                                customColor("color", Color.Red)
+                                // Also tests interpolating to a transparent color
+                                customColor("color", Color(0x00ff0000))
                                 customDistance("distance", 20.dp)
                                 customFontSize("fontSize", 30.sp)
                                 customInt("int", 40)
@@ -198,7 +199,7 @@ internal class MotionLayoutTest {
 
         progress.value = 0.25f
         rule.waitForIdle()
-        rule.onNodeWithText("1) Color: #ffffbaba").assertExists()
+        rule.onNodeWithText("1) Color: #7fffbaba").assertExists()
         rule.onNodeWithText("2) Distance: 10.0.dp").assertExists()
         rule.onNodeWithText("3) FontSize: 15.0.sp").assertExists()
         rule.onNodeWithText("4) Int: 20").assertExists()
@@ -211,7 +212,7 @@ internal class MotionLayoutTest {
 
         progress.value = 0.75f
         rule.waitForIdle()
-        rule.onNodeWithText("1) Color: #ffba0000").assertExists()
+        rule.onNodeWithText("1) Color: #7fba0000").assertExists()
         rule.onNodeWithText("2) Distance: 15.0.dp").assertExists()
         rule.onNodeWithText("3) FontSize: 25.0.sp").assertExists()
         rule.onNodeWithText("4) Int: 35").assertExists()
