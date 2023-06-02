@@ -19,6 +19,7 @@ package androidx.camera.core.processing
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper.getMainLooper
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils
+import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
@@ -114,6 +116,42 @@ class SurfaceProcessorNodeTest {
             videoSurfaceRequest.deferrableSurface.close()
         }
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun transformInput_getCorrectSensorToBufferMatrix() {
+        // Arrange.
+        createSurfaceProcessorNode()
+        val inputTransform = getRectToRect(
+            RectF(0F, 0F, 1400F, 1000F),
+            RectF(0F, 0F, 700F, 500F),
+            /*rotationDegrees=*/0
+        )
+        val inputEdge = SurfaceEdge(
+            PREVIEW,
+            INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            StreamSpec.builder(Size(700, 500)).build(),
+            inputTransform,
+            false,
+            Rect(60, 20, 700, 500), // 640 x 480 crop rect
+            180,
+            ROTATION_NOT_SPECIFIED,
+            true
+        )
+        nodeInput = SurfaceProcessorNode.In.of(inputEdge, listOf(OutConfig.of(inputEdge)))
+
+        // Act.
+        val outputTransform =
+            node.transform(nodeInput).entries.single().value.sensorToBufferTransform
+
+        // Assert.
+        val sensorCoordinates = floatArrayOf(1400F, 1000F)
+        outputTransform.mapPoints(sensorCoordinates)
+        // Sensor to input surface: 1400, 1000 -> 700, 500
+        // Input surface cropped: 700, 500 -> 640, 480
+        // Input surface rotated 180 degrees: 640, 480 -> 0, 0
+        // Input surface mirrored: 0, 0 -> 640, 0
+        assertThat(sensorCoordinates).usingTolerance(1E-3).containsExactly(640F, 0F)
     }
 
     @Test
