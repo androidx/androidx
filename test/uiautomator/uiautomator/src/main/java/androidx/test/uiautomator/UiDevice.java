@@ -1160,8 +1160,14 @@ public class UiDevice implements Searchable {
         Context context = mUiContexts.get(displayId);
         if (context == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Display display = mDisplayManager.getDisplay(displayId);
-                context = Api31Impl.createWindowContext(mInstrumentation.getContext(), display);
+                final Display display = mDisplayManager.getDisplay(displayId);
+                if (display != null) {
+                    context = Api31Impl.createWindowContext(mInstrumentation.getContext(), display);
+                } else {
+                    // The display may be null because it may be private display, for example. In
+                    // such a case, use the instrumentation's context instead.
+                    context = mInstrumentation.getContext();
+                }
             } else {
                 context = mInstrumentation.getContext();
             }
