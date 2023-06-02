@@ -21,6 +21,7 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -322,7 +323,14 @@ public class TabTemplate implements Template {
             return new TabTemplate(this);
         }
 
-        /** Creates a {@link TabTemplate.Builder} instance using the given {@link TabCallback}. */
+        /**
+         * Creates a {@link TabTemplate.Builder} instance using the given {@link TabCallback}.
+         *
+         * <p>Note that the callback relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @param callback the callback to be invoked when the user selects a new tab in the header
+         */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull TabCallback callback) {
             mTabCallbackDelegate = TabCallbackDelegateImpl.create(requireNonNull(callback));
