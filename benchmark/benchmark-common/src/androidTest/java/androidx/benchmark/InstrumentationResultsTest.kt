@@ -99,7 +99,8 @@ public class InstrumentationResultsTest {
                 traceRelPath = null,
                 profilerResult = Profiler.ResultFile(
                     label = "Trace Label",
-                    outputRelativePath = "tracePath.trace"
+                    outputRelativePath = "tracePath.trace",
+                    source = MethodTracing
                 )
             )
         )
