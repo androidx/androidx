@@ -198,9 +198,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
      */
     public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
 
-    @GuardedBy("mLock")
-    @Nullable
-    private HashSet<String> mClientSideFeatureSet;
+    // This set must not be modified after JavaScriptSandbox construction.
+    @NonNull
+    private final HashSet<String> mClientSideFeatureSet;
 
     static class ConnectionSetup implements ServiceConnection {
         @Nullable
@@ -221,7 +221,12 @@ public final class JavaScriptSandbox implements AutoCloseable {
             }
             IJsSandboxService jsSandboxService =
                     IJsSandboxService.Stub.asInterface(service);
-            mJsSandbox = new JavaScriptSandbox(this, jsSandboxService);
+            try {
+                mJsSandbox = new JavaScriptSandbox(this, jsSandboxService);
+            } catch (RemoteException e) {
+                runShutdownTasks(e);
+                return;
+            }
             mCompleter.set(mJsSandbox);
             mCompleter = null;
         }
@@ -382,11 +387,11 @@ public final class JavaScriptSandbox implements AutoCloseable {
     // We prevent direct initializations of this class.
     // Use JavaScriptSandbox.createConnectedInstance().
     JavaScriptSandbox(@NonNull ConnectionSetup connectionSetup,
-            @NonNull IJsSandboxService jsSandboxService) {
+            @NonNull IJsSandboxService jsSandboxService) throws RemoteException {
         mConnection = connectionSetup;
-        synchronized (mLock) {
-            mJsSandboxService = jsSandboxService;
-        }
+        mJsSandboxService = jsSandboxService;
+        final List<String> features = mJsSandboxService.getSupportedFeatures();
+        mClientSideFeatureSet = buildClientSideFeatureSet(features);
         mGuard.open("close");
         // This should be at the end of the constructor.
     }
@@ -434,34 +439,27 @@ public final class JavaScriptSandbox implements AutoCloseable {
         }
     }
 
-    @GuardedBy("mLock")
-    @SuppressWarnings("NullAway")
-    private void populateClientFeatureSet() {
-        assert mJsSandboxService != null;
-        List<String> features;
-        try {
-            features = mJsSandboxService.getSupportedFeatures();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-        mClientSideFeatureSet = new HashSet<>();
+    @NonNull
+    private HashSet<String> buildClientSideFeatureSet(@NonNull List<String> features) {
+        HashSet<String> featureSet = new HashSet<>();
         if (features.contains(IJsSandboxService.ISOLATE_TERMINATION)) {
-            mClientSideFeatureSet.add(JS_FEATURE_ISOLATE_TERMINATION);
+            featureSet.add(JS_FEATURE_ISOLATE_TERMINATION);
         }
         if (features.contains(IJsSandboxService.WASM_FROM_ARRAY_BUFFER)) {
-            mClientSideFeatureSet.add(JS_FEATURE_PROMISE_RETURN);
-            mClientSideFeatureSet.add(JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER);
-            mClientSideFeatureSet.add(JS_FEATURE_WASM_COMPILATION);
+            featureSet.add(JS_FEATURE_PROMISE_RETURN);
+            featureSet.add(JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER);
+            featureSet.add(JS_FEATURE_WASM_COMPILATION);
         }
         if (features.contains(IJsSandboxService.ISOLATE_MAX_HEAP_SIZE_LIMIT)) {
-            mClientSideFeatureSet.add(JS_FEATURE_ISOLATE_MAX_HEAP_SIZE);
+            featureSet.add(JS_FEATURE_ISOLATE_MAX_HEAP_SIZE);
         }
         if (features.contains(IJsSandboxService.EVALUATE_WITHOUT_TRANSACTION_LIMIT)) {
-            mClientSideFeatureSet.add(JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT);
+            featureSet.add(JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT);
         }
         if (features.contains(IJsSandboxService.CONSOLE_MESSAGING)) {
-            mClientSideFeatureSet.add(JS_FEATURE_CONSOLE_MESSAGING);
+            featureSet.add(JS_FEATURE_CONSOLE_MESSAGING);
         }
+        return featureSet;
     }
 
     @GuardedBy("mLock")
@@ -486,19 +484,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * @param feature feature to be checked
      * @return {@code true} if supported, {@code false} otherwise
      */
-    @SuppressWarnings("NullAway")
     public boolean isFeatureSupported(@JsSandboxFeature @NonNull String feature) {
         Objects.requireNonNull(feature);
-        synchronized (mLock) {
-            if (mJsSandboxService == null) {
-                throw new IllegalStateException(
-                        "Attempting to check features on a service that isn't connected");
-            }
-            if (mClientSideFeatureSet == null) {
-                populateClientFeatureSet();
-            }
-            return mClientSideFeatureSet.contains(feature);
-        }
+        return mClientSideFeatureSet.contains(feature);
     }
 
     void removeFromIsolateSet(@NonNull JavaScriptIsolate isolate) {
