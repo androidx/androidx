@@ -57,4 +57,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Javascript Engine is a static library you can add to your Android application in order to evaluate JavaScript."
+    additionalDeviceTestApkKeys.add("chrome")
 }
