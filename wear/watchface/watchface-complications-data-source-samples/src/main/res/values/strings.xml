@@ -36,6 +36,7 @@
     <string name="dynamic_data_no_permission" translatable="false">NP</string>
     <string name="dynamic_data_not_supported" translatable="false">NS</string>
     <string name="dynamic_data_not_available_or_ready" translatable="false">NA</string>
+    <string name="dynamic_data_low_accuracy" translatable="false">LA</string>
 
     <string name="config_title" translatable="false">Configuration</string>
     <string name="config_button_title" translatable="false">Generate</string>
