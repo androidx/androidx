@@ -121,6 +121,9 @@ internal val SwipeToDismissDemos =
                     ComposableDemo("EdgeSwipeToDismiss modifier") { params ->
                         EdgeSwipeDemo(params.swipeToDismissBoxState)
                     },
+                    ComposableDemo("Nested SwipeToDismissBox") {
+                        NestedSwipeToDismissDemo()
+                    }
                 )
             )
         )
