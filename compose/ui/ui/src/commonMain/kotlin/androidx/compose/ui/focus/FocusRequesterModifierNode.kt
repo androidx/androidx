@@ -94,3 +94,37 @@ fun FocusRequesterModifierNode.freeFocus(): Boolean {
     }
     return false
 }
+
+/**
+ * Use this function to request the focus target to save a reference to the currently focused
+ * child in its saved instance state. After calling this, focus can be restored to the saved child
+ * by making a call to [restoreFocusedChild].
+ *
+ * @return true if the focus target associated with this node has a focused child
+ * and we successfully saved a reference to it.
+ */
+@ExperimentalComposeUiApi
+fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
+    visitSelfAndChildren(Nodes.FocusTarget) {
+        if (it.saveFocusedChild()) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
+ * Use this function to restore focus to one of the children of the node pointed to by this
+ * [FocusRequester]. This restores focus to a previously focused child that was saved
+ * by using [saveFocusedChild].
+ *
+ * @return true if we successfully restored focus to one of the children of the [focusTarget]
+ * associated with this node.
+ */
+@ExperimentalComposeUiApi
+fun FocusRequesterModifierNode.restoreFocusedChild(): Boolean {
+    visitSelfAndChildren(Nodes.FocusTarget) {
+        if (it.restoreFocusedChild()) return true
+    }
+    return false
+}
