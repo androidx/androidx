@@ -106,8 +106,19 @@ interface IProxyInputConnection {
     /**
      * Proxies a call to {@link InputConnection#getSurroundingText}.
      * Note that this returns a {@link Bundleable} that wraps a {@link SurroundingText} since the
-     * latter is only available on Android S+. Note that this returns {@code null} on Android R- or
-     * when an exception is thrown.
+     * latter is only available on Android S+. Note that this returns {@code null} when an
+     * exception is thrown.
      */
     Bundleable getSurroundingText(int beforeLength, int afterLength, int flags) = 25;
+
+    /**
+     * Proxies a call to {@link InputConnection#deleteSurroundingTextInCodePoints}.
+     */
+    boolean deleteSurroundingTextInCodePoints(int beforeLength, int afterLength) = 26;
+
+    /**
+     * Proxies a call to {@link InputConnection#commitContent}.
+     * Note that this uses a {@link Bundleable} to wrap an {@link InputContentInfo}.
+     */
+    boolean commitContent(in Bundleable inputContentInfoBundleable, int flags, in Bundle opts) = 27;
 }

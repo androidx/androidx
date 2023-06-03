@@ -59,4 +59,6 @@ interface IProxyInputConnection {
   void closeConnection() = 23;
   android.view.inputmethod.EditorInfo getEditorInfo() = 24;
   androidx.car.app.serialization.Bundleable getSurroundingText(int beforeLength, int afterLength, int flags) = 25;
+  boolean deleteSurroundingTextInCodePoints(int beforeLength, int afterLength) = 26;
+  boolean commitContent(in androidx.car.app.serialization.Bundleable inputContentInfoBundleable, int flags, in android.os.Bundle opts) = 27;
 }
