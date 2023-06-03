@@ -16,6 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core.properties
 
+import androidx.appactions.interaction.capabilities.core.properties.Property.Companion.unsupported
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,17 +24,52 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class PropertyTest {
+
     @Test
-    fun dynamicInventory_test() {
-        val mutablePossibleValues = mutableListOf<String>("a", "b")
-        val testProperty = Property.Builder<String>()
-            .setPossibleValueSupplier { mutablePossibleValues.toList() }
-            .build()
+    fun noArgConstructor_reasonableDefaultValues() {
+        val prop: Property<StringValue?> = Property()
 
-        assertThat(testProperty.possibleValues).containsExactly("a", "b")
+        assertThat(prop.isSupported).isTrue()
+        assertThat(prop.isRequiredForExecution).isFalse()
+        assertThat(prop.shouldMatchPossibleValues).isFalse()
+        assertThat(prop.possibleValues).isEmpty()
+    }
 
-        mutablePossibleValues.add("c")
+    @Test
+    fun fullConstructor_returnsAllValues() {
+        val prop = Property(
+            listOf(StringValue("test")),
+            isRequiredForExecution = true,
+            shouldMatchPossibleValues = true,
+        )
 
-        assertThat(testProperty.possibleValues).containsExactly("a", "b", "c")
+        assertThat(prop.isSupported).isTrue()
+        assertThat(prop.isRequiredForExecution).isTrue()
+        assertThat(prop.shouldMatchPossibleValues).isTrue()
+        assertThat(prop.possibleValues).containsExactly(StringValue("test"))
+    }
+
+    @Test
+    fun supplierConstructor_returnsMostRecentPossibleValues() {
+        val mutableValues = ArrayList<StringValue>()
+        val prop = Property({ mutableValues })
+
+        assertThat(prop.shouldMatchPossibleValues).isFalse()
+        assertThat(prop.possibleValues).isEmpty()
+
+        // Mutate list
+        mutableValues.add(StringValue("test"))
+
+        assertThat(prop.possibleValues).containsExactly(StringValue("test"))
+    }
+
+    @Test
+    fun staticUnsupportedMethod_returnsSensibleValues() {
+        val prop = unsupported<StringValue>()
+
+        assertThat(prop.isSupported).isFalse()
+        assertThat(prop.isRequiredForExecution).isFalse()
+        assertThat(prop.shouldMatchPossibleValues).isFalse()
+        assertThat(prop.possibleValues).isEmpty()
     }
 }

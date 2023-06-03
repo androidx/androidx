@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @Suppress("deprecation") // For backwards compatibility.
 class UiSessionsTest {
-    private class SessionList() {
+    private class SessionList {
         private val sessions = mutableListOf<ExecutionSession>()
         private var index = 0
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
@@ -102,7 +102,7 @@ class UiSessionsTest {
         UiSessions.removeUiCache(sessionId)
     }
 
-    fun createFakeSessionWithUiResponses(vararg uiResponses: UiResponse): ExecutionSession {
+    private fun createFakeSessionWithUiResponses(vararg uiResponses: UiResponse): ExecutionSession {
         return object : ExecutionSession {
             override suspend fun onExecute(
                 arguments: Arguments,

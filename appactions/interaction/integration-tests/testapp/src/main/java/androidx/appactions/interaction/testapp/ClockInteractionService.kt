@@ -49,7 +49,7 @@ class ClockInteractionService : AppInteractionService() {
     private val capability =
         StartTimer.CapabilityBuilder()
             .setId("start_timer_oneshot")
-            .setDurationProperty(Property.Builder<Duration>().setRequired(true).build())
+            .setDurationProperty(Property<Duration>(isRequiredForExecution = true))
             .setExecutionCallback(ExecutionCallback<StartTimer.Arguments, StartTimer.Output> {
                 val name = it.name ?: "Default title"
                 val duration = it.duration!!

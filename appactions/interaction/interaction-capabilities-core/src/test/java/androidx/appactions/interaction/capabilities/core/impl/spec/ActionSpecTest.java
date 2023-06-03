@@ -42,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(JUnit4.class)
@@ -122,43 +123,52 @@ public final class ActionSpecTest {
                     .build();
 
     @Test
+    public void foo() {
+        Property<TestEntity> foobar = new Property<>(
+                Arrays.asList(
+                        new TestEntity.Builder()
+                                .setId("one")
+                                .setName("one")
+                                .build()),
+                /** isRequiredForExecution= */ true);
+        foobar.shouldMatchPossibleValues();
+    }
+
+    @Test
     public void getAppAction_genericParameters() {
         List<BoundProperty<?>> boundProperties = new ArrayList<>();
         boundProperties.add(
                 new BoundProperty<>(
                         "requiredEntity",
-                        new Property.Builder<TestEntity>()
-                                .setRequired(true)
-                                .setPossibleValues(
+                        new Property<>(
+                                Arrays.asList(
                                         new TestEntity.Builder()
                                                 .setId("one")
                                                 .setName("one")
-                                                .build())
-                                .build(),
+                                                .build()),
+                                /** isRequiredForExecution= */ true),
                         TEST_ENTITY_CONVERTER));
         boundProperties.add(
                 new BoundProperty<>(
                         "optionalEntity",
-                        new Property.Builder<TestEntity>()
-                                .setRequired(true)
-                                .setPossibleValues(
+                        new Property<>(
+                                Arrays.asList(
                                         new TestEntity.Builder()
                                                 .setId("two")
                                                 .setName("two")
-                                                .build())
-                                .build(),
+                                                .build()),
+                                /** isRequiredForExecution= */ true),
                         TEST_ENTITY_CONVERTER));
         boundProperties.add(
-                new BoundProperty(
+                new BoundProperty<>(
                         "repeatedEntities",
-                        new Property.Builder<TestEntity>()
-                                .setRequired(true)
-                                .setPossibleValues(
+                        new Property<>(
+                                Arrays.asList(
                                         new TestEntity.Builder()
                                                 .setId("three")
                                                 .setName("three")
-                                                .build())
-                                .build(),
+                                                .build()),
+                                /** isRequiredForExecution= */ true),
                         TEST_ENTITY_CONVERTER));
 
         assertThat(
@@ -206,10 +216,11 @@ public final class ActionSpecTest {
         boundProperties.add(
                 new BoundProperty<>(
                         "requiredString",
-                        new Property.Builder<StringValue>()
-                                .setPossibleValues(StringValue.of("Donald"))
-                                .setValueMatchRequired(true)
-                                .build(),
+                        new Property<>(
+                                Arrays.asList(new StringValue("Donald")),
+                                /** isRequiredForExecution= */ false,
+                                /** shouldMatchPossibleValues= */ true
+                        ),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
 
         assertThat(ACTION_SPEC.createAppAction("testIdentifier", boundProperties, true))
@@ -237,21 +248,21 @@ public final class ActionSpecTest {
         boundProperties.add(
                 new BoundProperty<>(
                         "requiredString",
-                        new Property.Builder<StringValue>().build(),
+                        new Property<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
         boundProperties.add(
                 new BoundProperty<>(
                         "optionalString",
-                        new Property.Builder<StringValue>()
-                                .setPossibleValues(StringValue.of("value1"))
-                                .setValueMatchRequired(true)
-                                .setRequired(true)
-                                .build(),
+                        new Property<>(
+                                Arrays.asList(new StringValue("value1")),
+                                /** isRequiredForExecution= */ true,
+                                /** shouldMatchPossibleValues= */ true
+                        ),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
         boundProperties.add(
                 new BoundProperty<>(
                         "repeatedString",
-                        Property.prohibited(),
+                        Property.unsupported(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
 
         assertThat(ACTION_SPEC.createAppAction("testIdentifier", boundProperties, false))
