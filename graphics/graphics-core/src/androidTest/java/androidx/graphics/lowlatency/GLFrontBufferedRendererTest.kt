@@ -309,7 +309,16 @@ class GLFrontBufferedRendererTest {
                 transform: FloatArray,
                 params: Collection<Int>
             ) {
+
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                if (params.isEmpty()) {
+                    // We will receive no inputs on the first render so just render black.
+                    // This will be in response to surfaceRedrawNeeded
+                    GLES20.glClearColor(0f, 0f, 0f, 1f)
+                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                    GLES20.glFlush()
+                    return
+                }
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
@@ -1380,6 +1389,47 @@ class GLFrontBufferedRendererTest {
                     GLFrontBufferedRenderer(it.getSurfaceView(), callbacks, GLRenderer())
                 }
             }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testMultiBufferedLayerRenderedOnSurfaceRedraw() {
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                renderLatch.countDown()
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView?
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+        } finally {
+            renderer.blockingRelease()
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
