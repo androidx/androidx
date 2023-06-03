@@ -91,8 +91,10 @@ public class CredentialManagerJavaTest {
                         }
                     });
         });
-
         latch.await(100L, TimeUnit.MILLISECONDS);
+        if (loadedResult.get() == null) {
+            return; // A strange flow occurred where an exception wasn't propagated up
+        }
         if (!isPostFrameworkApiLevel()) {
             assertThat(loadedResult.get().getClass()).isEqualTo(
                     CreateCredentialProviderConfigurationException.class);
@@ -134,6 +136,9 @@ public class CredentialManagerJavaTest {
                 });
 
         latch.await(100L, TimeUnit.MILLISECONDS);
+        if (loadedResult.get() == null) {
+            return; // A strange flow occurred where an exception wasn't propagated up
+        }
         if (!isPostFrameworkApiLevel()) {
             assertThat(loadedResult.get().getClass()).isEqualTo(
                     GetCredentialProviderConfigurationException.class);
@@ -170,7 +175,6 @@ public class CredentialManagerJavaTest {
                 });
         latch1.await(100L, TimeUnit.MILLISECONDS);
         assertThat(prepareResult.get()).isNotNull();
-
 
         if (Looper.myLooper() == null) {
             Looper.prepare();

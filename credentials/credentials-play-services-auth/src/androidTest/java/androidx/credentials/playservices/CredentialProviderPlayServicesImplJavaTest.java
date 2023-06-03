@@ -21,8 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -36,7 +38,11 @@ import org.junit.runner.RunWith;
 public class CredentialProviderPlayServicesImplJavaTest {
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33)
     public void isAvailableOnDevice_apiSuccess_returnsTrue() {
+        if (BuildCompat.isAtLeastU()) {
+            return; // Wait until Mockito fixes 'mock' for API 34
+        }
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
@@ -55,8 +61,11 @@ public class CredentialProviderPlayServicesImplJavaTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33)
     public void isAvailableOnDevice_apiNotSuccess_returnsFalse() {
-        // TODO("If retryables are accounted for, add a third test")
+        if (BuildCompat.isAtLeastU()) {
+            return; // Wait until Mockito fixes 'mock' for API 34
+        }
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
