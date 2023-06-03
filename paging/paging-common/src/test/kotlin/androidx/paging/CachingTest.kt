@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
@@ -365,15 +364,13 @@ class CachingTest {
     }
 
     @Test
-    fun pagesAreClosedProperty() {
+    fun pagesAreClosedProperty() = testScope.runTest {
         val job = SupervisorJob()
         val subScope = CoroutineScope(job + Dispatchers.Default)
         val pageFlow = buildPageFlow().cachedIn(subScope, tracker)
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
-        val items = runBlocking {
-            pageFlow.collectItemsUntilSize(9)
-        }
+        val items = pageFlow.collectItemsUntilSize(9)
         val firstList = buildItems(
             version = 0,
             generation = 0,
@@ -381,9 +378,7 @@ class CachingTest {
             size = 9
         )
         assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        val items2 = runBlocking {
-            pageFlow.collectItemsUntilSize(21)
-        }
+        val items2 = pageFlow.collectItemsUntilSize(21)
         assertThat(items2).isEqualTo(
             buildItems(
                 version = 0,
@@ -395,9 +390,7 @@ class CachingTest {
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
         assertThat(items).isEqualTo(firstList)
-        runBlocking {
-            job.cancelAndJoin()
-        }
+        job.cancelAndJoin()
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
     }

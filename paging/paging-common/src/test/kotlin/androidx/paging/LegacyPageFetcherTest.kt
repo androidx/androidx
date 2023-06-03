@@ -34,8 +34,9 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -125,7 +126,7 @@ class LegacyPageFetcherTest {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun createPager(
+    private suspend fun createPager(
         consumer: MockConsumer,
         start: Int = 0,
         end: Int = 10
@@ -133,15 +134,13 @@ class LegacyPageFetcherTest {
         val config = Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED)
         val pagingSource = ImmediateListDataSource(data)
 
-        val initialResult = runBlocking {
-            pagingSource.load(
-                Refresh(
-                    key = start,
-                    loadSize = end - start,
-                    placeholdersEnabled = config.enablePlaceholders,
-                )
+        val initialResult = pagingSource.load(
+            Refresh(
+                key = start,
+                loadSize = end - start,
+                placeholdersEnabled = config.enablePlaceholders,
             )
-        }
+        )
 
         val initialData = (initialResult as Page).data
         val storage = PagedStorage(
@@ -164,7 +163,7 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun simplePagerAppend() {
+    fun simplePagerAppend() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 2, 6)
 
@@ -179,7 +178,7 @@ class LegacyPageFetcherTest {
             consumer.takeStateChanges()
         )
 
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
         assertEquals(
@@ -194,7 +193,7 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun simplePagerPrepend() {
+    fun simplePagerPrepend() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 4, 8)
 
@@ -206,7 +205,7 @@ class LegacyPageFetcherTest {
             consumer.takeStateChanges()
         )
 
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertEquals(
             listOf(Result(PREPEND, rangeResult(2, 4))),
@@ -224,12 +223,12 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun doubleAppend() {
+    fun doubleAppend() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 2, 6)
 
         pager.tryScheduleAppend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -250,7 +249,7 @@ class LegacyPageFetcherTest {
         )
 
         pager.tryScheduleAppend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -272,12 +271,12 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun doublePrepend() {
+    fun doublePrepend() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 4, 8)
 
         pager.trySchedulePrepend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -297,7 +296,7 @@ class LegacyPageFetcherTest {
         )
 
         pager.trySchedulePrepend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertEquals(
             listOf(
@@ -317,7 +316,7 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun emptyAppend() {
+    fun emptyAppend() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 0, 9)
 
@@ -337,7 +336,7 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun emptyPrepend() {
+    fun emptyPrepend() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 0, 9)
 
@@ -360,13 +359,13 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun append_invalidData() {
+    fun append_invalidData() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 0, 3)
 
         // try a normal append first
         pager.tryScheduleAppend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(consumer.takeResults()).containsExactly(
             Result(APPEND, rangeResult(3, 5))
@@ -381,7 +380,7 @@ class LegacyPageFetcherTest {
         pagingSource.invalidData = true
 
         pager.tryScheduleAppend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // the load should return before returning any data
         assertThat(consumer.takeResults()).isEmpty()
@@ -396,13 +395,13 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun prepend_invalidData() {
+    fun prepend_invalidData() = runTest(testDispatcher) {
         val consumer = MockConsumer()
         val pager = createPager(consumer, 6, 9)
 
         // try a normal prepend first
         pager.trySchedulePrepend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(consumer.takeResults()).containsExactly(
             Result(PREPEND, rangeResult(4, 6))
@@ -417,7 +416,7 @@ class LegacyPageFetcherTest {
         pagingSource.invalidData = true
 
         pager.trySchedulePrepend()
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // the load should return before returning any data
         assertThat(consumer.takeResults()).isEmpty()

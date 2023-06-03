@@ -48,7 +48,7 @@ class SingleRunnerTest {
     private val testScope = TestScope()
 
     @Test
-    fun cancelsPreviousRun() = runBlocking {
+    fun cancelsPreviousRun() = testScope.runTest {
         val runner = SingleRunner()
         val job = launch(Dispatchers.Unconfined) {
             runner.runInIsolation {
@@ -65,7 +65,7 @@ class SingleRunnerTest {
     }
 
     @Test
-    fun previousRunCanCancelItself() = runBlocking {
+    fun previousRunCanCancelItself() = testScope.runTest {
         val runner = SingleRunner()
         val job = launch(Dispatchers.Unconfined) {
             runner.runInIsolation {

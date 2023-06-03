@@ -21,19 +21,21 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 /**
  * reproduces b/203594733
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 public class CachedPageEventFlowLeakTest {
     private val gcHelper = GarbageCollectionTestHelper()
@@ -136,17 +138,15 @@ public class CachedPageEventFlowLeakTest {
 
     @Ignore("b/206837348")
     @Test
-    public fun dontLeakCachedPageEventFlows_finished() {
+    public fun dontLeakCachedPageEventFlows_finished() = runTest {
         val scope = CoroutineScope(EmptyCoroutineContext)
         val flow = pager.flow.cachedIn(scope, tracker)
-        runBlocking {
-            collectPages(
-                flow = flow,
-                generationCount = 20,
-                doneInvalidating = null,
-                finishCollecting = true
-            )
-        }
+        collectPages(
+            flow = flow,
+            generationCount = 20,
+            doneInvalidating = null,
+            finishCollecting = true
+        )
         gcHelper.assertLiveObjects(
             // see b/204125064
             // this should ideally be 0 but right now, we keep the previous generation's state
@@ -159,72 +159,66 @@ public class CachedPageEventFlowLeakTest {
     }
 
     @Test
-    public fun dontLeakNonCachedFlow_finished() {
-        runBlocking {
-            collectPages(
-                flow = pager.flow,
-                generationCount = 10,
-                doneInvalidating = null,
-                finishCollecting = true
-            )
-        }
+    public fun dontLeakNonCachedFlow_finished() = runTest {
+        collectPages(
+            flow = pager.flow,
+            generationCount = 10,
+            doneInvalidating = null,
+            finishCollecting = true
+        )
         gcHelper.assertEverythingIsCollected()
     }
 
     @Test
-    public fun dontLeakPreviousPageInfo_stillCollecting() {
+    public fun dontLeakPreviousPageInfo_stillCollecting() = runTest {
         // reproduces b/204125064
-        runBlocking {
-            val doneInvalidating = CompletableDeferred<Unit>()
-            val collection = launch {
-                collectPages(
-                    flow = pager.flow,
-                    generationCount = 10,
-                    doneInvalidating = doneInvalidating,
-                    finishCollecting = false
-                )
-            }
-            // make sure we collected enough generations
-            doneInvalidating.await()
-            gcHelper.assertLiveObjects(
-                // see b/204125064
-                // this should ideally be 0 but right now, we keep the previous generation's state
-                // to be able to find anchor for the new position but we don't clear it yet. It can
-                // only be cleared after the new generation loads a page.
-                Item::class to 20
+        val doneInvalidating = CompletableDeferred<Unit>()
+        val collection = launch {
+            collectPages(
+                flow = pager.flow,
+                generationCount = 10,
+                doneInvalidating = doneInvalidating,
+                finishCollecting = false
             )
-            collection.cancelAndJoin()
         }
+        // make sure we collected enough generations
+        doneInvalidating.await()
+        gcHelper.assertLiveObjects(
+            // see b/204125064
+            // this should ideally be 0 but right now, we keep the previous generation's state
+            // to be able to find anchor for the new position but we don't clear it yet. It can
+            // only be cleared after the new generation loads a page.
+            Item::class to 20
+        )
+        collection.cancelAndJoin()
     }
 
     // Broken: b/206981029
     @Ignore
     @Test
-    public fun dontLeakPreviousPageInfoWithCache_stillCollecting() {
+    public fun dontLeakPreviousPageInfoWithCache_stillCollecting() = runTest {
+        // reproduces b/204125064
         val scope = CoroutineScope(EmptyCoroutineContext)
         val flow = pager.flow.cachedIn(scope, tracker)
-        // reproduces b/204125064
-        runBlocking {
-            val doneInvalidating = CompletableDeferred<Unit>()
-            val collection = launch {
-                collectPages(
-                    flow = flow,
-                    generationCount = 10,
-                    doneInvalidating = doneInvalidating,
-                    finishCollecting = false
-                )
-            }
-            // make sure we collected enough generations
-            doneInvalidating.await()
-            gcHelper.assertLiveObjects(
-                // see b/204125064
-                // this should ideally be 0 but right now, we keep the previous generation's state
-                // to be able to find anchor for the new position but we don't clear it yet. It can
-                // only be cleared after the new generation loads a page.
-                Item::class to 20,
-                CachedPageEventFlow::class to 1
+        val doneInvalidating = CompletableDeferred<Unit>()
+        val collection = launch {
+            collectPages(
+                flow = flow,
+                generationCount = 10,
+                doneInvalidating = doneInvalidating,
+                finishCollecting = false
             )
-            collection.cancelAndJoin()
         }
+        // make sure we collected enough generations
+        doneInvalidating.await()
+        gcHelper.assertLiveObjects(
+            // see b/204125064
+            // this should ideally be 0 but right now, we keep the previous generation's state
+            // to be able to find anchor for the new position but we don't clear it yet. It can
+            // only be cleared after the new generation loads a page.
+            Item::class to 20,
+            CachedPageEventFlow::class to 1
+        )
+        collection.cancelAndJoin()
     }
 }

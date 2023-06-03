@@ -57,7 +57,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -3571,7 +3570,7 @@ class PageFetcherSnapshotTest {
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun pageEventSentAfterChannelClosed() {
+    fun pageEventSentAfterChannelClosed() = runTest {
         val pager = PageFetcherSnapshot(
             initialKey = 50,
             pagingSource = TestPagingSource(loadDelay = 100),
@@ -3584,7 +3583,7 @@ class PageFetcherSnapshotTest {
         }
         pager.close()
 
-        runBlocking { deferred.await() }
+        deferred.await()
     }
 
     @Test

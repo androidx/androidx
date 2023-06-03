@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -257,7 +256,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun combineWithoutBatching_stressTest() {
+    fun combineWithoutBatching_stressTest() = testScope.runTest {
         val flow1 = flow {
             repeat(1000) {
                 if (Random.nextBoolean()) {
@@ -276,10 +275,8 @@ class FlowExtTest {
         }
 
         repeat(10) {
-            val result = runBlocking {
-                flow1.combineWithoutBatching(flow2) { first, second, _ -> first to second }
-                    .toList()
-            }
+            val result = flow1.combineWithoutBatching(flow2) { first, second, _ -> first to second }
+                .toList()
 
             // Never emit the same values twice.
             assertThat(result).containsNoDuplicates()
