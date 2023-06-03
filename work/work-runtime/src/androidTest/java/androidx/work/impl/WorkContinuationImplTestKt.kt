@@ -16,16 +16,13 @@
 
 package androidx.work.impl
 
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
-import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker.Result.Success
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkContinuation
 import androidx.work.WorkInfo
-import androidx.work.WorkerParameters
 import androidx.work.await
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TrackingWorkerFactory
@@ -33,9 +30,9 @@ import androidx.work.testutils.GreedyScheduler
 import androidx.work.testutils.TestEnv
 import androidx.work.testutils.WorkManager
 import androidx.work.workDataOf
+import androidx.work.worker.CompletableWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -80,12 +77,4 @@ class WorkContinuationImplTestKt {
         val intArray = info.outputData.getIntArray(intTag)!!.sortedArray()
         assertThat(intArray).isEqualTo(intArrayOf(1, 3))
     }
-}
-
-class CompletableWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
-    val result = CompletableDeferred<Result>()
-    override suspend fun doWork() = result.await()
 }

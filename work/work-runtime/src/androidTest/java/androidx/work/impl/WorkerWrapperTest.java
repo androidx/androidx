@@ -86,8 +86,6 @@ import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.LatchWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.ReturnNullResultWorker;
-import androidx.work.worker.SleepTestWorker;
-import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 import androidx.work.worker.UsedWorker;
 
@@ -315,20 +313,6 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.setFailedAndResolve();
         assertThat(mWorkSpecDao.getState(firstWorkId), is(FAILED));
         assertThat(mWorkSpecDao.getState(previousId), is(FAILED));
-    }
-
-    @Test
-    @LargeTest
-    public void testRunning() throws InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class).build();
-        insertWork(work);
-        WorkerWrapper wrapper = createBuilder(work.getStringId()).build();
-        FutureListener listener = createAndAddFutureListener(wrapper);
-        mExecutorService.submit(wrapper);
-        Thread.sleep(2000L); // Async wait duration.
-        assertThat(mWorkSpecDao.getState(work.getStringId()), is(RUNNING));
-        Thread.sleep(SleepTestWorker.SLEEP_DURATION);
-        assertThat(listener.mResult, is(false));
     }
 
     @Test
@@ -1119,65 +1103,6 @@ public class WorkerWrapperTest extends DatabaseTest {
     }
 
     @Test
-    @LargeTest
-    public void testInterruption() throws InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        insertWork(work);
-
-        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
-        FutureListener listener = createAndAddFutureListener(workerWrapper);
-        mExecutorService.submit(workerWrapper);
-        workerWrapper.interrupt(0);
-        Thread.sleep(1000L);
-        assertThat(listener.mResult, is(true));
-        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
-    }
-
-    @Test
-    @LargeTest
-    public void testInterruption2() throws InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(StopAwareWorker.class).build();
-        insertWork(work);
-
-        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
-        FutureListener listener = createAndAddFutureListener(workerWrapper);
-        mExecutorService.submit(workerWrapper);
-        Thread.sleep(200);
-        workerWrapper.interrupt(0);
-        Thread.sleep(1000L);
-        assertThat(listener.mResult, is(true));
-        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
-    }
-
-    @Test
-    @LargeTest
-    public void testPruneWhileRunning_callsSchedulerCancel() throws InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(LatchWorker.class).build();
-        insertWork(work);
-
-        ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
-        LatchWorker latchWorker = getLatchWorker(work, backgroundExecutor);
-
-        WorkerWrapper workerWrapper =
-                createBuilder(work.getStringId()).withWorker(latchWorker).build();
-        FutureListener listener = createAndAddFutureListener(workerWrapper);
-        mExecutorService.submit(workerWrapper);
-
-        Thread.sleep(1000L);
-
-        mDatabase.workSpecDao().delete(work.getStringId());
-        assertThat(latchWorker.mLatch.getCount(), is(greaterThan(0L)));
-
-        latchWorker.mLatch.countDown();
-
-        Thread.sleep(1000L);
-
-        assertThat(listener.mResult, is(notNullValue()));
-        backgroundExecutor.shutdown();
-        assertThat(backgroundExecutor.awaitTermination(3, TimeUnit.SECONDS), is(true));
-    }
-
-    @Test
     @SmallTest
     public void testInterruptionWithoutCancellation_isMarkedOnRunningWorker() {
         OneTimeWorkRequest work =
@@ -1256,37 +1181,6 @@ public class WorkerWrapperTest extends DatabaseTest {
         createBuilder(work.getStringId()).build().run();
 
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
-    }
-
-    @Test
-    @LargeTest
-    public void testWorkerWrapper_handlesWorkSpecDeletion() throws InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class).build();
-        insertWork(work);
-
-        WorkerWrapper workerWrapper =
-                createBuilder(work.getStringId()).build();
-        FutureListener listener = createAndAddFutureListener(workerWrapper);
-        mExecutorService.submit(workerWrapper);
-        mWorkSpecDao.delete(work.getStringId());
-        Thread.sleep(6000L);
-        assertThat(listener.mResult, is(false));
-    }
-
-    @Test
-    @LargeTest
-    public void testWorker_getsRunAttemptCount() throws InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(LatchWorker.class)
-                .setInitialRunAttemptCount(10)
-                .build();
-        insertWork(work);
-
-        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
-
-        mExecutorService.submit(workerWrapper);
-        Thread.sleep(1000L);
-        assertThat(workerWrapper.mWorker.getRunAttemptCount(), is(10));
-        ((LatchWorker) workerWrapper.mWorker).mLatch.countDown();
     }
 
     @Test
