@@ -52,7 +52,8 @@ abstract class AppInteractionService : Service() {
      *
      * @return the list of EntityProvider that this service supports.
      */
-    open val registeredEntityProviders: List<EntityProvider<*>> = listOf()
+    // TODO(b/284057017): Open up Grounding API (remove internal).
+    internal open val registeredEntityProviders: List<EntityProvider<*>> = listOf()
 
     /**
      * A list of [AppVerificationInfo] which define who is allowed to interact with the app's bound
@@ -165,7 +166,7 @@ abstract class AppInteractionService : Service() {
         }
     }
 
-    companion object {
+    internal companion object {
         private const val TAG = "AppInteractionService"
     }
 }

@@ -59,10 +59,7 @@ class SingleTurnCapabilityTest {
     @Test
     fun appAction_computedProperty() {
         val mutableEntityList = mutableListOf<StringValue>()
-        val dynamicStringProperty = Property.Builder<StringValue>()
-            .setPossibleValueSupplier(
-                mutableEntityList::toList
-            ).build()
+        val dynamicStringProperty = Property(possibleValueSupplier = mutableEntityList::toList)
         val capability = SingleTurnCapabilityImpl(
             id = "capabilityId",
             actionSpec = ACTION_SPEC,
@@ -77,7 +74,7 @@ class SingleTurnCapabilityTest {
                 ExecutionResult.Builder<Output>().build()
             }
         )
-        mutableEntityList.add(StringValue.of("entity1"))
+        mutableEntityList.add(StringValue("entity1"))
 
         assertThat(capability.appAction).isEqualTo(
             AppAction.newBuilder()
@@ -96,7 +93,7 @@ class SingleTurnCapabilityTest {
                 .build()
         )
 
-        mutableEntityList.add(StringValue.of("entity2"))
+        mutableEntityList.add(StringValue("entity2"))
         assertThat(capability.appAction).isEqualTo(
             AppAction.newBuilder()
                 .setIdentifier("capabilityId")
@@ -137,12 +134,12 @@ class SingleTurnCapabilityTest {
                 boundProperties = listOf(
                     BoundProperty(
                         "requiredString",
-                        Property.Builder<StringValue>().build(),
+                        Property<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                     ),
                     BoundProperty(
                         "optionalString",
-                        Property.prohibited<StringValue>(),
+                        Property.unsupported<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                     )
                 ),
@@ -200,12 +197,12 @@ class SingleTurnCapabilityTest {
                 boundProperties = listOf(
                     BoundProperty(
                         "requiredString",
-                        Property.Builder<StringValue>().build(),
+                        Property<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                     ),
                     BoundProperty(
                         "optionalString",
-                        Property.prohibited<StringValue>(),
+                        Property.unsupported<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                     )
                 ),
@@ -240,7 +237,7 @@ class SingleTurnCapabilityTest {
                 boundProperties = listOf(
                     BoundProperty(
                         "requiredString",
-                        Property.Builder<StringValue>().build(),
+                        Property<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                     ),
                 ),
@@ -263,7 +260,7 @@ class SingleTurnCapabilityTest {
                 boundProperties = listOf(
                     BoundProperty(
                         "requiredString",
-                        Property.Builder<StringValue>().build(),
+                        Property<StringValue>(),
                         TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                     )
                 ),
@@ -288,7 +285,7 @@ class SingleTurnCapabilityTest {
             boundProperties = listOf(
                 BoundProperty(
                     "requiredString",
-                    Property.Builder<StringValue>().build(),
+                    Property<StringValue>(),
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
             ),

@@ -17,17 +17,35 @@
 package androidx.appactions.interaction.capabilities.core.properties
 
 /**
- * One of the possible possible values for [Property].
+ * One of the [Property.possibleValues] types, which is used when a particular capability slot is
+ * of type [String]
  */
-class StringValue internal constructor(
+class StringValue @JvmOverloads constructor(
+    /**
+     * The primary name of the string value (e.g. "banana"). This should be the most canonical way
+     * that a user might refer to the entity with voice. If this entity is matched, either through
+     * the primary [name] or the [alternateNames], the [name] will be the value sent to the app as
+     * an Argument. This allows for flexible NLU matching and also simpler fulfillment processing
+     * in the app.
+     */
     val name: String,
-    val alternateNames: List<String>,
+    /** Other ways which the user may refer to this entity (e.g. ["plantain", "manzano"]) */
+    val alternateNames: List<String> = listOf(),
 ) {
-    companion object {
-        @JvmStatic
-        fun of(name: String, vararg alternateNames: String) = StringValue(
-            name,
-            alternateNames.toList(),
-        )
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StringValue) return false
+        if (this.name != other.name) return false
+        if (this.alternateNames != other.alternateNames) return false
+        return true
     }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result += 31 * alternateNames.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "StringValue(name='$name', alternateNames=[${alternateNames.joinToString(",")}])"
 }

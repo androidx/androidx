@@ -20,16 +20,17 @@ import android.util.SizeF
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.IdRes
-import androidx.annotation.RestrictTo
+
 /**
  * A class representing the UI response being returned to the host. A `UiResponse` cannot be built
  * directly, it must be built from a [UiResponse] Builder.
  */
-class UiResponse {
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val remoteViewsInternal: RemoteViewsInternal?
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val tileLayoutInternal: TileLayoutInternal?
+// TODO(b/284056880): Open up UI related APIs.
+internal class UiResponse {
+
+    internal val remoteViewsInternal: RemoteViewsInternal?
+    internal val tileLayoutInternal: TileLayoutInternal?
+
     internal constructor(remoteViewsInternal: RemoteViewsInternal) {
         this.remoteViewsInternal = remoteViewsInternal
         this.tileLayoutInternal = null

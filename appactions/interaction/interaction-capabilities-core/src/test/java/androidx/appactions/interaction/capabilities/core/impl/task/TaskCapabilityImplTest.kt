@@ -129,10 +129,7 @@ class TaskCapabilityImplTest {
             listOf(
                 BoundProperty(
                     "required",
-                    Property.Builder<StringValue>()
-                        .setPossibleValueSupplier(
-                            mutableEntityList::toList
-                        ).build(),
+                    Property<StringValue>(possibleValueSupplier = mutableEntityList::toList),
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
             ),
@@ -146,7 +143,7 @@ class TaskCapabilityImplTest {
             sessionBridge = { TaskHandler.Builder<Arguments, Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater
         )
-        mutableEntityList.add(StringValue.of("entity1"))
+        mutableEntityList.add(StringValue("entity1"))
 
         assertThat(capability.appAction).isEqualTo(
             AppAction.newBuilder()
@@ -163,7 +160,7 @@ class TaskCapabilityImplTest {
                 .build()
         )
 
-        mutableEntityList.add(StringValue.of("entity2"))
+        mutableEntityList.add(StringValue("entity2"))
         assertThat(capability.appAction).isEqualTo(
             AppAction.newBuilder()
                 .setIdentifier("id")
@@ -248,7 +245,7 @@ class TaskCapabilityImplTest {
     }
 
     class RequiredTaskUpdater : AbstractTaskUpdater() {
-        fun setRequiredStringValue(value: String) {
+        fun setRequiredForExecutionStringValue(value: String) {
             super.updateParamValues(
                 mapOf(
                     "required" to
@@ -369,16 +366,12 @@ class TaskCapabilityImplTest {
         val boundProperties = listOf(
             BoundProperty(
                 "stringSlotA",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             ),
             BoundProperty(
                 "stringSlotB",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
         )
@@ -470,16 +463,12 @@ class TaskCapabilityImplTest {
         val boundProperties = listOf(
             BoundProperty(
                 "stringSlotA",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             ),
             BoundProperty(
                 "stringSlotB",
-                Property.Builder<StringValue>()
-                    .setRequired(false)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = false),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
         )
@@ -567,17 +556,15 @@ class TaskCapabilityImplTest {
         val boundProperties = listOf(
             BoundProperty(
                 "required",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             ),
             BoundProperty(
                 "optional",
-                Property.Builder<StringValue>()
-                    .setPossibleValues(StringValue.of("VALUE_1"), StringValue.of("VALUE_2"))
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(
+                    possibleValues = listOf(StringValue("VALUE_1"), StringValue("VALUE_2")),
+                    isRequiredForExecution = true,
+                ),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
         )
@@ -769,16 +756,12 @@ class TaskCapabilityImplTest {
         val boundProperties = listOf(
             BoundProperty(
                 "listItem",
-                Property.Builder<ListItem>()
-                    .setRequired(true)
-                    .build(),
+                Property<ListItem>(isRequiredForExecution = true),
                 EntityConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC)
             ),
             BoundProperty(
                 "string",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
         )
@@ -1581,9 +1564,7 @@ class TaskCapabilityImplTest {
         init {
             setProperty(
                 "required",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER
             )
         }
@@ -1693,9 +1674,7 @@ class TaskCapabilityImplTest {
         private val SINGLE_REQUIRED_FIELD_BOUND_PROPERTIES = listOf(
             BoundProperty(
                 "required",
-                Property.Builder<StringValue>()
-                    .setRequired(true)
-                    .build(),
+                Property<StringValue>(isRequiredForExecution = true),
                 TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
         )
 
