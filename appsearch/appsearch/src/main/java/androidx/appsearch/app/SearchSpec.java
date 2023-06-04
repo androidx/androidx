@@ -73,7 +73,7 @@ public final class SearchSpec {
     static final String ADVANCED_RANKING_EXPRESSION = "advancedRankingExpression";
     static final String ENABLED_FEATURES_FIELD = "enabledFeatures";
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_NUM_PER_PAGE = 10;
 
@@ -87,10 +87,11 @@ public final class SearchSpec {
     /**
      * Term Match Type for the query.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link com.google.android.icing.proto.SearchSpecProto.termMatchType}
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             TERM_MATCH_EXACT_ONLY,
             TERM_MATCH_PREFIX
@@ -115,10 +116,11 @@ public final class SearchSpec {
     /**
      * Ranking Strategy for query result.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link ScoringSpecProto.RankingStrategy.Code}
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             RANKING_STRATEGY_NONE,
             RANKING_STRATEGY_DOCUMENT_SCORE,
@@ -167,10 +169,11 @@ public final class SearchSpec {
     /**
      * Order for query result.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link ScoringSpecProto.Order.Code}
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             ORDER_DESCENDING,
             ORDER_ASCENDING
@@ -187,14 +190,14 @@ public final class SearchSpec {
     /**
      * Grouping type for result limits.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @IntDef(flag = true, value = {
             GROUPING_TYPE_PER_PACKAGE,
             GROUPING_TYPE_PER_NAMESPACE,
             GROUPING_TYPE_PER_SCHEMA
     })
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     public @interface GroupingType {
     }
@@ -223,7 +226,7 @@ public final class SearchSpec {
 
     private final Bundle mBundle;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -233,7 +236,7 @@ public final class SearchSpec {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -494,7 +497,7 @@ public final class SearchSpec {
      * Get the list of enabled features that the caller is intending to use in this search call.
      *
      * @return the set of {@link Features} enabled in this {@link SearchSpec} Entry.
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

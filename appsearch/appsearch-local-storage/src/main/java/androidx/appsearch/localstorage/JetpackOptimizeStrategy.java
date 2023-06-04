@@ -26,7 +26,7 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
  * An implementation of {@link androidx.appsearch.localstorage.OptimizeStrategy} will
  * determine when to trigger {@link androidx.appsearch.localstorage.AppSearchImpl#optimize()} in
  * Jetpack environment.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JetpackOptimizeStrategy implements OptimizeStrategy {

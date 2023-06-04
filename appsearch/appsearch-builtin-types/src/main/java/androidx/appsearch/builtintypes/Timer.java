@@ -37,7 +37,7 @@ import java.util.List;
  */
 @Document(name = "builtin:Timer")
 public class Timer extends Thing {
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_STARTED, STATUS_PAUSED, STATUS_EXPIRED, STATUS_MISSED,
             STATUS_RESET})

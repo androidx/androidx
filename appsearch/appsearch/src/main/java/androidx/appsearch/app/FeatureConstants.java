@@ -16,14 +16,17 @@
 
 package androidx.appsearch.app;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * A class that encapsulates all feature constants that are accessible in AppSearch framework.
  *
  * <p>All fields in this class is referring in {@link Features}. If you add/remove any field in this
  * class, you should also change {@link Features}.
  * @see Features
- * @hide
+ * @exportToFramework:hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface FeatureConstants {
     /** Feature constants for {@link Features#NUMERIC_SEARCH}. */
     String NUMERIC_SEARCH = "NUMERIC_SEARCH";

@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Translates between Platform and Jetpack versions of requests.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

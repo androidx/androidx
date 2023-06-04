@@ -24,7 +24,7 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 /**
  * An interface class for implementing a strategy to determine when to trigger
  * {@link AppSearchImpl#optimize()}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface OptimizeStrategy {

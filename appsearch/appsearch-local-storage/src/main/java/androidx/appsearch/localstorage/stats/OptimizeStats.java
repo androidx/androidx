@@ -25,7 +25,7 @@ import androidx.core.util.Preconditions;
 /**
  * Class holds detailed stats for Optimize.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class OptimizeStats {

@@ -24,7 +24,7 @@ import androidx.appsearch.app.Features;
  * An implementation of {@link Features}. This implementation always returns true. This is
  * sufficient for the use in the local backend because all features are always available on the
  * local backend.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AlwaysSupportedFeatures implements Features {

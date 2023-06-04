@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@link androidx.appsearch.app.AppSearchSession#removeAsync(RemoveByDocumentIdRequest)} and
  * {@link androidx.appsearch.app.AppSearchSession#removeAsync(String, SearchSpec)}
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class RemoveStats {

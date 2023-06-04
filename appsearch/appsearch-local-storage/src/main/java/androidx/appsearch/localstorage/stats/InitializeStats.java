@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Class holds detailed stats for initialization
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class InitializeStats {

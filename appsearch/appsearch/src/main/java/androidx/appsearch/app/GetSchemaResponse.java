@@ -82,7 +82,7 @@ public final class GetSchemaResponse {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -261,7 +261,7 @@ public final class GetSchemaResponse {
          * @param getVisibilitySettingSupported whether supported
          * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
          *                                      backend/Android API level.
-         * @hide
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder(boolean getVisibilitySettingSupported) {

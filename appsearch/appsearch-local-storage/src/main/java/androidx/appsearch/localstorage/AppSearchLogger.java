@@ -35,7 +35,7 @@ import androidx.appsearch.stats.SchemaMigrationStats;
  *
  * <p>All implementations of this interface must be thread safe.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchLogger {

@@ -33,7 +33,7 @@ import java.util.Set;
 
 /**
  * Translates between Platform and Jetpack versions of {@link GetSchemaResponse}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

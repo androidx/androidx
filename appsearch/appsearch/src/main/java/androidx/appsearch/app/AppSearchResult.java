@@ -40,7 +40,7 @@ public final class AppSearchResult<ValueType> {
 
     /**
      * Result codes from {@link AppSearchSession} methods.
-     * @hide
+     * @exportToFramework:hide
      */
     @IntDef(value = {
             RESULT_OK,
@@ -54,6 +54,7 @@ public final class AppSearchResult<ValueType> {
             RESULT_SECURITY_ERROR,
             RESULT_DENIED,
     })
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     public @interface ResultCode {}
 
@@ -212,7 +213,7 @@ public final class AppSearchResult<ValueType> {
     /**
      * Creates a new failed {@link AppSearchResult} by a AppSearchResult in another type.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -224,7 +225,7 @@ public final class AppSearchResult<ValueType> {
                 otherFailedResult.getResultCode(), otherFailedResult.getErrorMessage());
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static <ValueType> AppSearchResult<ValueType> throwableToFailedResult(

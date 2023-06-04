@@ -64,13 +64,13 @@ public final class SearchResult {
     @Nullable
     private List<MatchInfo> mMatchInfos;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchResult(@NonNull Bundle bundle) {
         mBundle = Preconditions.checkNotNull(bundle);
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public Bundle getBundle() {

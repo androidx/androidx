@@ -16,8 +16,7 @@
 
 /**
  * Helps with conversions to the platform record and API objects.
- *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.health.connect.client.impl.platform;
