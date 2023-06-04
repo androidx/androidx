@@ -81,25 +81,27 @@ class DocumentModel {
     // run to run, causing the generated code to bounce.
     private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
     private final boolean mIsAutoValueDocument;
-    // Key: Name of the field which is accessed through the getter method.
+    // Key: Name of the element which is accessed through the getter method.
     // Value: ExecutableElement of the getter method.
     private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
-    // Key: Name of the field whose value is set through the setter method.
+    // Key: Name of the element whose value is set through the setter method.
     // Value: ExecutableElement of the setter method.
     private final Map<String, ExecutableElement> mSetterMethods = new HashMap<>();
-    // Warning: if you change this to a HashMap, we may assign fields in a different order from run
-    // to run, causing the generated code to bounce.
-    // Keeps tracks of all AppSearch fields so we can find creation and access methods for them all
-    private final Map<String, VariableElement> mAllAppSearchFields = new LinkedHashMap<>();
-    // Warning: if you change this to a HashMap, we may assign fields in a different order from run
-    // to run, causing the generated code to bounce.
-    // Keeps track of property fields so we don't allow multiple annotated fields of the same name
-    private final Map<String, VariableElement> mPropertyFields = new LinkedHashMap<>();
+    // Warning: if you change this to a HashMap, we may assign elements in a different order from
+    // run to run, causing the generated code to bounce.
+    // Keeps tracks of all AppSearch elements so we can find creation and access methods for them
+    // all
+    private final Map<String, Element> mAllAppSearchElements = new LinkedHashMap<>();
+    // Warning: if you change this to a HashMap, we may assign elements in a different order from
+    // run to run, causing the generated code to bounce.
+    // Keeps track of property elements so we don't allow multiple annotated elements of the same
+    // name
+    private final Map<String, Element> mPropertyElements = new LinkedHashMap<>();
     private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
-    private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
-    private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
-    // Contains the reason why that field couldn't be written either by field or by setter.
-    private final Map<VariableElement, ProcessingException> mWriteWhyCreationMethod =
+    private final Map<Element, ReadKind> mReadKinds = new HashMap<>();
+    private final Map<Element, WriteKind> mWriteKinds = new HashMap<>();
+    // Contains the reason why that element couldn't be written either by field or by setter.
+    private final Map<Element, ProcessingException> mWriteWhyCreationMethod =
             new HashMap<>();
     private ExecutableElement mChosenCreationMethod = null;
     private List<String> mChosenCreationMethodParams = null;
@@ -173,6 +175,11 @@ class DocumentModel {
         if (superClass.getKind().equals(TypeKind.DECLARED)) {
             addAllMethods((TypeElement) mTypeUtil.asElement(superClass), allMethods);
         }
+        for (TypeMirror implementedInterface : typeElement.getInterfaces()) {
+            if (implementedInterface.getKind().equals(TypeKind.DECLARED)) {
+                addAllMethods((TypeElement) mTypeUtil.asElement(implementedInterface), allMethods);
+            }
+        }
     }
 
     /**
@@ -228,13 +235,13 @@ class DocumentModel {
     }
 
     @NonNull
-    public Map<String, VariableElement> getAllFields() {
-        return Collections.unmodifiableMap(mAllAppSearchFields);
+    public Map<String, Element> getAllElements() {
+        return Collections.unmodifiableMap(mAllAppSearchElements);
     }
 
     @NonNull
-    public Map<String, VariableElement> getPropertyFields() {
-        return Collections.unmodifiableMap(mPropertyFields);
+    public Map<String, Element> getPropertyElements() {
+        return Collections.unmodifiableMap(mPropertyElements);
     }
 
     @Nullable
@@ -243,25 +250,25 @@ class DocumentModel {
     }
 
     @Nullable
-    public ReadKind getFieldReadKind(String fieldName) {
-        VariableElement element = mAllAppSearchFields.get(fieldName);
+    public ReadKind getElementReadKind(String elementName) {
+        Element element = mAllAppSearchElements.get(elementName);
         return mReadKinds.get(element);
     }
 
     @Nullable
-    public WriteKind getFieldWriteKind(String fieldName) {
-        VariableElement element = mAllAppSearchFields.get(fieldName);
+    public WriteKind getElementWriteKind(String elementName) {
+        Element element = mAllAppSearchElements.get(elementName);
         return mWriteKinds.get(element);
     }
 
     @Nullable
-    public ExecutableElement getGetterForField(String fieldName) {
-        return mGetterMethods.get(fieldName);
+    public ExecutableElement getGetterForElement(String elementName) {
+        return mGetterMethods.get(elementName);
     }
 
     @Nullable
-    public ExecutableElement getSetterForField(String fieldName) {
-        return mSetterMethods.get(fieldName);
+    public ExecutableElement getSetterForElement(String elementName) {
+        return mSetterMethods.get(elementName);
     }
 
     /**
@@ -271,12 +278,12 @@ class DocumentModel {
      * specifies a different 'name' parameter in the annotation.
      */
     @NonNull
-    public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
+    public String getPropertyName(@NonNull Element property) throws ProcessingException {
         AnnotationMirror annotation = getPropertyAnnotation(property);
         Map<String, Object> params = mHelper.getAnnotationParams(annotation);
         String propertyName = params.get("name").toString();
         if (propertyName.isEmpty()) {
-            propertyName = getNormalizedFieldName(property.getSimpleName().toString());
+            propertyName = getNormalizedElementName(property);
         }
         return propertyName;
     }
@@ -292,7 +299,7 @@ class DocumentModel {
             throws ProcessingException {
         Objects.requireNonNull(element);
         if (mIsAutoValueDocument) {
-            element = getGetterForField(element.getSimpleName().toString());
+            element = getGetterForElement(element.getSimpleName().toString());
         }
         Set<String> propertyClassPaths = new HashSet<>();
         for (PropertyClass propertyClass : PropertyClass.values()) {
@@ -339,7 +346,7 @@ class DocumentModel {
         if (mSpecialFieldNames.containsValue(fieldName)) {
             throw new ProcessingException(
                     "Non-annotated field overriding special annotated fields named: "
-                            + fieldName, mAllAppSearchFields.get(fieldName));
+                            + fieldName, mAllAppSearchElements.get(fieldName));
         }
 
         // no annotation mirrors -> non-indexable field
@@ -348,17 +355,14 @@ class DocumentModel {
             if (!annotationFq.startsWith(DOCUMENT_ANNOTATION_CLASS)) {
                 continue;
             }
-            VariableElement child;
+            Element child;
             if (mIsAutoValueDocument) {
                 child = findFieldForFunctionWithSameName(classElements, childElement);
             } else {
-                if (childElement.getKind() == ElementKind.METHOD) {
-                    throw new ProcessingException("AppSearch annotation is not applicable to "
-                            + "methods for Non-AutoValue class", childElement);
-                } else if (childElement.getKind() == ElementKind.CLASS) {
+                if (childElement.getKind() == ElementKind.CLASS) {
                     continue;
                 } else {
-                    child = (VariableElement) childElement;
+                    child = childElement;
                 }
             }
 
@@ -414,7 +418,7 @@ class DocumentModel {
                         // from the parent type. To make this assumption valid, the result
                         // returned by generateClassHierarchy must put parent types before child
                         // types.
-                        VariableElement existingProperty = mPropertyFields.get(fieldName);
+                        Element existingProperty = mPropertyElements.get(fieldName);
                         if (existingProperty != null) {
                             if (!mTypeUtil.isSameType(existingProperty.asType(), child.asType())) {
                                 throw new ProcessingException(
@@ -425,11 +429,11 @@ class DocumentModel {
                                         "Cannot override a property with a different name", child);
                             }
                         }
-                        mPropertyFields.put(fieldName, child);
+                        mPropertyElements.put(fieldName, child);
                     }
             }
 
-            mAllAppSearchFields.put(fieldName, child);
+            mAllAppSearchElements.put(fieldName, child);
         }
     }
 
@@ -492,17 +496,17 @@ class DocumentModel {
 
         mSchemaName = computeSchemaName(hierarchy);
 
-        for (VariableElement appSearchField : mAllAppSearchFields.values()) {
+        for (Element appSearchField : mAllAppSearchElements.values()) {
             chooseAccessKinds(appSearchField);
         }
     }
 
     @NonNull
-    private VariableElement findFieldForFunctionWithSameName(
+    private Element findFieldForFunctionWithSameName(
             @NonNull List<? extends Element> elements,
             @NonNull Element functionElement) throws ProcessingException {
         String fieldName = functionElement.getSimpleName().toString();
-        for (VariableElement field : ElementFilter.fieldsIn(elements)) {
+        for (Element field : ElementFilter.fieldsIn(elements)) {
             if (fieldName.equals(field.getSimpleName().toString())) {
                 return field;
             }
@@ -518,7 +522,7 @@ class DocumentModel {
      *
      * @throws ProcessingException if data type doesn't match property annotation's requirement.
      */
-    void checkFieldTypeForPropertyAnnotation(@NonNull VariableElement property,
+    void checkFieldTypeForPropertyAnnotation(@NonNull Element property,
             PropertyClass propertyClass) throws ProcessingException {
         switch (propertyClass) {
             case BOOLEAN_PROPERTY_CLASS:
@@ -591,12 +595,11 @@ class DocumentModel {
      *
      * @throws ProcessingException if no access type is possible for the given field
      */
-    private void chooseAccessKinds(@NonNull VariableElement field)
+    private void chooseAccessKinds(@NonNull Element field)
             throws ProcessingException {
         // Choose get access
-        String fieldName = field.getSimpleName().toString();
         Set<Modifier> modifiers = field.getModifiers();
-        if (modifiers.contains(Modifier.PRIVATE)) {
+        if (modifiers.contains(Modifier.PRIVATE) || field.getKind() == ElementKind.METHOD) {
             findGetter(field);
             mReadKinds.put(field, ReadKind.GETTER);
         } else {
@@ -605,12 +608,12 @@ class DocumentModel {
 
         // Choose set access
         if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.FINAL)
-                || modifiers.contains(Modifier.STATIC)) {
+                || modifiers.contains(Modifier.STATIC) || field.getKind() == ElementKind.METHOD) {
             // Try to find a setter. If we can't find one, mark the WriteKind as {@code
             // CREATION_METHOD}. We don't know if this is true yet, the creation methods will be
             // inspected in a subsequent pass.
             try {
-                findSetter(fieldName);
+                findSetter(field);
                 mWriteKinds.put(field, WriteKind.SETTER);
             } catch (ProcessingException e) {
                 // We'll look for a creation method, so we may still be able to set this field,
@@ -629,8 +632,8 @@ class DocumentModel {
         // Maps field name to Element.
         // If this is changed to a HashSet, we might report errors to the developer in a different
         // order about why a field was written via creation method.
-        Map<String, VariableElement> creationMethodWrittenFields = new LinkedHashMap<>();
-        for (Map.Entry<VariableElement, WriteKind> it : mWriteKinds.entrySet()) {
+        Map<String, Element> creationMethodWrittenFields = new LinkedHashMap<>();
+        for (Map.Entry<Element, WriteKind> it : mWriteKinds.entrySet()) {
             if (it.getValue() == WriteKind.CREATION_METHOD) {
                 String name = it.getKey().getSimpleName().toString();
                 creationMethodWrittenFields.put(name, it.getKey());
@@ -639,8 +642,9 @@ class DocumentModel {
 
         // Maps normalized field name to real field name.
         Map<String, String> normalizedToRawFieldName = new HashMap<>();
-        for (String fieldName : mAllAppSearchFields.keySet()) {
-            normalizedToRawFieldName.put(getNormalizedFieldName(fieldName), fieldName);
+        for (Element field : mAllAppSearchElements.values()) {
+            normalizedToRawFieldName.put(getNormalizedElementName(field),
+                    field.getSimpleName().toString());
         }
 
         Map<ExecutableElement, String> whyNotCreationMethod = new HashMap<>();
@@ -677,7 +681,7 @@ class DocumentModel {
 
             // If the field is set in the constructor, choose creation method for the write kind
             for (String param : creationMethodParamFields) {
-                for (VariableElement appSearchField : mAllAppSearchFields.values()) {
+                for (Element appSearchField : mAllAppSearchElements.values()) {
                     if (appSearchField.getSimpleName().toString().equals(param)) {
                         mWriteKinds.put(appSearchField, WriteKind.CREATION_METHOD);
                         break;
@@ -700,7 +704,7 @@ class DocumentModel {
                         mClass);
 
         // Inform the developer why we started looking for creation methods in the first place.
-        for (VariableElement field : creationMethodWrittenFields.values()) {
+        for (Element field : creationMethodWrittenFields.values()) {
             ProcessingException warning = mWriteWhyCreationMethod.get(field);
             if (warning != null) {
                 e.addWarning(warning);
@@ -718,27 +722,37 @@ class DocumentModel {
         throw e;
     }
 
-    /** Finds getter function for a private field. */
-    private void findGetter(@NonNull VariableElement field) throws ProcessingException {
-        String fieldName = field.getSimpleName().toString();
-        ProcessingException e = new ProcessingException(
-                "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "for field \"" + fieldName + "\"",
-                mAllAppSearchFields.get(fieldName));
+    /**
+     * Finds getter function for a private field, or for a property defined by a annotated getter
+     * method, in which case the annotated element itself should be the getter unless it's
+     * private or it takes parameters.
+     */
+    private void findGetter(@NonNull Element element) throws ProcessingException {
+        String elementName = element.getSimpleName().toString();
+        ProcessingException e;
+        if (element.getKind() == ElementKind.METHOD) {
+            e = new ProcessingException(
+                    "Failed to find a suitable getter for element \"" + elementName + "\"",
+                    mAllAppSearchElements.get(elementName));
+        } else {
+            e = new ProcessingException(
+                    "Field cannot be read: it is private and we failed to find a suitable getter "
+                            + "for field \"" + elementName + "\"",
+                    mAllAppSearchElements.get(elementName));
+        }
 
         for (ExecutableElement method : mAllMethods) {
             String methodName = method.getSimpleName().toString();
-            String normalizedFieldName = getNormalizedFieldName(fieldName);
-            // normalizedFieldName with first letter capitalized, to be paired with [is] or [get]
+            String normalizedElementName = getNormalizedElementName(element);
+            // normalizedElementName with first letter capitalized, to be paired with [is] or [get]
             // prefix
-            String methodNameSuffix = normalizedFieldName.substring(0, 1).toUpperCase()
-                    + normalizedFieldName.substring(1);
+            String methodNameSuffix = normalizedElementName.substring(0, 1).toUpperCase()
+                    + normalizedElementName.substring(1);
 
-            if (methodName.equals(normalizedFieldName)
+            if (methodName.equals(normalizedElementName)
                     || methodName.equals("get" + methodNameSuffix)
                     || (
-                    mHelper.isFieldOfExactType(
-                            field, mHelper.mBooleanBoxType, mHelper.mBooleanPrimitiveType)
+                    mHelper.isFieldOfBooleanType(element)
                             && methodName.equals("is" + methodNameSuffix))
             ) {
                 if (method.getModifiers().contains(Modifier.PRIVATE)) {
@@ -752,7 +766,7 @@ class DocumentModel {
                     continue;
                 }
                 // Found one!
-                mGetterMethods.put(fieldName, method);
+                mGetterMethods.put(elementName, method);
                 return;
             }
         }
@@ -761,24 +775,32 @@ class DocumentModel {
         throw e;
     }
 
-    /** Finds setter function for a private field. */
-    private void findSetter(@NonNull String fieldName) throws ProcessingException {
+    /**
+     * Finds setter function for a private field, or for a property defined by a annotated getter
+     * method.
+     */
+    private void findSetter(@NonNull Element element) throws ProcessingException {
+        String elementName = element.getSimpleName().toString();
         // We can't report setter failure until we've searched the creation methods, so this
         // message is anticipatory and should be buffered by the caller.
-        ProcessingException e = new ProcessingException(
-                "Field cannot be written directly or via setter because it is private, final, or "
-                        + "static, and we failed to find a suitable setter for field \""
-                        + fieldName
-                        + "\". Trying to find a suitable creation method.",
-                mAllAppSearchFields.get(fieldName));
+        String error;
+        if (element.getKind() == ElementKind.METHOD) {
+            error = "Element cannot be written directly because it is an annotated getter";
+        } else {
+            error = "Field cannot be written directly because it is private, final, or static";
+        }
+        error += ", and we failed to find a suitable setter for \"" + elementName + "\". "
+                + "Trying to find a suitable creation method.";
+        ProcessingException e = new ProcessingException(error,
+                mAllAppSearchElements.get(elementName));
 
         for (ExecutableElement method : mAllMethods) {
             String methodName = method.getSimpleName().toString();
-            String normalizedFieldName = getNormalizedFieldName(fieldName);
-            if (methodName.equals(normalizedFieldName)
+            String normalizedElementName = getNormalizedElementName(element);
+            if (methodName.equals(normalizedElementName)
                     || methodName.equals("set"
-                    + normalizedFieldName.substring(0, 1).toUpperCase()
-                    + normalizedFieldName.substring(1))) {
+                    + normalizedElementName.substring(0, 1).toUpperCase()
+                    + normalizedElementName.substring(1))) {
                 if (method.getModifiers().contains(Modifier.PRIVATE)) {
                     e.addWarning(new ProcessingException(
                             "Setter cannot be used: private visibility", method));
@@ -792,7 +814,7 @@ class DocumentModel {
                     continue;
                 }
                 // Found one!
-                mSetterMethods.put(fieldName, method);
+                mSetterMethods.put(elementName, method);
                 return;
             }
         }
@@ -802,10 +824,13 @@ class DocumentModel {
     }
 
     /**
-     * Produces the canonical name of a field (which is used as the default property name as well as
-     * to find accessors) by removing prefixes and suffixes of common conventions.
+     * Produces the canonical name of a field element.
+     *
+     * @see #getNormalizedElementName(Element)
      */
-    private String getNormalizedFieldName(String fieldName) {
+    private String getNormalizedFieldElementName(Element fieldElement) {
+        String fieldName = fieldElement.getSimpleName().toString();
+
         if (fieldName.length() < 2) {
             return fieldName;
         }
@@ -832,6 +857,38 @@ class DocumentModel {
         }
 
         return fieldName;
+    }
+
+    /**
+     * Produces the canonical name of a method element.
+     *
+     * @see #getNormalizedElementName(Element)
+     */
+    private String getNormalizedMethodElementName(Element methodElement) {
+        String methodName = methodElement.getSimpleName().toString();
+
+        // If this property is defined by an annotated getter, then we can remove the prefix
+        // "get" or "is" if possible.
+        if (methodName.startsWith("get") && methodName.length() > 3) {
+            methodName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+        } else if (mHelper.isFieldOfBooleanType(methodElement) && methodName.startsWith("is")
+                && methodName.length() > 2) {
+            // "is" is a valid getter prefix for boolean property.
+            methodName = methodName.substring(2, 3).toLowerCase() + methodName.substring(3);
+        }
+        // Return early because the rest normalization procedures do not apply to getters.
+        return methodName;
+    }
+
+    /**
+     * Produces the canonical name of a element (which is used as the default property name as
+     * well as to find accessors) by removing prefixes and suffixes of common conventions.
+     */
+    private String getNormalizedElementName(Element property) {
+        if (property.getKind() == ElementKind.METHOD) {
+            return getNormalizedMethodElementName(property);
+        }
+        return getNormalizedFieldElementName(property);
     }
 
     /**

@@ -17,6 +17,7 @@
 package androidx.appsearch.compiler;
 
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,7 +39,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -85,7 +85,7 @@ class FromGenericDocumentCodeGenerator {
         unpackSpecialFields(methodBuilder);
 
         // Unpack properties from the GenericDocument into the format desired by the document class
-        for (Map.Entry<String, VariableElement> entry : mModel.getPropertyFields().entrySet()) {
+        for (Map.Entry<String, Element> entry : mModel.getPropertyElements().entrySet()) {
             fieldFromGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
         }
 
@@ -101,7 +101,7 @@ class FromGenericDocumentCodeGenerator {
         }
 
         // Assign all fields which weren't set in the constructor
-        for (String field : mModel.getAllFields().keySet()) {
+        for (String field : mModel.getAllElements().keySet()) {
             CodeBlock fieldWrite = createAppSearchFieldWrite(field);
             if (fieldWrite != null) {
                 methodBuilder.addStatement(fieldWrite);
@@ -119,7 +119,7 @@ class FromGenericDocumentCodeGenerator {
     private void fieldFromGenericDoc(
             @NonNull MethodSpec.Builder builder,
             @NonNull String fieldName,
-            @NonNull VariableElement property) throws ProcessingException {
+            @NonNull Element property) throws ProcessingException {
         // Scenario 1: field is assignable from List
         //   1a: ListForLoopAssign
         //       List contains boxed Long, Integer, Double, Float, Boolean or byte[]. We have to
@@ -200,27 +200,28 @@ class FromGenericDocumentCodeGenerator {
             @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull String propertyName,
-            @NonNull VariableElement property) throws ProcessingException {
+            @NonNull Element property) throws ProcessingException {
         Types typeUtil = mEnv.getTypeUtils();
-        if (!typeUtil.isAssignable(mHelper.mListType, typeUtil.erasure(property.asType()))) {
+        TypeMirror propertyType = getPropertyType(property);
+        if (!typeUtil.isAssignable(mHelper.mListType, typeUtil.erasure(propertyType))) {
             return false;  // This is not a scenario 1 list
         }
 
-        List<? extends TypeMirror> genericTypes =
-                ((DeclaredType) property.asType()).getTypeArguments();
-        TypeMirror propertyType = genericTypes.get(0);
+        List<? extends TypeMirror> genericTypes = ((DeclaredType) propertyType).getTypeArguments();
+        TypeMirror componentType = genericTypes.get(0);
         ParameterizedTypeName listTypeName = ParameterizedTypeName.get(ClassName.get(List.class),
-                TypeName.get(propertyType));
+                TypeName.get(componentType));
 
         CodeBlock.Builder builder = CodeBlock.builder();
-        if (!tryListForLoopAssign(builder, fieldName, propertyName, propertyType, listTypeName)// 1a
+        if (!tryListForLoopAssign(builder, fieldName, propertyName,
+                componentType, listTypeName) // 1a
                 && !tryListCallArraysAsList(
-                builder, fieldName, propertyName, propertyType, listTypeName)          // 1b
+                builder, fieldName, propertyName, componentType, listTypeName)          // 1b
                 && !tryListForLoopCallFromGenericDocument(
-                builder, fieldName, propertyName, propertyType, listTypeName)) {       // 1c
+                builder, fieldName, propertyName, componentType, listTypeName)) {       // 1c
             // Scenario 1x
             throw new ProcessingException(
-                    "Unhandled in property type (1x): " + property.asType().toString(), property);
+                    "Unhandled in property type (1x): " + propertyType.toString(), property);
         }
 
         method.addCode(builder.build());
@@ -387,25 +388,26 @@ class FromGenericDocumentCodeGenerator {
             @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull String propertyName,
-            @NonNull VariableElement property) throws ProcessingException {
+            @NonNull Element property) throws ProcessingException {
         Types typeUtil = mEnv.getTypeUtils();
-        if (property.asType().getKind() != TypeKind.ARRAY
+        TypeMirror propertyType = getPropertyType(property);
+        if (propertyType.getKind() != TypeKind.ARRAY
                 // Byte arrays have a native representation in Icing, so they are not considered a
                 // "repeated" type
-                || typeUtil.isSameType(property.asType(), mHelper.mBytePrimitiveArrayType)) {
+                || typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             return false;  // This is not a scenario 2 array
         }
 
-        TypeMirror propertyType = ((ArrayType) property.asType()).getComponentType();
+        TypeMirror componentType = ((ArrayType) propertyType).getComponentType();
 
         CodeBlock.Builder builder = CodeBlock.builder();
-        if (!tryArrayForLoopAssign(builder, fieldName, propertyName, propertyType)             // 2a
-                && !tryArrayUseDirectly(builder, fieldName, propertyName, propertyType)        // 2b
+        if (!tryArrayForLoopAssign(builder, fieldName, propertyName, componentType)           // 2a
+                && !tryArrayUseDirectly(builder, fieldName, propertyName, componentType)      // 2b
                 && !tryArrayForLoopCallFromGenericDocument(
-                builder, fieldName, propertyName, propertyType)) {                     // 2c
+                builder, fieldName, propertyName, componentType)) {                     // 2c
             // Scenario 2x
             throw new ProcessingException(
-                    "Unhandled in property type (2x): " + property.asType().toString(), property);
+                    "Unhandled in property type (2x): " + propertyType.toString(), property);
         }
 
         method.addCode(builder.build());
@@ -587,15 +589,16 @@ class FromGenericDocumentCodeGenerator {
             @NonNull MethodSpec.Builder method,
             @NonNull String fieldName,
             @NonNull String propertyName,
-            @NonNull VariableElement property) throws ProcessingException {
+            @NonNull Element property) throws ProcessingException {
         // TODO(b/156296904): Handle scenario 3c (FieldCallToGenericDocument)
+        TypeMirror propertyType = getPropertyType(property);
         CodeBlock.Builder builder = CodeBlock.builder();
         if (!tryFieldUseDirectlyWithNullCheck(
-                builder, fieldName, propertyName, property.asType())  // 3a
+                builder, fieldName, propertyName, propertyType)  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                builder, fieldName, propertyName, property.asType()) // 3b
+                builder, fieldName, propertyName, propertyType) // 3b
                 && !tryFieldCallFromGenericDocument(
-                builder, fieldName, propertyName, property.asType())) {   // 3c
+                builder, fieldName, propertyName, propertyType)) {   // 3c
             throw new ProcessingException("Unhandled property type.", property);
         }
         method.addCode(builder.build());
@@ -796,11 +799,11 @@ class FromGenericDocumentCodeGenerator {
 
     @Nullable
     private CodeBlock createAppSearchFieldWrite(@NonNull String fieldName) {
-        switch (Objects.requireNonNull(mModel.getFieldWriteKind(fieldName))) {
+        switch (Objects.requireNonNull(mModel.getElementWriteKind(fieldName))) {
             case FIELD:
                 return CodeBlock.of("document.$N = $NConv", fieldName, fieldName);
             case SETTER:
-                String setter = mModel.getSetterForField(fieldName).getSimpleName().toString();
+                String setter = mModel.getSetterForElement(fieldName).getSimpleName().toString();
                 return CodeBlock.of("document.$N($NConv)", setter, fieldName);
             default:
                 return null;  // Constructor params should already have been set
