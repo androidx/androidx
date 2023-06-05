@@ -108,10 +108,12 @@ fun CaptureFocusSample() {
 fun RestoreFocusSample() {
     val focusRequester = remember { FocusRequester() }
     LazyRow(
-        Modifier.focusProperties {
-            exit = { focusRequester.saveFocusedChild(); Default }
-            enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
-        }
+        Modifier
+            .focusRequester(focusRequester)
+            .focusProperties {
+                exit = { focusRequester.saveFocusedChild(); Default }
+                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+            }
     ) {
         item { Button(onClick = {}) { Text("1") } }
         item { Button(onClick = {}) { Text("2") } }
