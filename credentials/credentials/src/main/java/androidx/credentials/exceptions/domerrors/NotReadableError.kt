@@ -16,17 +16,13 @@
 
 package androidx.credentials.exceptions.domerrors
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
  * exception contains a NotReadableError from fido, which indicates there was some I/O read
  * operation that failed. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
- *
- * @see CreatePublicKeyCredentialDomException
  */
-@Suppress("ExtendsError")
+@Suppress("ExtendsError") // This is not a real java `Error`
 class NotReadableError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_ERROR) {
     internal companion object {

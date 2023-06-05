@@ -87,7 +87,7 @@ import java.util.concurrent.Executor
  *
  */
 @RequiresApi(16)
-@SuppressLint("ObsoleteSdkInt")
+@SuppressLint("ObsoleteSdkInt") // Accommodate dependencies with a lower min sdk requirement
 internal class CredentialManagerImpl internal constructor(
     private val context: Context
 ) : CredentialManager {

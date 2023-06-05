@@ -62,7 +62,6 @@ class PrepareGetCredentialResponse internal constructor(
      *
      * Note: this API will always return false at API level < 34.
      */
-    @Suppress("UNUSED_PARAMETER")
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasCredentialResults(credentialType: String): Boolean {
         return frameworkResponse?.hasCredentialResults(credentialType) ?: false
