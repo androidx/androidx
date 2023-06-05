@@ -99,6 +99,35 @@ class MapSubjectTest {
     }
 
     @Test
+    fun isNotEmpty() {
+        assertThat(mapOf(1 to 5)).isNotEmpty()
+    }
+
+    @Test
+    fun isNotEmptyWithFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf<Any, Any>()).isNotEmpty()
+        }
+    }
+
+    @Test
+    fun hasSize() {
+        assertThat(mapOf(1 to 2, 3 to 4)).hasSize(2)
+    }
+
+    @Test
+    fun hasSizeZero() {
+        assertThat(mapOf<Any, Any>()).hasSize(0)
+    }
+
+    @Test
+    fun hasSizeNegative() {
+        assertFailsWith<IllegalArgumentException> {
+            assertThat(mapOf(1 to 2)).hasSize(-1)
+        }
+    }
+
+    @Test
     fun containsKey() {
         assertThat(mapOf("kurt" to "kluever")).containsKey("kurt")
     }
