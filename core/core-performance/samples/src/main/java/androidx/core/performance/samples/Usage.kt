@@ -20,6 +20,7 @@ import android.app.Application
 import android.os.Build
 import androidx.annotation.Sampled
 import androidx.core.performance.DevicePerformance
+import androidx.core.performance.StaticDevicePerformanceSupplier
 
 @Sampled
 fun usage() {
@@ -29,7 +30,8 @@ fun usage() {
         private lateinit var devicePerformance: DevicePerformance
 
         override fun onCreate() {
-            devicePerformance = DevicePerformance.create(applicationContext)
+            devicePerformance =
+                StaticDevicePerformanceSupplier.createDevicePerformance()
         }
 
         fun doSomeThing() {
