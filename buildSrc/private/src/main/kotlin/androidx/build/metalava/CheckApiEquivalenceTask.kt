@@ -46,9 +46,6 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
     @get:Input
     abstract val checkedInApis: ListProperty<ApiLocation>
 
-    @get:Input
-    abstract val optedInToSuppressCompatibilityMigration: Property<Boolean>
-
     @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
     fun getTaskInputs(): List<File> {
         val checkedInApiLocations = checkedInApis.get()
@@ -56,7 +53,6 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
             listOf(
                 checkedInApiLocation.publicApiFile,
                 checkedInApiLocation.removedApiFile,
-                checkedInApiLocation.experimentalApiFile,
                 checkedInApiLocation.restrictedApiFile
             )
         }
@@ -65,7 +61,6 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
         val builtApiFiles = listOf(
             builtApiLocation.publicApiFile,
             builtApiLocation.removedApiFile,
-            builtApiLocation.experimentalApiFile,
             builtApiLocation.restrictedApiFile
         )
 
@@ -78,9 +73,6 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
         for (checkedInApi in checkedInApis.get()) {
             checkEqual(checkedInApi.publicApiFile, builtApiLocation.publicApiFile)
             checkEqual(checkedInApi.removedApiFile, builtApiLocation.removedApiFile)
-            if (!optedInToSuppressCompatibilityMigration.get()) {
-                checkEqual(checkedInApi.experimentalApiFile, builtApiLocation.experimentalApiFile)
-            }
             checkEqual(checkedInApi.restrictedApiFile, builtApiLocation.restrictedApiFile)
         }
     }

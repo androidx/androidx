@@ -58,17 +58,10 @@ abstract class UpdateApiLintBaselineTask @Inject constructor(
     fun updateBaseline() {
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
         val baselineFile = baselines.get().apiLintFile
-        val generateApiMode = if (optedInToSuppressCompatibilityMigration.get()) {
-            GenerateApiMode.PublicApi
-        } else {
-            GenerateApiMode.ExperimentalApi
-        }
         val checkArgs = getGenerateApiArgs(
             bootClasspath, dependencyClasspath,
-            sourcePaths.files.filter { it.exists() }, null,
-            generateApiMode,
+            sourcePaths.files.filter { it.exists() }, null, GenerateApiMode.PublicApi,
             ApiLintMode.CheckBaseline(baselineFile, targetsJavaConsumers.get()),
-            optedInToSuppressCompatibilityMigration.get(),
             manifestPath.orNull?.asFile?.absolutePath
         )
         val args = checkArgs + getCommonBaselineUpdateArgs(baselineFile)

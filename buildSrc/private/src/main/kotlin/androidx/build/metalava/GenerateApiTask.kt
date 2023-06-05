@@ -65,7 +65,6 @@ abstract class GenerateApiTask @Inject constructor(
         return listOf(
             prop.publicApiFile,
             prop.removedApiFile,
-            prop.experimentalApiFile,
             prop.restrictedApiFile
         )
     }
@@ -88,7 +87,6 @@ abstract class GenerateApiTask @Inject constructor(
             generateRestrictToLibraryGroupAPIs,
             k2UastEnabled.get(),
             workerExecutor,
-            optedInToSuppressCompatibilityMigration.get(),
             manifestPath.orNull?.asFile?.absolutePath
         )
     }
