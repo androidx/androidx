@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -734,7 +735,7 @@ private class TextFieldMeasurePolicy(
             suffixHeight = heightOrZero(suffixPlaceable),
             placeholderHeight = heightOrZero(placeholderPlaceable),
             supportingHeight = heightOrZero(supportingPlaceable),
-            isLabelFocused = animationProgress == 1f,
+            animationProgress = animationProgress,
             constraints = constraints,
             density = density,
             paddingValues = paddingValues,
@@ -870,29 +871,41 @@ private class TextFieldMeasurePolicy(
         @Suppress("PrimitiveInLambda")
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
-        val textFieldHeight =
-            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, width)
-        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+        var remainingWidth = width
+        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
         val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
-        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, width)
+
+        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
         val prefixHeight = measurables.find { it.layoutId == PrefixId }?.let {
-            intrinsicMeasurer(it, width)
+            val height = intrinsicMeasurer(it, remainingWidth)
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
+            height
         } ?: 0
         val suffixHeight = measurables.find { it.layoutId == SuffixId }?.let {
-            intrinsicMeasurer(it, width)
+            val height = intrinsicMeasurer(it, remainingWidth)
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
+            height
         } ?: 0
+
+        val textFieldHeight =
+            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)
         val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, width)
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
         val supportingHeight = measurables.find { it.layoutId == SupportingId }?.let {
             intrinsicMeasurer(it, width)
         } ?: 0
+
         return calculateHeight(
             textFieldHeight = textFieldHeight,
             labelHeight = labelHeight,
@@ -902,7 +915,7 @@ private class TextFieldMeasurePolicy(
             suffixHeight = suffixHeight,
             placeholderHeight = placeholderHeight,
             supportingHeight = supportingHeight,
-            isLabelFocused = animationProgress == 1f,
+            animationProgress = animationProgress,
             constraints = ZeroConstraints,
             density = density,
             paddingValues = paddingValues
@@ -940,32 +953,39 @@ private fun calculateHeight(
     suffixHeight: Int,
     placeholderHeight: Int,
     supportingHeight: Int,
-    isLabelFocused: Boolean,
+    animationProgress: Float,
     constraints: Constraints,
     density: Float,
     paddingValues: PaddingValues
 ): Int {
     val hasLabel = labelHeight > 0
+
+    val verticalPadding = density *
+        (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()).value
     // Even though the padding is defined by the developer, if there's a label, it only affects the
     // text field in the focused state. Otherwise, we use the default value.
-    val verticalPadding = density * if (!hasLabel || isLabelFocused) {
-        (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()).value
+    val actualVerticalPadding = if (hasLabel) {
+        lerp((TextFieldPadding * 2).value * density, verticalPadding, animationProgress)
     } else {
-        (TextFieldPadding * 2).value
+        verticalPadding
     }
 
-    val middleSectionHeight = if (hasLabel && isLabelFocused) {
-        verticalPadding + labelHeight + max(textFieldHeight, placeholderHeight)
-    } else {
-        verticalPadding + maxOf(labelHeight, textFieldHeight, placeholderHeight)
-    }
+    val inputFieldHeight = maxOf(
+        textFieldHeight,
+        placeholderHeight,
+        prefixHeight,
+        suffixHeight,
+        lerp(labelHeight, 0, animationProgress)
+    )
+
+    val middleSectionHeight =
+        actualVerticalPadding + lerp(0, labelHeight, animationProgress) + inputFieldHeight
+
     return max(
         constraints.minHeight,
         maxOf(
             leadingHeight,
             trailingHeight,
-            prefixHeight,
-            suffixHeight,
             middleSectionHeight.roundToInt()
         ) + supportingHeight
     )
