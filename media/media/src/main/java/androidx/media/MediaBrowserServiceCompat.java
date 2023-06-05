@@ -93,6 +93,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -177,12 +178,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private @interface ResultFlags {
     }
 
+    private final ServiceBinderImpl mServiceBinderImpl = new ServiceBinderImpl();
     final ConnectionRecord mConnectionFromFwk = new ConnectionRecord(
             LEGACY_CONTROLLER, UNKNOWN_PID, UNKNOWN_UID, null, null);
     final ArrayList<ConnectionRecord> mPendingConnections = new ArrayList<>();
     final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap<>();
     ConnectionRecord mCurConnection;
-    final ServiceHandler mHandler = new ServiceHandler();
+    final ServiceHandler mHandler = new ServiceHandler(/* serviceRef= */ this);
     MediaSessionCompat.Token mSession;
 
     interface MediaBrowserServiceImpl {
@@ -292,7 +294,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
             return mCurConnection.browserInfo;
         }
-
     }
 
     @RequiresApi(21)
@@ -658,97 +659,21 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    private final class ServiceHandler extends Handler {
-        private final ServiceBinderImpl mServiceBinderImpl = new ServiceBinderImpl();
+    private static final class ServiceHandler extends Handler {
+        private final WeakReference<MediaBrowserServiceCompat> mServiceWeakRef;
 
-        ServiceHandler() {
+        ServiceHandler(MediaBrowserServiceCompat serviceRef) {
+            mServiceWeakRef = new WeakReference<>(serviceRef);
         }
 
         @Override
         @SuppressWarnings("deprecation")
-        public void handleMessage(Message msg) {
-            Bundle data = msg.getData();
-            switch (msg.what) {
-                case CLIENT_MSG_CONNECT: {
-                    Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
-                    MediaSessionCompat.ensureClassLoader(rootHints);
-
-                    mServiceBinderImpl.connect(
-                            data.getString(DATA_PACKAGE_NAME),
-                            data.getInt(DATA_CALLING_PID),
-                            data.getInt(DATA_CALLING_UID),
-                            rootHints,
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                }
-                case CLIENT_MSG_DISCONNECT:
-                    mServiceBinderImpl.disconnect(new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                case CLIENT_MSG_ADD_SUBSCRIPTION: {
-                    Bundle options = data.getBundle(DATA_OPTIONS);
-                    MediaSessionCompat.ensureClassLoader(options);
-
-                    mServiceBinderImpl.addSubscription(
-                            data.getString(DATA_MEDIA_ITEM_ID),
-                            BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
-                            options,
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                }
-                case CLIENT_MSG_REMOVE_SUBSCRIPTION:
-                    mServiceBinderImpl.removeSubscription(
-                            data.getString(DATA_MEDIA_ITEM_ID),
-                            BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                case CLIENT_MSG_GET_MEDIA_ITEM:
-                    mServiceBinderImpl.getMediaItem(
-                            data.getString(DATA_MEDIA_ITEM_ID),
-                            (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER: {
-                    Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
-                    MediaSessionCompat.ensureClassLoader(rootHints);
-
-                    mServiceBinderImpl.registerCallbacks(
-                            new ServiceCallbacksCompat(msg.replyTo),
-                            data.getString(DATA_PACKAGE_NAME),
-                            data.getInt(DATA_CALLING_PID),
-                            data.getInt(DATA_CALLING_UID),
-                            rootHints);
-                    break;
-                }
-                case CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER:
-                    mServiceBinderImpl.unregisterCallbacks(
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                case CLIENT_MSG_SEARCH: {
-                    Bundle searchExtras = data.getBundle(DATA_SEARCH_EXTRAS);
-                    MediaSessionCompat.ensureClassLoader(searchExtras);
-
-                    mServiceBinderImpl.search(
-                            data.getString(DATA_SEARCH_QUERY),
-                            searchExtras,
-                            (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                }
-                case CLIENT_MSG_SEND_CUSTOM_ACTION: {
-                    Bundle customActionExtras = data.getBundle(DATA_CUSTOM_ACTION_EXTRAS);
-                    MediaSessionCompat.ensureClassLoader(customActionExtras);
-
-                    mServiceBinderImpl.sendCustomAction(
-                            data.getString(DATA_CUSTOM_ACTION),
-                            customActionExtras,
-                            (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
-                            new ServiceCallbacksCompat(msg.replyTo));
-                    break;
-                }
-                default:
-                    Log.w(TAG, "Unhandled message: " + msg
-                            + "\n  Service version: " + SERVICE_VERSION_CURRENT
-                            + "\n  Client version: " + msg.arg1);
+        public void handleMessage(@NonNull Message msg) {
+            MediaBrowserServiceCompat service = mServiceWeakRef.get();
+            if (service != null) {
+                service.handleMessageInternal(msg);
+            } else {
+                removeCallbacksAndMessages(/* token= */ null);
             }
         }
 
@@ -1627,6 +1552,97 @@ public abstract class MediaBrowserServiceCompat extends Service {
             throw new IllegalArgumentException("options cannot be null in notifyChildrenChanged");
         }
         mImpl.notifyChildrenChanged(remoteUserInfo, parentId, options);
+    }
+
+    // Package visibility to avoid synthetic accessor.
+    /* package */ void handleMessageInternal(Message msg) {
+        Bundle data = msg.getData();
+        switch (msg.what) {
+            case CLIENT_MSG_CONNECT: {
+                Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
+                MediaSessionCompat.ensureClassLoader(rootHints);
+
+                mServiceBinderImpl.connect(
+                        data.getString(DATA_PACKAGE_NAME),
+                        data.getInt(DATA_CALLING_PID),
+                        data.getInt(DATA_CALLING_UID),
+                        rootHints,
+                        new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            }
+            case CLIENT_MSG_DISCONNECT:
+                mServiceBinderImpl.disconnect(new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            case CLIENT_MSG_ADD_SUBSCRIPTION: {
+                Bundle options = data.getBundle(DATA_OPTIONS);
+                MediaSessionCompat.ensureClassLoader(options);
+
+                mServiceBinderImpl.addSubscription(
+                        data.getString(DATA_MEDIA_ITEM_ID),
+                        BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
+                        options,
+                        new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            }
+            case CLIENT_MSG_REMOVE_SUBSCRIPTION:
+                mServiceBinderImpl.removeSubscription(
+                        data.getString(DATA_MEDIA_ITEM_ID),
+                        BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
+                        new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            case CLIENT_MSG_GET_MEDIA_ITEM:
+                mServiceBinderImpl.getMediaItem(
+                        data.getString(DATA_MEDIA_ITEM_ID),
+                        (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
+                        new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER: {
+                Bundle rootHints = data.getBundle(DATA_ROOT_HINTS);
+                MediaSessionCompat.ensureClassLoader(rootHints);
+
+                mServiceBinderImpl.registerCallbacks(
+                        new ServiceCallbacksCompat(msg.replyTo),
+                        data.getString(DATA_PACKAGE_NAME),
+                        data.getInt(DATA_CALLING_PID),
+                        data.getInt(DATA_CALLING_UID),
+                        rootHints);
+                break;
+            }
+            case CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER:
+                mServiceBinderImpl.unregisterCallbacks(new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            case CLIENT_MSG_SEARCH: {
+                Bundle searchExtras = data.getBundle(DATA_SEARCH_EXTRAS);
+                MediaSessionCompat.ensureClassLoader(searchExtras);
+
+                mServiceBinderImpl.search(
+                        data.getString(DATA_SEARCH_QUERY),
+                        searchExtras,
+                        (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
+                        new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            }
+            case CLIENT_MSG_SEND_CUSTOM_ACTION: {
+                Bundle customActionExtras = data.getBundle(DATA_CUSTOM_ACTION_EXTRAS);
+                MediaSessionCompat.ensureClassLoader(customActionExtras);
+
+                mServiceBinderImpl.sendCustomAction(
+                        data.getString(DATA_CUSTOM_ACTION),
+                        customActionExtras,
+                        (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
+                        new ServiceCallbacksCompat(msg.replyTo));
+                break;
+            }
+            default:
+                Log.w(
+                        TAG,
+                        "Unhandled message: "
+                                + msg
+                                + "\n  Service version: "
+                                + SERVICE_VERSION_CURRENT
+                                + "\n  Client version: "
+                                + msg.arg1);
+        }
     }
 
     /**
