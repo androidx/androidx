@@ -754,6 +754,7 @@ class XProcessingStepTest {
                 return deferredElements
             }
         }
+        val invokedPreRound = mutableListOf<Boolean>()
         val invokedPostRound = mutableListOf<Boolean>()
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
@@ -763,6 +764,10 @@ class XProcessingStepTest {
             object : JavacBasicAnnotationProcessor() {
                 override fun initialize(env: XProcessingEnv) {
                     invokedLifecycles.add("initialize")
+                }
+                override fun preRound(env: XProcessingEnv, round: XRoundEnv) {
+                    invokedLifecycles.add("preRound")
+                    invokedPreRound.add(round.isProcessingOver)
                 }
                 override fun processingSteps(): List<XProcessingStep> {
                     invokedLifecycles.add("processingSteps")
@@ -785,13 +790,20 @@ class XProcessingStepTest {
         assertThat(invokedLifecycles).containsExactly(
             "initialize",
             "processingSteps",
+            "preRound", // 1st round
             "process", // 1st round
             "postRound", // 1st round
+            "preRound", // 2nd round
             "process", // 2nd round
             "postRound", // 2nd round
+            "preRound", // final round
             "processOver", // final round
             "postRound", // final round
         ).inOrder()
+
+        // Assert preRound() is invoked exactly 3 times, and the last round env reported
+        // that processing was over.
+        assertThat(invokedPreRound).containsExactly(false, false, true)
 
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.
@@ -1055,12 +1067,18 @@ class XProcessingStepTest {
                 return deferredElements
             }
         }
+        val invokedPreRound = mutableListOf<Boolean>()
         val invokedPostRound = mutableListOf<Boolean>()
         val processorProvider = object : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return object : KspBasicAnnotationProcessor(environment) {
                     override fun initialize(env: XProcessingEnv) {
                         invokedLifecycles.add("initialize")
+                    }
+
+                    override fun preRound(env: XProcessingEnv, round: XRoundEnv) {
+                        invokedLifecycles.add("preRound")
+                        invokedPreRound.add(round.isProcessingOver)
                     }
 
                     override fun processingSteps(): List<XProcessingStep> {
@@ -1090,14 +1108,21 @@ class XProcessingStepTest {
         // Assert processOver() was only called once
         assertThat(invokedLifecycles).containsExactly(
             "initialize",
+            "preRound", // 1st round
             "processingSteps",
             "process", // 1st round
             "postRound", // 1st round
+            "preRound", // 2nd round
             "process", // 2nd round
             "postRound", // 2nd round
+            "preRound", // final round
             "processOver", // final round
             "postRound", // final round
         ).inOrder()
+
+        // Assert preRound() is invoked exactly 3 times, and the last round env reported
+        // that processing was over.
+        assertThat(invokedPreRound).containsExactly(false, false, true)
 
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.
