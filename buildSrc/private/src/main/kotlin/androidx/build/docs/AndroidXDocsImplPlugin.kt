@@ -21,7 +21,6 @@ import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
 import androidx.build.dependencies.KOTLIN_VERSION
-import androidx.build.enforceKtlintVersion
 import androidx.build.getAndroidJar
 import androidx.build.getBuildId
 import androidx.build.getCheckoutRoot
@@ -284,9 +283,6 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
      * - stubs(project(":foo:foo-stubs")) - stubs needed for a documented library
      */
     private fun createConfigurations(project: Project) {
-        project.configurations.all {
-            project.enforceKtlintVersion(it)
-        }
         project.dependencies.components.all<SourcesVariantRule>()
         val docsConfiguration = project.configurations.create("docs") {
             it.isCanBeResolved = false
