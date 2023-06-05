@@ -57,7 +57,7 @@ class CheckBoxTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 32) // max is set due to b/283484546
+    @SdkSuppress(minSdkVersion = 31)
     @Test
     fun check_box_checked_31() {
         TestGlanceAppWidget.uiDefinition = checkedCheckBox
@@ -90,7 +90,7 @@ class CheckBoxTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 32) // max is set due to b/283484546
+    @SdkSuppress(minSdkVersion = 31)
     @Test
     fun check_box_unchecked_31() {
         TestGlanceAppWidget.uiDefinition = uncheckedCheckBox
@@ -123,7 +123,7 @@ class CheckBoxTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32) // max is set due to b/283484546
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun check_box_modifiers() {
         TestGlanceAppWidget.uiDefinition = {
