@@ -33,10 +33,41 @@ class ComparableSubjectTest {
     @Test
     fun testNulls() {
         assertFailsWith<NullPointerException> {
+            assertThat(6).isEquivalentAccordingToCompareTo(null)
+        }
+        assertFailsWith<NullPointerException> {
+            assertThat(6).isGreaterThan(null)
+        }
+        assertFailsWith<NullPointerException> {
             assertThat(6).isLessThan(null)
         }
         assertFailsWith<NullPointerException> {
             assertThat(6).isAtLeast(null)
+        }
+    }
+
+    @Test
+    fun isEquivalentAccordingToCompareTo() {
+        assertThat(StringComparedByLength("abc"))
+            .isEquivalentAccordingToCompareTo(StringComparedByLength("xyz"))
+        assertFailsWith<AssertionError> {
+            assertThat(StringComparedByLength("abc"))
+                .isEquivalentAccordingToCompareTo(StringComparedByLength("abcd"))
+        }
+    }
+
+    @Test
+    fun isGreaterThan_failsEqual() {
+        assertThat(5).isGreaterThan(4)
+        assertFailsWith<AssertionError> {
+            assertThat(4).isGreaterThan(4)
+        }
+    }
+
+    @Test
+    fun isGreaterThan_failsSmaller() {
+        assertFailsWith<AssertionError> {
+            assertThat(3).isGreaterThan(4)
         }
     }
 
@@ -91,6 +122,19 @@ class ComparableSubjectTest {
     fun rawComparableType() {
         assertThat(RawComparableType(3)).isLessThan(RawComparableType(4))
     }
+}
+
+private class StringComparedByLength(value: String?) : Comparable<StringComparedByLength> {
+    private val value: String
+
+    init {
+        this.value = checkNotNull(value)
+    }
+
+    override fun compareTo(other: StringComparedByLength): Int =
+        value.length.compareTo(other.value.length)
+
+    override fun toString(): String = value
 }
 
 private class ComparableType(val wrapped: Int) : Comparable<ComparableType> {

@@ -18,40 +18,58 @@ package androidx.kruth
 
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.fail
 
 class MapSubjectTest {
 
     @Test
     fun containsExactlyWithNullKey() {
-        val actual = mapOf<String?, String>(null to "value")
+        val actual = mapOf<String?, String?>(null to "value")
+        assertThat(actual).containsExactly(null to "value")
+        assertThat(actual).containsExactly(null to "value").inOrder()
         assertThat(actual).containsExactlyEntriesIn(actual)
         assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
     }
 
     @Test
     fun containsExactlyWithNullValue() {
-        val actual = mapOf<String, String?>("key" to null)
+        val actual = mapOf<String?, String?>("key" to null)
+        assertThat(actual).containsExactly("key" to null)
+        assertThat(actual).containsExactly("key" to null).inOrder()
         assertThat(actual).containsExactlyEntriesIn(actual)
         assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
     }
 
     @Test
     fun containsExactlyEmpty() {
-        val actual = mapOf<String, Int>()
+        val actual = emptyMap<String, Int>()
+        assertThat(actual).containsExactly()
+        assertThat(actual).containsExactly().inOrder()
         assertThat(actual).containsExactlyEntriesIn(actual)
         assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
     }
 
     @Test
-    fun containsExactlyEntriesInEmpty_fails() {
+    fun containsExactlyEmpty_fails() {
+        val actual = mapOf("jan" to 1)
         assertFailsWith<AssertionError> {
-            assertThat(mapOf("jan" to 1)).containsExactlyEntriesIn(emptyMap())
+            assertThat(actual).containsExactly()
+        }
+    }
+
+    @Test
+    fun containsExactlyEntriesInEmpty_fails() {
+        val actual = mapOf("jan" to 1)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactlyEntriesIn(emptyMap())
         }
     }
 
     @Test
     fun containsExactlyOneEntry() {
         val actual = mapOf("jan" to 1)
+        assertThat(actual).containsExactly("jan" to 1)
+        assertThat(actual).containsExactly("jan" to 1).inOrder()
         assertThat(actual).containsExactlyEntriesIn(actual)
         assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
     }
@@ -59,8 +77,111 @@ class MapSubjectTest {
     @Test
     fun containsExactlyMultipleEntries() {
         val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertThat(actual).containsExactly("march" to 3, "jan" to 1, "feb" to 2)
+        assertThat(actual).containsExactly("jan" to 1, "feb" to 2, "march" to 3).inOrder()
         assertThat(actual).containsExactlyEntriesIn(actual)
         assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
+    }
+
+    @Test
+    fun containsExactlyDuplicateKeys() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        try {
+            assertThat(actual).containsExactly("jan" to 1, "jan" to 2, "jan" to 3)
+            fail("Expected IllegalArgumentException")
+        } catch (expected: IllegalArgumentException) {
+            assertThat(expected)
+                .hasMessageThat()
+                .isEqualTo("Duplicate keys ([jan x 3]) cannot be passed to containsExactly().")
+        }
+    }
+
+    @Test
+    fun containsExactlyMultipleDuplicateKeys() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        try {
+            assertThat(actual).containsExactly("jan" to 1, "jan" to 1, "feb" to 2, "feb" to 2)
+            fail("Expected IllegalArgumentException")
+        } catch (expected: IllegalArgumentException) {
+            assertThat(expected)
+                .hasMessageThat()
+                .isEqualTo(
+                    "Duplicate keys ([jan x 2, feb x 2]) cannot be passed to containsExactly()."
+                )
+        }
+    }
+
+    @Test
+    fun containsExactlyExtraKey() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("feb" to 2, "jan" to 1)
+        }
+    }
+
+    @Test
+    fun containsExactlyExtraKeyInOrder() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("feb" to 2, "jan" to 1).inOrder()
+        }
+    }
+
+    @Test
+    fun containsExactlyMissingKey() {
+        val actual = mapOf("jan" to 1, "feb" to 2)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("jan" to 1, "march" to 3, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsExactlyWrongValue() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("jan" to 1, "march" to 33, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsExactlyWrongValueWithNull() {
+        // Test for https://github.com/google/truth/issues/468
+        val actual = mapOf<String, Int?>("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("jan" to 1, "march" to null, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsExactlyExtraKeyAndMissingKey() {
+        val actual = mapOf("jan" to 1, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("jan" to 1, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsExactlyExtraKeyAndWrongValue() {
+        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("jan" to 1, "march" to 33)
+        }
+    }
+
+    @Test
+    fun containsExactlyMissingKeyAndWrongValue() {
+        val actual = mapOf("jan" to 1, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("jan" to 1, "march" to 33, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsExactlyExtraKeyAndMissingKeyAndWrongValue() {
+        val actual = mapOf("jan" to 1, "march" to 3)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsExactly("march" to 33, "feb" to 2)
+        }
     }
 
     @Test
@@ -68,21 +189,33 @@ class MapSubjectTest {
         val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3)
         assertThat(actual).containsExactlyEntriesIn(actual)
         assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
-    }
-
-    @Test
-    fun containsExactlyBadNumberOfArgs() {
-        val actual = mapOf("jan" to 1, "feb" to 2, "march" to 3, "april" to 4, "may" to 5)
-        assertThat(actual).containsExactlyEntriesIn(actual)
-        assertThat(actual).containsExactlyEntriesIn(actual).inOrder()
-    }
-
-    @Test
-    fun containsExactlyInOrderWithReversedMap_fails() {
+        assertThat(actual).containsExactly("jan" to 1, "march" to 3, "feb" to 2)
         assertFailsWith<AssertionError> {
-            assertThat(mutableMapOf("jan" to 1, "feb" to 2, "march" to 3))
-                .containsExactlyEntriesIn(mutableMapOf("march" to 3, "feb" to 2, "jan" to 1))
-                .inOrder()
+            assertThat(actual).containsExactly("jan" to 1, "march" to 3, "feb" to 2).inOrder()
+        }
+    }
+
+    @Test
+    fun containsExactlyWrongValue_sameToStringForValues() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf<String, Any>("jan" to 1L, "feb" to 2L))
+                .containsExactly("jan" to 1, "feb" to 2)
+        }
+    }
+
+    @Test
+    fun containsExactlyWrongValue_sameToStringForKeys() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf(1L to "jan", 1 to "feb"))
+                .containsExactly(1 to "jan", 1L to "feb")
+        }
+    }
+
+    @Test
+    fun containsExactlyExtraKeyAndMissingKey_failsWithSameToStringForKeys() {
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf(1L to "jan", 2 to "feb"))
+                .containsExactly(1 to "jan", 2 to "feb")
         }
     }
 

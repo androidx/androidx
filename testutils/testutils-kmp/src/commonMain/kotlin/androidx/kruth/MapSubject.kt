@@ -36,21 +36,71 @@ class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K,
         }
     }
 
+    /**
+     * Fails if the map does not contain exactly the given set of key/value pairs. The arguments
+     * must not contain duplicate keys.
+     */
+    fun containsExactly(vararg entries: Pair<K, V>): Ordered =
+        containsExactlyEntriesIn(
+            accumulateMap(
+                functionName = "containsExactly",
+                entries = entries.toList(),
+            )
+        )
+
     /** Fails if the map does not contain exactly the given set of entries in the given map. */
     fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
         requireNonNull(actual) { "Expected $expectedMap, but was null" }
 
         if (expectedMap.isEmpty()) {
-            isEmpty()
-        } else if ((expectedMap.entries - actual.entries).isNotEmpty()) {
-            asserter.fail("Expected $expectedMap, but was $actual")
+            if (actual.isNotEmpty()) {
+                isEmpty()
+            }
+
+            return NoopOrdered
         }
 
-        return MapInOrder(expectedMap)
+        containsEntriesInAnyOrder(expectedMap = expectedMap, allowUnexpected = false)
+
+        return MapInOrder(expectedMap = expectedMap, allowUnexpected = false)
+    }
+
+    private fun containsEntriesInAnyOrder(
+        expectedMap: Map<K, V>,
+        allowUnexpected: Boolean,
+    ) {
+        val actual = requireNonNull(actual)
+        val expectedSet = expectedMap.mapTo(HashSet()) { (key, value) -> key to value }
+        val actualSet = actual.mapTo(HashSet()) { (key, value) -> key to value }
+
+        if (allowUnexpected) {
+            asserter(withActual = true).assertTrue(
+                actual = actualSet.containsAll(expectedSet),
+                message = "Expected to contain at least: $expectedMap",
+            )
+        } else {
+            asserter(withActual = true).assertEquals(
+                expected = expectedSet,
+                actual = actualSet,
+                message = "Expected: $expectedMap",
+            )
+        }
+    }
+
+    private fun <K, V> accumulateMap(functionName: String, entries: List<Pair<K, V>>): Map<K, V> {
+        val keyToValuesMap = entries.groupBy { it.first }
+
+        require(keyToValuesMap.size == entries.size) {
+            val keysStr = keyToValuesMap.map { (k, v) -> "$k x ${v.size}" }
+            "Duplicate keys ($keysStr) cannot be passed to $functionName()."
+        }
+
+        return entries.toMap()
     }
 
     private inner class MapInOrder(
         private val expectedMap: Map<*, *>,
+        private val allowUnexpected: Boolean,
     ) : Ordered {
 
         /**
@@ -60,15 +110,34 @@ class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K,
          * are actually present. That was supposed to be done before the "in order" part.
          */
         override fun inOrder() {
-            // We're using the fact that Iterable#intersect keeps the order of the first set.
-            checkNotNull(actual)
-            val expectedKeyOrder = (expectedMap.keys intersect actual.keys).toList()
-            val actualKeyOrder = (actual.keys intersect expectedMap.keys).toList()
-            if (actualKeyOrder != expectedKeyOrder) {
-                asserter.fail(
-                    "Entries match, but order was wrong. Expected $expectedMap, but was $actual",
-                )
-            }
+            requireNonNull(actual)
+
+            val commonFromExpected = expectedMap.keys.intersect(actual.keys).toList()
+            val commonFromActual = actual.keys.intersect(expectedMap.keys).toList()
+
+            asserter.assertEquals(
+                commonFromExpected,
+                commonFromActual,
+                buildString {
+                    appendLine(
+                        if (allowUnexpected) {
+                            "Required entries were all found, but order was wrong."
+                        } else {
+                            "Entries match, but order was wrong."
+                        }
+                    )
+
+                    appendLine(
+                        if (allowUnexpected) {
+                            "Expected to contain at least: $expectedMap."
+                        } else {
+                            "Expected: $expectedMap."
+                        }
+                    )
+
+                    appendLine("Actual: $actual.")
+                }
+            )
         }
     }
 }
