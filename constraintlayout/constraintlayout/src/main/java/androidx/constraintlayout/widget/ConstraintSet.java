@@ -57,27 +57,24 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * This class allows you to define programmatically a set of constraints to be used with
- *  {@link ConstraintLayout}.
- * <p>
- * For details about Constraint behaviour see {@link ConstraintLayout}.
- * It lets you create and save constraints, and apply them to an existing ConstraintLayout.
- * ConstraintsSet can be created in various ways:
+ * Defines a set of constraints to be used with {@link ConstraintLayout}.
+ *
+ * <p>{@code ConstraintSet} enables you create and save constraints and apply
+ * them to an existing {@code ConstraintLayout}. For details about constraint
+ * behaviour, see {@link ConstraintLayout}.</p>
+ *
+ * <p>{@code ConstraintsSet} can be created in various ways:</p>
  * <ul>
- * <li>
- * Manually <br> {@code c = new ConstraintSet(); c.connect(....);}
- * </li>
- * <li>
- * from a R.layout.* object <br> {@code c.clone(context, R.layout.layout1);}
- * </li>
- * <li>
- * from a ConstraintLayout <br> {@code c.clone(constraintLayout);}
- * </li>
+ *     <li>Manually &mdash;
+ *         {@code c = new ConstraintSet(); c.connect(...);}</li>
+ *     <li>From an {@code R.layout.*} object &mdash;
+ *         {@code c.clone(context, R.layout.layout1);}</li>
+ *     <li>From a {@code ConstraintLayout} &mdash;
+ *         {@code c.clone(constraintLayout);}</li>
  * </ul>
- * <p>
- *  Example code:
- *  <pre>
- *      import android.content.Context;
+ *
+ * <p>Example code:</p>
+ * <pre>import android.content.Context;
  *      import android.os.Bundle;
  *      import android.support.constraint.ConstraintLayout;
  *      import android.support.constraint.ConstraintSet;
@@ -86,32 +83,30 @@ import java.util.Set;
  *      import android.view.View;
  *
  *      public class MainActivity extends AppCompatActivity {
- *          ConstraintSet mConstraintSet1 = new ConstraintSet(); // create a Constraint Set
- *          ConstraintSet mConstraintSet2 = new ConstraintSet(); // create a Constraint Set
- *          ConstraintLayout mConstraintLayout; // cache the ConstraintLayout
+ *          ConstraintSet mConstraintSet1 = new ConstraintSet(); // Create a ConstraintSet.
+ *          ConstraintSet mConstraintSet2 = new ConstraintSet(); // Create a ConstraintSet.
+ *          ConstraintLayout mConstraintLayout; // Cache the ConstraintLayout.
  *          boolean mOld = true;
  *
  *
  *          protected void onCreate(Bundle savedInstanceState) {
  *              super.onCreate(savedInstanceState);
  *              Context context = this;
- *              mConstraintSet2.clone(context, R.layout.state2); // get constraints from layout
+ *              mConstraintSet2.clone(context, R.layout.state2); // Get constraints from layout.
  *              setContentView(R.layout.state1);
  *              mConstraintLayout = (ConstraintLayout) findViewById(R.id.activity_main);
- *              mConstraintSet1.clone(mConstraintLayout); // get constraints from ConstraintSet
+ *              mConstraintSet1.clone(mConstraintLayout); // Get constraints from ConstraintSet.
  *          }
  *
  *          public void foo(View view) {
  *              TransitionManager.beginDelayedTransition(mConstraintLayout);
  *              if (mOld = !mOld) {
- *                  mConstraintSet1.applyTo(mConstraintLayout); // set new constraints
+ *                  mConstraintSet1.applyTo(mConstraintLayout); // Set new constraints.
  *              }  else {
- *                  mConstraintSet2.applyTo(mConstraintLayout); // set new constraints
+ *                  mConstraintSet2.applyTo(mConstraintLayout); // Set new constraints.
  *              }
  *          }
- *      }
- *  <pre/>
- * <p/>
+ *      }</pre>
  */
 public class ConstraintSet {
     private static final String TAG = "ConstraintSet";
