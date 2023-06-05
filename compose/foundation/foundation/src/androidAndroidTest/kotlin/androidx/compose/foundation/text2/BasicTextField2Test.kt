@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
@@ -35,6 +37,7 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
@@ -71,6 +75,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -945,6 +950,34 @@ internal class BasicTextField2Test {
         }
         rule.onNodeWithTag(Tag).assertIsNotFocused()
         assertThat(scrollState.value).isNotEqualTo(0)
+    }
+
+    @Test
+    fun densityChanges_causesRelayout() {
+        val state = TextFieldState("Hello")
+        var density by mutableStateOf(Density(1f))
+        val fontSize = 20.sp
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides density) {
+                BasicTextField2(
+                    state = state,
+                    textStyle = TextStyle(
+                        fontFamily = TEST_FONT_FAMILY,
+                        fontSize = fontSize
+                    ),
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        val firstSize = rule.onNodeWithTag(Tag).fetchTextLayoutResult().size
+
+        density = Density(2f)
+
+        val secondSize = rule.onNodeWithTag(Tag).fetchTextLayoutResult().size
+
+        assertThat(secondSize.width).isEqualTo(firstSize.width * 2)
+        assertThat(secondSize.height).isEqualTo(firstSize.height * 2)
     }
 
     private fun requestFocus(tag: String) =

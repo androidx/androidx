@@ -25,6 +25,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -216,7 +217,7 @@ internal class TextFieldCoreModifierNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        textLayoutState.proxy?.innerTextFieldCoordinates = coordinates
+        textLayoutState.innerTextFieldCoordinates = coordinates
     }
 
     private fun MeasureScope.measureVerticalScroll(
