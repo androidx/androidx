@@ -36,7 +36,11 @@ import androidx.credentials.PublicKeyCredential
  * [BeginGetPasswordOption] will have type [PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
  * @property candidateQueryData the parameters needed to retrieve the credentials, in the form of a
  * [Bundle]. Note that this is a 'Begin' request denoting a query phase. In this phase, only
- * sensitive information is included in the [candidateQueryData] bundle.
+ * insensitive information is included in the [candidateQueryData] bundle. Note that this bundle
+ * is the raw bundle containing key value pairs for parameters need to fulfill the request.
+ * Typically a credential provider does not need to deal with this as all basic parameters
+ * have been parsed into properties in this class. Credential providers may directly use this bundle
+ * only if it is needed to access a custom key value for a particular use case documented elsewhere.
  */
 abstract class BeginGetCredentialOption internal constructor(
     val id: String,

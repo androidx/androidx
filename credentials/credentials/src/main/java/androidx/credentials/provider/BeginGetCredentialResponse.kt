@@ -161,7 +161,7 @@ class BeginGetCredentialResponse constructor(
 
         @JvmStatic
         @DoNotInline
-        fun writeToBundle(bundle: Bundle, response: BeginGetCredentialResponse) {
+        fun asBundle(bundle: Bundle, response: BeginGetCredentialResponse) {
             bundle.putParcelable(
                 REQUEST_KEY,
                 BeginGetCredentialUtil.convertToFrameworkResponse(response)
@@ -170,7 +170,7 @@ class BeginGetCredentialResponse constructor(
 
         @JvmStatic
         @DoNotInline
-        fun readFromBundle(bundle: Bundle): BeginGetCredentialResponse? {
+        fun fromBundle(bundle: Bundle): BeginGetCredentialResponse? {
             val frameworkResponse = bundle.getParcelable(
                 REQUEST_KEY,
                 android.service.credentials.BeginGetCredentialResponse::class.java
@@ -186,27 +186,27 @@ class BeginGetCredentialResponse constructor(
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class
          * instance needs to be sent across a process. Consumers of this method should use
-         * [readFromBundle] to reconstruct the class instance back from the bundle returned here.
+         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
         @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        fun writeToBundle(response: BeginGetCredentialResponse): Bundle {
+        fun asBundle(response: BeginGetCredentialResponse): Bundle {
             val bundle = Bundle()
             if (BuildCompat.isAtLeastU()) {
-                Api34Impl.writeToBundle(bundle, response)
+                Api34Impl.asBundle(bundle, response)
             }
             return bundle
         }
 
         /**
-         * Helper method to convert a [Bundle] retrieved through [writeToBundle], back
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back
          * to an instance of [BeginGetCredentialResponse].
          */
         @JvmStatic
         @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
-        fun readFromBundle(bundle: Bundle): BeginGetCredentialResponse? {
+        fun fromBundle(bundle: Bundle): BeginGetCredentialResponse? {
             if (BuildCompat.isAtLeastU()) {
-                return Api34Impl.readFromBundle(bundle)
+                return Api34Impl.fromBundle(bundle)
             }
             return null
         }
