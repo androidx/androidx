@@ -37,11 +37,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class LegacyPageFetcherTest {
     private val testDispatcher = StandardTestDispatcher()
     private val data = List(9) { "$it" }
