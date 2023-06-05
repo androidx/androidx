@@ -22,7 +22,7 @@
         android:taskAffinity="">
         <uses-library android:name="android.test.runner" />
 
-        <activity android:name="androidx.wear.protolayout.material.testapp.GoldenTestActivity"
+        <activity android:name="androidx.wear.protolayout.material.test.GoldenTestActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

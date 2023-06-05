@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.protolayout.material.testapp;
+package androidx.wear.protolayout.material.test;
 
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
@@ -37,7 +37,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId;
 import androidx.wear.protolayout.ResourceBuilders.ImageResource;
 import androidx.wear.protolayout.ResourceBuilders.Resources;
-import androidx.wear.protolayout.material.R;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
