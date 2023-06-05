@@ -49,6 +49,21 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
     }
 
     @Test
+    public void constructor_invalidJson_throwsIllegalArgumentException() {
+        if (BuildCompat.isAtLeastU()) {
+            assertThrows("Expected invalid Json to throw error",
+                    IllegalArgumentException.class,
+                    () -> new BeginCreatePublicKeyCredentialRequest(
+                            "invalid",
+                            new CallingAppInfo(
+                                    "sample_package_name", new SigningInfo()),
+                            new Bundle()
+                    )
+            );
+        }
+    }
+
+    @Test
     public void constructor_nullJson_throwsNullPointerException() {
         if (BuildCompat.isAtLeastU()) {
             assertThrows("Expected null Json to throw NPE",
@@ -116,7 +131,7 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
             String testClientDataHashExpected = "client_data_hash";
             BeginCreatePublicKeyCredentialRequest createPublicKeyCredentialReq =
                     new BeginCreatePublicKeyCredentialRequest(
-                            "json",
+                            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
                             new CallingAppInfo("sample_package_name",
                                     new SigningInfo()),
                             new Bundle(),

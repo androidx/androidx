@@ -52,6 +52,17 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
     }
 
     @Test
+    public void constructor_invalidJson_throwsIllegalArgumentException() {
+        if (BuildCompat.isAtLeastU()) {
+            assertThrows("Expected invalid Json to throw error",
+                    IllegalArgumentException.class,
+                    () -> new BeginGetPublicKeyCredentialOption(
+                            new Bundle(), "", "invalid")
+            );
+        }
+    }
+
+    @Test
     public void constructor_nullJson_throwsNullPointerException() {
         if (BuildCompat.isAtLeastU()) {
             assertThrows("Expected null Json to throw NPE",
@@ -102,7 +113,8 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
 
             BeginGetPublicKeyCredentialOption beginGetPublicKeyCredentialOpt =
                     new BeginGetPublicKeyCredentialOption(
-                            new Bundle(), BUNDLE_ID, "test_json",
+                            new Bundle(), BUNDLE_ID,
+                            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
                             testClientDataHashExpected);
 
             byte[] testClientDataHashActual = beginGetPublicKeyCredentialOpt.getClientDataHash();
