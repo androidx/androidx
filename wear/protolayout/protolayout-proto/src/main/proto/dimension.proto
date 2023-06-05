@@ -12,10 +12,13 @@ option java_outer_classname = "DimensionProto";
 
 // A type for linear dimensions, measured in dp.
 message DpProp {
-  // The static value, in dp. If a dynamic value is also set and the renderer supports
-  // dynamic values for the corresponding field, this static value will be
-  // ignored. If the static value is not specified, zero will be used instead.
-  optional float value = 1;
+
+  oneof optional_value {
+    // The static value, in dp. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
+    float value = 1;
+  }
 
   // The dynamic value, in dp. Note that when setting this value, the static value is
   // still required to be set to support older renderers that only read the
@@ -82,10 +85,13 @@ message ExpandedAngularDimensionProp {
 
 // A type for angular dimensions, measured in degrees.
 message DegreesProp {
-  // The static value, in degrees. If a dynamic value is also set and the renderer
-  // supports dynamic values for the corresponding field, this static value will be
-  // ignored. If the static value is not specified, zero will be used instead.
-  optional float value = 1;
+
+  oneof optional_value {
+    // The static value, in degrees. If a dynamic value is also set and the renderer
+    // supports dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
+    float value = 1;
+  }
 
   // The dynamic value, in degrees. Note that when setting this value, the static value is
   // still required to be set to support older renderers that only read the
@@ -162,7 +168,7 @@ message SpacerDimension {
 
 // A dimension that can be applied to a ExtensionLayoutElement element.
 message ExtensionDimension {
-      oneof inner {
+  oneof inner {
     DpProp linear_dimension = 1;
   }
 }
