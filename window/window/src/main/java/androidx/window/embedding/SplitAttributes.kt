@@ -50,9 +50,9 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *     attributes are parsed as [SplitType], [LayoutDirection], and
  *     [BackgroundColor], respectively. Note that [SplitType.HingeSplitType]
  *     is not supported XML format.
- *   - Using
- *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
- *     the `SplitAttributes` for a given device and window state.
+ *   - Set `SplitAttributes` calculation function by
+ *     [SplitController.setSplitAttributesCalculator]
+ *     to customize the `SplitAttributes` for a given device and window state.
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
