@@ -407,6 +407,22 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             hapticsCount++
         }
 
+        // do it again for a regression where selection was only wrong the second time
+        touchDragTo(boundsInRoot.centerRight + Offset(-1f, 0f))
+
+        asserter.applyAndAssert {
+            selection = 18 to 23
+            selectionHandlesShown = true
+            hapticsCount++
+        }
+
+        touchDragTo(boundsInRoot.topRight + Offset(-1f, 1f))
+
+        asserter.applyAndAssert {
+            selection = 18 to 0
+            hapticsCount++
+        }
+
         performTouchGesture {
             up()
         }
@@ -421,6 +437,22 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         performTouchGesture {
             longPress(boundsInRoot.centerRight + Offset(-1f, 0f))
         }
+
+        asserter.applyAndAssert {
+            selection = 18 to 23
+            selectionHandlesShown = true
+            hapticsCount++
+        }
+
+        touchDragTo(boundsInRoot.bottomRight + Offset(-1f, -1f))
+
+        asserter.applyAndAssert {
+            selection = 18 to 29
+            hapticsCount++
+        }
+
+        // do it again for a regression where selection was only wrong the second time
+        touchDragTo(boundsInRoot.centerRight + Offset(-1f, 0f))
 
         asserter.applyAndAssert {
             selection = 18 to 23
@@ -460,6 +492,52 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragBy(Offset(-1f, 0f))
 
         asserter.assert()
+
+        performTouchGesture {
+            up()
+        }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true
+        }
+    }
+
+    // regression test for abnormal selection behavior when dragging
+    // from bottom to middle end padding
+    @Test
+    fun whenTouch_withLongPressInFinalLineEndPaddingThenDragToMidEndPadding_entersSelectionMode() {
+        performTouchGesture {
+            longPress(boundsInRoot.bottomRight + Offset(-1f, -1f))
+        }
+
+        asserter.applyAndAssert {
+            selection = 24 to 29
+            selectionHandlesShown = true
+            hapticsCount++
+        }
+
+        touchDragTo(boundsInRoot.centerRight + Offset(-1f, 0f))
+
+        asserter.applyAndAssert {
+            selection = 24 to 18
+            hapticsCount++
+        }
+
+        // do it again for a regression where selection was only wrong the second time
+        touchDragTo(boundsInRoot.bottomRight + Offset(-1f, -1f))
+
+        asserter.applyAndAssert {
+            selection = 24 to 29
+            selectionHandlesShown = true
+            hapticsCount++
+        }
+
+        touchDragTo(boundsInRoot.centerRight + Offset(-1f, 0f))
+
+        asserter.applyAndAssert {
+            selection = 24 to 18
+            hapticsCount++
+        }
 
         performTouchGesture {
             up()

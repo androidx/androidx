@@ -314,13 +314,17 @@ class SelectionManagerTest {
     @Test
     fun updateSelection_notConsumeDrag_return_false() {
         selectionRegistrar.subscribe(startSelectable)
-        // The start selectable returns true and consumes the drag.
+        // The start selectable returns false and does not consume the drag.
         whenever(
             startSelectable.updateSelection(
                 anyOffset(), anyOffset(), anyOffset(), any(), any(), any(), any()
             )
         ).thenReturn(Pair(null, false))
         whenever(startSelectable.getLayoutCoordinates()).thenReturn(mock())
+
+        // selection cannot change, else consumed will be true.
+        // the updated selection is null, so set the initial selection to null as well.
+        selectionManager.selection = null
 
         val previousStartHandlePosition = Offset(3f, 300f)
         val newStartHandlePosition = Offset(3f, 600f)
@@ -333,6 +337,31 @@ class SelectionManagerTest {
         )
 
         assertThat(consumed).isFalse()
+    }
+
+    @Test
+    fun updateSelection_notConsumeDrag_butSelectionChange_return_true() {
+        selectionRegistrar.subscribe(startSelectable)
+        // The start selectable returns false and does not consume the drag.
+        whenever(
+            startSelectable.updateSelection(
+                anyOffset(), anyOffset(), anyOffset(), any(), any(), any(), any()
+            )
+        ).thenReturn(Pair(null, false))
+        whenever(startSelectable.getLayoutCoordinates()).thenReturn(mock())
+
+        val previousStartHandlePosition = Offset(3f, 300f)
+        val newStartHandlePosition = Offset(3f, 600f)
+
+        // new selection is null, so it will be counted as a change
+        val consumed = selectionManager.updateSelection(
+            newPosition = newStartHandlePosition,
+            previousPosition = previousStartHandlePosition,
+            isStartHandle = false,
+            adjustment = SelectionAdjustment.None
+        )
+
+        assertThat(consumed).isTrue()
     }
 
     @Test

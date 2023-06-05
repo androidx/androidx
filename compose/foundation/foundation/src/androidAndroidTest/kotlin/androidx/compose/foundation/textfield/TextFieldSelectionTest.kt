@@ -239,7 +239,7 @@ class TextFieldSelectionTest {
         assertThat(textFieldValue.value.selection.start).isEqualTo(0)
         assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
 
-        performHandleDrag(Handle.Cursor, false)
+        performHandleDrag(Handle.Cursor, toLeft = false, swipeFraction = 1f)
 
         assertThat(cursorPositions).isEqualTo(expectedCursorPositions)
         assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
@@ -251,7 +251,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = VisualTransformation.None,
-            expectedSelectionRanges = (1..20).map { TextRange(0, it) }.toList(),
+            expectedSelectionRanges = (11..19).map { TextRange(0, it) }.toList(),
             toLeft = false
         )
     }
@@ -262,7 +262,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = PasswordVisualTransformation(),
-            expectedSelectionRanges = (1..20).map { TextRange(0, it) }.toList(),
+            expectedSelectionRanges = (11..19).map { TextRange(0, it) }.toList(),
             toLeft = false
         )
     }
@@ -273,7 +273,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(10),
             visualTransformation = ReducedVisualTransformation(),
-            expectedSelectionRanges = (1..40)
+            expectedSelectionRanges = (21..39)
                 .filter { it % 2 == 0 }
                 .map { TextRange(0, it) }
                 .toList(),
@@ -287,7 +287,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = VisualTransformation.None,
-            expectedSelectionRanges = (19 downTo 1).map { TextRange(it, 20) }.toList(),
+            expectedSelectionRanges = (9 downTo 1).map { TextRange(it, 20) }.toList(),
             toLeft = true
         )
     }
@@ -298,7 +298,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(5),
             visualTransformation = PasswordVisualTransformation(),
-            expectedSelectionRanges = (19 downTo 1).map { TextRange(it, 20) }.toList(),
+            expectedSelectionRanges = (9 downTo 1).map { TextRange(it, 20) }.toList(),
             toLeft = true
         )
     }
@@ -308,7 +308,7 @@ class TextFieldSelectionTest {
         textField_extendsSelection(
             text = "text".repeat(10),
             visualTransformation = ReducedVisualTransformation(),
-            expectedSelectionRanges = (39 downTo 1)
+            expectedSelectionRanges = (19 downTo 1)
                 .filter { it % 2 == 0 }
                 .map { TextRange(it, 40) }
                 .toList(),
@@ -371,17 +371,19 @@ class TextFieldSelectionTest {
         }
     }
 
-    private fun performHandleDrag(handle: Handle, toLeft: Boolean) {
+    private fun performHandleDrag(handle: Handle, toLeft: Boolean, swipeFraction: Float = 0.5f) {
         val handleNode = rule.onNode(isSelectionHandle(handle))
         val fieldWidth = rule.onNodeWithTag(testTag)
             .fetchSemanticsNode()
-            .boundsInRoot.width.roundToInt()
+            .boundsInRoot.width
+
+        val swipeDistance = (fieldWidth * swipeFraction).roundToInt()
 
         handleNode.performTouchInput {
             if (toLeft) {
-                swipeLeft(startX = centerX, endX = left - fieldWidth, durationMillis = 1000)
+                swipeLeft(startX = centerX, endX = left - swipeDistance, durationMillis = 1000)
             } else {
-                swipeRight(startX = centerX, endX = right + fieldWidth, durationMillis = 1000)
+                swipeRight(startX = centerX, endX = right + swipeDistance, durationMillis = 1000)
             }
         }
     }

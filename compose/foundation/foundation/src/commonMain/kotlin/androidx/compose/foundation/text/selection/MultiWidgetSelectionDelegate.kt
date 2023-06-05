@@ -222,7 +222,9 @@ internal fun getTextSelectionInfo(
             currentHandlePosition,
             textLayoutResult
         )
-    ) return Pair(previousSelection, false)
+    ) {
+        return Pair(previousSelection, false)
+    }
 
     val rawStartHandleOffset = getOffsetForPosition(textLayoutResult, bounds, startHandlePosition)
     val rawEndHandleOffset = getOffsetForPosition(textLayoutResult, bounds, endHandlePosition)
@@ -282,7 +284,9 @@ private fun isMovingOutOfBoundsOnTheSameLineInCurrentText(
     currentHandlePosition: Offset,
     textLayoutResult: TextLayoutResult
 ): Boolean {
-    if (previousHandlePosition == null) return false
+    if (previousHandlePosition == null) {
+        return false
+    }
 
     val bounds = Rect(Offset.Zero, textLayoutResult.size.toSize())
     if (
@@ -298,7 +302,12 @@ private fun isMovingOutOfBoundsOnTheSameLineInCurrentText(
 
     val lineRight = textLayoutResult.getLineRight(currentHandleLine)
     val lineLeft = textLayoutResult.getLineLeft(currentHandleLine)
-    return currentHandlePosition.x > lineRight || currentHandlePosition.x < lineLeft
+
+    // When x is equal to the line sides,
+    // it still can trigger a selection change that we want to avoid
+    // (selecting the whitespace at the ends),
+    // so return true for those as well.
+    return currentHandlePosition.x <= lineLeft || lineRight <= currentHandlePosition.x
 }
 
 private fun getOffsetForPosition(

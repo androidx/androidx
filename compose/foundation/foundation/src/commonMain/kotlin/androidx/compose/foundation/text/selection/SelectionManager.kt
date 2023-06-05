@@ -822,6 +822,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
             selectionRegistrar.subselections = newSubselections
             onSelectionChange(newSelection)
+            // always consume if selection changed, it is possible that it is false at this
+            // point if selectables were only removed from the selection
+            moveConsumed = true
         }
         return moveConsumed
     }

@@ -244,20 +244,7 @@ internal interface SelectionAdjustment {
                     )
                 }
 
-                val newSelection = TextRange(start, end)
-
-                // The new selection is collapsed, ensure at least one char is selected.
-                if (newSelection.collapsed) {
-                    return ensureAtLeastOneChar(
-                        text = textLayoutResult.layoutInput.text.text,
-                        offset = newSelection.start,
-                        lastOffset = textLayoutResult.layoutInput.text.length,
-                        isStartHandle = isStartHandle,
-                        previousHandlesCrossed = previousSelectionRange.reversed
-                    )
-                }
-
-                return newSelection
+                return TextRange(start, end)
             }
 
             /**

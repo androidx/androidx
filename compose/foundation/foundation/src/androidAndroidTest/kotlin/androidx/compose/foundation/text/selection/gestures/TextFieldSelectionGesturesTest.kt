@@ -469,7 +469,7 @@ internal class TextFieldSelectionGesturesTest : AbstractSelectionGesturesTest() 
     @Test
     fun whenTouch_withLongPressThanDragAcrossSingleWord_onlySelectsSingleWordAndNoOtherChanges() {
         performTouchGesture {
-            longPress(characterPosition(14))
+            longPress(characterPosition(15))
         }
 
         asserter.applyAndAssert {
@@ -479,17 +479,17 @@ internal class TextFieldSelectionGesturesTest : AbstractSelectionGesturesTest() 
             hapticsCount++
         }
 
-        touchDragTo(characterPosition(12))
+        touchDragTo(characterPosition(13))
 
         asserter.applyAndAssert {
             selection = 12 to 13
             hapticsCount++
         }
 
-        touchDragTo(characterPosition(14))
+        touchDragTo(characterPosition(15))
 
         asserter.applyAndAssert {
-            selection = 12 to 14
+            selection = 12 to 15
             hapticsCount++
         }
 
