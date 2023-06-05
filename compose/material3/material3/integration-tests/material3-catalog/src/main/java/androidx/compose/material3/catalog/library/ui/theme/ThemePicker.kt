@@ -29,12 +29,10 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Divider
-import androidx.compose.material.RadioButton
-import androidx.compose.material.RadioButtonDefaults
-import androidx.compose.material.Slider
-import androidx.compose.material.SliderDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.material3.catalog.library.model.ColorMode
@@ -106,11 +104,7 @@ fun ThemePicker(
                     )
                 }
             }
-            // TODO: Replace with M3 Divider when available
-            Divider(
-                modifier = Modifier.padding(horizontal = ThemePickerPadding),
-                color = MaterialTheme.colorScheme.outline
-            )
+            Divider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Text(
@@ -147,11 +141,7 @@ fun ThemePicker(
                     )
                 }
             }
-            // TODO: Replace with M3 Divider when available
-            Divider(
-                modifier = Modifier.padding(horizontal = ThemePickerPadding),
-                color = MaterialTheme.colorScheme.outline
-            )
+            Divider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Text(
@@ -188,11 +178,7 @@ fun ThemePicker(
                     )
                 }
             }
-            // TODO: Replace with M3 Divider when available
-            Divider(
-                modifier = Modifier.padding(horizontal = ThemePickerPadding),
-                color = MaterialTheme.colorScheme.outline
-            )
+            Divider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Text(
@@ -210,10 +196,6 @@ fun ThemePicker(
                         onClick = {
                             onThemeChange(theme.copy(fontScaleMode = FontScaleMode.System))
                         },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = MaterialTheme.colorScheme.primary,
-                            unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
                     )
                     Text(
                         text = FontScaleMode.System.label,
@@ -225,16 +207,11 @@ fun ThemePicker(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
                 ) {
-
                     RadioButton(
                         selected = theme.fontScaleMode == FontScaleMode.Custom,
                         onClick = {
                             onThemeChange(theme.copy(fontScaleMode = FontScaleMode.Custom))
                         },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = MaterialTheme.colorScheme.primary,
-                            unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
                     )
                     Text(
                         text = FontScaleMode.Custom.label,
@@ -269,14 +246,9 @@ private fun ThemeModeItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
     ) {
-        // TODO: Replace with M3 RadioButton when available
         RadioButton(
             selected = selected,
             onClick = { onClick(themeMode) },
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
         )
         Text(
             text = themeMode.toString(),
@@ -301,15 +273,10 @@ private fun ColorModeItem(
             colorMode == ColorMode.Dynamic && Build.VERSION.SDK_INT < Build.VERSION_CODES.S -> false
             else -> true
         }
-        // TODO: Replace with M3 RadioButton when available
         RadioButton(
             selected = selected,
             enabled = enabled,
             onClick = { onClick(colorMode) },
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
         )
         Text(
             text = colorMode.label,
@@ -330,14 +297,9 @@ private fun TextDirectionItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
     ) {
-        // TODO: Replace with M3 RadioButton when available
         RadioButton(
             selected = selected,
             onClick = { onClick(textDirection) },
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
         )
         Text(
             text = textDirection.toString(),
@@ -358,17 +320,12 @@ private fun FontScaleItem(
     onValueChangeFinished: () -> Unit
 ) {
     Column(modifier = modifier) {
-        // TODO: Replace with M3 Slider when available
         Slider(
             enabled = enabled,
             value = fontScale,
             onValueChange = onValueChange,
             onValueChangeFinished = onValueChangeFinished,
             valueRange = fontScaleMin..fontScaleMax,
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary
-            )
         )
         Text(
             text = stringResource(id = R.string.scale, fontScale),
