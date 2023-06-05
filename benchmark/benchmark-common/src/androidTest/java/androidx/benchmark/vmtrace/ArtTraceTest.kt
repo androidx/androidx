@@ -21,9 +21,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import perfetto.protos.ThreadDescriptor
 import perfetto.protos.TracePacket
 import perfetto.protos.TrackDescriptor
 import perfetto.protos.TrackEvent
@@ -50,54 +51,75 @@ class ArtTraceTest {
         val artTraceFile = fromAssets("art-trace-test.trace")
         val tracePackets = ArtTrace(
             artTrace = artTraceFile,
+            pid = 24877,
             uuidProvider = { 1L }
         ).toPerfettoTrace().packet
-        val toFind = mutableListOf(
-            TracePacket(
-                timestamp = 430421772813000L,
-                timestamp_clock_id = 3,
-                incremental_state_cleared = true,
-                track_descriptor = TrackDescriptor(
-                    name = "main",
-                    uuid = 1L,
-                )
-            ),
-            TracePacket(
+
+        tracePackets.single {
+            it.track_descriptor != null && it.track_descriptor?.name == "main (Method Trace)"
+        }.apply {
+            assertEquals(
+                expected = TracePacket(
+                    timestamp = 430421772813000L,
+                    timestamp_clock_id = 3,
+                    track_descriptor = TrackDescriptor(
+                        uuid = 1L,
+                        name = "main (Method Trace)",
+                        thread = ThreadDescriptor(pid = 24877, tid = 24877),
+                        disallow_merging_with_system_tracks = true,
+                    )
+                ),
+                actual = this
+            )
+        }
+
+        val targetIid = tracePackets.first {
+            it.interned_data != null
+        }.interned_data!!.event_names.first {
+            it.name == "androidx.benchmark.vmtrace.ArtTraceTest.myTracedMethod: ()V"
+        }.iid!!
+        val beginPacket = tracePackets.single {
+            it.track_event?.name_iid == targetIid
+        }
+        assertEquals(
+            expected = TracePacket(
                 timestamp = 430421819817000L,
-                timestamp_clock_id = 3,
                 track_event = TrackEvent(
-                    categories = listOf("art_trace"),
-                    name = "androidx.benchmark.vmtrace.ArtTraceTest.myTracedMethod: ()V",
+                    name_iid = targetIid,
                     type = TrackEvent.Type.TYPE_SLICE_BEGIN,
                     track_uuid = 1L
                 ),
-                trusted_packet_sequence_id = 1234543210
+                trusted_packet_sequence_id = 1234565432,
+                sequence_flags = 0x2
             ),
-            TracePacket(
-                timestamp = 430421819819000,
-                timestamp_clock_id = 3,
+            actual = beginPacket
+        )
+
+        val endPacket = tracePackets.first {
+            it.timestamp == 430421819819000
+        }
+        assertEquals(
+            expected = TracePacket(
+                timestamp = 430421819819000L,
                 track_event = TrackEvent(
-                    categories = listOf("art_trace"),
-                    name = "androidx.benchmark.vmtrace.ArtTraceTest.myTracedMethod: ()V",
                     type = TrackEvent.Type.TYPE_SLICE_END,
                     track_uuid = 1L
                 ),
-                trusted_packet_sequence_id = 1234543210
-            )
+                trusted_packet_sequence_id = 1234565432,
+                sequence_flags = 0x2
+            ),
+            actual = endPacket
         )
 
-        // Asserts that all the trace packets are found in order
-        tracePackets.iterator().apply {
-            while (hasNext() and toFind.isNotEmpty()) {
-                val nextToFind = toFind.first()
-                if (next() == nextToFind) toFind.removeFirst()
-            }
-        }
-        assertTrue(toFind.isEmpty())
+        // ensure balanced begin/ends
+        assertEquals(
+            tracePackets.count { it.track_event?.type == TrackEvent.Type.TYPE_SLICE_BEGIN },
+            tracePackets.count { it.track_event?.type == TrackEvent.Type.TYPE_SLICE_END }
+        )
     }
 
     companion object {
-        private fun fromAssets(filename: String) = File
+        private fun fromAssets(@Suppress("SameParameterValue") filename: String) = File
             .createTempFile(filename, "", Outputs.dirUsableByAppAndShell)
             .apply {
                 InstrumentationRegistry
