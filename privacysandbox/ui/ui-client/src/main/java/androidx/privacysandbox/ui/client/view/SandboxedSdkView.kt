@@ -19,7 +19,9 @@ package androidx.privacysandbox.ui.client.view
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.os.IBinder
 import android.util.AttributeSet
+import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
@@ -85,10 +87,13 @@ sealed class SandboxedSdkUiSessionState private constructor() {
 
 // TODO(b/268014171): Remove API requirements once S- support is added
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-class SandboxedSdkView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null
-) : ViewGroup(context, attrs) {
+class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    ViewGroup(context, attrs) {
+
+    // TODO(b/284147223): Remove this logic in V+
+    private val surfaceView = SurfaceView(context).apply {
+        visibility = GONE
+    }
 
     private var adapter: SandboxedUiAdapter? = null
     private var client: Client? = null
@@ -97,6 +102,7 @@ class SandboxedSdkView @JvmOverloads constructor(
     private var requestedWidth = -1
     private var requestedHeight = -1
     private var isTransitionGroupSet = false
+    private var windowInputToken: IBinder? = null
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
 
     /**
@@ -136,11 +142,13 @@ class SandboxedSdkView @JvmOverloads constructor(
 
     private fun checkClientOpenSession() {
         val adapter = adapter
-        if (client == null && adapter != null && isAttachedToWindow && width > 0 && height > 0) {
+        if (client == null && adapter != null && windowInputToken != null &&
+            width > 0 && height > 0) {
             stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Loading
             client = Client(this)
             adapter.openSession(
                 context,
+                windowInputToken!!,
                 width,
                 height,
                 isZOrderOnTop,
@@ -150,6 +158,33 @@ class SandboxedSdkView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Attaches a temporary [SurfaceView] to the view hierarchy. This [SurfaceView] will be removed
+     * once it has been attached to the window and its host token is non-null.
+     *
+     * TODO(b/284147223): Remove this logic in V+
+     */
+    private fun attachTemporarySurfaceView() {
+        val onSurfaceViewAttachedListener =
+            object : OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(view: View) {
+                    view.removeOnAttachStateChangeListener(this)
+                    removeSurfaceViewAndOpenSession()
+                }
+
+                override fun onViewDetachedFromWindow(view: View) {
+                }
+            }
+        surfaceView.addOnAttachStateChangeListener(onSurfaceViewAttachedListener)
+        super.addView(surfaceView, 0, generateDefaultLayoutParams())
+    }
+
+    internal fun removeSurfaceViewAndOpenSession() {
+        windowInputToken = surfaceView.hostToken
+        super.removeView(surfaceView)
+        checkClientOpenSession()
+    }
+
     internal fun requestSize(width: Int, height: Int) {
         if (width == this.width && height == this.height) return
         requestedWidth = width
@@ -157,7 +192,7 @@ class SandboxedSdkView @JvmOverloads constructor(
         requestLayout()
     }
 
-    internal fun removeContentView() {
+    private fun removeContentView() {
         if (childCount == 1) {
             super.removeViewAt(0)
         }
@@ -243,12 +278,13 @@ class SandboxedSdkView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        checkClientOpenSession()
+        attachTemporarySurfaceView()
     }
 
     override fun onDetachedFromWindow() {
         client?.close()
         client = null
+        windowInputToken = null
         super.onDetachedFromWindow()
     }
 

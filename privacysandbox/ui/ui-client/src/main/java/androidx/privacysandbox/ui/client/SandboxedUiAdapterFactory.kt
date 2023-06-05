@@ -19,9 +19,9 @@ package androidx.privacysandbox.ui.client
 import android.content.Context
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
-import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.Display
 import android.view.SurfaceControlViewHost
 import android.view.SurfaceView
@@ -62,6 +62,7 @@ object SandboxedUiAdapterFactory {
 
         override fun openSession(
             context: Context,
+            windowInputToken: IBinder,
             initialWidth: Int,
             initialHeight: Int,
             isZOrderOnTop: Boolean,
@@ -73,7 +74,7 @@ object SandboxedUiAdapterFactory {
             val displayId = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY).displayId
 
             adapterInterface.openRemoteSession(
-                Binder(), // Host Token
+                windowInputToken,
                 displayId,
                 initialWidth,
                 initialHeight,
