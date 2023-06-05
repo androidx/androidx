@@ -69,9 +69,26 @@ message UiState {
 // Others - kept only what is necessary
 ///////////////////////////////////////////////////////////////////////////////
 
+message EventName {
+  optional uint64 iid = 1;
+  optional string name = 2;
+}
+
+message InternedData {
+  repeated EventName event_names = 2;
+}
+
+message TracePacketDefaults {
+  optional uint32 timestamp_clock_id = 58;
+  optional TrackEventDefaults track_event_defaults = 11;
+}
+
 message TrackEvent {
   repeated string categories = 22;
   oneof name_field {
+    // interned EventName.
+    uint64 name_iid = 10;
+    // non-interned variant.
     string name = 23;
   }
   enum Type {
@@ -82,9 +99,20 @@ message TrackEvent {
   optional uint64 track_uuid = 11;
 }
 
+message ThreadDescriptor {
+  optional int32 pid = 1;
+  optional int32 tid = 2;
+}
+
 message TrackDescriptor {
   optional uint64 uuid = 1;
   optional string name = 2;
+  optional ThreadDescriptor thread = 4;
+  optional bool disallow_merging_with_system_tracks = 9;
+}
+
+message TrackEventDefaults {
+  optional uint64 track_uuid = 11;
 }
 
 message TracePacket {
@@ -99,7 +127,16 @@ message TracePacket {
   oneof optional_trusted_packet_sequence_id {
     uint32 trusted_packet_sequence_id = 10;
   }
+  optional InternedData interned_data = 12;
+
+  enum SequenceFlags {
+    SEQ_UNSPECIFIED = 0;
+    SEQ_INCREMENTAL_STATE_CLEARED = 1;
+    SEQ_NEEDS_INCREMENTAL_STATE = 2;
+  };
+  optional uint32 sequence_flags = 13;
   optional bool incremental_state_cleared = 41;
+  optional TracePacketDefaults trace_packet_defaults = 59;
 }
 
 message Trace {
