@@ -41,9 +41,8 @@ fun runMetalavaWithArgs(
     args: List<String>,
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
-    isOptedInToSuppressCompatibilityMigration: Boolean,
 ) {
-    val allArgs = mutableListOf(
+    val allArgs = args + listOf(
         "--no-banner",
         "--hide",
         "HiddenSuperclass", // We allow having a hidden parent class
@@ -51,12 +50,14 @@ fun runMetalavaWithArgs(
         "--error",
         "UnresolvedImport",
 
-        "--delete-empty-removed-signatures"
+        "--delete-empty-removed-signatures",
+
+        // Metalava arguments to suppress compatibility checks for experimental API surfaces.
+        "--suppress-compatibility-meta-annotation",
+        "androidx.annotation.RequiresOptIn",
+        "--suppress-compatibility-meta-annotation",
+        "kotlin.RequiresOptIn",
     )
-    allArgs += args
-    if (isOptedInToSuppressCompatibilityMigration) {
-        allArgs += SUPPRESS_COMPATIBILITY_ARGS
-    }
     val workQueue = workerExecutor.processIsolation()
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
         parameters.args.set(allArgs)
@@ -112,24 +113,6 @@ fun Project.getMetalavaClasspath(): FileCollection {
     }
     return project.files(configuration)
 }
-
-// Metalava arguments to hide all experimental API surfaces.
-val HIDE_EXPERIMENTAL_ARGS: List<String> = listOf(
-    "--hide-annotation", "androidx.annotation.experimental.Experimental",
-    "--hide-annotation", "kotlin.Experimental",
-    "--hide-annotation", "androidx.annotation.RequiresOptIn",
-    "--hide-annotation", "kotlin.RequiresOptIn",
-    "--hide-meta-annotation", "androidx.annotation.experimental.Experimental",
-    "--hide-meta-annotation", "kotlin.Experimental",
-    "--hide-meta-annotation", "androidx.annotation.RequiresOptIn",
-    "--hide-meta-annotation", "kotlin.RequiresOptIn",
-)
-
-// Metalava arguments to suppress compatibility checks for experimental API surfaces.
-val SUPPRESS_COMPATIBILITY_ARGS: List<String> = listOf(
-    "--suppress-compatibility-meta-annotation", "androidx.annotation.RequiresOptIn",
-    "--suppress-compatibility-meta-annotation", "kotlin.RequiresOptIn",
-)
 
 fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
     val args = mutableListOf(
@@ -199,7 +182,6 @@ sealed class GenerateApiMode {
     object PublicApi : GenerateApiMode()
     object AllRestrictedApis : GenerateApiMode()
     object RestrictToLibraryGroupPrefixApis : GenerateApiMode()
-    object ExperimentalApi : GenerateApiMode()
 }
 
 sealed class ApiLintMode {
@@ -219,25 +201,10 @@ fun generateApi(
     includeRestrictToLibraryGroupApis: Boolean,
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
-    isOptedInToSuppressCompatibilityMigration: Boolean,
     pathToManifest: String? = null,
 ) {
-    val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> = mutableListOf()
-
-    if (isOptedInToSuppressCompatibilityMigration) {
-        generateApiConfigs += GenerateApiMode.PublicApi to apiLintMode
-
-        // This is a bit of a hack, but the easiest way to clear out legacy experimental files is
-        // to delete them here. Once the migration is over, we can remove all of the references.
-        if (apiLocation.experimentalApiFile.exists()) {
-            apiLocation.experimentalApiFile.delete()
-        }
-    } else {
-        // API lint runs on the experimental pass, which also includes public API. This means API
-        // lint can safely be skipped on the public pass.
-        generateApiConfigs += GenerateApiMode.PublicApi to ApiLintMode.Skip
-        generateApiConfigs += GenerateApiMode.ExperimentalApi to apiLintMode
-    }
+    val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
+        mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
 
     @Suppress("LiftReturnOrAssignment")
     if (includeRestrictToLibraryGroupApis) {
@@ -257,7 +224,6 @@ fun generateApi(
             apiLintMode,
             k2UastEnabled,
             workerExecutor,
-            isOptedInToSuppressCompatibilityMigration,
             pathToManifest
         )
     }
@@ -274,15 +240,13 @@ private fun generateApi(
     apiLintMode: ApiLintMode,
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
-    isOptedInToSuppressCompatibilityMigration: Boolean,
     pathToManifest: String? = null
 ) {
     val args = getGenerateApiArgs(
         bootClasspath, dependencyClasspath, sourcePaths, outputLocation, generateApiMode,
-        apiLintMode, isOptedInToSuppressCompatibilityMigration, pathToManifest
+        apiLintMode, pathToManifest
     )
-    runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, workerExecutor,
-        isOptedInToSuppressCompatibilityMigration)
+    runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, workerExecutor)
 }
 
 // Generates the specified api file
@@ -293,7 +257,6 @@ fun getGenerateApiArgs(
     outputLocation: ApiLocation?,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
-    isOptedInToSuppressCompatibilityMigration: Boolean,
     pathToManifest: String? = null
 ): List<String> {
     // generate public API txt
@@ -323,17 +286,11 @@ fun getGenerateApiArgs(
             GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
                 args += listOf("--api", outputLocation.restrictedApiFile.toString())
             }
-            is GenerateApiMode.ExperimentalApi -> {
-                args += listOf("--api", outputLocation.experimentalApiFile.toString())
-            }
         }
     }
 
     when (generateApiMode) {
         is GenerateApiMode.PublicApi -> {
-            if (!isOptedInToSuppressCompatibilityMigration) {
-                args += HIDE_EXPERIMENTAL_ARGS
-            }
             args += listOf(
                 "--hide-annotation", "androidx.annotation.RestrictTo"
             )
@@ -369,15 +326,6 @@ fun getGenerateApiArgs(
                         "LIBRARY_GROUP)"
                 )
             }
-            if (!isOptedInToSuppressCompatibilityMigration) {
-                args += HIDE_EXPERIMENTAL_ARGS
-            }
-        }
-        is GenerateApiMode.ExperimentalApi -> {
-            args += listOf(
-                "--hide-annotation", "androidx.annotation.RestrictTo"
-            )
-            args += listOf("--show-unannotated")
         }
     }
 
