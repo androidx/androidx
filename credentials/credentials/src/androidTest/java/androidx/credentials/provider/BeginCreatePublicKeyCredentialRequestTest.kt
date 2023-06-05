@@ -51,6 +51,26 @@ class BeginCreatePublicKeyCredentialRequestTest {
     }
 
     @Test
+    fun constructor_invalidJson_throwsIllegalArgumentException() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        Assert.assertThrows(
+            "Expected invalid Json to throw error",
+            IllegalArgumentException::class.java
+        ) {
+            BeginCreatePublicKeyCredentialRequest(
+                "invalid",
+                CallingAppInfo(
+                    "sample_package_name",
+                    SigningInfo()
+                ),
+                Bundle()
+            )
+        }
+    }
+
+    @Test
     fun constructor_success() {
         if (!BuildCompat.isAtLeastU()) {
             return
@@ -106,7 +126,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
         }
         val testClientDataHashExpected = "client_data_hash".toByteArray()
         val createPublicKeyCredentialReq = BeginCreatePublicKeyCredentialRequest(
-            "json",
+            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             CallingAppInfo(
                 "sample_package_name", SigningInfo()
             ),

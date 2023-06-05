@@ -20,6 +20,7 @@ import android.os.Bundle
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.provider.utils.RequestValidationUtil
 
 /**
  * A request to begin the flow of getting passkeys from the user's public key credential provider.
@@ -51,7 +52,8 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
     candidateQueryData
 ) {
     init {
-        require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
+        require(RequestValidationUtil.isValidJSON(requestJson)) { "requestJson must not " +
+            "be empty, and must be a valid JSON" }
     }
 
     internal companion object {

@@ -24,6 +24,7 @@ import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KE
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.provider.utils.RequestValidationUtil
 
 /**
  * Request to begin registering a public key credential.
@@ -56,7 +57,8 @@ class BeginCreatePublicKeyCredentialRequest @JvmOverloads constructor(
     callingAppInfo
 ) {
     init {
-        require(requestJson.isNotEmpty()) { "json must not be empty" }
+        require(RequestValidationUtil.isValidJSON(requestJson)) { "requestJson must not " +
+            "be empty, and must be a valid JSON" }
         initiateBundle(candidateQueryData, requestJson)
     }
 
