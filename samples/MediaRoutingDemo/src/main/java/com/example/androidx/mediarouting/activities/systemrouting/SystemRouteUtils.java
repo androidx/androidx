@@ -35,7 +35,7 @@ public final class SystemRouteUtils {
      */
     @RequiresApi(16)
     public static boolean isSystemMediaRouterRoute(@NonNull MediaRouter.RouteInfo routeInfo) {
-        return (routeInfo.getClass() == MediaRouter.RouteInfo.class);
+        return routeInfo.getClass() == MediaRouter.RouteInfo.class;
     }
 
     /**

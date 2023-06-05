@@ -32,16 +32,18 @@ import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteIte
 import java.util.ArrayList;
 import java.util.List;
 
+/** Implements {@link SystemRoutesSource} using {@link BluetoothManager}. */
 @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-class BluetoothManagerSystemRoutesSource implements SystemRoutesSource {
+public final class BluetoothManagerSystemRoutesSource implements SystemRoutesSource {
 
     @NonNull
     private final BluetoothManager mBluetoothManager;
     @NonNull
     private final BluetoothAdapter mBluetoothAdapter;
 
+    /** Returns a new instance. */
     @NonNull
-    static BluetoothManagerSystemRoutesSource create(@NonNull Context context) {
+    public static BluetoothManagerSystemRoutesSource create(@NonNull Context context) {
         BluetoothManager bluetoothManager =
                 (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         return new BluetoothManagerSystemRoutesSource(bluetoothManager);
