@@ -117,12 +117,13 @@ internal class MicrobenchmarkPhase(
 
         fun timingMeasurementPhase(
             loopMode: LoopMode,
-            measurementCount: Int
+            measurementCount: Int,
+            simplifiedTimingOnlyMode: Boolean
         ) = MicrobenchmarkPhase(
             label = "Benchmark Time",
             measurementCount = measurementCount,
             loopMode = loopMode,
-            thermalThrottleSleepsMax = 2
+            thermalThrottleSleepsMax = if (simplifiedTimingOnlyMode) 0 else 2
         )
 
         fun profiledTimingPhase(
@@ -196,7 +197,8 @@ internal class MicrobenchmarkPhase(
                     // Regular timing phase
                     timingMeasurementPhase(
                         measurementCount = measurementCount ?: 50,
-                        loopMode = loopMode
+                        loopMode = loopMode,
+                        simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
                     ),
                     if (simplifiedTimingOnlyMode || profiler == null) {
                         null
@@ -209,6 +211,14 @@ internal class MicrobenchmarkPhase(
                         allocationMeasurementPhase(loopMode)
                     }
                 )
+            }.also {
+                if (simplifiedTimingOnlyMode) {
+                    // can't use thermal throttle checks with simplifiedTimingOnlyMode,
+                    // since we're already checking for throttling
+                    check(it.all { phase -> phase.thermalThrottleSleepsMax == 0 }) {
+                        "Thermal throttle check banned within simplifiedTimingOnlyMode"
+                    }
+                }
             }
         }
     }
