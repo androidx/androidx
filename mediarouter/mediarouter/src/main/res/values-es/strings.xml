@@ -44,5 +44,5 @@
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"No hay dispositivos disponibles"</string>
     <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"No se han podido encontrar los dispositivos. Comprueba que tu dispositivo y el dispositivo de emisión estén conectados a la misma red Wi-Fi y vuelve a intentarlo."</string>
     <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Comprueba que tu dispositivo y el dispositivo de emisión estén conectados a la misma red Wi‑Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Listo"</string>
+    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Hecho"</string>
 </resources>
