@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.javascriptengine.common.LengthLimitExceededException;
 import androidx.javascriptengine.common.Utils;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -106,14 +107,15 @@ public final class JavaScriptIsolate implements AutoCloseable {
                         String result;
                         try {
                             result = Utils.readToString(afd,
-                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(), false);
+                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(),
+                                    /*truncate=*/false);
                         } catch (IOException | UnsupportedOperationException ex) {
                             mCompleter.setException(
                                     new JavaScriptException(
                                             "Retrieving result failed: " + ex.getMessage()));
                             removePending(mCompleter);
                             return;
-                        } catch (IllegalArgumentException ex) {
+                        } catch (LengthLimitExceededException ex) {
                             if (ex.getMessage() != null) {
                                 mCompleter.setException(
                                         new EvaluationResultSizeLimitExceededException(
@@ -137,13 +139,16 @@ public final class JavaScriptIsolate implements AutoCloseable {
                         String error;
                         try {
                             error = Utils.readToString(afd,
-                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(), true);
+                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(),
+                                    /*truncate=*/true);
                         } catch (IOException | UnsupportedOperationException ex) {
                             mCompleter.setException(
                                     new JavaScriptException(
                                             "Retrieving error failed: " + ex.getMessage()));
                             removePending(mCompleter);
                             return;
+                        } catch (LengthLimitExceededException ex) {
+                            throw new AssertionError("unreachable");
                         }
                         handleEvaluationError(mCompleter, type, error);
                     });
@@ -210,7 +215,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
                     Objects.requireNonNull(source);
                     mCallback.onConsoleMessage(
                             new JavaScriptConsoleCallback.ConsoleMessage(
-                                level, message, source, line, column, trace));
+                                    level, message, source, line, column, trace));
                 });
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Console message dropped", e);
@@ -577,6 +582,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * <p>
      * Note that delayed console messages may continue to be delivered after the isolate has been
      * closed (or has crashed).
+     *
      * @param executor Executor for running callback methods.
      * @param callback Callback implementing console logging behaviour.
      */
