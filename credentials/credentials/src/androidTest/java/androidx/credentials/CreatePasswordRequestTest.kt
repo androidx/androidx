@@ -56,6 +56,7 @@ class CreatePasswordRequestTest {
         assertThat(request.origin).isNull()
         assertThat(request.id).isEqualTo(idExpected)
         assertThat(request.password).isEqualTo(passwordExpected)
+        assertThat(request.isAutoSelectAllowed).isFalse()
     }
 
     @Test
@@ -64,10 +65,12 @@ class CreatePasswordRequestTest {
         val passwordExpected = "password"
         val originExpected = "origin"
         val preferImmediatelyAvailableCredentialsExpected = true
+        val isAutoSelectAllowedExpected = true
 
         val request = CreatePasswordRequest(
             idExpected, passwordExpected,
-            originExpected, preferImmediatelyAvailableCredentialsExpected
+            originExpected, preferImmediatelyAvailableCredentialsExpected,
+            isAutoSelectAllowedExpected,
         )
 
         assertThat(request.preferImmediatelyAvailableCredentials)
@@ -76,6 +79,7 @@ class CreatePasswordRequestTest {
         assertThat(request.origin).isEqualTo(originExpected)
         assertThat(request.id).isEqualTo(idExpected)
         assertThat(request.password).isEqualTo(passwordExpected)
+        assertThat(request.isAutoSelectAllowed).isEqualTo(isAutoSelectAllowedExpected)
     }
 
     @Test
@@ -85,6 +89,7 @@ class CreatePasswordRequestTest {
         val originExpected = "origin"
         val defaultProviderExpected = "com.test/com.test.TestProviderComponent"
         val preferImmediatelyAvailableCredentialsExpected = true
+        val isAutoSelectAllowedExpected = true
 
         val request = CreatePasswordRequest(
             id = idExpected,
@@ -92,6 +97,7 @@ class CreatePasswordRequestTest {
             origin = originExpected,
             preferDefaultProvider = defaultProviderExpected,
             preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentialsExpected,
+            isAutoSelectAllowed = isAutoSelectAllowedExpected
         )
 
         assertThat(request.displayInfo.preferDefaultProvider).isEqualTo(defaultProviderExpected)
@@ -100,6 +106,7 @@ class CreatePasswordRequestTest {
         assertThat(request.id).isEqualTo(idExpected)
         assertThat(request.preferImmediatelyAvailableCredentials)
             .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
+        assertThat(request.isAutoSelectAllowed).isEqualTo(isAutoSelectAllowedExpected)
     }
 
     @Test
@@ -124,7 +131,7 @@ class CreatePasswordRequestTest {
         val passwordExpected = "pwd"
         val preferImmediatelyAvailableCredentialsExpected = true
         val expectedCredentialData = Bundle()
-        val expectedAutoSelect = false
+        val expectedAutoSelect = true
         expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected)
         expectedCredentialData.putString(
             CreatePasswordRequest.BUNDLE_KEY_PASSWORD,
@@ -146,7 +153,7 @@ class CreatePasswordRequestTest {
 
         val request = CreatePasswordRequest(
             idExpected, passwordExpected, /*origin=*/null,
-            preferImmediatelyAvailableCredentialsExpected
+            preferImmediatelyAvailableCredentialsExpected, expectedAutoSelect
         )
 
         assertThat(request.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
@@ -186,11 +193,12 @@ class CreatePasswordRequestTest {
         val idExpected = "id"
         val passwordExpected = "pwd"
         val preferImmediatelyAvailableCredentialsExpected = true
+        val isAutoSelectAllowedExpected = true
         val originExpected = "origin"
         val defaultProviderExpected = "com.test/com.test.TestProviderComponent"
         val request = CreatePasswordRequest(
             idExpected, passwordExpected, originExpected, defaultProviderExpected,
-            preferImmediatelyAvailableCredentialsExpected
+            preferImmediatelyAvailableCredentialsExpected, isAutoSelectAllowedExpected
         )
 
         val convertedRequest = createFrom(
@@ -210,6 +218,8 @@ class CreatePasswordRequestTest {
         assertThat(convertedCreatePasswordRequest.preferImmediatelyAvailableCredentials)
             .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
         assertThat(convertedCreatePasswordRequest.origin).isEqualTo(originExpected)
+        assertThat(convertedCreatePasswordRequest.isAutoSelectAllowed)
+            .isEqualTo(isAutoSelectAllowedExpected)
         val displayInfo = convertedCreatePasswordRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.userId).isEqualTo(idExpected)

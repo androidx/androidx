@@ -61,6 +61,13 @@ class CreatePublicKeyCredentialRequestTest {
     }
 
     @Test
+    fun constructor_setsAutoSelectToFalseByDefault() {
+        val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON)
+
+        assertThat(createPublicKeyCredentialRequest.isAutoSelectAllowed).isFalse()
+    }
+
+    @Test
     fun constructor_setPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
             TEST_REQUEST_JSON
@@ -96,11 +103,12 @@ class CreatePublicKeyCredentialRequestTest {
         val originExpected = "origin"
         val preferImmediatelyAvailableCredentialsExpected = true
         val defaultProviderExpected = "com.test/com.test.TestProviderComponent"
+        val isAutoSelectAllowedExpected = true
 
         val request = CreatePublicKeyCredentialRequest(
             TEST_REQUEST_JSON, clientDataHashExpected,
             preferImmediatelyAvailableCredentialsExpected, originExpected,
-            defaultProviderExpected
+            defaultProviderExpected, isAutoSelectAllowedExpected,
         )
 
         assertThat(request.displayInfo.preferDefaultProvider)
@@ -110,6 +118,7 @@ class CreatePublicKeyCredentialRequestTest {
         assertThat(request.requestJson).isEqualTo(TEST_REQUEST_JSON)
         assertThat(request.preferImmediatelyAvailableCredentials)
             .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
+        assertThat(request.isAutoSelectAllowed).isEqualTo(isAutoSelectAllowedExpected)
     }
 
     @Test
@@ -127,7 +136,7 @@ class CreatePublicKeyCredentialRequestTest {
         val requestJsonExpected = TEST_REQUEST_JSON
         val clientDataHash = "hash".toByteArray()
         val preferImmediatelyAvailableCredentialsExpected = true
-        val autoSelectExpected = false
+        val autoSelectExpected = true
         val expectedCandidateQueryData = Bundle()
         expectedCandidateQueryData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -152,7 +161,8 @@ class CreatePublicKeyCredentialRequestTest {
         )
 
         val request = CreatePublicKeyCredentialRequest(
-            requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected
+            requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected,
+            origin = null, autoSelectExpected
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -194,9 +204,11 @@ class CreatePublicKeyCredentialRequestTest {
         val clientDataHashExpected = "hash".toByteArray()
         val originExpected = "origin"
         val preferImmediatelyAvailableCredentialsExpected = true
+        val isAutoSelectAllowedExpected = true
         val request = CreatePublicKeyCredentialRequest(
             TEST_REQUEST_JSON, clientDataHashExpected,
-            preferImmediatelyAvailableCredentialsExpected, originExpected
+            preferImmediatelyAvailableCredentialsExpected, originExpected,
+            isAutoSelectAllowedExpected
         )
 
         val convertedRequest = createFrom(
@@ -216,6 +228,8 @@ class CreatePublicKeyCredentialRequestTest {
         assertThat(convertedSubclassRequest.clientDataHash).isEqualTo(clientDataHashExpected)
         assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials)
             .isEqualTo(preferImmediatelyAvailableCredentialsExpected)
+        assertThat(convertedSubclassRequest.isAutoSelectAllowed)
+            .isEqualTo(isAutoSelectAllowedExpected)
         val displayInfo = convertedSubclassRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isEqualTo(TEST_USER_DISPLAYNAME)
         assertThat(displayInfo.userId).isEqualTo(TEST_USERNAME)
