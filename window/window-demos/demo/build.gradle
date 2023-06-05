@@ -44,6 +44,9 @@ android {
         all {
             signingConfig signingConfigs.config
         }
+        release {
+            minifyEnabled true
+        }
     }
     compileOptions {
         coreLibraryDesugaringEnabled = true
