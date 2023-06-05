@@ -2371,6 +2371,8 @@ Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
 # > Task :docs-public:docs
+WARNING: no common source set for DPackage androidx\.compose\.ui\.test\.junit[0-9]+////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every usable sourceSet depends on jvmMain! This is a bug in dackka: b/[0-9]+
+WARNING: no common source set for DPackage androidx\.compose\.ui\.tooling////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every usable sourceSet depends on jvmMain! This is a bug in dackka: b/[0-9]+
 WARNING: no common source set for DPackage androidx\.compose\.ui\.test\.junit[0-9]+////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every sourceSet depends onjvmMain! This is a bug in dackka: b/[0-9]+
 WARNING: no common source set for DPackage androidx\.compose\.ui\.tooling////PointingToDeclaration/! Falling back to jvmMain sourceSet! This is only defensible if every sourceSet depends onjvmMain! This is a bug in dackka: b/[0-9]+
 WARNING: no common sourceSet for androidx\.compose\.runtime/AbstractApplier///PointingToDeclaration/, falling back to \.single\(\) when resolving @sample androidx\.compose\.runtime\.samples\.CustomTreeComposition\. b/[0-9]+
@@ -2486,4 +2488,5 @@ WARNING: no common sourceSet for androidx\.compose\.material[0-9]+/TimePickerSta
 WARNING: no common sourceSet for androidx\.compose\.ui\.test/TouchInjectionScope///PointingToDeclaration/, falling back to \.single\(\) when resolving @sample androidx\.compose\.ui\.test\.samples\.touchInputClick\. b/[0-9]+
 WARNING: no common sourceSet for androidx\.compose\.ui\.test/TouchInjectionScope///PointingToDeclaration/, falling back to \.single\(\) when resolving @sample androidx\.compose\.ui\.test\.samples\.touchInputSwipeUp\. b/[0-9]+
 WARNING: no common sourceSet for androidx\.compose\.ui\.test/TouchInjectionScope///PointingToDeclaration/, falling back to \.single\(\) when resolving @sample androidx\.compose\.ui\.test\.samples\.touchInputLShapedGesture\. b/[0-9]+
+WARNING: no common source set for DParameter androidx\.compose\.ui\.test\.junit[0-9]+//createComposeRule/\#kotlin\.coroutines\.CoroutineContext/PointingToCallableParameters\([0-9]+\)/! Falling back to jvmMain sourceSet! This is only defensible if every usable sourceSet depends on jvmMain! This is a bug in dackka: b/[0-9]+
 WARNING: no common sourceSet for androidx\.compose\.animation\.core/Transition///PointingToDeclaration/, falling back to \.single\(\) when resolving @sample androidx\.compose\.animation\.core\.samples\.GestureAnimationSample\. b/[0-9]+
