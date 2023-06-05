@@ -69,12 +69,18 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     debugImplementation(libs.testCore)
 }
 
