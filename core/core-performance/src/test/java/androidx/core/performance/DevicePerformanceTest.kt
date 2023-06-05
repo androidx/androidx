@@ -16,10 +16,8 @@
 
 package androidx.core.performance
 
-import android.app.Application
 import android.os.Build.VERSION_CODES.R
 import android.os.Build.VERSION_CODES.S
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -111,6 +109,7 @@ class DevicePerformanceTest {
     }
 
     private fun createPerformanceClass(): DevicePerformance {
-        return DevicePerformance.create(ApplicationProvider.getApplicationContext<Application>())
+        return DevicePerformance.create(StaticDevicePerformanceSupplier()
+        )
     }
 }

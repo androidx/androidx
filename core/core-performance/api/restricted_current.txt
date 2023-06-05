@@ -2,14 +2,31 @@
 package androidx.core.performance {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
-    method public default static androidx.core.performance.DevicePerformance create(android.content.Context context);
+    method public default static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
     method public int getMediaPerformanceClass();
     property public abstract int mediaPerformanceClass;
     field public static final androidx.core.performance.DevicePerformance.Companion Companion;
   }
 
   public static final class DevicePerformance.Companion {
-    method public androidx.core.performance.DevicePerformance create(android.content.Context context);
+    method public androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
+  }
+
+  public interface DevicePerformanceSupplier {
+    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
+    property public abstract kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
+  }
+
+  public final class StaticDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
+    ctor public StaticDevicePerformanceSupplier();
+    method public static androidx.core.performance.DevicePerformance createDevicePerformance();
+    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
+    property public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
+    field public static final androidx.core.performance.StaticDevicePerformanceSupplier.Companion Companion;
+  }
+
+  public static final class StaticDevicePerformanceSupplier.Companion {
+    method public androidx.core.performance.DevicePerformance createDevicePerformance();
   }
 
 }
