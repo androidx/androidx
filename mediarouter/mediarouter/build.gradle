@@ -25,7 +25,9 @@ dependencies {
     api("androidx.media:media:1.4.1")
     api(libs.guavaListenableFuture)
 
-    implementation("androidx.core:core:1.6.0")
+    // We use a project dependency on androidx.core to keep an up-to-date BuildCompat dependency.
+    // See b/283315121 for context.
+    implementation(project(":core:core"))
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.palette:palette:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
