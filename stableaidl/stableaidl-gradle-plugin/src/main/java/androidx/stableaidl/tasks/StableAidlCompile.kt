@@ -21,6 +21,7 @@ import androidx.stableaidl.internal.LoggerWrapper
 import androidx.stableaidl.internal.compiling.DependencyFileProcessor
 import androidx.stableaidl.internal.incremental.DependencyData
 import androidx.stableaidl.internal.process.GradleProcessExecutor
+import com.android.build.api.variant.AndroidVersion
 import com.android.ide.common.process.LoggedProcessOutputHandler
 import com.android.utils.FileUtils
 import com.google.common.annotations.VisibleForTesting
@@ -91,6 +92,19 @@ abstract class StableAidlCompile : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val aidlExecutable: RegularFileProperty
 
+    @get:Input
+    abstract val aidlVersion: Property<String>
+
+    /**
+     * Variant's minimum SDK version.
+     *
+     * This should only be specified when generating code. Do not specify this when dumping the API
+     * surface, e.g. passing `--dumpapi` as an extra argument.
+     */
+    @get:Input
+    @get:Optional
+    abstract val minSdkVersion: Property<AndroidVersion>
+
     /**
      * Directory for storing AIDL-generated Java sources.
      */
@@ -135,13 +149,22 @@ abstract class StableAidlCompile : DefaultTask() {
         val fullImportList = sourceDirs.get() + importDirs.get()
         val sourceDirsAsFiles = sourceDirs.get().map { it.asFile }
 
+        // When using AIDL from build tools version 33 and later, pass the variant's minimum SDK
+        // version. If it's a pre-release SDK, pass the most recently stabilized SDK version.
+        val aidlMajorVersion = aidlVersion.get().substringBefore('.').toIntOrNull() ?: 0
+        val extraArgsWithSdk = if (minSdkVersion.isPresent && aidlMajorVersion >= 33) {
+            extraArgs.get() + listOf("--min_sdk_version", "${minSdkVersion.get().apiLevel}")
+        } else {
+            extraArgs.get()
+        }
+
         aidlCompileDelegate(
             workerExecutor,
             aidlExecutable.get().asFile,
             aidlFrameworkProvider.get().asFile,
             destinationDir,
             parcelableDir?.asFile,
-            extraArgs.get(),
+            extraArgsWithSdk,
             sourceDirsAsFiles,
             fullImportList,
             dependencyImportDirs.get().map { it.asFile }
