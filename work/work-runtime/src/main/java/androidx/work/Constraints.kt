@@ -272,6 +272,22 @@ class Constraints {
         return result
     }
 
+    // just use all properties in toString, no actual harm in accessing properties annotated by
+    // RequiresApi(...)
+    @SuppressLint("NewApi")
+    override fun toString(): String {
+        return "Constraints{" +
+            "requiredNetworkType=$requiredNetworkType, " +
+            "requiresCharging=$requiresCharging, " +
+            "requiresDeviceIdle=$requiresDeviceIdle, " +
+            "requiresBatteryNotLow=$requiresBatteryNotLow, " +
+            "requiresStorageNotLow=$requiresStorageNotLow, " +
+            "contentTriggerUpdateDelayMillis=$contentTriggerUpdateDelayMillis, " +
+            "contentTriggerMaxDelayMillis=$contentTriggerMaxDelayMillis, " +
+            "contentUriTriggers=$contentUriTriggers, " +
+            "}"
+    }
+
     /**
      * A Builder for a [Constraints] object.
      */
