@@ -99,10 +99,10 @@
     <string name="mr_chooser_zero_routes_found_title">No devices available</string>
 
     <!-- Text displayed when no routes have been found after searching. [CHAR_LIMIT=NONE] -->
-    <string name="mr_chooser_zero_routes_description">Unable to find devices, make sure your device and the Cast device are on the same Wi-Fi network and try again.</string>
+    <string name="mr_chooser_zero_routes_description"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">Learn more</a> about how you can cast your content to other devices.</string>
 
     <!-- Text displayed to hint making sure device and cast device are connected to the same Wi-Fi. [CHAR_LIMIT=NONE] -->
-    <string name="mr_chooser_wifi_warning_description">Make sure your device and the Cast device are on the same Wi-Fi network.</string>
+    <string name="mr_chooser_wifi_warning_description">Make sure your device and the Cast device are on the same Wi-Fi network. \n\n<a href="https://support.google.com/chromecast/?p=trouble-finding-devices">Learn more</a></string>
 
     <!-- The label of the Done button that closes the Cast media route chooser dialog when tapped. [CHAR_LIMIT=30] -->
     <string name="mr_chooser_done_button_label">Done</string>
