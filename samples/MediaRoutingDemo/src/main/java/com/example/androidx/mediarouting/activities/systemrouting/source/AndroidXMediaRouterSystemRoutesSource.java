@@ -26,13 +26,15 @@ import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteIte
 import java.util.ArrayList;
 import java.util.List;
 
-class AndroidXMediaRouterSystemRoutesSource implements SystemRoutesSource {
+/** Implements {@link SystemRoutesSource} using {@link MediaRouter}. */
+public final class AndroidXMediaRouterSystemRoutesSource implements SystemRoutesSource {
 
     @NonNull
     private final MediaRouter mMediaRouter;
 
+    /** Returns a new instance. */
     @NonNull
-    static AndroidXMediaRouterSystemRoutesSource create(@NonNull Context context) {
+    public static AndroidXMediaRouterSystemRoutesSource create(@NonNull Context context) {
         MediaRouter mediaRouter = MediaRouter.getInstance(context);
         return new AndroidXMediaRouterSystemRoutesSource(mediaRouter);
     }

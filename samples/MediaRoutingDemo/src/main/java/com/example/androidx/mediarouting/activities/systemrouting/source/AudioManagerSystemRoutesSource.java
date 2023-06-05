@@ -30,13 +30,16 @@ import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteIte
 import java.util.ArrayList;
 import java.util.List;
 
+/** Implements {@link SystemRoutesSource} using {@link AudioManager}. */
 @RequiresApi(Build.VERSION_CODES.M)
-class AudioManagerSystemRoutesSource implements SystemRoutesSource {
+public final class AudioManagerSystemRoutesSource implements SystemRoutesSource {
 
     @NonNull
     private final AudioManager mAudioManager;
 
-    static AudioManagerSystemRoutesSource create(@NonNull Context context) {
+    /** Returns a new instance. */
+    @NonNull
+    public static AudioManagerSystemRoutesSource create(@NonNull Context context) {
         AudioManager audioManager = context.getSystemService(AudioManager.class);
         return new AudioManagerSystemRoutesSource(audioManager);
     }

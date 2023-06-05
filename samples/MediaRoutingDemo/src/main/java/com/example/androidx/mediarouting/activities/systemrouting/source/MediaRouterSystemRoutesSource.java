@@ -31,14 +31,16 @@ import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteUti
 import java.util.ArrayList;
 import java.util.List;
 
+/** Implements {@link SystemRoutesSource} using {@link MediaRouter}. */
 @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-class MediaRouterSystemRoutesSource implements SystemRoutesSource {
+public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
 
     @NonNull
     private final MediaRouter mMediaRouter;
 
+    /** Returns a new instance. */
     @NonNull
-    static MediaRouterSystemRoutesSource create(@NonNull Context context) {
+    public static MediaRouterSystemRoutesSource create(@NonNull Context context) {
         MediaRouter mediaRouter =
                 (MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
         return new MediaRouterSystemRoutesSource(mediaRouter);
