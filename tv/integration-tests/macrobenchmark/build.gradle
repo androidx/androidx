@@ -1,0 +1,44 @@
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.test")
+    id("kotlin-android")
+}
+
+android {
+    namespace 'androidx.tv.integration.macrobenchmark'
+
+    defaultConfig {
+        minSdkVersion 24
+    }
+
+    buildTypes {
+        // This benchmark buildType is used for benchmarking, and should function like your
+        // release build (for example, with minification on). It's signed with a debug key
+        // for easy local/CI testing.
+        benchmark {
+            debuggable = true
+            signingConfig = debug.signingConfig
+            matchingFallbacks = ["release"]
+        }
+    }
+
+    targetProjectPath = ":tv:integration-tests:macrobenchmark-target"
+    experimentalProperties["android.experimental.self-instrumenting"] = true
+}
+
+dependencies {
+    implementation(project(":benchmark:benchmark-junit4"))
+    implementation(project(":benchmark:benchmark-macro-junit4"))
+    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(libs.testRules)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRunner)
+    implementation(libs.testUiautomator)
+}
+
+androidComponents {
+    beforeVariants(selector().all()) {
+        enable = buildType == "benchmark"
+    }
+}
