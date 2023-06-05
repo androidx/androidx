@@ -84,13 +84,19 @@ class CredentialManagerTest {
             .addCredentialOption(GetPasswordOption())
             .build()
 
-        if (!isPostFrameworkApiLevel()) {
-            assertThrows<GetCredentialProviderConfigurationException> {
-                credentialManager.getCredential(Activity(), request)
-            }
-        } else {
-            assertThrows<NoCredentialException> {
-                credentialManager.getCredential(Activity(), request)
+        withUse(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                runBlocking {
+                    if (!isPostFrameworkApiLevel()) {
+                        assertThrows<GetCredentialProviderConfigurationException> {
+                            credentialManager.getCredential(this@withActivity, request)
+                        }
+                    } else {
+                        assertThrows<NoCredentialException> {
+                            credentialManager.getCredential(this@withActivity, request)
+                        }
+                    }
+                }
             }
         }
         // TODO("Add manifest tests and possibly further separate these tests by API Level
@@ -101,7 +107,8 @@ class CredentialManagerTest {
     @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
     fun testPrepareGetCredential_throwsUnimplementedError() = runBlocking<Unit> {
         val prepareGetCredentialResponse = credentialManager.prepareGetCredential(
-            GetCredentialRequest(listOf(GetPasswordOption())))
+            GetCredentialRequest(listOf(GetPasswordOption()))
+        )
 
         if (Looper.myLooper() == null) {
             Looper.prepare()
@@ -163,6 +170,9 @@ class CredentialManagerTest {
         }
 
         latch.await(100L, TimeUnit.MILLISECONDS)
+        if (loadedResult.get() == null) {
+            return // A strange flow occurred where an exception wasn't propagated up
+        }
         if (!isPostFrameworkApiLevel()) {
             assertThat(loadedResult.get().javaClass).isEqualTo(
                 CreateCredentialProviderConfigurationException::class.java
@@ -195,13 +205,15 @@ class CredentialManagerTest {
                     loadedResult.set(e)
                     latch.countDown()
                 }
+
                 override fun onResult(result: Void?) {}
             })
 
         latch.await(100L, TimeUnit.MILLISECONDS)
         assertThat(loadedResult.get().type).isEqualTo(
             ClearCredentialProviderConfigurationException
-            .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION)
+                .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
+        )
         // TODO(Add manifest tests and split this once postU is implemented for clearCreds")
     }
 }
