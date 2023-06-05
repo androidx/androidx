@@ -239,7 +239,7 @@
     <string name="additional_text" msgid="8410289578276941586">"Тейлөө шарттарыбызды карап чыгыңыз"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google кирүү"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN кодду колдонуу"</string>
-    <string name="qr_code" msgid="5487041647280777397">"QR коду"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR код"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Башкы түйүнүңүз Кирүү үлгүлөрүн колдоого албайт"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Шайкеш келбеген башкы түйүн"</string>
     <string name="email_hint" msgid="7205549445477319606">"Кат жөнөтүү"</string>
