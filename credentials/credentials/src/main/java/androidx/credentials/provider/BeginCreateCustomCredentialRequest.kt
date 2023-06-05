@@ -23,12 +23,14 @@ import android.os.Bundle
  *
  * If you get a [BeginCreateCustomCredentialRequest] instead of a type-safe request class such as
  * [BeginCreatePasswordCredentialRequest], [BeginCreatePublicKeyCredentialRequest], etc., then
- * as a credential provider, you should check if you have any other library at interest that
+ * as a credential provider, you should check if you have any other library of interest that
  * supports this custom [type] of credential request,
  * and if so use its parsing utilities to resolve to a type-safe class within that library.
  *
- * Note: The Bundle keys for [candidateQueryData] should not be in the form
- * of androidx.credentials.*` as they are reserved for internal use by this androidx library.
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
+ *
+ * @constructor constructs an instance of [BeginCreateCustomCredentialRequest]
  *
  * @param type the credential type determined by the credential-type-specific subclass for
  * custom use cases
@@ -38,6 +40,7 @@ import android.os.Bundle
  * reserved for internal library use)
  * @param callingAppInfo info pertaining to the app that is requesting for credentials
  * retrieval or creation
+ *
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type], or [candidateQueryData] is null
  */
@@ -45,4 +48,8 @@ open class BeginCreateCustomCredentialRequest constructor(
     type: String,
     candidateQueryData: Bundle,
     callingAppInfo: CallingAppInfo?
-) : BeginCreateCredentialRequest(type, candidateQueryData, callingAppInfo)
+) : BeginCreateCredentialRequest(type, candidateQueryData, callingAppInfo) {
+    init {
+        require(type.isNotEmpty()) { "type should not be empty" }
+    }
+}

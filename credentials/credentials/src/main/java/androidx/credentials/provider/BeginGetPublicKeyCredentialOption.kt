@@ -25,16 +25,15 @@ import androidx.credentials.provider.utils.RequestValidationUtil
 /**
  * A request to begin the flow of getting passkeys from the user's public key credential provider.
  *
- * @property requestJson the request in JSON format in the standard webauthn web json
- * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
- * @property clientDataHash a hash that is used to verify the relying party identity, set only if
- * [android.service.credentials.CallingAppInfo.getOrigin] is set
+ * @constructor constructs an instance of [BeginGetPublicKeyCredentialOption]
+ *
+ * @param candidateQueryData the request data in the [Bundle] format
+ * @param id the id of this request option
  * @param requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
  * @param clientDataHash a hash that is used to verify the relying party identity, set only if
  * [android.service.credentials.CallingAppInfo.getOrigin] is set
- * @param id the id of this request option
- * @param candidateQueryData the request data in the [Bundle] format
+ *
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
  *

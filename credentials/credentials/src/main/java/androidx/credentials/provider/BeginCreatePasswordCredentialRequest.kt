@@ -28,17 +28,29 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * CredentialProviderBaseService.onBeginCreateCredentialRequest call.
  *
  * This request will not contain all parameters needed to store the password. Provider must
- * use the initial parameters to determine if the password can be stored, and return
- * a list of [CreateEntry], denoting the accounts/groups where the password can be stored.
+ * use the initial parameters to determine if the password can be stored, and return a
+ * [BeginGetCredentialResponse] containing a list of [CreateEntry], denoting the
+ * accounts/groups where the password can be stored.
  * When user selects one of the returned [CreateEntry], the corresponding [PendingIntent] set on
- * the [CreateEntry] will be fired. The [Intent] invoked through the [PendingIntent] will contain the
- * complete [CreatePasswordRequest]. This request will contain all required parameters to
- * actually store the password.
+ * the [CreateEntry] will be fired. The [Intent] invoked through the [PendingIntent] will
+ * contain the complete [CreatePasswordRequest] as part of its extras, to be retrieved by
+ * passing the intent to [PendingIntentHandler.retrieveProviderCreateCredentialRequest].
+ * This request will contain all required parameters needed to actually store the password.
  *
  * @see BeginCreateCredentialRequest
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
+ *
+ * @constructor constructs an instance of [BeginCreatePasswordCredentialRequest]
+ *
+ * @param callingAppInfo the information associated with the requesting for the credentials
+ * @param candidateQueryData the bundle containing raw key-value pairs coming from the app
+ * requesting the credentials, mostly to be ignored for a password request, and only to be used
+ * if the credential provider knows of some custom attributes being provided by a
+ * particular calling app
+ *
+ * @throws NullPointerException If [candidateQueryData] is null
  */
 class BeginCreatePasswordCredentialRequest constructor(
     callingAppInfo: CallingAppInfo?,

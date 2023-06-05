@@ -24,16 +24,21 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
  * Response from a credential provider to [BeginGetCredentialRequest], containing credential
- * entries and other associated data to be shown on the account selector UI.
+ * entries and other associated entries/data to be shown on the account selector UI.
  *
- * Credential providers can set multiple [CredentialEntry] per [BeginGetCredentialOption]
- * retrieved from the top level request [BeginGetCredentialRequest]. These entries will appear
- * to the user on the selector.
+ * @constructor constructs an instance of [BeginGetCredentialResponse]
  *
- * Additionally credential providers can add a list of [AuthenticationAction] if all
- * credentials for the credential provider are locked. Providers can also set a list of
- * [Action] that can navigate the user straight to a provider activity where the rest of
- * the request can be processed.
+ * @param credentialEntries the list of credential entries to be shown on the selector UI, whereby
+ * each entry is set to provide a potential credential corresponding to a given
+ * [BeginGetCredentialOption] from the original [BeginGetCredentialRequest]
+ * @param actions the list of action entries to be shown on the selector UI, whereby each entry
+ * is set to provide an action that the user can perform before retrieving the credential, e.g.
+ * selecting a credential from a provider UI
+ * @param authenticationActions the list of authentication actions to be shown on the selector UI,
+ * whereby each entry is set to denote an account/group that is currently locked and cannot
+ * return any credentials, allowing the user to select one of these entries and unlock another
+ * set of credentials
+ * @param remoteEntry the entry that is set to allow retrieving a credential from another device
  */
 class BeginGetCredentialResponse constructor(
     val credentialEntries: List<CredentialEntry> = listOf(),

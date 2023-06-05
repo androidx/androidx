@@ -32,8 +32,6 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
  * as an account option where the given credential can be stored.
  * A [RemoteEntry] is an entry on the selector, through which user can choose
  * to create the credential on a remote device.
- *
- * @throws IllegalArgumentException If [createEntries] is empty
  */
 class BeginCreateCredentialResponse constructor(
     val createEntries: List<CreateEntry> = listOf(),

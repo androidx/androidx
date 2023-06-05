@@ -25,13 +25,14 @@ import androidx.credentials.CreateCredentialRequest
  * This request contains the actual request coming from the calling app,
  * and the application information associated with the calling app.
  *
- * @property callingRequest the complete [CreateCredentialRequest] coming from
+ * @constructor constructs an instance of [ProviderCreateCredentialRequest]
+ *
+ * @param callingRequest the complete [CreateCredentialRequest] coming from
  * the calling app that is requesting for credential creation
- * @property callingAppInfo information pertaining to the calling app making
+ * @param callingAppInfo information pertaining to the calling app making
  * the request
  *
- * @throws NullPointerException If [callingRequest] is null
- * @throws NullPointerException If [callingAppInfo] is null
+ * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.

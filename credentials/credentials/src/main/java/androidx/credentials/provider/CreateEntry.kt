@@ -55,18 +55,21 @@ class CreateEntry internal constructor(
     /**
      * Creates an entry to be displayed on the selector during create flows.
      *
+     * @constructor constructs an instance of [CreateEntry]
+     *
      * @param accountName the name of the account where the credential will be saved
-     * @param pendingIntent the [PendingIntent] that will get invoked when user selects this entry
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
      * @param description the localized description shown on UI about where the credential is stored
      * @param icon the icon to be displayed with this entry on the UI
-     * @param lastUsedTime the last time the account underlying this entry was used by the user.
-     * Note that this value will only be distinguishable up to the milli second mark. If two
-     * entries have the same millisecond precision, they will be considered to have been
-     * used at the same time
-     * @param passwordCredentialCount the no. of password credentials saved by the provider
-     * @param publicKeyCredentialCount the no. of public key credentials saved by the provider
-     * @param totalCredentialCount the total no. of credentials saved by the provider
-     * @param isAutoSelectAllowed whether the entry should be auto selected if it is the only
+     * @param lastUsedTime the last time the account underlying this entry was used by the user,
+     * distinguishable up to the milli second mark only such that if two entries have the same
+     * millisecond precision, they will be considered to have been used at the same time
+     * @param passwordCredentialCount the no. of password credentials contained by the provider
+     * @param publicKeyCredentialCount the no. of public key credentials contained by the provider
+     * @param totalCredentialCount the total no. of credentials contained by the provider
+     * @param isAutoSelectAllowed whether this entry should be auto selected if it is the only
      * entry on the selector
      *
      * @throws IllegalArgumentException If [accountName] is empty, or if [description] is longer
@@ -135,6 +138,8 @@ class CreateEntry internal constructor(
 
     /**
      * A builder for [CreateEntry]
+     *
+     * @constructor constructs an instance of [CreateEntry.Builder]
      *
      * @param accountName the name of the account where the credential will be registered
      * @param pendingIntent the [PendingIntent] that will be fired when the user selects

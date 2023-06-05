@@ -34,16 +34,22 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
 import java.util.stream.Collectors
 
 /**
- * PendingIntentHandler to be used by credential providers to extract requests from
- * [PendingIntent] invoked when a given [CreateEntry], or a [CustomCredentialEntry]
- * is selected by the user.
+ * PendingIntentHandler to be used by credential providers to extract requests from a given intent,
+ * or to set back a response or an exception to a given intent while dealing with activities
+ * invoked by pending intents set on a [CreateEntry] for the create flow, or on a
+ * [CredentialEntry], [AuthenticationAction], [Action], or a [RemoteEntry] set for a get flow.
  *
- * This handler can also be used to set [android.credentials.CreateCredentialResponse] and
- * [android.credentials.GetCredentialResponse] on the result of the activity
- * invoked by the [PendingIntent]
+ * When user selects one of the entries mentioned above, the credential provider's corresponding
+ * activity is invoked. The intent associated with this activity must be extracted and passed
+ * into the utils in this class to extract the required requests.
  *
- * PendingIntentHandlerConverters contains some utility methods to aid in testing of this
- * class.
+ * When user interaction is complete, credential providers must set the activity result by calling
+ * [android.app.Activity.setResult] by setting an appropriate result code and data of type
+ * [Intent]. This data should also be prepared by using the utils in this class to populate
+ * the required response/exception.
+ *
+ * See extension functions for [Intent] in IntentHandlerConverters.kt to help test intents that are
+ * set on pending intents in different entry classes.
  */
 @RequiresApi(34)
 class PendingIntentHandler {
@@ -108,9 +114,18 @@ class PendingIntentHandler {
         }
 
         /**
-         * Sets the [CreateCredentialResponse] on the result of the
-         * activity invoked by the [PendingIntent] set on a
-         * [CreateEntry].
+         * Sets the [CreateCredentialResponse] on the intent passed in. This intent is then
+         * set as the data associated with the result of the activity invoked by the
+         * [PendingIntent] set on a [CreateEntry]. The intent is set using the
+         * [Activity.setResult] method that takes in the intent, as well as a result code.
+         *
+         * A credential provider must set the result code to [Activity.RESULT_OK] if a valid
+         * response, or a valid exception is being set as the data to the result. However,
+         * if the credential provider is unable to resolve to a valid response or exception,
+         * the result code must be set to [Activity.RESULT_CANCELED]. Note that setting the
+         * result code to [Activity.RESULT_CANCELED] will re-surface the account selection
+         * bottom sheet that displayed the original [CredentialEntry], hence allowing the user
+         * to re-select.
          *
          * @param intent the intent to be set on the result of the [Activity] invoked through the
          * [PendingIntent]
@@ -172,8 +187,18 @@ class PendingIntentHandler {
         }
 
         /**
-         * Sets the [android.credentials.GetCredentialResponse] on the result of the
-         * activity invoked by the [PendingIntent], set on a [CreateEntry].
+         * Sets the [android.credentials.GetCredentialResponse] on the intent passed in. This
+         * intent is then set as the data associated with the result of the activity invoked by
+         * the [PendingIntent], set on a [CredentialEntry]. The intent is set using the
+         * [Activity.setResult] method that takes in the intent, as well as a result code.
+         *
+         * A credential provider must set the result code to [Activity.RESULT_OK] if a valid
+         * credential, or a valid exception is being set as the data to the result. However,
+         * if the credential provider is unable to resolve to a valid response or exception,
+         * the result code must be set to [Activity.RESULT_CANCELED]. Note that setting the
+         * result code to [Activity.RESULT_CANCELED] will re-surface the account selection
+         * bottom sheet that displayed the original [CredentialEntry], hence allowing the user
+         * to re-select.
          *
          * @param intent the intent to be set on the result of the [Activity] invoked through the
          * [PendingIntent]
@@ -198,8 +223,18 @@ class PendingIntentHandler {
         }
 
         /**
-         * Sets the [android.service.credentials.BeginGetCredentialResponse] on the result of the
-         * activity invoked by the [PendingIntent], set on an [AuthenticationAction].
+         * Sets the [android.service.credentials.BeginGetCredentialResponse] on the intent passed
+         * in. This intent is then set as the data associated with the result of the activity
+         * invoked by the [PendingIntent], set on an [AuthenticationAction]. The intent is set
+         * using the [Activity.setResult] method that takes in the intent, as well as a result code.
+         *
+         * A credential provider must set the result code to [Activity.RESULT_OK] if a valid
+         * response, or a valid exception is being set as part of the data to the result. However,
+         * if the credential provider is unable to resolve to a valid response or exception,
+         * the result code must be set to [Activity.RESULT_CANCELED]. Note that setting the
+         * result code to [Activity.RESULT_CANCELED] will re-surface the account selection
+         * bottom sheet that displayed the original [CredentialEntry], hence allowing the user to
+         * re-select.
          *
          * @param intent the intent to be set on the result of the [Activity] invoked through the
          * [PendingIntent]
@@ -227,7 +262,18 @@ class PendingIntentHandler {
          * If the user selects one of these entries, the corresponding [PendingIntent]
          * is fired and the provider's activity is invoked.
          * If there is an error encountered during the lifetime of that activity, the provider
-         * must use this API to set an exception before finishing this activity.
+         * must use this API to set an exception on the given intent before finishing the
+         * activity in question.
+         *
+         * The intent is set using the [Activity.setResult] method that takes in the intent,
+         * as well as a result code. A credential provider must set the result code to
+         * [Activity.RESULT_OK] if a valid credential, or a valid exception is being set as
+         * the data to the result. However, if the credential provider is unable to resolve to a
+         * valid response or exception, the result code must be set to [Activity.RESULT_CANCELED].
+         *
+         * Note that setting the result code to [Activity.RESULT_CANCELED] will re-surface the
+         * account selection bottom sheet that displayed the original [CredentialEntry], hence
+         * allowing the user to re-select.
          *
          * @param intent the intent to be set on the result of the [Activity] invoked through the
          * [PendingIntent]
@@ -257,6 +303,16 @@ class PendingIntentHandler {
          * is fired and the provider's activity is invoked. If there is an error encountered
          * during the lifetime of that activity, the provider must use this API to set
          * an exception before finishing the activity.
+         *
+         * The intent is set using the [Activity.setResult] method that takes in the intent,
+         * as well as a result code. A credential provider must set the result code to
+         * [Activity.RESULT_OK] if a valid credential, or a valid exception is being set as
+         * the data to the result. However, if the credential provider is unable to resolve to a
+         * valid response or exception, the result code must be set to [Activity.RESULT_CANCELED].
+         *
+         * Note that setting the result code to [Activity.RESULT_CANCELED] will re-surface the
+         * account selection bottom sheet that displayed the original [CreateEntry], hence allowing
+         * the user to re-select.
          *
          * @param intent the intent to be set on the result of the [Activity] invoked through the
          * [PendingIntent]

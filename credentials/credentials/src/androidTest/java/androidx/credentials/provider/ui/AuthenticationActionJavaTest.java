@@ -78,6 +78,16 @@ public class AuthenticationActionJavaTest {
     }
 
     @Test
+    public void constructor_emptyTitle_throwsIllegalArgumentException() {
+        if (!BuildCompat.isAtLeastU()) {
+            return;
+        }
+        assertThrows("Expected empty title to throw IAE",
+                IllegalArgumentException.class,
+                () -> new AuthenticationAction("", mPendingIntent));
+    }
+
+    @Test
     public void fromSlice_success() {
         if (!BuildCompat.isAtLeastU()) {
             return;

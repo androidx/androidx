@@ -16,12 +16,14 @@
 
 package androidx.credentials.provider
 
+import android.content.pm.SigningInfo
 import android.os.Bundle
 import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,6 +38,24 @@ class BeginCreateCustomCredentialRequestTest {
             return
         }
         BeginCreateCustomCredentialRequest("type", Bundle.EMPTY, null)
+    }
+
+    @Test
+    fun constructor_emptyType_throws() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        Assert.assertThrows(
+            "Expected empty type to throw IAE",
+            IllegalArgumentException::class.java
+        ) {
+            BeginCreateCustomCredentialRequest(
+                "", Bundle.EMPTY,
+                CallingAppInfo(
+                    "package", SigningInfo()
+                )
+            )
+        }
     }
 
     @Test

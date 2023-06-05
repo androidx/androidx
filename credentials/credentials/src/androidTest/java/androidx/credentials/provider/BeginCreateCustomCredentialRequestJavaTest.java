@@ -61,6 +61,20 @@ public class BeginCreateCustomCredentialRequestJavaTest {
     }
 
     @Test
+    public void constructor_emptyType_throws() {
+        if (!BuildCompat.isAtLeastU()) {
+            return;
+        }
+
+        assertThrows("Expected empty type to throw IAE",
+                IllegalArgumentException.class,
+                () -> new BeginCreateCustomCredentialRequest("", Bundle.EMPTY,
+                        new CallingAppInfo(
+                                "package", new SigningInfo()))
+        );
+    }
+
+    @Test
     public void getter_type() {
         if (!BuildCompat.isAtLeastU()) {
             return;

@@ -33,27 +33,41 @@ import java.util.Collections
  * be returned.
  * Providers must set the [PendingIntent] that leads to their unlock activity. When the user
  * selects this entry, the corresponding [PendingIntent] is fired and the unlock activity is
- * invoked. Once the provider authentication flow is complete, providers must set
- * the [android.service.credentials.BeginGetCredentialResponse] containing the unlocked credential
- * entries, through the [PendingIntentHandler.setBeginGetCredentialResponse] method, before
- * finishing the activity.
- * If providers fail to set the [android.service.credentials.BeginGetCredentialResponse], the
- * system will assume that there are no credentials available and the this entry will be removed
- * from the selector.
+ * invoked.
  *
- * @property pendingIntent the [PendingIntent] to be invoked if the user selects
- * this authentication entry on the UI
- * @property title the title to be shown with this entry on the account selector UI
+ * When the user is done with the authentication flow and the provider has  credential entries
+ * to return, provider must call [android.app.Activity.setResult] with the result code as
+ * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared
+ * by setting [BeginGetCredentialResponse] using
+ * [PendingIntentHandler.setBeginGetCredentialResponse], or by setting
+ * [androidx.credentials.exceptions.GetCredentialException] using
+ * [PendingIntentHandler.setGetCredentialException] before ending the activity.
+ * If the provider does not have a credential, or an exception to return, provider must call
+ * [android.app.Activity.setResult] with the result code as [android.app.Activity.RESULT_CANCELED].
+ * Setting the result code to [android.app.Activity.RESULT_CANCELED] will re-surface the selector,
+ * with this authentication action labeled as having no valid credentials.
+ *
+ * @constructor constructs an instance of [AuthenticationAction]
+ *
+ * @param title the title to be shown with this entry on the account selector UI
+ * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
+ * that the system can add the complete request to the extras of the associated intent
  *
  * @see android.service.credentials.BeginGetCredentialResponse
- * for usage details.
+ * for more usage details.
  *
- * @throws NullPointerException If the [pendingIntent] is null
+ * @throws NullPointerException If the [pendingIntent] or [title] is null
+ * @throws IllegalArgumentException If the [title] is empty
  */
 class AuthenticationAction constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
 ) {
+    init {
+        require(title.isNotEmpty()) { "title must not be empty" }
+    }
+
     /**
      * A builder for [AuthenticationAction]
      *

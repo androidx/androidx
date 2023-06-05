@@ -28,20 +28,16 @@ import androidx.credentials.CredentialOption
  * must be extracted using the [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper
  * API.
  *
- * @property credentialOptions the list of credential retrieval options containing the
- * required parameters.
- * This list is expected to contain a single [CredentialOption] when this
+ * @constructor constructs an instance of [ProviderGetCredentialRequest]
+ *
+ * @param credentialOptions the list of credential retrieval options containing the
+ * required parameters, expected  to contain a single [CredentialOption] when this
  * request is retrieved from the [android.app.Activity] invoked by the [android.app.PendingIntent]
- * set on a [PasswordCredentialEntry] or a [PublicKeyCredentialEntry]. This is because these
- * entries are created for a given [BeginGetPasswordOption] or a [BeginGetPublicKeyCredentialOption]
- * respectively, which corresponds to a single [CredentialOption].
- *
- * This list is expected to contain multiple [CredentialOption] when this request is retrieved
+ * set on a [PasswordCredentialEntry] or a [PublicKeyCredentialEntry], or expected to contain
+ * multiple [CredentialOption] when this request is retrieved
  * from the [android.app.Activity] invoked by the [android.app.PendingIntent]
- * set on a [RemoteEntry]. This is because when a remote entry is selected. the entire
- * request, containing multiple options, is sent to a remote device.
- *
- * @property callingAppInfo information pertaining to the calling application
+ * set on a [RemoteEntry]
+ * @param callingAppInfo information pertaining to the calling application
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.

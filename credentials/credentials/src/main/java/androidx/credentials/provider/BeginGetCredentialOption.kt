@@ -30,17 +30,15 @@ import androidx.credentials.PublicKeyCredential
  * subclasses to indicate the specific credential types and configurations that the credential
  * provider must include while building the [BeginGetCredentialResponse].
  *
- * @property id unique id representing this particular option. Credential providers must
- * use this Id while constructing the [CredentialEntry] to be set on [BeginGetCredentialResponse]
- * @property type the type of the credential to be retrieved against this option. E.g. a
+ * @property id unique id representing this particular option, to be used while
+ * constructing the [CredentialEntry] to be set on [BeginGetCredentialResponse]
+ * @property type the type of the credential to be retrieved against this option, e.g. a
  * [BeginGetPasswordOption] will have type [PasswordCredential.TYPE_PASSWORD_CREDENTIAL]
- * @property candidateQueryData the parameters needed to retrieve the credentials, in the form of a
- * [Bundle]. Note that this is a 'Begin' request denoting a query phase. In this phase, only
- * insensitive information is included in the [candidateQueryData] bundle. Note that this bundle
- * is the raw bundle containing key value pairs for parameters need to fulfill the request.
- * Typically a credential provider does not need to deal with this as all basic parameters
- * have been parsed into properties in this class. Credential providers may directly use this bundle
- * only if it is needed to access a custom key value for a particular use case documented elsewhere.
+ * @property candidateQueryData the parameters needed to retrieve the credentials, in the form of
+ * the raw [Bundle] - can typically be ignored by the credential provider as the required properties
+ * are already parse into the structured subclasses
+ *
+ * @throws NullPointerException If [id], [type] or [candidateQueryData] is null
  */
 abstract class BeginGetCredentialOption internal constructor(
     val id: String,

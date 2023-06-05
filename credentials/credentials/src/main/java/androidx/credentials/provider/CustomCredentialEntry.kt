@@ -45,8 +45,9 @@ import java.util.Collections
  * have been used at the same time
  * @property icon the icon to be displayed with this entry on the selector UI. If not set, a
  * default icon representing a custom credential type is set by the library
- * @property pendingIntent the [PendingIntent] to be invoked when this entry
- * is selected by the user
+ * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+ * system to attach the final request
  * @property typeDisplayName the friendly name to be displayed on the UI for
  * the type of the credential
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
@@ -88,6 +89,29 @@ class CustomCredentialEntry internal constructor(
         require(title.isNotEmpty()) { "title must not be empty" }
     }
 
+    /**
+     * @constructor constructs an instance of [CustomCredentialEntry]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param title the title shown with this entry on the selector UI
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetCredentialOption the option from the orginial [BeginGetCredentialResponse],
+     * for which this credential entry is being added
+     * @param subtitle the subTitle shown with this entry on the selector UI
+     * @param lastUsedTime the last used time the credential underlying this entry was
+     * used by the user, distinguishable up to the milli second mark only such that if two
+     * entries have the same millisecond precision, they will be considered to have been used at
+     * the same time
+     * @param typeDisplayName the friendly name to be displayed on the UI for
+     * the type of the credential
+     * @param icon the icon to be displayed with this entry on the selector UI, if not set a
+     * default icon representing a custom credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto
+     * selected if it is the only one on the UI, only takes effect if the app requesting for
+     * credentials also opts for auto select
+     */
     constructor(
         context: Context,
         title: CharSequence,
@@ -309,7 +333,23 @@ class CustomCredentialEntry internal constructor(
         }
     }
 
-    /** Builder for [CustomCredentialEntry] */
+    /**
+     * Builder for [CustomCredentialEntry]
+     *
+     * @constructor constructs an instance of [CustomCredentialEntry.Builder]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param type the type string that defines this custom credential
+     * @param title the title shown with this entry on the selector UI
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetCredentialOption the option from the orginial [BeginGetCredentialResponse],
+     * for which this credential entry is being added
+     *
+     * @throws NullPointerException If [context], [type], [title], [pendingIntent], or
+     * [beginGetCredentialOption] is null
+     */
     class Builder(
         private val context: Context,
         private val type: String,

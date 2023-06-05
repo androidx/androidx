@@ -21,10 +21,18 @@ import android.content.pm.SigningInfo
 /**
  * Information pertaining to the calling application.
  *
- * @property packageName the calling package name of the calling app
- * @property signingInfo the signingInfo associated with the calling app
- * @property origin the origin of the calling app. This is only set when a
+ * @constructor constructs an instance of [CallingAppInfo]
+ *
+ * @param packageName the calling package name of the calling app
+ * @param signingInfo the signingInfo associated with the calling app
+ * @param origin the origin of the calling app. This is only set when a
  * privileged app like a browser, calls on behalf of another application.
+ *
+ * @throws NullPointerException If [packageName] or [signingInfo] is null
+ * @throws IllegalArgumentException If [packageName] is empty
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
  */
 class CallingAppInfo @JvmOverloads constructor(
     val packageName: String,

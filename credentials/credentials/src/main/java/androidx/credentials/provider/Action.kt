@@ -27,9 +27,10 @@ import java.util.Collections
 
 /**
  * An actionable entry that is returned as part of the
- * [android.service.credentials.BeginGetCredentialResponse], and then shown on the user selector.
- * An action entry is expected to navigate the user to the credential provider's activity, and
- * ultimately result in a [androidx.credentials.GetCredentialResponse] through that activity.
+ * [android.service.credentials.BeginGetCredentialResponse], and then shown on the user selector
+ * under a separate category of 'Actions'.
+ * An action entry is expected to navigate the user to an activity belonging to the credential
+ * provider, and finally result in a [androidx.credentials.GetCredentialResponse].
  *
  * When selected, the associated [PendingIntent] is invoked to launch a provider controlled
  * activity. The activity invoked due to this pending intent will contain the
@@ -39,18 +40,26 @@ import java.util.Collections
  * When the user is done interacting with the activity and the provider has a credential to return,
  * provider must call [android.app.Activity.setResult] with the result code as
  * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared
- * by using [PendingIntentHandler.setGetCredentialResponse], before ending the activity.
- * If the provider does not have a credential to return, provider must call
+ * by setting [androidx.credentials.GetCredentialResponse] using
+ * [PendingIntentHandler.setGetCredentialResponse], or by setting
+ * [androidx.credentials.exceptions.GetCredentialException] using
+ * [PendingIntentHandler.setGetCredentialException] before ending the activity.
+ * If the provider does not have a credential, or an exception to return, provider must call
  * [android.app.Activity.setResult] with the result code as [android.app.Activity.RESULT_CANCELED].
+ * Setting the result code to [android.app.Activity.RESULT_CANCELED] will re-surface the selector.
  *
  * Examples of [Action] entries include an entry that is titled 'Add a new Password', and navigates
  * to the 'add password' page of the credential provider app, or an entry that is titled
  * 'Manage Credentials' and navigates to a particular page that lists all credentials, where the
  * user may end up selecting a credential that the provider can then return.
  *
- * @property title the title of the entry
- * @property pendingIntent the [PendingIntent] that will be invoked when the user selects this entry
- * @property subtitle the optional subtitle that is displayed on the entry
+ * @constructor constructs an instance of [Action]
+ *
+ * @param title the title of the entry
+ * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
+ * that the system can add the complete request to the extras of the associated intent
+ * @param subtitle the optional subtitle that is displayed on the entry
  *
  * @see android.service.credentials.BeginGetCredentialResponse for usage.
  *

@@ -45,13 +45,14 @@ import java.util.Collections
  *
  * @property username the username of the account holding the password credential
  * @property displayName the displayName of the account holding the password credential
- * @property lastUsedTime the last used time of this entry. Note that this value will only be
- * distinguishable up to the milli second mark. If two entries have the same millisecond precision,
+ * @property lastUsedTime the last used time of this entry, distinguishable up to the milli
+ * second mark, such that if two entries have the same millisecond precision,
  * they will be considered to have been used at the same time
  * @property icon the icon to be displayed with this entry on the selector. If not set, a
  * default icon representing a password credential type is set by the library
- * @property pendingIntent the [PendingIntent] to be invoked when user selects
- * this entry
+ * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+ * system to attach the final request
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
  * to true does not guarantee this behavior. The developer must also set this
@@ -92,6 +93,31 @@ class PasswordCredentialEntry internal constructor(
         require(username.isNotEmpty()) { "username must not be empty" }
     }
 
+    /**
+     * @constructor constructs an instance of [PasswordCredentialEntry]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param username the username of the account holding the password credential
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetPasswordOption the option from the original [BeginGetCredentialResponse],
+     * for which this credential entry is being added
+     * @param displayName the displayName of the account holding the password credential
+     * @param lastUsedTime the last used time the credential underlying this entry was
+     * used by the user, distinguishable up to the milli second mark only such that if two
+     * entries have the same millisecond precision, they will be considered to have been used at
+     * the same time
+     * @param icon the icon to be displayed with this entry on the selector, if not set, a
+     * default icon representing a password credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto
+     * selected if it is the only one on the UI, only takes effect if the app requesting for
+     * credentials also opts for auto select
+     *
+     * @throws IllegalArgumentException if [username] is empty
+     * @throws NullPointerException If [context], [username], [pendingIntent], or
+     * [beginGetPasswordOption] is null
+     */
     constructor(
         context: Context,
         username: CharSequence,
@@ -308,7 +334,23 @@ class PasswordCredentialEntry internal constructor(
         }
     }
 
-    /** Builder for [PasswordCredentialEntry] */
+    /**
+     * Builder for [PasswordCredentialEntry]
+     *
+     * @constructor constructs an instance of [PasswordCredentialEntry.Builder]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param username the username of the account holding the password credential
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetPasswordOption the option from the original [BeginGetCredentialResponse],
+     * for which this credential entry is being added
+     *
+     * @throws NullPointerException If [context], [username], [pendingIntent], or
+     * [beginGetPasswordOption] is null
+     * @throws IllegalArgumentException if [username] is empty
+     */
     class Builder(
         private val context: Context,
         private val username: CharSequence,

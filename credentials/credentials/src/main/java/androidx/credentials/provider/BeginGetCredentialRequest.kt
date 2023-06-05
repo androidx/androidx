@@ -25,13 +25,20 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
 /**
  * Query stage request for getting user's credentials from a given credential provider.
  *
- * <p>This request contains a list of [BeginGetCredentialOption] that have parameters
- * to be used to query credentials, and return a list of [CredentialEntry] to be set
- * on the [BeginGetCredentialResponse]. This list is then shown to the user on a selector.
+ * This request contains a list of [BeginGetCredentialOption] that have parameters
+ * to be used to query credentials, and return a [BeginGetCredentialResponse], containing
+ * a list [CredentialEntry] that are presented to the user on an selector.
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
+ *
+ * @constructor constructs an instance of [BeginGetCredentialRequest]
  *
  * @param beginGetCredentialOptions the list of type specific credential options to to be processed
  * in order to produce a [BeginGetCredentialResponse]
  * @param callingAppInfo info pertaining to the app requesting credentials
+ *
+ * @throws NullPointerException If [beginGetCredentialOptions] is null
  */
 class BeginGetCredentialRequest @JvmOverloads constructor(
     val beginGetCredentialOptions: List<BeginGetCredentialOption>,

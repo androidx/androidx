@@ -30,17 +30,23 @@ import java.util.Collections
  * device.
  *
  * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
- * can then show any activity they wish to. Before finishing the activity, provider must
+ * can then show any activity they wish to while establishing a connection with a different
+ * device and retrieving a credential. Before finishing the activity, provider must
  * set the final [androidx.credentials.GetCredentialResponse] through the
  * [PendingIntentHandler.setGetCredentialResponse] helper API, or a
  * [androidx.credentials.CreateCredentialResponse] through the
  * [PendingIntentHandler.setCreateCredentialResponse] helper API depending on whether it is a get
  * or create flow.
  *
- * @property pendingIntent the [PendingIntent] to be invoked when the user selects
- * this entry
- *
  * See [android.service.credentials.BeginGetCredentialResponse] for usage details.
+ *
+ * @constructor constructs an instance of [RemoteEntry]
+ *
+ * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
+ * that the system can add the complete request to the extras of the associated intent
+ *
+ * @throws NullPointerException If [pendingIntent] is null
  */
 class RemoteEntry constructor(
     val pendingIntent: PendingIntent
@@ -48,8 +54,9 @@ class RemoteEntry constructor(
     /**
      * A builder for [RemoteEntry]
      *
-     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
-     * this entry
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
      */
     class Builder constructor(
         private val pendingIntent: PendingIntent

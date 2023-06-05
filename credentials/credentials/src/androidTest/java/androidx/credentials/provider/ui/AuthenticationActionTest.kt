@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,6 +58,17 @@ class AuthenticationActionTest {
         val action = AuthenticationAction(TITLE, mPendingIntent)
 
         assertThat(mPendingIntent).isEqualTo(action.pendingIntent)
+    }
+
+    @Test
+    fun constructor_emptyTitle_throwsIllegalArgumentException() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+        Assert.assertThrows(
+            "Expected empty title to throw IAE",
+            IllegalArgumentException::class.java
+        ) { AuthenticationAction("", mPendingIntent) }
     }
 
     @Test

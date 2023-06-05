@@ -50,8 +50,9 @@ import java.util.Collections
  * they will be considered to have been used at the same time
  * @property icon the icon to be displayed with this entry on the selector. If not set, a
  * default icon representing a public key credential type is set by the library
- * @param pendingIntent the [PendingIntent] to be invoked when the user
- * selects this entry
+ * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
+ * that the system can add the complete request to the extras of the associated intent
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
  * to true does not guarantee this behavior. The developer must also set this
@@ -92,6 +93,31 @@ class PublicKeyCredentialEntry internal constructor(
         require(typeDisplayName.isNotEmpty()) { "typeDisplayName must not be empty" }
     }
 
+    /**
+     * @constructor constructs an instance of [PublicKeyCredentialEntry]
+     *
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param username the username of the account holding the public key credential
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
+     * system to attach the final request
+     * @param beginGetPublicKeyCredentialOption the option from the original
+     * [BeginGetCredentialResponse], for which this credential entry is being added
+     * @param displayName the displayName of the account holding the public key credential
+     * @param lastUsedTime the last used time the credential underlying this entry was
+     * used by the user, distinguishable up to the milli second mark only such that if two
+     * entries have the same millisecond precision, they will be considered to have been used at
+     * the same time
+     * @param icon the icon to be displayed with this entry on the selector, if not set, a
+     * default icon representing a public key credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto
+     * selected if it is the only one on the UI, only takes effect if the app requesting for
+     * credentials also opts for auto select
+     *
+     * @throws NullPointerException If [context], [username], [pendingIntent], or
+     * [beginGetPublicKeyCredentialOption] is null
+     * @throws IllegalArgumentException if [username] is empty
+     */
     constructor(
         context: Context,
         username: CharSequence,
