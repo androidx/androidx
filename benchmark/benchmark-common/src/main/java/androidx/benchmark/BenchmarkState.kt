@@ -158,7 +158,6 @@ class BenchmarkState internal constructor(
     private var currentMetrics: MetricsContainer = phases[0].metricsContainer
     private var currentMeasurement = 0
     private var currentLoopsPerMeasurement = 0
-    private var currentTotalMeasurements = 0
 
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -250,8 +249,8 @@ class BenchmarkState internal constructor(
             currentPhase.profiler?.stop()
             UserspaceTracing.endSection()
             thermalThrottleSleepSeconds += currentPhase.thermalThrottleSleepSeconds
-            if (currentPhase.loopMode.warmupManager == null) {
-                // Always save metrics, except during warmup
+            if (currentPhase.loopMode.warmupManager == null && currentPhase.profiler == null) {
+                // Always save metrics, except during warmup / profiling
                 // Note that dryRunMode avoids reporting these to JSON by other means, they
                 // still should be accessible to tests
                 metricResults.addAll(
@@ -300,7 +299,6 @@ class BenchmarkState internal constructor(
         currentMetrics.captureStop()
         throwIfPaused()
         currentMeasurement++
-        currentTotalMeasurements++
 
         val tryStartNextPhase = currentPhase.loopMode.let {
             if (it.warmupManager != null) {
@@ -309,7 +307,7 @@ class BenchmarkState internal constructor(
                 val lastMeasuredWarmupValue = currentMetrics.data.last()[0]
                 if (it.warmupManager.onNextIteration(lastMeasuredWarmupValue)) {
                     warmupEstimatedIterationTimeNs = lastMeasuredWarmupValue
-                    warmupRepeats = currentTotalMeasurements
+                    warmupRepeats = currentMeasurement
                     true
                 } else {
                     false
@@ -521,6 +519,10 @@ class BenchmarkState internal constructor(
     ) {
         if (phaseIndex == -1) {
             return // nothing to report, BenchmarkState wasn't used
+        }
+
+        if (tracePath != null) {
+            profilerResult?.embedInPerfettoTrace(tracePath)
         }
 
         checkFinished() // this method is triggered externally

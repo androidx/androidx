@@ -319,10 +319,12 @@ class BenchmarkStateTest {
                 assertEquals(0, profilerEnabledIterations)
                 assertEquals(0, profilerAllocationIterations)
             } else {
-                // first, profiler disabled, then enabled for timing only
+                // first, profiler disabled (timing) ...
                 assertNotEquals(0, profilerDisabledIterations)
+                // then enabled (profiling) ...
                 assertNotEquals(0, profilerEnabledIterations)
-                assertEquals(0, profilerAllocationIterations)
+                // then disabled again (allocs)
+                assertNotEquals(0, profilerAllocationIterations)
             }
         } finally {
             profilerOverride = null

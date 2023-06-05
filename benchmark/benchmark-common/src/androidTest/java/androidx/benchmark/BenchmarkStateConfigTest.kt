@@ -32,6 +32,7 @@ class BenchmarkStateConfigTest {
         expectedWarmups: Int?,
         expectedMeasurements: Int,
         expectedIterations: Int?,
+        expectedUsesProfiler: Boolean = false
     ) {
         val state = BenchmarkState(config)
         var count = 0
@@ -39,7 +40,19 @@ class BenchmarkStateConfigTest {
             count++
         }
 
-        assertEquals(state.warmupRepeats + expectedMeasurements * state.iterationsPerRepeat, count)
+        val calculatedIterations =
+            state.warmupRepeats + expectedMeasurements * state.iterationsPerRepeat
+
+        val usesProfiler = config.generatePhases().any { it.profiler != null }
+
+        assertEquals(expectedUsesProfiler, usesProfiler)
+        if (!usesProfiler) {
+            assertEquals(calculatedIterations, count)
+        } else if (config.profiler!!.requiresSingleMeasurementIteration) {
+            assertEquals(calculatedIterations + 1, count)
+        } else {
+            throw IllegalStateException("Test doesn't support validating profiler $config.profiler")
+        }
         if (expectedIterations != null) {
             assertEquals(expectedIterations, count)
         }
@@ -117,12 +130,13 @@ class BenchmarkStateConfigTest {
             startupMode = false,
             simplifiedTimingOnlyMode = false,
             profiler = MethodTracing,
-            warmupCount = 10,
-            measurementCount = 1000 // ignored
+            warmupCount = 5,
+            measurementCount = 10
         ),
-        expectedWarmups = 10,
-        expectedMeasurements = 1,
-        expectedIterations = 11, // allocations are skipped
+        expectedWarmups = 5,
+        expectedMeasurements = 15, // profiler not measured, not accounted for here
+        expectedIterations = null,
+        expectedUsesProfiler = true,
     )
 
     @Test
@@ -131,12 +145,13 @@ class BenchmarkStateConfigTest {
             dryRunMode = false,
             startupMode = false,
             simplifiedTimingOnlyMode = true,
-            profiler = MethodTracing, // if not simplified timing, would force 1 measurement
+            profiler = MethodTracing,
             warmupCount = 100,
             measurementCount = 10
         ),
         expectedWarmups = 100,
         expectedMeasurements = 10,
         expectedIterations = null,
+        expectedUsesProfiler = false, // ignored due to simplifiedTimingOnlyMode
     )
 }
