@@ -17,11 +17,15 @@
 package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
@@ -42,6 +46,7 @@ fun TextButtonDemo() {
         item {
             Row {
                 TextButtonSample()
+                Spacer(modifier = Modifier.width(5.dp))
                 TextButton(onClick = { }, enabled = false) {
                     Text(text = "ABC")
                 }
@@ -53,6 +58,7 @@ fun TextButtonDemo() {
         item {
             Row {
                 FilledTonalTextButtonSample()
+                Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
                     onClick = { },
                     enabled = false,
@@ -68,6 +74,7 @@ fun TextButtonDemo() {
         item {
             Row {
                 FilledTextButtonSample()
+                Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
                     onClick = { },
                     enabled = false,
@@ -83,10 +90,12 @@ fun TextButtonDemo() {
         item {
             Row {
                 OutlinedTextButtonSample()
+                Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
                     onClick = { },
                     enabled = false,
-                    colors = TextButtonDefaults.outlinedTextButtonColors()
+                    colors = TextButtonDefaults.outlinedTextButtonColors(),
+                    border = ButtonDefaults.outlinedButtonBorder(enabled = false)
                 ) {
                     Text(text = "ABC")
                 }
