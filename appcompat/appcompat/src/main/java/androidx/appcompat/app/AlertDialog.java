@@ -869,8 +869,10 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a custom view resource to be the contents of the Dialog. The
-         * resource will be inflated, adding all top-level views to the screen.
+         * Inflates a custom view resource inside the dialog, below the message and above the
+         * buttons. If none of the other parts of the dialog are made visible, the custom view
+         * occupies the entire view. Because the view is inflated inside the parent dialog's
+         * view, take care not to define conflicting resource IDs.
          *
          * @param layoutResId Resource ID to be inflated.
          * @return this Builder object to allow for chaining of calls to set
