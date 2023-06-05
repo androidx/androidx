@@ -44,6 +44,8 @@ object DefaultLoadingViewConstants {
     const val resource_package = "android"
 }
 
+private const val TAG = "AndroidTestUtils"
+
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
 
@@ -218,4 +220,17 @@ fun logViewHierarchy(tag: String, parent: ViewGroup, indent: String) {
             logViewHierarchy(tag, child, "$indent  ")
         }
     }
+}
+
+fun waitForBroadcastIdle(timeoutSeconds: Int = 5) {
+    // Default timeout set per observation with FTL devices in b/283484546
+    val cmd: String = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+        // wait for pending broadcasts until this point to be completed for UDC+
+        "am wait-for-broadcast-barrier"
+    } else {
+        // wait for broadcast queues to be idle. This is less preferred approach as it can
+        // technically take forever.
+        "am wait-for-broadcast-idle"
+    }
+    Log.i(TAG, runShellCommand("timeout $timeoutSeconds $cmd"))
 }
