@@ -21,8 +21,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.catalog.library.model.ColorMode
@@ -100,15 +98,10 @@ fun CatalogTheme(
                 }
             )
     ) {
-        // TODO: Remove M2 MaterialTheme when using only M3 components
-        androidx.compose.material.MaterialTheme(
-            colors = if (darkTheme) darkColors() else lightColors()
-        ) {
-            MaterialTheme(
-                colorScheme = colorScheme,
-                content = content,
-            )
-        }
+        MaterialTheme(
+            colorScheme = colorScheme,
+            content = content,
+        )
     }
 }
 
