@@ -350,7 +350,10 @@ public final class Recorder implements VideoOutput {
     RecordingRecord mInProgressRecording = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mInProgressRecordingStopping = false;
-    private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
+    @Nullable
+    private SurfaceRequest.TransformationInfo mInProgressTransformationInfo = null;
+    @Nullable
+    private SurfaceRequest.TransformationInfo mSourceTransformationInfo = null;
     private VideoValidatedEncoderProfilesProxy mResolvedEncoderProfiles = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final List<ListenableFuture<Void>> mEncodingFutures = new ArrayList<>();
@@ -1086,7 +1089,7 @@ public final class Recorder implements VideoOutput {
             return;
         }
         surfaceRequest.setTransformationInfoListener(mSequentialExecutor,
-                (transformationInfo) -> mSurfaceTransformationInfo = transformationInfo);
+                (transformationInfo) -> mSourceTransformationInfo = transformationInfo);
         Size surfaceSize = surfaceRequest.getResolution();
         // Fetch and cache nearest encoder profiles, if one exists.
         DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
@@ -1469,8 +1472,10 @@ public final class Recorder implements VideoOutput {
                 return;
             }
 
-            if (mSurfaceTransformationInfo != null) {
-                mediaMuxer.setOrientationHint(mSurfaceTransformationInfo.getRotationDegrees());
+            SurfaceRequest.TransformationInfo transformationInfo = mSourceTransformationInfo;
+            if (transformationInfo != null) {
+                setInProgressTransformationInfo(transformationInfo);
+                mediaMuxer.setOrientationHint(transformationInfo.getRotationDegrees());
             }
             Location location = recordingToStart.getOutputOptions().getLocation();
             if (location != null) {
@@ -2280,6 +2285,7 @@ public final class Recorder implements VideoOutput {
         mAudioErrorCause = null;
         mAudioAmplitude = AUDIO_AMPLITUDE_NONE;
         clearPendingAudioRingBuffer();
+        setInProgressTransformationInfo(null);
 
         switch (mAudioState) {
             case IDLING:
@@ -2632,7 +2638,7 @@ public final class Recorder implements VideoOutput {
         if (streamState == null) {
             streamState = internalStateToStreamState(mState);
         }
-        mStreamInfo.setState(StreamInfo.of(mStreamId, streamState));
+        mStreamInfo.setState(StreamInfo.of(mStreamId, streamState, mInProgressTransformationInfo));
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -2654,7 +2660,20 @@ public final class Recorder implements VideoOutput {
         }
         Logger.d(TAG, "Transitioning streamId: " + mStreamId + " --> " + streamId);
         mStreamId = streamId;
-        mStreamInfo.setState(StreamInfo.of(streamId, internalStateToStreamState(mState)));
+        mStreamInfo.setState(StreamInfo.of(streamId, internalStateToStreamState(mState),
+                mInProgressTransformationInfo));
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mSequentialExecutor")
+    void setInProgressTransformationInfo(
+            @Nullable SurfaceRequest.TransformationInfo transformationInfo) {
+        Logger.d(TAG, "Update stream transformation info: " + transformationInfo);
+        mInProgressTransformationInfo = transformationInfo;
+        synchronized (mLock) {
+            mStreamInfo.setState(StreamInfo.of(mStreamId, internalStateToStreamState(mState),
+                    transformationInfo));
+        }
     }
 
     /**
@@ -2677,8 +2696,8 @@ public final class Recorder implements VideoOutput {
 
         if (mNonPendingState != state) {
             mNonPendingState = state;
-            mStreamInfo.setState(
-                    StreamInfo.of(mStreamId, internalStateToStreamState(state)));
+            mStreamInfo.setState(StreamInfo.of(mStreamId, internalStateToStreamState(state),
+                    mInProgressTransformationInfo));
         }
     }
 

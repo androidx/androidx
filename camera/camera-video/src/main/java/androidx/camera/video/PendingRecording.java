@@ -150,6 +150,12 @@ public final class PendingRecording {
      * {@link Recording#stop()} or {@link Recording#close()} and will ignore events that would
      * normally cause recording to stop, such as lifecycle events or explicit unbinding of a
      * {@link VideoCapture} use case that the recording's {@link Recorder} is attached to.
+     *
+     * <p>A {@link Recorder} instance is recommended to be associated with a single
+     * {@link VideoCapture} instance, especially when using persistent recording. Otherwise, there
+     * might be unexpected behavior. Any in-progress persistent recording created from the same
+     * {@link Recorder} should be stopped before starting a new recording, even if the
+     * {@link Recorder} is associated with a different {@link VideoCapture}.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

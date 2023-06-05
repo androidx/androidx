@@ -291,6 +291,7 @@ public class CameraXActivity extends AppCompatActivity {
     View mViewFinder;
     private List<UseCase> mUseCases;
     ExecutorService mImageCaptureExecutorService;
+    private VideoCapture<Recorder> mVideoCapture;
     private Recorder mRecorder;
     Camera mCamera;
 
@@ -1616,18 +1617,20 @@ public class CameraXActivity extends AppCompatActivity {
             // Recreate the Recorder except there's a running persistent recording, existing
             // Recorder. We may later consider reuse the Recorder everytime if the quality didn't
             // change.
-            if (mRecorder == null || !(hasRunningRecording() && isPersistentRecordingEnabled())) {
+            if (mVideoCapture == null
+                    || mRecorder == null
+                    || !(hasRunningRecording() && isPersistentRecordingEnabled())) {
                 Recorder.Builder builder = new Recorder.Builder();
                 if (mVideoQuality != QUALITY_AUTO) {
                     builder.setQualitySelector(QualitySelector.from(mVideoQuality));
                 }
                 mRecorder = builder.build();
+                mVideoCapture = new VideoCapture.Builder<>(mRecorder)
+                        .setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
+                        .setDynamicRange(mDynamicRange)
+                        .build();
             }
-            VideoCapture<Recorder> videoCapture = new VideoCapture.Builder<>(mRecorder)
-                    .setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
-                    .setDynamicRange(mDynamicRange)
-                    .build();
-            useCases.add(videoCapture);
+            useCases.add(mVideoCapture);
         }
         return useCases;
     }
