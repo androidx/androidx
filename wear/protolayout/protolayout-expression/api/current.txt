@@ -323,7 +323,6 @@ package androidx.wear.protolayout.expression {
   }
 
   public static class PlatformHealthSources.Constants {
-    ctor public PlatformHealthSources.Constants();
     field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_HIGH;
     field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_LOW;
     field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_MEDIUM;

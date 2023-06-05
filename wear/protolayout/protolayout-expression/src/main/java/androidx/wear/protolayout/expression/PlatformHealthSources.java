@@ -35,6 +35,8 @@ import androidx.wear.protolayout.expression.proto.DynamicProto;
 public class PlatformHealthSources {
     /** Constants for platform health sources. */
     public static class Constants {
+        private Constants(){}
+
         /** The accuracy is unknown. */
         private static final int HEART_RATE_ACCURACY_UNKNOWN_VALUE = 0;
         /** The heart rate cannot be acquired because the sensor is not properly contacting skin. */
