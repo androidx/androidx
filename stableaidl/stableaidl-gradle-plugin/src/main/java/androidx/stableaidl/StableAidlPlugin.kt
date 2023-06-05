@@ -92,8 +92,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
 
             val apiDirName = "$API_DIR/aidl${variant.name.usLocaleCapitalize()}"
             val builtApiDir = project.layout.buildDirectory.dir(apiDirName)
-            val lastCheckedInApiDir =
-                project.layout.projectDirectory.dir("$apiDirName/$CURRENT_API_DIR")
+            val frozenApiDir = project.layout.projectDirectory.dir("$apiDirName/$CURRENT_API_DIR")
 
             val compileAidlApiTask = registerCompileAidlApi(
                 project,
@@ -126,6 +125,16 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 builtApiDir,
                 compileAidlApiTask
             )
+            val checkAidlApiReleaseTask = registerCheckApiAidlRelease(
+                project,
+                variant,
+                aidlExecutable,
+                aidlFramework,
+                importsDir,
+                depImports,
+                frozenApiDir,
+                generateAidlApiTask
+            )
             val checkAidlApiTask = registerCheckAidlApi(
                 project,
                 variant,
@@ -133,15 +142,16 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 aidlFramework,
                 importsDir,
                 depImports,
-                lastCheckedInApiDir,
-                generateAidlApiTask
+                frozenApiDir,
+                generateAidlApiTask,
+                checkAidlApiReleaseTask
             )
             val updateAidlApiTask = registerUpdateAidlApi(
                 project,
                 variant,
-                lastCheckedInApiDir,
+                frozenApiDir,
                 generateAidlApiTask,
-                checkAidlApiTask
+                checkAidlApiReleaseTask
             )
 
             if (variant.name == DEFAULT_VARIANT_NAME) {
@@ -156,6 +166,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
             extension.allTasks[variant.name] = setOf(
                 compileAidlApiTask,
                 generateAidlApiTask,
+                checkAidlApiReleaseTask,
                 checkAidlApiTask,
                 updateAidlApiTask
             )
@@ -169,7 +180,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
 internal const val API_DIR = "api"
 
 /**
- * Directory under [API_DIR] where frozen API files are stored.
+ * Directory under [API_DIR] where the frozen API files are stored.
  */
 internal const val CURRENT_API_DIR = "current"
 
