@@ -52,11 +52,8 @@ import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-@RunWith(JUnit4::class)
 class PageFetcherTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
     private val pagingSourceFactory = suspend { TestPagingSource() }

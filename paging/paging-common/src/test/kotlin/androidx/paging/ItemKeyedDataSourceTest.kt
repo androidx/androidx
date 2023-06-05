@@ -26,8 +26,6 @@ import kotlin.test.fail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -36,7 +34,6 @@ import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("DEPRECATION")
-@RunWith(JUnit4::class)
 class ItemKeyedDataSourceTest {
 
     // ----- STANDARD -----

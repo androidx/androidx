@@ -31,10 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class HintHandlerTest {
     private val hintHandler = HintHandler()
