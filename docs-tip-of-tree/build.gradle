@@ -139,6 +139,7 @@ dependencies {
     docs(project(":core:core-location-altitude"))
     docs(project(":core:core-performance"))
     docs(project(":core:core-performance-play-services"))
+    docs(project(":core:core-performance-testing"))
     samples(project(":core:core-performance:core-performance-samples"))
     docs(project(":core:core-remoteviews"))
     docs(project(":core:core-splashscreen"))
