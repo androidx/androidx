@@ -20,10 +20,7 @@ import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class PagingConfigTest {
     @Test
     fun defaults() {
