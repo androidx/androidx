@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 
 /**
  * Contains the current scroll position represented by the first visible page  and the first
@@ -55,15 +54,13 @@ internal class PagerScrollPosition(
             val scrollOffset = measureResult.firstVisiblePageOffset
             check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
 
-            Snapshot.withoutReadObservation {
-                update(
-                    measureResult.firstVisiblePage?.index ?: 0,
-                    scrollOffset
-                )
-                measureResult.closestPageToSnapPosition?.index?.let {
-                    if (it != this.currentPage) {
-                        this.currentPage = it
-                    }
+            update(
+                measureResult.firstVisiblePage?.index ?: 0,
+                scrollOffset
+            )
+            measureResult.closestPageToSnapPosition?.index?.let {
+                if (it != this.currentPage) {
+                    this.currentPage = it
                 }
             }
         }
@@ -89,11 +86,7 @@ internal class PagerScrollPosition(
 
     private fun update(index: Int, scrollOffset: Int) {
         require(index >= 0f) { "Index should be non-negative ($index)" }
-        if (index != this.firstVisiblePage) {
-            this.firstVisiblePage = index
-        }
-        if (scrollOffset != this.scrollOffset) {
-            this.scrollOffset = scrollOffset
-        }
+        this.firstVisiblePage = index
+        this.scrollOffset = scrollOffset
     }
 }
