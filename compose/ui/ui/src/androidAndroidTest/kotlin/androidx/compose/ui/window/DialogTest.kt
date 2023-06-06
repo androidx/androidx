@@ -20,12 +20,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.test.TestActivity
@@ -36,6 +38,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -315,7 +318,6 @@ class DialogTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
@@ -337,6 +339,40 @@ class DialogTest {
                     .roundToInt()
             )
             Truth.assertThat(box2Width).isLessThan(box1Width)
+        }
+    }
+
+    @Test
+    fun canChangeSize() {
+        var width by mutableStateOf(10.dp)
+        var usePlatformDefaultWidth by mutableStateOf(false)
+        var actualWidth = 0
+
+        rule.setContent {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
+            ) {
+                Box(Modifier.size(width, 150.dp).onSizeChanged { actualWidth = it.width })
+            }
+        }
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((10 * rule.density.density).roundToInt())
+        }
+        width = 20.dp
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((20 * rule.density.density).roundToInt())
+        }
+
+        usePlatformDefaultWidth = true
+
+        width = 30.dp
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((30 * rule.density.density).roundToInt())
+        }
+        width = 40.dp
+        rule.runOnIdle {
+            Truth.assertThat(actualWidth).isEqualTo((40 * rule.density.density).roundToInt())
         }
     }
 }
