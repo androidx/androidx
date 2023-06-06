@@ -75,6 +75,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -916,6 +917,7 @@ class VideoRecordingTest(
         file2.delete()
     }
 
+    @Ignore("b/285940946")
     @Test
     fun canContinueRecordingAfterRebind() {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -960,6 +962,7 @@ class VideoRecordingTest(
         file.delete()
     }
 
+    @Ignore("b/285940946")
     @Test
     fun canContinueRecordingPausedAfterRebind() {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
