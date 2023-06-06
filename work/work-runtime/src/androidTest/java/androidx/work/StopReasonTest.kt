@@ -18,20 +18,16 @@ package androidx.work
 
 import android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.work.impl.Processor
-import androidx.work.impl.WorkDatabase
-import androidx.work.impl.WorkLauncherImpl
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.impl.testutils.TrackingWorkerFactory
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
+import androidx.work.testutils.GreedyScheduler
+import androidx.work.testutils.TestEnv
+import androidx.work.testutils.WorkManager
 import androidx.work.worker.InfiniteTestWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
@@ -44,28 +40,17 @@ import org.junit.runner.RunWith
 @SmallTest
 @SdkSuppress(minSdkVersion = 31)
 class StopReasonTest {
-    val context = ApplicationProvider.getApplicationContext<Context>()
     val workerFactory = TrackingWorkerFactory()
-    val configuration = Configuration.Builder().setWorkerFactory(workerFactory).build()
-    val executor = Executors.newSingleThreadExecutor()
-    val taskExecutor = WorkManagerTaskExecutor(executor)
-    val fakeChargingTracker = TestConstraintTracker(false, context, taskExecutor)
+    val configuration = Configuration.Builder().setWorkerFactory(workerFactory)
+        .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+    val env = TestEnv(configuration)
+    val fakeChargingTracker = TestConstraintTracker(false, env.context, env.taskExecutor)
     val trackers = Trackers(
-        context = context,
-        taskExecutor = taskExecutor,
+        context = env.context,
+        taskExecutor = env.taskExecutor,
         batteryChargingTracker = fakeChargingTracker
     )
-    val db = WorkDatabase.create(context, executor, configuration.clock, true)
-
-    val processor = Processor(context, configuration, taskExecutor, db)
-    val launcher = WorkLauncherImpl(processor, taskExecutor)
-    val greedyScheduler = GreedyScheduler(
-        context, configuration, trackers, processor, launcher,
-        taskExecutor
-    )
-    val workManager = WorkManagerImpl(
-        context, configuration, taskExecutor, db, listOf(greedyScheduler), processor, trackers
-    )
+    val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
 
     init {
         WorkManagerImpl.setDelegate(workManager)
