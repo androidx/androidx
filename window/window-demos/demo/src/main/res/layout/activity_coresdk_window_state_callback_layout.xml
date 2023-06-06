@@ -42,12 +42,40 @@
             android:layout_marginBottom="10dp"
             android:background="#AAAAAA" />
 
-        <!-- Update from DisplayListener. -->
+        <!-- Update from Application DisplayListener. -->
         <androidx.window.demo.coresdk.WindowStateView
-            android:id="@+id/display_listener_view"
+            android:id="@+id/application_display_listener_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="@string/display_listener_title"/>
+            app:title="@string/application_display_listener_title"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <!-- Update from Activity DisplayListener. -->
+        <androidx.window.demo.coresdk.WindowStateView
+            android:id="@+id/activity_display_listener_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="@string/activity_display_listener_title"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <!-- Update from Application#onConfigurationChanged. -->
+        <androidx.window.demo.coresdk.WindowStateView
+            android:id="@+id/application_configuration_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:title="@string/application_configuration_title"/>
 
         <View
             android:layout_width="match_parent"
