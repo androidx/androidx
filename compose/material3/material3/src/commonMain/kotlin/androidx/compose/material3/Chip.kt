@@ -28,6 +28,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -1372,10 +1373,8 @@ private fun SelectableChip(
         enabled = enabled,
         shape = shape,
         color = colors.containerColor(enabled, selected).value,
-        tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value
-            ?: 0.dp,
-        shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value
-            ?: 0.dp,
+        tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp,
+        shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource,
     ) {
@@ -1413,6 +1412,7 @@ private fun ChipContent(
     ) {
         Row(
             Modifier
+                .width(IntrinsicSize.Max)
                 .defaultMinSize(minHeight = minHeight)
                 .padding(paddingValues),
             horizontalArrangement = Arrangement.Start,
@@ -1426,7 +1426,11 @@ private fun ChipContent(
                 )
             }
             Spacer(Modifier.width(HorizontalElementsPadding))
-            label()
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) { label() }
             Spacer(Modifier.width(HorizontalElementsPadding))
             if (trailingIcon != null) {
                 CompositionLocalProvider(
