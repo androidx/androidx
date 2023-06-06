@@ -30,8 +30,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 private fun <T : Any> List<PageEvent<T>>.getItems() = mapNotNull { event ->
     when (event) {
@@ -55,7 +53,6 @@ private fun <T : Any> assertInsertData(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class SeparatorsTest {
     @Test
     fun refreshFull() = runTest {
