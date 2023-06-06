@@ -105,14 +105,20 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
 
     // Testing for Compose
     // Test rules and transitive dependencies:
