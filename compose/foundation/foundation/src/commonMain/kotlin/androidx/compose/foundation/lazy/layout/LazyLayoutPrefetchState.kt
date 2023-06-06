@@ -18,9 +18,6 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Constraints
 
 /**
@@ -29,7 +26,7 @@ import androidx.compose.ui.unit.Constraints
 @ExperimentalFoundationApi
 @Stable
 class LazyLayoutPrefetchState {
-    internal var prefetcher: Prefetcher? by mutableStateOf(null)
+    internal var prefetcher: Prefetcher? = null
 
     /**
      * Schedules precomposition and premeasure for the new item.

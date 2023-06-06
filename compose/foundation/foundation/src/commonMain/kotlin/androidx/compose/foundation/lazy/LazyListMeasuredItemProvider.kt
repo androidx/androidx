@@ -26,12 +26,11 @@ import androidx.compose.ui.unit.Constraints
  * Abstracts away the subcomposition from the measuring logic.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi constructor(
+internal abstract class LazyListMeasuredItemProvider @ExperimentalFoundationApi constructor(
     constraints: Constraints,
     isVertical: Boolean,
     private val itemProvider: LazyListItemProvider,
-    private val measureScope: LazyLayoutMeasureScope,
-    private val measuredItemFactory: MeasuredItemFactory
+    private val measureScope: LazyLayoutMeasureScope
 ) {
     // the constraints we will measure child with. the main axis is not restricted
     val childConstraints = Constraints(
@@ -44,22 +43,19 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
      * correct constraints and wrapped into [LazyListMeasuredItem].
      */
     fun getAndMeasure(index: Int): LazyListMeasuredItem {
-        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
+        val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, childConstraints)
-        return measuredItemFactory.createItem(index, key, contentType, placeables)
+        return createItem(index, key, contentType, placeables)
     }
 
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
-}
+    val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
 
-// This interface allows to avoid autoboxing on index param
-internal fun interface MeasuredItemFactory {
-    fun createItem(
+    abstract fun createItem(
         index: Int,
         key: Any,
         contentType: Any?,

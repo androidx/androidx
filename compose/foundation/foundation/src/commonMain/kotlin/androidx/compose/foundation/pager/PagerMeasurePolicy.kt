@@ -40,7 +40,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberPagerMeasurePolicy(
-    itemProvider: PagerLazyLayoutItemProvider,
+    itemProviderLambda: () -> PagerLazyLayoutItemProvider,
     state: PagerState,
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
@@ -150,6 +150,7 @@ internal fun rememberPagerMeasurePolicy(
             }
         }
 
+        val itemProvider = itemProviderLambda()
         val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices(
             pinnedItemList = state.pinnedPages,
             beyondBoundsInfo = state.beyondBoundsInfo
