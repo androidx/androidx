@@ -27,6 +27,7 @@ import android.view.SurfaceView
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.FrontBufferUtils
+import androidx.graphics.utils.JniVisible
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
@@ -181,6 +182,7 @@ class SurfaceControlCompat internal constructor(
      * Interface to handle request to
      * [SurfaceControlV29.Transaction.addTransactionCompletedListener]
      */
+    @JniVisible
     internal interface TransactionCompletedListener {
         /**
          * Invoked when a frame including the updates in a transaction was presented.
@@ -188,6 +190,7 @@ class SurfaceControlCompat internal constructor(
          * Buffers which are replaced or removed from the scene in the transaction invoking
          * this callback may be reused after this point.
          */
+        @JniVisible
         fun onTransactionCompleted()
     }
 
@@ -195,10 +198,12 @@ class SurfaceControlCompat internal constructor(
      * Interface to handle request to
      * [SurfaceControlCompat.Transaction.addTransactionCommittedListener]
      */
+    @JniVisible
     interface TransactionCommittedListener {
         /**
          * Invoked when the transaction has been committed in SurfaceFlinger
          */
+        @JniVisible
         fun onTransactionCommitted()
     }
 

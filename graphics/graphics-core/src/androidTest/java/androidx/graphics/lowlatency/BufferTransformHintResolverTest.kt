@@ -26,6 +26,7 @@ import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.ORIENT
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.ORIENTATION_270
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.ORIENTATION_90
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOWN_TRANSFORM
+import androidx.graphics.surface.JniBindings
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_IDENTITY
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_180
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
@@ -162,7 +163,7 @@ internal class BufferTransformHintResolverTest() {
     @Test
     fun testGetDisplayOrientationMethodLinked() {
         try {
-            BufferTransformHintResolver.getDisplayOrientation()
+            JniBindings.nGetDisplayOrientation()
         } catch (linkError: UnsatisfiedLinkError) {
             fail("Unable to resolve getDisplayOrientation")
         } catch (exception: Exception) {

@@ -30,7 +30,6 @@ add_library( # Sets the name of the library.
              graphics-core.cpp
              egl_utils.cpp
              sync_fence.cpp
-             buffer_transform_hint_resolver.cpp
              sc_test_utils.cpp
         )
 
