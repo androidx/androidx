@@ -22,6 +22,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.graphics.opengl.egl.EGLConfigAttributes
+import androidx.graphics.utils.JniVisible
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV19
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
@@ -644,9 +645,11 @@ class EGLExt private constructor() {
  * public API. This class is provided to separate responsibilities of jni method registration
  * and helps to avoid synthetic accessor warnings
  */
+@JniVisible
 internal class EGLBindings {
     companion object {
         @JvmStatic
+        @JniVisible
         external fun nCreateImageFromHardwareBuffer(
             eglDisplayPtr: Long,
             hardwareBuffer: HardwareBuffer
@@ -655,15 +658,19 @@ internal class EGLBindings {
         // Note this API is explicitly a GL API and not an EGL API which is the reason
         // why this has the GL prefix vs EGL
         @JvmStatic
+        @JniVisible
         external fun nImageTargetTexture2DOES(target: Int, eglImagePtr: Long)
 
         @JvmStatic
+        @JniVisible
         external fun nDupNativeFenceFDANDROID(eglDisplayPtr: Long, syncPtr: Long): Int
 
         @JvmStatic
+        @JniVisible
         external fun nCreateSyncKHR(eglDisplayPtr: Long, type: Int, attrs: IntArray?): Long
 
         @JvmStatic
+        @JniVisible
         external fun nGetSyncAttribKHR(
             eglDisplayPtr: Long,
             syncPtr: Long,
@@ -673,6 +680,7 @@ internal class EGLBindings {
         ): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nClientWaitSyncKHR(
             eglDisplayPtr: Long,
             syncPtr: Long,
@@ -681,38 +689,50 @@ internal class EGLBindings {
         ): Int
 
         @JvmStatic
+        @JniVisible
         external fun nDestroySyncKHR(eglDisplayPtr: Long, syncPtr: Long): Boolean
         @JvmStatic
+        @JniVisible
         external fun nDestroyImageKHR(eglDisplayPtr: Long, eglImagePtr: Long): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglGetNativeClientBufferAndroid(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsDupNativeFenceFDANDROID(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglCreateImageKHR(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglDestroyImageKHR(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsGlImageTargetTexture2DOES(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglCreateSyncKHR(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglGetSyncAttribKHR(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglClientWaitSyncKHR(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nSupportsEglDestroySyncKHR(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nEqualToNativeForeverTimeout(timeoutNanos: Long): Boolean
 
         init {
