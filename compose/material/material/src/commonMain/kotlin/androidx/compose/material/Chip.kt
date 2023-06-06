@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -214,6 +215,7 @@ fun FilterChip(
             ) {
                 Row(
                     Modifier
+                        .width(IntrinsicSize.Max)
                         .defaultMinSize(
                             minHeight = ChipDefaults.MinHeight
                         )
@@ -274,7 +276,12 @@ fun FilterChip(
                         }
                         Spacer(Modifier.width(LeadingIconEndSpacing))
                     }
-                    content()
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = content,
+                    )
                     if (trailingIcon != null) {
                         Spacer(Modifier.width(TrailingIconSpacing))
                         trailingIcon()
