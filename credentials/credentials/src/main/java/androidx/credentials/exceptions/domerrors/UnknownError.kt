@@ -16,17 +16,13 @@
 
 package androidx.credentials.exceptions.domerrors
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-
 /**
  * This is thrown when the create public key credential operation failed with no more detailed
  * information. This could be something such as out of memory or some other transient reason -
  * either from fido directly or through the public key credential flow in general. The fido spec
  * can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
- *
- * @see CreatePublicKeyCredentialDomException
  */
-@Suppress("ExtendsError")
+@Suppress("ExtendsError") // This is not a real java `Error`
 class UnknownError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR) {
     internal companion object {

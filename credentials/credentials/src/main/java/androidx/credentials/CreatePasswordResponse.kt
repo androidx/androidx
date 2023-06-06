@@ -24,9 +24,8 @@ class CreatePasswordResponse : CreateCredentialResponse(
     Bundle(),
 ) {
     internal companion object {
-        @Suppress("UNUSED_PARAMETER")
         @JvmStatic
-        internal fun createFrom(data: Bundle): CreatePasswordResponse {
+        internal fun createFrom(): CreatePasswordResponse {
             return CreatePasswordResponse()
         }
     }
