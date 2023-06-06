@@ -56,7 +56,6 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -215,7 +214,6 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textColor")
     }
 
-    @Ignore("b/285411706")
     @Test
     @WithNightMode
     fun checkTextColor_dark() {
