@@ -28,7 +28,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
 import androidx.wear.protolayout.LayoutElementBuilders;
-import androidx.wear.protolayout.material.testapp.GoldenTestActivity;
+import androidx.wear.protolayout.material.test.GoldenTestActivity;
 
 public class RunnerUtils {
     // This isn't totally ideal right now. The screenshot tests run on a phone, so emulate some

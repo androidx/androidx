@@ -18,13 +18,15 @@ package androidx.wear.protolayout.material;
 
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
+import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
+import static androidx.wear.protolayout.material.Chip.METADATA_TAG_ICON;
+import static androidx.wear.protolayout.material.Chip.METADATA_TAG_TEXT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
+import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_ICON_SIZE;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
-import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_HEIGHT;
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
 
 import android.content.Context;
 
@@ -34,12 +36,9 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
-import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
-import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -75,9 +74,6 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * }</pre>
  */
 public class CompactChip implements LayoutElement {
-    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
-    static final String METADATA_TAG = "CMPCHP";
-
     @NonNull private final Chip mElement;
 
     CompactChip(@NonNull Chip element) {
@@ -92,6 +88,7 @@ public class CompactChip implements LayoutElement {
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
         private boolean mIsFontPaddingExcluded = false;
+        @Nullable private String mIconResourceId = null;
 
         /**
          * Creates a builder for the {@link CompactChip} with associated action and the given text
@@ -139,6 +136,19 @@ public class CompactChip implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets the icon for the {@link CompactChip}. Provided icon will be tinted to the given
+         * content color from {@link ChipColors}. This icon should be image with chosen alpha
+         * channel that can be tinted.
+         *
+         * <p>It is highly recommended to use it with {@link #setExcludeFontPadding} set to true.
+         */
+        @NonNull
+        public Builder setIconContent(@NonNull String imageResourceId) {
+            this.mIconResourceId = imageResourceId;
+            return this;
+        }
+
         /** Constructs and returns {@link CompactChip} with the provided content and look. */
         @NonNull
         @Override
@@ -146,10 +156,9 @@ public class CompactChip implements LayoutElement {
         public CompactChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
-                            .setMetadataTag(METADATA_TAG)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
-                            .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
+                            .setHorizontalAlignment(getCorrectHorizontalAlignment())
                             .setWidth(wrap())
                             .setHeight(COMPACT_HEIGHT)
                             .setMaxLines(1)
@@ -159,7 +168,15 @@ public class CompactChip implements LayoutElement {
                             .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
+            if (mIconResourceId != null) {
+                chipBuilder.setIconContent(mIconResourceId).setIconSize(COMPACT_ICON_SIZE);
+            }
+
             return new CompactChip(chipBuilder.build());
+        }
+
+        private int getCorrectHorizontalAlignment() {
+            return mIconResourceId == null ? HORIZONTAL_ALIGN_CENTER : HORIZONTAL_ALIGN_START;
         }
     }
 
@@ -181,7 +198,13 @@ public class CompactChip implements LayoutElement {
         return checkNotNull(mElement.getPrimaryLabelContent());
     }
 
-    /** Returns metadata tag set to this CompactChip, which should be {@link #METADATA_TAG}. */
+    /** Returns icon id from this CompactChip if it has been added. Otherwise, it returns null. */
+    @Nullable
+    public String getIconContent() {
+        return mElement.getIconContent();
+    }
+
+    /** Returns metadata tag set to this CompactChip. */
     @NonNull
     String getMetadataTag() {
         return mElement.getMetadataTag();
@@ -201,7 +224,8 @@ public class CompactChip implements LayoutElement {
             return null;
         }
         Box boxElement = (Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG_TEXT)
+                && !checkTag(boxElement.getModifiers(), METADATA_TAG_ICON)) {
             return null;
         }
 

@@ -136,6 +136,7 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.CompactChip? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
+    method public String? getIconContent();
     method public String getText();
     method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
@@ -145,6 +146,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.CompactChip build();
     method public androidx.wear.protolayout.material.CompactChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
     method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.CompactChip.Builder setExcludeFontPadding(boolean);
+    method public androidx.wear.protolayout.material.CompactChip.Builder setIconContent(String);
   }
 
   public class ProgressIndicatorColors {
@@ -199,6 +201,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
     method public int getHorizontalAlignment();
+    method public String? getIconContent();
     method public String getText();
     method public androidx.wear.protolayout.DimensionBuilders.ContainerDimension getWidth();
     method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
@@ -210,6 +213,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.TitleChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
     method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.TitleChip.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.TitleChip.Builder setHorizontalAlignment(int);
+    method public androidx.wear.protolayout.material.TitleChip.Builder setIconContent(String);
     method public androidx.wear.protolayout.material.TitleChip.Builder setWidth(androidx.wear.protolayout.DimensionBuilders.ContainerDimension);
     method public androidx.wear.protolayout.material.TitleChip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }

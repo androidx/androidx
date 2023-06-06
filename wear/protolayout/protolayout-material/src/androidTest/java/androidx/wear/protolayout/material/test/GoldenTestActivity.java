@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.protolayout.material.testapp;
+package androidx.wear.protolayout.material.test;
 
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
@@ -37,7 +37,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId;
 import androidx.wear.protolayout.ResourceBuilders.ImageResource;
 import androidx.wear.protolayout.ResourceBuilders.Resources;
-import androidx.wear.protolayout.material.R;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -46,6 +45,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 @SuppressWarnings("deprecation")
 public class GoldenTestActivity extends Activity {
     private static final String ICON_ID = "icon";
+    private static final String ICON_ID_SMALL = "icon_small";
     private static final String AVATAR = "avatar_image";
 
     @Override
@@ -98,6 +98,14 @@ public class GoldenTestActivity extends Activity {
                                 .setAndroidResourceByResId(
                                         new AndroidImageResourceByResId.Builder()
                                                 .setResourceId(R.drawable.icon)
+                                                .build())
+                                .build())
+                .addIdToImageMapping(
+                        ICON_ID_SMALL,
+                        new ImageResource.Builder()
+                                .setAndroidResourceByResId(
+                                        new AndroidImageResourceByResId.Builder()
+                                                .setResourceId(R.drawable.icon_small)
                                                 .build())
                                 .build())
                 .addIdToImageMapping(
