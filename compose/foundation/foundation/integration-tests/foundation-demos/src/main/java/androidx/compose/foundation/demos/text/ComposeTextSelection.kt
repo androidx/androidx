@@ -18,12 +18,15 @@ package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
@@ -33,17 +36,63 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+
+val textBorderModifier = Modifier
+    .border(1.dp, Color.LightGray)
+    .padding(1.dp)
+const val defaultText = "Line1\nLine2 text1 text2\nLine3"
 
 @Preview
 @Composable
 fun TextSelectionDemo() {
-    LazyColumn {
+    LazyColumn(modifier = Modifier.padding(32.dp, 0.dp)) {
+        item {
+            Text(
+                modifier = textBorderModifier,
+                text = buildAnnotatedString {
+                    fun appendWithColor(color: Color, text: String) {
+                        withStyle(SpanStyle(color = color)) {
+                            append(text)
+                        }
+                    }
+
+                    fun appendCode(text: String) {
+                        withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
+                            append(text)
+                        }
+                    }
+
+                    appendWithColor(Color.Green, "Green")
+                    append(" borders represent a ")
+                    appendCode("SelectionContainer")
+                    append(". ")
+                    appendWithColor(Color.Red, "Red")
+                    append(" borders represent a ")
+                    appendCode("DisableSelection")
+                    append(". ")
+                    appendWithColor(Color.Gray, "Light gray")
+                    append(" borders represent a single ")
+                    appendCode("Text/BasicText")
+                    append(".")
+                },
+            )
+        }
+        item {
+            TagLine(tag = "Single BasicText")
+            TextDemoSingleTextSelection()
+        }
+        item {
+            TagLine(tag = "One BasicText per line")
+            TextDemoMultiTextSelection()
+        }
         item {
             TagLine(tag = "selection")
             TextDemoSelection()
@@ -62,7 +111,7 @@ fun TextSelectionDemo() {
         }
         item {
             TagLine(tag = "fix crashing of longpress in the blank area")
-            SelectionContainer {
+            OutlinedSelectionContainer {
                 Text(
                     text = "Hello World\nHello",
                     modifier = Modifier.fillMaxWidth()
@@ -71,8 +120,34 @@ fun TextSelectionDemo() {
                 )
             }
         }
-        item {
-            TagLine(tag = "")
+    }
+}
+
+@Preview
+@Composable
+fun TextDemoSingleTextSelection() {
+    OutlinedSelectionContainer {
+        BasicText(
+            style = TextStyle(fontSize = fontSize8),
+            text = defaultText,
+            modifier = textBorderModifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun TextDemoMultiTextSelection() {
+    val splitTexts = defaultText.split("\n")
+    OutlinedSelectionContainer {
+        Column {
+            splitTexts.fastForEach {
+                BasicText(
+                    style = TextStyle(fontSize = fontSize8),
+                    text = it,
+                    modifier = textBorderModifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -82,8 +157,9 @@ fun TextSelectionDemo() {
 fun TextDemoSelection() {
     val arabicSentence =
         "\nكلمة شين في قاموس المعاني الفوري مجال البحث مصطلحات المعجم الوسيط ،اللغة"
-    SelectionContainer {
+    OutlinedSelectionContainer {
         Text(
+            modifier = textBorderModifier,
             style = TextStyle(
                 color = Color(0xFFFF0000),
                 fontSize = fontSize6,
@@ -123,13 +199,14 @@ fun TextDemoSelection() {
 @Preview
 @Composable
 fun TextDemoSelectionWithStringInput() {
-    SelectionContainer {
+    OutlinedSelectionContainer {
         Text(
             text = "$displayText    $displayTextChinese    $displayTextHindi",
             color = Color(0xFFFF0000),
             fontSize = fontSize6,
             fontWeight = FontWeight.W200,
-            fontStyle = FontStyle.Italic
+            fontStyle = FontStyle.Italic,
+            modifier = textBorderModifier,
         )
     }
 }
@@ -154,13 +231,14 @@ fun TextDemoSelection2DArrayVertical() {
         Color(0xFFFF0000)
     )
 
-    SelectionContainer {
+    OutlinedSelectionContainer {
         Column(Modifier.fillMaxHeight()) {
             for (i in 0..2) {
                 Row(Modifier.fillMaxWidth()) {
                     for (j in 0..2) {
                         Text(
                             text = text,
+                            modifier = textBorderModifier,
                             style = TextStyle(
                                 color = colorList[i * 3 + j],
                                 fontSize = fontSize6
@@ -180,36 +258,63 @@ fun TextDemoSelectionEnableAndDisable() {
     val textSelectable = "This text is selectable."
     val textNotSelectable = "This text is not selectable."
 
-    SelectionContainer {
+    OutlinedSelectionContainer {
         Column(Modifier.fillMaxHeight()) {
             Text(
                 text = textSelectable,
+                modifier = textBorderModifier,
                 style = TextStyle(fontSize = fontSize8)
             )
-            DisableSelection {
+            OutlinedDisableSelection {
                 Text(
                     text = textNotSelectable,
+                    modifier = textBorderModifier,
                     style = TextStyle(fontSize = fontSize8)
                 )
             }
             Text(
                 text = textSelectable,
+                modifier = textBorderModifier,
                 style = TextStyle(fontSize = fontSize8)
             )
-            DisableSelection {
+            OutlinedDisableSelection {
                 Text(
                     text = textNotSelectable,
+                    modifier = textBorderModifier,
                     style = TextStyle(fontSize = fontSize8)
                 )
                 Text(
                     text = textNotSelectable,
+                    modifier = textBorderModifier,
                     style = TextStyle(fontSize = fontSize8)
                 )
             }
             Text(
                 text = textSelectable,
+                modifier = textBorderModifier,
                 style = TextStyle(fontSize = fontSize8)
             )
         }
+    }
+}
+
+@Composable
+fun OutlinedSelectionContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    SelectionContainer(
+        modifier = modifier
+            .border(1.dp, Color.Green)
+            .padding(1.dp),
+        content = content
+    )
+}
+
+@Composable
+fun OutlinedDisableSelection(content: @Composable () -> Unit) {
+    Box(
+        Modifier
+            .border(1.dp, Color.Red)
+            .padding(1.dp)
+    ) {
+        DisableSelection(content)
     }
 }
