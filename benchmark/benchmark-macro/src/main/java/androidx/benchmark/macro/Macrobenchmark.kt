@@ -26,7 +26,6 @@ import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
-import androidx.benchmark.Errors
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
@@ -136,10 +135,27 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                         experimentalProperties["android.experimental.self-instrumenting"] = true
                     }
                 """.trimIndent()
+            ),
+            conditionalError(
+                hasError = Arguments.methodTracingEnabled(),
+                id = "METHOD-TRACING-ENABLED",
+                summary = "Method tracing is enabled during a Macrobenchmark",
+                message = """
+                    The Macrobenchmark run for $packageName has method tracing enabled.
+                    This causes the VM will run more slowly than usual, so the metrics from the
+                    trace files should only be considered in relative terms
+                    (e.g. was run #1 faster than run #2). Also, these metrics cannot be compared
+                    with benchmark runs that don't have method tracing enabled.
+                """.trimIndent()
             )
         ).sortedBy { it.id }
 
-    return errors.checkAndGetSuppressionState(Arguments.suppressedErrors)
+    // These error ids are really warnings. In that, we don't need developers to have to
+    // explicitly suppress them using test instrumentation arguments.
+    // TODO: Introduce a better way to surface warnings.
+    val warnings = setOf("METHOD-TRACING-ENABLED")
+
+    return errors.checkAndGetSuppressionState(Arguments.suppressedErrors + warnings)
 }
 
 /**
@@ -169,13 +185,18 @@ private fun macrobenchmark(
     }
 
     val suppressionState = checkErrors(packageName)
-    var warningMessage = buildWarningMessage(suppressionState)
+    var warningMessage = suppressionState?.warningMessage ?: ""
     // skip benchmark if not supported by vm settings
     compilationMode.assumeSupportedWithVmSettings()
 
     val startTime = System.nanoTime()
-    val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
-
+    // Ensure method tracing is explicitly enabled and that we are not running in dry run mode.
+    val launchWithMethodTracing = Arguments.methodTracingEnabled()
+    val scope = MacrobenchmarkScope(
+        packageName,
+        launchWithClearTask = launchWithClearTask
+    )
+    scope.launchWithMethodTracing = launchWithMethodTracing
     // Ensure the device is awake
     scope.device.wakeUp()
 
@@ -239,19 +260,6 @@ private fun macrobenchmark(
                 ) {
                     try {
                         trace("start metrics") {
-                            if (Arguments.methodTracingOptions.isNotEmpty()) {
-                                // Once you turn on method tracing its okay to ignore
-                                // the costs of true CompilationMode.COLD as the numbers cannot
-                                // be used for anything reasonable.
-
-                                // It would be nice if our metrics infra supported this use case
-                                // better.
-                                MethodTracing.startTracing(
-                                    packageName = packageName,
-                                    options = Arguments.methodTracingOptions,
-                                    uniqueName = fileLabel
-                                )
-                            }
                             metrics.forEach {
                                 it.start()
                             }
@@ -264,11 +272,8 @@ private fun macrobenchmark(
                             metrics.forEach {
                                 it.stop()
                             }
-                            if (Arguments.methodTracingOptions.isNotEmpty()) {
-                                MethodTracing.stopTracing(
-                                    packageName = packageName,
-                                    uniqueName = fileLabel
-                                )
+                            if (launchWithMethodTracing) {
+                                scope.stopMethodTracing()
                             }
                         }
                     }
@@ -434,16 +439,4 @@ fun macrobenchmarkWithStartupMode(
         launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,
         measureBlock = measureBlock
     )
-}
-
-private fun buildWarningMessage(suppressionState: ConfigurationError.SuppressionState?): String {
-    val warnings = Errors.acquireWarningStringForLogging()
-    val builder = StringBuilder()
-    if (suppressionState != null) {
-        builder.append(suppressionState)
-    }
-    if (warnings != null) {
-        builder.append("\n").append(warnings)
-    }
-    return builder.toString()
 }
