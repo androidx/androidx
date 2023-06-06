@@ -904,6 +904,7 @@ package androidx.car.app.messaging.model {
 
   public static final class ConversationItem.Builder {
     ctor public ConversationItem.Builder();
+    ctor public ConversationItem.Builder(androidx.car.app.messaging.model.ConversationItem);
     method public androidx.car.app.messaging.model.ConversationItem build();
     method public androidx.car.app.messaging.model.ConversationItem.Builder setConversationCallback(androidx.car.app.messaging.model.ConversationCallback);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setGroupConversation(boolean);
