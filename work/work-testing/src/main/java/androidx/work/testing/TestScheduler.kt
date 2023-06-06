@@ -75,6 +75,11 @@ class TestScheduler(
             }
         }
         toSchedule.forEach { (spec, state) ->
+            if (executorsMode != ExecutorsMode.USE_TIME_BASED_SCHEDULING) {
+                if (spec.isBackedOff && spec.calculateNextRunTime() > clock.currentTimeMillis()) {
+                    return@forEach
+                }
+            }
             maybeScheduleInternal(spec, state)
         }
     }
@@ -168,9 +173,6 @@ class TestScheduler(
                 delayedWorkTracker.schedule(spec, spec.calculateNextRunTime())
             }
         } else {
-            if (spec.isBackedOff && spec.calculateNextRunTime() > clock.currentTimeMillis()) {
-                return
-            }
             if (isRunnableInternalState(spec, state)) {
                 workDatabase.rewindLastEnqueueTimeIfNecessary(spec.id, clock)
                 launcher.startWork(generateStartStopToken(spec, generationalId))
