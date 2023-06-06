@@ -41,6 +41,14 @@ internal class JavacAnnotation(
         JavacDeclaredType(env, mirror.annotationType, XNullability.NONNULL)
     }
 
+    override val declaredAnnotationValues: List<XAnnotationValue> by lazy {
+        // getElementValues returns values of this annotation's element, only those elements with
+        // values explicitly present in the annotation are included, not those that are implicitly
+        // assuming their default values.
+        val explicitValues = mirror.getElementValues().keys.map { it.simpleName.toString() }
+        annotationValues.filter { explicitValues.contains(it.name) }
+    }
+
     override val annotationValues: List<XAnnotationValue> by lazy {
         AnnotationMirrors.getAnnotationValuesWithDefaults(mirror)
             .map { (executableElement, annotationValue) ->

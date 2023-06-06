@@ -43,14 +43,21 @@ internal class JavacKmAnnotation(
     override val type: XType
         get() = typeElement.type
 
+    // KmAnnotation doesn't include arguments with default values
+    override val declaredAnnotationValues: List<XAnnotationValue> by lazy {
+      annotationValues
+    }
+
     override val annotationValues: List<XAnnotationValue> by lazy {
         val methods = typeElement.getDeclaredMethods()
-        methods.map { method ->
-            JavacKmAnnotationValue(
-                method = method,
-                kmAnnotationArgumentContainer =
-                    kmAnnotation.getArguments(env).getValue(method.jvmName)
-            )
-        }
+        // KmAnnotation doesn't include arguments with default values
+        methods
+            .mapNotNull { method ->
+                JavacKmAnnotationValue(
+                    method = method,
+                    kmAnnotationArgumentContainer =
+                        kmAnnotation.getArguments(env)[method.jvmName] ?: return@mapNotNull null
+                )
+            }
     }
 }
