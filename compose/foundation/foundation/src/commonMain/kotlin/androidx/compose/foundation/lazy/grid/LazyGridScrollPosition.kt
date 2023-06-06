@@ -17,11 +17,11 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 
 /**
  * Contains the current scroll position represented by the first visible item index and the first
@@ -43,6 +43,12 @@ internal class LazyGridScrollPosition(
     /** The last known key of the first item at [index] line. */
     private var lastKnownFirstItemKey: Any? = null
 
+    val nearestRangeState = LazyLayoutNearestRangeState(
+        initialIndex,
+        NearestItemsSlidingWindowSize,
+        NearestItemsExtraItemCount
+    )
+
     /**
      * Updates the current scroll position based on the results of the last measurement.
      */
@@ -56,12 +62,8 @@ internal class LazyGridScrollPosition(
             val scrollOffset = measureResult.firstVisibleLineScrollOffset
             check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
 
-            Snapshot.withoutReadObservation {
-                update(
-                    measureResult.firstVisibleLine?.items?.firstOrNull()?.index ?: 0,
-                    scrollOffset
-                )
-            }
+            val firstIndex = measureResult.firstVisibleLine?.items?.firstOrNull()?.index ?: 0
+            update(firstIndex, scrollOffset)
         }
     }
 
@@ -89,22 +91,33 @@ internal class LazyGridScrollPosition(
      * there were items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
      */
-    fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyGridItemProvider) {
-        Snapshot.withoutReadObservation {
-            update(
-                itemProvider.findIndexByKey(lastKnownFirstItemKey, index),
-                scrollOffset
-            )
+    fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyGridItemProvider,
+        index: Int
+    ): Int {
+        val newIndex = itemProvider.findIndexByKey(lastKnownFirstItemKey, index)
+        if (index != newIndex) {
+            this.index = newIndex
+            nearestRangeState.update(index)
         }
+        return newIndex
     }
 
     private fun update(index: Int, scrollOffset: Int) {
         require(index >= 0f) { "Index should be non-negative ($index)" }
-        if (index != this.index) {
-            this.index = index
-        }
-        if (scrollOffset != this.scrollOffset) {
-            this.scrollOffset = scrollOffset
-        }
+        this.index = index
+        nearestRangeState.update(index)
+        this.scrollOffset = scrollOffset
     }
 }
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+private const val NearestItemsSlidingWindowSize = 90
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+private const val NearestItemsExtraItemCount = 200

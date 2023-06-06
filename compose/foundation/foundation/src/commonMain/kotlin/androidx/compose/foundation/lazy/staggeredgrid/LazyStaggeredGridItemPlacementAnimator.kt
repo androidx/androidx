@@ -41,8 +41,8 @@ internal class LazyStaggeredGridItemPlacementAnimator {
 
     // stored to not allocate it every pass.
     private val movingAwayKeys = LinkedHashSet<Any>()
-    private val movingInFromStartBound = mutableListOf<LazyStaggeredGridPositionedItem>()
-    private val movingInFromEndBound = mutableListOf<LazyStaggeredGridPositionedItem>()
+    private val movingInFromStartBound = mutableListOf<LazyStaggeredGridMeasuredItem>()
+    private val movingInFromEndBound = mutableListOf<LazyStaggeredGridMeasuredItem>()
     private val movingAwayToStartBound = mutableListOf<LazyStaggeredGridMeasuredItem>()
     private val movingAwayToEndBound = mutableListOf<LazyStaggeredGridMeasuredItem>()
 
@@ -55,7 +55,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         consumedScroll: Int,
         layoutWidth: Int,
         layoutHeight: Int,
-        positionedItems: MutableList<LazyStaggeredGridPositionedItem>,
+        positionedItems: MutableList<LazyStaggeredGridMeasuredItem>,
         itemProvider: LazyStaggeredGridMeasureProvider,
         isVertical: Boolean,
         laneCount: Int
@@ -185,10 +185,9 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                 val mainAxisOffset = 0 - accumulatedOffsetPerLane[item.lane]
 
                 val itemInfo = keyToItemInfoMap.getValue(item.key)
-                val positionedItem =
-                    item.position(mainAxisOffset, itemInfo.crossAxisOffset, mainAxisLayoutSize)
-                positionedItems.add(positionedItem)
-                startAnimationsIfNeeded(positionedItem)
+                item.position(mainAxisOffset, itemInfo.crossAxisOffset, mainAxisLayoutSize)
+                positionedItems.add(item)
+                startAnimationsIfNeeded(item)
             }
             accumulatedOffsetPerLane.fill(0)
         }
@@ -199,10 +198,9 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
 
                 val itemInfo = keyToItemInfoMap.getValue(item.key)
-                val positionedItem =
-                    item.position(mainAxisOffset, itemInfo.crossAxisOffset, mainAxisLayoutSize)
-                positionedItems.add(positionedItem)
-                startAnimationsIfNeeded(positionedItem)
+                item.position(mainAxisOffset, itemInfo.crossAxisOffset, mainAxisLayoutSize)
+                positionedItems.add(item)
+                startAnimationsIfNeeded(item)
             }
         }
 
@@ -224,7 +222,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
     }
 
     private fun initializeNode(
-        item: LazyStaggeredGridPositionedItem,
+        item: LazyStaggeredGridMeasuredItem,
         mainAxisOffset: Int
     ) {
         val firstPlaceableOffset = item.offset
@@ -243,7 +241,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         }
     }
 
-    private fun startAnimationsIfNeeded(item: LazyStaggeredGridPositionedItem) {
+    private fun startAnimationsIfNeeded(item: LazyStaggeredGridMeasuredItem) {
         item.forEachNode { node ->
             val newTarget = item.offset
             val currentTarget = node.rawOffset
@@ -258,13 +256,13 @@ internal class LazyStaggeredGridItemPlacementAnimator {
 
     private val Any?.node get() = this as? LazyLayoutAnimateItemModifierNode
 
-    private val LazyStaggeredGridPositionedItem.hasAnimations: Boolean
+    private val LazyStaggeredGridMeasuredItem.hasAnimations: Boolean
         get() {
             forEachNode { return true }
             return false
         }
 
-    private inline fun LazyStaggeredGridPositionedItem.forEachNode(
+    private inline fun LazyStaggeredGridMeasuredItem.forEachNode(
         block: (LazyLayoutAnimateItemModifierNode) -> Unit
     ) {
         repeat(placeablesCount) { index ->

@@ -66,9 +66,9 @@ internal class LazyGridMeasuredLine constructor(
         offset: Int,
         layoutWidth: Int,
         layoutHeight: Int
-    ): List<LazyGridPositionedItem> {
+    ): Array<LazyGridMeasuredItem> {
         var usedSpan = 0
-        return items.mapIndexed { itemIndex, item ->
+        items.forEachIndexed { itemIndex, item ->
             val span = spans[itemIndex].currentLineSpan
             val startSlot = usedSpan
 
@@ -83,5 +83,6 @@ internal class LazyGridMeasuredLine constructor(
                 usedSpan += span
             }
         }
+        return items
     }
 }

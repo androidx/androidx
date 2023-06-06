@@ -102,7 +102,7 @@ internal fun measureLazyList(
         }
 
         // this will contain all the MeasuredItems representing the visible items
-        val visibleItems = mutableListOf<LazyListMeasuredItem>()
+        val visibleItems = ArrayDeque<LazyListMeasuredItem>()
 
         // define min and max offsets
         val minOffset = -beforeContentPadding + if (spaceBetweenItems < 0) spaceBetweenItems else 0
@@ -403,7 +403,7 @@ private fun calculateItemsOffsets(
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
     density: Density,
-): MutableList<LazyListPositionedItem> {
+): MutableList<LazyListMeasuredItem> {
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
@@ -411,7 +411,7 @@ private fun calculateItemsOffsets(
     }
 
     val positionedItems =
-        ArrayList<LazyListPositionedItem>(items.size + extraItemsBefore.size + extraItemsAfter.size)
+        ArrayList<LazyListMeasuredItem>(items.size + extraItemsBefore.size + extraItemsAfter.size)
 
     if (hasSpareSpace) {
         require(extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty())
@@ -447,29 +447,29 @@ private fun calculateItemsOffsets(
             } else {
                 absoluteOffset
             }
-            positionedItems.add(item.position(relativeOffset, layoutWidth, layoutHeight))
+            item.position(relativeOffset, layoutWidth, layoutHeight)
+            positionedItems.add(item)
         }
     } else {
         var currentMainAxis = itemsScrollOffset
         extraItemsBefore.fastForEach {
             currentMainAxis -= it.sizeWithSpacings
-            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
+            it.position(currentMainAxis, layoutWidth, layoutHeight)
+            positionedItems.add(it)
         }
 
         currentMainAxis = itemsScrollOffset
         items.fastForEach {
-            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
+            it.position(currentMainAxis, layoutWidth, layoutHeight)
+            positionedItems.add(it)
             currentMainAxis += it.sizeWithSpacings
         }
 
         extraItemsAfter.fastForEach {
-            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
+            it.position(currentMainAxis, layoutWidth, layoutHeight)
+            positionedItems.add(it)
             currentMainAxis += it.sizeWithSpacings
         }
     }
     return positionedItems
 }
-
-private val EmptyRange = Int.MIN_VALUE to Int.MIN_VALUE
-private val Int.notInEmptyRange
-    get() = this != Int.MIN_VALUE

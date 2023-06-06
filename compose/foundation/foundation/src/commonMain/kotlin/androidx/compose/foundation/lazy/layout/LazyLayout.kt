@@ -45,11 +45,22 @@ fun LazyLayout(
     prefetchState: LazyLayoutPrefetchState? = null,
     measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult
 ) {
+    LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)
+}
+
+@ExperimentalFoundationApi
+@Composable
+internal fun LazyLayout(
+    itemProvider: () -> LazyLayoutItemProvider,
+    modifier: Modifier = Modifier,
+    prefetchState: LazyLayoutPrefetchState? = null,
+    measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult
+) {
     val currentItemProvider = rememberUpdatedState(itemProvider)
 
     LazySaveableStateHolderProvider { saveableStateHolder ->
         val itemContentFactory = remember {
-            LazyLayoutItemContentFactory(saveableStateHolder) { currentItemProvider.value }
+            LazyLayoutItemContentFactory(saveableStateHolder) { currentItemProvider.value() }
         }
         val subcomposeLayoutState = remember {
             SubcomposeLayoutState(LazyLayoutItemReusePolicy(itemContentFactory))
@@ -67,11 +78,13 @@ fun LazyLayout(
             modifier,
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
-                    with(LazyLayoutMeasureScopeImpl(
-                        itemContentFactory,
-                        this,
-                        prefetchState?.prefetcher?.timeTracker
-                    )) {
+                    with(
+                        LazyLayoutMeasureScopeImpl(
+                            itemContentFactory,
+                            this,
+                            prefetchState?.prefetcher?.timeTracker
+                        )
+                    ) {
                         measurePolicy(constraints)
                     }
                 }
