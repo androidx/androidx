@@ -385,6 +385,40 @@ class PopupTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun canChangeSize() {
+        var width by mutableStateOf(10.dp)
+        var usePlatformDefaultWidth by mutableStateOf(false)
+        var actualWidth = 0
+
+        rule.setContent {
+            Popup(
+                properties = PopupProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
+            ) {
+                Box(Modifier.size(width, 150.dp).onSizeChanged { actualWidth = it.width })
+            }
+        }
+        rule.runOnIdle {
+            assertThat(actualWidth).isEqualTo((10 * rule.density.density).roundToInt())
+        }
+        width = 20.dp
+        rule.runOnIdle {
+            assertThat(actualWidth).isEqualTo((20 * rule.density.density).roundToInt())
+        }
+
+        usePlatformDefaultWidth = true
+
+        width = 30.dp
+        rule.runOnIdle {
+            assertThat(actualWidth).isEqualTo((30 * rule.density.density).roundToInt())
+        }
+        width = 40.dp
+        rule.runOnIdle {
+            assertThat(actualWidth).isEqualTo((40 * rule.density.density).roundToInt())
+        }
+    }
+
     @Test
     fun didNotMeasureTooSmallLast() {
         rule.setContent {
