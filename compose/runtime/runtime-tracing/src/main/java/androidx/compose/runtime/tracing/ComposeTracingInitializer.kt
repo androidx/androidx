@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.runtime.tracing
 
 import android.content.Context
@@ -23,7 +24,7 @@ import androidx.startup.Initializer
 import androidx.tracing.perfetto.Tracing
 
 @OptIn(InternalComposeTracingApi::class)
-class TracingInitializer : Initializer<Unit> {
+class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         Composer.setTracer(object : CompositionTracer {
             override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) =

@@ -23,11 +23,15 @@ import android.os.Build
 import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
-import androidx.tracing.perfetto.PerfettoHandshake.EnableTracingResponse
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.ACTION_ENABLE_TRACING
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.KEY_PATH
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseKeys
+import androidx.tracing.perfetto.PerfettoSdkHandshake.EnableTracingResponse
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.ACTION_ENABLE_TRACING
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.KEY_PATH
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.KEY_PERSISTENT
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseKeys
+import androidx.tracing.perfetto.StartupTracingConfigStore.store
 import androidx.tracing.perfetto.Tracing.EnableTracingResponse
 import java.io.File
 import java.io.StringWriter
@@ -48,19 +52,32 @@ class TracingReceiver : BroadcastReceiver() {
         )
     }
 
-    // TODO: check value on app start
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent == null || intent.action != ACTION_ENABLE_TRACING) return
+        if (intent == null || intent.action !in listOf(
+                ACTION_ENABLE_TRACING,
+                ACTION_ENABLE_TRACING_COLD_START,
+                // ACTION_DISABLE_TRACING_COLD_START // TODO(282733308): implement
+            )
+        ) return
 
         // Path to the provided library binary file (optional). If not provided, local library files
         // will be used if present.
         val srcPath = intent.extras?.getString(KEY_PATH)
 
         val pendingResult = goAsync()
-
         executor.execute {
             try {
-                val response = enableTracing(srcPath, context)
+                val response = when (intent.action) {
+                    ACTION_ENABLE_TRACING -> enableTracingImmediate(srcPath, context)
+                    ACTION_ENABLE_TRACING_COLD_START ->
+                        enableTracingColdStart(
+                            context,
+                            srcPath,
+                            isPersistent = intent.extras?.getBoolean(KEY_PERSISTENT) ?: false
+                        )
+                    else -> throw IllegalStateException() // supported actions checked earlier
+                }
+
                 pendingResult.setResult(response.exitCode, response.toJsonString(), null)
             } finally {
                 pendingResult.finish()
@@ -68,7 +85,10 @@ class TracingReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun enableTracing(srcPath: String?, context: Context?): EnableTracingResponse =
+    /**
+     * Enables Perfetto SDK tracing in the app
+     */
+    private fun enableTracingImmediate(srcPath: String?, context: Context?): EnableTracingResponse =
         when {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
                 // TODO(234351579): Support API < 30
@@ -79,8 +99,7 @@ class TracingReceiver : BroadcastReceiver() {
             }
             srcPath != null && context != null -> {
                 try {
-                    val dstFile = copyExternalLibraryFile(context, srcPath)
-                    Tracing.enable(dstFile, context)
+                    Tracing.enable(File(srcPath), context)
                 } catch (e: Exception) {
                     EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
                 }
@@ -97,26 +116,24 @@ class TracingReceiver : BroadcastReceiver() {
             }
         }
 
-    private fun copyExternalLibraryFile(
-        context: Context,
-        srcPath: String
-    ): File {
-        // Prepare a location to copy the library into with the following properties:
-        // 1) app has exclusive write access in
-        // 2) app can load binaries from
-        val abi: String = File(context.applicationInfo.nativeLibraryDir).name // e.g. arm64
-        val dstDir = context.cacheDir.resolve("lib/$abi")
-        dstDir.mkdirs()
-
-        // Copy the library file over
-        //
-        // TODO: load into memory and verify in-memory to prevent from copying a malicious
-        // library into app's local files. Use SHA or Signature to verify the binaries.
-        val srcFile = File(srcPath)
-        val dstFile = dstDir.resolve(srcFile.name)
-        srcFile.copyTo(dstFile, overwrite = true)
-
-        return dstFile
+    /**
+     * Handles [ACTION_ENABLE_TRACING_COLD_START]
+     *
+     * See [ACTION_ENABLE_TRACING_COLD_START] documentation for steps required before and after.
+     */
+    private fun enableTracingColdStart(
+        context: Context?,
+        srcPath: String?,
+        isPersistent: Boolean
+    ): EnableTracingResponse = enableTracingImmediate(srcPath, context).also {
+        if (it.exitCode == RESULT_CODE_SUCCESS) {
+            val config = StartupTracingConfig(libFilePath = srcPath, isPersistent = isPersistent)
+            if (context == null) return EnableTracingResponse(
+                RESULT_CODE_ERROR_OTHER,
+                "Cannot set up cold start tracing without a Context instance."
+            )
+            config.store(context.applicationInfo.packageName)
+        }
     }
 
     private fun EnableTracingResponse.toJsonString(): String {
