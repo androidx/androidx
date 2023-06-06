@@ -267,8 +267,6 @@ class UseCaseCameraState @Inject constructor(
                 if (request == null) {
                     it.stopRepeating()
                 } else {
-                    it.update3A(request.parameters)
-
                     result?.let { result ->
                         synchronized(lock) {
                             updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
@@ -276,6 +274,7 @@ class UseCaseCameraState @Inject constructor(
                     }
                     Log.debug { "Update RepeatingRequest: $request" }
                     it.startRepeating(request)
+                    it.update3A(request.parameters)
                 }
             }
 
@@ -289,7 +288,7 @@ class UseCaseCameraState @Inject constructor(
         }
     }
 
-    private suspend fun CameraGraph.Session.update3A(parameters: Map<CaptureRequest.Key<*>, Any>?) {
+    private fun CameraGraph.Session.update3A(parameters: Map<CaptureRequest.Key<*>, Any>?) {
         val aeMode = parameters.getIntOrNull(CaptureRequest.CONTROL_AE_MODE)?.let {
             AeMode.fromIntOrNull(it)
         }
@@ -301,7 +300,7 @@ class UseCaseCameraState @Inject constructor(
         }
 
         if (aeMode != null || afMode != null || awbMode != null) {
-            update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode).join()
+            update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
         }
     }
 
