@@ -85,4 +85,20 @@ class PreviewParameterTest {
             )
         }
     }
+
+    private class MyBooleanProvider : CollectionPreviewParameterProvider<Boolean>(
+        listOf(true, false)
+    )
+
+    @Test
+    fun checkBooleanProvider() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.ParameterProviderComposableKt",
+                "BooleanParameter",
+                parameterProvider = MyBooleanProvider::class.java,
+                debugViewInfos = true
+            )
+        }
+    }
 }
