@@ -42,7 +42,7 @@ class TrivialStartupBaselineProfile {
 
     @Test
     fun baselineProfiles() {
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
         ) {
             device.pressHome()

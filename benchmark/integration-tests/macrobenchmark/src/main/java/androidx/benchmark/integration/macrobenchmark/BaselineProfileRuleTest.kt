@@ -44,7 +44,7 @@ class BaselineProfileRuleTest {
     @Test
     fun appNotInstalled() {
         val error = assertFailsWith<AssertionError> {
-            baselineRule.collectBaselineProfile(
+            baselineRule.collect(
                 packageName = "fake.package.not.installed",
                 profileBlock = {
                     fail("not expected")
@@ -62,7 +62,7 @@ class BaselineProfileRuleTest {
         assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
 
         // Collects the baseline profile
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
             filterPredicate = { it.contains(filterRegex) },
             profileBlock = {
@@ -101,7 +101,7 @@ class BaselineProfileRuleTest {
         ).forEach { (includeInStartupProfile, outputFilename) ->
 
             // Collects the baseline profile
-            baselineRule.collectBaselineProfile(
+            baselineRule.collect(
                 packageName = PACKAGE_NAME,
                 filterPredicate = { it.contains(filterRegex) },
                 includeInStartupProfile = includeInStartupProfile,

@@ -35,7 +35,7 @@ class SmallListBaselineProfile {
 
     @Test
     fun generateProfile() {
-        baselineProfileRule.collectBaselineProfile(
+        baselineProfileRule.collect(
             packageName = PACKAGE_NAME
         ) {
             val intent = Intent()

@@ -45,7 +45,7 @@ class TrivialListScrollBaselineProfile {
 
     @Test
     fun baselineProfiles() {
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             profileBlock = {
                 val intent = Intent()
@@ -73,7 +73,7 @@ class TrivialListScrollBaselineProfile {
 
     @Test
     fun stableBaselineProfiles() {
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             stableIterations = 3,
             maxIterations = 10,

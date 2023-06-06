@@ -38,7 +38,7 @@ import java.io.File
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
-fun collectBaselineProfile(
+fun collect(
     uniqueName: String,
     packageName: String,
     stableIterations: Int,
