@@ -29,9 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -52,8 +55,14 @@ class LayoutCooperationTest {
         val size = 48
         var initialOuterSize by mutableStateOf((size / 2).toDp())
         rule.setContent {
-            Box(Modifier.size(initialOuterSize).testTag("outer")) {
-                Box(Modifier.requiredSize(size.toDp()).background(Color.Yellow))
+            Box(
+                Modifier
+                    .size(initialOuterSize)
+                    .testTag("outer")) {
+                Box(
+                    Modifier
+                        .requiredSize(size.toDp())
+                        .background(Color.Yellow))
             }
         }
 
@@ -63,6 +72,47 @@ class LayoutCooperationTest {
 
         rule.onNodeWithTag("outer").captureToImage().assertPixels(IntSize(size, size)) {
             Color.Yellow
+        }
+    }
+
+    @Test
+    fun relayoutSkippingModifiersDoesntBreakCooperation() {
+        with(rule.density) {
+            val containerSize = 100
+            val width = 50
+            val widthDp = width.toDp()
+            val height = 40
+            val heightDp = height.toDp()
+            var offset by mutableStateOf(0)
+            rule.setContent {
+                Layout(content = {
+                    Box(Modifier.requiredSize(widthDp, heightDp)) {
+                        Box(Modifier.testTag("child"))
+                    }
+                }) { measurables, _ ->
+                    val placeable =
+                        measurables.first().measure(Constraints.fixed(containerSize, containerSize))
+                    layout(containerSize, containerSize) {
+                        placeable.place(offset, offset)
+                    }
+                }
+            }
+
+            var expectedTop = ((containerSize - height) / 2).toDp()
+            var expectedLeft = ((containerSize - width) / 2).toDp()
+            rule.onNodeWithTag("child")
+                .assertTopPositionInRootIsEqualTo(expectedTop)
+                .assertLeftPositionInRootIsEqualTo(expectedLeft)
+
+            rule.runOnIdle {
+                offset = 10
+            }
+
+            expectedTop += offset.toDp()
+            expectedLeft += offset.toDp()
+            rule.onNodeWithTag("child")
+                .assertTopPositionInRootIsEqualTo(expectedTop)
+                .assertLeftPositionInRootIsEqualTo(expectedLeft)
         }
     }
 }
