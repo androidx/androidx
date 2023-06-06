@@ -79,7 +79,9 @@ package androidx.glance.appwidget {
 
   public abstract class GlanceAppWidgetReceiver extends android.appwidget.AppWidgetProvider {
     ctor public GlanceAppWidgetReceiver();
+    method @androidx.glance.ExperimentalGlanceApi public kotlin.coroutines.CoroutineContext getCoroutineContext();
     method public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
+    property @androidx.glance.ExperimentalGlanceApi public kotlin.coroutines.CoroutineContext coroutineContext;
     property public abstract androidx.glance.appwidget.GlanceAppWidget glanceAppWidget;
     field public static final String ACTION_DEBUG_UPDATE = "androidx.glance.appwidget.action.DEBUG_UPDATE";
     field public static final androidx.glance.appwidget.GlanceAppWidgetReceiver.Companion Companion;
