@@ -26,19 +26,19 @@ dependencies {
     api(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation(project(":appactions:builtintypes:builtintypes-core"))
+    implementation(project(":appactions:builtintypes:builtintypes"))
 }
 
 android {
-    namespace "androidx.appactions.builtintypes.core.samples"
+    namespace "androidx.appactions.builtintypes.samples"
     defaultConfig {
         minSdkVersion 26
     }
 }
 
 androidx {
-    name = "Built-in Types Core Samples"
+    name = "Built-in Types Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2023"
-    description = "Samples for AndroidX Built-in Types Core Library"
+    description = "Samples for AndroidX Built-in Types Library"
 }
