@@ -47,10 +47,20 @@ fun ButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text("Simple Button")
+            Text(text = "1 slot button")
         }
         item {
             SimpleButtonSample()
+        }
+        item {
+            Button(
+                onClick = { /* Do something */ },
+                label = { Text("Button") },
+                enabled = false
+            )
+        }
+        item {
+            Text(text = "3 slot button")
         }
         item {
             ButtonSample()
@@ -70,11 +80,30 @@ fun ButtonDemo() {
                 enabled = false
             )
         }
+    }
+}
+
+@Composable
+fun FilledTonalButtonDemo() {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         item {
-            Text("FilledTonalButton")
+            Text(text = "1 slot button")
         }
         item {
             SimpleFilledTonalButtonSample()
+        }
+        item {
+            FilledTonalButton(
+                onClick = { /* Do something */ },
+                label = { Text("FilledTonalButton") },
+                enabled = false
+            )
+        }
+        item {
+            Text(text = "3 slot button")
         }
         item {
             FilledTonalButtonSample()
@@ -94,11 +123,30 @@ fun ButtonDemo() {
                 enabled = false
             )
         }
+    }
+}
+
+@Composable
+fun OutlinedButtonDemo() {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         item {
-            Text("OutlinedButton")
+            Text(text = "1 slot button")
         }
         item {
             SimpleOutlinedButtonSample()
+        }
+        item {
+            OutlinedButton(
+                onClick = { /* Do something */ },
+                label = { Text("OutlinedButton") },
+                enabled = false
+            )
+        }
+        item {
+            Text(text = "3 slot button")
         }
         item {
             OutlinedButtonSample()
@@ -106,7 +154,7 @@ fun ButtonDemo() {
         item {
             OutlinedButton(
                 onClick = { /* Do something */ },
-                label = { Text("FilledTonalButton") },
+                label = { Text("OutlinedButton") },
                 secondaryLabel = { Text("Secondary label") },
                 icon = {
                     Icon(
@@ -118,11 +166,30 @@ fun ButtonDemo() {
                 enabled = false
             )
         }
+    }
+}
+
+@Composable
+fun ChildButtonDemo() {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         item {
-            Text("ChildButton")
+            Text(text = "1 slot button")
         }
         item {
             SimpleChildButtonSample()
+        }
+        item {
+            ChildButton(
+                onClick = { /* Do something */ },
+                label = { Text("ChildButton") },
+                enabled = false
+            )
+        }
+        item {
+            Text(text = "3 slot button")
         }
         item {
             ChildButtonSample()
@@ -130,7 +197,7 @@ fun ButtonDemo() {
         item {
             ChildButton(
                 onClick = { /* Do something */ },
-                label = { Text("FilledTonalButton") },
+                label = { Text("ChildButton") },
                 secondaryLabel = { Text("Secondary label") },
                 icon = {
                     Icon(

@@ -24,9 +24,23 @@ import androidx.wear.compose.material3.samples.FixedFontSize
 val WearMaterial3Demos = DemoCategory(
     "Material 3",
     listOf(
-        ComposableDemo("Buttons") {
-            ButtonDemo()
-        },
+        DemoCategory(
+            "Buttons",
+            listOf(
+                ComposableDemo("Button") {
+                    ButtonDemo()
+                },
+                ComposableDemo("FilledTonalButton") {
+                    FilledTonalButtonDemo()
+                },
+                ComposableDemo("OutlinedButton") {
+                    OutlinedButtonDemo()
+                },
+                ComposableDemo("ChildButton") {
+                    ChildButtonDemo()
+                }
+            )
+        ),
         ComposableDemo("Text Button") {
             TextButtonDemo()
         },
