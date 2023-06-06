@@ -155,7 +155,9 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         flashType: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
-        return listOf(CompletableDeferred(null))
+        return captureSequence.map {
+            CompletableDeferred<Void?>(null).apply { complete(null) }
+        }
     }
 
     data class FocusMeteringParams(
