@@ -16,7 +16,6 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.spec
 
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter
@@ -29,10 +28,11 @@ import java.util.function.Supplier
 /**
  * A builder for the `ActionSpec`.
  */
-class ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT : BuilderOf<ArgumentsT>, OutputT>
+class ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT>
 private constructor(
     private val capabilityName: String,
-    private val argumentBuilderSupplier: Supplier<ArgumentsBuilderT>
+    private val argumentBuilderSupplier: Supplier<ArgumentsBuilderT>,
+    private val builderFinalizer: Function<ArgumentsBuilderT, ArgumentsT>
 ) {
     private val paramBindingList: MutableList<ParamBinding<ArgumentsT, ArgumentsBuilderT>> =
         ArrayList()
@@ -40,18 +40,22 @@ private constructor(
 
     /** Sets the argument type and its builder and returns a new `ActionSpecBuilder`.  */
     @Suppress("UNUSED_PARAMETER")
-    fun <NewArgumentsT, NewArgumentsBuilderT : BuilderOf<NewArgumentsT>> setArguments(
+    fun <NewArgumentsT, NewArgumentsBuilderT> setArguments(
         unused: Class<NewArgumentsT>,
-        argumentBuilderSupplier: Supplier<NewArgumentsBuilderT>
+        argumentBuilderSupplier: Supplier<NewArgumentsBuilderT>,
+        builderFinalizer: Function<NewArgumentsBuilderT, NewArgumentsT>
     ): ActionSpecBuilder<NewArgumentsT, NewArgumentsBuilderT, OutputT> {
-        return ActionSpecBuilder(this.capabilityName, argumentBuilderSupplier)
+        return ActionSpecBuilder(this.capabilityName, argumentBuilderSupplier, builderFinalizer)
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun <NewOutputT> setOutput(
         unused: Class<NewOutputT>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, NewOutputT> {
-        return ActionSpecBuilder(this.capabilityName, this.argumentBuilderSupplier)
+        return ActionSpecBuilder(this.capabilityName,
+            this.argumentBuilderSupplier,
+            this.builderFinalizer
+        )
     }
 
     /**
@@ -172,7 +176,8 @@ private constructor(
             capabilityName,
             argumentBuilderSupplier,
             paramBindingList.toList(),
-            outputBindings.toMap()
+            outputBindings.toMap(),
+            builderFinalizer
         )
     }
 
@@ -183,8 +188,10 @@ private constructor(
          */
         fun ofCapabilityNamed(
             capabilityName: String
-        ): ActionSpecBuilder<Any, BuilderOf<Any>, Any> {
-            return ActionSpecBuilder(capabilityName) { BuilderOf { Object() } }
+        ): ActionSpecBuilder<Any, Any, Any> {
+            return ActionSpecBuilder(capabilityName, { Supplier { Object() } }) {
+                Function<Any, Any> { Object() }
+            }
         }
     }
 }

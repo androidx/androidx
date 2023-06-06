@@ -16,8 +16,6 @@
 
 package androidx.appactions.interaction.capabilities.core.testing.spec
 
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-
 class Arguments internal constructor(
     val requiredStringField: String?,
     val optionalStringField: String?,
@@ -49,7 +47,7 @@ class Arguments internal constructor(
         return result
     }
 
-    class Builder : BuilderOf<Arguments> {
+    class Builder {
         private var requiredStringField: String? = null
         private var optionalStringField: String? = null
         private var repeatedStringField: List<String> = listOf()
@@ -63,7 +61,7 @@ class Arguments internal constructor(
         fun setRepeatedStringField(repeatedStringField: List<String>): Builder =
             apply { this.repeatedStringField = repeatedStringField }
 
-        override fun build(): Arguments =
+        fun build(): Arguments =
             Arguments(requiredStringField, optionalStringField, repeatedStringField)
     }
 }

@@ -19,7 +19,6 @@ package androidx.appactions.interaction.capabilities.fitness.fitness
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
@@ -83,7 +82,7 @@ class GetHealthObservation private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var startTime: LocalTime? = null
             private var endTime: LocalTime? = null
 
@@ -93,7 +92,7 @@ class GetHealthObservation private constructor() {
             fun setEndTime(endTime: LocalTime): Builder =
                 apply { this.endTime = endTime }
 
-            override fun build(): Arguments = Arguments(startTime, endTime)
+            fun build(): Arguments = Arguments(startTime, endTime)
         }
     }
 
@@ -109,7 +108,8 @@ class GetHealthObservation private constructor() {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(
                     Arguments::class.java,
-                    Arguments::Builder
+                    Arguments::Builder,
+                    Arguments.Builder::build
                 )
                 .setOutput(Output::class.java)
                 .bindParameter(

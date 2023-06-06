@@ -16,29 +16,35 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
-import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.builtintypes.types.Alarm
+import androidx.appactions.builtintypes.types.GenericErrorStatus
+import androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus
+import androidx.appactions.builtintypes.types.Schedule
+import androidx.appactions.builtintypes.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
+import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.SCHEDULE_TYPE_SPEC
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.time.Duration
 
-private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
+private const val CAPABILITY_NAME = "actions.intent.CREATE_ALARM"
 
-/** A capability corresponding to actions.intent.START_TIMER */
+/** A capability corresponding to actions.intent.CREATE_ALARM */
 @CapabilityFactory(name = CAPABILITY_NAME)
-class StartTimer private constructor() {
+class CreateAlarm private constructor() {
     internal enum class SlotMetadata(val path: String) {
-        IDENTIFIER("timer.identifier"),
-        NAME("timer.name"),
-        DURATION("timer.duration")
+        SCHEDULE("alarm.alarmSchedule"),
+        NAME("alarm.name"),
+        IDENTIFIER("alarm.identifier")
     }
 
     class CapabilityBuilder :
@@ -63,20 +69,22 @@ class StartTimer private constructor() {
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
 
-        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
-            SlotMetadata.DURATION.path,
-            duration,
-            TypeConverters.DURATION_ENTITY_CONVERTER
+        fun setScheduleProperty(
+            alarmSchedule: Property<Schedule>
+        ): CapabilityBuilder = setProperty(
+            SlotMetadata.SCHEDULE.path,
+            alarmSchedule,
+            EntityConverter.of(SCHEDULE_TYPE_SPEC)
         )
     }
 
     class Arguments internal constructor(
         val identifier: String?,
         val name: String?,
-        val duration: Duration?
+        val schedule: Schedule?
     ) {
         override fun toString(): String {
-            return "Arguments(identifier=$identifier,name=$name,duration=$duration)"
+            return "Arguments(identifier=$identifier,name=$name,schedule=$schedule)"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -87,7 +95,7 @@ class StartTimer private constructor() {
 
             if (identifier != other.identifier) return false
             if (name != other.name) return false
-            if (duration != other.duration) return false
+            if (schedule != other.schedule) return false
 
             return true
         }
@@ -95,27 +103,28 @@ class StartTimer private constructor() {
         override fun hashCode(): Int {
             var result = identifier.hashCode()
             result += 31 * name.hashCode()
-            result += 31 * duration.hashCode()
+            result += 31 * schedule.hashCode()
             return result
         }
 
         class Builder {
             private var identifier: String? = null
             private var name: String? = null
-            private var duration: Duration? = null
+            private var schedule: Schedule? = null
 
             fun setIdentifier(identifier: String): Builder = apply { this.identifier = identifier }
 
             fun setName(name: String): Builder = apply { this.name = name }
 
-            fun setDuration(duration: Duration): Builder = apply { this.duration = duration }
+            fun setSchedule(schedule: Schedule): Builder = apply { this.schedule = schedule }
 
-            fun build(): Arguments = Arguments(identifier, name, duration)
+            fun build(): Arguments = Arguments(identifier, name, schedule)
         }
     }
-    class Output internal constructor(val executionStatus: ExecutionStatus?) {
+
+    class Output internal constructor(val alarm: Alarm?, val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
-            return "Output(executionStatus=$executionStatus)"
+            return "Output(alarm=$alarm,executionStatus=$executionStatus)"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -124,29 +133,50 @@ class StartTimer private constructor() {
 
             other as Output
 
+            if (alarm != other.alarm) return false
             if (executionStatus != other.executionStatus) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return executionStatus.hashCode()
+            var result = alarm.hashCode()
+            result += 31 * executionStatus.hashCode()
+            return result
         }
 
         class Builder {
+            private var alarm: Alarm? = null
             private var executionStatus: ExecutionStatus? = null
 
-            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
+            fun setAlarm(alarm: Alarm): Builder = apply { this.alarm = alarm }
+
+            fun setExecutionStatus(executionStatus: ExecutionStatus) = apply {
                 this.executionStatus = executionStatus
             }
 
-            fun build(): Output = Output(executionStatus)
+            fun setExecutionStatus(successStatus: SuccessStatus) = apply {
+                this.setExecutionStatus(ExecutionStatus(successStatus))
+            }
+
+            fun setExecutionStatus(genericErrorStatus: GenericErrorStatus) = apply {
+                this.setExecutionStatus(ExecutionStatus(genericErrorStatus))
+            }
+
+            fun setExecutionStatus(
+                objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus
+            ) = apply {
+                    this.setExecutionStatus(ExecutionStatus(objectCreationLimitReachedStatus))
+            }
+
+            fun build(): Output = Output(alarm, executionStatus)
         }
     }
 
     class ExecutionStatus {
         private var successStatus: SuccessStatus? = null
         private var genericErrorStatus: GenericErrorStatus? = null
+        private var objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus? = null
 
         constructor(successStatus: SuccessStatus) {
             this.successStatus = successStatus
@@ -156,6 +186,10 @@ class StartTimer private constructor() {
             this.genericErrorStatus = genericErrorStatus
         }
 
+        constructor(objectCreationLimitReachedStatus: ObjectCreationLimitReachedStatus) {
+            this.objectCreationLimitReachedStatus = objectCreationLimitReachedStatus
+        }
+
         internal fun toParamValue(): ParamValue {
             var status: String = ""
             if (successStatus != null) {
@@ -163,6 +197,9 @@ class StartTimer private constructor() {
             }
             if (genericErrorStatus != null) {
                 status = genericErrorStatus.toString()
+            }
+            if (objectCreationLimitReachedStatus != null) {
+                status = objectCreationLimitReachedStatus.toString()
             }
             val value: Value = Value.newBuilder().setStringValue(status).build()
             return ParamValue.newBuilder()
@@ -192,9 +229,14 @@ class StartTimer private constructor() {
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    SlotMetadata.DURATION.path,
-                    Arguments.Builder::setDuration,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                    SlotMetadata.SCHEDULE.path,
+                    Arguments.Builder::setSchedule,
+                    ParamValueConverter.of(SCHEDULE_TYPE_SPEC)
+                )
+                .bindOutput(
+                    "alarm",
+                    Output::alarm,
+                    ParamValueConverter.of(ALARM_TYPE_SPEC)::toParamValue
                 )
                 .bindOutput(
                     "executionStatus",

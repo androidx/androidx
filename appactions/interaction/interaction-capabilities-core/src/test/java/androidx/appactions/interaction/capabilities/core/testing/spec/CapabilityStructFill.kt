@@ -19,7 +19,6 @@ package androidx.appactions.interaction.capabilities.core.testing.spec
 import androidx.appactions.builtintypes.experimental.types.ListItem
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -55,7 +54,7 @@ class CapabilityStructFill {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var listItem: ListItem? = null
             private var string: String? = null
 
@@ -65,7 +64,7 @@ class CapabilityStructFill {
             fun setAnyString(stringSlotB: String): Builder =
                 apply { this.string = stringSlotB }
 
-            override fun build(): Arguments = Arguments(listItem, string)
+            fun build(): Arguments = Arguments(listItem, string)
         }
     }
 
@@ -79,7 +78,7 @@ class CapabilityStructFill {
 
     companion object {
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-            .setArguments(Arguments::class.java, Arguments::Builder)
+            .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
             .setOutput(Output::class.java)
             .bindParameter(
                 "listItem",

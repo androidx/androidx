@@ -22,7 +22,6 @@ import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -76,14 +75,14 @@ class ResumeTimer private constructor() {
             return timerList.hashCode()
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var timerList: List<TimerValue>? = null
 
             fun setTimerList(
                 timerList: List<TimerValue>
             ): Builder = apply { this.timerList = timerList }
 
-            override fun build(): Arguments = Arguments(timerList)
+            fun build(): Arguments = Arguments(timerList)
         }
     }
 
@@ -154,7 +153,7 @@ class ResumeTimer private constructor() {
     companion object {
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
                     SlotMetadata.TIMER.path,

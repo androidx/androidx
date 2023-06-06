@@ -19,7 +19,6 @@ package androidx.appactions.interaction.capabilities.fitness.fitness
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
@@ -71,13 +70,13 @@ class StopExercise private constructor() {
             return name.hashCode()
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var name: String? = null
 
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Arguments = Arguments(name)
+            fun build(): Arguments = Arguments(name)
         }
     }
 
@@ -91,7 +90,7 @@ class StopExercise private constructor() {
         // TODO(b/273602015): Update to use Name property from builtintype library.
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.NAME.path,
