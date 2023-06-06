@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * wrote a book from January to *December*. For media, including audio and video, it's the time
  * offset of the end of a clip within a larger file.
  *
- * See http://schema.org/endTime for context.
+ * See https://schema.org/endTime for context.
  *
  * Holds one of:
  * * Time i.e. [LocalTime]

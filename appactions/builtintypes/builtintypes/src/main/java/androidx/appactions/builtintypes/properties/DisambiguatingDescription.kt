@@ -26,7 +26,7 @@ import kotlin.jvm.JvmName
  * similar items. Information from other properties (in particular, name) may be necessary for the
  * description to be useful for disambiguation.
  *
- * See http://schema.org/disambiguatingDescription for context.
+ * See https://schema.org/disambiguatingDescription for context.
  *
  * Holds one of:
  * * Text i.e. [String]

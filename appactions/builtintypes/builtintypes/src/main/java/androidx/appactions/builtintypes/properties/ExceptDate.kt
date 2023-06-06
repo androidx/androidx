@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * that 24 hour period should be excluded from the schedule. This allows a whole day to be excluded
  * from the schedule without having to itemise every scheduled event.
  *
- * See http://schema.org/exceptDate for context.
+ * See https://schema.org/exceptDate for context.
  *
  * Holds one of:
  * * Date i.e. [LocalDate]

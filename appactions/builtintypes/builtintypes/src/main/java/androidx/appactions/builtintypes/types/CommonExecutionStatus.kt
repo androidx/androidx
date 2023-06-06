@@ -27,88 +27,57 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
- * An alarm set to go off at a specified schedule.
+ * A parent type that serves as the umbrella for a number of canonical execution statuses that apply
+ * to the vast majority of tasks.
  *
- * See https://schema.googleapis.com/Alarm for context.
+ * Prefer one of the subtypes in most contexts to represent a specific type of common status e.g.
+ * `SuccessStatus`.
+ *
+ * See https://schema.googleapis.com/CommonExecutionStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [AbstractAlarm] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractCommonExecutionStatus] if you need to extend this type.
  */
-public interface Alarm : Thing {
-  /**
-   * Associates an Alarm with a Schedule.
-   *
-   * See https://schema.googleapis.com/alarmSchedule for more context.
-   */
-  public val alarmSchedule: Schedule?
-
-  /** Converts this [Alarm] to its builder with all the properties copied over. */
+public interface CommonExecutionStatus : ExecutionStatus {
+  /** Converts this [CommonExecutionStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = AlarmImpl.Builder()
+    @JvmStatic public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**
-   * Builder for [Alarm].
+   * Builder for [CommonExecutionStatus].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [AbstractAlarm.Builder] if you need to extend this builder.
+   * [AbstractCommonExecutionStatus.Builder] if you need to extend this builder.
    */
-  public interface Builder<Self : Builder<Self>> : Thing.Builder<Self> {
-    /** Returns a built [Alarm]. */
-    public override fun build(): Alarm
-
-    /** Sets the `alarmSchedule`. */
-    public fun setAlarmSchedule(schedule: Schedule?): Self
-
-    /** Sets the `disambiguatingDescription` to a canonical [DisambiguatingDescriptionValue]. */
-    public fun setDisambiguatingDescription(canonicalValue: DisambiguatingDescriptionValue): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(canonicalValue))
-  }
-
-  /**
-   * A canonical value that may be assigned to [DisambiguatingDescription] properties in the context
-   * of [Alarm].
-   *
-   * Represents an open enum. See [Companion] for the different possible variants. More variants may
-   * be added over time.
-   */
-  public class DisambiguatingDescriptionValue
-  private constructor(
-    public override val textValue: String,
-  ) : DisambiguatingDescription.CanonicalValue() {
-    public override fun toString(): String = """Alarm.DisambiguatingDescriptionValue($textValue)"""
-
-    public companion object {
-      @JvmField
-      public val FAMILY_BELL: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("FamilyBell")
-    }
+  public interface Builder<Self : Builder<Self>> : ExecutionStatus.Builder<Self> {
+    /** Returns a built [CommonExecutionStatus]. */
+    public override fun build(): CommonExecutionStatus
   }
 }
 
 /**
- * An abstract implementation of [Alarm].
+ * An abstract implementation of [CommonExecutionStatus].
  *
  * Allows for extension like:
  * ```kt
- * class MyAlarm internal constructor(
- *   alarm: Alarm,
+ * class MyCommonExecutionStatus internal constructor(
+ *   commonExecutionStatus: CommonExecutionStatus,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : AbstractAlarm<
- *   MyAlarm,
- *   MyAlarm.Builder
- * >(alarm) {
+ * ) : AbstractCommonExecutionStatus<
+ *   MyCommonExecutionStatus,
+ *   MyCommonExecutionStatus.Builder
+ * >(commonExecutionStatus) {
  *
  *   override val selfTypeName =
- *     "MyAlarm"
+ *     "MyCommonExecutionStatus"
  *
  *   override val additionalProperties: Map<String, Any?>
  *     get() = mapOf("foo" to foo, "bars" to bars)
@@ -120,24 +89,24 @@ public interface Alarm : Thing {
  *   }
  *
  *   class Builder :
- *     AbstractAlarm.Builder<
+ *     AbstractCommonExecutionStatus.Builder<
  *       Builder,
- *       MyAlarm> {...}
+ *       MyCommonExecutionStatus> {...}
  * }
  * ```
  *
- * Also see [AbstractAlarm.Builder].
+ * Also see [AbstractCommonExecutionStatus.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class AbstractAlarm<
-  Self : AbstractAlarm<Self, Builder>, Builder : AbstractAlarm.Builder<Builder, Self>>
+public abstract class AbstractCommonExecutionStatus<
+  Self : AbstractCommonExecutionStatus<Self, Builder>,
+  Builder : AbstractCommonExecutionStatus.Builder<Builder, Self>>
 internal constructor(
   public final override val namespace: String?,
-  public final override val alarmSchedule: Schedule?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-) : Alarm {
+) : CommonExecutionStatus {
   /**
    * Human readable name for the concrete [Self] class.
    *
@@ -152,24 +121,27 @@ internal constructor(
    */
   protected abstract val additionalProperties: Map<String, Any?>
 
-  /** A copy-constructor that copies over properties from another [Alarm] instance. */
+  /**
+   * A copy-constructor that copies over properties from another [CommonExecutionStatus] instance.
+   */
   public constructor(
-    alarm: Alarm
+    commonExecutionStatus: CommonExecutionStatus
   ) : this(
-    alarm.namespace,
-    alarm.alarmSchedule,
-    alarm.disambiguatingDescription,
-    alarm.identifier,
-    alarm.name
+    commonExecutionStatus.namespace,
+    commonExecutionStatus.disambiguatingDescription,
+    commonExecutionStatus.identifier,
+    commonExecutionStatus.name
   )
 
-  /** Returns a concrete [Builder] with the additional, non-[Alarm] properties copied over. */
+  /**
+   * Returns a concrete [Builder] with the additional, non-[CommonExecutionStatus] properties copied
+   * over.
+   */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
-      .setAlarmSchedule(alarmSchedule)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -178,32 +150,21 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
-    if (alarmSchedule != other.alarmSchedule) return false
+    if (namespace != other.namespace) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(
-      alarmSchedule,
-      disambiguatingDescription,
-      identifier,
-      name,
-      namespace,
-      additionalProperties
-    )
+    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
     if (namespace != null) {
       attributes["namespace"] = namespace
-    }
-    if (alarmSchedule != null) {
-      attributes["alarmSchedule"] = alarmSchedule.toString()
     }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
@@ -221,34 +182,34 @@ internal constructor(
   }
 
   /**
-   * An abstract implementation of [Alarm.Builder].
+   * An abstract implementation of [CommonExecutionStatus.Builder].
    *
    * Allows for extension like:
    * ```kt
-   * class MyAlarm :
-   *   : AbstractAlarm<
-   *     MyAlarm,
-   *     MyAlarm.Builder>(...) {
+   * class MyCommonExecutionStatus :
+   *   : AbstractCommonExecutionStatus<
+   *     MyCommonExecutionStatus,
+   *     MyCommonExecutionStatus.Builder>(...) {
    *
    *   class Builder
    *   : Builder<
    *       Builder,
-   *       MyAlarm
+   *       MyCommonExecutionStatus
    *   >() {
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
    *     override val selfTypeName =
-   *       "MyAlarm.Builder"
+   *       "MyCommonExecutionStatus.Builder"
    *
    *     override val additionalProperties: Map<String, Any?>
    *       get() = mapOf("foo" to foo, "bars" to bars)
    *
-   *     override fun buildFromAlarm(
-   *       alarm: Alarm
-   *     ): MyAlarm {
-   *       return MyAlarm(
-   *         alarm,
+   *     override fun buildFromCommonExecutionStatus(
+   *       commonExecutionStatus: CommonExecutionStatus
+   *     ): MyCommonExecutionStatus {
+   *       return MyCommonExecutionStatus(
+   *         commonExecutionStatus,
    *         foo,
    *         bars.toList()
    *       )
@@ -269,11 +230,12 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [AbstractAlarm].
+   * Also see [AbstractCommonExecutionStatus].
    */
   @Suppress("StaticFinalBuilder")
-  public abstract class Builder<Self : Builder<Self, Built>, Built : AbstractAlarm<Built, Self>> :
-    Alarm.Builder<Self> {
+  public abstract class Builder<
+    Self : Builder<Self, Built>, Built : AbstractCommonExecutionStatus<Built, Self>> :
+    CommonExecutionStatus.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -290,8 +252,6 @@ internal constructor(
 
     private var namespace: String? = null
 
-    private var alarmSchedule: Schedule? = null
-
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String? = null
@@ -299,27 +259,26 @@ internal constructor(
     private var name: Name? = null
 
     /**
-     * Builds a concrete [Built] instance, given a built [Alarm].
+     * Builds a concrete [Built] instance, given a built [CommonExecutionStatus].
      *
      * Subclasses should override this method to build a concrete [Built] instance that holds both
-     * the [Alarm]-specific properties and the subclass specific [additionalProperties].
+     * the [CommonExecutionStatus]-specific properties and the subclass specific
+     * [additionalProperties].
      *
      * See the sample code in the documentation of this class for more context.
      */
-    @Suppress("BuilderSetStyle") protected abstract fun buildFromAlarm(alarm: Alarm): Built
+    @Suppress("BuilderSetStyle")
+    protected abstract fun buildFromCommonExecutionStatus(
+      commonExecutionStatus: CommonExecutionStatus
+    ): Built
 
     public final override fun build(): Built =
-      buildFromAlarm(
-        AlarmImpl(namespace, alarmSchedule, disambiguatingDescription, identifier, name)
+      buildFromCommonExecutionStatus(
+        CommonExecutionStatusImpl(namespace, disambiguatingDescription, identifier, name)
       )
 
     public final override fun setNamespace(namespace: String?): Self {
       this.namespace = namespace
-      return this as Self
-    }
-
-    public final override fun setAlarmSchedule(schedule: Schedule?): Self {
-      this.alarmSchedule = schedule
       return this as Self
     }
 
@@ -345,34 +304,23 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
-      if (alarmSchedule != other.alarmSchedule) return false
+      if (namespace != other.namespace) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(
-        alarmSchedule,
-        disambiguatingDescription,
-        identifier,
-        name,
-        namespace,
-        additionalProperties
-      )
+      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
       if (namespace != null) {
         attributes["namespace"] = namespace!!
-      }
-      if (alarmSchedule != null) {
-        attributes["alarmSchedule"] = alarmSchedule!!.toString()
       }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
@@ -392,33 +340,37 @@ internal constructor(
   }
 }
 
-private class AlarmImpl : AbstractAlarm<AlarmImpl, AlarmImpl.Builder> {
+private class CommonExecutionStatusImpl :
+  AbstractCommonExecutionStatus<CommonExecutionStatusImpl, CommonExecutionStatusImpl.Builder> {
   protected override val selfTypeName: String
-    get() = "Alarm"
+    get() = "CommonExecutionStatus"
 
   protected override val additionalProperties: Map<String, Any?>
     get() = emptyMap()
 
   public constructor(
     namespace: String?,
-    alarmSchedule: Schedule?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(namespace, alarmSchedule, disambiguatingDescription, identifier, name)
+  ) : super(namespace, disambiguatingDescription, identifier, name)
 
-  public constructor(alarm: Alarm) : super(alarm)
+  public constructor(commonExecutionStatus: CommonExecutionStatus) : super(commonExecutionStatus)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  public class Builder : AbstractAlarm.Builder<Builder, AlarmImpl>() {
+  public class Builder :
+    AbstractCommonExecutionStatus.Builder<Builder, CommonExecutionStatusImpl>() {
     protected override val selfTypeName: String
-      get() = "Alarm.Builder"
+      get() = "CommonExecutionStatus.Builder"
 
     protected override val additionalProperties: Map<String, Any?>
       get() = emptyMap()
 
-    protected override fun buildFromAlarm(alarm: Alarm): AlarmImpl =
-      alarm as? AlarmImpl ?: AlarmImpl(alarm)
+    protected override fun buildFromCommonExecutionStatus(
+      commonExecutionStatus: CommonExecutionStatus
+    ): CommonExecutionStatusImpl =
+      commonExecutionStatus as? CommonExecutionStatusImpl
+        ?: CommonExecutionStatusImpl(commonExecutionStatus)
   }
 }

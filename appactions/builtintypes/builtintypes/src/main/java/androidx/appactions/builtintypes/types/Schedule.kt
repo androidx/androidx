@@ -56,7 +56,7 @@ import kotlin.jvm.JvmStatic
  * will take place, in addition to its start and end time. Schedules may also have start and end
  * dates to indicate when they are active, e.g. to define a limited calendar of events.
  *
- * See http://schema.org/Schedule for context.
+ * See https://schema.org/Schedule for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractSchedule] if you need to extend this type.
@@ -65,7 +65,7 @@ public interface Schedule : Intangible {
   /**
    * Defines the day(s) of the week on which a recurring Event takes place.
    *
-   * See http://schema.org/byDay for more context.
+   * See https://schema.org/byDay for more context.
    */
   public val byDays: List<ByDay>
 
@@ -73,7 +73,7 @@ public interface Schedule : Intangible {
    * Defines the month(s) of the year on which a recurring Event takes place. Specified as an
    * Integer between 1-12. January is 1.
    *
-   * See http://schema.org/byMonth for more context.
+   * See https://schema.org/byMonth for more context.
    */
   public val byMonths: List<Long>
 
@@ -81,7 +81,7 @@ public interface Schedule : Intangible {
    * Defines the day(s) of the month on which a recurring Event takes place. Specified as an Integer
    * between 1-31.
    *
-   * See http://schema.org/byMonthDay for more context.
+   * See https://schema.org/byMonthDay for more context.
    */
   public val byMonthDays: List<Long>
 
@@ -90,14 +90,14 @@ public interface Schedule : Intangible {
    * Integer between 1-5. For clarity, byMonthWeek is best used in conjunction with byDay to
    * indicate concepts like the first and third Mondays of a month.
    *
-   * See http://schema.org/byMonthWeek for more context.
+   * See https://schema.org/byMonthWeek for more context.
    */
   public val byMonthWeeks: List<Long>
 
   /**
    * The end date and time of the item.
    *
-   * See http://schema.org/endDate for more context.
+   * See https://schema.org/endDate for more context.
    */
   public val endDate: EndDate?
 
@@ -109,7 +109,7 @@ public interface Schedule : Intangible {
    * John wrote a book from January to *December*. For media, including audio and video, it's the
    * time offset of the end of a clip within a larger file.
    *
-   * See http://schema.org/endTime for more context.
+   * See https://schema.org/endTime for more context.
    */
   public val endTime: EndTime?
 
@@ -121,14 +121,14 @@ public interface Schedule : Intangible {
    * scheduled for that 24 hour period should be excluded from the schedule. This allows a whole day
    * to be excluded from the schedule without having to itemise every scheduled event.
    *
-   * See http://schema.org/exceptDate for more context.
+   * See https://schema.org/exceptDate for more context.
    */
   public val exceptDate: ExceptDate?
 
   /**
    * Defines the number of times a recurring `Event` will take place.
    *
-   * See http://schema.org/repeatCount for more context.
+   * See https://schema.org/repeatCount for more context.
    */
   @get:Suppress("AutoBoxing") public val repeatCount: Long?
 
@@ -136,7 +136,7 @@ public interface Schedule : Intangible {
    * Defines the frequency at which `Event`s will occur according to a schedule `Schedule`. The
    * intervals between events should be defined as a `Duration` of time.
    *
-   * See http://schema.org/repeatFrequency for more context.
+   * See https://schema.org/repeatFrequency for more context.
    */
   public val repeatFrequency: RepeatFrequency?
 
@@ -144,14 +144,14 @@ public interface Schedule : Intangible {
    * Indicates the timezone for which the time(s) indicated in the `Schedule` are given. The value
    * provided should be among those listed in the IANA Time Zone Database.
    *
-   * See http://schema.org/scheduleTimezone for more context.
+   * See https://schema.org/scheduleTimezone for more context.
    */
   public val scheduleTimezone: String?
 
   /**
    * The start date and time of the item.
    *
-   * See http://schema.org/startDate for more context.
+   * See https://schema.org/startDate for more context.
    */
   public val startDate: StartDate?
 
@@ -163,7 +163,7 @@ public interface Schedule : Intangible {
    * John wrote a book from *January* to December. For media, including audio and video, it's the
    * time offset of the start of a clip within a larger file.
    *
-   * See http://schema.org/startTime for more context.
+   * See https://schema.org/startTime for more context.
    */
   public val startTime: StartTime?
 

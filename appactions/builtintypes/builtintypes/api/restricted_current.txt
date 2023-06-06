@@ -205,6 +205,44 @@ package androidx.appactions.builtintypes.types {
     property protected abstract String selfTypeName;
   }
 
+  public abstract class AbstractCommonExecutionStatus<Self extends androidx.appactions.builtintypes.types.AbstractCommonExecutionStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractCommonExecutionStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.CommonExecutionStatus {
+    ctor public AbstractCommonExecutionStatus(androidx.appactions.builtintypes.types.CommonExecutionStatus commonExecutionStatus);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method public final String? getIdentifier();
+    method public final androidx.appactions.builtintypes.properties.Name? getName();
+    method public final String? getNamespace();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Builder toBuilder();
+    method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property public final String? identifier;
+    property public final androidx.appactions.builtintypes.properties.Name? name;
+    property public final String? namespace;
+    property protected abstract String selfTypeName;
+  }
+
+  public abstract static class AbstractCommonExecutionStatus.Builder<Self extends androidx.appactions.builtintypes.types.AbstractCommonExecutionStatus.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.AbstractCommonExecutionStatus<Built, Self>> implements androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<Self> {
+    ctor public AbstractCommonExecutionStatus.Builder();
+    method public final Built build();
+    method protected abstract Built buildFromCommonExecutionStatus(androidx.appactions.builtintypes.types.CommonExecutionStatus commonExecutionStatus);
+    method public final boolean equals(Object? other);
+    method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
+    method protected abstract String getSelfTypeName();
+    method public final int hashCode();
+    method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
+    method public final Self setIdentifier(String? text);
+    method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
+    method public final Self setNamespace(String? namespace);
+    method public final String toString();
+    property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
+    property protected abstract String selfTypeName;
+  }
+
   public abstract class AbstractExecutionStatus<Self extends androidx.appactions.builtintypes.types.AbstractExecutionStatus<Self, Builder>, Builder extends androidx.appactions.builtintypes.types.AbstractExecutionStatus.Builder<Builder, Self>> implements androidx.appactions.builtintypes.types.ExecutionStatus {
     ctor public AbstractExecutionStatus(androidx.appactions.builtintypes.types.ExecutionStatus executionStatus);
     method public final boolean equals(Object? other);
@@ -663,6 +701,20 @@ package androidx.appactions.builtintypes.types {
   public static final class Alarm.DisambiguatingDescriptionValue.Companion {
   }
 
+  public interface CommonExecutionStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
+    method public static androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder();
+    method public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> toBuilder();
+    field public static final androidx.appactions.builtintypes.types.CommonExecutionStatus.Companion Companion;
+  }
+
+  public static interface CommonExecutionStatus.Builder<Self extends androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<Self>> extends androidx.appactions.builtintypes.types.ExecutionStatus.Builder<Self> {
+    method public androidx.appactions.builtintypes.types.CommonExecutionStatus build();
+  }
+
+  public static final class CommonExecutionStatus.Companion {
+    method public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder();
+  }
+
   public final class DayOfWeek {
     method public String getCanonicalUrl();
     method public <R> R mapWhen(androidx.appactions.builtintypes.types.DayOfWeek.Mapper<R> mapper);
@@ -707,13 +759,13 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
   }
 
-  public interface GenericErrorStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
+  public interface GenericErrorStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
     method public static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.GenericErrorStatus.Companion Companion;
   }
 
-  public static interface GenericErrorStatus.Builder<Self extends androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<Self>> extends androidx.appactions.builtintypes.types.ExecutionStatus.Builder<Self> {
+  public static interface GenericErrorStatus.Builder<Self extends androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<Self>> extends androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<Self> {
     method public androidx.appactions.builtintypes.types.GenericErrorStatus build();
   }
 
@@ -843,13 +895,13 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
   }
 
-  public interface SuccessStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
+  public interface SuccessStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
     method public static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.SuccessStatus.Companion Companion;
   }
 
-  public static interface SuccessStatus.Builder<Self extends androidx.appactions.builtintypes.types.SuccessStatus.Builder<Self>> extends androidx.appactions.builtintypes.types.ExecutionStatus.Builder<Self> {
+  public static interface SuccessStatus.Builder<Self extends androidx.appactions.builtintypes.types.SuccessStatus.Builder<Self>> extends androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<Self> {
     method public androidx.appactions.builtintypes.types.SuccessStatus build();
   }
 

@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * John wrote a book from *January* to December. For media, including audio and video, it's the time
  * offset of the start of a clip within a larger file.
  *
- * See http://schema.org/startTime for context.
+ * See https://schema.org/startTime for context.
  *
  * Holds one of:
  * * Time i.e. [LocalTime]

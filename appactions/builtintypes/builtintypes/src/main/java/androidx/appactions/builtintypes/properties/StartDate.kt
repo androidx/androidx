@@ -27,7 +27,7 @@ import kotlin.jvm.JvmName
 /**
  * The start date and time of the item.
  *
- * See http://schema.org/startDate for context.
+ * See https://schema.org/startDate for context.
  *
  * Holds one of:
  * * Date i.e. [LocalDate]

@@ -25,7 +25,7 @@ import kotlin.jvm.JvmName
 /**
  * Defines the day(s) of the week on which a recurring Event takes place.
  *
- * See http://schema.org/byDay for context.
+ * See https://schema.org/byDay for context.
  *
  * Holds one of:
  * * Text i.e. [String]

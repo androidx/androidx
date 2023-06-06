@@ -33,7 +33,7 @@ import kotlin.jvm.JvmStatic
  * A utility class that serves as the umbrella for a number of 'intangible' things such as
  * quantities, structured values, etc.
  *
- * See http://schema.org/Intangible for context.
+ * See https://schema.org/Intangible for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractIntangible] if you need to extend this type.

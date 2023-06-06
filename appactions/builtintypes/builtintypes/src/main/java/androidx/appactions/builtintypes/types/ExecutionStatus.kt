@@ -30,9 +30,13 @@ import kotlin.collections.plusAssign
 import kotlin.jvm.JvmStatic
 
 /**
- * Status of a task that was pending execution.
+ * A parent type that serves as the umbrella for a number of types that represent the status of a
+ * pending task.
  *
- * See http://schema.googleapis.com/ExecutionStatus for context.
+ * Prefer one of the subtypes in most contexts to represent a specific type of status e.g.
+ * `UnsupportedOperationStatus`.
+ *
+ * See https://schema.googleapis.com/ExecutionStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractExecutionStatus] if you need to extend this type.

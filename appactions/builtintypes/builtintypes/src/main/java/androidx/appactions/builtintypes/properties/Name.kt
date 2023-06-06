@@ -24,7 +24,7 @@ import kotlin.jvm.JvmName
 /**
  * The name of the item.
  *
- * See http://schema.org/name for context.
+ * See https://schema.org/name for context.
  *
  * Holds one of:
  * * Text i.e. [String]

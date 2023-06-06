@@ -32,7 +32,7 @@ import kotlin.jvm.JvmStatic
 /**
  * A person (alive, dead, undead, or fictional).
  *
- * See http://schema.org/Person for context.
+ * See https://schema.org/Person for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractPerson] if you need to extend this type.
@@ -41,7 +41,7 @@ public interface Person : Thing {
   /**
    * Email address.
    *
-   * See http://schema.org/email for more context.
+   * See https://schema.org/email for more context.
    */
   public val email: String?
 

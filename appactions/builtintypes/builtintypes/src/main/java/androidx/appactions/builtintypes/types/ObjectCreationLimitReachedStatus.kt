@@ -33,7 +33,7 @@ import kotlin.jvm.JvmStatic
  * Status indicating that the number of objects have reached the limit and more objects cannot be
  * created.
  *
- * See http://schema.googleapis.com/ObjectCreationLimitReachedStatus for context.
+ * See https://schema.googleapis.com/ObjectCreationLimitReachedStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractObjectCreationLimitReachedStatus] if you need to extend

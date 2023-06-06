@@ -33,7 +33,7 @@ import kotlin.jvm.JvmStatic
 /**
  * A timer to go off at a particular time.
  *
- * See http://schema.googleapis.com/Timer for context.
+ * See https://schema.googleapis.com/Timer for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractTimer] if you need to extend this type.
@@ -42,7 +42,7 @@ public interface Timer : Thing {
   /**
    * The duration of the item (movie, audio recording, event, etc.).
    *
-   * See http://schema.org/duration for more context.
+   * See https://schema.org/duration for more context.
    */
   public val duration: Duration?
 

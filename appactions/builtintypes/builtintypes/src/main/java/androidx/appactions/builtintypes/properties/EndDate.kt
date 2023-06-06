@@ -27,7 +27,7 @@ import kotlin.jvm.JvmName
 /**
  * The end date and time of the item.
  *
- * See http://schema.org/endDate for context.
+ * See https://schema.org/endDate for context.
  *
  * Holds one of:
  * * Date i.e. [LocalDate]

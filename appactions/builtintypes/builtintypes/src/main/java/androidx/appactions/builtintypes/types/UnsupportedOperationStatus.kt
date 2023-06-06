@@ -32,7 +32,7 @@ import kotlin.jvm.JvmStatic
 /**
  * Status indicating that the operation is not supported, e.g. updating an unsupported field.
  *
- * See http://schema.googleapis.com/UnsupportedOperationStatus for context.
+ * See https://schema.googleapis.com/UnsupportedOperationStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractUnsupportedOperationStatus] if you need to extend this

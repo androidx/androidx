@@ -26,7 +26,7 @@ import kotlin.jvm.JvmName
  * Defines the frequency at which `Event`s will occur according to a schedule `Schedule`. The
  * intervals between events should be defined as a `Duration` of time.
  *
- * See http://schema.org/repeatFrequency for context.
+ * See https://schema.org/repeatFrequency for context.
  *
  * Holds one of:
  * * [Duration]

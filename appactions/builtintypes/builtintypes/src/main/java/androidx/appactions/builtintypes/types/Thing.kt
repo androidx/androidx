@@ -32,7 +32,7 @@ import kotlin.jvm.JvmStatic
 /**
  * The most generic type of item.
  *
- * See http://schema.org/Thing for context.
+ * See https://schema.org/Thing for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractThing] if you need to extend this type.
@@ -46,7 +46,7 @@ public interface Thing {
    * similar items. Information from other properties (in particular, name) may be necessary for the
    * description to be useful for disambiguation.
    *
-   * See http://schema.org/disambiguatingDescription for more context.
+   * See https://schema.org/disambiguatingDescription for more context.
    */
   public val disambiguatingDescription: DisambiguatingDescription?
 
@@ -54,14 +54,14 @@ public interface Thing {
    * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
    * GTIN codes, UUIDs etc.
    *
-   * See http://schema.org/identifier for more context.
+   * See https://schema.org/identifier for more context.
    */
   public val identifier: String?
 
   /**
    * The name of the item.
    *
-   * See http://schema.org/name for more context.
+   * See https://schema.org/name for more context.
    */
   public val name: Name?
 
