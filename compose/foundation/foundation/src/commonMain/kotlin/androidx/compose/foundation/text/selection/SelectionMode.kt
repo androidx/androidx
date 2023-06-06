@@ -30,7 +30,7 @@ internal enum class SelectionMode {
      */
     Vertical {
         override fun compare(position: Offset, bounds: Rect): Int {
-            if (bounds.contains(position)) return 0
+            if (bounds.containsInclusive(position)) return 0
 
             // When the position of the selection handle is on the top of the composable, and the
             // not on the right of the composable, it's considered as start.
@@ -52,7 +52,7 @@ internal enum class SelectionMode {
      */
     Horizontal {
         override fun compare(position: Offset, bounds: Rect): Int {
-            if (bounds.contains(position)) return 0
+            if (bounds.containsInclusive(position)) return 0
 
             // When the end of the selection is on the left of the composable, the composable is
             // outside of the selection range.
@@ -95,7 +95,7 @@ internal enum class SelectionMode {
         end: Offset
     ): Boolean {
         // If either of the start or end is contained by bounds, the composable is selected.
-        if (bounds.contains(start) || bounds.contains(end)) {
+        if (bounds.containsInclusive(start) || bounds.containsInclusive(end)) {
             return true
         }
         // Compare the location of start and end to the bound. If both are on the same side, return
@@ -104,4 +104,13 @@ internal enum class SelectionMode {
         val compareEnd = compare(end, bounds)
         return (compareStart > 0) xor (compareEnd > 0)
     }
+
+    /**
+     * The regular contains function ([Rect.contains]) is only inclusive of left and top,
+     * but there are many times where we want to include when the offset is on the right/bottom
+     * bounds. This commonly happens when the selection handle is placed at the right of the bounds
+     * and then that offset is used in this function.
+     */
+    private fun Rect.containsInclusive(offset: Offset): Boolean =
+        offset.x in left..right && offset.y in top..bottom
 }

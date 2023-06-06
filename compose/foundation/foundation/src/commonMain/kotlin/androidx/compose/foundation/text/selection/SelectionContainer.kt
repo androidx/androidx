@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.ContextMenuArea
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
-import androidx.compose.foundation.text.isInTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -90,7 +89,6 @@ internal fun SelectionContainer(
     manager.textToolbar = LocalTextToolbar.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
-    manager.touchMode = isInTouchMode
 
     ContextMenuArea(manager) {
         CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {
@@ -98,7 +96,7 @@ internal fun SelectionContainer(
             // cross-composable selection.
             SimpleLayout(modifier = modifier.then(manager.modifier)) {
                 children()
-                if (isInTouchMode && manager.hasFocus) {
+                if (manager.isInTouchMode && manager.hasFocus && manager.isNonEmptySelection()) {
                     manager.selection?.let {
                         listOf(true, false).fastForEach { isStartHandle ->
                             val observer = remember(isStartHandle) {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.fastFold
@@ -51,6 +49,7 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -77,7 +76,15 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     /**
      * Is touch mode active
      */
-    var touchMode: Boolean = true
+    private val _isInTouchMode = mutableStateOf(true)
+    var isInTouchMode: Boolean
+        get() = _isInTouchMode.value
+        set(value) {
+            if (_isInTouchMode.value != value) {
+                _isInTouchMode.value = value
+                if (value && showToolbar) showSelectionToolbar() else hideSelectionToolbar()
+            }
+        }
 
     /**
      * The manager will invoke this every time it comes to the conclusion that the selection should
@@ -126,6 +133,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 hasFocus = focusState.isFocused
             }
             .focusable()
+            .updateSelectionTouchMode { isInTouchMode = it }
             .onKeyEvent {
                 if (isCopyKeyEvent(it)) {
                     copy()
@@ -200,7 +208,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     var currentDragPosition: Offset? by mutableStateOf(null)
         private set
 
-    private val shouldShowMagnifier get() = draggingHandle != null
+    private val shouldShowMagnifier
+        get() = draggingHandle != null && isInTouchMode && isNonEmptySelection()
 
     init {
         selectionRegistrar.onPositionChangeCallback = { selectableId ->
@@ -214,13 +223,14 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
 
         selectionRegistrar.onSelectionUpdateStartCallback =
-            { layoutCoordinates, position, selectionMode ->
+            { isInTouchMode, layoutCoordinates, position, selectionMode ->
                 val positionInContainer = convertToContainerCoordinates(
                     layoutCoordinates,
                     position
                 )
 
                 if (positionInContainer != null) {
+                    this.isInTouchMode = isInTouchMode
                     startSelection(
                         position = positionInContainer,
                         isStartHandle = false,
@@ -228,12 +238,12 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     )
 
                     focusRequester.requestFocus()
-                    hideSelectionToolbar()
+                    showToolbar = false
                 }
             }
 
         selectionRegistrar.onSelectionUpdateSelectAll =
-            { selectableId ->
+            { isInTouchMode, selectableId ->
                 val (newSelection, newSubselection) = selectAll(
                     selectableId = selectableId,
                     previousSelection = selection,
@@ -243,17 +253,24 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     onSelectionChange(newSelection)
                 }
 
+                this.isInTouchMode = isInTouchMode
                 focusRequester.requestFocus()
-                hideSelectionToolbar()
+                showToolbar = false
             }
 
         selectionRegistrar.onSelectionUpdateCallback =
-            { layoutCoordinates, newPosition, previousPosition, isStartHandle, selectionMode ->
+            { isInTouchMode,
+                layoutCoordinates,
+                newPosition,
+                previousPosition,
+                isStartHandle,
+                selectionMode ->
                 val newPositionInContainer =
                     convertToContainerCoordinates(layoutCoordinates, newPosition)
                 val previousPositionInContainer =
                     convertToContainerCoordinates(layoutCoordinates, previousPosition)
 
+                this.isInTouchMode = isInTouchMode
                 updateSelection(
                     newPosition = newPositionInContainer,
                     previousPosition = previousPositionInContainer,
@@ -263,7 +280,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
 
         selectionRegistrar.onSelectionUpdateEndCallback = {
-            showSelectionToolbar()
+            showToolbar = true
             // This property is set by updateSelection while dragging, so we need to clear it after
             // the original selection drag.
             draggingHandle = null
@@ -371,10 +388,37 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 selection?.let { subselections[selectable.selectableId] = it }
                 merge(mergedSelection, selection)
             }
-        if (newSelection != previousSelection) {
+        if (isInTouchMode && newSelection != previousSelection) {
             hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
         return Pair(newSelection, subselections)
+    }
+
+    internal fun isNonEmptySelection(): Boolean {
+        val selection = selection ?: return false
+
+        var betweenSelectables = false
+        selectionRegistrar.sort(requireContainerCoordinates()).fastForEach {
+            if (
+                it.selectableId != selection.start.selectableId &&
+                it.selectableId != selection.end.selectableId &&
+                !betweenSelectables
+            ) {
+                // haven't found our selection yet, continue
+                return@fastForEach
+            }
+
+            betweenSelectables = true
+            if (!isCurrentSelectionEmpty(selection = selection, selectable = it)) {
+                return true
+            }
+
+            // short-circuit if this is the last selectable
+            if (it.selectableId == selection.end.selectableId && !selection.handlesCrossed ||
+                it.selectableId == selection.start.selectableId && selection.handlesCrossed
+            ) return false
+        }
+        return false
     }
 
     internal fun getSelectedText(): AnnotatedString? {
@@ -407,29 +451,39 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     internal fun copy() {
         val selectedText = getSelectedText()
-        selectedText?.let { clipboardManager?.setText(it) }
+        selectedText?.takeIf { it.isNotEmpty() }?.let { clipboardManager?.setText(it) }
     }
+
+    /**
+     * Whether toolbar should be shown right now.
+     * Examples: Show toolbar after user finishes selection.
+     * Hide it during selection.
+     * Hide it when no selection exists.
+     */
+    internal var showToolbar = false
+        internal set(value) {
+            field = value
+            if (value && isInTouchMode) showSelectionToolbar() else hideSelectionToolbar()
+        }
 
     /**
      * This function get the selected region as a Rectangle region, and pass it to [TextToolbar]
      * to make the FloatingToolbar show up in the proper place. In addition, this function passes
      * the copy method as a callback when "copy" is clicked.
      */
-    internal fun showSelectionToolbar() {
-        if (hasFocus) {
-            selection?.let {
-                textToolbar?.showMenu(
-                    getContentRect(),
-                    onCopyRequested = {
-                        copy()
-                        onRelease()
-                    }
-                )
-            }
+    private fun showSelectionToolbar() {
+        if (hasFocus && isNonEmptySelection()) {
+            textToolbar?.showMenu(
+                getContentRect(),
+                onCopyRequested = {
+                    copy()
+                    onRelease()
+                }
+            )
         }
     }
 
-    internal fun hideSelectionToolbar() {
+    private fun hideSelectionToolbar() {
         if (hasFocus && textToolbar?.status == TextToolbarStatus.Shown) {
             textToolbar?.hide()
         }
@@ -511,10 +565,12 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     // This is for PressGestureDetector to cancel the selection.
     fun onRelease() {
         selectionRegistrar.subselections = emptyMap()
-        hideSelectionToolbar()
+        showToolbar = false
         if (selection != null) {
             onSelectionChange(null)
-            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            if (isInTouchMode) {
+                hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            }
         }
     }
 
@@ -543,15 +599,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 beginCoordinates
             )
             draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-        }
-
-        override fun onUp() {
-            draggingHandle = null
-            currentDragPosition = null
+            showToolbar = false
         }
 
         override fun onStart(startPoint: Offset) {
-            hideSelectionToolbar()
             val selection = selection!!
             val startSelectable =
                 selectionRegistrar.selectableMap[selection.start.selectableId]
@@ -606,17 +657,15 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
         }
 
-        override fun onStop() {
-            showSelectionToolbar()
+        private fun done() {
+            showToolbar = true
             draggingHandle = null
             currentDragPosition = null
         }
 
-        override fun onCancel() {
-            showSelectionToolbar()
-            draggingHandle = null
-            currentDragPosition = null
-        }
+        override fun onUp() = done()
+        override fun onStop() = done()
+        override fun onCancel() = done()
     }
 
     /**
@@ -750,7 +799,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         var moveConsumed = false
         val newSelection = selectionRegistrar.sort(requireContainerCoordinates())
             .fastFold(null) { mergedSelection: Selection?, selectable: Selectable ->
-                val previousSubselection =
+                val previousSubSelection =
                     selectionRegistrar.subselections[selectable.selectableId]
                 val (selection, consumed) = selectable.updateSelection(
                     startHandlePosition = startHandlePosition,
@@ -759,17 +808,23 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     isStartHandle = isStartHandle,
                     containerLayoutCoordinates = requireContainerCoordinates(),
                     adjustment = adjustment,
-                    previousSelection = previousSubselection,
+                    previousSelection = previousSubSelection,
                 )
 
                 moveConsumed = moveConsumed || consumed
                 selection?.let { newSubselections[selectable.selectableId] = it }
                 merge(mergedSelection, selection)
             }
+
         if (newSelection != selection) {
-            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            if (isInTouchMode) {
+                hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            }
             selectionRegistrar.subselections = newSubselections
             onSelectionChange(newSelection)
+            // always consume if selection changed, it is possible that it is false at this
+            // point if selectables were only removed from the selection
+            moveConsumed = true
         }
         return moveConsumed
     }
@@ -777,7 +832,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     fun contextMenuOpenAdjustment(position: Offset) {
         val isEmptySelection = selection?.toTextRange()?.collapsed ?: true
         // TODO(b/209483184) the logic should be more complex here, it should check that current
-        // selection doesn't include click position
+        //  selection doesn't include click position
         if (isEmptySelection) {
             startSelection(
                 position = position,
@@ -851,6 +906,27 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         Handle.SelectionStart -> getMagnifierCenter(selection.start, isStartHandle = true)
         Handle.SelectionEnd -> getMagnifierCenter(selection.end, isStartHandle = false)
         Handle.Cursor -> error("SelectionContainer does not support cursor")
+    }
+}
+
+private fun isCurrentSelectionEmpty(
+    selectable: Selectable,
+    selection: Selection
+): Boolean {
+    val selectableId = selectable.selectableId
+    val startSelectableId = selection.start.selectableId
+    val endSelectableId = selection.end.selectableId
+
+    if (selectableId == startSelectableId && selectableId == endSelectableId) {
+        return selection.start.offset == selection.end.offset
+    }
+
+    val text = selectable.getText()
+    val handlesCrossed = selection.handlesCrossed
+    return when (selectableId) {
+        startSelectableId -> selection.start.offset == if (handlesCrossed) 0 else text.length
+        endSelectableId -> selection.end.offset == if (handlesCrossed) text.length else 0
+        else -> text.isEmpty()
     }
 }
 

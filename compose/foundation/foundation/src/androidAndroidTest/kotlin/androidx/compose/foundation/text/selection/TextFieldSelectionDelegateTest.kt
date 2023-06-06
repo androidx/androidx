@@ -68,6 +68,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = 2,
             rawEndOffset = 2,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Word
@@ -94,6 +95,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = 5,
             rawEndOffset = 5,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Word
@@ -123,6 +125,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = rawStartOffset,
             rawEndOffset = rawEndOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Word
@@ -152,6 +155,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = rawStartOffset,
             rawEndOffset = rawEndOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Word
@@ -182,6 +186,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.None
@@ -212,6 +217,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Character
@@ -244,6 +250,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Character
@@ -274,6 +281,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Character
@@ -304,6 +312,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Character
@@ -336,6 +345,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Character,
@@ -362,6 +372,7 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = 0,
             rawEndOffset = 0,
+            previousHandleOffset = -1,
             previousSelection = null,
             isStartHandle = true,
             adjustment = SelectionAdjustment.Word

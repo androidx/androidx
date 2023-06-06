@@ -67,14 +67,14 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
      */
     @Suppress("PrimitiveInLambda")
     internal var onSelectionUpdateStartCallback:
-        ((LayoutCoordinates, Offset, SelectionAdjustment) -> Unit)? = null
+        ((Boolean, LayoutCoordinates, Offset, SelectionAdjustment) -> Unit)? = null
 
     /**
      * The callback to be invoked when the selection is initiated with selectAll [Selection].
      */
     @Suppress("PrimitiveInLambda")
     internal var onSelectionUpdateSelectAll: (
-        (Long) -> Unit
+        (Boolean, Long) -> Unit
     )? = null
 
     /**
@@ -83,7 +83,8 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
      */
     @Suppress("PrimitiveInLambda")
     internal var onSelectionUpdateCallback:
-        ((LayoutCoordinates, Offset, Offset, Boolean, SelectionAdjustment) -> Boolean)? = null
+        ((Boolean, LayoutCoordinates, Offset, Offset, Boolean, SelectionAdjustment) -> Boolean)? =
+        null
 
     /**
      * The callback to be invoked when selection update finished.
@@ -176,13 +177,19 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     override fun notifySelectionUpdateStart(
         layoutCoordinates: LayoutCoordinates,
         startPosition: Offset,
-        adjustment: SelectionAdjustment
+        adjustment: SelectionAdjustment,
+        isInTouchMode: Boolean
     ) {
-        onSelectionUpdateStartCallback?.invoke(layoutCoordinates, startPosition, adjustment)
+        onSelectionUpdateStartCallback?.invoke(
+            isInTouchMode,
+            layoutCoordinates,
+            startPosition,
+            adjustment
+        )
     }
 
-    override fun notifySelectionUpdateSelectAll(selectableId: Long) {
-        onSelectionUpdateSelectAll?.invoke(selectableId)
+    override fun notifySelectionUpdateSelectAll(selectableId: Long, isInTouchMode: Boolean) {
+        onSelectionUpdateSelectAll?.invoke(isInTouchMode, selectableId)
     }
 
     override fun notifySelectionUpdate(
@@ -190,9 +197,11 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
         newPosition: Offset,
         previousPosition: Offset,
         isStartHandle: Boolean,
-        adjustment: SelectionAdjustment
+        adjustment: SelectionAdjustment,
+        isInTouchMode: Boolean
     ): Boolean {
         return onSelectionUpdateCallback?.invoke(
+            isInTouchMode,
             layoutCoordinates,
             newPosition,
             previousPosition,

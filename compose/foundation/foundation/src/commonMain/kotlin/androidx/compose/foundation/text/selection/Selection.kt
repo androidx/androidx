@@ -70,14 +70,17 @@ internal data class Selection(
     fun merge(other: Selection?): Selection {
         if (other == null) return this
 
-        var selection = this
-        selection = if (handlesCrossed) {
-            selection.copy(start = other.start)
+        val selection = this
+
+        return if (handlesCrossed || other.handlesCrossed) {
+            Selection(
+                start = if (other.handlesCrossed) other.start else other.end,
+                end = if (handlesCrossed) end else start,
+                handlesCrossed = true
+            )
         } else {
             selection.copy(end = other.end)
         }
-
-        return selection
     }
 
     /**

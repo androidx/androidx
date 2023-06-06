@@ -405,6 +405,12 @@ class TextFieldKeyEventTest {
             }
             pressKey(Key.Zero)
             expectedText("hello world0\n0hi")
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.DirectionUp)
+                pressKey(Key.DirectionUp)
+            }
+            pressKey(Key.Zero)
+            expectedText("0hello world0\n0hi")
         }
     }
 
