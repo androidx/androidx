@@ -109,9 +109,63 @@ class TextPreparedSelectionTest {
     }
 
     @Test
+    fun textSelection_byParagraphMovements_nonEmptyLines() {
+        selectionTest("line1\nline2\nline3") {
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(5))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(11))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(17))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(17))
+
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(12))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(6))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(0))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(0))
+        }
+    }
+
+    @Test
     fun textSelection_byParagraphMovements_empty() {
         selectionTest("") {
             it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(0))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(0))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(0))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(0))
+        }
+    }
+
+    @Test
+    fun textSelection_byParagraphMovements_emptyLines() {
+        selectionTest("\n\n\n\n") {
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(1))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(2))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(3))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(4))
+            it.moveCursorNextByParagraph()
+            expectedSelection(TextRange(4))
+
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(3))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(2))
+            it.moveCursorPrevByParagraph()
+            expectedSelection(TextRange(1))
+            it.moveCursorPrevByParagraph()
             expectedSelection(TextRange(0))
             it.moveCursorPrevByParagraph()
             expectedSelection(TextRange(0))

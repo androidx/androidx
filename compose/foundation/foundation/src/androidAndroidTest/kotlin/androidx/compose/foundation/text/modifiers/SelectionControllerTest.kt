@@ -79,7 +79,10 @@ class SelectionControllerTest {
         var size: Size? = null
 
         rule.setContent {
-            Box(Modifier.fillMaxSize().drawBehind { drawRect(Color.Black) }) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind { drawRect(Color.Black) }) {
                 Canvas(Modifier.size(canvasSize)) {
                     size = this.size
                     subject.draw(this)
@@ -110,7 +113,10 @@ class SelectionControllerTest {
         var size: Size? = null
 
         rule.setContent {
-            Box(Modifier.fillMaxSize().drawBehind { drawRect(Color.Black) }) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind { drawRect(Color.Black) }) {
                 Canvas(Modifier.size(canvasSize)) {
                     size = this.size
                     drawRect(Color.Black)
@@ -179,12 +185,13 @@ private class FixedSelectionFake(
     override fun notifySelectionUpdateStart(
         layoutCoordinates: LayoutCoordinates,
         startPosition: Offset,
-        adjustment: SelectionAdjustment
+        adjustment: SelectionAdjustment,
+        isInTouchMode: Boolean
     ) {
         FAKE("Selection not editable")
     }
 
-    override fun notifySelectionUpdateSelectAll(selectableId: Long) {
+    override fun notifySelectionUpdateSelectAll(selectableId: Long, isInTouchMode: Boolean) {
         FAKE()
     }
 
@@ -193,7 +200,8 @@ private class FixedSelectionFake(
         newPosition: Offset,
         previousPosition: Offset,
         isStartHandle: Boolean,
-        adjustment: SelectionAdjustment
+        adjustment: SelectionAdjustment,
+        isInTouchMode: Boolean
     ): Boolean {
         FAKE("Selection not editable")
     }

@@ -82,8 +82,16 @@ internal class TextFieldSelectionManager(
 
     /**
      * The current [TextFieldValue]. This contains the original text, not the transformed text.
+     * Transformed text can be found with [transformedText].
      */
     internal var value: TextFieldValue by mutableStateOf(TextFieldValue())
+
+    /**
+     * The current transformed text from the [TextFieldState].
+     * The original text can be found in [value].
+     */
+    @OptIn(InternalFoundationTextApi::class)
+    internal val transformedText get() = state?.textDelegate?.text
 
     /**
      * Visual transformation of the text field's text. Used to check if certain toolbar options
@@ -151,6 +159,11 @@ internal class TextFieldSelectionManager(
         private set
 
     /**
+     * The previous offset of the drag, before selection adjustments.
+     */
+    private var previousRawDragOffset: Int = -1
+
+    /**
      * The old [TextFieldValue] before entering the selection mode on long press. Used to exit
      * the selection mode.
      */
@@ -180,37 +193,42 @@ internal class TextFieldSelectionManager(
             // Long Press at the blank area, the cursor should show up at the end of the line.
             if (state?.layoutResult?.isPositionOnText(startPoint) != true) {
                 state?.layoutResult?.let { layoutResult ->
-                    val offset = offsetMapping.transformedToOriginal(
-                        layoutResult.getLineEnd(
-                            layoutResult.getLineForVerticalPosition(startPoint.y)
-                        )
-                    )
-                    hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    val transformedOffset = layoutResult.getOffsetForPosition(startPoint)
+                    val offset = offsetMapping.transformedToOriginal(transformedOffset)
 
                     val newValue = createTextFieldValue(
                         annotatedString = value.annotatedString,
                         selection = TextRange(offset, offset)
                     )
-                    enterSelectionMode()
+
+                    enterSelectionMode(showFloatingToolbar = false)
+                    hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onValueChange(newValue)
-                    return
+                    previousRawDragOffset = offset
+                }
+            } else {
+                if (value.text.isEmpty()) return
+                enterSelectionMode(showFloatingToolbar = false)
+                state?.layoutResult?.let { layoutResult ->
+                    val offset = layoutResult.getOffsetForPosition(startPoint)
+                    val adjustedStartSelection = updateSelection(
+                        // reset selection, otherwise a previous selection may be used
+                        // as context for creating the next selection
+                        value = value.copy(selection = TextRange.Zero),
+                        transformedStartOffset = offset,
+                        transformedEndOffset = offset,
+                        isStartHandle = false,
+                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        isTouchBasedSelection = true,
+                    )
+                    // For touch, set the begin offset to the adjusted selection.
+                    // When char based selection is used, we want to ensure we snap the
+                    // beginning offset to the start word boundary of the first selected word.
+                    dragBeginOffsetInText = adjustedStartSelection.start
+                    previousRawDragOffset = offset
                 }
             }
 
-            // selection never started
-            if (value.text.isEmpty()) return
-            enterSelectionMode()
-            state?.layoutResult?.let { layoutResult ->
-                val offset = layoutResult.getOffsetForPosition(startPoint)
-                updateSelection(
-                    value = value,
-                    transformedStartOffset = offset,
-                    transformedEndOffset = offset,
-                    isStartHandle = false,
-                    adjustment = SelectionAdjustment.Word
-                )
-                dragBeginOffsetInText = offset
-            }
             dragBeginPosition = startPoint
             currentDragPosition = dragBeginPosition
             dragTotalDistance = Offset.Zero
@@ -223,21 +241,64 @@ internal class TextFieldSelectionManager(
             dragTotalDistance += delta
             state?.layoutResult?.let { layoutResult ->
                 currentDragPosition = dragBeginPosition + dragTotalDistance
-                val startOffset = dragBeginOffsetInText ?: layoutResult.getOffsetForPosition(
-                    position = dragBeginPosition,
-                    coerceInVisibleBounds = false
-                )
-                val endOffset = layoutResult.getOffsetForPosition(
-                    position = currentDragPosition!!,
-                    coerceInVisibleBounds = false
-                )
-                updateSelection(
-                    value = value,
-                    transformedStartOffset = startOffset,
-                    transformedEndOffset = endOffset,
-                    isStartHandle = false,
-                    adjustment = SelectionAdjustment.Word
-                )
+
+                if (
+                    dragBeginOffsetInText == null &&
+                    !layoutResult.isPositionOnText(currentDragPosition!!)
+                ) {
+                    // both start and end of drag is in end padding.
+                    val startOffset = offsetMapping.transformedToOriginal(
+                        layoutResult.getOffsetForPosition(dragBeginPosition)
+                    )
+
+                    val endOffset = offsetMapping.transformedToOriginal(
+                        layoutResult.getOffsetForPosition(currentDragPosition!!)
+                    )
+
+                    val adjustment = if (startOffset == endOffset) {
+                        // start and end is in the same end padding, keep the collapsed selection
+                        SelectionAdjustment.None
+                    } else {
+                        SelectionAdjustment.CharacterWithWordAccelerate
+                    }
+
+                    updateSelection(
+                        value = value,
+                        transformedStartOffset = startOffset,
+                        transformedEndOffset = endOffset,
+                        isStartHandle = false,
+                        adjustment = adjustment,
+                        isTouchBasedSelection = true,
+                        allowPreviousSelectionCollapsed = true,
+                    )
+                    previousRawDragOffset = endOffset
+                } else {
+                    val startOffset = dragBeginOffsetInText ?: layoutResult.getOffsetForPosition(
+                        position = dragBeginPosition,
+                        coerceInVisibleBounds = false
+                    )
+                    val endOffset = layoutResult.getOffsetForPosition(
+                        position = currentDragPosition!!,
+                        coerceInVisibleBounds = false
+                    )
+
+                    if (dragBeginOffsetInText == null && startOffset == endOffset) {
+                        // if we are selecting starting from end padding,
+                        // don't start selection until we have and un-collapsed selection.
+                        return
+                    }
+
+                    updateSelection(
+                        value = value,
+                        transformedStartOffset = startOffset,
+                        transformedEndOffset = endOffset,
+                        isStartHandle = false,
+                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        isTouchBasedSelection = true,
+                        allowPreviousSelectionCollapsed = dragBeginOffsetInText == null,
+                    )
+                    previousRawDragOffset = endOffset
+                }
             }
             state?.showFloatingToolbar = false
         }
@@ -263,7 +324,8 @@ internal class TextFieldSelectionManager(
                     transformedStartOffset = startOffset,
                     transformedEndOffset = clickOffset,
                     isStartHandle = false,
-                    adjustment = SelectionAdjustment.None
+                    adjustment = SelectionAdjustment.None,
+                    isTouchBasedSelection = false,
                 )
                 return true
             }
@@ -286,7 +348,8 @@ internal class TextFieldSelectionManager(
                     transformedStartOffset = startOffset,
                     transformedEndOffset = dragOffset,
                     isStartHandle = false,
-                    adjustment = SelectionAdjustment.None
+                    adjustment = SelectionAdjustment.None,
+                    isTouchBasedSelection = false,
                 )
                 return true
             }
@@ -302,6 +365,7 @@ internal class TextFieldSelectionManager(
             dragBeginPosition = downPosition
 
             state?.layoutResult?.let { layoutResult ->
+                enterSelectionMode()
                 dragBeginOffsetInText = layoutResult.getOffsetForPosition(downPosition)
                 val clickOffset = layoutResult.getOffsetForPosition(dragBeginPosition)
                 updateSelection(
@@ -309,7 +373,8 @@ internal class TextFieldSelectionManager(
                     transformedStartOffset = clickOffset,
                     transformedEndOffset = clickOffset,
                     isStartHandle = false,
-                    adjustment = adjustment
+                    adjustment = adjustment,
+                    isTouchBasedSelection = false,
                 )
                 return true
             }
@@ -331,12 +396,15 @@ internal class TextFieldSelectionManager(
                     transformedStartOffset = dragBeginOffsetInText!!,
                     transformedEndOffset = dragOffset,
                     isStartHandle = false,
-                    adjustment = adjustment
+                    adjustment = adjustment,
+                    isTouchBasedSelection = false,
                 )
                 return true
             }
             return false
         }
+
+        override fun onDragDone() { /* Nothing to do */ }
     }
 
     /**
@@ -347,6 +415,7 @@ internal class TextFieldSelectionManager(
             override fun onDown(point: Offset) {
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
                 currentDragPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
+                state?.isInTouchMode = true
             }
 
             override fun onUp() {
@@ -362,6 +431,8 @@ internal class TextFieldSelectionManager(
                 // Zero out the total distance that being dragged.
                 dragTotalDistance = Offset.Zero
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
+                previousRawDragOffset = state?.layoutResult?.value
+                    ?.getOffsetForPosition(currentDragPosition!!) ?: -1
                 state?.showFloatingToolbar = false
             }
 
@@ -387,8 +458,10 @@ internal class TextFieldSelectionManager(
                         transformedStartOffset = startOffset,
                         transformedEndOffset = endOffset,
                         isStartHandle = isStartHandle,
-                        adjustment = SelectionAdjustment.Character
+                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        isTouchBasedSelection = true, // handle drag infers touch
                     )
+                    previousRawDragOffset = if (isStartHandle) startOffset else endOffset
                 }
                 state?.showFloatingToolbar = false
             }
@@ -441,7 +514,10 @@ internal class TextFieldSelectionManager(
                 // Nothing changed, skip onValueChange hand hapticFeedback.
                 if (newSelection == value.selection) return
 
-                hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                if (state?.isInTouchMode != false) {
+                    hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+
                 onValueChange(
                     createTextFieldValue(
                         annotatedString = value.annotatedString,
@@ -463,13 +539,15 @@ internal class TextFieldSelectionManager(
      * The method to record the required state values on entering the selection mode.
      *
      * Is triggered on long press or accessibility action.
+     *
+     * @param showFloatingToolbar whether to show the floating toolbar when entering selection mode
      */
-    internal fun enterSelectionMode() {
+    internal fun enterSelectionMode(showFloatingToolbar: Boolean = true) {
         if (state?.hasFocus == false) {
             focusRequester?.requestFocus()
         }
         oldValue = value
-        state?.showFloatingToolbar = true
+        state?.showFloatingToolbar = showFloatingToolbar
         setHandleState(HandleState.Selection)
     }
 
@@ -630,6 +708,7 @@ internal class TextFieldSelectionManager(
      * the copy, paste and cut method as callbacks when "copy", "cut" or "paste" is clicked.
      */
     internal fun showSelectionToolbar() {
+        if (state?.isInTouchMode == false) return
         val isPassword = visualTransformation is PasswordVisualTransformation
         val copy: (() -> Unit)? = if (!value.selection.collapsed && !isPassword) {
             {
@@ -682,7 +761,8 @@ internal class TextFieldSelectionManager(
                     transformedStartOffset = offset,
                     transformedEndOffset = offset,
                     isStartHandle = false,
-                    adjustment = SelectionAdjustment.Word
+                    adjustment = SelectionAdjustment.Word,
+                    isTouchBasedSelection = false // context menu implies non-touch
                 )
             }
         }
@@ -742,14 +822,29 @@ internal class TextFieldSelectionManager(
         return Rect.Zero
     }
 
+    /**
+     * Update the text field's selection based on new offsets.
+     *
+     * @param value the current [TextFieldValue]
+     * @param transformedStartOffset the start offset to use
+     * @param transformedEndOffset the end offset to use
+     * @param isStartHandle whether the start handle is being updated
+     * @param adjustment The selection adjustment to use
+     * @param allowPreviousSelectionCollapsed Allow a collapsed selection to be passed to selection
+     * adjustment. In most cases, a collapsed selection should be considered "no previous
+     * selection" for selection adjustment. However, in some cases - like starting a selection in
+     * end padding - a collapsed selection may be necessary context to avoid selection flickering.
+     */
     private fun updateSelection(
         value: TextFieldValue,
         transformedStartOffset: Int,
         transformedEndOffset: Int,
         isStartHandle: Boolean,
-        adjustment: SelectionAdjustment
-    ) {
-        val transformedSelection = TextRange(
+        adjustment: SelectionAdjustment,
+        isTouchBasedSelection: Boolean,
+        allowPreviousSelectionCollapsed: Boolean = false,
+    ): TextRange {
+        val oldTransformedSelection = TextRange(
             offsetMapping.originalToTransformed(value.selection.start),
             offsetMapping.originalToTransformed(value.selection.end)
         )
@@ -758,31 +853,43 @@ internal class TextFieldSelectionManager(
             textLayoutResult = state?.layoutResult?.value,
             rawStartOffset = transformedStartOffset,
             rawEndOffset = transformedEndOffset,
-            previousSelection = if (transformedSelection.collapsed) null else transformedSelection,
+            previousHandleOffset = previousRawDragOffset,
+            previousSelection = oldTransformedSelection
+                .takeIf { allowPreviousSelectionCollapsed || !it.collapsed },
             isStartHandle = isStartHandle,
-            adjustment = adjustment
+            adjustment = adjustment,
         )
 
-        val originalSelection = TextRange(
+        val newSelection = TextRange(
             start = offsetMapping.transformedToOriginal(newTransformedSelection.start),
             end = offsetMapping.transformedToOriginal(newTransformedSelection.end)
         )
 
-        if (originalSelection == value.selection) return
+        if (newSelection == value.selection) return value.selection
 
-        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        val onlyChangeIsReversed = newSelection.reversed != value.selection.reversed &&
+            newSelection.run { TextRange(end, start) } == value.selection
+
+        // don't haptic if we are using a mouse or if we aren't moving the selection bounds
+        if (isTouchBasedSelection && !onlyChangeIsReversed) {
+            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
 
         val newValue = createTextFieldValue(
             annotatedString = value.annotatedString,
-            selection = originalSelection
+            selection = newSelection
         )
         onValueChange(newValue)
+
+        state?.isInTouchMode = isTouchBasedSelection
 
         // showSelectionHandleStart/End might be set to false when scrolled out of the view.
         // When the selection is updated, they must also be updated so that handles will be shown
         // or hidden correctly.
         state?.showSelectionHandleStart = isSelectionHandleInVisibleBound(true)
         state?.showSelectionHandleEnd = isSelectionHandleInVisibleBound(false)
+
+        return newSelection
     }
 
     private fun setHandleState(handleState: HandleState) {
@@ -852,7 +959,7 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     magnifierSize: IntSize
 ): Offset {
     // Never show the magnifier in an empty text field.
-    if (manager.value.text.isEmpty()) return Offset.Unspecified
+    if (manager.transformedText?.isEmpty() != false) return Offset.Unspecified
     val rawTextOffset = when (manager.draggingHandle) {
         null -> return Offset.Unspecified
         Handle.Cursor,

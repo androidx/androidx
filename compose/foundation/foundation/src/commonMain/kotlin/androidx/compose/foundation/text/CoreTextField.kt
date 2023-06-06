@@ -32,7 +32,9 @@ import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.selection.TextFieldSelectionHandle
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
+import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.foundation.text.selection.textFieldMagnifier
+import androidx.compose.foundation.text.selection.updateSelectionTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
@@ -336,42 +338,35 @@ internal fun CoreTextField(
         }
     }
 
-    val pointerModifier = if (isInTouchMode) {
-        val selectionModifier =
-            Modifier.longPressDragGestureFilter(manager.touchSelectionObserver, enabled)
-        Modifier
-            .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
-                tapToFocus(state, focusRequester, !readOnly)
-                if (state.hasFocus) {
-                    if (state.handleState != HandleState.Selection) {
-                        state.layoutResult?.let { layoutResult ->
-                            TextFieldDelegate.setCursorOffset(
-                                offset,
-                                layoutResult,
-                                state.processor,
-                                offsetMapping,
-                                state.onValueChange
-                            )
-                            // Won't enter cursor state when text is empty.
-                            if (state.textDelegate.text.isNotEmpty()) {
-                                state.handleState = HandleState.Cursor
-                            }
+    val pointerModifier = Modifier
+        .updateSelectionTouchMode { state.isInTouchMode = it }
+        .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
+            tapToFocus(state, focusRequester, !readOnly)
+            if (state.hasFocus) {
+                if (state.handleState != HandleState.Selection) {
+                    state.layoutResult?.let { layoutResult ->
+                        TextFieldDelegate.setCursorOffset(
+                            offset,
+                            layoutResult,
+                            state.processor,
+                            offsetMapping,
+                            state.onValueChange
+                        )
+                        // Won't enter cursor state when text is empty.
+                        if (state.textDelegate.text.isNotEmpty()) {
+                            state.handleState = HandleState.Cursor
                         }
-                    } else {
-                        manager.deselect(offset)
                     }
+                } else {
+                    manager.deselect(offset)
                 }
             }
-            .then(selectionModifier)
-            .pointerHoverIcon(textPointerIcon)
-    } else {
-        Modifier
-            .mouseDragGestureDetector(
-                observer = manager.mouseSelectionObserver,
-                enabled = enabled
-            )
-            .pointerHoverIcon(textPointerIcon)
-    }
+        }
+        .selectionGestureInput(
+            mouseSelectionObserver = manager.mouseSelectionObserver,
+            textDragObserver = manager.touchSelectionObserver,
+        )
+        .pointerHoverIcon(textPointerIcon)
 
     val drawModifier = Modifier.drawBehind {
         state.layoutResult?.let { layoutResult ->
@@ -400,6 +395,7 @@ internal fun CoreTextField(
                     manager.isSelectionHandleInVisibleBound(isStartHandle = true)
                 state.showSelectionHandleEnd =
                     manager.isSelectionHandleInVisibleBound(isStartHandle = false)
+                state.showCursorHandle = value.selection.collapsed
             } else if (state.handleState == HandleState.Cursor) {
                 state.showCursorHandle =
                     manager.isSelectionHandleInVisibleBound(isStartHandle = true)
@@ -589,7 +585,7 @@ internal fun CoreTextField(
             state.layoutResult?.decorationBoxCoordinates = it
         }
 
-    val showHandleAndMagnifier = enabled && state.hasFocus && isInTouchMode
+    val showHandleAndMagnifier = enabled && state.hasFocus && state.isInTouchMode
     val magnifierModifier = if (showHandleAndMagnifier) {
         Modifier.textFieldMagnifier(manager)
     } else {
@@ -610,10 +606,10 @@ internal fun CoreTextField(
                     maxLines = maxLines
                 )
                 .textFieldScroll(
-                    scrollerPosition,
-                    value,
-                    visualTransformation,
-                    { state.layoutResult }
+                    scrollerPosition = scrollerPosition,
+                    textFieldValue = value,
+                    visualTransformation = visualTransformation,
+                    textLayoutResultProvider = { state.layoutResult },
                 )
                 .then(cursorModifier)
                 .then(drawModifier)
@@ -683,11 +679,8 @@ internal fun CoreTextField(
                         state.layoutCoordinates!!.isAttached &&
                         showHandleAndMagnifier
                 )
-                if (
-                    state.handleState == HandleState.Cursor &&
-                    !readOnly &&
-                    showHandleAndMagnifier
-                ) {
+
+                if (!readOnly && showHandleAndMagnifier) {
                     TextFieldCursorHandle(manager = manager)
                 }
             }
@@ -876,6 +869,8 @@ internal class TextFieldState(
     var isLayoutResultStale: Boolean = true
         private set
 
+    var isInTouchMode: Boolean by mutableStateOf(true)
+
     private val keyboardActionRunner: KeyboardActionRunner = KeyboardActionRunner()
 
     /**
@@ -952,7 +947,6 @@ private fun tapToFocus(
     }
 }
 
-@OptIn(InternalFoundationTextApi::class)
 private fun notifyTextInputServiceOnFocusChange(
     textInputService: TextInputService,
     state: TextFieldState,
@@ -1077,7 +1071,7 @@ private fun SelectionToolbarAndHandles(manager: TextFieldSelectionManager, show:
 
 @Composable
 internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
-    if (manager.state?.showCursorHandle == true) {
+    if (manager.state?.showCursorHandle == true && manager.transformedText?.isNotEmpty() == true) {
         val observer = remember(manager) { manager.cursorDragObserver() }
         val position = manager.getCursorPosition(LocalDensity.current)
         CursorHandle(
