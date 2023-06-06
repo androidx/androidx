@@ -37,6 +37,11 @@ package androidx.datastore.core {
   @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING, message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ExperimentalMultiProcessDataStore {
   }
 
+  public final class FileStorage<T> implements androidx.datastore.core.Storage<T> {
+    ctor public FileStorage(androidx.datastore.core.Serializer<T> serializer, optional kotlin.jvm.functions.Function1<? super java.io.File,? extends androidx.datastore.core.InterProcessCoordinator> coordinatorProducer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public androidx.datastore.core.StorageConnection<T> createConnection();
+  }
+
   public interface InterProcessCoordinator {
     method public kotlinx.coroutines.flow.Flow<kotlin.Unit> getUpdateNotifications();
     method public suspend Object? getVersion(kotlin.coroutines.Continuation<? super java.lang.Integer>);

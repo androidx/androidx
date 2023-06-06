@@ -17,7 +17,6 @@
 package androidx.datastore.core
 
 import androidx.annotation.GuardedBy
-import androidx.annotation.RestrictTo
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -28,16 +27,15 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * The Java IO File version of the Storage<T> interface. Is able to read and write T to a given
+ * The Java IO File version of the Storage<T> interface. Is able to read and write [T] to a given
  * file location.
  *
- * @param serializer The serializer that can write <T> to and from a byte array.
+ * @param serializer The serializer that can write [T] to and from a byte array.
  * @param coordinatorProducer The producer to provide [InterProcessCoordinator] that coordinates IO
  * operations across processes if needed. By default it provides single process coordinator, which
  * doesn't support cross process use cases.
  * @param produceFile The file producer that returns the file that will be read and written.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FileStorage<T>(
     private val serializer: Serializer<T>,
     private val coordinatorProducer: (File) -> InterProcessCoordinator = {
