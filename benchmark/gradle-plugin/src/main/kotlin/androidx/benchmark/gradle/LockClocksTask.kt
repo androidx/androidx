@@ -24,21 +24,20 @@ import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.property
 import org.gradle.work.DisableCachingByDefault
 
 @Suppress("UnstableApiUsage")
 @DisableCachingByDefault(
     because = "LockClocks affects device state, and may be modified/reset outside of this task"
 )
-open class LockClocksTask : DefaultTask() {
+abstract class LockClocksTask : DefaultTask() {
     init {
         group = "Android"
         description = "locks clocks of connected, supported, rooted device"
     }
 
-    @Input
-    val adbPath: Property<String> = project.objects.property()
+    @get:Input
+    abstract val adbPath: Property<String>
 
     @Suppress("unused")
     @TaskAction
