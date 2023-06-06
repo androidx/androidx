@@ -1370,7 +1370,24 @@ private fun TopAppBarLayout(
             // Title
             titlePlaceable.placeRelative(
                 x = when (titleHorizontalArrangement) {
-                    Arrangement.Center -> (constraints.maxWidth - titlePlaceable.width) / 2
+                    Arrangement.Center -> {
+                        var baseX = (constraints.maxWidth - titlePlaceable.width) / 2
+                        if (baseX < navigationIconPlaceable.width) {
+                            // May happen if the navigation is wider than the actions and the
+                            // title is long. In this case, prioritize showing more of the title by
+                            // offsetting it to the right.
+                            baseX += (navigationIconPlaceable.width - baseX)
+                        } else if (baseX + titlePlaceable.width >
+                            constraints.maxWidth - actionIconsPlaceable.width
+                        ) {
+                            // May happen if the actions are wider than the navigation and the title
+                            // is long. In this case, offset to the left.
+                            baseX += ((constraints.maxWidth - actionIconsPlaceable.width) -
+                                (baseX + titlePlaceable.width))
+                        }
+                        baseX
+                    }
+
                     Arrangement.End ->
                         constraints.maxWidth - titlePlaceable.width - actionIconsPlaceable.width
                     // Arrangement.Start.
