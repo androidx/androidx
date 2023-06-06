@@ -24,7 +24,15 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(project(":core:core-performance"))
+
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 android {
