@@ -25,9 +25,12 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.appwidget.action.LambdaActionBroadcasts
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -49,6 +52,7 @@ import kotlinx.coroutines.launch
  * implementation, and you must not call [AppWidgetProvider.goAsync], as it will be called by the
  * super implementation. This means your processing time must be short.
  */
+@OptIn(ExperimentalGlanceApi::class)
 abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
 
     companion object {
@@ -74,6 +78,18 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
      */
     abstract val glanceAppWidget: GlanceAppWidget
 
+    /**
+     * Override [coroutineContext] to provide custom [CoroutineContext] in which to run
+     * update requests.
+     *
+     * Note: This does not set the [CoroutineContext] for the GlanceAppWidget, which will always run
+     * on the main thread.
+     */
+    @get:ExperimentalGlanceApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalGlanceApi
+    open val coroutineContext: CoroutineContext = Dispatchers.Default
+
     @CallSuper
     override fun onUpdate(
         context: Context,
@@ -86,7 +102,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                 "Using Glance in devices with API<23 is untested and might behave unexpectedly."
             )
         }
-        goAsync {
+        goAsync(coroutineContext) {
             updateManager(context)
             appWidgetIds.map { async { glanceAppWidget.update(context, it) } }
                 .awaitAll()
@@ -100,7 +116,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         appWidgetId: Int,
         newOptions: Bundle
     ) {
-        goAsync {
+        goAsync(coroutineContext) {
             updateManager(context)
             glanceAppWidget.resize(context, appWidgetId, newOptions)
         }
@@ -108,7 +124,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
 
     @CallSuper
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        goAsync {
+        goAsync(coroutineContext) {
             updateManager(context)
             appWidgetIds.forEach { glanceAppWidget.deleted(context, it) }
         }
@@ -146,7 +162,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                             ?: error("Intent is missing ActionKey extra")
                     val id = intent.getIntExtra(LambdaActionBroadcasts.ExtraAppWidgetId, -1)
                     if (id == -1) error("Intent is missing AppWidgetId extra")
-                    goAsync {
+                    goAsync(coroutineContext) {
                         updateManager(context)
                         glanceAppWidget.triggerAction(context, id, actionKey)
                     }
