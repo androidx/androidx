@@ -27,8 +27,8 @@ import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
-import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.TypeBuilders.FloatProp;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

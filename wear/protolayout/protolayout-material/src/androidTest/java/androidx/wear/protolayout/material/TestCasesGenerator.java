@@ -44,7 +44,8 @@ public class TestCasesGenerator {
 
     public static final String NORMAL_SCALE_SUFFIX = "";
     public static final String XXXL_SCALE_SUFFIX = "_xxxl";
-    private static final String ICON_ID = "tile_icon";
+    private static final String ICON_ID = "icon";
+    private static final String ICON_ID_SMALL = "icon_small";
     private static final String AVATAR = "avatar_image";
 
     /**
@@ -238,6 +239,32 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setExcludeFontPadding(false)
                         .build());
+        testCases.put(
+                "compactchip_icon_default_golden" + goldenSuffix,
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setIconContent(ICON_ID_SMALL)
+                        .setExcludeFontPadding(true)
+                        .build());
+        testCases.put(
+                "compactchip_icon_toolong_golden" + goldenSuffix,
+                new CompactChip.Builder(
+                        context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
+                        .setIconContent(ICON_ID_SMALL)
+                        .setExcludeFontPadding(true)
+                        .build());
+        testCases.put(
+                "compactchip_icon_len2_golden" + goldenSuffix,
+                new CompactChip.Builder(context, "Ab", clickable, deviceParameters)
+                        .setIconContent(ICON_ID_SMALL)
+                        .setExcludeFontPadding(true)
+                        .build());
+        testCases.put(
+                "compactchip_icon_custom_golden" + goldenSuffix,
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setIconContent(ICON_ID_SMALL)
+                        .setExcludeFontPadding(true)
+                        .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
+                        .build());
 
         testCases.put(
                 "titlechip_default_golden" + goldenSuffix,
@@ -268,6 +295,26 @@ public class TestCasesGenerator {
                 "titlechip_includepadding_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
                         .setExcludeFontPadding(false)
+                        .build());
+        testCases.put(
+                "titlechip_icon_default_golden" + goldenSuffix,
+                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .setIconContent(ICON_ID)
+                        .build());
+        testCases.put(
+                "titlechip_icon_default_texttoolong_golden" + goldenSuffix,
+                new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .setIconContent(ICON_ID)
+                        .build());
+        testCases.put(
+                "titlechip_icon_custom_150_secondary_default_golden" + goldenSuffix,
+                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
+                        .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
+                        .setWidth(150)
+                        .setExcludeFontPadding(true)
+                        .setIconContent(ICON_ID)
                         .build());
 
         testCases.put(
