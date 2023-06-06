@@ -20,7 +20,7 @@ import android.Manifest
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Arguments
 import androidx.benchmark.macro.MacrobenchmarkScope
-import androidx.benchmark.macro.collectBaselineProfile
+import androidx.benchmark.macro.collect
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
@@ -43,7 +43,7 @@ import org.junit.runners.model.Statement
  *     val baselineProfileRule = BaselineProfileRule()
  *
  *     @Test
- *     fun startup() = baselineProfileRule.collectBaselineProfile(
+ *     fun startup() = baselineProfileRule.collect(
  *         packageName = "com.example.my.application.id"
  *     ) {
  *         pressHome()
@@ -60,7 +60,7 @@ import org.junit.runners.model.Statement
  *
  * ```
  *     @Test
- *     fun generateLibraryRules() = baselineProfileRule.collectBaselineProfile(
+ *     fun generateLibraryRules() = baselineProfileRule.collect(
  *         // Target app is an integration test app which uses the library, but any
  *         // app code isn't relevant to store in library's Baseline Profile
  *         packageName = "com.example.testapp.id"
@@ -123,7 +123,7 @@ class BaselineProfileRule : TestRule {
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
-    public fun collectBaselineProfile(
+    public fun collect(
         packageName: String,
         maxIterations: Int = 15,
         stableIterations: Int = 3,
@@ -133,7 +133,7 @@ class BaselineProfileRule : TestRule {
         filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
-        collectBaselineProfile(
+        collect(
             uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
             packageName = packageName,
             stableIterations = stableIterations,

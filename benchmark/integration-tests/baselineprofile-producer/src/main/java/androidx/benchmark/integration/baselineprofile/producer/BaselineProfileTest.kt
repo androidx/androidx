@@ -40,7 +40,7 @@ class BaselineProfileTest {
     }
 
     @Test
-    fun standardBaselineProfile() = baselineRule.collectBaselineProfile(
+    fun standardBaselineProfile() = baselineRule.collect(
         packageName = PACKAGE_NAME,
         includeInStartupProfile = false,
         profileBlock = {
@@ -50,7 +50,7 @@ class BaselineProfileTest {
     )
 
     @Test
-    fun startupBaselineProfile() = baselineRule.collectBaselineProfile(
+    fun startupBaselineProfile() = baselineRule.collect(
         packageName = PACKAGE_NAME,
         includeInStartupProfile = true,
         profileBlock = {
