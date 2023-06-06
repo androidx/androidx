@@ -27,22 +27,19 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiType
-import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.uast.UBinaryExpression
-import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UForEachExpression
-import org.jetbrains.uast.UQualifiedReferenceExpression
-import org.jetbrains.uast.isIntegralLiteral
 import org.jetbrains.uast.kotlin.isKotlin
 import org.jetbrains.uast.skipParenthesizedExprDown
-import org.jetbrains.uast.util.isMethodCall
 
 /**
  * Lint [Detector] to prevent allocating ranges and progression when using `step()` in a
  * for loops. For instance: `for (i in a..b step 2)` .
+ * See https://youtrack.jetbrains.com/issue/KT-59115
  */
 class SteppedForLoopDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(
@@ -58,31 +55,11 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
                     // Check the expression is of the form a step b, where a is a Progression type
                     if (
                         isIntegerProgression(type.leftOperand.getExpressionType()) &&
-                        !isLiteralProgression(type.leftOperand.skipParenthesizedExprDown()) &&
+                        isUntilRange(type.leftOperand.skipParenthesizedExprDown()) &&
                         type.operatorIdentifier?.name == "step" &&
                         isInteger(type.rightOperand.getExpressionType())
                     ) {
-                        report(context, node, type, type.rightOperand.asRenderString())
-                    }
-                }
-                is UQualifiedReferenceExpression -> {
-                    if (type.selector.isMethodCall()) {
-                        val method = type.selector as UCallExpression
-                        // Check we invoke step(x) on a Progression type
-                        if (
-                            isIntegerProgression(method.receiverType) &&
-                            !isLiteralProgression(method.receiver?.skipParenthesizedExprDown()) &&
-                            method.methodName == "step" &&
-                            method.valueArgumentCount == 1 &&
-                            isInteger(method.valueArguments[0].getExpressionType())
-                        ) {
-                            report(
-                                context,
-                                node,
-                                method,
-                                method.valueArguments[0].asRenderString()
-                            )
-                        }
+                        report(context, node, type, type.rightOperand.textRepresentation())
                     }
                 }
             }
@@ -92,7 +69,7 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
     private fun isIntegerProgression(type: PsiType?): Boolean {
         if (type == null) return false
 
-        if (type is PsiClassReferenceType) {
+        if (type is PsiClassType) {
             val cls = type.resolve()
             return cls != null &&
                 (
@@ -106,13 +83,17 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
         return false
     }
 
-    private fun isLiteralProgression(expression: UExpression?) =
-            expression is UBinaryExpression &&
-            expression.operator.text == ".." &&
-            expression.leftOperand.skipParenthesizedExprDown().isIntegralLiteral() &&
-            expression.rightOperand.skipParenthesizedExprDown().isIntegralLiteral()
+    private fun UElement.textRepresentation() = sourcePsi?.text ?: asRenderString()
 
-    private fun isInteger(type: PsiType?) = type == PsiType.INT || type == PsiType.LONG
+    // https://youtrack.jetbrains.com/issue/KT-59115
+    private fun isUntilRange(expression: UExpression?) =
+        expression is UBinaryExpression &&
+            (expression.operatorIdentifier?.name == "..<" ||
+                expression.operatorIdentifier?.name == "until")
+
+    // TODO: Use PsiTypes.intType() and PsiTypes.longType() when they are available
+    private fun isInteger(type: PsiType?) =
+        type?.canonicalText == "int" || type?.canonicalText == "long"
 
     private fun report(context: JavaContext, node: UElement, target: Any?, messageContext: String) {
         context.report(
@@ -126,11 +107,11 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
     companion object {
         val ISSUE = Issue.create(
             "SteppedForLoop",
-            "A loop over a primitive range (Int/Long/ULong/Char) creates " +
-                "unnecessary allocations",
-            "Using the step function when iterating over a range of integer types " +
-                "causes the allocation of a Range and of a Progression. To avoid the " +
-                "allocations, consider using a while loop and manual loop counter.",
+            "A loop over an 'until' or '..<' primitive range (Int/Long/ULong/Char)" +
+                " creates unnecessary allocations",
+            "Using 'until' or '..<' to create an iteration range bypasses a compiler" +
+                " optimization. Consider until '..' instead. " +
+                "See https://youtrack.jetbrains.com/issue/KT-59115",
             Category.PERFORMANCE, 5, Severity.ERROR,
             Implementation(
                 SteppedForLoopDetector::class.java,

@@ -60,7 +60,7 @@ class SteppedForLoopDetectorTest : LintDetectorTest() {
     }
 
     @Test
-    fun calledOnSteppedLoop() {
+    fun skippedOnInclusiveSteppedLoops() {
         lint().files(
             kotlin(
                 """
@@ -70,33 +70,7 @@ class SteppedForLoopDetectorTest : LintDetectorTest() {
                     for (i in a..b step 2) {
                         println(i)
                     }
-                }
-            """
-            )
-        )
-            .run()
-            .expect(
-                """
-src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in a..b step 2) {
-                              ~~~~~~~~~~~
-1 errors, 0 warnings
-            """
-            )
-    }
-
-    @Test
-    fun skippedOnConstantSteppedLoop() {
-        lint().files(
-            kotlin(
-                """
-                package test
-
-                fun test() {
-                    for (i in 0..10 step 2) {
-                        println(i)
-                    }
-                    for (i in (0..10).step(2)) {
+                    for (i in a downTo b step 2) {
                         println(i)
                     }
                 }
@@ -108,59 +82,7 @@ src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
     }
 
     @Test
-    fun calledOnUnitSteppedLoop() {
-        lint().files(
-            kotlin(
-                """
-                package test
-
-                fun test(a: Int, b: Int) {
-                    for (i in a..b step 1) {
-                        println(i)
-                    }
-                }
-            """
-            )
-        )
-            .run()
-            .expect(
-                """
-src/test/test.kt:5: Error: stepping the integer range by 1. [SteppedForLoop]
-                    for (i in a..b step 1) {
-                              ~~~~~~~~~~~
-1 errors, 0 warnings
-            """
-            )
-    }
-
-    @Test
-    fun calledOnExpressionSteppedLoop() {
-        lint().files(
-            kotlin(
-                """
-                package test
-
-                fun test(a: Int, b: Int, c: Int) {
-                    for (i in a..b step (c / 2)) {
-                        println(i)
-                    }
-                }
-            """
-            )
-        )
-            .run()
-            .expect(
-                """
-src/test/test.kt:5: Error: stepping the integer range by (c / 2). [SteppedForLoop]
-                    for (i in a..b step (c / 2)) {
-                              ~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-            """
-            )
-    }
-
-    @Test
-    fun calledOnSteppedUntilLoop() {
+    fun calledOnSteppedLoop() {
         lint().files(
             kotlin(
                 """
@@ -168,6 +90,9 @@ src/test/test.kt:5: Error: stepping the integer range by (c / 2). [SteppedForLoo
 
                 fun test(a: Int, b: Int) {
                     for (i in a until b step 2) {
+                        println(i)
+                    }
+                    for (i in a..<b step 2) {
                         println(i)
                     }
                 }
@@ -180,20 +105,26 @@ src/test/test.kt:5: Error: stepping the integer range by (c / 2). [SteppedForLoo
 src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
                     for (i in a until b step 2) {
                               ~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+src/test/test.kt:8: Error: stepping the integer range by 2. [SteppedForLoop]
+                    for (i in a..<b step 2) {
+                              ~~~~~~~~~~~~
+2 errors, 0 warnings
             """
             )
     }
 
     @Test
-    fun calledOnSteppedDownToLoop() {
+    fun calledOnConstantSteppedLoop() {
         lint().files(
             kotlin(
                 """
                 package test
 
-                fun test(a: Int, b: Int) {
-                    for (i in a downTo b step 2) {
+                fun test() {
+                    for (i in 0 until 10 step 2) {
+                        println(i)
+                    }
+                    for (i in 0..<10 step 2) {
                         println(i)
                     }
                 }
@@ -204,22 +135,28 @@ src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
             .expect(
                 """
 src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in a downTo b step 2) {
+                    for (i in 0 until 10 step 2) {
                               ~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+src/test/test.kt:8: Error: stepping the integer range by 2. [SteppedForLoop]
+                    for (i in 0..<10 step 2) {
+                              ~~~~~~~~~~~~~
+2 errors, 0 warnings
             """
             )
     }
 
     @Test
-    fun calledOnStepAsFunctionLoop() {
+    fun calledOnUnitSteppedLoop() {
         lint().files(
             kotlin(
                 """
                 package test
 
                 fun test(a: Int, b: Int) {
-                    for (i in (a..b).step(2)) {
+                    for (i in a until b step 1) {
+                        println(i)
+                    }
+                    for (i in a..<b step 1) {
                         println(i)
                     }
                 }
@@ -229,10 +166,45 @@ src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
             .run()
             .expect(
                 """
-src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in (a..b).step(2)) {
-                              ~~~~~~~~~~~~~~
-1 errors, 0 warnings
+src/test/test.kt:5: Error: stepping the integer range by 1. [SteppedForLoop]
+                    for (i in a until b step 1) {
+                              ~~~~~~~~~~~~~~~~
+src/test/test.kt:8: Error: stepping the integer range by 1. [SteppedForLoop]
+                    for (i in a..<b step 1) {
+                              ~~~~~~~~~~~~
+2 errors, 0 warnings
+            """
+            )
+    }
+
+    @Test
+    fun calledOnExpressionSteppedLoop() {
+        lint().files(
+            kotlin(
+                """
+                package test
+
+                fun test(a: Int, b: Int, c: Int) {
+                    for (i in a until b step (c / 2)) {
+                        println(i)
+                    }
+                    for (i in a..<b step (c / 2)) {
+                        println(i)
+                    }
+                }
+            """
+            )
+        )
+            .run()
+            .expect(
+                """
+src/test/test.kt:5: Error: stepping the integer range by (c / 2). [SteppedForLoop]
+                    for (i in a until b step (c / 2)) {
+                              ~~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:8: Error: stepping the integer range by (c / 2). [SteppedForLoop]
+                    for (i in a..<b step (c / 2)) {
+                              ~~~~~~~~~~~~~~~~~~
+2 errors, 0 warnings
             """
             )
     }
@@ -245,22 +217,22 @@ src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
                 package test
 
                 fun test(a: UInt, b: UInt) {
-                    for (i in a..b step 2) {
+                    for (i in a until b step 2) {
                         println(i)
                     }
                 }
                 fun test(a: Char, b: Char) {
-                    for (i in a..b step 2) {
+                    for (i in a until b step 2) {
                         println(i)
                     }
                 }
                 fun test(a: Long, b: Long) {
-                    for (i in a..b step 2L) {
+                    for (i in a until b step 2L) {
                         println(i)
                     }
                 }
                 fun test(a: ULong, b: ULong) {
-                    for (i in a..b step 2L) {
+                    for (i in a until b step 2L) {
                         println(i)
                     }
                 }
@@ -271,92 +243,20 @@ src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
             .expect(
                 """
 src/test/test.kt:5: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in a..b step 2) {
-                              ~~~~~~~~~~~
+                    for (i in a until b step 2) {
+                              ~~~~~~~~~~~~~~~~
 src/test/test.kt:10: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in a..b step 2) {
-                              ~~~~~~~~~~~
-src/test/test.kt:15: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in a..b step 2L) {
-                              ~~~~~~~~~~~~
-src/test/test.kt:20: Error: stepping the integer range by 2. [SteppedForLoop]
-                    for (i in a..b step 2L) {
-                              ~~~~~~~~~~~~
+                    for (i in a until b step 2) {
+                              ~~~~~~~~~~~~~~~~
+src/test/test.kt:15: Error: stepping the integer range by 2L. [SteppedForLoop]
+                    for (i in a until b step 2L) {
+                              ~~~~~~~~~~~~~~~~~
+src/test/test.kt:20: Error: stepping the integer range by 2L. [SteppedForLoop]
+                    for (i in a until b step 2L) {
+                              ~~~~~~~~~~~~~~~~~
 4 errors, 0 warnings
             """
             )
-    }
-
-    @Test
-    fun skippedOnStepMethodOnUnknownTypes() {
-        lint().files(
-            kotlin(
-                """
-                package test
-
-                class RangeProducerForTest(val start: Int, val end: Int) {
-                    fun step(i: Int) = start..end step i
-                }
-
-                fun step(i: Int) = 0..10 step i
-
-                fun test(a: Int, b: Int) {
-                    for (i in RangeProducerForTest(a, b).step(2)) {
-                        println(i)
-                    }
-                    for (i in step(2)) {
-                        println(i)
-                    }
-                }
-            """
-            )
-        )
-            .run()
-            .expectClean()
-    }
-
-    @Test
-    fun skippedOnStepWithNonIntegerArgumentsTypes() {
-        lint().files(
-            kotlin(
-                """
-                package test
-
-                fun IntProgression.step(s: String) =
-                    IntProgression.fromClosedRange(first, last, s.length)
-
-                fun test(a: Int, b: Int) {
-                    for (i in 0..10 step "abc") {
-                        println(i)
-                    }
-                }
-            """
-            )
-        )
-            .run()
-            .expectClean()
-    }
-
-    @Test
-    fun skippedOnStepWithMoreThanOneArgument() {
-        lint().files(
-            kotlin(
-                """
-                package test
-
-                fun IntProgression.step(a: Int, b: Int) =
-                    IntProgression.fromClosedRange(first, last, a + b)
-
-                fun test(a: Int, b: Int) {
-                    for (i in (0..10).step(1, 3)) {
-                        println(i)
-                    }
-                }
-            """
-            )
-        )
-            .run()
-            .expectClean()
     }
 }
 /* ktlint-enable max-line-length */
