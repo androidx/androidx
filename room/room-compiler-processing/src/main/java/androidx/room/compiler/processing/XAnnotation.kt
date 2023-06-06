@@ -68,6 +68,9 @@ interface XAnnotation {
     val className: ClassName
         get() = typeElement.asClassName().java
 
+    /** All value in the annotation class that are explicitly declared. */
+    val declaredAnnotationValues: List<XAnnotationValue>
+
     /** All values declared in the annotation class. */
     val annotationValues: List<XAnnotationValue>
 
