@@ -806,8 +806,7 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setItalic(boolean italic) {
-                mImpl.setItalic(TypesProto.BoolProp.newBuilder().setValue(italic));
-                return this;
+                return setItalic(new BoolProp.Builder().setValue(italic).build());
             }
             /**
              * Sets whether the text should be rendered with an underline. If not specified,
@@ -829,8 +828,7 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setUnderline(boolean underline) {
-                mImpl.setUnderline(TypesProto.BoolProp.newBuilder().setValue(underline));
-                return this;
+                return setUnderline(new BoolProp.Builder().setValue(underline).build());
             }
 
             /**
@@ -1479,8 +1477,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setText(@NonNull String text) {
-                mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
-                return this;
+                return setText(new StringProp.Builder(text).build());
             }
 
             /**
@@ -1529,8 +1526,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
-                mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
-                return this;
+                return setMaxLines(new Int32Prop.Builder().setValue(maxLines).build());
             }
 
             /**
@@ -1597,10 +1593,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setOverflow(@TextOverflow int overflow) {
-                mImpl.setOverflow(
-                        LayoutElementProto.TextOverflowProp.newBuilder()
-                                .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
-                return this;
+                return setOverflow(new TextOverflowProp.Builder().setValue(overflow).build());
             }
 
             /**
@@ -2048,8 +2041,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setResourceId(@NonNull String resourceId) {
-                mImpl.setResourceId(TypesProto.StringProp.newBuilder().setValue(resourceId));
-                return this;
+                return setResourceId(new StringProp.Builder(resourceId).build());
             }
 
             /**
@@ -2859,8 +2851,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setText(@NonNull String text) {
-                mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
-                return this;
+                return setText(new StringProp.Builder(text).build());
             }
 
             /**
@@ -3085,8 +3076,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setResourceId(@NonNull String resourceId) {
-                mImpl.setResourceId(TypesProto.StringProp.newBuilder().setValue(resourceId));
-                return this;
+                return setResourceId(new StringProp.Builder(resourceId).build());
             }
 
             /**
@@ -3457,8 +3447,7 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
-                mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
-                return this;
+                return setMaxLines(new Int32Prop.Builder().setValue(maxLines).build());
             }
 
             /**
@@ -4515,8 +4504,7 @@ public final class LayoutElementBuilders {
             /** Sets the text to render. */
             @NonNull
             public Builder setText(@NonNull String text) {
-                mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
-                return this;
+                return setText(new StringProp.Builder(text).build());
             }
 
             /**
@@ -5236,8 +5224,7 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRotateContents(boolean rotateContents) {
-                mImpl.setRotateContents(TypesProto.BoolProp.newBuilder().setValue(rotateContents));
-                return this;
+                return setRotateContents(new BoolProp.Builder().setValue(rotateContents).build());
             }
 
             @Override
