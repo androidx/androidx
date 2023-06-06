@@ -328,7 +328,9 @@ internal class ContentInViewNode(
                 // TODO(klippenstein) if there is a request that's too big to fit in the current
                 //  bounds, we should try to fit the largest part of it that contains the
                 //  next-smallest request.
-                return rectangleToMakeVisible
+                // if rectangleToMakeVisible is null, return the current bounds even if it is
+                // oversized.
+                return rectangleToMakeVisible ?: bounds
             }
         }
         return rectangleToMakeVisible

@@ -39,7 +39,6 @@ import androidx.test.filters.MediumTest
 import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.grid.keyPress
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -121,7 +120,6 @@ class LazyRowTest {
             .assertPositionInRootIsEqualTo(50.dp, 30.dp)
     }
 
-    @Ignore("b/278219642")
     @Test
     fun scrollsLeftInRtl() {
         lateinit var state: TvLazyListState
