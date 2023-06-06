@@ -1,1 +1,17 @@
 // Signature format: 4.0
+package androidx.core.performance.play.services {
+
+  public final class PlayServicesDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
+    ctor public PlayServicesDevicePerformanceSupplier();
+    method public static androidx.core.performance.DevicePerformance createDevicePerformance(android.content.Context context);
+    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
+    property public kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
+    field public static final androidx.core.performance.play.services.PlayServicesDevicePerformanceSupplier.Companion Companion;
+  }
+
+  public static final class PlayServicesDevicePerformanceSupplier.Companion {
+    method public androidx.core.performance.DevicePerformance createDevicePerformance(android.content.Context context);
+  }
+
+}
+
