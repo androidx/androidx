@@ -83,6 +83,34 @@ package androidx.graphics.opengl {
     method public void onDrawComplete(androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? syncFenceCompat);
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrameBufferRenderer {
+    method public void execute(Runnable runnable);
+    method public androidx.graphics.opengl.GLRenderer getGLRenderer();
+    method public int getMaxBuffers();
+    method public int getPixelFormat();
+    method public androidx.graphics.opengl.SyncStrategy getSyncStrategy();
+    method public long getUsageFlags();
+    method public boolean isValid();
+    method public void release(boolean cancelPending);
+    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseCallback);
+    method public void render();
+  }
+
+  public static final class GLFrameBufferRenderer.Builder {
+    ctor public GLFrameBufferRenderer.Builder(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLFrameBufferRenderer.Callback callback);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer build();
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setGLRenderer(androidx.graphics.opengl.GLRenderer? glRenderer);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setMaxBuffers(int numBuffers);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setPixelFormat(int format);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setSyncStrategy(androidx.graphics.opengl.SyncStrategy syncStrategy);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setUsageFlags(long usageFlags);
+  }
+
+  public static interface GLFrameBufferRenderer.Callback {
+    method @WorkerThread public default void onDrawComplete(androidx.graphics.surface.SurfaceControlCompat targetSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction, androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? syncFence);
+    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform);
+  }
+
   public final class GLRenderer {
     ctor public GLRenderer(optional kotlin.jvm.functions.Function0<? extends androidx.graphics.opengl.egl.EGLSpec> eglSpecFactory, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLManager,? extends android.opengl.EGLConfig> eglConfigFactory);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.Surface surface, int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
