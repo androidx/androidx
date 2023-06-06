@@ -64,7 +64,8 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@SdkSuppress(minSdkVersion = 29)
+// b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
+@SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33)
 @MediumTest
 class LazyColumnTest {
     @get:Rule
