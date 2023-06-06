@@ -18,11 +18,10 @@ package androidx.credentials
 
 import android.Manifest.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS
 import android.credentials.PrepareGetCredentialResponse
-import androidx.annotation.OptIn
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
-import androidx.core.os.BuildCompat
 
 /**
  * A response object that indicates the get-credential prefetch work is complete and provides
@@ -44,14 +43,13 @@ import androidx.core.os.BuildCompat
  * @throws NullPointerException If [frameworkResponse] is null at API level >= 34.
  */
 @RequiresApi(34)
-@OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
 class PrepareGetCredentialResponse internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val frameworkResponse: PrepareGetCredentialResponse?,
     val pendingGetCredentialHandle: PendingGetCredentialHandle,
 ) {
     init {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) { // Android U
             frameworkResponse!!
         }
     }
@@ -97,7 +95,6 @@ class PrepareGetCredentialResponse internal constructor(
      * be null at API level >= 34.
      * @throws NullPointerException If [frameworkHandle] is null at API level >= 34.
      */
-    @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     @RequiresApi(34)
     class PendingGetCredentialHandle(
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -105,7 +102,7 @@ class PrepareGetCredentialResponse internal constructor(
         PrepareGetCredentialResponse.PendingGetCredentialHandle?
     ) {
         init {
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= 34) { // Android U
                 frameworkHandle!!
             }
         }

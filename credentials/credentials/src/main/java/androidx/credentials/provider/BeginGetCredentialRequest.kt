@@ -16,11 +16,10 @@
 
 package androidx.credentials.provider
 
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.DoNotInline
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
@@ -72,10 +71,9 @@ class BeginGetCredentialRequest @JvmOverloads constructor(
          * [fromBundle] to reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
-        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun asBundle(request: BeginGetCredentialRequest): Bundle {
             val bundle = Bundle()
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, request)
             }
             return bundle
@@ -86,12 +84,12 @@ class BeginGetCredentialRequest @JvmOverloads constructor(
          * to an instance of [BeginGetCredentialRequest].
          */
         @JvmStatic
-        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
-            if (BuildCompat.isAtLeastU()) {
-                return Api34Impl.fromBundle(bundle)
+            return if (Build.VERSION.SDK_INT >= 34) { // Android U
+                Api34Impl.fromBundle(bundle)
+            } else {
+                null
             }
-            return null
         }
     }
 }
