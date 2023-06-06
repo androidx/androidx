@@ -233,6 +233,7 @@ package androidx.compose.runtime {
     method @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent);
     method @androidx.compose.runtime.ExperimentalComposeApi @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
     method @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext getRecomposeCoroutineContext(androidx.compose.runtime.ControlledComposition);
+    method @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.CompositionObserverHandle observe(androidx.compose.runtime.Composition, androidx.compose.runtime.CompositionObserver observer);
   }
 
   @androidx.compose.runtime.Stable public abstract sealed class CompositionLocal<T> {
@@ -258,6 +259,15 @@ package androidx.compose.runtime {
   public static final class CompositionLocalMap.Companion {
     method public androidx.compose.runtime.CompositionLocalMap getEmpty();
     property public final androidx.compose.runtime.CompositionLocalMap Empty;
+  }
+
+  @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserver {
+    method public void onBeginComposition(androidx.compose.runtime.Composition composition, java.util.Map<androidx.compose.runtime.RecomposeScope,? extends java.util.Set<?>> invalidationMap);
+    method public void onEndComposition(androidx.compose.runtime.Composition composition);
+  }
+
+  @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserverHandle {
+    method public void dispose();
   }
 
   @kotlin.PublishedApi internal final class CompositionScopedCoroutineScopeCanceller implements androidx.compose.runtime.RememberObserver {
@@ -337,6 +347,9 @@ package androidx.compose.runtime {
   }
 
   @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose and is likely to change before becoming " + "stable.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeApi {
+  }
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This in experimental API that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeRuntimeApi {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExplicitGroupsComposable {
@@ -489,7 +502,14 @@ package androidx.compose.runtime {
   }
 
   public final class RecomposeScopeImplKt {
+    method @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.CompositionObserverHandle observe(androidx.compose.runtime.RecomposeScope, androidx.compose.runtime.RecomposeScopeObserver observer);
     method @kotlin.PublishedApi internal static int updateChangedFlags(int flags);
+  }
+
+  @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface RecomposeScopeObserver {
+    method public void onBeginScopeComposition(androidx.compose.runtime.RecomposeScope scope);
+    method public void onEndScopeComposition(androidx.compose.runtime.RecomposeScope scope);
+    method public void onScopeDisposed(androidx.compose.runtime.RecomposeScope scope);
   }
 
   public final class Recomposer extends androidx.compose.runtime.CompositionContext {

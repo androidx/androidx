@@ -1207,6 +1207,7 @@ fun sourceInformationMarkerEnd(composer: Composer) {
 /**
  * Implementation of a composer for a mutable tree.
  */
+@OptIn(ExperimentalComposeRuntimeApi::class)
 internal class ComposerImpl(
     /**
      * An adapter that applies changes to the tree using the Applier abstraction.
@@ -1431,6 +1432,8 @@ internal class ComposerImpl(
         providersInvalidStack.push(providersInvalid.asInt())
         providersInvalid = changed(parentProvider)
         providerCache = null
+
+        // Inform observer if one is defined
         if (!forceRecomposeScopes) {
             forceRecomposeScopes = parentContext.collectingParameterInformation
         }
@@ -2032,7 +2035,8 @@ internal class ComposerImpl(
             holder = CompositionContextHolder(
                 CompositionContextImpl(
                     compoundKeyHash,
-                    forceRecomposeScopes
+                    forceRecomposeScopes,
+                    (composition as? CompositionImpl)?.observerHolder
                 )
             )
             updateValue(holder)
@@ -2549,7 +2553,7 @@ internal class ComposerImpl(
         // An early out if the group and anchor are the same
         if (anchorGroup == group) return index
 
-        // Walk down from the anc ghor group counting nodes of siblings in front of this group
+        // Walk down from the anchor group counting nodes of siblings in front of this group
         var current = anchorGroup
         val nodeIndexLimit = index + (updatedNodeCount(anchorGroup) - reader.nodeCount(group))
         loop@ while (index < nodeIndexLimit) {
@@ -3414,9 +3418,11 @@ internal class ComposerImpl(
         }
     }
 
+    @OptIn(ExperimentalComposeRuntimeApi::class)
     private inner class CompositionContextImpl(
         override val compoundHashKey: Int,
-        override val collectingParameterInformation: Boolean
+        override val collectingParameterInformation: Boolean,
+        override val observerHolder: CompositionObserverHolder?
     ) : CompositionContext() {
         var inspectionTables: MutableSet<MutableSet<CompositionData>>? = null
         val composers = mutableSetOf<ComposerImpl>()

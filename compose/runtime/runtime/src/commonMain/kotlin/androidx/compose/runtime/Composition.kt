@@ -77,6 +77,27 @@ interface Composition {
 }
 
 /**
+ * Observe the composition. Calling this twice on the same composition will implicitly dispose
+ * the previous observer. the [CompositionObserver] will be called for this composition and
+ * all sub-composition, transitively, for which this composition is a context. If, however,
+ * [observe] is called on a sub-composition, it will override the parent composition and
+ * notification for it and all sub-composition of it, will go to its observer instead of the
+ * one registered for the parent.
+ *
+ * @param observer the observer that will be informed of composition events for this
+ * composition and all sub-compositions for which this composition is the composition context.
+ * Observing a composition will prevent the parent composition's observer from receiving
+ * composition events about this composition.
+ *
+ * @return a handle that allows the observer to be disposed and detached from the composition.
+ * Disposing an observer for a composition with a parent observer will begin sending the events
+ * to the parent composition's observer.ø
+ */
+@ExperimentalComposeRuntimeApi
+fun Composition.observe(observer: CompositionObserver): CompositionObserverHandle =
+    (this as CompositionImpl).observe(observer)
+
+/**
  * A controlled composition is a [Composition] that can be directly controlled by the caller.
  *
  * This is the interface used by the [Recomposer] to control how and when a composition is
@@ -337,6 +358,7 @@ private val PendingApplyNoModifications = Any()
  * @param recomposeContext The coroutine context to use to recompose this composition. If left
  * `null` the controlling recomposer's default context is used.
  */
+@OptIn(ExperimentalComposeRuntimeApi::class)
 internal class CompositionImpl(
     /**
      * The parent composition from [rememberCompositionContext], for sub-compositions, or the an
@@ -459,6 +481,8 @@ internal class CompositionImpl(
 
     private var invalidationDelegateGroup: Int = 0
 
+    internal val observerHolder = CompositionObserverHolder()
+
     /**
      * The [Composer] to use to create and update the tree managed by this composition.
      */
@@ -519,6 +543,24 @@ internal class CompositionImpl(
         check(!disposed) { "The composition is disposed" }
         this.composable = content
         parent.composeInitial(this, composable)
+    }
+
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    internal fun observe(observer: CompositionObserver): CompositionObserverHandle {
+        synchronized(lock) {
+            observerHolder.observer = observer
+            observerHolder.root = true
+        }
+        return object : CompositionObserverHandle {
+            override fun dispose() {
+                synchronized(lock) {
+                    if (observerHolder.observer == observer) {
+                        observerHolder.observer = null
+                        observerHolder.root = false
+                    }
+                }
+            }
+        }
     }
 
     fun invalidateGroupsWithKey(key: Int) {
@@ -586,7 +628,14 @@ internal class CompositionImpl(
             synchronized(lock) {
                 drainPendingModificationsForCompositionLocked()
                 guardInvalidationsLocked { invalidations ->
+                    val observer = observer()
+                    @Suppress("UNCHECKED_CAST")
+                    observer?.onBeginComposition(
+                        this,
+                        invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                    )
                     composer.composeContent(invalidations, content)
+                    observer?.onEndComposition(this)
                 }
             }
         }
@@ -789,9 +838,16 @@ internal class CompositionImpl(
         drainPendingModificationsForCompositionLocked()
         guardChanges {
             guardInvalidationsLocked { invalidations ->
+                val observer = observer()
+                @Suppress("UNCHECKED_CAST")
+                observer?.onBeginComposition(
+                    this,
+                    invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                )
                 composer.recompose(invalidations).also { shouldDrain ->
                     // Apply would normally do this for us; do it now if apply shouldn't happen.
                     if (!shouldDrain) drainPendingModificationsLocked()
+                    observer?.onEndComposition(this)
                 }
             }
         }
@@ -1061,6 +1117,21 @@ internal class CompositionImpl(
         }
     }
 
+    private fun observer(): CompositionObserver? {
+        val holder = observerHolder
+
+        return if (holder.root) {
+            holder.observer
+        } else {
+            val parentHolder = parent.observerHolder
+            val parentObserver = parentHolder?.observer
+            if (parentObserver != holder.observer) {
+                holder.observer = parentObserver
+            }
+            parentObserver
+        }
+    }
+
     /**
      * Helper for collecting remember observers for later strictly ordered dispatch.
      */
@@ -1204,7 +1275,6 @@ private class HotReloader {
         }
 
         // Called after Dex Code Swap
-        @Suppress("UNUSED_PARAMETER")
         private fun loadStateAndCompose(token: Any) {
             Recomposer.loadStateAndComposeForHotReload(token)
         }
@@ -1282,3 +1352,9 @@ private inline fun <E> HashSet<E>.removeValueIf(predicate: (E) -> Boolean) {
         }
     }
 }
+
+@ExperimentalComposeRuntimeApi
+internal class CompositionObserverHolder(
+    var observer: CompositionObserver? = null,
+    var root: Boolean = false,
+)
