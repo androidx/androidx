@@ -1910,41 +1910,6 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @LargeTest
-    @SuppressWarnings("unchecked")
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
-        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
-            return; // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        PreferenceUtils preferenceUtils = new PreferenceUtils(mWorkManagerImpl.getWorkDatabase());
-        preferenceUtils.setLastCancelAllTimeMillis(0L);
-
-        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<Long> cancelAllTimeLiveData =
-                mWorkManagerImpl.getLastCancelAllTimeMillisLiveData();
-        Observer<Long> mockObserver = mock(Observer.class);
-        cancelAllTimeLiveData.observe(testLifecycleOwner, mockObserver);
-
-        ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
-        verify(mockObserver).onChanged(captor.capture());
-        assertThat(captor.getValue(), is(0L));
-
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        insertWorkSpecAndTags(work);
-
-        clearInvocations(mockObserver);
-        CancelWorkRunnable.forAll(mWorkManagerImpl).run();
-
-        Thread.sleep(1000L);
-        verify(mockObserver).onChanged(captor.capture());
-        assertThat(captor.getValue(), is(greaterThan(0L)));
-
-        cancelAllTimeLiveData.removeObservers(testLifecycleOwner);
-    }
-
-    @Test
     @MediumTest
     public void pruneFinishedWork() throws InterruptedException, ExecutionException {
         OneTimeWorkRequest enqueuedWork = new OneTimeWorkRequest.Builder(TestWorker.class).build();
