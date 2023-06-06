@@ -72,7 +72,10 @@ class CompareFilesTask extends DefaultTask {
 
 // workaround for b/189877657
 afterEvaluate {
-    tasks.named("copyDebugAndroidLintReports").configure {
+    tasks.findByName("copyDebugAndroidLintReports")?.configure {
+        enabled = false
+    }
+    tasks.findByName("copyDebugLintReports")?.configure {
         enabled = false
     }
 }
