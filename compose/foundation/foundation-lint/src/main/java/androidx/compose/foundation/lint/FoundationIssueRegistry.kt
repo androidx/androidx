@@ -31,6 +31,7 @@ class FoundationIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         LazyLayoutStateReadInCompositionDetector.FrequentlyChangedStateReadInComposition,
+        UnrememberedMutableInteractionSourceDetector.UnrememberedMutableInteractionSource,
         NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload
     )
     override val vendor = Vendor(
