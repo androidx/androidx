@@ -35,25 +35,23 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.internal.ThreadSafeHeap
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -79,35 +77,17 @@ class StateRestorationTest {
      * main, and background for pager.
      * testScope for running tests.
      */
-    private val trackedDispatchers = mutableListOf<TestCoroutineDispatcher>()
-
     private val scheduler = TestCoroutineScheduler()
-    private val mainDispatcher = TestCoroutineDispatcher(scheduler).track()
-    private var backgroundDispatcher = TestCoroutineDispatcher(scheduler).track()
-    private val testScope = TestCoroutineScope(scheduler).track()
+    private val mainDispatcher = StandardTestDispatcher(scheduler)
+    private var backgroundDispatcher = StandardTestDispatcher(scheduler)
 
     /**
      * A fake lifecycle scope for collections that get cancelled when we recreate the recyclerview.
      */
-    private lateinit var lifecycleScope: TestCoroutineScope
+    private lateinit var lifecycleScope: TestScope
     private lateinit var recyclerView: TestRecyclerView
     private lateinit var layoutManager: RestoreAwareLayoutManager
     private lateinit var adapter: TestAdapter
-
-    /**
-     * tracks [this] dispatcher for idling control.
-     */
-    private fun TestCoroutineDispatcher.track() = apply {
-        trackedDispatchers.add(this)
-    }
-
-    /**
-     * tracks the dispatcher of this scope for idling control.
-     */
-    private fun TestCoroutineScope.track() = apply {
-        (this@track.coroutineContext[ContinuationInterceptor.Key] as TestCoroutineDispatcher)
-            .track()
-    }
 
     @Before
     fun init() {
@@ -115,7 +95,6 @@ class StateRestorationTest {
     }
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
-    @Ignore // the test needs to be adapted for new coroutines test lib - b/220884819
     @Test
     fun restoreState_withPlaceholders() {
         runTest {
@@ -135,19 +114,24 @@ class StateRestorationTest {
             assertThat(
                 layoutManager.restoredState
             ).isFalse()
-            backgroundDispatcher.pauseDispatcher()
-            collectPagesAsync(
-                createPager(
-                    pageSize = 10,
-                    enablePlaceholders = true
-                ).flow
-            )
+            // pause item loads
+            val delayedJob = launch(start = CoroutineStart.LAZY) {
+                collectPagesAsync(
+                    createPager(
+                        pageSize = 10,
+                        enablePlaceholders = true
+                    ).flow
+                )
+            }
             measureAndLayout()
-            // background worker is blocked, still shouldn't restore state
+            // item load is paused, still shouldn't restore state
             assertThat(
                 layoutManager.restoredState
             ).isFalse()
-            backgroundDispatcher.resumeDispatcher()
+
+            // now load items
+            delayedJob.start()
+
             measureAndLayout()
             assertThat(
                 layoutManager.restoredState
@@ -168,7 +152,7 @@ class StateRestorationTest {
                 pageSize = 60,
                 enablePlaceholders = false
             )
-            val cacheScope = TestCoroutineScope(Job() + scheduler).track()
+            val cacheScope = TestScope(Job() + scheduler)
             val cachedFlow = pager.flow.cachedIn(cacheScope)
             collectPagesAsync(cachedFlow)
             measureAndLayout()
@@ -258,9 +242,9 @@ class StateRestorationTest {
         if (this::lifecycleScope.isInitialized) {
             this.lifecycleScope.cancel()
         }
-        lifecycleScope = TestCoroutineScope(
+        lifecycleScope = TestScope(
             SupervisorJob() + mainDispatcher
-        ).track()
+        )
         val context = ApplicationProvider.getApplicationContext<Application>()
         recyclerView = TestRecyclerView(context)
         recyclerView.itemAnimator = null
@@ -270,25 +254,17 @@ class StateRestorationTest {
         recyclerView.layoutManager = layoutManager
     }
 
-    private fun runPending() {
-        while (trackedDispatchers.any { it.isNotEmpty && it.isNotPaused }) {
-            trackedDispatchers.filter { it.isNotPaused }.forEach {
-                it.runCurrent()
-            }
-        }
-    }
-
     private fun scrollToPosition(pos: Int) {
         while (adapter.itemCount <= pos) {
             val prevSize = adapter.itemCount
             adapter.triggerItemLoad(prevSize - 1)
-            runPending()
+            scheduler.runCurrent()
             // this might be an issue with dropping but it is not the case here
             assertWithMessage("more items should be loaded")
                 .that(adapter.itemCount)
                 .isGreaterThan(prevSize)
         }
-        runPending()
+        scheduler.runCurrent()
         recyclerView.scrollToPosition(pos)
         measureAndLayout()
         val child = layoutManager.findViewByPosition(pos)
@@ -303,11 +279,11 @@ class StateRestorationTest {
     }
 
     private fun measureAndLayout() {
-        runPending()
+        scheduler.runCurrent()
         while (recyclerView.isLayoutRequested) {
             measure()
             layout()
-            runPending()
+            scheduler.runCurrent()
         }
     }
 
@@ -326,18 +302,17 @@ class StateRestorationTest {
         measureAndLayout()
     }
 
-    private fun runTest(block: TestCoroutineScope.() -> Unit) {
-        testScope.runBlockingTest {
+    private fun runTest(block: TestScope.() -> Unit) =
+        runTest(UnconfinedTestDispatcher(scheduler)) {
             try {
-                this.block()
+                block()
             } finally {
-                runPending()
+                scheduler.runCurrent()
                 // always cancel the lifecycle scope to ensure any collection there ends
                 if (this@StateRestorationTest::lifecycleScope.isInitialized) {
                     lifecycleScope.cancel()
                 }
             }
-        }
     }
 
     /**
@@ -418,30 +393,6 @@ class StateRestorationTest {
             itemView.layoutParams.height = item?.height ?: RV_HEIGHT / 10
         }
     }
-
-    /**
-     * Checks whether a [TestCoroutineDispatcher] has any pending actions using reflection :)
-     */
-    @OptIn(InternalCoroutinesApi::class)
-    private val TestCoroutineDispatcher.isNotEmpty: Boolean
-        get() {
-            this.scheduler::class.java.getDeclaredField("events").let {
-                it.isAccessible = true
-                val heap = it.get(this.scheduler) as ThreadSafeHeap<*>
-                return !heap.isEmpty
-            }
-        }
-
-    /**
-     * Checks whether a [TestCoroutineDispatcher] is paused or not using reflection.
-     */
-    private val TestCoroutineDispatcher.isNotPaused: Boolean
-        get() {
-            this@isNotPaused::class.java.getDeclaredField("dispatchImmediately").let {
-                it.isAccessible = true
-                return it.get(this) as Boolean
-            }
-        }
 
     data class Item(
         val id: Int,
