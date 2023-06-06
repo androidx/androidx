@@ -44,7 +44,6 @@ import junit.framework.TestCase.fail
 import kotlin.test.assertIs
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -63,7 +62,7 @@ class StrictModeTest {
         previousPolicy = StrictMode.getVmPolicy()
         StrictMode.setVmPolicy(
             StrictMode.VmPolicy.Builder()
-                .detectAll()
+                .detectUnsafeIntentLaunch()
                 .penaltyListener(executor) {
                     Log.e("StrictModeTest", "Logging violation:")
                     Log.e("StrictModeTest", "$it")
@@ -122,7 +121,6 @@ class StrictModeTest {
         Truth.assertThat(CallbackTest.received.get()).containsExactly(1, 2)
     }
 
-    @Ignore // b/277763853
     @Test
     fun lazyColumn_actionRunCallback() {
         TestGlanceAppWidget.uiDefinition = {
