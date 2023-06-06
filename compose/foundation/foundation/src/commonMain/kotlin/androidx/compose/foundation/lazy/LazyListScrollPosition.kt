@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,6 +40,12 @@ internal class LazyListScrollPosition(
 
     /** The last know key of the item at [index] position. */
     private var lastKnownFirstItemKey: Any? = null
+
+    val nearestRangeState = LazyLayoutNearestRangeState(
+        initialIndex,
+        NearestItemsSlidingWindowSize,
+        NearestItemsExtraItemCount
+    )
 
     /**
      * Updates the current scroll position based on the results of the last measurement.
@@ -88,13 +95,28 @@ internal class LazyListScrollPosition(
         index: Int
     ): Int {
         val newIndex = itemProvider.findIndexByKey(lastKnownFirstItemKey, index)
-        this.index = newIndex
+        if (index != newIndex) {
+            this.index = newIndex
+            nearestRangeState.update(index)
+        }
         return newIndex
     }
 
     private fun update(index: Int, scrollOffset: Int) {
         require(index >= 0f) { "Index should be non-negative ($index)" }
         this.index = index
+        nearestRangeState.update(index)
         this.scrollOffset = scrollOffset
     }
 }
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+internal const val NearestItemsSlidingWindowSize = 30
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+internal const val NearestItemsExtraItemCount = 100

@@ -226,6 +226,8 @@ class LazyListState constructor(
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
+
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
      * pixels.
