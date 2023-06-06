@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -37,9 +38,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractThing] if you need to extend this type.
  */
+@Document(name = "bit:Thing")
 public interface Thing {
   /** Represents the AppSearch document's namespace. */
-  public val namespace: String?
+  @get:Document.Namespace public val namespace: String?
 
   /**
    * A sub property of description. A short description of the item used to disambiguate from other,
@@ -48,7 +50,7 @@ public interface Thing {
    *
    * See https://schema.org/disambiguatingDescription for more context.
    */
-  public val disambiguatingDescription: DisambiguatingDescription?
+  @get:Document.DocumentProperty public val disambiguatingDescription: DisambiguatingDescription?
 
   /**
    * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
@@ -56,14 +58,14 @@ public interface Thing {
    *
    * See https://schema.org/identifier for more context.
    */
-  public val identifier: String?
+  @get:Document.Id public val identifier: String?
 
   /**
    * The name of the item.
    *
    * See https://schema.org/name for more context.
    */
-  public val name: Name?
+  @get:Document.DocumentProperty public val name: Name?
 
   /** Converts this [Thing] to its builder with all the properties copied over. */
   public fun toBuilder(): Builder<*>
@@ -84,6 +86,7 @@ public interface Thing {
     /** Returns a built [Thing]. */
     public fun build(): Thing
 
+    /** Sets the `namespace`. */
     public fun setNamespace(namespace: String?): Self
 
     /** Sets the `disambiguatingDescription` to [String]. */
@@ -183,16 +186,16 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (namespace != other.namespace) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
+    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
@@ -330,17 +333,17 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (namespace != other.namespace) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
+      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {

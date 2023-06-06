@@ -22,6 +22,7 @@ import androidx.appactions.builtintypes.properties.Name
 import androidx.appactions.builtintypes.properties.RepeatFrequency
 import androidx.appactions.builtintypes.properties.StartDate
 import androidx.appactions.builtintypes.properties.StartTime
+import androidx.appsearch.`annotation`.Document
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -61,13 +62,14 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractSchedule] if you need to extend this type.
  */
+@Document(name = "bit:Schedule")
 public interface Schedule : Intangible {
   /**
    * Defines the day(s) of the week on which a recurring Event takes place.
    *
    * See https://schema.org/byDay for more context.
    */
-  public val byDays: List<ByDay>
+  @get:Document.DocumentProperty(name = "byDay") public val byDays: List<ByDay>
 
   /**
    * Defines the month(s) of the year on which a recurring Event takes place. Specified as an
@@ -75,7 +77,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonth for more context.
    */
-  public val byMonths: List<Long>
+  @get:Document.LongProperty(name = "byMonth") public val byMonths: List<Long>
 
   /**
    * Defines the day(s) of the month on which a recurring Event takes place. Specified as an Integer
@@ -83,7 +85,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthDay for more context.
    */
-  public val byMonthDays: List<Long>
+  @get:Document.LongProperty(name = "byMonthDay") public val byMonthDays: List<Long>
 
   /**
    * Defines the week(s) of the month on which a recurring Event takes place. Specified as an
@@ -92,14 +94,14 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthWeek for more context.
    */
-  public val byMonthWeeks: List<Long>
+  @get:Document.LongProperty(name = "byMonthWeek") public val byMonthWeeks: List<Long>
 
   /**
    * The end date and time of the item.
    *
    * See https://schema.org/endDate for more context.
    */
-  public val endDate: EndDate?
+  @get:Document.DocumentProperty public val endDate: EndDate?
 
   /**
    * The endTime of something.
@@ -111,7 +113,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/endTime for more context.
    */
-  public val endTime: EndTime?
+  @get:Document.DocumentProperty public val endTime: EndTime?
 
   /**
    * Defines a `Date` or `DateTime` during which a scheduled `Event` will not take place. The
@@ -123,14 +125,14 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/exceptDate for more context.
    */
-  public val exceptDate: ExceptDate?
+  @get:Document.DocumentProperty public val exceptDate: ExceptDate?
 
   /**
    * Defines the number of times a recurring `Event` will take place.
    *
    * See https://schema.org/repeatCount for more context.
    */
-  @get:Suppress("AutoBoxing") public val repeatCount: Long?
+  @get:Document.LongProperty @get:Suppress("AutoBoxing") public val repeatCount: Long?
 
   /**
    * Defines the frequency at which `Event`s will occur according to a schedule `Schedule`. The
@@ -138,7 +140,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/repeatFrequency for more context.
    */
-  public val repeatFrequency: RepeatFrequency?
+  @get:Document.DocumentProperty public val repeatFrequency: RepeatFrequency?
 
   /**
    * Indicates the timezone for which the time(s) indicated in the `Schedule` are given. The value
@@ -146,14 +148,14 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/scheduleTimezone for more context.
    */
-  public val scheduleTimezone: String?
+  @get:Document.StringProperty public val scheduleTimezone: String?
 
   /**
    * The start date and time of the item.
    *
    * See https://schema.org/startDate for more context.
    */
-  public val startDate: StartDate?
+  @get:Document.DocumentProperty public val startDate: StartDate?
 
   /**
    * The startTime of something.
@@ -165,7 +167,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/startTime for more context.
    */
-  public val startTime: StartTime?
+  @get:Document.DocumentProperty public val startTime: StartTime?
 
   /** Converts this [Schedule] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
@@ -426,6 +428,7 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (namespace != other.namespace) return false
     if (byDays != other.byDays) return false
     if (byMonths != other.byMonths) return false
     if (byMonthDays != other.byMonthDays) return false
@@ -441,13 +444,13 @@ internal constructor(
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
     Objects.hash(
+      namespace,
       byDays,
       byMonths,
       byMonthDays,
@@ -463,7 +466,6 @@ internal constructor(
       disambiguatingDescription,
       identifier,
       name,
-      namespace,
       additionalProperties
     )
 
@@ -782,6 +784,7 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (namespace != other.namespace) return false
       if (byDays != other.byDays) return false
       if (byMonths != other.byMonths) return false
       if (byMonthDays != other.byMonthDays) return false
@@ -797,7 +800,6 @@ internal constructor(
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
@@ -805,6 +807,7 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
       Objects.hash(
+        namespace,
         byDays,
         byMonths,
         byMonthDays,
@@ -820,7 +823,6 @@ internal constructor(
         disambiguatingDescription,
         identifier,
         name,
-        namespace,
         additionalProperties
       )
 

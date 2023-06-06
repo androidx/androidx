@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -38,13 +39,14 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractAlarm] if you need to extend this type.
  */
+@Document(name = "bit:Alarm")
 public interface Alarm : Thing {
   /**
    * Associates an Alarm with a Schedule.
    *
    * See https://schema.googleapis.com/alarmSchedule for more context.
    */
-  public val alarmSchedule: Schedule?
+  @get:Document.DocumentProperty public val alarmSchedule: Schedule?
 
   /** Converts this [Alarm] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
@@ -178,22 +180,22 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (namespace != other.namespace) return false
     if (alarmSchedule != other.alarmSchedule) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
     Objects.hash(
+      namespace,
       alarmSchedule,
       disambiguatingDescription,
       identifier,
       name,
-      namespace,
       additionalProperties
     )
 
@@ -345,11 +347,11 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (namespace != other.namespace) return false
       if (alarmSchedule != other.alarmSchedule) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
@@ -357,11 +359,11 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
       Objects.hash(
+        namespace,
         alarmSchedule,
         disambiguatingDescription,
         identifier,
         name,
-        namespace,
         additionalProperties
       )
 

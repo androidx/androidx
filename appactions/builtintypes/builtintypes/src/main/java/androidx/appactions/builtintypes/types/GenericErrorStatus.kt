@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -37,6 +38,7 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractGenericErrorStatus] if you need to extend this type.
  */
+@Document(name = "bit:GenericErrorStatus")
 public interface GenericErrorStatus : CommonExecutionStatus {
   /** Converts this [GenericErrorStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>

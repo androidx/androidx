@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -31,17 +32,18 @@ import kotlin.jvm.JvmName
  *
  * May hold more types over time.
  */
+@Document(name = "bitprop:Name")
 public class Name
 internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") public val asText: String? = null,
+  @get:JvmName("asText") @Document.StringProperty public val asText: String? = null,
   /**
    * The AppSearch document's identifier.
    *
    * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
    * at nested levels, this is internal and will always be an empty string.
    */
-  internal val identifier: String = "",
+  @Document.Id internal val identifier: String = "",
 ) {
   /** Constructor for the [String] variant. */
   public constructor(text: String) : this(asText = text)

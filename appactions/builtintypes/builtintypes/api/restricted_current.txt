@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.appactions.builtintypes.properties {
 
-  public final class ByDay {
+  @androidx.appsearch.annotation.Document(name="bitprop:ByDay") public final class ByDay {
     ctor public ByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
     ctor public ByDay(String text);
     method public androidx.appactions.builtintypes.types.DayOfWeek? getAsDayOfWeek();
@@ -17,7 +17,7 @@ package androidx.appactions.builtintypes.properties {
     method public default R text(String instance);
   }
 
-  public final class DisambiguatingDescription {
+  @androidx.appsearch.annotation.Document(name="bitprop:DisambiguatingDescription") public final class DisambiguatingDescription {
     ctor public DisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue canonicalValue);
     ctor public DisambiguatingDescription(String text);
     method public androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? getAsCanonicalValue();
@@ -38,7 +38,7 @@ package androidx.appactions.builtintypes.properties {
     method public default R text(String instance);
   }
 
-  public final class EndDate {
+  @androidx.appsearch.annotation.Document(name="bitprop:EndDate") public final class EndDate {
     ctor public EndDate(java.time.Instant instant);
     ctor public EndDate(java.time.LocalDate date);
     ctor public EndDate(java.time.LocalDateTime localDateTime);
@@ -58,7 +58,7 @@ package androidx.appactions.builtintypes.properties {
     method public R orElse();
   }
 
-  public final class EndTime {
+  @androidx.appsearch.annotation.Document(name="bitprop:EndTime") public final class EndTime {
     ctor public EndTime(java.time.Instant instant);
     ctor public EndTime(java.time.LocalDateTime localDateTime);
     ctor public EndTime(java.time.LocalTime time);
@@ -78,7 +78,7 @@ package androidx.appactions.builtintypes.properties {
     method public default R time(java.time.LocalTime instance);
   }
 
-  public final class ExceptDate {
+  @androidx.appsearch.annotation.Document(name="bitprop:ExceptDate") public final class ExceptDate {
     ctor public ExceptDate(java.time.Instant instant);
     ctor public ExceptDate(java.time.LocalDate date);
     ctor public ExceptDate(java.time.LocalDateTime localDateTime);
@@ -98,13 +98,13 @@ package androidx.appactions.builtintypes.properties {
     method public R orElse();
   }
 
-  public final class Name {
+  @androidx.appsearch.annotation.Document(name="bitprop:Name") public final class Name {
     ctor public Name(String text);
     method public String? getAsText();
     property public final String? asText;
   }
 
-  public final class RepeatFrequency {
+  @androidx.appsearch.annotation.Document(name="bitprop:RepeatFrequency") public final class RepeatFrequency {
     ctor public RepeatFrequency(String text);
     ctor public RepeatFrequency(java.time.Duration duration);
     method public java.time.Duration? getAsDuration();
@@ -120,7 +120,7 @@ package androidx.appactions.builtintypes.properties {
     method public default R text(String instance);
   }
 
-  public final class StartDate {
+  @androidx.appsearch.annotation.Document(name="bitprop:StartDate") public final class StartDate {
     ctor public StartDate(java.time.Instant instant);
     ctor public StartDate(java.time.LocalDate date);
     ctor public StartDate(java.time.LocalDateTime localDateTime);
@@ -140,7 +140,7 @@ package androidx.appactions.builtintypes.properties {
     method public R orElse();
   }
 
-  public final class StartTime {
+  @androidx.appsearch.annotation.Document(name="bitprop:StartTime") public final class StartTime {
     ctor public StartTime(java.time.Instant instant);
     ctor public StartTime(java.time.LocalDateTime localDateTime);
     ctor public StartTime(java.time.LocalTime time);
@@ -405,6 +405,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
+    method public final String? getTelephone();
     method public final int hashCode();
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
@@ -416,6 +417,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String? namespace;
     property protected abstract String selfTypeName;
+    property public final String? telephone;
   }
 
   public abstract static class AbstractPerson.Builder<Self extends androidx.appactions.builtintypes.types.AbstractPerson.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.AbstractPerson<Built, Self>> implements androidx.appactions.builtintypes.types.Person.Builder<Self> {
@@ -431,6 +433,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String? namespace);
+    method public final Self setTelephone(String? text);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -673,11 +676,11 @@ package androidx.appactions.builtintypes.types {
     property protected abstract String selfTypeName;
   }
 
-  public interface Alarm extends androidx.appactions.builtintypes.types.Thing {
+  @androidx.appsearch.annotation.Document(name="bit:Alarm") public interface Alarm extends androidx.appactions.builtintypes.types.Thing {
     method public static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
-    method public androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
     method public androidx.appactions.builtintypes.types.Alarm.Builder<?> toBuilder();
-    property public abstract androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
     field public static final androidx.appactions.builtintypes.types.Alarm.Companion Companion;
   }
 
@@ -701,7 +704,7 @@ package androidx.appactions.builtintypes.types {
   public static final class Alarm.DisambiguatingDescriptionValue.Companion {
   }
 
-  public interface CommonExecutionStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
+  @androidx.appsearch.annotation.Document(name="bit:CommonExecutionStatus") public interface CommonExecutionStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
     method public static androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.CommonExecutionStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.CommonExecutionStatus.Companion Companion;
@@ -745,7 +748,7 @@ package androidx.appactions.builtintypes.types {
     method public default R wednesday();
   }
 
-  public interface ExecutionStatus extends androidx.appactions.builtintypes.types.Intangible {
+  @androidx.appsearch.annotation.Document(name="bit:ExecutionStatus") public interface ExecutionStatus extends androidx.appactions.builtintypes.types.Intangible {
     method public static androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.ExecutionStatus.Companion Companion;
@@ -759,7 +762,7 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
   }
 
-  public interface GenericErrorStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
+  @androidx.appsearch.annotation.Document(name="bit:GenericErrorStatus") public interface GenericErrorStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
     method public static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.GenericErrorStatus.Companion Companion;
@@ -773,7 +776,7 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
   }
 
-  public interface Intangible extends androidx.appactions.builtintypes.types.Thing {
+  @androidx.appsearch.annotation.Document(name="bit:Intangible") public interface Intangible extends androidx.appactions.builtintypes.types.Thing {
     method public static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.Intangible.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.Intangible.Companion Companion;
@@ -787,7 +790,7 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
   }
 
-  public interface ObjectCreationLimitReachedStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
+  @androidx.appsearch.annotation.Document(name="bit:ObjectCreationLimitReachedStatus") public interface ObjectCreationLimitReachedStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
     method public static androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Companion Companion;
@@ -801,50 +804,53 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder();
   }
 
-  public interface Person extends androidx.appactions.builtintypes.types.Thing {
+  @androidx.appsearch.annotation.Document(name="bit:Person") public interface Person extends androidx.appactions.builtintypes.types.Thing {
     method public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
-    method public String? getEmail();
+    method @androidx.appsearch.annotation.Document.StringProperty public String? getEmail();
+    method @androidx.appsearch.annotation.Document.StringProperty public String? getTelephone();
     method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
-    property public abstract String? email;
+    property @androidx.appsearch.annotation.Document.StringProperty public abstract String? email;
+    property @androidx.appsearch.annotation.Document.StringProperty public abstract String? telephone;
     field public static final androidx.appactions.builtintypes.types.Person.Companion Companion;
   }
 
   public static interface Person.Builder<Self extends androidx.appactions.builtintypes.types.Person.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
     method public androidx.appactions.builtintypes.types.Person build();
     method public Self setEmail(String? text);
+    method public Self setTelephone(String? text);
   }
 
   public static final class Person.Companion {
     method public androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
   }
 
-  public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
+  @androidx.appsearch.annotation.Document(name="bit:Schedule") public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
     method public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
-    method public java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
-    method public java.util.List<java.lang.Long> getByMonthDays();
-    method public java.util.List<java.lang.Long> getByMonthWeeks();
-    method public java.util.List<java.lang.Long> getByMonths();
-    method public androidx.appactions.builtintypes.properties.EndDate? getEndDate();
-    method public androidx.appactions.builtintypes.properties.EndTime? getEndTime();
-    method public androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
-    method public Long? getRepeatCount();
-    method public androidx.appactions.builtintypes.properties.RepeatFrequency? getRepeatFrequency();
-    method public String? getScheduleTimezone();
-    method public androidx.appactions.builtintypes.properties.StartDate? getStartDate();
-    method public androidx.appactions.builtintypes.properties.StartTime? getStartTime();
+    method @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
+    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public java.util.List<java.lang.Long> getByMonthDays();
+    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public java.util.List<java.lang.Long> getByMonthWeeks();
+    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonth") public java.util.List<java.lang.Long> getByMonths();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.EndDate? getEndDate();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.EndTime? getEndTime();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
+    method @androidx.appsearch.annotation.Document.LongProperty public Long? getRepeatCount();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.RepeatFrequency? getRepeatFrequency();
+    method @androidx.appsearch.annotation.Document.StringProperty public String? getScheduleTimezone();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.StartDate? getStartDate();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.StartTime? getStartTime();
     method public androidx.appactions.builtintypes.types.Schedule.Builder<?> toBuilder();
-    property public abstract java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
-    property public abstract java.util.List<java.lang.Long> byMonthDays;
-    property public abstract java.util.List<java.lang.Long> byMonthWeeks;
-    property public abstract java.util.List<java.lang.Long> byMonths;
-    property public abstract androidx.appactions.builtintypes.properties.EndDate? endDate;
-    property public abstract androidx.appactions.builtintypes.properties.EndTime? endTime;
-    property public abstract androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;
-    property public abstract Long? repeatCount;
-    property public abstract androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency;
-    property public abstract String? scheduleTimezone;
-    property public abstract androidx.appactions.builtintypes.properties.StartDate? startDate;
-    property public abstract androidx.appactions.builtintypes.properties.StartTime? startTime;
+    property @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public abstract java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
+    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public abstract java.util.List<java.lang.Long> byMonthDays;
+    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public abstract java.util.List<java.lang.Long> byMonthWeeks;
+    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonth") public abstract java.util.List<java.lang.Long> byMonths;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.EndDate? endDate;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.EndTime? endTime;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;
+    property @androidx.appsearch.annotation.Document.LongProperty public abstract Long? repeatCount;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.RepeatFrequency? repeatFrequency;
+    property @androidx.appsearch.annotation.Document.StringProperty public abstract String? scheduleTimezone;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.StartDate? startDate;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.StartTime? startTime;
     field public static final androidx.appactions.builtintypes.types.Schedule.Companion Companion;
   }
 
@@ -895,7 +901,7 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
   }
 
-  public interface SuccessStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
+  @androidx.appsearch.annotation.Document(name="bit:SuccessStatus") public interface SuccessStatus extends androidx.appactions.builtintypes.types.CommonExecutionStatus {
     method public static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.SuccessStatus.Companion Companion;
@@ -909,17 +915,17 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
   }
 
-  public interface Thing {
+  @androidx.appsearch.annotation.Document(name="bit:Thing") public interface Thing {
     method public static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
-    method public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
-    method public String? getIdentifier();
-    method public androidx.appactions.builtintypes.properties.Name? getName();
-    method public String? getNamespace();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
+    method @androidx.appsearch.annotation.Document.Id public String? getIdentifier();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.Name? getName();
+    method @androidx.appsearch.annotation.Document.Namespace public String? getNamespace();
     method public androidx.appactions.builtintypes.types.Thing.Builder<?> toBuilder();
-    property public abstract androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
-    property public abstract String? identifier;
-    property public abstract androidx.appactions.builtintypes.properties.Name? name;
-    property public abstract String? namespace;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
+    property @androidx.appsearch.annotation.Document.Id public abstract String? identifier;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.properties.Name? name;
+    property @androidx.appsearch.annotation.Document.Namespace public abstract String? namespace;
     field public static final androidx.appactions.builtintypes.types.Thing.Companion Companion;
   }
 
@@ -937,7 +943,7 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
   }
 
-  public interface Timer extends androidx.appactions.builtintypes.types.Thing {
+  @androidx.appsearch.annotation.Document(name="bit:Timer") public interface Timer extends androidx.appactions.builtintypes.types.Thing {
     method public static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
     method public java.time.Duration? getDuration();
     method public androidx.appactions.builtintypes.types.Timer.Builder<?> toBuilder();
@@ -954,7 +960,7 @@ package androidx.appactions.builtintypes.types {
     method public androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
   }
 
-  public interface UnsupportedOperationStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
+  @androidx.appsearch.annotation.Document(name="bit:UnsupportedOperationStatus") public interface UnsupportedOperationStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
     method public static androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Companion Companion;
