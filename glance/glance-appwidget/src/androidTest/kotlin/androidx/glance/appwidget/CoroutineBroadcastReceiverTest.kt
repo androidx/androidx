@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.RECEIVER_NOT_EXPORTED
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.test.core.app.ApplicationProvider
@@ -58,10 +59,19 @@ class CoroutineBroadcastReceiverTest {
     @Test
     fun onReceive() {
         val broadcastReceiver = TestBroadcast()
-        context.registerReceiver(
-            broadcastReceiver,
-            IntentFilter(BROADCAST_ACTION)
-        )
+
+        if (android.os.Build.VERSION.SDK_INT < 33) {
+            context.registerReceiver(
+                broadcastReceiver,
+                IntentFilter(BROADCAST_ACTION),
+            )
+        } else {
+            context.registerReceiver(
+                broadcastReceiver,
+                IntentFilter(BROADCAST_ACTION),
+                RECEIVER_NOT_EXPORTED,
+            )
+        }
 
         val value = "value"
         context.sendBroadcast(
