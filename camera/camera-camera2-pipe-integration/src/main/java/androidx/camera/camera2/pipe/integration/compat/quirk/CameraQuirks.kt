@@ -107,7 +107,12 @@ class CameraQuirks @Inject constructor(
 
     companion object {
         fun isImmediateSurfaceReleaseAllowed(): Boolean {
-            return Build.BRAND == "google" && Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1
+            // TODO(b/285956022): Releasing a Surface too early turns out to cause memory leaks
+            //  where an Image may not be eventually closed. When the issue is resolved on an
+            //  architectural level, uncomment the following, allowing compliant devices to recycle
+            //  Surfaces and shutdown sooner.
+            //  Build.BRAND == "google" && Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1
+            return false
         }
     }
 }
