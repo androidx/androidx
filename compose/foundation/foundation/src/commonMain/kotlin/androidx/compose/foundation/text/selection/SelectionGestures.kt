@@ -235,5 +235,5 @@ private fun AwaitPointerEventScope.distanceIsTolerable(offset1: Offset, offset2:
 // TODO(b/281585410) this does not support touch pads as they have a pointer type of Touch
 //             Supporting that will require public api changes
 //             since the necessary info is in the ui module.
-private val PointerEvent.isPrecisePointer
+internal val PointerEvent.isPrecisePointer
     get() = this.changes.fastAll { it.type == PointerType.Mouse }
