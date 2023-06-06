@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,28 +25,20 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-
-    samples(project(":appactions:builtintypes:builtintypes-core:builtintypes-core-samples"))
+    compileOnly(project(":annotation:annotation-sampled"))
+    implementation(project(":appactions:builtintypes:builtintypes-communications"))
 }
 
 android {
-    namespace "androidx.appactions.builtintypes.core"
+    namespace "androidx.appactions.builtintypes.communications.samples"
     defaultConfig {
         minSdkVersion 26
     }
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    compilerOptions {
-        freeCompilerArgs.add("-Xjvm-default=all")
-    }
-}
-
 androidx {
-    name = "AppActions Builtin Types Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    name = "Built-in Types Communications Samples"
+    type = LibraryType.SAMPLES
     inceptionYear = "2023"
-    description = "This library exposes a core set of data types based on schema.org definitions."
+    description = "Samples for AndroidX Built-in Types Communications Library"
 }
