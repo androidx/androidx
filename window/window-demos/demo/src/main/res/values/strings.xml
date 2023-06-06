@@ -74,4 +74,12 @@
     <string name="prev_application_display_bounds_title">Previous Application Display Bounds:</string>
     <string name="prev_activity_display_bounds_title">Previous Activity Display Bounds:</string>
     <string name="window_state_placeholder">N/A</string>
+    <string name="split_attributes_calculator_not_supported">SplitAttributesCalculator is not supported!</string>
+    <string name="finish_this_activity">Finish this Activity</string>
+    <string name="use_default_split_attributes">Use default split attributes</string>
+    <string name="use_folding_aware_split_attributes">Show fullscreen in portrait and horizontal split in tabletop</string>
+    <string name="use_customized_split_attributes">Use runtime changed split attributes</string>
+    <string name="choose_split_type">Choose the split type</string>
+    <string name="choose_layout_direction">Choose the layout direction</string>
+    <string name="show_placeholder_warning">Placeholder Activity may show (again) because "Use a placeholder for A is checked". Clear the check box to expand Activity A to fill the task by either clicking "FINISH SECONDARY ACTIVITIES".</string>
 </resources>
