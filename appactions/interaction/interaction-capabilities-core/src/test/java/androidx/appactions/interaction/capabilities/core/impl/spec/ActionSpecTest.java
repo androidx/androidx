@@ -50,7 +50,7 @@ import java.util.List;
 public final class ActionSpecTest {
     private static final ActionSpec<Arguments, Output> ACTION_SPEC =
             ActionSpecBuilder.Companion.ofCapabilityNamed("actions.intent.TEST")
-                    .setArguments(Arguments.class, Arguments.Builder::new)
+                    .setArguments(Arguments.class, Arguments.Builder::new, Arguments.Builder::build)
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredString",
@@ -106,7 +106,9 @@ public final class ActionSpecTest {
 
     private static final ActionSpec<GenericEntityArguments, Output> GENERIC_TYPES_ACTION_SPEC =
             ActionSpecBuilder.Companion.ofCapabilityNamed("actions.intent.TEST")
-                    .setArguments(GenericEntityArguments.class, GenericEntityArguments.Builder::new)
+                    .setArguments(GenericEntityArguments.class,
+                            GenericEntityArguments.Builder::new,
+                            GenericEntityArguments.Builder::build)
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredEntity",

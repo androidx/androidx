@@ -23,7 +23,6 @@ import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
@@ -43,8 +42,8 @@ class StopSafetyCheck private constructor() {
             >(ACTION_SPEC)
 
     class Arguments internal constructor() {
-        class Builder : BuilderOf<Arguments> {
-            override fun build(): Arguments = Arguments()
+        class Builder {
+            fun build(): Arguments = Arguments()
         }
     }
 
@@ -148,7 +147,7 @@ class StopSafetyCheck private constructor() {
     companion object {
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindOutput(
                     "executionStatus",

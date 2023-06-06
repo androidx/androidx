@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.testing.spec
 
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 
@@ -53,7 +52,7 @@ class CapabilityTwoStrings {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var stringSlotA: String? = null
             private var stringSlotB: String? = null
 
@@ -63,7 +62,7 @@ class CapabilityTwoStrings {
             fun setStringSlotB(stringSlotB: String): Builder =
                 apply { this.stringSlotB = stringSlotB }
 
-            override fun build(): Arguments = Arguments(stringSlotA, stringSlotB)
+            fun build(): Arguments = Arguments(stringSlotA, stringSlotB)
         }
     }
 
@@ -75,7 +74,7 @@ class CapabilityTwoStrings {
 
     companion object {
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-            .setArguments(Arguments::class.java, Arguments::Builder)
+            .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
             .setOutput(Output::class.java)
             .bindParameter(
                 "stringSlotA",

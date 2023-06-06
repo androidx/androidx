@@ -23,7 +23,6 @@ import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -92,7 +91,7 @@ class CreateCall private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var callFormat: Call.CanonicalValue.CallFormat? = null
             private var participantList: List<ParticipantValue> = mutableListOf()
 
@@ -104,7 +103,7 @@ class CreateCall private constructor() {
                 this.participantList = participantList
             }
 
-            override fun build(): Arguments = Arguments(callFormat, participantList)
+            fun build(): Arguments = Arguments(callFormat, participantList)
         }
     }
 
@@ -181,7 +180,7 @@ class CreateCall private constructor() {
     companion object {
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.CALL_FORMAT.path,

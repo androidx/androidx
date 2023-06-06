@@ -24,7 +24,6 @@ import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC
@@ -94,7 +93,7 @@ class StartSafetyCheck private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var duration: Duration? = null
 
             private var checkInTime: ZonedDateTime? = null
@@ -105,7 +104,7 @@ class StartSafetyCheck private constructor() {
             fun setCheckInTime(checkInTime: ZonedDateTime): Builder =
                 apply { this.checkInTime = checkInTime }
 
-            override fun build(): Arguments = Arguments(duration, checkInTime)
+            fun build(): Arguments = Arguments(duration, checkInTime)
         }
     }
 
@@ -228,7 +227,7 @@ class StartSafetyCheck private constructor() {
     companion object {
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.DURATION.path,
