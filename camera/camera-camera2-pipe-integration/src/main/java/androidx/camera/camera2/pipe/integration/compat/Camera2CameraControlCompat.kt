@@ -29,7 +29,6 @@ import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.containsTag
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
@@ -41,7 +40,6 @@ import dagger.Module
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 
 private const val TAG_KEY = "Camera2CameraControl.tag"
 
@@ -65,16 +63,16 @@ interface Camera2CameraControlCompat : Request.Listener {
 
 @CameraScope
 @ExperimentalCamera2Interop
-class Camera2CameraControlCompatImpl @Inject constructor(
-    private val threads: UseCaseThreads,
-) : Camera2CameraControlCompat {
+class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraControlCompat {
 
     private val lock = Any()
+    private val updateSignalLock = Any()
 
     @GuardedBy("lock")
     private var configBuilder = Camera2ImplConfig.Builder()
-
+    @GuardedBy("updateSignalLock")
     private var updateSignal: CompletableDeferred<Void?>? = null
+    @GuardedBy("updateSignalLock")
     private var pendingSignal: CompletableDeferred<Void?>? = null
 
     override fun addRequestOption(bundle: CaptureRequestOptions) {
@@ -104,15 +102,13 @@ class Camera2CameraControlCompatImpl @Inject constructor(
         }
     }
 
-    override fun cancelCurrentTask() {
-        threads.sequentialScope.launch {
-            updateSignal?.also {
-                updateSignal = null
-            }?.cancelSignal("The camera control has became inactive.")
-            pendingSignal?.also {
-                pendingSignal = null
-            }?.cancelSignal("The camera control has became inactive.")
-        }
+    override fun cancelCurrentTask(): Unit = synchronized(updateSignalLock) {
+        updateSignal?.also {
+            updateSignal = null
+        }?.cancelSignal("The camera control has became inactive.")
+        pendingSignal?.also {
+            pendingSignal = null
+        }?.cancelSignal("The camera control has became inactive.")
     }
 
     override fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean): Deferred<Void?> {
@@ -120,7 +116,7 @@ class Camera2CameraControlCompatImpl @Inject constructor(
         val config = synchronized(lock) {
             configBuilder.build()
         }
-        threads.sequentialScope.launch {
+        synchronized(updateSignalLock) {
             if (camera != null) {
                 if (cancelPreviousTask) {
                     // Cancel the previous request signal if exist.
@@ -163,7 +159,7 @@ class Camera2CameraControlCompatImpl @Inject constructor(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         result: FrameInfo
-    ) {
+    ): Unit = synchronized(updateSignalLock) {
         updateSignal?.apply {
             if (requestMetadata.containsTag(TAG_KEY, hashCode())) {
                 // Going to complete the [updateSignal] if the result contains the [TAG_KEY]
