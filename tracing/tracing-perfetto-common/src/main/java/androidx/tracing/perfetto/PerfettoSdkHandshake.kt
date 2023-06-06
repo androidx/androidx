@@ -19,14 +19,16 @@ package androidx.tracing.perfetto
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.ACTION_ENABLE_TRACING
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.KEY_PATH
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.RECEIVER_CLASS_NAME
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseKeys.KEY_EXIT_CODE
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseKeys.KEY_MESSAGE
-import androidx.tracing.perfetto.PerfettoHandshake.ResponseKeys.KEY_REQUIRED_VERSION
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.ACTION_ENABLE_TRACING
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.KEY_PATH
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.KEY_PERSISTENT
+import androidx.tracing.perfetto.PerfettoSdkHandshake.RequestKeys.RECEIVER_CLASS_NAME
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseKeys.KEY_EXIT_CODE
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseKeys.KEY_MESSAGE
+import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseKeys.KEY_REQUIRED_VERSION
 import java.io.File
-import java.util.zip.ZipFile
+import java.lang.StringBuilder
 
 /**
  * Handshake implementation allowing to enable Perfetto SDK tracing in an app that enables it.
@@ -38,38 +40,91 @@ import java.util.zip.ZipFile
  * @param executeShellCommand function allowing to execute `adb shell` commands on the target device
  *
  * For error handling, note that [parseJsonMap] and [executeShellCommand] will be called on the same
- * thread as [enableTracing].
+ * thread as [enableTracingImmediate] and [enableTracingColdStart].
  */
-public class PerfettoHandshake(
+public class PerfettoSdkHandshake(
     private val targetPackage: String,
     private val parseJsonMap: (jsonString: String) -> Map<String, String>,
-    private val executeShellCommand: (command: String) -> String
+    private val executeShellCommand: ShellCommandExecutor
 ) {
     /**
-     * Requests that tracing is enabled in the target app.
+     * Attempts to enable tracing in an app. It will wake up (or start) the app process, so it will
+     * act as warm/hot tracing. For cold tracing see [enableTracingColdStart]
      *
-     * @param libraryProvider optional provider of Perfetto SDK binaries allowing to sideload them
-     * if not already present in the target app
+     * Note: if the app process is not running, it will be launched making the method a bad choice
+     * for cold tracing (use [enableTracingColdStart] instead.
+     *
+     * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
      */
-    public fun enableTracing(
-        libraryProvider: ExternalLibraryProvider? = null
+    public fun enableTracingImmediate(
+        librarySource: LibrarySource? = null
     ): EnableTracingResponse {
-        val pathExtra = libraryProvider?.let {
-            val libPath = it.pushLibrary(targetPackage, getDeviceAbi())
-            """--es $KEY_PATH $libPath"""
-        } ?: ""
-        val command = "am broadcast -a $ACTION_ENABLE_TRACING" +
-            " $pathExtra " +
-            "$targetPackage/$RECEIVER_CLASS_NAME"
-        val rawResponse = executeShellCommand(command)
+        val libPath = librarySource?.run {
+            PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
+                libraryZip,
+                tempDirectory,
+                executeShellCommand,
+                moveLibFileFromTmpDirToAppDir
+            )
+        }
+        return sendEnableTracingBroadcast(libPath, coldStart = false)
+    }
 
-        return try {
+    /**
+     * Attempts to prepare cold startup tracing in an app.
+     *
+     * @param killAppProcess function responsible for terminating the app process (no-op if the
+     * process is already terminated)
+     * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
+     */
+    public fun enableTracingColdStart(
+        killAppProcess: () -> Unit,
+        librarySource: LibrarySource?
+    ): EnableTracingResponse {
+        // sideload the `libtracing_perfetto.so` file if applicable
+        val libPath = librarySource?.run {
+            PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
+                libraryZip,
+                tempDirectory,
+                executeShellCommand,
+                moveLibFileFromTmpDirToAppDir
+            )
+        }
+
+        // ensure a clean start (e.g. in case tracing is already enabled)
+        killAppProcess()
+
+        // verify (by performing a regular handshake) that we can enable tracing at app startup
+        val response = sendEnableTracingBroadcast(libPath, coldStart = true, persistent = false)
+        if (response.exitCode == ResponseExitCodes.RESULT_CODE_SUCCESS) {
+            // terminate the app process (that we woke up by issuing a broadcast earlier)
+            killAppProcess()
+        }
+
+        return response
+    }
+
+    private fun sendEnableTracingBroadcast(
+        libPath: File? = null,
+        coldStart: Boolean,
+        persistent: Boolean? = null
+    ): EnableTracingResponse {
+        val action = if (coldStart) ACTION_ENABLE_TRACING_COLD_START else ACTION_ENABLE_TRACING
+        val commandBuilder = StringBuilder("am broadcast -a $action")
+        if (persistent != null) commandBuilder.append(" --es $KEY_PERSISTENT $persistent")
+        if (libPath != null) commandBuilder.append(" --es $KEY_PATH $libPath")
+        commandBuilder.append(" $targetPackage/$RECEIVER_CLASS_NAME")
+
+        val rawResponse = executeShellCommand(commandBuilder.toString())
+
+        val response = try {
             parseResponse(rawResponse)
         } catch (e: IllegalArgumentException) {
             val message = "Exception occurred while trying to parse a response." +
                 " Error: ${e.message}. Raw response: $rawResponse."
             EnableTracingResponse(ResponseExitCodes.RESULT_CODE_ERROR_OTHER, null, message)
         }
+        return response
     }
 
     private fun parseResponse(rawResponse: String): EnableTracingResponse {
@@ -123,63 +178,29 @@ public class PerfettoHandshake(
     }
 
     /**
-     * @param libraryZip - zip containing the library (e.g. tracing-perfetto-binary-<version>.aar
-     * or an APK already containing the library)
-     * @param tempDirectory - temporary folder where we can extract the library file from
-     * [libraryZip]; they need to be on the same device
-     * @param moveTempDirectoryFileToDestination - function copying the library file from a location
-     * in [tempDirectory] to a location on the device.
-     */
-    public class ExternalLibraryProvider @Suppress("StreamFiles") constructor(
-        private val libraryZip: File,
-        private val tempDirectory: File,
-        private val moveTempDirectoryFileToDestination: (
-            /** File located in a previously supplied [tempDirectory] */ tempFile: File,
-            /** Destination location for the file */ destinationFile: File
-        ) -> Unit
-    ) {
-        internal fun pushLibrary(targetPackage: String, abi: String): String {
-            val libFileName = "libtracing_perfetto.so"
-
-            val shellWriteableAppReadableDir = File("/sdcard/Android/media/$targetPackage/files")
-            val dstDir = shellWriteableAppReadableDir.resolve("lib/$abi")
-            val dstFile = dstDir.resolve(libFileName)
-            val tmpFile = tempDirectory.resolve(".tmp_$libFileName")
-
-            val rxLibPathInsideZip = Regex(".*(lib|jni)/[^/]*$abi[^/]*/$libFileName")
-
-            val zipFile = ZipFile(libraryZip)
-            val entry = zipFile
-                .entries()
-                .asSequence()
-                .firstOrNull { it.name.matches(rxLibPathInsideZip) }
-                ?: throw IllegalStateException(
-                    "Unable to locate $libFileName to enable Perfetto SDK. " +
-                        "Tried inside ${libraryZip.path}."
-                )
-
-            zipFile.getInputStream(entry).use { inputStream ->
-                tmpFile.outputStream().use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-            }
-            moveTempDirectoryFileToDestination(tmpFile, dstFile)
-            return dstFile.path
-        }
-    }
-
-    private fun getDeviceAbi(): String =
-        executeShellCommand("getprop ro.product.cpu.abilist").split(",")
-            .plus(executeShellCommand("getprop ro.product.cpu.abi"))
-            .first()
-            .trim()
+    * @param libraryZip either an AAR or an APK containing `libtracing_perfetto.so`
+    * @param tempDirectory a directory directly accessible to the caller process (used for
+     * extraction of the binaries from the zip)
+    * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from
+    * the [tempDirectory] to an app accessible folder
+    */
+    // TODO(245426369): consider moving to a factory pattern for constructing these and refer to
+    //  this one as `aarLibrarySource` and `apkLibrarySource`
+    public class LibrarySource @Suppress("StreamFiles") constructor(
+        internal val libraryZip: File,
+        internal val tempDirectory: File,
+        internal val moveLibFileFromTmpDirToAppDir: FileMover
+    )
 
     @RestrictTo(LIBRARY_GROUP)
     public object RequestKeys {
         public const val RECEIVER_CLASS_NAME: String = "androidx.tracing.perfetto.TracingReceiver"
 
         /**
-         * Request to enable tracing.
+         * Request to enable tracing in an app.
+         *
+         * The action is performed straight away allowing for warm / hot tracing. For cold start
+         * tracing see [ACTION_ENABLE_TRACING_COLD_START]
          *
          * Request can include [KEY_PATH] as an optional extra.
          *
@@ -191,8 +212,60 @@ public class PerfettoHandshake(
         public const val ACTION_ENABLE_TRACING: String =
             "androidx.tracing.perfetto.action.ENABLE_TRACING"
 
-        /** Path to tracing native binary file (optional). */
+        /**
+         * Request to enable cold start tracing in an app.
+         *
+         * For warm / hot tracing, see [ACTION_ENABLE_TRACING].
+         *
+         * The action must be performed in the following order, otherwise its effects are
+         * unspecified:
+         * - the app process must be killed before performing the action
+         * - the action must then follow
+         * - the app process must be killed after performing the action
+         *
+         * Request can include [KEY_PATH] as an optional extra.
+         * Request can include [KEY_PERSISTENT] as an optional extra.
+         *
+         * Response to the request is a JSON string (to allow for CLI support) with the following:
+         * - [ResponseKeys.KEY_EXIT_CODE] (always)
+         * - [ResponseKeys.KEY_REQUIRED_VERSION] (always)
+         * - [ResponseKeys.KEY_MESSAGE] (optional)
+         */
+        public const val ACTION_ENABLE_TRACING_COLD_START: String =
+            "androidx.tracing.perfetto.action.ENABLE_TRACING_COLD_START"
+
+        /**
+         * Request to disable cold start tracing (previously enabled with
+         * [ACTION_ENABLE_TRACING_COLD_START]).
+         *
+         * The action is particularly useful when cold start tracing was enabled in
+         * [KEY_PERSISTENT] mode.
+         *
+         * The action must be performed in the following order, otherwise its effects are
+         * unspecified:
+         * - the app process must be killed before performing the action
+         * - the action must then follow
+         * - the app process must be killed after performing the action
+         *
+         * Request can include [KEY_PATH] as an optional extra.
+         * Request can include [KEY_PERSISTENT] as an optional extra.
+         *
+         * Response to the request is a JSON string (to allow for CLI support) with the following:
+         * - [ResponseKeys.KEY_EXIT_CODE] (always)
+         */
+        public const val ACTION_DISABLE_TRACING_COLD_START: String =
+            "androidx.tracing.perfetto.action.DISABLE_TRACING_COLD_START"
+
+        /** Path to tracing native binary file */
         public const val KEY_PATH: String = "path"
+
+        /**
+         * Boolean flag to signify whether the operation should be persistent between runs
+         * (or only performed once).
+         *
+         * Applies to [ACTION_ENABLE_TRACING_COLD_START]
+         */
+        public const val KEY_PERSISTENT: String = "persistent"
     }
 
     @RestrictTo(LIBRARY_GROUP)
@@ -218,9 +291,10 @@ public class PerfettoHandshake(
          * Indicates that the broadcast resulted in `result=0`, which is an equivalent
          * of [android.app.Activity.RESULT_CANCELED].
          *
-         * This most likely means that the app does not expose a [PerfettoHandshake] compatible
+         * This most likely means that the app does not expose a [PerfettoSdkHandshake] compatible
          * receiver.
          */
+        @Suppress("KDocUnresolvedReference")
         public const val RESULT_CODE_CANCELLED: Int = 0
 
         public const val RESULT_CODE_SUCCESS: Int = 1
@@ -228,7 +302,7 @@ public class PerfettoHandshake(
 
         /**
          * Required version described in [EnableTracingResponse.requiredVersion].
-         * A follow-up [enableTracing] request expected with [ExternalLibraryProvider] specified.
+         * A follow-up [enableTracingImmediate] request expected with binaries to sideload specified.
          */
         public const val RESULT_CODE_ERROR_BINARY_MISSING: Int = 11
 
