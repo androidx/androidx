@@ -19,6 +19,7 @@ package androidx.credentials;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.ComponentName;
+import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -99,17 +100,32 @@ public class GetPasswordOptionJavaTest {
         Set<String> expectedAllowedUserIds = ImmutableSet.of("id1", "id2", "id3");
         GetPasswordOption option = new GetPasswordOption(expectedAllowedUserIds,
                 expectedIsAutoSelectAllowed, expectedAllowedProviders);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle requestData = option.getRequestData();
+        String customRequestDataKey = "customRequestDataKey";
+        String customRequestDataValue = "customRequestDataValue";
+        requestData.putString(customRequestDataKey, customRequestDataValue);
+        Bundle candidateQueryData = option.getCandidateQueryData();
+        String customCandidateQueryDataKey = "customRequestDataKey";
+        Boolean customCandidateQueryDataValue = true;
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
+
 
         CredentialOption convertedOption = CredentialOption.createFrom(
-                option.getType(), option.getRequestData(), option.getCandidateQueryData(),
-                option.isSystemProviderRequired(),
-                option.getAllowedProviders());
+                option.getType(), requestData, candidateQueryData,
+                option.isSystemProviderRequired(), option.getAllowedProviders());
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption.class);
         GetPasswordOption getPasswordOption = (GetPasswordOption) convertedOption;
         assertThat(getPasswordOption.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
         assertThat(getPasswordOption.getAllowedProviders())
                 .containsExactlyElementsIn(expectedAllowedProviders);
-        assertThat(option.getAllowedUserIds()).containsExactlyElementsIn(expectedAllowedUserIds);
+        assertThat(getPasswordOption.getAllowedUserIds())
+                .containsExactlyElementsIn(expectedAllowedUserIds);
+        assertThat(convertedOption.getRequestData().getString(customRequestDataKey))
+                .isEqualTo(customRequestDataValue);
+        assertThat(convertedOption.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
+                .isEqualTo(customCandidateQueryDataValue);
     }
 }

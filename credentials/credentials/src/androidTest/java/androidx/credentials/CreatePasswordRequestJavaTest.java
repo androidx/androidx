@@ -203,13 +203,21 @@ public class CreatePasswordRequestJavaTest {
         CreatePasswordRequest request = new CreatePasswordRequest(
                 idExpected, passwordExpected, originExpected, defaultProviderExpected,
                 preferImmediatelyAvailableCredentialsExpected, isAutoSelectAllowedExpected);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle credentialData = getFinalCreateCredentialData(
+                request, mContext);
+        String customRequestDataKey = "customRequestDataKey";
+        String customRequestDataValue = "customRequestDataValue";
+        credentialData.putString(customRequestDataKey, customRequestDataValue);
+        Bundle candidateQueryData = request.getCandidateQueryData();
+        String customCandidateQueryDataKey = "customRequestDataKey";
+        Boolean customCandidateQueryDataValue = true;
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
-                request.getType(), getFinalCreateCredentialData(
-                        request, mContext),
-                request.getCandidateQueryData(), request.isSystemProviderRequired(),
-                request.getOrigin()
-        );
+                request.getType(), credentialData, candidateQueryData,
+                request.isSystemProviderRequired(), request.getOrigin());
 
         assertThat(convertedRequest).isInstanceOf(CreatePasswordRequest.class);
         CreatePasswordRequest convertedCreatePasswordRequest =
@@ -228,5 +236,9 @@ public class CreatePasswordRequestJavaTest {
         assertThat(displayInfo.getCredentialTypeIcon().getResId())
                 .isEqualTo(R.drawable.ic_password);
         assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(defaultProviderExpected);
+        assertThat(convertedRequest.getCredentialData().getString(customRequestDataKey))
+                .isEqualTo(customRequestDataValue);
+        assertThat(convertedRequest.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
+                .isEqualTo(customCandidateQueryDataValue);
     }
 }

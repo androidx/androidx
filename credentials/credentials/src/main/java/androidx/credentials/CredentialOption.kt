@@ -78,13 +78,14 @@ abstract class CredentialOption internal constructor(
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        GetPasswordOption.createFrom(requestData, allowedProviders)
+                        GetPasswordOption.createFrom(
+                            requestData, allowedProviders, candidateQueryData)
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (requestData.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
                             GetPublicKeyCredentialOption
                                 .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION ->
                                 GetPublicKeyCredentialOption.createFrom(
-                                    requestData, allowedProviders)
+                                    requestData, allowedProviders, candidateQueryData)
                             else -> throw FrameworkClassParsingException()
                         }
                     else -> throw FrameworkClassParsingException()

@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
@@ -94,19 +95,29 @@ class GetPublicKeyCredentialOptionTest {
     @Test
     fun frameworkConversion_success() {
         val clientDataHash = "hash".toByteArray()
-        val expectedAllowedProviders: Set<ComponentName> = setOf(
+        val expectedAllowedProviders: Set<ComponentName> = ImmutableSet.of(
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")
         )
         val option = GetPublicKeyCredentialOption(
-            TEST_REQUEST_JSON, clientDataHash, expectedAllowedProviders)
+            TEST_REQUEST_JSON, clientDataHash, expectedAllowedProviders
+        )
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val requestData = option.requestData
+        val customRequestDataKey = "customRequestDataKey"
+        val customRequestDataValue = "customRequestDataValue"
+        requestData.putString(customRequestDataKey, customRequestDataValue)
+        val candidateQueryData = option.candidateQueryData
+        val customCandidateQueryDataKey = "customRequestDataKey"
+        val customCandidateQueryDataValue = true
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
 
         val convertedOption = createFrom(
-            option.type,
-            option.requestData,
-            option.candidateQueryData,
-            option.isSystemProviderRequired,
-            option.allowedProviders,
+            option.type, requestData, candidateQueryData,
+            option.isSystemProviderRequired, option.allowedProviders
         )
 
         assertThat(convertedOption).isInstanceOf(
@@ -114,7 +125,11 @@ class GetPublicKeyCredentialOptionTest {
         )
         val convertedSubclassOption = convertedOption as GetPublicKeyCredentialOption
         assertThat(convertedSubclassOption.requestJson).isEqualTo(option.requestJson)
-        assertThat(convertedOption.allowedProviders)
-            .containsAtLeastElementsIn(expectedAllowedProviders)
+        assertThat(convertedSubclassOption.allowedProviders)
+            .containsExactlyElementsIn(expectedAllowedProviders)
+        assertThat(convertedOption.requestData.getString(customRequestDataKey))
+            .isEqualTo(customRequestDataValue)
+        assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
+            .isEqualTo(customCandidateQueryDataValue)
     }
 }

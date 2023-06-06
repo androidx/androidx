@@ -80,8 +80,16 @@ class CreatePublicKeyCredentialResponseTest {
     @Test
     fun frameworkConversion_success() {
         val response = CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON)
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = response.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
 
-        val convertedResponse = createFrom(response.type, response.data)
+        val convertedResponse = createFrom(response.type, data)
 
         assertThat(convertedResponse).isInstanceOf(
             CreatePublicKeyCredentialResponse::class.java
@@ -89,5 +97,7 @@ class CreatePublicKeyCredentialResponseTest {
         val convertedSubclassResponse = convertedResponse as CreatePublicKeyCredentialResponse
         assertThat(convertedSubclassResponse.registrationResponseJson)
             .isEqualTo(response.registrationResponseJson)
+        assertThat(convertedResponse.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
     }
 }

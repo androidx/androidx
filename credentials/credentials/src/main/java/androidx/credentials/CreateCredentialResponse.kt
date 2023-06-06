@@ -40,7 +40,7 @@ abstract class CreateCredentialResponse internal constructor(
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        CreatePasswordResponse.createFrom()
+                        CreatePasswordResponse.createFrom(data)
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         CreatePublicKeyCredentialResponse.createFrom(data)
                     else -> throw FrameworkClassParsingException()

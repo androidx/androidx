@@ -224,13 +224,14 @@ abstract class CreateCredentialRequest internal constructor(
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        CreatePasswordRequest.createFrom(credentialData, origin)
+                        CreatePasswordRequest.createFrom(credentialData, origin, candidateQueryData)
 
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (credentialData.getString(BUNDLE_KEY_SUBTYPE)) {
                             CreatePublicKeyCredentialRequest
                                 .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
-                                CreatePublicKeyCredentialRequest.createFrom(credentialData, origin)
+                                CreatePublicKeyCredentialRequest.createFrom(
+                                    credentialData, origin, candidateQueryData)
 
                             else -> throw FrameworkClassParsingException()
                         }

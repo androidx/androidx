@@ -26,16 +26,25 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property authenticationResponseJson the public key credential authentication response in
  * JSON format that follows the standard webauthn json format shown at
  * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
- * @throws NullPointerException If [authenticationResponseJson] is null
- * @throws IllegalArgumentException If [authenticationResponseJson] is empty, or if it is
- * not a valid JSON
  */
-class PublicKeyCredential constructor(
-    val authenticationResponseJson: String
-) : Credential(
-    TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(authenticationResponseJson)
-) {
+class PublicKeyCredential private constructor(
+    val authenticationResponseJson: String,
+    data: Bundle,
+) : Credential(TYPE_PUBLIC_KEY_CREDENTIAL, data) {
+
+    /**
+     * Constructs a [PublicKeyCredential].
+     *
+     * @param authenticationResponseJson the public key credential authentication response in
+     * JSON format that follows the standard webauthn json format shown at
+     * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
+     * @throws NullPointerException If [authenticationResponseJson] is null
+     * @throws IllegalArgumentException If [authenticationResponseJson] is empty, or if it is
+     * not a valid JSON
+     */
+    constructor(
+        authenticationResponseJson: String
+    ) : this(authenticationResponseJson, toBundle(authenticationResponseJson))
 
     init {
         require(RequestValidationHelper.isValidJSON(authenticationResponseJson)) {
@@ -65,7 +74,7 @@ class PublicKeyCredential constructor(
             try {
                 val authenticationResponseJson =
                     data.getString(BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON)
-                return PublicKeyCredential(authenticationResponseJson!!)
+                return PublicKeyCredential(authenticationResponseJson!!, data)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

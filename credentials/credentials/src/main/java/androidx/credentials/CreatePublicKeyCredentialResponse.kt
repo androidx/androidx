@@ -24,16 +24,25 @@ import androidx.credentials.internal.RequestValidationHelper
  * A response of a public key credential (passkey) flow.
  *
  * @property registrationResponseJson the public key credential registration response in JSON format
- * @throws NullPointerException If [registrationResponseJson] is null
- * @throws IllegalArgumentException If [registrationResponseJson] is empty, or
- * not valid JSON
  */
-class CreatePublicKeyCredentialResponse(
-    val registrationResponseJson: String
+class CreatePublicKeyCredentialResponse private constructor(
+    val registrationResponseJson: String,
+    data: Bundle,
 ) : CreateCredentialResponse(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(registrationResponseJson)
+    data,
 ) {
+
+    /**
+     * Constructs a [CreatePublicKeyCredentialResponse].
+     *
+     * @param registrationResponseJson the public key credential registration response in JSON format
+     * @throws NullPointerException If [registrationResponseJson] is null
+     * @throws IllegalArgumentException If [registrationResponseJson] is empty, or an invalid JSON
+     */
+    constructor(
+        registrationResponseJson: String
+    ) : this(registrationResponseJson, toBundle(registrationResponseJson))
 
     init {
         require(RequestValidationHelper.isValidJSON(registrationResponseJson)) {
@@ -56,7 +65,7 @@ class CreatePublicKeyCredentialResponse(
             try {
                 val registrationResponseJson =
                     data.getString(BUNDLE_KEY_REGISTRATION_RESPONSE_JSON)
-                return CreatePublicKeyCredentialResponse(registrationResponseJson!!)
+                return CreatePublicKeyCredentialResponse(registrationResponseJson!!, data)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

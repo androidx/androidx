@@ -42,10 +42,12 @@ class CreatePasswordRequest private constructor(
     displayInfo: DisplayInfo,
     origin: String? = null,
     preferImmediatelyAvailableCredentials: Boolean,
+    credentialData: Bundle = toCredentialDataBundle(id, password),
+    candidateQueryData: Bundle = toCandidateDataBundle(),
 ) : CreateCredentialRequest(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    credentialData = toCredentialDataBundle(id, password),
-    candidateQueryData = toCandidateDataBundle(),
+    credentialData = credentialData,
+    candidateQueryData = candidateQueryData,
     isSystemProviderRequired = false,
     isAutoSelectAllowed,
     displayInfo,
@@ -164,27 +166,28 @@ class CreatePasswordRequest private constructor(
 
         @JvmStatic
         @RequiresApi(23)
-        internal fun createFrom(data: Bundle, origin: String?): CreatePasswordRequest {
+        internal fun createFrom(
+            data: Bundle,
+            origin: String?,
+            candidateQueryData: Bundle,
+        ): CreatePasswordRequest {
             try {
-                val id = data.getString(BUNDLE_KEY_ID)
-                val password = data.getString(BUNDLE_KEY_PASSWORD)
+                val id = data.getString(BUNDLE_KEY_ID)!!
+                val password = data.getString(BUNDLE_KEY_PASSWORD)!!
                 val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
+                    ?: DisplayInfo(id, null)
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
                 val isAutoSelectAllowed =
                     data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
-                return if (displayInfo == null) CreatePasswordRequest(
-                    id = id!!,
-                    password = password!!,
-                    origin = origin,
-                    preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
-                    isAutoSelectAllowed = isAutoSelectAllowed,
-                ) else CreatePasswordRequest(
-                    id = id!!,
-                    password = password!!,
+                return CreatePasswordRequest(
+                    id = id,
+                    password = password,
                     displayInfo = displayInfo,
                     origin = origin,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
+                    credentialData = data,
+                    candidateQueryData = candidateQueryData,
                     isAutoSelectAllowed = isAutoSelectAllowed,
                 )
             } catch (e: Exception) {

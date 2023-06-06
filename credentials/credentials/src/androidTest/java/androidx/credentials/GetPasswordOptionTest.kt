@@ -21,6 +21,7 @@ import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.credentials.GetPasswordOption.Companion.BUNDLE_KEY_ALLOWED_USER_IDS
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,31 +91,44 @@ class GetPasswordOptionTest {
 
     @Test
     fun frameworkConversion_success() {
-        val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
-        val expectedAutoSelectAllowed = true
-        val expectedAllowedProviders: Set<ComponentName> = setOf(
+        val expectedIsAutoSelectAllowed = true
+        val expectedAllowedProviders: Set<ComponentName> = ImmutableSet.of(
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")
         )
+        val expectedAllowedUserIds: Set<String> = ImmutableSet.of("id1", "id2", "id3")
         val option = GetPasswordOption(
-            allowedUserIds = expectedAllowedUserIds,
-            isAutoSelectAllowed = expectedAutoSelectAllowed,
-            allowedProviders = expectedAllowedProviders,
+            expectedAllowedUserIds,
+            expectedIsAutoSelectAllowed, expectedAllowedProviders
         )
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val requestData = option.requestData
+        val customRequestDataKey = "customRequestDataKey"
+        val customRequestDataValue = "customRequestDataValue"
+        requestData.putString(customRequestDataKey, customRequestDataValue)
+        val candidateQueryData = option.candidateQueryData
+        val customCandidateQueryDataKey = "customRequestDataKey"
+        val customCandidateQueryDataValue = true
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
 
         val convertedOption = createFrom(
-            option.type,
-            option.requestData,
-            option.candidateQueryData,
-            option.isSystemProviderRequired,
-            option.allowedProviders
+            option.type, requestData, candidateQueryData,
+            option.isSystemProviderRequired, option.allowedProviders
         )
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)
-        assertThat(convertedOption.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
-        assertThat(convertedOption.allowedProviders)
+        val getPasswordOption = convertedOption as GetPasswordOption
+        assertThat(getPasswordOption.isAutoSelectAllowed).isEqualTo(expectedIsAutoSelectAllowed)
+        assertThat(getPasswordOption.allowedProviders)
             .containsExactlyElementsIn(expectedAllowedProviders)
-        assertThat((convertedOption as GetPasswordOption).allowedUserIds)
+        assertThat(getPasswordOption.allowedUserIds)
             .containsExactlyElementsIn(expectedAllowedUserIds)
+        assertThat(convertedOption.requestData.getString(customRequestDataKey))
+            .isEqualTo(customRequestDataValue)
+        assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
+            .isEqualTo(customCandidateQueryDataValue)
     }
 }

@@ -82,14 +82,22 @@ public class CreatePublicKeyCredentialResponseJavaTest {
     public void frameworkConversion_success() {
         CreatePublicKeyCredentialResponse response =
                 new CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle data = response.getData();
+        String customDataKey = "customRequestDataKey";
+        CharSequence customDataValue = "customRequestDataValue";
+        data.putCharSequence(customDataKey, customDataValue);
 
         CreateCredentialResponse convertedResponse =
-                CreateCredentialResponse.createFrom(response.getType(), response.getData());
+                CreateCredentialResponse.createFrom(response.getType(), data);
 
         assertThat(convertedResponse).isInstanceOf(CreatePublicKeyCredentialResponse.class);
         CreatePublicKeyCredentialResponse convertedSubclassResponse =
                 (CreatePublicKeyCredentialResponse) convertedResponse;
         assertThat(convertedSubclassResponse.getRegistrationResponseJson())
                 .isEqualTo(response.getRegistrationResponseJson());
+        assertThat(convertedResponse.getData().getCharSequence(customDataKey))
+                .isEqualTo(customDataValue);
     }
 }

@@ -90,15 +90,25 @@ class PublicKeyCredentialTest {
     @Test
     fun frameworkConversion_success() {
         val credential = PublicKeyCredential(TEST_JSON)
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = credential.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
 
         val convertedCredential = createFrom(
-            credential.type, credential.data
+            credential.type, data
         )
 
         assertThat(convertedCredential).isInstanceOf(PublicKeyCredential::class.java)
         val convertedSubclassCredential = convertedCredential as PublicKeyCredential
         assertThat(convertedSubclassCredential.authenticationResponseJson)
             .isEqualTo(credential.authenticationResponseJson)
+        assertThat(convertedCredential.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
     }
 
     @Test
