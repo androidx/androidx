@@ -35,7 +35,7 @@ import androidx.wear.compose.material3.Text
 fun SimpleButtonSample() {
     Button(
         onClick = { /* Do something */ },
-        label = { Text("Simple Button") }
+        label = { Text("Button") }
     )
 }
 
@@ -61,7 +61,7 @@ fun ButtonSample() {
 fun SimpleFilledTonalButtonSample() {
     FilledTonalButton(
         onClick = { /* Do something */ },
-        label = { Text("Simple FilledTonalButton") }
+        label = { Text("FilledTonalButton") }
     )
 }
 
@@ -87,7 +87,7 @@ fun FilledTonalButtonSample() {
 fun SimpleOutlinedButtonSample() {
     OutlinedButton(
         onClick = { /* Do something */ },
-        label = { Text("Simple OutlinedButton") }
+        label = { Text("OutlinedButton") }
     )
 }
 
@@ -113,7 +113,7 @@ fun OutlinedButtonSample() {
 fun SimpleChildButtonSample() {
     ChildButton(
         onClick = { /* Do something */ },
-        label = { Text("Simple ChildButton") }
+        label = { Text("ChildButton") }
     )
 }
 
