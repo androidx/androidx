@@ -176,7 +176,8 @@ class PublicKeyCredentialEntryTest {
 
     companion object {
         private val BEGIN_OPTION: BeginGetPublicKeyCredentialOption =
-            BeginGetPublicKeyCredentialOption(Bundle(), "id", "json")
+            BeginGetPublicKeyCredentialOption(Bundle(), "id",
+                "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}")
         private val USERNAME: CharSequence = "title"
         private val DISPLAYNAME: CharSequence = "subtitle"
         private val TYPE_DISPLAY_NAME: CharSequence = "Password"

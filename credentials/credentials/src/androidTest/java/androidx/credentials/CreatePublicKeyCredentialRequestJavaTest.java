@@ -60,10 +60,20 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     }
 
     @Test
+    public void constructor_invalidJson_throwsIllegalArgumentException() {
+        assertThrows("Expected empty Json to throw error",
+                IllegalArgumentException.class,
+                () -> new CreatePublicKeyCredentialRequest("invalid")
+        );
+    }
+
+    @Test
     public void constructor_jsonMissingUserName_throwsIllegalArgumentException() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new CreatePublicKeyCredentialRequest("json")
+                () -> new CreatePublicKeyCredentialRequest(
+                        "{\"key\":{\"value\":{\"lol\":\"Value\"}}}"
+                )
         );
     }
 
@@ -77,8 +87,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
 
     @Test
     public void constructor_success() {
-        new CreatePublicKeyCredentialRequest(
-                "{\"user\":{\"name\":{\"lol\":\"Value\"}}}");
+        new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON);
     }
 
     @Test

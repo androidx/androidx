@@ -40,6 +40,8 @@ import java.util.Set;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GetPublicKeyCredentialOptionJavaTest {
+    private static final String TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+
 
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
@@ -59,8 +61,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
 
     @Test
     public void constructor_success() {
-        new GetPublicKeyCredentialOption(
-                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
+        new GetPublicKeyCredentialOption(TEST_REQUEST_JSON);
     }
 
     @Test
@@ -109,7 +110,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
                 new ComponentName("pkg2", "cls2")
         );
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
-                "json", clientDataHash, expectedAllowedProviders);
+                TEST_REQUEST_JSON, clientDataHash, expectedAllowedProviders);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(),

@@ -32,6 +32,10 @@ import org.junit.runner.RunWith
 @SmallTest
 class PublicKeyCredentialTest {
 
+    companion object Constant {
+        private const val TEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+    }
+
     @Test
     fun typeConstant() {
         assertThat(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -47,10 +51,16 @@ class PublicKeyCredentialTest {
     }
 
     @Test
+    fun constructor_invalidJson_throwsIllegalArgumentException() {
+        Assert.assertThrows(
+            "Expected invalid Json to throw IllegalArgumentException",
+            IllegalArgumentException::class.java
+        ) { PublicKeyCredential("invalid") }
+    }
+
+    @Test
     fun constructor_success() {
-        PublicKeyCredential(
-            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        )
+        PublicKeyCredential(TEST_JSON)
     }
 
     @Test
@@ -79,7 +89,7 @@ class PublicKeyCredentialTest {
 
     @Test
     fun frameworkConversion_success() {
-        val credential = PublicKeyCredential("json")
+        val credential = PublicKeyCredential(TEST_JSON)
 
         val convertedCredential = createFrom(
             credential.type, credential.data

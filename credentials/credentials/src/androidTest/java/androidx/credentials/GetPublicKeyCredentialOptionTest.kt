@@ -29,6 +29,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class GetPublicKeyCredentialOptionTest {
+    companion object Constant {
+        private const val TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+    }
 
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
@@ -40,9 +43,7 @@ class GetPublicKeyCredentialOptionTest {
 
     @Test
     fun constructor_success() {
-        GetPublicKeyCredentialOption(
-            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        )
+        GetPublicKeyCredentialOption(TEST_REQUEST_JSON)
     }
 
     @Test
@@ -98,7 +99,7 @@ class GetPublicKeyCredentialOptionTest {
             ComponentName("pkg2", "cls2")
         )
         val option = GetPublicKeyCredentialOption(
-            "json", clientDataHash, expectedAllowedProviders)
+            TEST_REQUEST_JSON, clientDataHash, expectedAllowedProviders)
 
         val convertedOption = createFrom(
             option.type,

@@ -20,6 +20,7 @@ import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.internal.RequestValidationHelper
 import org.json.JSONObject
 
 /**
@@ -69,8 +70,10 @@ class CreatePublicKeyCredentialRequest private constructor(
      * that application (Note: for API level >=34, setting a non-null value for this parameter will
      * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
      * @throws NullPointerException If [requestJson] is null
-     * @throws IllegalArgumentException If [requestJson] is empty, or if it doesn't have a valid
-     * `user.name` defined according to the [webauthn spec](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
+     * @throws IllegalArgumentException If [requestJson] is empty, or if it is not a valid JSON,
+     * or if it doesn't have a valid `user.name` defined according to the
+     * [webauthn spec]
+     * (https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
      */
     @JvmOverloads constructor(
         requestJson: String,
@@ -113,7 +116,8 @@ class CreatePublicKeyCredentialRequest private constructor(
         getRequestDisplayInfo(requestJson, preferDefaultProvider), origin)
 
     init {
-        require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
+        require(RequestValidationHelper.isValidJSON(requestJson)) {
+            "requestJson must not be empty, and must be a valid JSON" }
     }
 
     internal companion object {

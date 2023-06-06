@@ -18,13 +18,15 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.internal.RequestValidationHelper
 
 /**
  * A response of a public key credential (passkey) flow.
  *
  * @property registrationResponseJson the public key credential registration response in JSON format
  * @throws NullPointerException If [registrationResponseJson] is null
- * @throws IllegalArgumentException If [registrationResponseJson] is blank
+ * @throws IllegalArgumentException If [registrationResponseJson] is empty, or
+ * not valid JSON
  */
 class CreatePublicKeyCredentialResponse(
     val registrationResponseJson: String
@@ -34,8 +36,8 @@ class CreatePublicKeyCredentialResponse(
 ) {
 
     init {
-        require(registrationResponseJson.isNotEmpty()) { "registrationResponseJson must not be " +
-            "empty" }
+        require(RequestValidationHelper.isValidJSON(registrationResponseJson)) {
+            "registrationResponseJson must not be empty, and must be a valid JSON" }
     }
 
     internal companion object {

@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CreatePublicKeyCredentialResponseJavaTest {
+    private static final String TEST_RESPONSE_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
 
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
@@ -50,7 +51,7 @@ public class CreatePublicKeyCredentialResponseJavaTest {
 
     @Test
     public void constructor_success()  {
-        new CreatePublicKeyCredentialResponse("{\"hi\":1}");
+        new CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON);
     }
 
     @Test
@@ -80,7 +81,7 @@ public class CreatePublicKeyCredentialResponseJavaTest {
     @Test
     public void frameworkConversion_success() {
         CreatePublicKeyCredentialResponse response =
-                new CreatePublicKeyCredentialResponse("responseJson");
+                new CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON);
 
         CreateCredentialResponse convertedResponse =
                 CreateCredentialResponse.createFrom(response.getType(), response.getData());

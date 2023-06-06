@@ -54,10 +54,18 @@ class CreatePublicKeyCredentialRequestTest {
     }
 
     @Test
+    fun constructor_invalidJson_throwsIllegalArgumentException() {
+        assertThrows(
+            "Expected empty Json to throw error",
+            IllegalArgumentException::class.java
+        ) { CreatePublicKeyCredentialRequest("invalid") }
+    }
+
+    @Test
     fun constructor_jsonMissingUserName_throwsIllegalArgumentException() {
         assertThrows(
             IllegalArgumentException::class.java
-        ) { CreatePublicKeyCredentialRequest("json") }
+        ) { CreatePublicKeyCredentialRequest("{\"hey\":{\"hi\":{\"hello\":\"hii\"}}}") }
     }
 
     @Test
