@@ -62,7 +62,7 @@ fun TestWorkManagerImpl(
     WorkDatabase.create(context, workTaskExecutor.serialTaskExecutor, configuration.clock, true)
 )
 
-internal typealias SchedulersCreator = (
+typealias SchedulersCreator = (
     context: Context,
     configuration: Configuration,
     workTaskExecutor: TaskExecutor,

@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(project(":work:work-runtime"))
+
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
     implementation("androidx.room:room-runtime:2.5.0")
 
@@ -41,6 +42,8 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinCoroutinesAndroid)
 }
 
 androidx {
