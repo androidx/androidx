@@ -386,11 +386,16 @@ public class ProtoLayoutDynamicDataPipeline {
                 // Skip content transition animations.
                 mChangedNodes.clear();
             }
-            parentView.post(
-                    () -> {
-                        mPipeline.initNewLayout();
-                        playEnterAnimations(parentView, isReattaching);
-                    });
+
+            Runnable runnable = () -> {
+                mPipeline.initNewLayout();
+                playEnterAnimations(parentView, isReattaching);
+            };
+            if (parentView.isInEditMode()) {
+                runnable.run();
+            } else {
+                parentView.post(runnable);
+            }
         }
 
         @UiThread
