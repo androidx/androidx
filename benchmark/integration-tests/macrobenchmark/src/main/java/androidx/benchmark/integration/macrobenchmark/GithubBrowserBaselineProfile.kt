@@ -59,7 +59,7 @@ class GithubBrowserBaselineProfile {
     @Test
     @Ignore
     fun githubBrowserProfiles() {
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
             profileBlock = {
                 startActivityAndWait()

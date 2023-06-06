@@ -38,7 +38,7 @@ class BaselineProfileTest {
         assumeTrue(DeviceInfo.isRooted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
 
         // Collects the baseline profile
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
             profileBlock = {
                 startActivityAndWait(Intent(ACTION))
