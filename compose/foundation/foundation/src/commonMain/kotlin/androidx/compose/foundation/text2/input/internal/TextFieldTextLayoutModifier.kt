@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text2.input.internal
 
+import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**
@@ -77,7 +79,7 @@ internal class TextFieldTextLayoutModifierNode(
     private var textLayoutState: TextLayoutState,
     textFieldState: TransformedTextFieldState,
     textStyle: TextStyle,
-    singleLine: Boolean,
+    private var singleLine: Boolean,
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
 ) : Modifier.Node(),
     LayoutModifierNode,
@@ -106,6 +108,7 @@ internal class TextFieldTextLayoutModifierNode(
     ) {
         this.textLayoutState = textLayoutState
         this.textLayoutState.onTextLayout = onTextLayout
+        this.singleLine = singleLine
         this.textLayoutState.updateNonMeasureInputs(
             textFieldState = textFieldState,
             textStyle = textStyle,
@@ -133,7 +136,15 @@ internal class TextFieldTextLayoutModifierNode(
             Constraints.fixed(result.size.width, result.size.height)
         )
 
-        // TODO: min height
+        // calculate the min height for single line text to prevent text cuts.
+        // for single line text maxLines puts in max height constraint based on
+        // constant characters therefore if the user enters a character that is
+        // longer (i.e. emoji or a tall script) the text is cut
+        textLayoutState.minHeightForSingleLineField = if (singleLine) {
+            result.getLineBottom(0).ceilToIntPx().toDp()
+        } else {
+            0.dp
+        }
 
         return layout(
             width = result.size.width,

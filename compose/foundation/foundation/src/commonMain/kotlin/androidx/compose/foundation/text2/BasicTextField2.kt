@@ -26,6 +26,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.CursorHandle
 import androidx.compose.foundation.text.Handle
@@ -413,6 +414,7 @@ fun BasicTextField2(
             Box(
                 propagateMinConstraints = true,
                 modifier = Modifier
+                    .heightIn(min = textLayoutState.minHeightForSingleLineField)
                     .heightInLines(
                         textStyle = textStyle,
                         minLines = minLines,
