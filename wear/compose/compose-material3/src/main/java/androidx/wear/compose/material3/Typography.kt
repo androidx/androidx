@@ -293,7 +293,7 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
 
-private const val DefaultIncludeFontPadding = true
+private const val DefaultIncludeFontPadding = false
 
 /**
  * Returns theme default [TextStyle] with default [PlatformTextStyle].
