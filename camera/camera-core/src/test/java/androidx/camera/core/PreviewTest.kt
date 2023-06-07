@@ -17,6 +17,7 @@
 package androidx.camera.core
 
 import android.content.Context
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
@@ -100,6 +101,10 @@ class PreviewTest {
     private lateinit var effect: CameraEffect
 
     private val handlersToRelease = mutableListOf<Handler>()
+
+    private val sensorToBufferTransform = Matrix().apply {
+        setScale(1f, 2f)
+    }
 
     private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
         androidx.camera.core.impl.Config.Option.create(
@@ -339,6 +344,7 @@ class PreviewTest {
 
         // Get pending SurfaceRequest created by pipeline.
         assertThat(transformationInfo!!.hasCameraTransform()).isTrue()
+        assertThat(transformationInfo!!.sensorToBufferTransform).isEqualTo(sensorToBufferTransform)
     }
 
     @Test
@@ -791,6 +797,7 @@ class PreviewTest {
         streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
         val streamSpec = StreamSpec.builder(Size(640, 480))
             .setImplementationOptions(streamSpecOptions).build()
+        previewToDetach.sensorToBufferTransformMatrix = sensorToBufferTransform
         previewToDetach.updateSuggestedStreamSpec(streamSpec)
         return previewToDetach
     }
