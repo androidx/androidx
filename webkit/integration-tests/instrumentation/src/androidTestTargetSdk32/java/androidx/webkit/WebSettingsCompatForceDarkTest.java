@@ -28,20 +28,21 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
+/**
+ * Instrumentation tests for pre-33 dark mode behavior.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatForceDarkTest extends
         WebSettingsCompatDarkModeTestBase<WebViewLightThemeTestActivity> {
     public WebSettingsCompatForceDarkTest() {
-        // Set targetSdkVersion to the max version the force dark API works on.
-        // TODO(http://b/214741472): Use VERSION_CODES.S_V2 once Android X supports it.
-        super(WebViewLightThemeTestActivity.class, VERSION_CODES.S);
+        super(WebViewLightThemeTestActivity.class);
     }
 
     /**
@@ -54,7 +55,7 @@ public class WebSettingsCompatForceDarkTest extends
     public void testForceDark_default() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
 
-        assertEquals("The default force dark state should be AUTO",
+        Assert.assertEquals("The default force dark state should be AUTO",
                 WebSettingsCompat.FORCE_DARK_AUTO,
                 WebSettingsCompat.getForceDark(getSettingsOnUiThread()));
     }
@@ -65,7 +66,6 @@ public class WebSettingsCompatForceDarkTest extends
      * should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
     @SuppressWarnings("deprecation")
-    @Ignore("Disabled due to b/230480958")
     @Test
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
@@ -100,7 +100,6 @@ public class WebSettingsCompatForceDarkTest extends
      * i.e. web contents are always darkened by a user agent.
      */
     @SuppressWarnings("deprecation")
-    @Ignore("Disabled due to b/240432254")
     @Test
     public void testForceDark_userAgentDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
@@ -133,8 +132,6 @@ public class WebSettingsCompatForceDarkTest extends
      * i.e. web contents are darkened only by web theme.
      */
     @SuppressWarnings("deprecation")
-    @Ignore("Disabled due to b/260586583")
-    @SdkSuppress(maxSdkVersion = 32) // b/254572377
     @Test
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
@@ -153,41 +150,6 @@ public class WebSettingsCompatForceDarkTest extends
         assertTrue("Bitmap colour should be light",
                 ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
         assertTrue(prefersDarkTheme());
-
-        // Loading a page with dark-theme support should result in a green background (as
-        // specified in media-query)
-        getWebViewOnUiThread().loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html",
-                "base64");
-        assertThat("Bitmap colour should be green", getWebPageColor(), isGreen());
-        assertTrue(prefersDarkTheme());
-    }
-
-    /**
-     * Test to exercise PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING option,
-     * i.e. web contents are darkened by a user agent if there is no dark web theme.
-     */
-    @SuppressWarnings("deprecation")
-    @Test
-    @Ignore("Disabled due to b/202546063")
-    public void testForceDark_preferWebThemeOverUADarkening() {
-        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
-        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
-        WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize();
-
-        getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
-
-        WebSettingsCompat.setForceDark(
-                getSettingsOnUiThread(), WebSettingsCompat.FORCE_DARK_ON);
-        WebSettingsCompat.setForceDarkStrategy(getSettingsOnUiThread(),
-                WebSettingsCompat.DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
-
-        getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
-        // Loading a page without dark-theme support should result in a dark background as
-        // web page is darken by a user agent
-        assertTrue("Bitmap colour should be dark",
-                ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
-        assertFalse(prefersDarkTheme());
 
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)

@@ -271,6 +271,9 @@ public class WebViewOnUiThread implements AutoCloseable{
                 () -> WebViewCompat.removeWebMessageListener(mWebView, jsObjectName));
     }
 
+    /**
+     * @deprecated unreleased API to be removed
+     */
     @NonNull
     @Deprecated
     @SuppressWarnings("deprecation") // To be removed in 1.9.0
@@ -290,7 +293,7 @@ public class WebViewOnUiThread implements AutoCloseable{
      * Test fails if the load timeout elapses.
      * @param url The URL to load.
      */
-    void loadUrlAndWaitForCompletion(final String url) {
+    public void loadUrlAndWaitForCompletion(@NonNull final String url) {
         callAndWait(() -> mWebView.loadUrl(url));
     }
 
@@ -393,7 +396,8 @@ public class WebViewOnUiThread implements AutoCloseable{
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.getWebChromeClient(webView));
     }
 
-    WebView getWebViewOnCurrentThread() {
+    @NonNull
+    public WebView getWebViewOnCurrentThread() {
         return mWebView;
     }
 

@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import static androidx.webkit.WebViewFeature.isFeatureSupported;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.SystemClock;
 import android.webkit.WebSettings;
@@ -48,6 +49,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerWebSettingsCompatTest {
 
+    public static final String TEST_APK_NAME = "androidx.webkit.instrumentation.test";
     private ServiceWorkerWebSettingsCompat mSettings;
 
     private static final long POLL_TIMEOUT_DURATION_MS = 5000;
@@ -263,7 +265,7 @@ public class ServiceWorkerWebSettingsCompatTest {
                 request = server.takeRequest(5, TimeUnit.SECONDS);
             } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
             Assert.assertNotNull("Test timed out while waiting for expected request", request);
-            Assert.assertEquals("androidx.webkit.test", request.getHeader("X-Requested-With"));
+            Assert.assertEquals(TEST_APK_NAME, request.getHeader("X-Requested-With"));
             webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
         }
     }
@@ -311,6 +313,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      * for other tests.
      * See b/230078824.
      */
+    @SuppressLint("BanThreadSleep")
     private void waitForServiceWorkerDone(final WebViewOnUiThread webViewOnUiThread) {
         long timeout = SystemClock.uptimeMillis() + POLL_TIMEOUT_DURATION_MS;
         while (SystemClock.uptimeMillis() < timeout

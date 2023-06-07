@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 import org.junit.Assert;
@@ -40,6 +42,7 @@ public abstract class PollingCheck {
 
     protected abstract boolean check();
 
+    @SuppressLint("BanThreadSleep")
     public void run() {
         if (check()) {
             return;
@@ -63,6 +66,7 @@ public abstract class PollingCheck {
         Assert.fail("unexpected timeout");
     }
 
+    @SuppressLint("BanThreadSleep")
     public static void check(@NonNull CharSequence message, long timeout,
             @NonNull Callable<Boolean> condition)
             throws Exception {

@@ -46,6 +46,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatTest {
+    public static final String TEST_APK_NAME = "androidx.webkit.instrumentation.test";
     WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
@@ -180,7 +181,7 @@ public class WebSettingsCompatTest {
             mWebViewOnUiThread.loadUrl(requestUrl);
             RecordedRequest recordedRequest = mockWebServer.takeRequest();
             String headerValue = recordedRequest.getHeader("X-Requested-With");
-            Assert.assertEquals("androidx.webkit.test", headerValue);
+            Assert.assertEquals(TEST_APK_NAME, headerValue);
         }
     }
 }
