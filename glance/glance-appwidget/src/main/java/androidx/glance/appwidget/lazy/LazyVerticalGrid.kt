@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
 import androidx.glance.Emittable
+import androidx.glance.EmittableLazyItemWithChildren
 import androidx.glance.EmittableWithChildren
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
@@ -292,7 +293,7 @@ EmittableWithChildren(resetsDepthForChildren = true) {
         "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyVerticalGridListItem : EmittableWithChildren() {
+internal class EmittableLazyVerticalGridListItem : EmittableLazyItemWithChildren() {
     override var modifier: GlanceModifier
         get() = children.singleOrNull()?.modifier
             ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
@@ -302,7 +303,6 @@ internal class EmittableLazyVerticalGridListItem : EmittableWithChildren() {
             )
         }
     var itemId: Long = 0
-    var alignment: Alignment = Alignment.CenterStart
 
     override fun copy(): Emittable = EmittableLazyVerticalGridListItem().also {
         it.itemId = itemId

@@ -617,6 +617,21 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
+    fun canTranslateLazyVerticalGrid_withClickableItems() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
+                items(2, { it * 2L }) { index ->
+                    Row(modifier = GlanceModifier.clickable {}) {
+                        Text("Item $index")
+                    }
+                }
+            }
+        }
+
+        assertIs<GridView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
     fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runTest {
         val result = context.runAndTranslate {
             val providedViews = RemoteViews(context.packageName, R.layout.text_sample).also {

@@ -20,6 +20,7 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.glance.Emittable
+import androidx.glance.EmittableLazyItemWithChildren
 import androidx.glance.EmittableWithChildren
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
@@ -291,7 +292,7 @@ internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthFor
             "activityOptions=$activityOptions, children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyListItem : EmittableWithChildren() {
+internal class EmittableLazyListItem : EmittableLazyItemWithChildren() {
     override var modifier: GlanceModifier
         get() = children.singleOrNull()?.modifier
             ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
@@ -299,7 +300,6 @@ internal class EmittableLazyListItem : EmittableWithChildren() {
             throw IllegalAccessError("You cannot set the modifier of an EmittableLazyListItem")
         }
     var itemId: Long = 0
-    var alignment: Alignment = Alignment.CenterStart
 
     override fun copy(): Emittable = EmittableLazyListItem().also {
         it.itemId = itemId
