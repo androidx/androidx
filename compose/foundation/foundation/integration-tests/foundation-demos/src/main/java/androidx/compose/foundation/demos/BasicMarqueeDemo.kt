@@ -197,7 +197,7 @@ private fun MarqueeText(
             .clickable(
                 onClick = { focusRequester.requestFocus() },
                 indication = null,
-                interactionSource = MutableInteractionSource()
+                interactionSource = remember { MutableInteractionSource() }
             )
             .onFocusChanged { isFocused = it.isFocused }
             .focusRequester(focusRequester)

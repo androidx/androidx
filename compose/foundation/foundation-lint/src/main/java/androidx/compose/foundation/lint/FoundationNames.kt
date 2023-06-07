@@ -22,6 +22,11 @@ import androidx.compose.lint.Package
 object FoundationNames {
     val PackageName = Package("androidx.compose.foundation")
 
+    object Interaction {
+        val PackageName = Package(FoundationNames.PackageName, "interaction")
+        val MutableInteractionSource = Name(PackageName, "MutableInteractionSource")
+    }
+
     object Lazy {
         val PackageName = Package(FoundationNames.PackageName, "lazy")
         val LazyListState = Name(PackageName, "LazyListState")
