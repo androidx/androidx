@@ -23,11 +23,14 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +42,9 @@ import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -47,15 +52,16 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
@@ -63,8 +69,9 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toOffset
@@ -94,14 +101,16 @@ class TextFieldCursorTest {
     private lateinit var state: TextFieldState
 
     private val boxPadding = 8.dp
+
     // Both TextField background and font color should be the same to make sure that only
     // cursor is visible
     private val contentColor = Color.White
     private val cursorColor = Color.Red
+    private val fontSize = 10.sp
     private val textStyle = TextStyle(
         color = contentColor,
         background = contentColor,
-        fontSize = 10.sp,
+        fontSize = fontSize,
         fontFamily = TEST_FONT_FAMILY
     )
 
@@ -110,6 +119,24 @@ class TextFieldCursorTest {
     private val cursorRect: Rect
         // assume selection is collapsed
         get() = textLayoutResult?.getCursorRect(state.text.selectionInChars.start) ?: Rect.Zero
+
+    private val cursorSize: DpSize by lazy {
+        with(rule.density) {
+            DpSize(DefaultCursorThickness, fontSize.toDp())
+        }
+    }
+
+    private val cursorSizePx: Size by lazy {
+        with(rule.density) { cursorSize.toSize() }
+    }
+
+    private val cursorTopCenterInLtr: Offset
+        // assume selection is collapsed
+        get() = cursorRect.topCenter + Offset(cursorSizePx.width / 2f, 0f)
+
+    private val cursorTopCenterInRtl: Offset
+        // assume selection is collapsed
+        get() = cursorRect.topCenter - Offset(cursorSizePx.width / 2f, 0f)
 
     private val backgroundModifier = Modifier.background(contentColor)
     private val focusModifier = Modifier.onFocusChanged { if (it.isFocused) isFocused = true }
@@ -122,16 +149,155 @@ class TextFieldCursorTest {
     // default onTextLayout to capture cursor boundaries.
     private val onTextLayout: Density.(TextLayoutResult) -> Unit = { textLayoutResult = it }
 
+    private fun ComposeTestRule.setTestContent(
+        content: @Composable () -> Unit
+    ) {
+        rule.setContent {
+            // The padding helps if the test is run accidentally in landscape. Landscape makes
+            // the cursor to be next to the navigation bar which affects the red color to be a bit
+            // different - possibly anti-aliasing.
+            Box(Modifier.padding(boxPadding)) {
+                content()
+            }
+        }
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldFocused_cursorRendered() {
         state = TextFieldState()
-        rule.setContent {
-            Box(Modifier.padding(boxPadding)) {
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldFocused_cursorRendered_rtlLayout() {
+        state = TextFieldState()
+        rule.setTestContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state = state,
                     textStyle = textStyle,
-                    modifier = textFieldModifier,
+                    modifier = textFieldModifier.width(30.dp),
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        // an empty text layout will be placed on the right side of 30.dp-width area
+        // cursor will be at the most right side
+        with(rule.density) {
+            rule.onNode(hasSetTextAction())
+                .captureToImage()
+                .assertCursor(cursorTopCenterInRtl)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldFocused_cursorRendered_rtlText_ltrLayout() {
+        state = TextFieldState("\u05D0\u05D1\u05D2", TextRange(3))
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldFocused_cursorRendered_rtlTextLayout() {
+        state = TextFieldState("\u05D0\u05D1\u05D2", TextRange(3))
+        rule.setTestContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                BasicTextField2(
+                    state = state,
+                    textStyle = textStyle,
+                    modifier = textFieldModifier.width(50.dp),
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        with(rule.density) {
+            rule.onNode(hasSetTextAction())
+                .captureToImage()
+                // 20 - 2(cursor)
+                .assertCursor(cursorTopCenterInRtl)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldCursorAtTheEnd_coercedIntoView() {
+        state = TextFieldState("hello", TextRange(5))
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier.width(50.dp),
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr - Offset(cursorSizePx.width, 0f))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldCursorAtTheEnd_coercedIntoView_rtl() {
+        state = TextFieldState("\u05D0\u05D1\u05D2", TextRange(3))
+        rule.setTestContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                BasicTextField2(
+                    state = state,
+                    textStyle = textStyle,
+                    modifier = textFieldModifier.width(30.dp),
                     cursorBrush = SolidColor(cursorColor),
                     onTextLayout = onTextLayout
                 )
@@ -144,36 +310,34 @@ class TextFieldCursorTest {
 
         rule.onNode(hasSetTextAction())
             .captureToImage()
-            .assertCursor(2.dp, cursorRect)
+            .assertCursor(cursorTopCenterInRtl + Offset(cursorSizePx.width, 0f))
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldFocused_cursorWithBrush() {
         state = TextFieldState()
-        rule.setContent {
-            Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = textStyle.copy(fontSize = textStyle.fontSize * 2),
-                    modifier = Modifier
-                        .then(backgroundModifier)
-                        .then(focusModifier),
-                    cursorBrush = Brush.verticalGradient(
-                        // make a brush double/triple color at the beginning and end so we have
-                        // stable colors at the ends.
-                        // Without triple bottom, the bottom color never hits to the provided color.
-                        listOf(
-                            Color.Blue,
-                            Color.Blue,
-                            Color.Green,
-                            Color.Green,
-                            Color.Green
-                        )
-                    ),
-                    onTextLayout = onTextLayout
-                )
-            }
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle.copy(fontSize = textStyle.fontSize * 2),
+                modifier = Modifier
+                    .then(backgroundModifier)
+                    .then(focusModifier),
+                cursorBrush = Brush.verticalGradient(
+                    // make a brush double/triple color at the beginning and end so we have
+                    // stable colors at the ends.
+                    // Without triple bottom, the bottom color never hits to the provided color.
+                    listOf(
+                        Color.Blue,
+                        Color.Blue,
+                        Color.Green,
+                        Color.Green,
+                        Color.Green
+                    )
+                ),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -194,30 +358,23 @@ class TextFieldCursorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorBlinkingAnimation() {
         state = TextFieldState()
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
-            }
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
 
         // cursor visible first 500 ms
         rule.mainClock.advanceTimeBy(100)
-        with(rule.density) {
-            rule.onNode(hasSetTextAction())
-                .captureToImage()
-                .assertCursor(2.dp, cursorRect)
-        }
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
 
         // cursor invisible during next 500 ms
         rule.mainClock.advanceTimeBy(700)
@@ -240,30 +397,23 @@ class TextFieldCursorTest {
         motionDurationScale.scaleFactor = 0f
         state = TextFieldState()
 
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
-            }
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
 
         // cursor visible first 500 ms
         rule.mainClock.advanceTimeBy(100)
-        with(rule.density) {
-            rule.onNode(hasSetTextAction())
-                .captureToImage()
-                .assertCursor(2.dp, cursorRect)
-        }
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
 
         // cursor invisible during next 500 ms
         rule.mainClock.advanceTimeBy(700)
@@ -282,18 +432,13 @@ class TextFieldCursorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorUnsetColor_noCursor() {
         state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(Color.Unspecified)
-                )
-            }
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(Color.Unspecified)
+            )
         }
 
         focusAndWait()
@@ -326,19 +471,14 @@ class TextFieldCursorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whileTyping() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(4))
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
-            }
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier.width(100.dp),
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -357,26 +497,21 @@ class TextFieldCursorTest {
         rule.mainClock.advanceTimeBy(300)
         rule.onNode(hasSetTextAction())
             .captureToImage()
-            .assertCursor(2.dp, cursorRect)
+            .assertCursor(cursorTopCenterInLtr)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionChanges_cursorNotBlinking() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(2))
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(boxPadding)) {
-                BasicTextField2(
-                    state = state,
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
-            }
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -396,7 +531,7 @@ class TextFieldCursorTest {
 
         rule.onNode(hasSetTextAction())
             .captureToImage()
-            .assertCursor(2.dp, cursorRect)
+            .assertCursor(cursorTopCenterInLtr)
     }
 
     @Ignore("b/285407485")
@@ -405,7 +540,7 @@ class TextFieldCursorTest {
     fun brushChanged_doesntResetTimer() {
         var cursorBrush by mutableStateOf(SolidColor(cursorColor))
         state = TextFieldState()
-        rule.setContent {
+        rule.setTestContent {
             Box(Modifier.padding(boxPadding)) {
                 BasicTextField2(
                     state = state,
@@ -438,26 +573,21 @@ class TextFieldCursorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionNotCollapsed_cursorNotDrawn() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(2, 3))
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Box(Modifier.padding(boxPadding)) {
-                // set selection highlight to a known color
-                CompositionLocalProvider(
-                    LocalTextSelectionColors provides TextSelectionColors(Color.Blue, Color.Blue)
-                ) {
-                    BasicTextField2(
-                        state = state,
-                        // make sure that background is not obstructing selection
-                        textStyle = textStyle.copy(
-                            background = Color.Unspecified
-                        ),
-                        modifier = textFieldModifier,
-                        cursorBrush = SolidColor(cursorColor),
-                        onTextLayout = onTextLayout
-                    )
-                }
+        rule.setTestContent {
+            // set selection highlight to a known color
+            CompositionLocalProvider(
+                LocalTextSelectionColors provides TextSelectionColors(Color.Blue, Color.Blue)
+            ) {
+                BasicTextField2(
+                    state = state,
+                    // make sure that background is not obstructing selection
+                    textStyle = textStyle.copy(
+                        background = Color.Unspecified
+                    ),
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
             }
         }
 
@@ -476,11 +606,8 @@ class TextFieldCursorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun focusLost_cursorHidesImmediately() {
         state = TextFieldState("test")
-        rule.setContent {
-            // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
-            Column(Modifier.padding(boxPadding)) {
+        rule.setTestContent {
+            Column {
                 BasicTextField2(
                     state = state,
                     // make sure that background is not obstructing selection
@@ -489,9 +616,11 @@ class TextFieldCursorTest {
                     cursorBrush = SolidColor(cursorColor),
                     onTextLayout = onTextLayout
                 )
-                Box(modifier = Modifier
-                    .focusable(true)
-                    .testTag("box"))
+                Box(
+                    modifier = Modifier
+                        .focusable(true)
+                        .testTag("box")
+                )
             }
         }
 
@@ -502,7 +631,7 @@ class TextFieldCursorTest {
 
         rule.onNode(hasSetTextAction())
             .captureToImage()
-            .assertCursor(2.dp, cursorRect)
+            .assertCursor(cursorTopCenterInLtr)
 
         rule.onNodeWithTag("box").performSemanticsAction(SemanticsActions.RequestFocus)
         rule.mainClock.advanceTimeByFrame()
@@ -520,33 +649,35 @@ class TextFieldCursorTest {
     }
 
     private fun focusAndWait() {
-        rule.onNode(hasSetTextAction()).performClick()
+        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
         rule.mainClock.advanceTimeUntil { isFocused }
     }
 
-    private fun ImageBitmap.assertCursor(cursorWidth: Dp, cursorRect: Rect) {
-        assertThat(cursorRect.height).isNotEqualTo(0f)
-        assertThat(cursorRect).isNotEqualTo(Rect.Zero)
-        val cursorWidthPx = (with(rule.density) { cursorWidth.roundToPx() })
+    /**
+     * @param cursorPosition Top center of cursor rectangle
+     */
+    private fun ImageBitmap.assertCursor(cursorPosition: Offset) {
+        assertThat(cursorPosition.x).isAtLeast(0f)
+        assertThat(cursorPosition.y).isAtLeast(0f)
 
         // assert cursor width is greater than 2 since we will shrink the check area by 1 on each
         // side
-        assertThat(cursorWidthPx).isGreaterThan(2)
+        assertThat(cursorSizePx.width).isGreaterThan(2)
 
         // shrink the check are by 1px for left, top, right, bottom
         val checkRect = Rect(
-            ceil(cursorRect.left) + 1,
-            ceil(cursorRect.top) + 1,
-            floor(cursorRect.right) + cursorWidthPx - 1,
-            floor(cursorRect.bottom) - 1
+            ceil(cursorPosition.x - cursorSizePx.width / 2) + 1,
+            ceil(cursorPosition.y) + 1,
+            floor(cursorPosition.x + cursorSizePx.width / 2) - 1,
+            floor(cursorPosition.y + cursorSizePx.height) - 1
         )
 
         // skip an expanded rectangle that is 1px larger than cursor rectangle due to antialiasing
         val skipRect = Rect(
-            floor(cursorRect.left) - 1,
-            floor(cursorRect.top) - 1,
-            ceil(cursorRect.right) + cursorWidthPx + 1,
-            ceil(cursorRect.bottom) + 1
+            floor(cursorPosition.x - cursorSizePx.width / 2) - 1,
+            floor(cursorPosition.y) - 1,
+            ceil(cursorPosition.x + cursorSizePx.width / 2) + 1,
+            ceil(cursorPosition.y + cursorSizePx.height) + 1
         )
 
         val width = width
@@ -570,7 +701,7 @@ class TextFieldCursorTest {
     @Test
     fun textFieldCursor_alwaysReadLatestState_duringDraw() {
         state = TextFieldState("hello world", TextRange(5))
-        rule.setContent {
+        rule.setTestContent {
             Box(Modifier.padding(boxPadding)) {
                 BasicTextField2(
                     state = state,
