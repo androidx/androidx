@@ -27,10 +27,10 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.selection.TextFieldSelectionState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -39,16 +39,15 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
-import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
@@ -57,7 +56,11 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.min
+import kotlin.math.truncate
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -75,6 +78,7 @@ internal data class TextFieldCoreModifier(
     private val isFocused: Boolean,
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TextFieldState,
+    private val textFieldSelectionState: TextFieldSelectionState,
     private val cursorBrush: Brush,
     private val writeable: Boolean,
     private val scrollState: ScrollState,
@@ -85,6 +89,7 @@ internal data class TextFieldCoreModifier(
         isFocused = isFocused,
         textLayoutState = textLayoutState,
         textFieldState = textFieldState,
+        textFieldSelectionState = textFieldSelectionState,
         cursorBrush = cursorBrush,
         writable = writeable,
         scrollState = scrollState,
@@ -96,6 +101,7 @@ internal data class TextFieldCoreModifier(
             isFocused = isFocused,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
+            textFieldSelectionState = textFieldSelectionState,
             cursorBrush = cursorBrush,
             writeable = writeable,
             scrollState = scrollState,
@@ -114,6 +120,7 @@ internal class TextFieldCoreModifierNode(
     private var isFocused: Boolean,
     private var textLayoutState: TextLayoutState,
     private var textFieldState: TextFieldState,
+    private var textFieldSelectionState: TextFieldSelectionState,
     private var cursorBrush: Brush,
     private var writable: Boolean,
     private var scrollState: ScrollState,
@@ -121,7 +128,6 @@ internal class TextFieldCoreModifierNode(
 ) : Modifier.Node(),
     LayoutModifierNode,
     DrawModifierNode,
-    GlobalPositionAwareModifierNode,
     CompositionLocalConsumerModifierNode {
 
     /**
@@ -155,6 +161,7 @@ internal class TextFieldCoreModifierNode(
         isFocused: Boolean,
         textLayoutState: TextLayoutState,
         textFieldState: TextFieldState,
+        textFieldSelectionState: TextFieldSelectionState,
         cursorBrush: Brush,
         writeable: Boolean,
         scrollState: ScrollState,
@@ -162,10 +169,13 @@ internal class TextFieldCoreModifierNode(
     ) {
         val wasFocused = this.isFocused
         val previousTextFieldState = this.textFieldState
+        val previousTextLayoutState = this.textLayoutState
+        val previousTextFieldSelectionState = this.textFieldSelectionState
 
         this.isFocused = isFocused
         this.textLayoutState = textLayoutState
         this.textFieldState = textFieldState
+        this.textFieldSelectionState = textFieldSelectionState
         this.cursorBrush = cursorBrush
         this.writable = writeable
         this.scrollState = scrollState
@@ -191,6 +201,12 @@ internal class TextFieldCoreModifierNode(
                 }
             }
         }
+
+        if (previousTextFieldState != textFieldState ||
+            previousTextLayoutState != textLayoutState ||
+            previousTextFieldSelectionState != textFieldSelectionState) {
+            invalidateMeasurement()
+        }
     }
 
     override fun MeasureScope.measure(
@@ -209,15 +225,11 @@ internal class TextFieldCoreModifierNode(
 
         if (value.selectionInChars.collapsed) {
             drawText(textLayoutResult)
-            drawCursor(value.selectionInChars, textLayoutResult)
+            drawCursor()
         } else {
             drawSelection(value.selectionInChars, textLayoutResult)
             drawText(textLayoutResult)
         }
-    }
-
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        textLayoutState.innerTextFieldCoordinates = coordinates
     }
 
     private fun MeasureScope.measureVerticalScroll(
@@ -377,10 +389,11 @@ internal class TextFieldCoreModifierNode(
                 else -> 0f
             }
             previousCursorRect = cursorRect
-            coroutineScope.launch {
-                // this call will respect the earlier set maxValue
-                // no need to coerce again.
-                scrollState.scrollBy(offsetDifference)
+            // this call will respect the earlier set maxValue
+            // no need to coerce again.
+            // prefer to use immediate dispatch instead of suspending scroll calls
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                scrollState.scrollBy(offsetDifference.roundToNext())
             }
         }
     }
@@ -415,10 +428,7 @@ internal class TextFieldCoreModifierNode(
      * Draws the cursor indicator. Do not confuse it with cursor handle which is a popup that
      * carries the cursor movement gestures.
      */
-    private fun DrawScope.drawCursor(
-        selection: TextRange,
-        textLayoutResult: TextLayoutResult
-    ) {
+    private fun DrawScope.drawCursor() {
         // Only draw cursor if it can be shown and its alpha is higher than 0f
         // Alpha is checked before showCursor purposefully to make sure that we read
         // cursorAlpha.value in draw phase. So, when the alpha value changes, draw phase
@@ -428,17 +438,14 @@ internal class TextFieldCoreModifierNode(
         val cursorAlphaValue = cursorAlpha.value.coerceIn(0f, 1f)
         if (cursorAlphaValue == 0f) return
 
-        val cursorRect = textLayoutResult.getCursorRect(selection.start)
-        val cursorWidth = DefaultCursorThickness.toPx()
-        val cursorX = (cursorRect.left + cursorWidth / 2)
-            .coerceAtMost(size.width - cursorWidth / 2)
+        val cursorRect = textFieldSelectionState.cursorRect
 
         drawLine(
             cursorBrush,
-            Offset(cursorX, cursorRect.top),
-            Offset(cursorX, cursorRect.bottom),
+            cursorRect.topCenter,
+            cursorRect.bottomCenter,
             alpha = cursorAlphaValue,
-            strokeWidth = cursorWidth
+            strokeWidth = cursorRect.width
         )
     }
 }
@@ -495,4 +502,14 @@ private fun Density.getCursorRectInScroller(
         cursorRect.left + thickness
     }
     return cursorRect.copy(left = cursorLeft, right = cursorRight)
+}
+
+/**
+ * Rounds a negative number to floor, and a positive number to ceil. This is essentially the
+ * opposite of [truncate].
+ */
+private fun Float.roundToNext(): Float = when {
+    this.isNaN() || this.isInfinite() -> this
+    this > 0 -> ceil(this)
+    else -> floor(this)
 }

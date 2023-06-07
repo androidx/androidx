@@ -24,6 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.text.AnnotatedString
@@ -108,4 +110,79 @@ internal class TextLayoutState {
             layoutResult = it
         }
     }
+
+    /**
+     * Translates the position of the touch on the screen to the position in text. Because touch
+     * is relative to the decoration box, we need to translate it to the inner text field's
+     * coordinates first before calculating position of the symbol in text.
+     *
+     * @param position original position of the gesture relative to the decoration box
+     * @param coerceInVisibleBounds if true and original [position] is outside visible bounds
+     * of the inner text field, the [position] will be shifted to the closest edge of the inner
+     * text field's visible bounds. This is useful when you have a decoration box
+     * bigger than the inner text field, so when user touches to the decoration box area, the cursor
+     * goes to the beginning or the end of the visible inner text field; otherwise if we put the
+     * cursor under the touch in the invisible part of the inner text field, it would scroll to
+     * make the cursor visible. This behavior is not needed, and therefore
+     * [coerceInVisibleBounds] should be set to false, when the user drags outside visible bounds
+     * to make a selection.
+     * @return The offset that corresponds to the [position]. Returns -1 if text layout has not
+     * been measured yet.
+     */
+    fun getOffsetForPosition(position: Offset, coerceInVisibleBounds: Boolean = true): Int {
+        val layoutResult = layoutResult ?: return -1
+        val relativePosition = position
+            .let { if (coerceInVisibleBounds) it.coercedInVisibleBoundsOfInputText() else it }
+            .relativeToInputText()
+        return layoutResult.getOffsetForPosition(relativePosition)
+    }
+
+    /**
+     * Translates the click happened on the decoration box to the position in the inner text
+     * field coordinates. This relative position is then used to determine symbol position in
+     * text using TextLayoutResult object.
+     */
+    private fun Offset.relativeToInputText(): Offset {
+        // Translates touch to the inner text field coordinates
+        return innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
+            decorationBoxCoordinates?.let { decorationBoxCoordinates ->
+                if (innerTextFieldCoordinates.isAttached && decorationBoxCoordinates.isAttached) {
+                    innerTextFieldCoordinates.localPositionOf(decorationBoxCoordinates, this)
+                } else {
+                    this
+                }
+            }
+        } ?: this
+    }
+
+    /**
+     * If click on the decoration box happens outside visible inner text field, coerce the click
+     * position to the visible edges of the inner text field.
+     */
+    private fun Offset.coercedInVisibleBoundsOfInputText(): Offset {
+        // If offset is outside visible bounds of the inner text field, use visible bounds edges
+        val visibleInnerTextFieldRect =
+            innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
+                if (innerTextFieldCoordinates.isAttached) {
+                    decorationBoxCoordinates?.localBoundingBoxOf(innerTextFieldCoordinates)
+                } else {
+                    Rect.Zero
+                }
+            } ?: Rect.Zero
+        return this.coerceIn(visibleInnerTextFieldRect)
+    }
+}
+
+private fun Offset.coerceIn(rect: Rect): Offset {
+    val xOffset = when {
+        x < rect.left -> rect.left
+        x > rect.right -> rect.right
+        else -> x
+    }
+    val yOffset = when {
+        y < rect.top -> rect.top
+        y > rect.bottom -> rect.bottom
+        else -> y
+    }
+    return Offset(xOffset, yOffset)
 }

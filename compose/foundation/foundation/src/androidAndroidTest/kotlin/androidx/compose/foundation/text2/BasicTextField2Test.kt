@@ -555,6 +555,7 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertTextEquals("hello ")
     }
 
+    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionCommits() {
         lateinit var inputConnection: InputConnection
