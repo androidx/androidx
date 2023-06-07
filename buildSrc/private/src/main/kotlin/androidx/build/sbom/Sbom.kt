@@ -316,7 +316,7 @@ fun getGitRemoteUrl(dir: File, supportRootDir: File): String {
     throw GradleException("Could not identify git remote url for project at $dir")
 }
 
-private const val MAVEN_CENTRAL_REPO_URL = "https://dl.google.com/android/maven2"
+private const val MAVEN_CENTRAL_REPO_URL = "https://repo.maven.apache.org/maven2"
 private const val GMAVEN_REPO_URL = "https://dl.google.com/android/maven2"
 /**
  * Returns a mapping from local repo url to public repo url
