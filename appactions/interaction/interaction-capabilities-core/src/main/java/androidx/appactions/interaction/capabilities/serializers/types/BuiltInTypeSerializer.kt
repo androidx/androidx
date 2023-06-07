@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.serializers
+package androidx.appactions.interaction.capabilities.serializers.types
 
 import androidx.appactions.builtintypes.types.Thing
 import androidx.appactions.interaction.protobuf.Struct
