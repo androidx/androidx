@@ -446,6 +446,10 @@ class TraceSectionMetric(
                         name = sectionName + "Ms",
                         // note, this duration assumes non-reentrant slices
                         data = slices.sumOf { it.dur } / 1_000_000.0
+                    ),
+                    Measurement(
+                        name = sectionName + "Count",
+                        data = slices.size.toDouble()
                     )
                 )
             }
@@ -715,6 +719,7 @@ class MemoryUsageMetric(
          */
         Max
     }
+
     enum class SubMetric(
         /**
          * Name of counter in trace.
