@@ -44,7 +44,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Instrument tests for {@link EffectsFragment}.
+ * Instrument tests for [EffectsFragment].
  */
 @LargeTest
 @RunWith(Parameterized::class)

@@ -87,7 +87,7 @@ class EffectsFragment : Fragment() {
         record = view.findViewById(R.id.record)
         flip = view.findViewById(R.id.flip)
         // Set up  UI events.
-        // previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+        previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
         previewVideoGroup.setOnCheckedChangeListener { _, _ -> updateEffects() }
         imageGroup.setOnCheckedChangeListener { _, _ -> updateEffects() }
         capture.setOnClickListener { takePicture() }
