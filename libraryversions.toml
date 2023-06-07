@@ -107,6 +107,7 @@ RECYCLERVIEW_SELECTION = "1.2.0-alpha02"
 REMOTECALLBACK = "1.0.0-alpha02"
 RESOURCEINSPECTION = "1.1.0-alpha01"
 ROOM = "2.6.0-alpha02"
+SAFEPARCEL = "1.0.0-alpha01"
 SAVEDSTATE = "1.3.0-alpha01"
 SECURITY = "1.1.0-alpha07"
 SECURITY_APP_AUTHENTICATOR = "1.0.0-alpha03"
@@ -246,6 +247,7 @@ RECYCLERVIEW = { group = "androidx.recyclerview" }
 REMOTECALLBACK = { group = "androidx.remotecallback", atomicGroupVersion = "versions.REMOTECALLBACK" }
 RESOURCEINSPECTION = { group = "androidx.resourceinspection", atomicGroupVersion = "versions.RESOURCEINSPECTION" }
 ROOM = { group = "androidx.room", atomicGroupVersion = "versions.ROOM" }
+SAFEPARCEL = { group = "androidx.safeparcel", atomicGroupVersion = "versions.SAFEPARCEL" }
 SAVEDSTATE = { group = "androidx.savedstate", atomicGroupVersion = "versions.SAVEDSTATE" }
 SECURITY = { group = "androidx.security" }
 SHARETARGET = { group = "androidx.sharetarget", atomicGroupVersion = "versions.SHARETARGET" }
