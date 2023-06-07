@@ -38,6 +38,7 @@ private val PLUGINS_HEADER = """
 
 @RunWith(JUnit4::class)
 class BenchmarkPluginTest {
+
     @get:Rule
     val projectSetup = ProjectSetupRule()
 
@@ -51,30 +52,21 @@ class BenchmarkPluginTest {
 
         File("src/test/test-data", "app-project").copyRecursively(projectSetup.rootDir)
 
-        gradleRunner = GradleRunner.create()
-            .withProjectDir(projectSetup.rootDir)
-            .withPluginClasspath()
-    }
+        gradleRunner = GradleRunner.create().withProjectDir(projectSetup.rootDir)
 
-    @Test
-    fun applyPluginAppProject() {
-        projectSetup.writeDefaultBuildGradle(
-            prefix = """
-                plugins {
-                    id('com.android.application')
-                    id('androidx.benchmark')
+        projectSetup.testProjectDir.newFile("settings.gradle").writeText(
+            """
+            buildscript {
+                repositories {
+                    ${projectSetup.allRepositoryPaths.joinToString("\n") { """ maven { url "$it" } """ }}
                 }
-            """.trimIndent(),
-            suffix = """
-            dependencies {
-                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+                dependencies {
+                    classpath "com.android.tools.build:gradle:7.3.0"
+                    classpath "androidx.benchmark:androidx.benchmark.gradle.plugin:+"
+                }
             }
-            """.trimIndent()
+        """.trimIndent()
         )
-
-        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
-        assertTrue { output.output.contains("lockClocks - ") }
-        assertTrue { output.output.contains("unlockClocks - ") }
     }
 
     @Test

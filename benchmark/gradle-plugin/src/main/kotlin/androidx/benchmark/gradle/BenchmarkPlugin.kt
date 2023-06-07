@@ -35,10 +35,6 @@ class BenchmarkPlugin : Plugin<Project> {
         // required BaseExtension from AGP can be found by registering project configuration as a
         // PluginManager callback.
 
-        project.pluginManager.withPlugin("com.android.application") {
-            configureWithAndroidPlugin(project)
-        }
-
         project.pluginManager.withPlugin("com.android.library") {
             configureWithAndroidPlugin(project)
         }
