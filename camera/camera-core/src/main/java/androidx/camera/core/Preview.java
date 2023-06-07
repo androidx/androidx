@@ -50,7 +50,6 @@ import static androidx.core.util.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
@@ -233,7 +232,7 @@ public final class Preview extends UseCase {
                 PREVIEW,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 streamSpec,
-                new Matrix(),
+                getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 getRelativeRotation(camera, isMirroringRequired(camera)),
