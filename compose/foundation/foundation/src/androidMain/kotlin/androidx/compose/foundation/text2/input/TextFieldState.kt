@@ -21,6 +21,7 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.internal.EditProcessor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -254,7 +255,14 @@ suspend fun TextFieldState.forEachTextValue(
 internal fun TextFieldState.deselect() {
     if (!text.selectionInChars.collapsed) {
         edit {
-            selectCharsIn(TextRange.Zero)
+            selectCharsIn(TextRange(text.selectionInChars.max))
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal val TextOnlyMutationPolicy = object : SnapshotMutationPolicy<TextFieldCharSequence> {
+    override fun equivalent(a: TextFieldCharSequence, b: TextFieldCharSequence): Boolean {
+        return a.contentEquals(b)
     }
 }

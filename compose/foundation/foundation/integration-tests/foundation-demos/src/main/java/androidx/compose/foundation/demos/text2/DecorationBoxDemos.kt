@@ -22,22 +22,48 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DecorationBoxDemos() {
     Column {
+        TagLine(tag = "Simple Decoration w/ Label")
+        SimpleDecorationWithLabel()
+
         TagLine(tag = "OutlinedTextField")
         OutlinedBasicTextField2()
     }
+}
+
+@Composable
+fun SimpleDecorationWithLabel() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state = state,
+        modifier = Modifier,
+        textStyle = LocalTextStyle.current,
+        decorationBox = @Composable {
+            Column(Modifier.padding(4.dp)) {
+                Text("Label", style = MaterialTheme.typography.caption)
+                Spacer(modifier = Modifier.height(4.dp))
+                it()
+            }
+        }
+    )
 }
 
 @Composable
