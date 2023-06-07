@@ -31,7 +31,7 @@ dependencies {
     implementation(project(":room:room-guava"))
     api("androidx.paging:paging-guava:3.1.1")
 
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-kmp"))
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTestJunit)

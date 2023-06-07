@@ -15,8 +15,8 @@
  */
 package androidx.room
 
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteStatement
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.FutureTask
 import org.junit.Before
 import org.junit.Test
