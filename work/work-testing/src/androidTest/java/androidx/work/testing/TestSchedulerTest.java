@@ -367,6 +367,12 @@ public class TestSchedulerTest {
         WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
         assertThat(workInfo.getRunAttemptCount(), is(1));
         assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
+
+        // Can be tried again by setting constraint on TestDriver.
+        mTestDriver.setAllConstraintsMet(request.getId());
+        WorkInfo retryWorkInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(retryWorkInfo.getRunAttemptCount(), is(2));
+        assertThat(retryWorkInfo.getState(), is(WorkInfo.State.ENQUEUED));
     }
 
     @Test
@@ -378,6 +384,13 @@ public class TestSchedulerTest {
         WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
         assertThat(workInfo.getRunAttemptCount(), is(1));
         assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
+
+        // Can be tried again by setting constraint on TestDriver.
+        mTestDriver.setPeriodDelayMet(
+                request.getId());
+        WorkInfo retryWorkInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(retryWorkInfo.getRunAttemptCount(), is(2));
+        assertThat(retryWorkInfo.getState(), is(WorkInfo.State.ENQUEUED));
     }
 
     private static OneTimeWorkRequest createWorkRequest() {
