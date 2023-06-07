@@ -17,6 +17,7 @@
 package androidx.glance
 
 import androidx.annotation.RestrictTo
+import androidx.glance.layout.Alignment
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -35,4 +36,10 @@ abstract class EmittableWithChildren(
 
     protected fun childrenToString(): String =
         children.joinToString(",\n").prependIndent("  ")
+}
+
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+abstract class EmittableLazyItemWithChildren : EmittableWithChildren() {
+    var alignment: Alignment = Alignment.CenterStart
 }
