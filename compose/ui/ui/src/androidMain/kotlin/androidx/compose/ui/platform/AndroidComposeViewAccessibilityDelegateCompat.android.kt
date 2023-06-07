@@ -2139,7 +2139,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * @param size length of the result, should be greater than 0
      */
     private fun <T : CharSequence> trimToSize(text: T?, @IntRange(from = 1) size: Int): T? {
-        require(size > 0)
+        require(size > 0) { "size should be greater than 0" }
         var len = size
         if (text.isNullOrEmpty() || text.length <= size) return text
         if (Character.isHighSurrogate(text[size - 1]) && Character.isLowSurrogate(text[size])) {

@@ -371,8 +371,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      */
     internal fun requireContainerCoordinates(): LayoutCoordinates {
         val coordinates = containerLayoutCoordinates
-        require(coordinates != null)
-        require(coordinates.isAttached)
+        requireNotNull(coordinates) { "null coordinates" }
+        require(coordinates.isAttached) { "unattached coordinates" }
         return coordinates
     }
 

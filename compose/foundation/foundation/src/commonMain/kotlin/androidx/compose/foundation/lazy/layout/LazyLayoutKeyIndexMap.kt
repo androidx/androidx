@@ -63,7 +63,7 @@ internal class NearestRangeKeyIndexMap(
         // all the indexes in the passed [range].
         val list = intervalContent.intervals
         val first = nearestRange.first
-        check(first >= 0)
+        check(first >= 0) { "negative nearestRange.first" }
         val last = minOf(nearestRange.last, list.size - 1)
         if (last < first) {
             map = emptyMap()

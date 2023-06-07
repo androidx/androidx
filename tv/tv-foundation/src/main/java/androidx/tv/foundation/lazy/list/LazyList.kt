@@ -237,9 +237,13 @@ private fun rememberLazyListMeasurePolicy(
         )
 
         val spaceBetweenItemsDp = if (isVertical) {
-            requireNotNull(verticalArrangement).spacing
+            requireNotNull(verticalArrangement) {
+                "encountered null verticalArrangement when isVertical == true"
+            }.spacing
         } else {
-            requireNotNull(horizontalArrangement).spacing
+            requireNotNull(horizontalArrangement) {
+                "encountered null horizontalArrangement when isVertical == false"
+            }.spacing
         }
         val spaceBetweenItems = spaceBetweenItemsDp.roundToPx()
 

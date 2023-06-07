@@ -110,14 +110,18 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         placeables.fastForEachIndexed { index, placeable ->
             val indexInArray = index * 2
             if (isVertical) {
-                placeableOffsets[indexInArray] = requireNotNull(horizontalAlignment)
-                    .align(placeable.width, layoutWidth, layoutDirection)
+                placeableOffsets[indexInArray] =
+                    requireNotNull(horizontalAlignment) {
+                        "null horizontalAlignment when isVertical == true"
+                    }.align(placeable.width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
                 mainAxisOffset += placeable.height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
-                placeableOffsets[indexInArray + 1] = requireNotNull(verticalAlignment)
-                    .align(placeable.height, layoutHeight)
+                placeableOffsets[indexInArray + 1] =
+                    requireNotNull(verticalAlignment) {
+                        "null verticalAlignment when isVertical == false"
+                    }.align(placeable.height, layoutHeight)
                 mainAxisOffset += placeable.width
             }
         }

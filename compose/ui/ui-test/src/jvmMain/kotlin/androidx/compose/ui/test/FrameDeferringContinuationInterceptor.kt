@@ -51,7 +51,7 @@ internal class FrameDeferringContinuationInterceptor(
      */
     fun runWithoutResumingCoroutines(block: () -> Unit) {
         synchronized(lock) {
-            check(!isDeferringContinuations)
+            check(!isDeferringContinuations) { "isDeferringContinuations was not reset" }
             isDeferringContinuations = true
         }
 

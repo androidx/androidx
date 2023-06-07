@@ -131,7 +131,7 @@ internal object ComposableInvoker {
                 changedParams +
                 defaultParams ==
                 totalParams
-        )
+        ) { "invalid param count" }
 
         val changedStartIndex = composerIndex + 1
         val defaultStartIndex = changedStartIndex + changedParams

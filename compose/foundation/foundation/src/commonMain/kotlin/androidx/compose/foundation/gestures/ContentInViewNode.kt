@@ -175,7 +175,7 @@ internal class ContentInViewNode(
     }
 
     private fun launchAnimation() {
-        check(!isAnimationRunning)
+        check(!isAnimationRunning) { "launchAnimation called when previous animation was running" }
 
         if (DEBUG) println("[$TAG] launchAnimation")
 

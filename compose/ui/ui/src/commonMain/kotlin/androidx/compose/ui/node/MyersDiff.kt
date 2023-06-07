@@ -464,7 +464,7 @@ private class IntStack(initialCapacity: Int) {
         // sort. If it is greater than 3, we pass in the index of the "start" element of the last
         // diagonal
         val i = lastIndex
-        check(i % 3 == 0)
+        check(i % 3 == 0) { "Array size not a multiple of 3" }
         if (i > 3) {
             quickSort(0, i - 3, 3)
         }

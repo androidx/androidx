@@ -214,17 +214,17 @@ private const val Inserted = 1
 private const val Removed = 2
 
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) {
-    check(node.isAttached)
+    check(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Removed)
 }
 
 internal fun autoInvalidateInsertedNode(node: Modifier.Node) {
-    check(node.isAttached)
+    check(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Inserted)
 }
 
 internal fun autoInvalidateUpdatedNode(node: Modifier.Node) {
-    check(node.isAttached)
+    check(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Updated)
 }
 
@@ -317,7 +317,7 @@ private fun FocusPropertiesModifierNode.specifiesCanFocusProperty(): Boolean {
 private object CanFocusChecker : FocusProperties {
     private var canFocusValue: Boolean? = null
     override var canFocus: Boolean
-        get() = checkNotNull(canFocusValue)
+        get() = checkNotNull(canFocusValue) { "canFocus is read before it is written" }
         set(value) { canFocusValue = value }
     fun isCanFocusSet(): Boolean = canFocusValue != null
     fun reset() { canFocusValue = null }

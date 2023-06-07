@@ -128,7 +128,7 @@ internal fun translateComposition(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Api31Impl.createRemoteViews(views.toMap())
                 } else {
-                    require(views.size == 1 || views.size == 2)
+                    require(views.size == 1 || views.size == 2) { "unsupported views size" }
                     combineLandscapeAndPortrait(views.map { it.second })
                 }
             }

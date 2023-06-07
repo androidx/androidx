@@ -76,13 +76,15 @@ internal class MeasuredPage(
         placeables.fastForEachIndexed { index, placeable ->
             val indexInArray = index * 2
             if (isVertical) {
-                placeableOffsets[indexInArray] = requireNotNull(horizontalAlignment)
+                placeableOffsets[indexInArray] =
+                    requireNotNull(horizontalAlignment) { "null horizontalAlignment" }
                     .align(placeable.width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
                 mainAxisOffset += placeable.height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
-                placeableOffsets[indexInArray + 1] = requireNotNull(verticalAlignment)
+                placeableOffsets[indexInArray + 1] =
+                    requireNotNull(verticalAlignment) { "null verticalAlignment" }
                     .align(placeable.height, layoutHeight)
                 mainAxisOffset += placeable.width
             }

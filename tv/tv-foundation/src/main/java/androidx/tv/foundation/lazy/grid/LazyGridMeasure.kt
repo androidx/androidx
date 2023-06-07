@@ -65,8 +65,8 @@ internal fun measureLazyGrid(
     @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): TvLazyGridMeasureResult {
-    require(beforeContentPadding >= 0)
-    require(afterContentPadding >= 0)
+    require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
+    require(afterContentPadding >= 0) { "negative afterContentPadding" }
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
         return TvLazyGridMeasureResult(
@@ -205,7 +205,7 @@ internal fun measureLazyGrid(
         }
 
         // the initial offset for lines from visibleLines list
-        require(currentFirstLineScrollOffset >= 0)
+        require(currentFirstLineScrollOffset >= 0) { "invalid initial offset" }
         val visibleLinesScrollOffset = -currentFirstLineScrollOffset
         var firstLine = visibleLines.first()
 
@@ -356,13 +356,15 @@ private fun calculateItemsOffsets(
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < min(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
-        check(firstLineScrollOffset == 0)
+        check(firstLineScrollOffset == 0) { "invalid firstLineScrollOffset" }
     }
 
     val positionedItems = ArrayList<LazyGridPositionedItem>(lines.fastSumBy { it.items.size })
 
     if (hasSpareSpace) {
-        require(itemsBefore.isEmpty() && itemsAfter.isEmpty())
+        require(itemsBefore.isEmpty() && itemsAfter.isEmpty()) {
+            "existing out of bounds items"
+        }
         val linesCount = lines.size
         fun Int.reverseAware() =
             if (!reverseLayout) this else linesCount - this - 1
@@ -372,11 +374,19 @@ private fun calculateItemsOffsets(
         }
         val offsets = IntArray(linesCount) { 0 }
         if (isVertical) {
-            with(requireNotNull(verticalArrangement)) {
+            with(
+                requireNotNull(verticalArrangement) {
+                    "null verticalArrangement when isVertical = true"
+                }
+            ) {
                 density.arrange(mainAxisLayoutSize, sizes, offsets)
             }
         } else {
-            with(requireNotNull(horizontalArrangement)) {
+            with(
+                requireNotNull(horizontalArrangement) {
+                    "null horizontalArrangement when isVertical = false"
+                }
+            ) {
                 // Enforces Ltr layout direction as it is mirrored with placeRelative later.
                 density.arrange(mainAxisLayoutSize, sizes, LayoutDirection.Ltr, offsets)
             }

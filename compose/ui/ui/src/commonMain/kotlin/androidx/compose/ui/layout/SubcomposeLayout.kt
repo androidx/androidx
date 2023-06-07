@@ -414,6 +414,7 @@ internal class LayoutNodeSubcompositionsState(
         val node = slotIdToNode.getOrPut(slotId) {
             val precomposed = precomposeMap.remove(slotId)
             if (precomposed != null) {
+                @Suppress("ExceptionMessage")
                 check(precomposedCount > 0)
                 precomposedCount--
                 precomposed
@@ -681,10 +682,11 @@ internal class LayoutNodeSubcompositionsState(
                 makeSureStateIsConsistent()
                 val node = precomposeMap.remove(slotId)
                 if (node != null) {
-                    check(precomposedCount > 0)
+                    check(precomposedCount > 0) { "No pre-composed items to dispose" }
                     val itemIndex = root.foldedChildren.indexOf(node)
-                    // make sure this item is in the precomposed items range
-                    check(itemIndex >= root.foldedChildren.size - precomposedCount)
+                    check(itemIndex >= root.foldedChildren.size - precomposedCount) {
+                        "Item is not in pre-composed item range"
+                    }
                     // move this item into the reusable section
                     reusableCount++
                     precomposedCount--
@@ -706,7 +708,7 @@ internal class LayoutNodeSubcompositionsState(
                             "Index ($index) is out of bound of [0, $size)"
                         )
                     }
-                    require(!node.isPlaced)
+                    require(!node.isPlaced) { "Pre-measure called on node that is not placed" }
                     root.ignoreRemeasureRequests {
                         node.requireOwner().measureAndLayout(node.children[index], constraints)
                     }

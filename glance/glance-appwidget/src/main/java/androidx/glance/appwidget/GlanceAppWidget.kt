@@ -88,7 +88,7 @@ abstract class GlanceAppWidget(
         context: Context,
         id: GlanceId
     ) {
-        require(id is AppWidgetId)
+        require(id is AppWidgetId) { "Invalid Glance ID" }
         update(context, id.appWidgetId)
     }
 

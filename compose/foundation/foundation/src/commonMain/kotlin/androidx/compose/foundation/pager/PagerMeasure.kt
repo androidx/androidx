@@ -60,8 +60,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
     @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
-    require(beforeContentPadding >= 0)
-    require(afterContentPadding >= 0)
+    require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
+    require(afterContentPadding >= 0) { "negative afterContentPadding" }
     val pageSizeWithSpacing = (pageAvailableSize + spaceBetweenPages).coerceAtLeast(0)
     debugLog { "Remeasuring..." }
     return if (pageCount <= 0) {
@@ -265,7 +265,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
         }
 
         // the initial offset for pages from visiblePages list
-        require(currentFirstPageScrollOffset >= 0)
+        require(currentFirstPageScrollOffset >= 0) { "invalid currentFirstPageScrollOffset" }
         val visiblePagesScrollOffset = -currentFirstPageScrollOffset
         var firstPage = visiblePages.first()
 
@@ -518,13 +518,13 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
     val mainAxisLayoutSize = if (orientation == Orientation.Vertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
-        check(pagesScrollOffset == 0)
+        check(pagesScrollOffset == 0) { "non-zero pagesScrollOffset" }
     }
     val positionedPages =
         ArrayList<MeasuredPage>(pages.size + extraPagesBefore.size + extraPagesAfter.size)
 
     if (hasSpareSpace) {
-        require(extraPagesBefore.isEmpty() && extraPagesAfter.isEmpty())
+        require(extraPagesBefore.isEmpty() && extraPagesAfter.isEmpty()) { "No extra pages" }
 
         val pagesCount = pages.size
         fun Int.reverseAware() =

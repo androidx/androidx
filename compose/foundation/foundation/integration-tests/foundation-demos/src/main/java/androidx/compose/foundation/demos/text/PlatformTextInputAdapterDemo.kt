@@ -192,7 +192,7 @@ private class WackyTextInputService(
     override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
         val state = currentSession
         Log.d(TAG, "creating input connection for $state")
-        checkNotNull(state)
+        checkNotNull(state) { "null text state" }
 
         outAttrs.initialSelStart = state.buffer.length
         outAttrs.initialSelEnd = state.buffer.length

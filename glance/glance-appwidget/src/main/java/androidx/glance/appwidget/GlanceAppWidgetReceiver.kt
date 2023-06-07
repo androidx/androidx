@@ -144,8 +144,10 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
             when (intent.action) {
                 Intent.ACTION_LOCALE_CHANGED, ACTION_DEBUG_UPDATE -> {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
-                    val componentName =
-                        ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
+                    val componentName = ComponentName(
+                        context.packageName,
+                        checkNotNull(javaClass.canonicalName) { "no canonical name" }
+                    )
                     val ids = if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
                         intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!
                     } else {

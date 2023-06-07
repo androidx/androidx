@@ -156,7 +156,7 @@ internal class LazyLayoutPrefetcher(
                     }
                 }
             } else {
-                check(!request.measured)
+                check(!request.measured) { "request already measured" }
                 trace("compose:lazylist:prefetch:measure") {
                     val beforeTimeNs = System.nanoTime()
                     if (enoughTimeLeft(beforeTimeNs, nextFrameNs, timeTracker.measurementTimeNs)) {

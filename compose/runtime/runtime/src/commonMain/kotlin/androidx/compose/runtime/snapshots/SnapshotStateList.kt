@@ -94,7 +94,9 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
     override fun listIterator(): MutableListIterator<T> = StateListIterator(this, 0)
     override fun listIterator(index: Int): MutableListIterator<T> = StateListIterator(this, index)
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        require(fromIndex in 0..toIndex && toIndex <= size)
+        require(fromIndex in 0..toIndex && toIndex <= size) {
+            "fromIndex or toIndex are out of bounds"
+        }
         return SubList(this, fromIndex, toIndex)
     }
 
@@ -443,7 +445,9 @@ private class SubList<T>(
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        require(fromIndex in 0..toIndex && toIndex <= size)
+        require(fromIndex in 0..toIndex && toIndex <= size) {
+            "fromIndex or toIndex are out of bounds"
+        }
         validateModification()
         return SubList(parentList, fromIndex + offset, toIndex + offset)
     }
