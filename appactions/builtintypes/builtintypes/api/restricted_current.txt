@@ -175,6 +175,7 @@ package androidx.appactions.builtintypes.types {
     method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
+    method public final Boolean? isAlarmEnabled();
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
     method public final String toString();
@@ -182,6 +183,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
     property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription;
     property public final String? identifier;
+    property public final Boolean? isAlarmEnabled;
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String? namespace;
     property protected abstract String selfTypeName;
@@ -195,6 +197,7 @@ package androidx.appactions.builtintypes.types {
     method protected abstract java.util.Map<java.lang.String,java.lang.Object> getAdditionalProperties();
     method protected abstract String getSelfTypeName();
     method public final int hashCode();
+    method public final Self setAlarmEnabled(Boolean? boolean);
     method public final Self setAlarmSchedule(androidx.appactions.builtintypes.types.Schedule? schedule);
     method public final Self setDisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription? disambiguatingDescription);
     method public final Self setIdentifier(String? text);
@@ -679,13 +682,16 @@ package androidx.appactions.builtintypes.types {
   @androidx.appsearch.annotation.Document(name="bit:Alarm") public interface Alarm extends androidx.appactions.builtintypes.types.Thing {
     method public static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
     method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
+    method @androidx.appsearch.annotation.Document.BooleanProperty public Boolean? isAlarmEnabled();
     method public androidx.appactions.builtintypes.types.Alarm.Builder<?> toBuilder();
     property @androidx.appsearch.annotation.Document.DocumentProperty public abstract androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
+    property @androidx.appsearch.annotation.Document.BooleanProperty public abstract Boolean? isAlarmEnabled;
     field public static final androidx.appactions.builtintypes.types.Alarm.Companion Companion;
   }
 
   public static interface Alarm.Builder<Self extends androidx.appactions.builtintypes.types.Alarm.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
     method public androidx.appactions.builtintypes.types.Alarm build();
+    method public Self setAlarmEnabled(Boolean? boolean);
     method public Self setAlarmSchedule(androidx.appactions.builtintypes.types.Schedule? schedule);
     method public default Self setDisambiguatingDescription(androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue canonicalValue);
   }
