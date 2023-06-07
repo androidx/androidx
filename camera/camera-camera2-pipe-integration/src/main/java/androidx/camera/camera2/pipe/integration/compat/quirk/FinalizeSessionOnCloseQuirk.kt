@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.core.impl.Quirk
+import java.util.Locale
 
 /**
  * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when the
@@ -46,6 +47,13 @@ class FinalizeSessionOnCloseQuirk : Quirk {
         fun getBehavior() =
             if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
                 // Finalize immediately for devices that allow immediate Surface reuse.
+                FinalizeSessionOnCloseBehavior.IMMEDIATE
+            } else if (Build.MODEL.lowercase(Locale.getDefault()).startsWith("cph")) {
+                // During shutdown, the test app often experiences ANR which prevents us from
+                // eventually closing the camera device and releasing the Surfaces. As a workaround,
+                // we leverage CloseCaptureSessionOnDisconnectQuirk to close the capture session,
+                // before we use this workaround to finalize the capture session, and thereby
+                // releasing the Surfaces.
                 FinalizeSessionOnCloseBehavior.IMMEDIATE
             } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 // When CloseCaptureSessionOnVideoQuirk is enabled, we close the capture session
