@@ -41,7 +41,7 @@ dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
     testImplementation(libs.junit)
-    testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-kmp"))
     testImplementation(libs.testParameterInjector)
 
     testPlugin(libs.kotlinGradlePluginz)

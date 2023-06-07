@@ -31,7 +31,7 @@ dependencies {
     implementation(project(":room:room-paging"))
     implementation(project(":room:room-rxjava2"))
 
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-kmp"))
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTestJunit) //

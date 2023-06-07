@@ -16,7 +16,7 @@
 
 package androidx.room.util
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import java.nio.ByteBuffer
 import java.util.UUID
 import kotlin.random.Random

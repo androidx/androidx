@@ -19,12 +19,12 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.JunitTaskExecutorRule
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.SupportSQLiteStatement
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.Locale

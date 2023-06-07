@@ -18,6 +18,7 @@ package androidx.room.paging
 
 import android.database.Cursor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
@@ -33,7 +34,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
@@ -420,7 +420,7 @@ class LimitOffsetPagingSourceTest {
         // return a LoadResult.Invalid
         val result2 = pager.append()
 
-        assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result2).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -494,7 +494,7 @@ class LimitOffsetPagingSourceTest {
         // return LoadResult.Invalid
         val result2 = pager.prepend()
 
-        assertThat(result2).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result2).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -760,9 +760,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
         // the db write should cause pagingSource to realize it is invalid when it tries to
         // append
-        assertThat(pager.append()).isInstanceOf(
-            LoadResult.Invalid::class.java
-        )
+        assertThat(pager.append()).isInstanceOf<LoadResult.Invalid<*, *>>()
         assertThat(pagingSource.invalid).isTrue()
     }
 
@@ -793,9 +791,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
         // the db write should cause pagingSource to realize it is invalid when it tries to
         // prepend
-        assertThat(pager.prepend()).isInstanceOf(
-            LoadResult.Invalid::class.java
-        )
+        assertThat(pager.prepend()).isInstanceOf<LoadResult.Invalid<*, *>>()
         assertThat(pagingSource.invalid).isTrue()
     }
 }

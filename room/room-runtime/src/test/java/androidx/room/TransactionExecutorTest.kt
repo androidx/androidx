@@ -16,7 +16,7 @@
 
 package androidx.room
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
