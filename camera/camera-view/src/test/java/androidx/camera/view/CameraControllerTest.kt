@@ -42,6 +42,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.transform.OutputTransform
 import androidx.concurrent.futures.CallbackToFutureAdapter
@@ -384,8 +385,9 @@ class CameraControllerTest {
     @UiThreadTest
     @Test
     fun setVideoCaptureQuality() {
-        controller.videoCaptureTargetQuality = targetVideoQuality
-        assertThat(controller.videoCaptureTargetQuality).isEqualTo(targetVideoQuality)
+        val qualitySelector = QualitySelector.from(targetVideoQuality)
+        controller.videoCaptureQualitySelector = qualitySelector
+        assertThat(controller.videoCaptureQualitySelector).isEqualTo(qualitySelector)
     }
 
     @UiThreadTest
