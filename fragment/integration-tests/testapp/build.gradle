@@ -21,15 +21,6 @@ plugins {
 }
 
 android {
-    sourceSets {
-        main {
-            res.srcDirs = ["src/main/res",
-                           "src/main/res/layouts/doubleTransitionBug",
-                           "src/main/res/layouts/kittenFragmentTransitions",
-                           "src/main/res/layouts/basicAnimators",
-            ]
-        }
-    }
     namespace "androidx.fragment.testapp"
 }
 
