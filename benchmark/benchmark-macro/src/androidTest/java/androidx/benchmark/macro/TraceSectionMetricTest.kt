@@ -81,7 +81,8 @@ class TraceSectionMetricTest {
         packageName = Packages.TARGET,
         sectionName = "inflate",
         expectedFirstMs = 13.318, // first inflation
-        expectedSumMs = 43.128 // total inflation
+        expectedSumMs = 43.128, // total inflation
+        expectedSumCount = 8,
     )
 
     companion object {
@@ -97,7 +98,8 @@ class TraceSectionMetricTest {
             packageName: String,
             sectionName: String,
             mode: TraceSectionMetric.Mode,
-            expectedMs: Double
+            expectedMs: Double,
+            expectedCount: Int,
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
@@ -111,8 +113,16 @@ class TraceSectionMetricTest {
                 )
             }
 
+            var measurements = listOf(Metric.Measurement(sectionName + "Ms", expectedMs))
+
+            if (mode == TraceSectionMetric.Mode.Sum) {
+                measurements = measurements + listOf(
+                    Metric.Measurement(sectionName + "Count", expectedCount.toDouble())
+                )
+            }
+
             assertEqualMeasurements(
-                expected = listOf(Metric.Measurement(sectionName + "Ms", expectedMs)),
+                expected = measurements,
                 observed = result,
                 threshold = 0.001
             )
@@ -123,21 +133,24 @@ class TraceSectionMetricTest {
             packageName: String,
             sectionName: String,
             expectedFirstMs: Double,
-            expectedSumMs: Double = expectedFirstMs // default implies only one matching section
+            expectedSumMs: Double = expectedFirstMs, // default implies only one matching section
+            expectedSumCount: Int = 1
         ) {
             verifyMetric(
                 tracePath = tracePath,
                 packageName = packageName,
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.First,
-                expectedMs = expectedFirstMs
+                expectedMs = expectedFirstMs,
+                expectedCount = 1
             )
             verifyMetric(
                 tracePath = tracePath,
                 packageName = packageName,
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.Sum,
-                expectedMs = expectedSumMs
+                expectedMs = expectedSumMs,
+                expectedCount = expectedSumCount,
             )
         }
     }
