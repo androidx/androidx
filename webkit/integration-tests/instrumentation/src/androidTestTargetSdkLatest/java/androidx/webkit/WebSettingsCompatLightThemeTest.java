@@ -29,16 +29,16 @@ import androidx.test.filters.SdkSuppress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
+/**
+ * Instrumentation tests for light mode on targetSdk >= 33.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatLightThemeTest extends
         WebSettingsCompatDarkModeTestBase<WebViewLightThemeTestActivity> {
     public WebSettingsCompatLightThemeTest() {
-        // targetSdkVersion to T, it is min version the algorithmic darkening works.
-        // TODO(http://b/214741472): Use VERSION_CODES.TIRAMISU once available.
-        super(WebViewLightThemeTestActivity.class, 33);
+        super(WebViewLightThemeTestActivity.class);
     }
 
     /**

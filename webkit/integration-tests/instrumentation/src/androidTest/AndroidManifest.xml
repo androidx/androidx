@@ -22,13 +22,13 @@
          http://localhost URLs (and P defaults to blocking cleartext traffic).
          -->
     <application android:label="AndroidX Webkit Unittests"
-                 android:hardwareAccelerated="true"
-                 android:usesCleartextTraffic="true">
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true">
 
         <activity android:name="androidx.webkit.WebViewTestActivity"/>
         <activity android:name="androidx.webkit.WebViewDarkThemeTestActivity"
-             android:theme="@style/Theme.AppCompat"/>
+            android:theme="@style/Theme.AppCompat"/>
         <activity android:name="androidx.webkit.WebViewLightThemeTestActivity"
-             android:theme="@style/Theme.AppCompat.Light"/>
+            android:theme="@style/Theme.AppCompat.Light"/>
     </application>
 </manifest>
