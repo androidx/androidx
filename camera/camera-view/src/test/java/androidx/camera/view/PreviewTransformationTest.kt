@@ -18,6 +18,7 @@
 
 package androidx.camera.view
 
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.LayoutDirection
@@ -117,7 +118,8 @@ class PreviewTransformationTest {
             // Height and width is swapped because rotation is 90°.
             SurfaceRequest.TransformationInfo.of(
                 cropRect, 90, ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix()
             ),
             SURFACE_SIZE,
             BACK_CAMERA
@@ -135,7 +137,8 @@ class PreviewTransformationTest {
                 Rect(0, 0, croppedSize.width, croppedSize.height),
                 /*rotationDegrees*/0,
                 ROTATION_NOT_SPECIFIED,
-                /*hasCameraTransform=*/false
+                /*hasCameraTransform=*/false,
+                /*sensorToBufferTransform=*/Matrix()
             ),
             croppedSize,
             /*isFrontCamera=*/false
@@ -236,7 +239,8 @@ class PreviewTransformationTest {
                 CROP_RECT,
                 90,
                 rotation,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix()
             ),
             SURFACE_SIZE,
             isFrontCamera
@@ -266,7 +270,8 @@ class PreviewTransformationTest {
                 CROP_RECT,
                 90,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix()
             ),
             SURFACE_SIZE, BACK_CAMERA
         )
@@ -398,7 +403,8 @@ class PreviewTransformationTest {
                 MISMATCHED_CROP_RECT,
                 90,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix()
             ),
             FIT_SURFACE_SIZE,
             isFrontCamera
@@ -485,7 +491,8 @@ class PreviewTransformationTest {
                 cropRect,
                 rotationDegrees,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix()
             ),
             SURFACE_SIZE,
             isFrontCamera
