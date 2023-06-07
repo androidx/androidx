@@ -34,7 +34,7 @@ configurations {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(gradleApi())
-    implementation("com.android.tools.build:gradle:7.3.0")
+    compileOnly("com.android.tools.build:gradle:7.3.0")
     compileOnly(libs.kotlinGradlePluginz)
     compileOnly(libs.kspGradlePluginz)
 
@@ -44,6 +44,7 @@ dependencies {
     testImplementation(project(":internal-testutils-kmp"))
     testImplementation(libs.testParameterInjector)
 
+    testPlugin("com.android.tools.build:gradle:7.3.0")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
