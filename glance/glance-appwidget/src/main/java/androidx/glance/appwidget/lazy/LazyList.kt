@@ -293,12 +293,9 @@ internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthFor
 }
 
 internal class EmittableLazyListItem : EmittableLazyItemWithChildren() {
-    override var modifier: GlanceModifier
-        get() = children.singleOrNull()?.modifier
-            ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
-        set(_) {
-            throw IllegalAccessError("You cannot set the modifier of an EmittableLazyListItem")
-        }
+    // Fill max width of the lazy column so that item contents can be aligned per the horizontal
+    // alignment.
+    override var modifier: GlanceModifier = GlanceModifier.wrapContentHeight().fillMaxWidth()
     var itemId: Long = 0
 
     override fun copy(): Emittable = EmittableLazyListItem().also {
