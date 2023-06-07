@@ -3463,6 +3463,7 @@ internal class PrioritySet(private val list: MutableList<Int> = mutableListOf())
         return value
     }
 
+    @Suppress("ExceptionMessage")
     fun validateHeap() {
         val size = list.size
         for (index in 0 until size / 2) {

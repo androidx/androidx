@@ -50,7 +50,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     }
 
     private fun padChain() {
-        check(head !== SentinelHead)
+        check(head !== SentinelHead) { "padChain encountered an invalid head" }
         val currentHead = head
         currentHead.parent = SentinelHead
         SentinelHead.child = currentHead
@@ -58,11 +58,11 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     }
 
     private fun trimChain() {
-        check(head === SentinelHead)
+        check(head === SentinelHead) { "trimChain encountered an invalid head" }
         head = SentinelHead.child ?: tail
         head.parent = null
         SentinelHead.child = null
-        check(head !== SentinelHead)
+        check(head !== SentinelHead) { "trimChain did not update the head" }
     }
 
     /**
@@ -146,7 +146,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
 
             if (i > 0) {
-                check(node != null)
+                checkNotNull(node) { "structuralUpdate requires a non-null tail" }
                 attachNeeded = true
                 coordinatorSyncNeeded = true
                 // there must have been a structural change
@@ -294,7 +294,9 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         val infoList = MutableVector<ModifierInfo>(current.size)
         var i = 0
         headToTailExclusive { node ->
-            val coordinator = requireNotNull(node.coordinator)
+            val coordinator = requireNotNull(node.coordinator) {
+                "getModifierInfo called on node with no coordinator"
+            }
             // placeWithLayer puts the layer on the _next_ coordinator
             //
             // - If the last node does placeWithLayer, the layer is on the innerCoordinator
@@ -376,7 +378,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         override fun insert(atIndex: Int, newIndex: Int) {
             val child = node
             node = createAndInsertNodeAsParent(after[newIndex], child)
-            check(!node.isAttached)
+            check(!node.isAttached) { "createAndInsertNodeAsParent called on an attached node" }
             node.insertedNodeAwaitingAttachForInvalidation = true
             logger?.nodeInserted(atIndex, newIndex, after[newIndex], child, node)
             aggregateChildKindSet = aggregateChildKindSet or node.kindSet
@@ -545,7 +547,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             else -> BackwardsCompatNode(element)
         }
-        check(!node.isAttached)
+        check(!node.isAttached) { "createAndInsertNodeAsParent called on an attached node" }
         node.insertedNodeAwaitingAttachForInvalidation = true
         return insertParent(node, child)
     }

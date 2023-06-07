@@ -155,7 +155,7 @@ object ComposableInvoker {
                 changedParams +
                 defaultParams ==
                 totalParams
-        )
+        ) { "params don't add up to total params" }
 
         val changedStartIndex = composerIndex + 1
         val defaultStartIndex = changedStartIndex + changedParams

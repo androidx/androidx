@@ -388,7 +388,7 @@ internal class TextStringSimpleNode(
      * Optimized Text draw.
      */
     override fun ContentDrawScope.draw() {
-        val localParagraph = requireNotNull(layoutCache.paragraph)
+        val localParagraph = requireNotNull(layoutCache.paragraph) { "no paragraph" }
         drawIntoCanvas { canvas ->
             val willClip = layoutCache.didOverflow
             if (willClip) {

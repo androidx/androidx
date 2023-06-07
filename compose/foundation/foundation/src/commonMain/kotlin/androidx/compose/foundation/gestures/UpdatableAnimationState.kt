@@ -89,7 +89,7 @@ internal class UpdatableAnimationState(animationSpec: AnimationSpec<Float>) {
         afterFrame: () -> Unit,
     ) {
         contract { callsInPlace(beforeFrame) }
-        check(!isRunning)
+        check(!isRunning) { "animateToZero called while previous animation is running" }
 
         val durationScale = coroutineContext[MotionDurationScale]?.scaleFactor ?: 1f
         isRunning = true

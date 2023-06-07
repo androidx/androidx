@@ -699,7 +699,7 @@ internal class LayoutNodeLayoutDelegate(
         fun replace() {
             try {
                 relayoutWithoutParentInProgress = true
-                check(placedOnce)
+                check(placedOnce) { "replace called on unplaced item" }
                 placeOuterCoordinator(lastPosition, lastZIndex, lastLayerBlock)
             } finally {
                 relayoutWithoutParentInProgress = false
@@ -899,8 +899,8 @@ internal class LayoutNodeLayoutDelegate(
          */
         fun measureBasedOnLookahead() {
             val lookaheadDelegate = lookaheadPassDelegate
-            val parent = layoutNode.parent!!
-            requireNotNull(lookaheadDelegate)
+            val parent = checkNotNull(layoutNode.parent) { "layoutNode parent is not set" }
+            checkNotNull(lookaheadDelegate) { "invalid lookaheadDelegate" }
             if (lookaheadDelegate.measuredByParent == LayoutNode.UsageByParent.InMeasureBlock &&
                 parent.layoutState == LayoutState.Measuring
             ) {
@@ -918,7 +918,9 @@ internal class LayoutNodeLayoutDelegate(
          * layerBlock as lookahead.
          */
         fun placeBasedOnLookahead() {
-            val lookaheadDelegate = requireNotNull(lookaheadPassDelegate)
+            val lookaheadDelegate = checkNotNull(lookaheadPassDelegate) {
+                "invalid lookaheadDelegate"
+            }
             placeAt(
                 lookaheadDelegate.lastPosition,
                 lookaheadDelegate.lastZIndex,
@@ -1461,7 +1463,7 @@ internal class LayoutNodeLayoutDelegate(
         fun replace() {
             try {
                 relayoutWithoutParentInProgress = true
-                check(placedOnce)
+                check(placedOnce) { "replace() called on item that was not placed" }
                 placeAt(lastPosition, 0f, null)
             } finally {
                 relayoutWithoutParentInProgress = false

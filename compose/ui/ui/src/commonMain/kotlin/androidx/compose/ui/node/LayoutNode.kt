@@ -802,7 +802,7 @@ internal class LayoutNode(
             }
             val layerCoordinator = _innerLayerCoordinator
             if (layerCoordinator != null) {
-                requireNotNull(layerCoordinator.layer)
+                checkNotNull(layerCoordinator.layer) { "layer was not set" }
             }
             return layerCoordinator
         }

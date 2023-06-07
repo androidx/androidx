@@ -47,7 +47,7 @@ internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
         val crossAxisSize = if (constraints.hasFixedWidth) {
             constraints.minWidth
         } else {
-            require(constraints.hasFixedHeight)
+            require(constraints.hasFixedHeight) { "constraints require fixed height" }
             constraints.minHeight
         }
         return measuredItemFactory.createItem(

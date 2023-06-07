@@ -311,7 +311,9 @@ internal fun DelegatableNode.requireLayoutNode(): LayoutNode =
         "Cannot obtain node coordinator. Is the Modifier.Node attached?"
     }.layoutNode
 
-internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutNode().owner)
+internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutNode().owner) {
+    "This node does not have an owner."
+}
 
 /**
  * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to.

@@ -312,7 +312,7 @@ private suspend fun <R, T, V : AnimationVector> Animation<T, V>.callWithFrameNan
 internal val CoroutineContext.durationScale: Float
     get() {
         val scale = this[MotionDurationScale]?.scaleFactor ?: 1f
-        check(scale >= 0f)
+        check(scale >= 0f) { "negative scale factor" }
         return scale
     }
 

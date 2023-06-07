@@ -93,11 +93,12 @@ internal class LazyMeasuredItem @ExperimentalFoundationApi constructor(
         var mainAxisOffset = offset
         placeables.fastForEach {
             val placeableOffset = if (isVertical) {
-                val x = requireNotNull(horizontalAlignment)
+                val x = requireNotNull(horizontalAlignment) { "null horizontalAlignment" }
                     .align(it.width, layoutWidth, layoutDirection)
                 IntOffset(x, mainAxisOffset)
             } else {
-                val y = requireNotNull(verticalAlignment).align(it.height, layoutHeight)
+                val y = requireNotNull(verticalAlignment) { "null verticalAlignment" }
+                    .align(it.height, layoutHeight)
                 IntOffset(mainAxisOffset, y)
             }
             mainAxisOffset += if (isVertical) it.height else it.width
