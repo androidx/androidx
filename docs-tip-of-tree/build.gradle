@@ -320,6 +320,8 @@ dependencies {
     docs(project(":room:room-rxjava2"))
     docs(project(":room:room-rxjava3"))
     docs(project(":room:room-testing"))
+    docs(project(":safeparcel:safeparcel"))
+    docs(project(":safeparcel:safeparcel-processor"))
     docs(project(":savedstate:savedstate"))
     docs(project(":savedstate:savedstate-ktx"))
     docs(project(":security:security-app-authenticator"))
