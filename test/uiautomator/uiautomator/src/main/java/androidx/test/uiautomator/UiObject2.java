@@ -41,6 +41,8 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -196,8 +198,10 @@ public class UiObject2 implements Searchable {
      * condition} was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull Condition<? super UiObject2, U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
-        return mWaitMixin.wait(condition, timeout);
+        try (Section ignored = Traces.trace("UiObject2#wait")) {
+            Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
+            return mWaitMixin.wait(condition, timeout);
+        }
     }
 
     // Search functions
