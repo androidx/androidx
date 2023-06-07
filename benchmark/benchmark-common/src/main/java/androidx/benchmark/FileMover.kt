@@ -28,7 +28,10 @@ import java.nio.file.Files
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(Build.VERSION_CODES.O)
 object FileMover {
-    fun File.moveTo(destination: File) {
+    fun File.moveTo(destination: File, overwrite: Boolean = false) {
+        if (overwrite) {
+            destination.delete()
+        }
         // Ideally we would have used File.renameTo(...)
         // On Android we cannot rename across mount points so we are using this API instead.
         Files.move(this.toPath(), destination.toPath())

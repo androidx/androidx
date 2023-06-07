@@ -133,7 +133,7 @@ object Outputs {
             // `outputDirectory`.
             Log.d(BenchmarkState.TAG, "Moving $file to $destination")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                file.moveTo(destination)
+                file.moveTo(destination, overwrite = true)
             } else {
                 file.copyTo(destination, overwrite = true)
                 file.delete()
