@@ -36,7 +36,6 @@ import androidx.wear.protolayout.expression.AnimationParameterBuilders.Animation
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.ModifiersProto;
-import androidx.wear.protolayout.proto.TypesProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
 import java.lang.annotation.Retention;
@@ -585,11 +584,7 @@ public final class ModifiersBuilders {
             @SuppressWarnings(
                     "deprecation") // Updating a deprecated field for backward compatibility
             public Builder setContentDescription(@NonNull String contentDescription) {
-                mImpl.setObsoleteContentDescription(contentDescription);
-                mImpl.mergeContentDescription(
-                        TypesProto.StringProp.newBuilder().setValue(contentDescription).build());
-                mFingerprint.recordPropertyUpdate(4, contentDescription.hashCode());
-                return this;
+                return setContentDescription(new StringProp.Builder(contentDescription).build());
             }
 
             /**
@@ -864,9 +859,7 @@ public final class ModifiersBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRtlAware(boolean rtlAware) {
-                mImpl.setRtlAware(TypesProto.BoolProp.newBuilder().setValue(rtlAware));
-                mFingerprint.recordPropertyUpdate(5, Boolean.hashCode(rtlAware));
-                return this;
+                return setRtlAware(new BoolProp.Builder().setValue(rtlAware).build());
             }
 
             /**
