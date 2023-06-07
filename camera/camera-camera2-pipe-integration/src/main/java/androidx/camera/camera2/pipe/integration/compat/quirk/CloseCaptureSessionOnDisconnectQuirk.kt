@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
+import java.util.Locale
 
 /**
  * Quirk needed on devices where not closing capture session before creating a new capture session
@@ -55,11 +56,16 @@ class CloseCaptureSessionOnDisconnectQuirk : Quirk {
                 //  to CameraDevice.close() stalling indefinitely. This version check might need to
                 //  be further fine-turned down the line.
                 true
-            } else {
+            } else if (Build.HARDWARE == "samsungexynos7870") {
                 // TODO(b/282871038): On some platforms, not closing the capture session before
                 //  switching to a new capture session may trigger camera HAL crashes. Add more
                 //  hardware platforms here when they're identified.
-                Build.HARDWARE == "samsungexynos7870"
+                true
+            } else {
+                // For CPH devices, the shutdown sequence oftentimes triggers ANR for the test app.
+                // As a result, we need to close the capture session to stop the captures, then
+                // release the Surfaces by FinalizeSessionOnCloseQuirk.
+                return Build.MODEL.lowercase(Locale.getDefault()).startsWith("cph")
             }
         }
     }
