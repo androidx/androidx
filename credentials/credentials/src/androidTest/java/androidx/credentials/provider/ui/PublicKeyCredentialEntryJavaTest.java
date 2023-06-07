@@ -57,7 +57,7 @@ public class PublicKeyCredentialEntryJavaTest {
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
     private final BeginGetPublicKeyCredentialOption mBeginOption =
             new BeginGetPublicKeyCredentialOption(
-                    new Bundle(), "id", "json");
+                    new Bundle(), "id", "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}");
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();

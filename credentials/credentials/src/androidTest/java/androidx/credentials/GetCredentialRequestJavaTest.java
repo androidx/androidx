@@ -33,18 +33,18 @@ import java.util.ArrayList;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GetCredentialRequestJavaTest {
+    private static final String TEST_JSON = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}";
     @Test
     public void constructor_emptyCredentialOptions_throws() {
         assertThrows(IllegalArgumentException.class,
                 () -> new GetCredentialRequest(new ArrayList<>()));
-
     }
 
     @Test
     public void constructor() {
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
-        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption(TEST_JSON));
 
         GetCredentialRequest request = new GetCredentialRequest(expectedCredentialOptions);
 
@@ -102,7 +102,7 @@ public class GetCredentialRequestJavaTest {
     public void builder_addCredentialOption() {
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
-        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption(TEST_JSON));
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()
                 .addCredentialOption(expectedCredentialOptions.get(0))
@@ -120,7 +120,7 @@ public class GetCredentialRequestJavaTest {
     public void builder_setCredentialOptions() {
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
-        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption(TEST_JSON));
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()
                 .setCredentialOptions(expectedCredentialOptions)
@@ -140,7 +140,7 @@ public class GetCredentialRequestJavaTest {
     public void builder_setPreferIdentityDocUi() {
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
-        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption(TEST_JSON));
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()
                 .setCredentialOptions(expectedCredentialOptions)
@@ -159,7 +159,7 @@ public class GetCredentialRequestJavaTest {
     public void builder_setPreferImmediatelyAvailableCredentials() {
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
-        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption(TEST_JSON));
         boolean expectedPreferImmediatelyAvailableCredentials = true;
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()
@@ -181,7 +181,7 @@ public class GetCredentialRequestJavaTest {
     public void builder_setPreferUiBrandingComponentName() {
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
-        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption(TEST_JSON));
         ComponentName expectedComponentName = new ComponentName("test pkg", "test cls");
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()

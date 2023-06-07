@@ -19,6 +19,7 @@ package androidx.credentials
 import android.content.ComponentName
 import android.os.Bundle
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.internal.RequestValidationHelper
 
 /**
  * A request to get passkeys from the user's public key credential provider.
@@ -39,7 +40,8 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * this property will not take effect and you should control the allowed provider via
  * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
  * @throws NullPointerException If [requestJson] is null
- * @throws IllegalArgumentException If [requestJson] is empty
+ * @throws IllegalArgumentException If [requestJson] is empty, or if it
+ * is not a valid JSON
  */
 class GetPublicKeyCredentialOption @JvmOverloads constructor(
     val requestJson: String,
@@ -54,7 +56,8 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
     allowedProviders,
 ) {
     init {
-        require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
+        require(RequestValidationHelper.isValidJSON(requestJson)) {
+            "requestJson must not be empty, and must be a valid JSON" }
     }
 
     internal companion object {

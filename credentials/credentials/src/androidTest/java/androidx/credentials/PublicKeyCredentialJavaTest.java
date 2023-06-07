@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PublicKeyCredentialJavaTest {
+    private static final String TEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
 
     @Test
     public void typeConstant() {
@@ -59,8 +60,7 @@ public class PublicKeyCredentialJavaTest {
 
     @Test
     public void constructor_success() {
-        new PublicKeyCredential(
-                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
+        new PublicKeyCredential(TEST_JSON);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PublicKeyCredentialJavaTest {
 
     @Test
     public void frameworkConversion_success() {
-        PublicKeyCredential credential = new PublicKeyCredential("json");
+        PublicKeyCredential credential = new PublicKeyCredential(TEST_JSON);
 
         Credential convertedCredential = Credential.createFrom(
                 credential.getType(), credential.getData());

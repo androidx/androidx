@@ -29,6 +29,10 @@ import org.junit.runner.RunWith
 @SmallTest
 class CreatePublicKeyCredentialResponseTest {
 
+    companion object Constant {
+        private const val TEST_RESPONSE_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+    }
+
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
@@ -38,8 +42,16 @@ class CreatePublicKeyCredentialResponseTest {
     }
 
     @Test
+    fun constructor_invalidJson_throwsIllegalArgumentException() {
+        Assert.assertThrows(
+            "Expected empty Json to throw error",
+            IllegalArgumentException::class.java
+        ) { CreatePublicKeyCredentialResponse("invalid") }
+    }
+
+    @Test
     fun constructor_success() {
-        CreatePublicKeyCredentialResponse("{\"hi\":1}")
+        CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON)
     }
 
     @Test
@@ -67,7 +79,7 @@ class CreatePublicKeyCredentialResponseTest {
 
     @Test
     fun frameworkConversion_success() {
-        val response = CreatePublicKeyCredentialResponse("responseJson")
+        val response = CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON)
 
         val convertedResponse = createFrom(response.type, response.data)
 

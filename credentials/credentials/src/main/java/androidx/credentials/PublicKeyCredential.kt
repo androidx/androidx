@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.internal.RequestValidationHelper
 
 /**
  * Represents the user's passkey credential granted by the user for app sign-in.
@@ -26,7 +27,8 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * JSON format that follows the standard webauthn json format shown at
  * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
  * @throws NullPointerException If [authenticationResponseJson] is null
- * @throws IllegalArgumentException If [authenticationResponseJson] is empty
+ * @throws IllegalArgumentException If [authenticationResponseJson] is empty, or if it is
+ * not a valid JSON
  */
 class PublicKeyCredential constructor(
     val authenticationResponseJson: String
@@ -36,8 +38,8 @@ class PublicKeyCredential constructor(
 ) {
 
     init {
-        require(authenticationResponseJson.isNotEmpty()) {
-            "authentication response JSON must not be empty" }
+        require(RequestValidationHelper.isValidJSON(authenticationResponseJson)) {
+            "authenticationResponseJson must not be empty, and must be a valid JSON" }
     }
 
     /** Companion constants / helpers for [PublicKeyCredential]. */

@@ -29,6 +29,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class GetCredentialRequestTest {
+    companion object Constant {
+        private const val TEST_JSON = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}"
+    }
 
     @Test
     fun constructor_emptyCredentialOptions_throws() {
@@ -41,7 +44,7 @@ class GetCredentialRequestTest {
     fun constructor() {
         val expectedCredentialOptions = ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
-        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption(TEST_JSON))
         val origin = "origin"
 
         val request = GetCredentialRequest(
@@ -111,7 +114,7 @@ class GetCredentialRequestTest {
     fun builder_setPreferImmediatelyAvailableCredentials() {
         val expectedCredentialOptions = java.util.ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
-        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption(TEST_JSON))
         val expectedPreferImmediatelyAvailableCredentials = true
 
         val request = GetCredentialRequest.Builder()
@@ -134,7 +137,7 @@ class GetCredentialRequestTest {
     fun builder_addCredentialOption() {
         val expectedCredentialOptions = ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
-        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption(TEST_JSON))
 
         val request = GetCredentialRequest.Builder()
             .addCredentialOption(expectedCredentialOptions[0])
@@ -153,7 +156,7 @@ class GetCredentialRequestTest {
     fun builder_setCredentialOptions() {
         val expectedCredentialOptions = ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
-        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption(TEST_JSON))
 
         val request = GetCredentialRequest.Builder()
             .setCredentialOptions(expectedCredentialOptions)
@@ -174,7 +177,7 @@ class GetCredentialRequestTest {
     fun builder_setPreferIdentityDocUis() {
         val expectedCredentialOptions = ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
-        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption(TEST_JSON))
 
         val request = GetCredentialRequest.Builder()
             .setCredentialOptions(expectedCredentialOptions)
@@ -194,7 +197,7 @@ class GetCredentialRequestTest {
     fun builder_setPreferUiBrandingComponentName() {
         val expectedCredentialOptions = java.util.ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
-        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption(TEST_JSON))
         val expectedComponentName = ComponentName("test pkg", "test cls")
 
         val request = GetCredentialRequest.Builder()
