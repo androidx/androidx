@@ -117,6 +117,10 @@ internal class KspSyntheticReceiverParameterElement(
         return XEquality.equals(this, other)
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     override fun hashCode(): Int {
         return XEquality.hashCode(equalityItems)
     }

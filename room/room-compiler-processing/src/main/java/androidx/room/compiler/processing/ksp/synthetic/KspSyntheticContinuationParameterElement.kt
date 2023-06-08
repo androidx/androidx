@@ -143,6 +143,10 @@ internal class KspSyntheticContinuationParameterElement(
         return XEquality.hashCode(equalityItems)
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     companion object {
         const val PARAM_NAME = "\$completion"
     }

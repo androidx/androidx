@@ -1313,4 +1313,39 @@ class XExecutableElementTest {
             )
         }
     }
+
+    @Test
+    fun testMethodWithParameterizedSyntheticReceiver() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Usage.kt",
+                    """
+                    class Usage {
+                      fun <T> Foo<T>.method(param: Foo<String>): Foo<T> = this
+                    }
+                    class Foo<T>
+                    """.trimIndent()
+                ),
+            )
+        ) { invocation ->
+            val usage = invocation.processingEnv.requireTypeElement("Usage")
+            val method = usage.getDeclaredMethodByJvmName("method")
+            assertThat(method.parameters).hasSize(2)
+            method.parameters[0].apply {
+                assertThat(name).isEqualTo("\$this\$method")
+                assertThat(type.asTypeName().java.toString()).isEqualTo("Foo<T>")
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo("Foo<T>")
+                }
+            }
+            method.parameters[1].apply {
+                assertThat(name).isEqualTo("param")
+                assertThat(type.asTypeName().java.toString()).isEqualTo("Foo<java.lang.String>")
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo("Foo<kotlin.String>")
+                }
+            }
+        }
+    }
 }
