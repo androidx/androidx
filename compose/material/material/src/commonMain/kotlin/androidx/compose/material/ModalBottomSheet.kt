@@ -114,7 +114,7 @@ enum class ModalBottomSheetValue {
 fun ModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
     density: Density,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
     isSkipHalfExpanded: Boolean = false,
 ) = ModalBottomSheetState(
@@ -160,7 +160,7 @@ fun ModalBottomSheetState(
 @Suppress("Deprecation")
 fun ModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
     isSkipHalfExpanded: Boolean = false
 ) = ModalBottomSheetState(
@@ -194,7 +194,7 @@ class ModalBottomSheetState @Deprecated(
     )
 ) constructor(
     initialValue: ModalBottomSheetValue,
-    internal val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    internal val animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     internal val isSkipHalfExpanded: Boolean = false,
     confirmStateChange: (ModalBottomSheetValue) -> Boolean
 ) {
@@ -436,7 +436,7 @@ class ModalBottomSheetState @Deprecated(
 @Composable
 fun rememberModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
     skipHalfExpanded: Boolean = false,
 ): ModalBottomSheetState {
@@ -490,7 +490,7 @@ fun rememberModalBottomSheetState(
 @ExperimentalMaterialApi
 fun rememberModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     skipHalfExpanded: Boolean,
     confirmStateChange: (ModalBottomSheetValue) -> Boolean,
 ): ModalBottomSheetState = rememberModalBottomSheetState(
@@ -519,7 +519,7 @@ fun rememberModalBottomSheetState(
 @ExperimentalMaterialApi
 fun rememberModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmStateChange: (ModalBottomSheetValue) -> Boolean,
 ): ModalBottomSheetState = rememberModalBottomSheetState(
     initialValue = initialValue,
