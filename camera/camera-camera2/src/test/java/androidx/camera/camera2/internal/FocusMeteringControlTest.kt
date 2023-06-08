@@ -53,8 +53,9 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -102,6 +103,7 @@ private val M_RECT_3 = Rect(
 
 private val PREVIEW_ASPECT_RATIO_4_X_3 = Rational(4, 3)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -644,7 +646,7 @@ class FocusMeteringControlTest(private val template: Int) {
     @MediumTest
     @Test
     fun shorterAutoCancelDuration_cancelIsCalled_completeActionFutureIsNotCalled(): Unit =
-        runBlocking {
+        runTest {
             focusMeteringControl = spy(focusMeteringControl)
             val autoCancelDuration: Long = 500
             val action = FocusMeteringAction.Builder(point1)
@@ -685,7 +687,7 @@ class FocusMeteringControlTest(private val template: Int) {
 
     @MediumTest
     @Test
-    fun autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration(): Unit = runBlocking {
+    fun autoCancelDurationDisabled_completeAfterAutoFocusTimeoutDuration(): Unit = runTest {
         focusMeteringControl = spy(focusMeteringControl)
         val autoCancelDuration: Long = 500
         val action = FocusMeteringAction.Builder(point1)
@@ -1203,7 +1205,7 @@ class FocusMeteringControlTest(private val template: Int) {
 
     @MediumTest
     @Test
-    fun cancelFocusAndMetering_autoCancelIsDisabled(): Unit = runBlocking {
+    fun cancelFocusAndMetering_autoCancelIsDisabled(): Unit = runTest {
         focusMeteringControl = spy(focusMeteringControl)
         val autoCancelDuration: Long = 500
         val action = FocusMeteringAction.Builder(point1)
