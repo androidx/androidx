@@ -32,17 +32,49 @@ class BluetoothGattDescriptor internal constructor(
     internal var fwkDescriptor: FwkBluetoothGattDescriptor
 ) {
     companion object {
+        /**
+         * The descriptor is readable
+         */
         const val PERMISSION_READ: Int = FwkBluetoothGattDescriptor.PERMISSION_READ
+
+        /**
+         * The descriptor is readable if encrypted
+         */
         const val PERMISSION_READ_ENCRYPTED: Int =
             FwkBluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED
+
+        /**
+         * The descriptor is readable if person-in-the-middle protection is enabled
+         */
         const val PERMISSION_READ_ENCRYPTED_MITM: Int =
             FwkBluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED_MITM
+
+        /**
+         * The descriptor is writable
+         */
         const val PERMISSION_WRITE: Int = FwkBluetoothGattDescriptor.PERMISSION_WRITE
+
+        /**
+         * The descriptor is writable if encrypted
+         */
         const val PERMISSION_WRITE_ENCRYPTED: Int =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED
+
+        /**
+         * The descriptor is writable if person-in-the-middle protection is enabled
+         */
         const val PERMISSION_WRITE_ENCRYPTED_MITM: Int =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED_MITM
+
+        /**
+         * The descriptor is writable if authentication signature is used
+         */
         const val PERMISSION_WRITE_SIGNED: Int = FwkBluetoothGattDescriptor.PERMISSION_WRITE_SIGNED
+
+        /**
+         * The descriptor is writable if person-in-the-middle protection is enabled
+         * and authentication signature is used
+         */
         const val PERMISSION_WRITE_SIGNED_MITM: Int =
             FwkBluetoothGattDescriptor.PERMISSION_WRITE_SIGNED_MITM
     }
@@ -55,6 +87,11 @@ class BluetoothGattDescriptor internal constructor(
 
     /**
      * The permissions for the descriptor.
+     *
+     * It is a combination of [PERMISSION_READ], [PERMISSION_READ_ENCRYPTED],
+     * [PERMISSION_READ_ENCRYPTED_MITM], [PERMISSION_WRITE], [PERMISSION_WRITE_ENCRYPTED],
+     * [PERMISSION_WRITE_ENCRYPTED_MITM], [PERMISSION_WRITE_SIGNED],
+     * and [PERMISSION_WRITE_SIGNED_MITM].
      */
     val permissions: Int
         get() = fwkDescriptor.permissions
