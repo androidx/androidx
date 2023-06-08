@@ -1173,14 +1173,14 @@ package androidx.wear.protolayout {
   }
 
   public static final class StateBuilders.State {
-    method public java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!> getKeyToValueMapping();
+    method public java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!> getKeyToValueMapping();
     method public String getLastClickableId();
     method public static int getMaxStateEntryCount();
   }
 
   public static final class StateBuilders.State.Builder {
     ctor public StateBuilders.State.Builder();
-    method public androidx.wear.protolayout.StateBuilders.State.Builder addKeyToValueMapping(androidx.wear.protolayout.expression.AppDataKey<?>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue);
+    method public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.StateBuilders.State.Builder addKeyToValueMapping(androidx.wear.protolayout.expression.AppDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
     method public androidx.wear.protolayout.StateBuilders.State build();
   }
 

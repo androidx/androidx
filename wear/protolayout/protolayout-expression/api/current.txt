@@ -288,14 +288,14 @@ package androidx.wear.protolayout.expression {
   public final class DynamicDataBuilders {
   }
 
-  public static interface DynamicDataBuilders.DynamicDataValue {
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromBool(boolean);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromByteArray(byte[]);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromByteArray(byte[], int, int);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromColor(@ColorInt int);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromFloat(float);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromInt(int);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue fromString(String);
+  public static interface DynamicDataBuilders.DynamicDataValue<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> {
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool!> fromBool(boolean);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?> fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?> fromByteArray(byte[], int, int);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor!> fromColor(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> fromFloat(float);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!> fromInt(int);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString!> fromString(String);
     method public default byte[] toDynamicDataValueByteArray();
     method public default int toDynamicDataValueByteArray(byte[]);
     method public default int toDynamicDataValueByteArray(byte[], int, int);
@@ -313,6 +313,17 @@ package androidx.wear.protolayout.expression {
     ctor public PlatformDataKey(String, String);
   }
 
+  public final class PlatformDataValues {
+    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!> getAll();
+    method public static <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.expression.PlatformDataValues of(androidx.wear.protolayout.expression.PlatformDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
+  }
+
+  public static final class PlatformDataValues.Builder {
+    ctor public PlatformDataValues.Builder();
+    method public androidx.wear.protolayout.expression.PlatformDataValues build();
+    method public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.expression.PlatformDataValues.Builder put(androidx.wear.protolayout.expression.PlatformDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
+  }
+
   public class PlatformHealthSources {
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyCalories();
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dailyDistanceMeters();
@@ -320,24 +331,17 @@ package androidx.wear.protolayout.expression {
     method @RequiresPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 dailySteps();
     method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy heartRateAccuracy();
     method @RequiresPermission(android.Manifest.permission.BODY_SENSORS) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat heartRateBpm();
-  }
-
-  public static class PlatformHealthSources.Constants {
-    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_HIGH;
-    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_LOW;
-    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_MEDIUM;
-    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_NO_CONTACT;
-    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_UNKNOWN;
-    field public static final androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue HEART_RATE_ACCURACY_UNRELIABLE;
+    field public static final int HEART_RATE_ACCURACY_HIGH = 5; // 0x5
+    field public static final int HEART_RATE_ACCURACY_LOW = 3; // 0x3
+    field public static final int HEART_RATE_ACCURACY_MEDIUM = 4; // 0x4
+    field public static final int HEART_RATE_ACCURACY_NO_CONTACT = 1; // 0x1
+    field public static final int HEART_RATE_ACCURACY_UNKNOWN = 0; // 0x0
+    field public static final int HEART_RATE_ACCURACY_UNRELIABLE = 2; // 0x2
   }
 
   public static final class PlatformHealthSources.DynamicHeartRateAccuracy implements androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 {
-    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy HIGH;
-    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy LOW;
-    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy MEDIUM;
-    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy NO_CONTACT;
-    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy UNKNOWN;
-    field public static final androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy UNRELIABLE;
+    method public static androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy constant(int);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy!> dynamicDataValueOf(int);
   }
 
   public static class PlatformHealthSources.Keys {

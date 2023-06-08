@@ -22,6 +22,8 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.PlatformHealthSources
 import androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy
+import androidx.wear.protolayout.expression.PlatformHealthSources.HEART_RATE_ACCURACY_MEDIUM
+import androidx.wear.protolayout.expression.PlatformHealthSources.heartRateAccuracy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.DynamicComplicationText
@@ -83,8 +85,8 @@ object HealthDataSourceServices {
             get() =
                 if (checkSelfPermission(permission.BODY_SENSORS) == PERMISSION_GRANTED) {
                     DynamicFloat.onCondition(
-                            PlatformHealthSources.heartRateAccuracy()
-                                .gte(DynamicHeartRateAccuracy.MEDIUM)
+                            heartRateAccuracy()
+                                .gte(DynamicHeartRateAccuracy.constant(HEART_RATE_ACCURACY_MEDIUM))
                         )
                         .use(PlatformHealthSources.heartRateBpm())
                         .elseUse(0f)
@@ -96,8 +98,8 @@ object HealthDataSourceServices {
             get() {
                 require(checkSelfPermission(permission.BODY_SENSORS) == PERMISSION_GRANTED)
                 return DynamicString.onCondition(
-                        PlatformHealthSources.heartRateAccuracy()
-                            .gte(DynamicHeartRateAccuracy.MEDIUM)
+                        heartRateAccuracy()
+                            .gte(DynamicHeartRateAccuracy.constant(HEART_RATE_ACCURACY_MEDIUM))
                     )
                     .use(PlatformHealthSources.heartRateBpm().format())
                     .elseUse(getString(R.string.dynamic_data_low_accuracy))

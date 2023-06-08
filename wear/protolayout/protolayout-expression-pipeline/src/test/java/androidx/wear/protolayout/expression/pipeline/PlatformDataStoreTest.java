@@ -20,13 +20,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.util.ArrayMap;
-
 import androidx.annotation.NonNull;
 import androidx.collection.ArraySet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicDataBuilders;
+import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.FixedProto;
@@ -98,11 +97,14 @@ public class PlatformDataStoreTest {
         mExpect.that(mDataProvider.mRegisterCount).isEqualTo(1);
 
         mDataProvider.updateValues(
-                Map.of(KEY_FOO_PLATFORM,
-                        DynamicDataBuilders.DynamicDataValue.fromString("newFooValue"),
-                        KEY_BAZ_PLATFORM,
-                        DynamicDataBuilders.DynamicDataValue.fromString("newBazValue")
-                ));
+                new PlatformDataValues.Builder()
+                        .put(
+                                KEY_FOO_PLATFORM,
+                                DynamicDataBuilders.DynamicDataValue.fromString("newFooValue"))
+                        .put(
+                                KEY_BAZ_PLATFORM,
+                                DynamicDataBuilders.DynamicDataValue.fromString("newBazValue"))
+                        .build());
         verify(cbFoo, times(2)).onPreUpdate();
         verify(cbFoo2).onPreUpdate();
         verify(cbBaz).onPreUpdate();
@@ -111,10 +113,9 @@ public class PlatformDataStoreTest {
         verify(cbBaz).onData(buildDynamicDataValue("newBazValue"));
 
         mDataProvider.updateValues(
-                Map.of(
+                PlatformDataValues.of(
                         KEY_BAZ_PLATFORM,
-                        DynamicDataBuilders.DynamicDataValue.fromString("updatedBazValue")
-                ));
+                        DynamicDataBuilders.DynamicDataValue.fromString("updatedBazValue")));
         verify(cbFoo, times(1)).onData(buildDynamicDataValue("newFooValue"));
         verify(cbFoo2, times(1)).onData(buildDynamicDataValue("newFooValue"));
         verify(cbBaz).onData(buildDynamicDataValue("newBazValue"));
@@ -144,8 +145,7 @@ public class PlatformDataStoreTest {
 
         private PlatformDataReceiver mRegisteredCallback = null;
 
-        private final Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue> mCurrentValue =
-                new ArrayMap<>();
+        private final PlatformDataValues.Builder mCurrentValue = new PlatformDataValues.Builder();
 
         private final Set<PlatformDataKey<?>> mSupportedKeys = new ArraySet<>();
 
@@ -155,20 +155,16 @@ public class PlatformDataStoreTest {
             mSupportedKeys.add(KEY_FOO_PLATFORM);
             mSupportedKeys.add(KEY_BAZ_PLATFORM);
             mCurrentValue.put(
-                    KEY_FOO_PLATFORM,
-                    DynamicDataBuilders.DynamicDataValue.fromString("fooValue")
-            );
+                    KEY_FOO_PLATFORM, DynamicDataBuilders.DynamicDataValue.fromString("fooValue"));
             mCurrentValue.put(
-                    KEY_BAZ_PLATFORM,
-                    DynamicDataBuilders.DynamicDataValue.fromString("bazValue")
-            );
+                    KEY_BAZ_PLATFORM, DynamicDataBuilders.DynamicDataValue.fromString("bazValue"));
         }
 
         public void updateValues(
-                @NonNull Map<PlatformDataKey<?>, DynamicDataBuilders.DynamicDataValue> newData) {
+                @NonNull PlatformDataValues newData) {
             mCurrentValue.putAll(newData);
             if (mRegisteredCallback != null) {
-                mRegisteredCallback.onData(mCurrentValue);
+                mRegisteredCallback.onData(mCurrentValue.build());
             }
         }
 
@@ -178,7 +174,7 @@ public class PlatformDataStoreTest {
                 @NonNull PlatformDataReceiver callback) {
             mRegisterCount++;
             mRegisteredCallback = callback;
-            executor.execute(() -> callback.onData(mCurrentValue));
+            executor.execute(() -> callback.onData(mCurrentValue.build()));
         }
 
         @Override

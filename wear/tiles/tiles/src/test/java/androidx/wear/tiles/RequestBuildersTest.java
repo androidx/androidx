@@ -22,11 +22,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.StateBuilders.State;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
-import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.AppDataKey;
-import androidx.wear.protolayout.expression.proto.FixedProto;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto;
+import androidx.wear.protolayout.expression.proto.FixedProto;
 import androidx.wear.protolayout.proto.DeviceParametersProto;
 import androidx.wear.protolayout.proto.StateProto;
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest;
@@ -48,7 +47,7 @@ public final class RequestBuildersTest {
                         .setCurrentState(
                                 new State.Builder()
                                         .addKeyToValueMapping(
-                                                new AppDataKey<DynamicInt32>("entry_id"),
+                                                new AppDataKey<>("entry_id"),
                                                 DynamicDataValue.fromInt(13))
                                         .build())
                         .setDeviceConfiguration(

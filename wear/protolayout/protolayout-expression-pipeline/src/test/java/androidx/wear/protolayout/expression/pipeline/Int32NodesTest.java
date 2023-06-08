@@ -33,6 +33,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicDataBuilders;
+import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
@@ -258,13 +259,15 @@ public class Int32NodesTest {
         verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
         PlatformDataReceiver receiver = receiverCaptor.getValue();
-        receiver.onData(ImmutableMap.of(DAILY_STEPS,
-                DynamicDataBuilders.DynamicDataValue.fromInt(70)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(70)));
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        receiver.onData(ImmutableMap.of(DAILY_STEPS,
-                DynamicDataBuilders.DynamicDataValue.fromInt(80)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(80)));
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70, 80);
     }
@@ -428,14 +431,16 @@ public class Int32NodesTest {
         verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
         PlatformDataReceiver receiver = receiverCaptor.getValue();
-        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
-                DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        receiver.onData(ImmutableMap.of(HEART_RATE_BPM,
-                DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
 
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70, 80);
@@ -467,14 +472,16 @@ public class Int32NodesTest {
         verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
         PlatformDataReceiver receiver = receiverCaptor.getValue();
-        receiver.onData(ImmutableMap.of(DAILY_STEPS,
-                DynamicDataBuilders.DynamicDataValue.fromInt(70)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(70)));
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        receiver.onData(ImmutableMap.of(DAILY_STEPS,
-                DynamicDataBuilders.DynamicDataValue.fromInt(80)));
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(80)));
 
         assertThat(results).hasSize(2);
         assertThat(results).containsExactly(70, 80);
