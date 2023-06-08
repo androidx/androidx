@@ -241,7 +241,7 @@ public final class TileRenderer {
      * @throws IllegalStateException if number of {@code newState} entries is greater than {@link
      *     StateStore#getMaxStateEntryCount()}.
      */
-    public void setState(@NonNull Map<AppDataKey<?>, DynamicDataValue> newState) {
+    public void setState(@NonNull Map<AppDataKey<?>, DynamicDataValue<?>> newState) {
         mStateStore.setAppStateEntryValues(newState);
     }
 

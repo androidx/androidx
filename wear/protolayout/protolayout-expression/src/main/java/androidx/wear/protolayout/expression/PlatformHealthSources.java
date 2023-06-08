@@ -21,6 +21,7 @@ import static androidx.wear.protolayout.expression.DynamicBuilders.PLATFORM_INT3
 
 import android.Manifest;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
@@ -31,44 +32,35 @@ import androidx.wear.protolayout.expression.DynamicBuilders.PlatformInt32Source;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /** Dynamic types for platform health sources. */
 public class PlatformHealthSources {
-    /** Constants for platform health sources. */
-    public static class Constants {
-        private Constants(){}
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+        HEART_RATE_ACCURACY_UNKNOWN,
+        HEART_RATE_ACCURACY_NO_CONTACT,
+        HEART_RATE_ACCURACY_UNRELIABLE,
+        HEART_RATE_ACCURACY_LOW,
+        HEART_RATE_ACCURACY_MEDIUM,
+        HEART_RATE_ACCURACY_HIGH,
+    })
+    public @interface HeartRateAccuracy {}
 
-        /** The accuracy is unknown. */
-        private static final int HEART_RATE_ACCURACY_UNKNOWN_VALUE = 0;
-        /** The heart rate cannot be acquired because the sensor is not properly contacting skin. */
-        private static final int HEART_RATE_ACCURACY_NO_CONTACT_VALUE = 1;
-        /** Heart rate data is currently too unreliable to be used. */
-        private static final int HEART_RATE_ACCURACY_UNRELIABLE_VALUE = 2;
-        /** Heart rate data is available but the accuracy is low. */
-        private static final int HEART_RATE_ACCURACY_LOW_VALUE = 3;
-        /** Heart rate data is available and the accuracy is medium. */
-        private static final int HEART_RATE_ACCURACY_MEDIUM_VALUE = 4;
-        /** Heart rate data is available with high accuracy. */
-        private static final int HEART_RATE_ACCURACY_HIGH_VALUE = 5;
-
-        /** The accuracy is unknown. */
-        public static final DynamicDataValue HEART_RATE_ACCURACY_UNKNOWN =
-                DynamicDataValue.fromInt(HEART_RATE_ACCURACY_UNKNOWN_VALUE);
-        /** The heart rate cannot be acquired because the sensor is not properly contacting skin. */
-        public static final DynamicDataValue HEART_RATE_ACCURACY_NO_CONTACT =
-                DynamicDataValue.fromInt(HEART_RATE_ACCURACY_NO_CONTACT_VALUE);
-        /** Heart rate data is currently too unreliable to be used. */
-        public static final DynamicDataValue HEART_RATE_ACCURACY_UNRELIABLE =
-                DynamicDataValue.fromInt(HEART_RATE_ACCURACY_UNRELIABLE_VALUE);
-        /** Heart rate data is available but the accuracy is low. */
-        public static final DynamicDataValue HEART_RATE_ACCURACY_LOW =
-                DynamicDataValue.fromInt(HEART_RATE_ACCURACY_LOW_VALUE);
-        /** Heart rate data is available and the accuracy is medium. */
-        public static final DynamicDataValue HEART_RATE_ACCURACY_MEDIUM =
-                DynamicDataValue.fromInt(HEART_RATE_ACCURACY_MEDIUM_VALUE);
-        /** Heart rate data is available with high accuracy. */
-        public static final DynamicDataValue HEART_RATE_ACCURACY_HIGH =
-                DynamicDataValue.fromInt(HEART_RATE_ACCURACY_HIGH_VALUE);
-    }
+    /** Heart rate accuracy is unknown. */
+    public static final int HEART_RATE_ACCURACY_UNKNOWN = 0;
+    /** Heart rate cannot be acquired because the sensor is not properly contacting skin. */
+    public static final int HEART_RATE_ACCURACY_NO_CONTACT = 1;
+    /** Heart rate data is currently too unreliable to be used. */
+    public static final int HEART_RATE_ACCURACY_UNRELIABLE = 2;
+    /** Heart rate data is available but the accuracy is low. */
+    public static final int HEART_RATE_ACCURACY_LOW = 3;
+    /** Heart rate data is available and the accuracy is medium. */
+    public static final int HEART_RATE_ACCURACY_MEDIUM = 4;
+    /** Heart rate data is available with high accuracy. */
+    public static final int HEART_RATE_ACCURACY_HIGH = 5;
 
     /** Data sources keys for platform health sources. */
     public static class Keys {
@@ -229,34 +221,20 @@ public class PlatformHealthSources {
             this.mImpl = impl;
         }
 
-        private DynamicHeartRateAccuracy(int val) {
-            this(DynamicInt32.constant(val));
+        /** Creates a constant-valued {@link DynamicHeartRateAccuracy}. */
+        @NonNull
+        public static DynamicHeartRateAccuracy constant(@HeartRateAccuracy int val) {
+            return new DynamicHeartRateAccuracy(DynamicInt32.constant(val));
         }
 
-        /** The accuracy is unknown. */
+        /** Creates a value to be provided from a {@code PlatformDataProvider}. */
         @NonNull
-        public static final DynamicHeartRateAccuracy UNKNOWN =
-                new DynamicHeartRateAccuracy(Constants.HEART_RATE_ACCURACY_UNKNOWN_VALUE);
-        /** The heart rate cannot be acquired because the sensor is not properly contacting skin. */
-        @NonNull
-        public static final DynamicHeartRateAccuracy NO_CONTACT =
-                new DynamicHeartRateAccuracy(Constants.HEART_RATE_ACCURACY_NO_CONTACT_VALUE);
-        /** Heart rate data is currently too unreliable to be used. */
-        @NonNull
-        public static final DynamicHeartRateAccuracy UNRELIABLE =
-                new DynamicHeartRateAccuracy(Constants.HEART_RATE_ACCURACY_UNRELIABLE_VALUE);
-        /** Heart rate data is available but the accuracy is low. */
-        @NonNull
-        public static final DynamicHeartRateAccuracy LOW =
-                new DynamicHeartRateAccuracy(Constants.HEART_RATE_ACCURACY_LOW_VALUE);
-        /** Heart rate data is available and the accuracy is medium. */
-        @NonNull
-        public static final DynamicHeartRateAccuracy MEDIUM =
-                new DynamicHeartRateAccuracy(Constants.HEART_RATE_ACCURACY_MEDIUM_VALUE);
-        /** Heart rate data is available with high accuracy. */
-        @NonNull
-        public static final DynamicHeartRateAccuracy HIGH =
-                new DynamicHeartRateAccuracy(Constants.HEART_RATE_ACCURACY_HIGH_VALUE);
+        @SuppressWarnings("unchecked") // DynamicHeartRateAccuracy acts like DynamicInt32.
+        public static DynamicDataValue<DynamicHeartRateAccuracy> dynamicDataValueOf(
+                @HeartRateAccuracy int val) {
+            return (DynamicDataValue<DynamicHeartRateAccuracy>)
+                    (DynamicDataValue<?>) DynamicDataValue.fromInt(val);
+        }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull

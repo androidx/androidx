@@ -19,7 +19,6 @@ package androidx.wear.protolayout.expression.pipeline;
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -27,32 +26,29 @@ import java.util.concurrent.Executor;
  * This interface is used by platform data providers to yield dynamic data for their supported data
  * keys.
  *
- * <p>It's up to the implementations to check if the expression provider has the required
- * permission before sending data with {@link PlatformDataReceiver#onData(Map)}. If a required
- * permission is not granted or is revoked they should stop sending more data and call
- * {@link PlatformDataReceiver#onInvalidated(Set)} instead.
+ * <p>It's up to the implementations to check if the expression provider has the required permission
+ * before sending data with {@link PlatformDataReceiver#onData}. If a required permission is not
+ * granted or is revoked they should stop sending more data and call {@link
+ * PlatformDataReceiver#onInvalidated(Set)} instead.
  */
 public interface PlatformDataProvider {
     /**
      * Sets the receiver for receiving the platform data from this provider.
      *
-     * <p>Each provider is expected to have only one receiver. When a receiver has already been
-     * set, the implementation should throw an exception.
+     * <p>Each provider is expected to have only one receiver. When a receiver has already been set,
+     * the implementation should throw an exception.
      *
-     * <p>The implementation should periodically send the dynamic data values for the set of
-     * {@link PlatformDataKey}s specified when registering this {@link PlatformDataProvider} in
-     * {@link DynamicTypeEvaluator.Config.Builder#addPlatformDataProvider}
+     * <p>The implementation should periodically send the dynamic data values for the set of {@link
+     * PlatformDataKey}s specified when registering this {@link PlatformDataProvider} in {@link
+     * DynamicTypeEvaluator.Config.Builder#addPlatformDataProvider}
      *
-     * @param executor The executor to run the {@link PlatformDataReceiver#onData(Map)} or
-     *                 {@link PlatformDataReceiver#onInvalidated(Set)} on.
-     * @param receiver The {@link PlatformDataReceiver} to receive the new dynamic values or to
-     *                 be notified that the current data has been invalidated for the registered
-     *                 keys.
+     * @param executor The executor to run the {@link PlatformDataReceiver#onData} or {@link
+     *     PlatformDataReceiver#onInvalidated(Set)} on.
+     * @param receiver The {@link PlatformDataReceiver} to receive the new dynamic values or to be
+     *     notified that the current data has been invalidated for the registered keys.
      */
     void setReceiver(@NonNull Executor executor, @NonNull PlatformDataReceiver receiver);
 
-    /**
-     * Clears the receiver from the provider.
-     */
+    /** Clears the receiver from the provider. */
     void clearReceiver();
 }

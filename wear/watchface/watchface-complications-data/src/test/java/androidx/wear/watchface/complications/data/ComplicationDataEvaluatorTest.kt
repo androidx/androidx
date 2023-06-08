@@ -81,7 +81,7 @@ class ComplicationDataEvaluatorTest {
      */
     enum class DataWithExpressionScenario(
         val expressed: WireComplicationData,
-        val states: List<Map<AppDataKey<*>, DynamicDataValue>>,
+        val states: List<Map<AppDataKey<*>, DynamicDataValue<*>>>,
         val evaluated: List<WireComplicationData>,
     ) {
         SET_IMMEDIATELY_WHEN_ALL_DATA_AVAILABLE(

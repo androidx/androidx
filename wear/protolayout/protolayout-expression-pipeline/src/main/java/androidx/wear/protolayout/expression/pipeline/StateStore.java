@@ -67,7 +67,7 @@ public final class StateStore extends DataStore {
      */
     @NonNull
     public static StateStore create(
-            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue>
+            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue<?>>
                     initialState) {
         return new StateStore(toProto(initialState));
     }
@@ -92,7 +92,7 @@ public final class StateStore extends DataStore {
      */
     @UiThread
     public void setAppStateEntryValues(
-            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> newState) {
+            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue<?>> newState) {
         setAppStateEntryValuesProto(toProto(newState));
     }
 
@@ -194,7 +194,7 @@ public final class StateStore extends DataStore {
 
     @NonNull
     private static Map<AppDataKey<?>, DynamicDataValue> toProto(
-            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> value) {
+            @NonNull Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue<?>> value) {
         return value.entrySet().stream()
                 .collect(toMap(Entry::getKey, entry -> entry.getValue().toDynamicDataValueProto()));
     }
