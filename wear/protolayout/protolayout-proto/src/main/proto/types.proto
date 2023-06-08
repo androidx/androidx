@@ -51,10 +51,13 @@ message StringProp {
 
 // A float type.
 message FloatProp {
-  // The static value. If a dynamic value is also set and the renderer supports
-  // dynamic values for the corresponding field, this static value will be
-  // ignored. If the static value is not specified, zero will be used instead.
-  optional float value = 1;
+
+  oneof optional_value {
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
+    float value = 1;
+  }
 
   // The dynamic value. Note that when setting this value, the static value is
   // still required to be set to support older renderers that only read the
