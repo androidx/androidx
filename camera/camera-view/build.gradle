@@ -64,7 +64,6 @@ dependencies {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
-    android
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
