@@ -3,5 +3,9 @@ ChangedType: androidx.compose.ui.draw.DrawModifierKt#CacheDrawModifierNode(kotli
     Method androidx.compose.ui.draw.DrawModifierKt.CacheDrawModifierNode has changed return type from androidx.compose.ui.node.CacheDrawModifierNode to androidx.compose.ui.draw.CacheDrawModifierNode
 
 
+RemovedClass: androidx.compose.ui.focus.FocusTargetNode:
+    Removed class androidx.compose.ui.focus.FocusTargetNode
+
+
 RemovedInterface: androidx.compose.ui.node.CacheDrawModifierNode:
     Removed class androidx.compose.ui.node.CacheDrawModifierNode
