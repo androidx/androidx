@@ -23,17 +23,12 @@ import androidx.appactions.interaction.service.proto.AppInteractionServiceProto
 /**
  * Holder for TileLayout response.
  */
-@Suppress("deprecation", "UnsafeOptInUsageError") // for backward compatibility
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-data class TileLayoutInternal(
-    val layout: androidx.wear.tiles.LayoutElementBuilders.Layout,
-    val resources: androidx.wear.tiles.ResourceBuilders.Resources
-) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class TileLayoutInternal(val byteArray: ByteArray) {
 
     fun toProto(): AppInteractionServiceProto.TileLayout {
         return AppInteractionServiceProto.TileLayout.newBuilder()
-            .setLayout(ByteString.copyFrom(layout.toByteArray()))
-            .setResources(ByteString.copyFrom(resources.toByteArray()))
+            .setLayout(ByteString.copyFrom(byteArray))
             .build()
     }
 }
