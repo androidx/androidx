@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("Deprecation") // b/279939308
 
 package androidx.compose.material
 

@@ -457,10 +457,10 @@ package androidx.compose.material {
     property public final int End;
   }
 
-  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FixedThreshold implements androidx.compose.material.ThresholdConfig {
-    ctor public FixedThreshold(float offset);
-    method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
-    method public androidx.compose.material.FixedThreshold copy-0680j_4(float offset);
+  @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FixedThreshold implements androidx.compose.material.ThresholdConfig {
+    ctor @Deprecated public FixedThreshold(float offset);
+    method @Deprecated public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
+    method @Deprecated public androidx.compose.material.FixedThreshold copy-0680j_4(float offset);
   }
 
   public final class FloatingActionButtonDefaults {
@@ -478,10 +478,10 @@ package androidx.compose.material {
     method @androidx.compose.runtime.Composable public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional long backgroundColor, optional long contentColor, optional androidx.compose.material.FloatingActionButtonElevation elevation, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FractionalThreshold implements androidx.compose.material.ThresholdConfig {
-    ctor public FractionalThreshold(float fraction);
-    method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
-    method public androidx.compose.material.FractionalThreshold copy(float fraction);
+  @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FractionalThreshold implements androidx.compose.material.ThresholdConfig {
+    ctor @Deprecated public FractionalThreshold(float fraction);
+    method @Deprecated public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
+    method @Deprecated public androidx.compose.material.FractionalThreshold copy(float fraction);
   }
 
   public final class IconButtonKt {
@@ -625,15 +625,15 @@ package androidx.compose.material {
     method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.material.RadioButtonColors colors);
   }
 
-  @androidx.compose.runtime.Immutable public final class ResistanceConfig {
-    ctor public ResistanceConfig(float basis, optional float factorAtMin, optional float factorAtMax);
-    method public float computeResistance(float overflow);
-    method public float getBasis();
-    method public float getFactorAtMax();
-    method public float getFactorAtMin();
-    property public final float basis;
-    property public final float factorAtMax;
-    property public final float factorAtMin;
+  @Deprecated @androidx.compose.runtime.Immutable public final class ResistanceConfig {
+    ctor @Deprecated public ResistanceConfig(float basis, optional float factorAtMin, optional float factorAtMax);
+    method @Deprecated public float computeResistance(float overflow);
+    method @Deprecated public float getBasis();
+    method @Deprecated public float getFactorAtMax();
+    method @Deprecated public float getFactorAtMin();
+    property @Deprecated public final float basis;
+    property @Deprecated public final float factorAtMax;
+    property @Deprecated public final float factorAtMin;
   }
 
   public final class ScaffoldKt {
@@ -745,14 +745,14 @@ package androidx.compose.material {
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void Surface(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional float elevation, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
-    ctor public SwipeProgress(T from, T to, float fraction);
-    method public float getFraction();
-    method public T getFrom();
-    method public T getTo();
-    property public final float fraction;
-    property public final T from;
-    property public final T to;
+  @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
+    ctor @Deprecated public SwipeProgress(T from, T to, float fraction);
+    method @Deprecated public float getFraction();
+    method @Deprecated public T getFrom();
+    method @Deprecated public T getTo();
+    property @Deprecated public final float fraction;
+    property @Deprecated public final T from;
+    property @Deprecated public final T to;
   }
 
   public final class SwipeToDismissKt {
@@ -760,47 +760,47 @@ package androidx.compose.material {
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.DismissState rememberDismissState(optional androidx.compose.material.DismissValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissValue,java.lang.Boolean> confirmStateChange);
   }
 
-  public final class SwipeableDefaults {
-    method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
-    method public float getVelocityThreshold();
-    method public androidx.compose.material.ResistanceConfig? resistanceConfig(java.util.Set<java.lang.Float> anchors, optional float factorAtMin, optional float factorAtMax);
-    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
-    property public final float VelocityThreshold;
-    field public static final androidx.compose.material.SwipeableDefaults INSTANCE;
-    field public static final float StandardResistanceFactor = 10.0f;
-    field public static final float StiffResistanceFactor = 20.0f;
+  @Deprecated public final class SwipeableDefaults {
+    method @Deprecated public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
+    method @Deprecated public float getVelocityThreshold();
+    method @Deprecated public androidx.compose.material.ResistanceConfig? resistanceConfig(java.util.Set<java.lang.Float> anchors, optional float factorAtMin, optional float factorAtMax);
+    property @Deprecated public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property @Deprecated public final float VelocityThreshold;
+    field @Deprecated public static final androidx.compose.material.SwipeableDefaults INSTANCE;
+    field @Deprecated public static final float StandardResistanceFactor = 10.0f;
+    field @Deprecated public static final float StiffResistanceFactor = 20.0f;
   }
 
   public final class SwipeableKt {
-    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material.SwipeableState<T> rememberSwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.compose.material.ThresholdConfig> thresholds, optional androidx.compose.material.ResistanceConfig? resistance, optional float velocityThreshold);
+    method @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material.SwipeableState<T> rememberSwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
+    method @Deprecated @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.compose.material.ThresholdConfig> thresholds, optional androidx.compose.material.ResistanceConfig? resistance, optional float velocityThreshold);
   }
 
-  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {
-    ctor public SwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final T getCurrentValue();
-    method public final float getDirection();
-    method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
-    method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
-    method public final androidx.compose.material.SwipeProgress<T> getProgress();
-    method public final T getTargetValue();
-    method public final boolean isAnimationRunning();
-    method public final float performDrag(float delta);
-    method public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final T currentValue;
-    property @androidx.compose.material.ExperimentalMaterialApi public final float direction;
-    property public final boolean isAnimationRunning;
-    property public final androidx.compose.runtime.State<java.lang.Float> offset;
-    property public final androidx.compose.runtime.State<java.lang.Float> overflow;
-    property @androidx.compose.material.ExperimentalMaterialApi public final androidx.compose.material.SwipeProgress<T> progress;
-    property @androidx.compose.material.ExperimentalMaterialApi public final T targetValue;
-    field public static final androidx.compose.material.SwipeableState.Companion Companion;
+  @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {
+    ctor @Deprecated public SwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
+    method @Deprecated @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public final T getCurrentValue();
+    method @Deprecated public final float getDirection();
+    method @Deprecated public final androidx.compose.runtime.State<java.lang.Float> getOffset();
+    method @Deprecated public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
+    method @Deprecated public final androidx.compose.material.SwipeProgress<T> getProgress();
+    method @Deprecated public final T getTargetValue();
+    method @Deprecated public final boolean isAnimationRunning();
+    method @Deprecated public final float performDrag(float delta);
+    method @Deprecated public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated @androidx.compose.material.ExperimentalMaterialApi public final suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property @Deprecated public final T currentValue;
+    property @Deprecated @androidx.compose.material.ExperimentalMaterialApi public final float direction;
+    property @Deprecated public final boolean isAnimationRunning;
+    property @Deprecated public final androidx.compose.runtime.State<java.lang.Float> offset;
+    property @Deprecated public final androidx.compose.runtime.State<java.lang.Float> overflow;
+    property @Deprecated @androidx.compose.material.ExperimentalMaterialApi public final androidx.compose.material.SwipeProgress<T> progress;
+    property @Deprecated @androidx.compose.material.ExperimentalMaterialApi public final T targetValue;
+    field @Deprecated public static final androidx.compose.material.SwipeableState.Companion Companion;
   }
 
-  public static final class SwipeableState.Companion {
-    method public <T> androidx.compose.runtime.saveable.Saver<androidx.compose.material.SwipeableState<T>,T> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
+  @Deprecated public static final class SwipeableState.Companion {
+    method @Deprecated public <T> androidx.compose.runtime.saveable.Saver<androidx.compose.material.SwipeableState<T>,T> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
   }
 
   @androidx.compose.runtime.Stable public interface SwitchColors {
@@ -912,8 +912,8 @@ package androidx.compose.material {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
-  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public interface ThresholdConfig {
-    method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
+  @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public interface ThresholdConfig {
+    method @Deprecated public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
