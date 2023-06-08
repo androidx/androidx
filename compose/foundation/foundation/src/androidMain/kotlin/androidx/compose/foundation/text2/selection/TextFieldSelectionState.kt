@@ -17,19 +17,28 @@
 package androidx.compose.foundation.text2.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.selection.containsInclusive
+import androidx.compose.foundation.text.selection.getAdjustedCoordinates
 import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextOnlyMutationPolicy
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.flow.drop
@@ -40,6 +49,15 @@ internal class TextFieldSelectionState(
     private val textLayoutState: TextLayoutState,
     private val density: Density
 ) {
+    /**
+     * [HapticFeedback] handle to perform haptic feedback.
+     */
+    var hapticFeedBack: HapticFeedback? = null
+
+    /**
+     * Whether user is interacting with the UI in touch mode.
+     */
+    var isInTouchMode: Boolean by mutableStateOf(true)
 
     /**
      * The gesture detector state, to indicate whether to show the appropriate handles for current
@@ -53,6 +71,18 @@ internal class TextFieldSelectionState(
      * state of the TextField.
      */
     var showHandles by mutableStateOf(false)
+
+    /**
+     * The location where cursor handle dragging has started. [Offset.Unspecified] means there is no
+     * active dragging.
+     */
+    var cursorDragStart by mutableStateOf(Offset.Unspecified)
+
+    /**
+     * Displacement of cursor handle compared to [cursorDragStart] while dragging.
+     * [Offset.Unspecified] means there is no active dragging.
+     */
+    var cursorDragDelta by mutableStateOf(Offset.Unspecified)
 
     suspend fun observeTextChanges() {
         val derivedTextState = derivedStateOf(TextOnlyMutationPolicy) { textFieldState.text }
@@ -69,13 +99,75 @@ internal class TextFieldSelectionState(
      * out of view) and the handle should be drawn.
      */
     val cursorHandleVisible: Boolean by derivedStateOf {
-        showHandles && textLayoutState.innerTextFieldCoordinates
-            ?.visibleBounds()
-            // Visibility of cursor handle should only be decided by changes to showHandles and
-            // innerTextFieldCoordinates. If we also react to position changes of cursor, cursor
-            // handle may start flickering while moving and scrolling the text field.
-            ?.containsInclusive(Snapshot.withoutReadObservation { cursorRect.bottomCenter })
+        val existsCondition = showHandles && textFieldState.text.selectionInChars.collapsed
+        if (!existsCondition) return@derivedStateOf false
+
+        // either cursor is dragging or inside visible bounds.
+        return@derivedStateOf cursorDragStart.isSpecified ||
+            textLayoutState.innerTextFieldCoordinates
+                ?.visibleBounds()
+                // Visibility of cursor handle should only be decided by changes to showHandles and
+                // innerTextFieldCoordinates. If we also react to position changes of cursor, cursor
+                // handle may start flickering while moving and scrolling the text field.
+                ?.containsInclusive(Snapshot.withoutReadObservation { cursorRect.bottomCenter })
             ?: false
+    }
+
+    suspend fun PointerInputScope.detectCursorHandleDragGestures() {
+        // keep track of how visible bounds change while moving the cursor handle.
+        var startContentVisibleOffset: Offset = Offset.Zero
+        detectDragGestures(
+            onDragStart = {
+                // mark start drag point
+                cursorDragStart = getAdjustedCoordinates(cursorRect.bottomCenter)
+                cursorDragDelta = Offset.Zero
+                startContentVisibleOffset = textLayoutState.innerTextFieldCoordinates
+                    ?.takeIf { textLayoutState.innerTextFieldCoordinates?.isAttached == true }
+                    ?.visibleBounds()
+                    ?.topLeft ?: Offset.Zero
+                isInTouchMode = true
+            },
+            onDragEnd = {
+                // clear any dragging state
+                cursorDragStart = Offset.Unspecified
+                cursorDragDelta = Offset.Unspecified
+                startContentVisibleOffset = Offset.Zero
+            },
+            onDragCancel = {
+                // another gesture consumed the pointer, or composable is disposed
+                cursorDragStart = Offset.Unspecified
+                cursorDragDelta = Offset.Unspecified
+                startContentVisibleOffset = Offset.Zero
+            },
+            onDrag = onDrag@{ change, dragAmount ->
+                cursorDragDelta += dragAmount
+
+                val currentContentVisibleOffset = textLayoutState.innerTextFieldCoordinates
+                    ?.visibleBounds()
+                    ?.takeIf { textLayoutState.innerTextFieldCoordinates?.isAttached == true }
+                    ?.topLeft ?: startContentVisibleOffset
+
+                // "start position + total delta" is not enough to understand the current pointer
+                // position relative to text layout. We need to also account for any changes to
+                // visible offset that's caused by auto-scrolling while dragging.
+                val currentDragPosition = cursorDragStart + cursorDragDelta +
+                    (currentContentVisibleOffset - startContentVisibleOffset)
+
+                val layoutResult = textLayoutState.layoutResult ?: return@onDrag
+                val offset = layoutResult.getOffsetForPosition(currentDragPosition)
+
+                val newSelection = TextRange(offset)
+
+                // Nothing changed, skip onValueChange hand hapticFeedback.
+                if (newSelection == textFieldState.text.selectionInChars) return@onDrag
+
+                change.consume()
+                hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                textFieldState.edit {
+                    selectCharsIn(newSelection)
+                }
+            }
+        )
     }
 
     /**

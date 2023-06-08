@@ -55,7 +55,9 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.semantics.semantics
@@ -125,7 +127,6 @@ import androidx.compose.ui.unit.Density
  * parameter "innerTextField" to the decorationBox lambda you provide. You must call
  * innerTextField exactly once.
  */
-@Suppress("DEPRECATION")
 @ExperimentalFoundationApi
 @Composable
 fun BasicTextField2(
@@ -164,6 +165,7 @@ fun BasicTextField2(
     val textFieldSelectionState = remember(state, textLayoutState, density) {
         TextFieldSelectionState(state, textLayoutState, density)
     }
+    textFieldSelectionState.hapticFeedBack = LocalHapticFeedback.current
 
     val decorationModifiers = modifier
         .then(
@@ -211,25 +213,25 @@ fun BasicTextField2(
             Box(
                 propagateMinConstraints = true,
                 modifier = Modifier
-                .heightInLines(
-                    textStyle = textStyle,
-                    minLines = minLines,
-                    maxLines = maxLines
-                )
-                .textFieldMinSize(textStyle)
-                .clipToBounds()
-                .then(
-                    TextFieldCoreModifier(
-                        isFocused = isFocused,
-                        textLayoutState = textLayoutState,
-                        textFieldState = state,
-                        textFieldSelectionState = textFieldSelectionState,
-                        cursorBrush = cursorBrush,
-                        writeable = enabled && !readOnly,
-                        scrollState = scrollState,
-                        orientation = orientation
+                    .heightInLines(
+                        textStyle = textStyle,
+                        minLines = minLines,
+                        maxLines = maxLines
                     )
-                )
+                    .textFieldMinSize(textStyle)
+                    .clipToBounds()
+                    .then(
+                        TextFieldCoreModifier(
+                            isFocused = isFocused,
+                            textLayoutState = textLayoutState,
+                            textFieldState = state,
+                            textFieldSelectionState = textFieldSelectionState,
+                            cursorBrush = cursorBrush,
+                            writeable = enabled && !readOnly,
+                            scrollState = scrollState,
+                            orientation = orientation
+                        )
+                    )
             ) {
                 Box(
                     modifier = TextFieldTextLayoutModifier(
@@ -242,8 +244,10 @@ fun BasicTextField2(
                     )
                 )
 
-                if (enabled && isFocused && !readOnly && isInTouchMode) {
-                    TextFieldCursorHandle(selectionState = textFieldSelectionState)
+                if (enabled && isFocused && !readOnly && textFieldSelectionState.isInTouchMode) {
+                    TextFieldCursorHandle(
+                        selectionState = textFieldSelectionState
+                    )
                 }
             }
         })
@@ -261,6 +265,9 @@ internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
                         handle = Handle.Cursor,
                         position = selectionState.cursorRect.bottomCenter
                     )
+                }
+                .pointerInput(selectionState) {
+                    with(selectionState) { detectCursorHandleDragGestures() }
                 },
             content = null
         )

@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
@@ -144,6 +145,14 @@ internal class TextFieldDecoratorModifierNode(
     CompositionLocalConsumerModifierNode {
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
+        coroutineScope.launch {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                    textFieldSelectionState.isInTouchMode = !event.isPrecisePointer
+                }
+            }
+        }
         detectTapAndPress(onTap = { offset ->
             if (!isFocused) {
                 requestFocus()
@@ -242,6 +251,7 @@ internal class TextFieldDecoratorModifierNode(
         val writeable = enabled && !readOnly
         val previousTextFieldState = this.textFieldState
         val previousKeyboardOptions = this.keyboardOptions
+        val previousTextFieldSelectionState = this.textFieldSelectionState
 
         // Apply the diff.
         this.textFieldState = textFieldState
@@ -278,6 +288,10 @@ internal class TextFieldDecoratorModifierNode(
 
         textInputSession?.setFilter(filter)
         textFieldKeyEventHandler.setFilter(filter)
+
+        if (textFieldSelectionState != previousTextFieldSelectionState) {
+            pointerInputNode.resetPointerInputHandler()
+        }
     }
 
     override val shouldMergeDescendantSemantics: Boolean
