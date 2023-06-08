@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
@@ -37,6 +38,14 @@ class BenchmarkStateConfigTest {
         val state = BenchmarkState(config)
         var count = 0
         while (state.keepRunning()) {
+            if (Build.VERSION.SDK_INT < 21) {
+                // This spin loop works around an issue where on Mako API 17, nanoTime is only
+                // precise to 30us. A more ideal fix might introduce an automatic divisor to
+                // WarmupManager when the duration values it sees are 0, but this is simple.
+                val start = System.nanoTime()
+                @Suppress("ControlFlowWithEmptyBody")
+                while (System.nanoTime() == start) {}
+            }
             count++
         }
 
