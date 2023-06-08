@@ -162,6 +162,9 @@ package androidx.compose.foundation {
     ctor public MutatorMutex();
     method public suspend <R> Object? mutate(optional androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method public suspend <T, R> Object? mutateWith(T receiver, optional androidx.compose.foundation.MutatePriority priority, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method @kotlin.PublishedApi internal boolean tryLock();
+    method public inline boolean tryMutate(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @kotlin.PublishedApi internal void unlock();
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class OverscrollConfiguration {
@@ -234,6 +237,49 @@ package androidx.compose.foundation {
 
 package androidx.compose.foundation.gestures {
 
+  @androidx.compose.foundation.ExperimentalFoundationApi public interface AnchoredDragScope {
+    method public void dragTo(float newOffset, optional float lastKnownVelocity);
+  }
+
+  public final class AnchoredDraggableKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.foundation.gestures.DraggableAnchors<T> DraggableAnchors(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.gestures.DraggableAnchorsConfig<T>,kotlin.Unit> builder);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, optional float velocity, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? snapTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class AnchoredDraggableState<T> {
+    ctor @androidx.compose.foundation.ExperimentalFoundationApi public AnchoredDraggableState(T initialValue, androidx.compose.foundation.gestures.DraggableAnchors<T> anchors, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    ctor public AnchoredDraggableState(T initialValue, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    method public suspend Object? anchoredDrag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.gestures.AnchoredDragScope,? super androidx.compose.foundation.gestures.DraggableAnchors<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? anchoredDrag(T targetValue, optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function4<? super androidx.compose.foundation.gestures.AnchoredDragScope,? super androidx.compose.foundation.gestures.DraggableAnchors<T>,? super T,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public float dispatchRawDelta(float delta);
+    method public androidx.compose.foundation.gestures.DraggableAnchors<T> getAnchors();
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getAnimationSpec();
+    method public T getCurrentValue();
+    method public float getLastVelocity();
+    method public float getOffset();
+    method public float getProgress();
+    method public T getTargetValue();
+    method public boolean isAnimationRunning();
+    method public float requireOffset();
+    method public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void updateAnchors(androidx.compose.foundation.gestures.DraggableAnchors<T> newAnchors, optional T newTarget);
+    property public final androidx.compose.foundation.gestures.DraggableAnchors<T> anchors;
+    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec;
+    property public final T currentValue;
+    property public final boolean isAnimationRunning;
+    property public final float lastVelocity;
+    property public final float offset;
+    property public final float progress;
+    property public final T targetValue;
+    field public static final androidx.compose.foundation.gestures.AnchoredDraggableState.Companion Companion;
+  }
+
+  public static final class AnchoredDraggableState.Companion {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public <T> androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.gestures.AnchoredDraggableState<T>,T> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+  }
+
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface BringIntoViewScroller {
     method public float calculateScrollDistance(float offset, float size, float containerSize);
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getScrollAnimationSpec();
@@ -265,6 +311,22 @@ package androidx.compose.foundation.gestures {
 
   public interface DragScope {
     method public void dragBy(float pixels);
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi public interface DraggableAnchors<T> {
+    method public T? closestAnchor(float position);
+    method public T? closestAnchor(float position, boolean searchUpwards);
+    method public int getSize();
+    method public boolean hasAnchorFor(T value);
+    method public float maxAnchor();
+    method public float minAnchor();
+    method public float positionOf(T value);
+    property public abstract int size;
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi public final class DraggableAnchorsConfig<T> {
+    ctor public DraggableAnchorsConfig();
+    method public infix void at(T, float position);
   }
 
   public final class DraggableKt {
