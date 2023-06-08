@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -409,9 +408,13 @@ fun BottomAppBar(
     windowInsets = windowInsets,
     contentPadding = contentPadding
 ) {
-    actions()
+    Row(
+        modifier = Modifier.weight(1f),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+        content = actions,
+    )
     if (floatingActionButton != null) {
-        Spacer(Modifier.weight(1f, true))
         Box(
             Modifier
                 .fillMaxHeight()
