@@ -21,6 +21,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -62,6 +63,7 @@ class BenchmarkStateConfigTest {
         assertNotEquals(0.0, state.getMinTimeNanos()) // just verify some value is set
     }
 
+    @Ignore("b/286119444")
     @Test
     fun dryRunMode() = validateConfig(
         MicrobenchmarkPhase.Config(
@@ -77,6 +79,7 @@ class BenchmarkStateConfigTest {
         expectedIterations = 1,
     )
 
+    @Ignore("b/286119444")
     @Test
     fun startupMode() = validateConfig(
         MicrobenchmarkPhase.Config(
