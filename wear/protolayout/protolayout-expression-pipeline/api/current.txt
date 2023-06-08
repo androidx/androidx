@@ -23,6 +23,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
   public static final class DynamicTypeEvaluator.Config {
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
+    method @VisibleForTesting public java.util.function.Supplier<java.time.Instant!>? getClock();
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getDynamicTypesQuotaManager();
     method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!> getPlatformDataProviders();
     method public androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier? getPlatformTimeUpdateNotifier();
@@ -34,6 +35,7 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method @VisibleForTesting public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setClock(java.util.function.Supplier<java.time.Instant!>);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setDynamicTypesQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformTimeUpdateNotifier(androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.StateStore);
