@@ -103,6 +103,7 @@ internal class AppInteractionServiceGrpcImpl(
                             LogLevel.ERROR -> Log.e(logTag, message)
                             LogLevel.WARN -> Log.w(logTag, message)
                             LogLevel.INFO -> Log.i(logTag, message)
+                            LogLevel.DEBUG -> Log.d(logTag, message)
                         }
                     }
 
@@ -116,6 +117,7 @@ internal class AppInteractionServiceGrpcImpl(
                             LogLevel.ERROR -> Log.e(logTag, message, throwable)
                             LogLevel.WARN -> Log.w(logTag, message, throwable)
                             LogLevel.INFO -> Log.i(logTag, message, throwable)
+                            LogLevel.DEBUG -> Log.d(logTag, message, throwable)
                         }
                     }
                 },

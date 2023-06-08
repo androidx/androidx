@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues name="AGP (8.1.0-beta02)" by="lint 8.1.0-beta02" client="gradle" dependencies="false"
+    format="6" type="baseline" variant="all" version="8.1.0-beta02">
+
+    <!-- Need to use reflection to dynamically access serializers based on type-name. These
+    serializers may be coming from a downstream artifact and are not available at compile-time.
+    This also aids in a binary-bloat optimization where all serializers start off a dead code and
+    then we instruct proguard to only retain the serializers for types that are explicitly
+    referenced and prune others.
+    -->
+    <issue
+        errorLine1="                .map { it.invoke(null) as BuiltInTypeSerializer&lt;*> }"
+        errorLine2="                       ~~~~~~~~~~~~~~~"
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/serializers/types/BuiltInTypeSerializerRegistry.kt" />
+    </issue>
+
+</issues>
