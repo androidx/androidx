@@ -10,11 +10,14 @@ option java_outer_classname = "ColorProto";
 
 // A property defining a color.
 message ColorProp {
-  // The static color value, in ARGB format. If a dynamic value is also set and the
-  // renderer supports dynamic values for the corresponding field, this static
-  // value will be ignored. If the static value is not specified, zero
-  // (equivalent to {@link Color#TRANSPARENT}) will be used instead.
-  optional uint32 argb = 1;
+
+  oneof optional_argb {
+    // The static color value, in ARGB format. If a dynamic value is also set and the
+    // renderer supports dynamic values for the corresponding field, this static
+    // value will be ignored. If the static value is not specified, zero
+    // (equivalent to {@link Color#TRANSPARENT}) will be used instead.
+    uint32 argb = 1;
+  }
 
   // The dynamic value. Note that when setting this value, the static value is
   // still required to be set to support older renderers that only read the

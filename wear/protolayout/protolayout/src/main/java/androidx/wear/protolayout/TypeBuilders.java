@@ -49,7 +49,7 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
+         * Gets the static value.
          *
          * @since 1.0
          */
@@ -101,7 +101,7 @@ public final class TypeBuilders {
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Sets the static value.
              *
              * @since 1.0
              */
@@ -529,7 +529,7 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
+         * Gets the static value.
          *
          * @since 1.0
          */
@@ -581,7 +581,7 @@ public final class TypeBuilders {
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Sets the static value.
              *
              * @since 1.0
              */
