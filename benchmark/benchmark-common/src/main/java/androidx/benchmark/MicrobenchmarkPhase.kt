@@ -74,10 +74,11 @@ internal class MicrobenchmarkPhase(
         }
         class Duration(private val targetRepeatDurationNs: Long) : LoopMode() {
             override fun getIterations(warmupEstimatedIterationTimeNs: Long): Int {
-                check(warmupEstimatedIterationTimeNs > 0) {
+                check(warmupEstimatedIterationTimeNs >= 0) {
                     "Cannot dynamically determine repeat duration, warmup has not run!"
                 }
-                return (targetRepeatDurationNs / warmupEstimatedIterationTimeNs).toInt()
+                return (targetRepeatDurationNs / warmupEstimatedIterationTimeNs.coerceAtLeast(1))
+                    .toInt()
                     .coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
             }
         }
