@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
@@ -73,13 +74,19 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
         afTriggerStartAeMode: AeMode?,
+        convergedCondition: ((FrameMetadata) -> Boolean)?,
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 
-    override suspend fun lock3AForCapture(frameLimit: Int, timeLimitNs: Long): Deferred<Result3A> {
+    override suspend fun lock3AForCapture(
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 
@@ -127,6 +134,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         ae: Boolean?,
         af: Boolean?,
         awb: Boolean?,
+        unlockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {

@@ -21,6 +21,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestNumber
@@ -751,6 +752,117 @@ internal class Controller3ALock3ATest {
         val result = controller3A.lock3A(afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN).await()
         assertThat(result.status).isEqualTo(Result3A.Status.OK)
         assertThat(result.frameMetadata).isEqualTo(null)
+    }
+
+    @Test
+    fun testCustomizedExitConditionForEmptyAeState_newScanLock3A() = runTest {
+        // Arrange, set up exit conditions which allow 3A state to be empty.
+        val convergeCondition: (FrameMetadata) -> Boolean = convergeCondition@{ frameMetadata ->
+            val aeUnlocked = frameMetadata[CaptureResult.CONTROL_AE_STATE]?.let {
+                listOf(
+                    CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                    CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
+                    CaptureResult.CONTROL_AE_STATE_LOCKED
+                ).contains(it)
+            } ?: true
+
+            val afUnlocked = frameMetadata[CaptureResult.CONTROL_AF_STATE]?.let {
+                listOf(
+                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                    CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED,
+                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                ).contains(it)
+            } ?: true
+
+            val awbUnlocked = frameMetadata[CaptureResult.CONTROL_AWB_STATE]?.let {
+                listOf(
+                    CaptureResult.CONTROL_AWB_STATE_CONVERGED,
+                    CaptureResult.CONTROL_AWB_STATE_LOCKED
+                ).contains(it)
+            } ?: true
+
+            return@convergeCondition aeUnlocked && afUnlocked && awbUnlocked
+        }
+        val lockCondition: (FrameMetadata) -> Boolean = lockCondition@{ frameMetadata ->
+            val aeUnlocked = frameMetadata[CaptureResult.CONTROL_AE_STATE]?.let {
+                listOf(CaptureResult.CONTROL_AE_STATE_LOCKED).contains(it)
+            } ?: true
+
+            val afUnlocked = frameMetadata[CaptureResult.CONTROL_AF_STATE]?.let {
+                listOf(
+                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                ).contains(it)
+            } ?: true
+
+            val awbUnlocked = frameMetadata[CaptureResult.CONTROL_AWB_STATE]?.let {
+                listOf(CaptureResult.CONTROL_AWB_STATE_LOCKED).contains(it)
+            } ?: true
+
+            return@lockCondition aeUnlocked && afUnlocked && awbUnlocked
+        }
+
+        // Act. lock3A with new scan
+        val lock3AAsyncTask = async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                awbLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                convergedCondition = convergeCondition,
+                lockedCondition = lockCondition,
+            )
+        }
+
+        // Simulate repeatedly invoke without AE state.
+        val repeatingJob = async {
+            var frameNumber = 101L
+            while (frameNumber < 110L) {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(frameNumber),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(frameNumber++),
+                        resultMetadata = mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_CONVERGED
+                        )
+                    )
+                )
+                delay(FRAME_RATE_MS)
+            }
+        }
+        val deferredResult = lock3AAsyncTask.await()
+        repeatingJob.await()
+        assertThat(deferredResult.isCompleted).isFalse()
+
+        // Simulate locked AF, AWB invoke without AE locked info.
+        listener3A.onRequestSequenceCreated(
+            FakeRequestMetadata(requestNumber = RequestNumber(1))
+        )
+        listener3A.onPartialCaptureResult(
+            FakeRequestMetadata(requestNumber = RequestNumber(1)),
+            FrameNumber(120L),
+            FakeFrameMetadata(
+                frameNumber = FrameNumber(120L),
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AWB_STATE to
+                        CaptureResult.CONTROL_AWB_STATE_LOCKED
+                )
+            )
+        )
+
+        // Assert. lock3A task should be completed.
+        val result3A = deferredResult.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     companion object {
