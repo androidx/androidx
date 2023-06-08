@@ -18,7 +18,6 @@ package androidx.window.samples.embedding
 
 import android.app.Application
 import androidx.annotation.Sampled
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
@@ -26,7 +25,6 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
 import androidx.window.embedding.SplitController
 import androidx.window.layout.FoldingFeature
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 fun splitAttributesCalculatorSample() {
     SplitController.getInstance(context)
@@ -79,7 +77,6 @@ fun splitAttributesCalculatorSample() {
         }
 }
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 fun splitWithOrientations() {
     SplitController.getInstance(context)
@@ -107,7 +104,6 @@ fun splitWithOrientations() {
         }
 }
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 fun expandContainersInPortrait() {
     SplitController.getInstance(context)
@@ -135,7 +131,6 @@ fun expandContainersInPortrait() {
         }
 }
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 fun fallbackToExpandContainersForSplitTypeHinge() {
     SplitController.getInstance(context).setSplitAttributesCalculator { params ->

@@ -16,20 +16,25 @@
 
 package androidx.window.area
 
-import androidx.window.core.ExperimentalWindowApi
-
 /**
- * Callback to update the client on the WindowArea Session being
+ *  Callback to update the client on the WindowArea Session being
  * started and ended.
  * TODO(b/207720511) Move to window-java module when Kotlin API Finalized
- *
- * @hide
- *
  */
-@ExperimentalWindowApi
 interface WindowAreaSessionCallback {
 
+    /**
+     * Notifies about a start of a session. Provides a reference to the current [WindowAreaSession]
+     * the application the ability to close the session through [WindowAreaSession.close].
+     */
     fun onSessionStarted(session: WindowAreaSession)
 
-    fun onSessionEnded()
+    /**
+     * Notifies about an end of a [WindowAreaSession].
+     *
+     * @param t [Throwable] to provide information on if the session was ended due to an error.
+     * This will only occur if a session is attempted to be enabled when it is not available, but
+     * can be expanded to alert for more errors in the future.
+     */
+    fun onSessionEnded(t: Throwable?)
 }

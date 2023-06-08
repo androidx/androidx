@@ -87,4 +87,99 @@ object WindowProperties {
      */
     const val PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED =
         "android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * for an app to inform the system that the app can be opted-out from the compatibility
+     * treatment that avoids [android.app.Activity.setRequestedOrientation] loops. The loop
+     * can be trigerred when ignoreOrientationRequest display setting is
+     * enabled on the device (enables compatibility mode for fixed orientation,
+     * see [Enhanced letterboxing](https://developer.android.com/guide/practices/enhanced-letterboxing)
+     * for more details). or by the landscape natural orientation of the device.
+     *
+     *
+     * The system could ignore [android.app.Activity.setRequestedOrientation]
+     * call from an app if both of the following conditions are true:
+     *  * Activity has requested orientation more than 2 times within 1-second timer
+     *  * Activity is not letterboxed for fixed orientation
+     *
+     * Setting this property to `false` informs the system that the app must be
+     * opted-out from the compatibility treatment even if the device manufacturer has opted the app
+     * into the treatment.
+     *
+     * Not setting this property at all, or setting this property to `true` has no effect.
+     *
+     * **Syntax:**
+     * ```
+     * <application>
+     *   <property
+     *     android:name="android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
+     *     android:value="false" />
+     * </application>
+     * ```
+     */
+    // TODO(b/274924641): Make property public
+    const val PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED =
+        "android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * for an app to inform the system that the app should be opted-out from the compatibility
+     * override that changes the min aspect ratio.
+     *
+     * When this compat override is enabled the min aspect ratio given in the app's manifest can
+     * be overridden by the device manufacturer using their discretion to improve display
+     * compatibility unless the app's manifest value is higher. This treatment will also apply if
+     * no min aspect ratio value is provided in the manifest. These treatments can apply only in
+     * specific cases (e.g. device is in portrait) or each time the app is displayed on screen.
+     *
+     * Setting this property to `false` informs the system that the app must be
+     * opted-out from the compatibility treatment even if the device manufacturer has opted the app
+     * into the treatment.
+     *
+     * Not setting this property at all, or setting this property to `true` has no effect.
+     *
+     * **Syntax:**
+     * ```
+     * <application>
+     *   <property
+     *     android:name="android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+     *     android:value="false" />
+     * </application>
+     * ```
+     */
+    const val PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE =
+        "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * for an app to inform the system that the app should be opted-out from the
+     * compatibility overrides that change the resizability of the app.
+     *
+     * When these compat overrides are enabled they force the packages they are applied to to be
+     * resizable / unresizable. If the app is forced to be resizable this won't change whether
+     * the app can be put into multi-windowing mode, but allow the app to resize without going into
+     * size-compat mode when the window container resizes, such as display size change or screen
+     * rotation.
+     *
+     * Setting this property to `false` informs the system that the app must be
+     * opted-out from the compatibility treatment even if the device manufacturer has opted the app
+     * into the treatment.
+     *
+     * Not setting this property at all, or setting this property to `true` has no effect.
+     *
+     * **Syntax:**
+     * ```
+     * <application>
+     *   <property
+     *     android:name="android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES"
+     *     android:value="false" />
+     * </application>
+     * ```
+     */
+    const val PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES =
+        "android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES"
 }

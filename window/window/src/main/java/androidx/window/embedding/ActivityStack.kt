@@ -16,6 +16,7 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
@@ -40,7 +41,11 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
      * process(es), [activitiesInProcess] will return an empty list, but this method will return
      * `false`.
      */
-    val isEmpty: Boolean
+    val isEmpty: Boolean,
+    /**
+     * A token uniquely identifying this `ActivityStack`.
+     */
+    internal val token: IBinder,
 ) {
 
     /**
@@ -56,6 +61,7 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
 
         if (activitiesInProcess != other.activitiesInProcess) return false
         if (isEmpty != other.isEmpty) return false
+        if (token != other.token) return false
 
         return true
     }
@@ -63,6 +69,7 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
     override fun hashCode(): Int {
         var result = activitiesInProcess.hashCode()
         result = 31 * result + isEmpty.hashCode()
+        result = 31 * result + token.hashCode()
         return result
     }
 
@@ -70,5 +77,6 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
         "ActivityStack{" +
             "activitiesInProcess=$activitiesInProcess" +
             ", isEmpty=$isEmpty" +
+            ", token=$token" +
             "}"
 }

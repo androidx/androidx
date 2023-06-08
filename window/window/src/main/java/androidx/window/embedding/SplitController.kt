@@ -155,9 +155,8 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * example, a foldable device with multiple screens can choose to collapse
      * splits when apps run on the device's small display, but enable splits
      * when apps run on the device's large display. In cases like this,
-     * [splitSupportStatus] always returns [SplitSupportStatus.SPLIT_AVAILABLE], and if the
-     * split is collapsed, activities are launched on top, following the non-activity
-     * embedding model.
+     * [splitSupportStatus] always returns [SplitSupportStatus.SPLIT_AVAILABLE], and if the split is
+     * collapsed, activities are launched on top, following the non-activity embedding model.
      *
      * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED]
      * must be enabled in AndroidManifest within <application> in order to get the correct
@@ -213,7 +212,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
      * `false`
      */
-    @ExperimentalWindowApi
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -227,19 +225,85 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
      * `false`
      */
-    @ExperimentalWindowApi
     fun clearSplitAttributesCalculator() {
         embeddingBackend.clearSplitAttributesCalculator()
     }
 
     /** Returns whether [setSplitAttributesCalculator] is supported or not. */
-    @ExperimentalWindowApi
     fun isSplitAttributesCalculatorSupported(): Boolean =
         embeddingBackend.isSplitAttributesCalculatorSupported()
 
     /**
+     * Triggers a [SplitAttributes] update callback for the current topmost and visible split layout
+     * if there is one. This method can be used when a change to the split presentation originates
+     * from an application state change. Changes that are driven by parent window changes or new
+     * activity starts invoke the callback provided in [setSplitAttributesCalculator] automatically
+     * without the need to call this function.
+     *
+     * The top [SplitInfo] is usually the last element of [SplitInfo] list which was received from
+     * the callback registered in [SplitController.addSplitListener].
+     *
+     * The call will be ignored if there is no visible split.
+     *
+     * @throws UnsupportedOperationException if the device doesn't support this API.
+     */
+    @ExperimentalWindowApi
+    fun invalidateTopVisibleSplitAttributes() =
+        embeddingBackend.invalidateTopVisibleSplitAttributes()
+
+    /**
+     * Checks whether [invalidateTopVisibleSplitAttributes] is supported on the device.
+     *
+     * Invoking these APIs if the feature is not supported would trigger an
+     * [UnsupportedOperationException].
+     * @return `true` if the runtime APIs to update [SplitAttributes] are supported and can be
+     * called safely, `false` otherwise.
+     */
+    @ExperimentalWindowApi
+    fun isInvalidatingTopVisibleSplitAttributesSupported(): Boolean =
+        embeddingBackend.areSplitAttributesUpdatesSupported()
+
+    /**
+     * Updates the [SplitAttributes] of a split pair. This is an alternative to using
+     * a split attributes calculator callback set in [setSplitAttributesCalculator], useful when
+     * apps only need to update the splits in a few cases proactively but rely on the default split
+     * attributes most of the time otherwise.
+     *
+     * The provided split attributes will be used instead of the associated
+     * [SplitRule.defaultSplitAttributes].
+     *
+     * **Note** that the split attributes may be updated if split attributes calculator callback is
+     * registered and invoked. If [setSplitAttributesCalculator] is used, the callback will still be
+     * applied to each [SplitInfo] when there's either:
+     * - A new Activity being launched.
+     * - A window or device state updates (e,g. due to screen rotation or folding state update).
+     *
+     * In most cases it is suggested to use [invalidateTopVisibleSplitAttributes] if
+     * [SplitAttributes] calculator callback is used.
+     *
+     * @param splitInfo the split pair to update
+     * @param splitAttributes the [SplitAttributes] to be applied
+     * @throws UnsupportedOperationException if this device doesn't support this API
+     */
+    @ExperimentalWindowApi
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) =
+        embeddingBackend.updateSplitAttributes(splitInfo, splitAttributes)
+
+    /**
+     * Checks whether [updateSplitAttributes] is supported on the device.
+     *
+     * Invoking these APIs if the feature is not supported would trigger an
+     * [UnsupportedOperationException].
+     * @return `true` if the runtime APIs to update [SplitAttributes] are supported and can be
+     * called safely, `false` otherwise.
+     */
+    @ExperimentalWindowApi
+    fun isUpdatingSplitAttributesSupported(): Boolean =
+        embeddingBackend.areSplitAttributesUpdatesSupported()
+
+    /**
      * A class to determine if activity splits with Activity Embedding are currently available.
-     * "Depending on the split property declaration, device software version or user preferences
+     * Depending on the split property declaration, device software version or user preferences
      * the feature might not be available.
      */
     class SplitSupportStatus private constructor(private val rawValue: Int) {

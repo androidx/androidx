@@ -28,7 +28,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
 import androidx.window.embedding.EmbeddingRule
@@ -45,7 +44,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalWindowApi::class)
 open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListener,
     RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener,
     AdapterView.OnItemSelectedListener {

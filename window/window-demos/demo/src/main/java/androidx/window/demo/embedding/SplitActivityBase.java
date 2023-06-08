@@ -24,6 +24,7 @@ import static androidx.window.embedding.SplitRule.FinishBehavior.ALWAYS;
 import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -41,6 +42,7 @@ import androidx.core.util.Consumer;
 import androidx.window.demo.R;
 import androidx.window.demo.databinding.ActivitySplitActivityLayoutBinding;
 import androidx.window.embedding.ActivityEmbeddingController;
+import androidx.window.embedding.ActivityEmbeddingOptions;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
 import androidx.window.embedding.EmbeddingRule;
@@ -96,8 +98,23 @@ public class SplitActivityBase extends AppCompatActivity
             bStartIntent.putExtra(EXTRA_LAUNCH_C_TO_SIDE, true);
             startActivity(bStartIntent);
         });
-        mViewBinding.launchE.setOnClickListener((View v) ->
-                startActivity(new Intent(this, SplitActivityE.class)));
+        mViewBinding.launchE.setOnClickListener((View v) -> {
+            Bundle bundle = null;
+            if (mViewBinding.setLaunchingEInActivityStack.isChecked()) {
+                try {
+                    final ActivityOptions options = ActivityEmbeddingOptions
+                            .setLaunchingActivityStack(ActivityOptions.makeBasic(), this);
+                    bundle = options.toBundle();
+                } catch (UnsupportedOperationException ex) {
+                    Log.w(TAG, "#setLaunchingActivityStack is not supported", ex);
+                }
+            }
+            startActivity(new Intent(this, SplitActivityE.class), bundle);
+        });
+        if (!ActivityEmbeddingOptions.isSetLaunchingActivityStackSupported(
+                ActivityOptions.makeBasic())) {
+            mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
+        }
         mViewBinding.launchF.setOnClickListener((View v) ->
                 startActivity(new Intent(this, SplitActivityF.class)));
         mViewBinding.launchFPendingIntent.setOnClickListener((View v) -> {
