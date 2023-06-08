@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.material
+package androidx.compose.foundation.gestures
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.animate
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
-import androidx.compose.foundation.gestures.DragScope
-import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
@@ -49,11 +46,13 @@ import kotlinx.coroutines.launch
  *
  * See the DraggableAnchors factory method to construct drag anchors using a default implementation.
  */
-@ExperimentalMaterialApi
-internal interface DraggableAnchors<T> {
+@ExperimentalFoundationApi
+interface DraggableAnchors<T> {
 
     /**
      * Get the anchor position for an associated [value]
+     *
+     * @param value The value to look up
      *
      * @return The position of the anchor, or [Float.NaN] if the anchor does not exist
      */
@@ -63,6 +62,7 @@ internal interface DraggableAnchors<T> {
      * Whether there is an anchor position associated with the [value]
      *
      * @param value The value to look up
+     *
      * @return true if there is an anchor for this value, false if there is no anchor for this value
      */
     fun hasAnchorFor(value: T): Boolean
@@ -107,8 +107,8 @@ internal interface DraggableAnchors<T> {
  * corresponding [Float] positions. This [DraggableAnchorsConfig] is used to construct an immutable
  * [DraggableAnchors] instance later on.
  */
-@ExperimentalMaterialApi
-internal class DraggableAnchorsConfig<T> {
+@ExperimentalFoundationApi
+class DraggableAnchorsConfig<T> {
 
     internal val anchors = mutableMapOf<T, Float>()
 
@@ -130,8 +130,8 @@ internal class DraggableAnchorsConfig<T> {
  * @return A new [DraggableAnchors] instance with the anchor positions set by the `builder`
  * function.
  */
-@ExperimentalMaterialApi
-internal fun <T : Any> DraggableAnchors(
+@ExperimentalFoundationApi
+fun <T : Any> DraggableAnchors(
     builder: DraggableAnchorsConfig<T>.() -> Unit
 ): DraggableAnchors<T> = MapDraggableAnchors(DraggableAnchorsConfig<T>().apply(builder).anchors)
 
@@ -154,8 +154,8 @@ internal fun <T : Any> DraggableAnchors(
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
  */
-@ExperimentalMaterialApi
-internal fun <T> Modifier.anchoredDraggable(
+@ExperimentalFoundationApi
+fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
     enabled: Boolean = true,
@@ -178,8 +178,8 @@ internal fun <T> Modifier.anchoredDraggable(
  * @see [AnchoredDraggableState.anchoredDrag] to learn how to start the anchored drag and get the
  * access to this scope.
  */
-@ExperimentalMaterialApi
-internal interface AnchoredDragScope {
+@ExperimentalFoundationApi
+interface AnchoredDragScope {
     /**
      * Assign a new value for an offset value for [AnchoredDraggableState].
      *
@@ -212,8 +212,8 @@ internal interface AnchoredDragScope {
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Stable
-@ExperimentalMaterialApi
-internal class AnchoredDraggableState<T>(
+@ExperimentalFoundationApi
+class AnchoredDraggableState<T>(
     initialValue: T,
     @Suppress("PrimitiveInLambda")
     internal val positionalThreshold: (totalDistance: Float) -> Float,
@@ -240,7 +240,7 @@ internal class AnchoredDraggableState<T>(
      * to exceed in order to animate to the next state, even if the [positionalThreshold] has not
      * been reached.
      */
-    @ExperimentalMaterialApi
+    @ExperimentalFoundationApi
     constructor(
         initialValue: T,
         anchors: DraggableAnchors<T>,
@@ -261,7 +261,7 @@ internal class AnchoredDraggableState<T>(
         trySnapTo(initialValue)
     }
 
-    private val dragMutex = InternalMutatorMutex()
+    private val dragMutex = MutatorMutex()
 
     internal val draggableState = object : DraggableState {
 
@@ -485,10 +485,10 @@ internal class AnchoredDraggableState<T>(
         currentValue: T,
     ): T {
         val currentAnchors = anchors
-        val currentAnchorPosition = currentAnchors.positionOf(currentValue)
-        return if (currentAnchorPosition == offset || currentAnchorPosition.isNaN()) {
+        val currentAnchor = currentAnchors.positionOf(currentValue)
+        return if (currentAnchor == offset || currentAnchor.isNaN()) {
             currentValue
-        } else if (currentAnchorPosition < offset) {
+        } else if (currentAnchor < offset) {
             currentAnchors.closestAnchor(offset, true) ?: currentValue
         } else {
             currentAnchors.closestAnchor(offset, false) ?: currentValue
@@ -627,15 +627,14 @@ internal class AnchoredDraggableState<T>(
         /**
          * The default [Saver] implementation for [AnchoredDraggableState].
          */
-        @ExperimentalMaterialApi
+        @ExperimentalFoundationApi
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
-            @Suppress("PrimitiveInLambda")
-            confirmValueChange: (T) -> Boolean,
             @Suppress("PrimitiveInLambda")
             positionalThreshold: (distance: Float) -> Float,
             @Suppress("PrimitiveInLambda")
             velocityThreshold: () -> Float,
+            confirmValueChange: (T) -> Boolean = { true },
         ) = Saver<AnchoredDraggableState<T>, T>(
             save = { it.currentValue },
             restore = {
@@ -661,8 +660,8 @@ internal class AnchoredDraggableState<T>(
  *
  * @param targetValue The target value of the animation
  */
-@ExperimentalMaterialApi
-internal suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
+@ExperimentalFoundationApi
+suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
         if (!targetOffset.isNaN()) dragTo(targetOffset)
@@ -680,8 +679,8 @@ internal suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
  * @param targetValue The target value of the animation
  * @param velocity The velocity the animation should start with
  */
-@ExperimentalMaterialApi
-internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
+@ExperimentalFoundationApi
+suspend fun <T> AnchoredDraggableState<T>.animateTo(
     targetValue: T,
     velocity: Float = this.lastVelocity,
 ) {
@@ -699,21 +698,6 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
             }
         }
     }
-}
-
-/**
- * Contains useful defaults for [anchoredDraggable] and [AnchoredDraggableState].
- */
-@Stable
-@ExperimentalMaterialApi
-internal object AnchoredDraggableDefaults {
-    /**
-     * The default animation used by [AnchoredDraggableState].
-     */
-    @get:ExperimentalMaterialApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalMaterialApi
-    val AnimationSpec = SpringSpec<Float>()
 }
 
 private class AnchoredDragFinishedSignal : CancellationException() {
@@ -746,7 +730,7 @@ private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit)
 
 private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(emptyMap())
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : DraggableAnchors<T> {
 
     override fun positionOf(value: T): Float = anchors[value] ?: Float.NaN

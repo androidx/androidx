@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.material.anchoredDraggable
+package androidx.compose.foundation.anchoredDraggable
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
+import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
+import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.C
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.AnchoredDraggableState
-import androidx.compose.material.AutoTestFrameClock
-import androidx.compose.material.DraggableAnchors
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.anchoredDraggable
-import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
-import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
-import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
-import androidx.compose.material.animateTo
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.WithTouchSlop
@@ -66,7 +66,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 class AnchoredDraggableGestureTest {
 
     @get:Rule
