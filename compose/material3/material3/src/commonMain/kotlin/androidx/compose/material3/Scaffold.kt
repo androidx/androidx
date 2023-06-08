@@ -21,9 +21,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,7 +68,8 @@ import androidx.compose.ui.unit.offset
  * @param contentWindowInsets window insets to be passed to [content] slot via [PaddingValues]
  * params. Scaffold will take the insets into account from the top/bottom only if the [topBar]/
  * [bottomBar] are not present, as the scaffold expect [topBar]/[bottomBar] to handle insets
- * instead
+ * instead. Any insets consumed by other insets padding modifiers or [consumeWindowInsets] on a
+ * parent layout will be excluded from [contentWindowInsets].
  * @param content content of the screen. The lambda receives a [PaddingValues] that should be
  * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
  * properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
@@ -83,14 +88,23 @@ fun Scaffold(
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
+    val safeInsets = remember(contentWindowInsets) {
+        MutableWindowInsets(contentWindowInsets)
+    }
+    Surface(
+        modifier = modifier.onConsumedWindowInsetsChanged { consumedWindowInsets ->
+            // Exclude currently consumed window insets from user provided contentWindowInsets
+            safeInsets.insets = contentWindowInsets.exclude(consumedWindowInsets)
+        },
+        color = containerColor,
+        contentColor = contentColor) {
         ScaffoldLayout(
             fabPosition = floatingActionButtonPosition,
             topBar = topBar,
             bottomBar = bottomBar,
             content = content,
             snackbar = snackbarHost,
-            contentWindowInsets = contentWindowInsets,
+            contentWindowInsets = safeInsets,
             fab = floatingActionButton
         )
     }
