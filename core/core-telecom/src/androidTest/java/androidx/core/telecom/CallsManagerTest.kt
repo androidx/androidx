@@ -21,6 +21,8 @@ import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.utils.BaseTelecomTest
+import androidx.core.telecom.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

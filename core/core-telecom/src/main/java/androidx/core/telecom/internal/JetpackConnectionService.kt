@@ -23,24 +23,16 @@ import android.telecom.ConnectionService
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.telecom.VideoProfile
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.telecom.CallAttributesCompat
-import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
-import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 internal class JetpackConnectionService : ConnectionService() {
-    val TAG: String = JetpackConnectionService::class.java.simpleName.toString()
-
     /**
      * Wrap all the objects that are associated with a new CallSession request into a class
      */
@@ -85,21 +77,6 @@ internal class JetpackConnectionService : ConnectionService() {
                 pendingConnectionRequest.callAttributes.mHandle,
                 extras
             )
-        }
-
-        // create a job that times out if the connection cannot be created in x amount of time
-        CoroutineScope(pendingConnectionRequest.coroutineContext).launch {
-            delay(CONNECTION_CREATION_TIMEOUT)
-            if (!pendingConnectionRequest.completableDeferred!!.isCompleted) {
-                Log.i(
-                    TAG, "The request to create a connection timed out. Cancelling the" +
-                        "request to add the call to Telecom."
-                )
-                mPendingConnectionRequests.remove(pendingConnectionRequest)
-                pendingConnectionRequest.completableDeferred.cancel(
-                    CancellationException(CallsManager.CALL_CREATION_FAILURE_MSG)
-                )
-            }
         }
     }
 
@@ -204,7 +181,6 @@ internal class JetpackConnectionService : ConnectionService() {
 
         targetRequest.completableDeferred?.complete(jetpackConnection)
         mPendingConnectionRequests.remove(targetRequest)
-
         return jetpackConnection
     }
 

@@ -20,16 +20,20 @@ import android.os.Build.VERSION_CODES
 import android.telecom.Connection
 import android.telecom.ConnectionRequest
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.TestUtils.Companion.TEST_CALL_ATTRIB_NAME
-import androidx.core.telecom.TestUtils.Companion.TEST_CALL_ATTRIB_NUMBER
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.JetpackConnectionService
+import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.utils.BaseTelecomTest
+import androidx.core.telecom.utils.TestUtils
+import androidx.core.telecom.utils.TestUtils.TEST_CALL_ATTRIB_NAME
+import androidx.core.telecom.utils.TestUtils.TEST_PHONE_NUMBER_9001
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,9 +43,13 @@ import org.junit.runner.RunWith
 class JetpackConnectionServiceTest : BaseTelecomTest() {
     private val callChannels = CallChannels()
 
+    @Before
+    fun setUp() {
+        Utils.resetUtils()
+    }
+
     @After
     fun onDestroy() {
-        super.onDestroyBase()
         callChannels.closeAllChannels()
     }
 
@@ -96,7 +104,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         val unwrappedConnection = connection!!
         // assert all the properties are the same
         assertEquals(TEST_CALL_ATTRIB_NAME, unwrappedConnection.callerDisplayName)
-        assertEquals(TEST_CALL_ATTRIB_NUMBER, unwrappedConnection.address)
+        assertEquals(TEST_PHONE_NUMBER_9001, unwrappedConnection.address)
         assertEquals(
             Connection.CAPABILITY_HOLD,
             unwrappedConnection.connectionCapabilities
@@ -119,6 +127,6 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         // add to the list of pendingRequests
         JetpackConnectionService.mPendingConnectionRequests.add(pr)
         // create a ConnectionRequest
-        return ConnectionRequest(mPackagePhoneAccountHandle, TEST_CALL_ATTRIB_NUMBER, null)
+        return ConnectionRequest(mPackagePhoneAccountHandle, TEST_PHONE_NUMBER_9001, null)
     }
 }

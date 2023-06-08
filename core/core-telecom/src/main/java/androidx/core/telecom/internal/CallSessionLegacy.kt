@@ -140,6 +140,7 @@ internal class CallSessionLegacy(
         return true
     }
 
+    // TODO:: verify the CallEndpoint change was successful. tracking bug: b/283324578
     @Suppress("deprecation")
     fun requestEndpointChange(callEndpoint: CallEndpointCompat): Boolean {
         return if (Build.VERSION.SDK_INT < VERSION_CODES.P) {

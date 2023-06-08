@@ -26,6 +26,7 @@ import android.telecom.CallException
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -40,7 +41,9 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.job
+import kotlinx.coroutines.withTimeout
 
 /**
  * CallsManager allows VoIP applications to add their calls to the Android system service Telecom.
@@ -117,9 +120,12 @@ class CallsManager constructor(context: Context) {
         internal const val PACKAGE_LABEL: String = "Telecom-Jetpack"
         internal const val CONNECTION_SERVICE_CLASS =
             "androidx.core.telecom.internal.JetpackConnectionService"
+
         // fail messages specific to addCall
         internal const val CALL_CREATION_FAILURE_MSG =
             "The call failed to be added."
+        internal const val ADD_CALL_TIMEOUT = 5000L
+        private val TAG: String = CallsManager::class.java.simpleName.toString()
     }
 
     /**
@@ -169,9 +175,9 @@ class CallsManager constructor(context: Context) {
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      * @param block              DSL interface block that will run when the call is ready
      *
-     * @throws UnsupportedOperationException if the device is on an invalid build
-     * @throws CancellationException if the call failed to be added
-     * @throws CallException if [CallControlScope.setCallback] is not called first within the block
+     * @Throws UnsupportedOperationException if the device is on an invalid build
+     * @Throws CancellationException if the call failed to be added within 5000 milliseconds
+     * @Throws CallException if [CallControlScope.setCallback] is not called first within the block
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -215,7 +221,6 @@ class CallsManager constructor(context: Context) {
                         openResult.cancel(CancellationException(CALL_CREATION_FAILURE_MSG))
                     }
                 }
-
             // leverage the platform API
             mTelecomManager.addCall(
                 callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
@@ -225,7 +230,8 @@ class CallsManager constructor(context: Context) {
                 CallSession.CallEventCallbackImpl(callChannels)
             )
 
-            openResult.await() /* wait for the platform to provide a CallControl object */
+            pauseExecutionUntilCallIsReady_orTimeout(openResult)
+
             /* at this point in time we have CallControl object */
             val scope =
                 CallSession.CallControlScopeImpl(openResult.getCompleted(), callChannels)
@@ -239,14 +245,13 @@ class CallsManager constructor(context: Context) {
             val openResult =
                 CompletableDeferred<CallSessionLegacy>(parent = coroutineContext.job)
 
-            mConnectionService.createConnectionRequest(
-                mTelecomManager,
-                JetpackConnectionService.PendingConnectionRequest(
-                    callAttributes, callChannels, coroutineContext, openResult
-                )
+            val request = JetpackConnectionService.PendingConnectionRequest(
+                callAttributes, callChannels, coroutineContext, openResult
             )
 
-            openResult.await()
+            mConnectionService.createConnectionRequest(mTelecomManager, request)
+
+            pauseExecutionUntilCallIsReady_orTimeout(openResult, request)
 
             val scope =
                 CallSessionLegacy.CallControlScopeImpl(openResult.getCompleted(), callChannels)
@@ -255,6 +260,26 @@ class CallsManager constructor(context: Context) {
             // CallControlScope interface implementation declared above.
             scope.block()
         }
+    }
+
+    private suspend fun pauseExecutionUntilCallIsReady_orTimeout(
+        openResult: CompletableDeferred<*>,
+        request: JetpackConnectionService.PendingConnectionRequest? = null
+    ) {
+        try {
+            withTimeout(ADD_CALL_TIMEOUT) {
+                Log.i(TAG, "addCall: pausing [$coroutineContext] execution" +
+                    " until the CallControl or Connection is ready")
+                openResult.await()
+            }
+        } catch (timeout: TimeoutCancellationException) {
+            Log.i(TAG, "addCall: timeout hit; canceling call in context=[$coroutineContext]")
+            if (request != null) {
+                JetpackConnectionService.mPendingConnectionRequests.remove(request)
+            }
+            openResult.cancel(CancellationException(CALL_CREATION_FAILURE_MSG))
+        }
+        Log.i(TAG, "addCall: creating call session and running the clients scope")
     }
 
     internal fun getPhoneAccountHandleForPackage(): PhoneAccountHandle {
