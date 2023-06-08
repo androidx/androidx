@@ -356,6 +356,19 @@ class ClickableChipScale internal constructor(
             "focusedDisabledScale=$focusedDisabledScale)"
     }
 
+    companion object {
+        /**
+         * Signifies the absence of a [ScaleIndication] in ClickableChip component.
+         */
+        val None = ClickableChipScale(
+            scale = 1f,
+            focusedScale = 1f,
+            pressedScale = 1f,
+            disabledScale = 1f,
+            focusedDisabledScale = 1f,
+        )
+    }
+
     internal fun toClickableSurfaceScale() = ClickableSurfaceScale(
         scale = scale,
         focusedScale = focusedScale,
@@ -426,6 +439,24 @@ class SelectableChipScale internal constructor(
             "pressedSelectedScale=$pressedSelectedScale, " +
             "selectedDisabledScale=$selectedDisabledScale, " +
             "focusedSelectedDisabledScale=$focusedSelectedDisabledScale)"
+    }
+
+    companion object {
+        /**
+         * Signifies the absence of a [ScaleIndication] in SelectableChip component.
+         */
+        val None = SelectableChipScale(
+            scale = 1f,
+            focusedScale = 1f,
+            pressedScale = 1f,
+            selectedScale = 1f,
+            disabledScale = 1f,
+            focusedSelectedScale = 1f,
+            focusedDisabledScale = 1f,
+            pressedSelectedScale = 1f,
+            selectedDisabledScale = 1f,
+            focusedSelectedDisabledScale = 1f,
+        )
     }
 
     internal fun toToggleableSurfaceScale() = ToggleableSurfaceScale(
