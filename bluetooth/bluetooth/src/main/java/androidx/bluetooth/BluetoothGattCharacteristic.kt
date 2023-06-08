@@ -25,7 +25,7 @@ import java.util.UUID
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class BluetoothGattCharacteristic internal constructor(
-    internal var characteristic: FwkGattCharacteristic
+    internal var fwkCharacteristic: FwkGattCharacteristic
 ) {
     companion object {
         const val PROPERTY_BROADCAST = FwkGattCharacteristic.PROPERTY_BROADCAST
@@ -56,17 +56,23 @@ class BluetoothGattCharacteristic internal constructor(
      * The UUID of the characteristic
      */
     val uuid: UUID
-        get() = characteristic.uuid
+        get() = fwkCharacteristic.uuid
 
     /**
      * The properties of the characteristic
      */
     val properties: Int
-        get() = characteristic.properties
+        get() = fwkCharacteristic.properties
 
     /**
      * The permissions for the characteristic
      */
     val permissions: Int
-        get() = characteristic.permissions
+        get() = fwkCharacteristic.permissions
+
+    /**
+     * A list of descriptors for the characteristic
+     */
+    val descriptors: List<BluetoothGattDescriptor> =
+        fwkCharacteristic.descriptors.map { BluetoothGattDescriptor(it) }
 }
