@@ -1,25 +1,19 @@
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 
 plugins {
     id("AndroidXPlugin")
 }
-
+def enableNative = KmpPlatformsKt.enableNative(project)
 androidXMultiplatform {
-    sourceSets {
-        // We need a source set here even though the module is technically empty.
-        // That is the only way we can have dependencies on the cinterop task work.
-        // https://youtrack.jetbrains.com/issue/KT-40975
-        iosArm64Main {
-            dependsOn(commonMain)
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosArm64Main)
-        }
-        iosX64Main {
-            dependsOn(iosArm64Main)
-        }
-    }
-
+    // needed for snapshot publishing to trigger component creation
+    jvm()
+    // default platform is not JVM but we need to use it because it is
+    // the only platform built on all machines
+    defaultPlatform(PlatformIdentifier.JVM)
     ios {
         compilations.main {
             cinterops {
@@ -36,10 +30,27 @@ androidXMultiplatform {
             embedBitcode = BitcodeEmbeddingMode.DISABLE
         }
     }
+    // put mac configuration inside an if to avoid warnings due to unused source sets
+    // when building on linux
+    if (enableNative) {
+        sourceSets {
+            // Need a source file to force a klib creation.
+            // see: https://youtrack.jetbrains.com/issue/KT-52344
+            darwinMain {}
+            targets.all { target ->
+                if (target.platformType == KotlinPlatformType.native) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(darwinMain)
+                    }
+                }
+            }
+        }
+    }
 }
 
 androidx {
     name = "Benchmarks - Darwin Core"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Core"
+    publish = Publish.SNAPSHOT_ONLY
 }
