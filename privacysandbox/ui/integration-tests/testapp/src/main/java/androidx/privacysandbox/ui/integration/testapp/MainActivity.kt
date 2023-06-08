@@ -16,12 +16,8 @@
 
 package androidx.privacysandbox.ui.integration.testapp
 
-import android.app.sdksandbox.LoadSdkException
-import android.app.sdksandbox.SandboxedSdk
-import android.app.sdksandbox.SdkSandboxManager
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.ViewGroup
@@ -29,16 +25,20 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
+import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mSdkSandboxManager: SdkSandboxManager
-
-    private lateinit var mSandboxedSdk: SandboxedSdk
+    private lateinit var mSdkSandboxManager: SdkSandboxManagerCompat
 
     private var mSdkLoaded = false
 
@@ -51,53 +51,45 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mSdkSandboxManager = applicationContext.getSystemService(
-            SdkSandboxManager::class.java
-        )
+        mSdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
 
         if (!mSdkLoaded) {
             Log.i(TAG, "Loading SDK")
-            mSdkSandboxManager.loadSdk(
-                SDK_NAME, Bundle(), { obj: Runnable -> obj.run() }, LoadSdkCallbackImpl()
-            )
+            CoroutineScope(Dispatchers.Default).launch {
+                try {
+                    val loadedSdk = mSdkSandboxManager.loadSdk(SDK_NAME, Bundle())
+                    onLoadedSdk(loadedSdk)
+                } catch (e: LoadSdkCompatException) {
+                    Log.i(TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
+                        " and errorMsg: " + e.message)
+                }
+            }
         }
+    }
+    private fun onLoadedSdk(sandboxedSdk: SandboxedSdkCompat) {
+        Log.i(TAG, "Loaded successfully")
+        mSdkLoaded = true
+        val sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
+
+        mSandboxedSdkView1 = findViewById<SandboxedSdkView>(R.id.rendered_view)
+        mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
+        mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadAd(/*isWebView=*/ true)
+        ))
+
+        mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
+        mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
+        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(200, 200)
+        runOnUiThread(Runnable {
+            findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
+        })
+        mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadAd(/*isWebView=*/ false)
+        ))
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-    }
-
-    // TODO(b/257429573): Remove this line once fixed.
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    private inner class LoadSdkCallbackImpl() : OutcomeReceiver<SandboxedSdk, LoadSdkException> {
-
-        override fun onResult(sandboxedSdk: SandboxedSdk) {
-            Log.i(TAG, "Loaded successfully")
-            mSandboxedSdk = sandboxedSdk
-            mSdkLoaded = true
-            val sdkApi = ISdkApi.Stub.asInterface(mSandboxedSdk.getInterface())
-
-            mSandboxedSdkView1 = findViewById<SandboxedSdkView>(R.id.rendered_view)
-            mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
-            mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                sdkApi.loadAd(/*isWebView=*/ true)
-            ))
-
-            mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
-            mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
-            mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(200, 200)
-            runOnUiThread(Runnable {
-                findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
-            })
-            mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                sdkApi.loadAd(/*isWebView=*/ false)
-            ))
-        }
-
-        override fun onError(error: LoadSdkException) {
-            Log.i(TAG, "onLoadSdkFailure(" + error.getLoadSdkErrorCode().toString() + "): " +
-                error.message)
-        }
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
