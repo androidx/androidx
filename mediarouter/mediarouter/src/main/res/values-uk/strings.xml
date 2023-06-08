@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Увімкнути на групі пристроїв"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Немає інформації"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Немає доступних пристроїв"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Не вдається знайти пристрої. Переконайтеся, що ваш пристрій і пристрій для трансляції підключено до однієї мережі Wi-Fi, і повторіть спробу."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Переконайтеся, що ваш пристрій і пристрій для трансляції підключено до однієї мережі Wi-Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Готово"</string>
 </resources>

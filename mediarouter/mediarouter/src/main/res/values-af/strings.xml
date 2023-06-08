@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Speel op \'n groep"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Geen inligting beskikbaar nie"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Geen toestelle beskikbaar nie"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Kan nie toestelle kry nie. Maak seker dat jou toestel en die uitsaaitoestel in dieselfde wi-fi-netwerk is en probeer weer."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Maak seker dat jou toestel en die uitsaaitoestel in dieselfde wi-fi-netwerk is."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Klaar"</string>
 </resources>

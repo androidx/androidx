@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"समूह में खेलें"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"कोई जानकारी मौजूद नहीं है"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"कोई डिवाइस मौजूद नहीं है"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"डिवाइस नहीं मिल रहे हैं. पक्का करें कि आपका डिवाइस उसी वाई-फ़ाई नेटवर्क से कनेक्ट किया गया हो जिससे कास्ट डिवाइस को कनेक्ट किया गया है और फिर से कोशिश करें."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"पक्का करें कि आपका डिवाइस उसी वाई-फ़ाई नेटवर्क से कनेक्ट किया गया हो जिससे कास्ट डिवाइस को कनेक्ट किया गया है."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"हो गया"</string>
 </resources>

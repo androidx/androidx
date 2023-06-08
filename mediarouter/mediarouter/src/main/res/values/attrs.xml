@@ -41,6 +41,7 @@
     <attr name="mediaRoutePauseDrawable" format="reference" />
     <attr name="mediaRouteStopDrawable" format="reference" />
     <attr name="mediaRouteAudioTrackDrawable" format="reference" />
+    <attr name="mediaRouteWifiIconDrawable" format="reference" />
     <attr name="mediaRouteDefaultIconDrawable" format="reference" />
     <attr name="mediaRouteTvIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerIconDrawable" format="reference" />

@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Reproduciranje u grupi"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Nema dostupnih informacija"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Nema dostupnih uređaja"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Nije moguće pronaći uređaje. Provjerite jesu li vaš uređaj i uređaj za emitiranje na istoj WiFi mreži i pokušajte ponovo."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Provjerite jesu li vaš uređaj i uređaj za emitiranje na istoj WiFi mreži."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Gotovo"</string>
 </resources>

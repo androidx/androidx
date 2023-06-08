@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"कुनै समूहमा प्ले गर्नुहोस्"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"कुनै पनि जानकारी उपलब्ध छैन"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"कुनै पनि डिभाइस उपलब्ध छैन"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"डिभाइसहरू भेट्टाउन सकिएन। तपाईंको डिभाइस र कास्ट डिभाइस एउटै Wi-Fi नेटवर्कमा कनेक्ट गरिएका छन् भन्ने कुरा सुनिश्चित गर्नुहोस् र फेरि प्रयास गर्नुहोस्।"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"तपाईंको डिभाइस र कास्ट डिभाइस एउटै Wi-Fi नेटवर्कमा कनेक्ट गरिएका छन् भन्ने कुरा सुनिश्चित गर्नुहोस्।"</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"सम्पन्न भयो"</string>
 </resources>

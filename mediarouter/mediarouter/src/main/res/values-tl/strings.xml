@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"I-play sa isang pangkat"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Walang available na impormasyon"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Walang available na device"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Hindi makahanap ng mga device, tiyaking nakakonekta sa iisang Wi-Fi network ang iyong device at ang Cast device at subukan ulit."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Tiyaking nakakonekta sa iisang Wi-Fi network ang iyong device at ang Cast device."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Tapos na"</string>
 </resources>

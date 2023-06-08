@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Dlala eqenjini"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Alukho ulwazi olutholakalayo"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Ayikho idivayisi etholakalayo"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Awukwazi ukuthola amadivayisi, qinisekisa ukuthi idivayisi yakho nedivayisi ye-Cast zikunethiwekhi efanayo ye-Wi-Fi bese uyazama futhi."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Qinisekisa ukuthi idivayisi yakho Nedivayisi yabalingisi zikunethiwekhi efanayo ye-Wi-Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Kwenziwe"</string>
 </resources>

@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"グループで再生"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"情報がありません"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"利用可能なデバイスがありません"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"デバイスが見つかりませんでした。お使いのデバイスとキャスト デバイスが同じ Wi-Fi ネットワークに接続されていることを確認して、もう一度お試しください。"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"お使いのデバイスとキャスト デバイスが同じ Wi-Fi ネットワークに接続されていることを確認してください。"</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"完了"</string>
 </resources>
