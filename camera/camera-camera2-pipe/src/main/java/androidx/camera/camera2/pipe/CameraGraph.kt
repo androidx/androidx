@@ -366,6 +366,14 @@ interface CameraGraph : AutoCloseable {
          *
          * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
          *   AF_TRIGGER_START request, this value should not be retained for following requests
+         * @param convergedCondition an optional function can be used to identify if the result
+         * frame with correct 3A converge state is received. Returns true to complete the 3A scan
+         * and going to lock the 3A state, otherwise it will continue to receive the frame results
+         * until the [frameLimit] or [timeLimitNs] is reached.
+         * @param lockedCondition an optional function can be used to identify if the result frame
+         * with correct 3A lock states are received. Returns true to complete lock 3A task,
+         * otherwise it will continue to receive the frame results until the [frameLimit]
+         * or [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
@@ -391,6 +399,8 @@ interface CameraGraph : AutoCloseable {
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
             afTriggerStartAeMode: AeMode? = null,
+            convergedCondition: ((FrameMetadata) -> Boolean)? = null,
+            lockedCondition: ((FrameMetadata) -> Boolean)? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
@@ -405,6 +415,10 @@ interface CameraGraph : AutoCloseable {
          * that component, i.e. if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
          *
+         * @param unlockedCondition an optional function can be used to identify if the result frame
+         * with correct ae, af and awb states are received. Returns true to complete the unlock
+         * 3A task, otherwise it will continue to receive the frame results until the [frameLimit]
+         * or [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
@@ -417,6 +431,7 @@ interface CameraGraph : AutoCloseable {
             ae: Boolean? = null,
             af: Boolean? = null,
             awb: Boolean? = null,
+            unlockedCondition: ((FrameMetadata) -> Boolean)? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
@@ -429,6 +444,10 @@ interface CameraGraph : AutoCloseable {
          * mode was set to [AeMode.ON_AUTO_FLASH] or [AeMode.ON_ALWAYS_FLASH], thus firing it for
          * low light captures or for every capture, respectively.
          *
+         * @param lockedCondition an optional function can be used to identify if the result frame
+         * with correct lock states for ae, af and awb is received. Returns true to complete lock
+         * 3A task, otherwise it will continue to receive the frame results until the [frameLimit]
+         * or [timeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
@@ -438,6 +457,7 @@ interface CameraGraph : AutoCloseable {
          *   limit or time limit was reached.
          */
         suspend fun lock3AForCapture(
+            lockedCondition: ((FrameMetadata) -> Boolean)? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
