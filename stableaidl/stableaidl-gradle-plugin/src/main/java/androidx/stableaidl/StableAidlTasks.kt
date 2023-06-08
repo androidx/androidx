@@ -74,6 +74,7 @@ fun registerCompileAidlApi(
     variant: Variant,
     aidlExecutable: Provider<RegularFile>,
     aidlFramework: Provider<RegularFile>,
+    aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     packagedDir: Provider<Directory>,
     importsDir: SourceDirectories.Flat,
@@ -88,6 +89,8 @@ fun registerCompileAidlApi(
     task.variantName = variant.name
     task.aidlExecutable.set(aidlExecutable)
     task.aidlFrameworkProvider.set(aidlFramework)
+    task.aidlVersion.set(aidlVersion)
+    task.minSdkVersion.set(variant.minSdk)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(outputDir)
     task.packagedDir.set(packagedDir)
@@ -160,6 +163,7 @@ fun registerGenerateAidlApi(
     variant: Variant,
     aidlExecutable: Provider<RegularFile>,
     aidlFramework: Provider<RegularFile>,
+    aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
@@ -174,6 +178,7 @@ fun registerGenerateAidlApi(
     task.variantName = variant.name
     task.aidlExecutable.set(aidlExecutable)
     task.aidlFrameworkProvider.set(aidlFramework)
+    task.aidlVersion.set(aidlVersion)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(builtApiDir)
     task.importDirs.set(importsDir.all)

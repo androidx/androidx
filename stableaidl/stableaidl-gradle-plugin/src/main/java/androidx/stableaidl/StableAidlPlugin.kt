@@ -48,12 +48,10 @@ abstract class StableAidlPlugin : Plugin<Project> {
             StableAidlExtensionImpl::class.java
         )
 
-        // Obtain the AIDL executable and framework AIDL file paths using private APIs. See
-        // b/268237729 for public API request, after which we can obtain them from SdkComponents.
-        val base = project.extensions.getByType(BaseExtension::class.java)
-            ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
-        val aidlExecutable = androidComponents.sdkComponents.aidl(base)
-        val aidlFramework = androidComponents.sdkComponents.aidlFramework(base)
+        val aidl = androidComponents.sdkComponents.aidl.get()
+        val aidlExecutable = aidl.executable
+        val aidlFramework = aidl.framework
+        val aidlVersion = aidl.version
 
         // Extend the android sourceSet.
         androidComponents.registerSourceType(SOURCE_TYPE_STABLE_AIDL)
@@ -99,6 +97,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 variant,
                 aidlExecutable,
                 aidlFramework,
+                aidlVersion,
                 sourceDir,
                 packagedDir,
                 importsDir,
@@ -119,6 +118,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 variant,
                 aidlExecutable,
                 aidlFramework,
+                aidlVersion,
                 sourceDir,
                 importsDir,
                 depImports,
