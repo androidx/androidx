@@ -41,6 +41,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 internal class GattClientImpl {
 
@@ -89,6 +91,7 @@ internal class GattClientImpl {
         val finished = Job(parent = coroutineContext.job)
         var currentTask: ClientTask? = null
         val subscribeMap: MutableMap<BluetoothGattCharacteristic, SubscribeListener> = arrayMapOf()
+        val subscribeMutex = Mutex()
 
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -154,8 +157,10 @@ internal class GattClientImpl {
                 characteristic: BluetoothGattCharacteristic,
                 value: ByteArray
             ) {
-                synchronized(subscribeMap) {
-                    subscribeMap[characteristic]?.onCharacteristicNotification(value)
+                launch {
+                    subscribeMutex.withLock {
+                        subscribeMap[characteristic]?.onCharacteristicNotification(value)
+                    }
                 }
             }
         }
@@ -262,7 +267,9 @@ internal class GattClientImpl {
                     }
 
                     this.awaitClose {
-                        unregisterSubscribeListener(characteristic)
+                        launch {
+                            unregisterSubscribeListener(characteristic)
+                        }
                         bluetoothGatt.setCharacteristicNotification(characteristic,
                             /*enable=*/false)
                         bluetoothGatt.writeDescriptor(
@@ -282,11 +289,11 @@ internal class GattClientImpl {
                 }
             }
 
-            private fun registerSubscribeListener(
+            private suspend fun registerSubscribeListener(
                 characteristic: BluetoothGattCharacteristic,
                 callback: SubscribeListener
             ): Boolean {
-                synchronized(subscribeMap) {
+                subscribeMutex.withLock {
                     if (subscribeMap.containsKey(characteristic)) {
                         return false
                     }
@@ -295,8 +302,10 @@ internal class GattClientImpl {
                 }
             }
 
-            private fun unregisterSubscribeListener(characteristic: BluetoothGattCharacteristic) {
-                synchronized(subscribeMap) {
+            private suspend fun unregisterSubscribeListener(
+                characteristic: BluetoothGattCharacteristic
+            ) {
+                subscribeMutex.withLock {
                     subscribeMap.remove(characteristic)
                 }
             }
