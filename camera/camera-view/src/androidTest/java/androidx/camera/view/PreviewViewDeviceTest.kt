@@ -194,6 +194,7 @@ class PreviewViewDeviceTest(
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
         instrumentation.runOnMainSync {
             Truth.assertThat(previewView.get().outputTransform).isNotNull()
+            Truth.assertThat(previewView.get().sensorToViewTransform).isNotNull()
         }
     }
 
@@ -212,6 +213,7 @@ class PreviewViewDeviceTest(
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
         instrumentation.runOnMainSync {
             Truth.assertThat(previewView.get().outputTransform).isNull()
+            Truth.assertThat(previewView.get().sensorToViewTransform).isNull()
         }
     }
 
