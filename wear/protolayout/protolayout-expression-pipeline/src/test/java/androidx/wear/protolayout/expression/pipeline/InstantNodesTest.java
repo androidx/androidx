@@ -26,8 +26,6 @@ import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNo
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInstant;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,14 +37,15 @@ import org.mockito.junit.MockitoRule;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class InstantNodesTest {
 
     @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Captor ArgumentCaptor<Supplier<ListenableFuture<Void>>> receiverCaptor;
+    @Captor ArgumentCaptor<Runnable> mReceiverCaptor;
+    @Captor ArgumentCaptor<Executor> mExecutor;
 
     @Test
     public void testFixedInstant() {
@@ -74,8 +73,8 @@ public class InstantNodesTest {
         node.init();
         assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(1);
 
-        verify(notifier).setReceiver(receiverCaptor.capture());
-        receiverCaptor.getValue().get(); // Ticking.
+        verify(notifier).setReceiver(mExecutor.capture(), mReceiverCaptor.capture());
+        mReceiverCaptor.getValue().run(); // Ticking.
         assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));
 
         node.destroy();
