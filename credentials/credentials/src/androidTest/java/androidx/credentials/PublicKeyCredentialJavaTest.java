@@ -88,14 +88,22 @@ public class PublicKeyCredentialJavaTest {
     @Test
     public void frameworkConversion_success() {
         PublicKeyCredential credential = new PublicKeyCredential(TEST_JSON);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle data = credential.getData();
+        String customDataKey = "customRequestDataKey";
+        CharSequence customDataValue = "customRequestDataValue";
+        data.putCharSequence(customDataKey, customDataValue);
 
         Credential convertedCredential = Credential.createFrom(
-                credential.getType(), credential.getData());
+                credential.getType(), data);
 
         assertThat(convertedCredential).isInstanceOf(PublicKeyCredential.class);
         PublicKeyCredential convertedSubclassCredential = (PublicKeyCredential) convertedCredential;
         assertThat(convertedSubclassCredential.getAuthenticationResponseJson())
                 .isEqualTo(credential.getAuthenticationResponseJson());
+        assertThat(convertedCredential.getData().getCharSequence(customDataKey))
+                .isEqualTo(customDataValue);
     }
 
     @Test

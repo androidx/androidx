@@ -29,32 +29,51 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
  * clientDataJSON during the signature request; meaningful only if you have set the
  * [GetCredentialRequest.origin]
- * @param requestJson the request in JSON format in the standard webauthn web json
- * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
- * @param clientDataHash a clientDataHash value to sign over in place of assembling and hashing
- * clientDataJSON during the signature request; set only if you have set the
- * [GetCredentialRequest.origin]
- * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
- * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
- * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
- * this property will not take effect and you should control the allowed provider via
- * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
- * @throws NullPointerException If [requestJson] is null
- * @throws IllegalArgumentException If [requestJson] is empty, or if it
- * is not a valid JSON
  */
-class GetPublicKeyCredentialOption @JvmOverloads constructor(
+class GetPublicKeyCredentialOption private constructor(
     val requestJson: String,
-    val clientDataHash: ByteArray? = null,
-    allowedProviders: Set<ComponentName> = emptySet(),
+    val clientDataHash: ByteArray?,
+    allowedProviders: Set<ComponentName>,
+    requestData: Bundle,
+    candidateQueryData: Bundle,
 ) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    requestData = toRequestDataBundle(requestJson, clientDataHash),
-    candidateQueryData = toRequestDataBundle(requestJson, clientDataHash),
+    requestData = requestData,
+    candidateQueryData = candidateQueryData,
     isSystemProviderRequired = false,
     isAutoSelectAllowed = true,
     allowedProviders,
 ) {
+
+    /**
+     * Constructs a [GetPublicKeyCredentialOption].
+     *
+     * @param requestJson the request in JSON format in the standard webauthn web json
+     * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
+     * @param clientDataHash a clientDataHash value to sign over in place of assembling and hashing
+     * clientDataJSON during the signature request; set only if you have set the
+     * [GetCredentialRequest.origin]
+     * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
+     * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
+     * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
+     * this property will not take effect and you should control the allowed provider via
+     * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
+     * @throws NullPointerException If [requestJson] is null
+     * @throws IllegalArgumentException If [requestJson] is empty, or if it
+     * is not a valid JSON
+     */
+    @JvmOverloads constructor(
+        requestJson: String,
+        clientDataHash: ByteArray? = null,
+        allowedProviders: Set<ComponentName> = emptySet(),
+    ) : this(
+        requestJson = requestJson,
+        clientDataHash = clientDataHash,
+        allowedProviders = allowedProviders,
+        requestData = toRequestDataBundle(requestJson, clientDataHash),
+        candidateQueryData = toRequestDataBundle(requestJson, clientDataHash),
+    )
+
     init {
         require(RequestValidationHelper.isValidJSON(requestJson)) {
             "requestJson must not be empty, and must be a valid JSON" }
@@ -88,6 +107,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         internal fun createFrom(
             data: Bundle,
             allowedProviders: Set<ComponentName>,
+            candidateQueryData: Bundle,
         ): GetPublicKeyCredentialOption {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
@@ -95,7 +115,9 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
                 return GetPublicKeyCredentialOption(
                     requestJson!!,
                     clientDataHash,
-                    allowedProviders
+                    allowedProviders,
+                    requestData = data,
+                    candidateQueryData = candidateQueryData,
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

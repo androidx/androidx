@@ -111,17 +111,30 @@ public class GetPublicKeyCredentialOptionJavaTest {
         );
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
                 TEST_REQUEST_JSON, clientDataHash, expectedAllowedProviders);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle requestData = option.getRequestData();
+        String customRequestDataKey = "customRequestDataKey";
+        String customRequestDataValue = "customRequestDataValue";
+        requestData.putString(customRequestDataKey, customRequestDataValue);
+        Bundle candidateQueryData = option.getCandidateQueryData();
+        String customCandidateQueryDataKey = "customRequestDataKey";
+        Boolean customCandidateQueryDataValue = true;
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
-                option.getType(), option.getRequestData(),
-                option.getCandidateQueryData(), option.isSystemProviderRequired(),
-                option.getAllowedProviders());
+                option.getType(), requestData, candidateQueryData,
+                option.isSystemProviderRequired(), option.getAllowedProviders());
 
         assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOption.class);
         GetPublicKeyCredentialOption convertedSubclassOption =
                 (GetPublicKeyCredentialOption) convertedOption;
         assertThat(convertedSubclassOption.getRequestJson()).isEqualTo(option.getRequestJson());
         assertThat(convertedSubclassOption.getAllowedProviders())
-                .containsAtLeastElementsIn(expectedAllowedProviders);
+                .containsExactlyElementsIn(expectedAllowedProviders);
+        assertThat(convertedOption.getRequestData().getString(customRequestDataKey))
+                .isEqualTo(customRequestDataValue);
+        assertThat(convertedOption.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
+                .isEqualTo(customCandidateQueryDataValue);
     }
 }

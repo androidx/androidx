@@ -46,11 +46,13 @@ class CreatePublicKeyCredentialRequest private constructor(
     preferImmediatelyAvailableCredentials: Boolean,
     displayInfo: DisplayInfo,
     origin: String? = null,
+    credentialData: Bundle = toCredentialDataBundle(requestJson, clientDataHash),
+    candidateQueryData: Bundle = toCandidateDataBundle(requestJson, clientDataHash),
 ) : CreateCredentialRequest(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    credentialData = toCredentialDataBundle(requestJson, clientDataHash),
+    credentialData = credentialData,
     // The whole request data should be passed during the query phase.
-    candidateQueryData = toCandidateDataBundle(requestJson, clientDataHash),
+    candidateQueryData = candidateQueryData,
     isSystemProviderRequired = false,
     isAutoSelectAllowed = isAutoSelectAllowed,
     displayInfo,
@@ -202,29 +204,26 @@ class CreatePublicKeyCredentialRequest private constructor(
 
         @JvmStatic
         @RequiresApi(23)
-        internal fun createFrom(data: Bundle, origin: String?):
+        internal fun createFrom(data: Bundle, origin: String?, candidateQueryData: Bundle):
             CreatePublicKeyCredentialRequest {
             try {
-                val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
+                val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)!!
                 val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
                 val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
+                    ?: getRequestDisplayInfo(requestJson)
                 val isAutoSelectAllowed =
                     data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
-                return if (displayInfo == null) CreatePublicKeyCredentialRequest(
-                    requestJson = requestJson!!,
-                    clientDataHash = clientDataHash,
-                    preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
-                    origin = origin,
-                    isAutoSelectAllowed = isAutoSelectAllowed,
-                ) else CreatePublicKeyCredentialRequest(
-                    requestJson = requestJson!!,
+                return CreatePublicKeyCredentialRequest(
+                    requestJson = requestJson,
                     clientDataHash = clientDataHash,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
                     displayInfo = displayInfo,
                     origin = origin,
                     isAutoSelectAllowed = isAutoSelectAllowed,
+                    credentialData = data,
+                    candidateQueryData = candidateQueryData,
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

@@ -24,14 +24,23 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property id the user id associated with the password
  * @property password the password
- * @throws NullPointerException If [id] is null
- * @throws NullPointerException If [password] is null
- * @throws IllegalArgumentException If [password] is empty
  */
-class PasswordCredential constructor(
+class PasswordCredential private constructor(
     val id: String,
     val password: String,
-) : Credential(TYPE_PASSWORD_CREDENTIAL, toBundle(id, password)) {
+    data: Bundle,
+) : Credential(TYPE_PASSWORD_CREDENTIAL, data) {
+
+    /**
+     * Constructs a [PasswordCredential].
+     *
+     * @param id the user id associated with the password
+     * @param password the password
+     * @throws NullPointerException If [id] is null
+     * @throws NullPointerException If [password] is null
+     * @throws IllegalArgumentException If [password] is empty
+     */
+    constructor(id: String, password: String) : this(id, password, toBundle(id, password))
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
@@ -58,7 +67,7 @@ class PasswordCredential constructor(
             try {
                 val id = data.getString(BUNDLE_KEY_ID)
                 val password = data.getString(BUNDLE_KEY_PASSWORD)
-                return PasswordCredential(id!!, password!!)
+                return PasswordCredential(id!!, password!!, data)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

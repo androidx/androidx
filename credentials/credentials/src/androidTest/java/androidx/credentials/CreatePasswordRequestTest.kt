@@ -200,12 +200,21 @@ class CreatePasswordRequestTest {
             idExpected, passwordExpected, originExpected, defaultProviderExpected,
             preferImmediatelyAvailableCredentialsExpected, isAutoSelectAllowedExpected
         )
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val credentialData = getFinalCreateCredentialData(request, mContext)
+        val customRequestDataKey = "customRequestDataKey"
+        val customRequestDataValue = "customRequestDataValue"
+        credentialData.putString(customRequestDataKey, customRequestDataValue)
+        val candidateQueryData = request.candidateQueryData
+        val customCandidateQueryDataKey = "customRequestDataKey"
+        val customCandidateQueryDataValue = true
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
 
         val convertedRequest = createFrom(
-            request.type, getFinalCreateCredentialData(
-                request, mContext
-            ),
-            request.candidateQueryData, request.isSystemProviderRequired,
+            request.type, credentialData, candidateQueryData, request.isSystemProviderRequired,
             request.origin
         )
 
@@ -226,5 +235,9 @@ class CreatePasswordRequestTest {
         assertThat(displayInfo.credentialTypeIcon!!.resId)
             .isEqualTo(R.drawable.ic_password)
         assertThat(displayInfo.preferDefaultProvider).isEqualTo(defaultProviderExpected)
+        assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
+            .isEqualTo(customRequestDataValue)
+        assertThat(convertedRequest.candidateQueryData.getBoolean(customCandidateQueryDataKey))
+            .isEqualTo(customCandidateQueryDataValue)
     }
 }
