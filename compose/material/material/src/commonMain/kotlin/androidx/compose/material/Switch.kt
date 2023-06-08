@@ -41,7 +41,6 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -108,19 +107,20 @@ fun Switch(
     // a new checked value.
     var forceAnimationCheck by remember { mutableStateOf(false) }
     val switchVelocityThresholdPx = with(LocalDensity.current) { SwitchVelocityThreshold.toPx() }
-    val anchoredDraggableState = remember(switchVelocityThresholdPx) {
+    val anchoredDraggableState = remember(maxBound, switchVelocityThresholdPx) {
         AnchoredDraggableState(
             initialValue = checked,
             animationSpec = AnimationSpec,
+            anchors = DraggableAnchors {
+                false at minBound
+                true at maxBound
+            },
             positionalThreshold = { distance -> distance * SwitchPositionalThreshold },
             velocityThreshold = { switchVelocityThresholdPx }
         )
     }
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
     val currentChecked by rememberUpdatedState(checked)
-    SideEffect {
-        anchoredDraggableState.updateAnchors(mapOf(false to minBound, true to maxBound))
-    }
     LaunchedEffect(anchoredDraggableState) {
         snapshotFlow { anchoredDraggableState.currentValue }
             .collectLatest { newValue ->

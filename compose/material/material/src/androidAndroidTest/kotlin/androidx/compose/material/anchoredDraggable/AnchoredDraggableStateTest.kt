@@ -26,25 +26,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.AnchoredDraggableDefaults
 import androidx.compose.material.AnchoredDraggableState
-import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
+import androidx.compose.material.DraggableAnchors
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.anchoredDraggable
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
 import androidx.compose.material.animateTo
-import androidx.compose.material.rememberAnchoredDraggableState
 import androidx.compose.material.snapTo
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
@@ -65,13 +61,18 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -90,9 +91,13 @@ class AnchoredDraggableStateTest {
 
     @Test
     fun anchoredDraggable_state_canSkipStateByFling() {
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
         rule.setContent {
-            state = rememberAnchoredDraggableState(initialValue = A)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
@@ -104,11 +109,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -133,9 +138,13 @@ class AnchoredDraggableStateTest {
 
     @Test
     fun anchoredDraggable_targetState_updatedOnSwipe() {
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
         rule.setContent {
-            state = rememberAnchoredDraggableState(initialValue = A)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
@@ -147,11 +156,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -199,18 +208,14 @@ class AnchoredDraggableStateTest {
         rule.mainClock.autoAdvance = false
         val animationDuration = 300
         val frameLengthMillis = 16L
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            animationSpec = tween(animationDuration, easing = LinearEasing),
+            positionalThreshold = { distance -> distance * 0.5f },
+            velocityThreshold = defaultVelocityThreshold
+        )
         lateinit var scope: CoroutineScope
         rule.setContent {
-            val velocityThreshold = AnchoredDraggableDefaults.velocityThreshold
-            state = remember(velocityThreshold) {
-                AnchoredDraggableState(
-                    initialValue = A,
-                    animationSpec = tween(animationDuration, easing = LinearEasing),
-                    positionalThreshold = { distance -> distance * 0.5f },
-                    velocityThreshold = velocityThreshold
-                )
-            }
             scope = rememberCoroutineScope()
             Box(Modifier.fillMaxSize()) {
                 Box(
@@ -223,11 +228,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -266,44 +271,14 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
-    fun anchoredDraggable_closestValue() {
-        val initialValue = A
-        val initialValueOffset = 0f
-        val state = AnchoredDraggableState(
-            initialValue = initialValue,
-            positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
-        )
-        val anchors = mapOf(
-            initialValue to initialValueOffset,
-            B to 200f,
-            C to 400f
-        )
-        state.updateAnchors(anchors)
-
-        assertThat(state.offset).isEqualTo(initialValueOffset)
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.closestValue).isEqualTo(A)
-
-        val aToBDistance = 200f
-        val firstTargetOffset = aToBDistance * 0.4f
-        state.dispatchRawDelta(firstTargetOffset)
-        assertThat(state.offset).isEqualTo(firstTargetOffset)
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.closestValue).isEqualTo(B)
-
-        val secondTargetOffset = aToBDistance * 0.6f
-        state.dispatchRawDelta(secondTargetOffset - state.offset)
-        assertThat(state.offset).isEqualTo(secondTargetOffset)
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.closestValue).isEqualTo(B)
-    }
-
-    @Test
     fun anchoredDraggable_progress_matchesSwipePosition() {
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
         rule.setContent {
-            state = rememberAnchoredDraggableState(initialValue = A)
             WithTouchSlop(touchSlop = 0f) {
                 Box(Modifier.fillMaxSize()) {
                     Box(
@@ -316,11 +291,11 @@ class AnchoredDraggableStateTest {
                             )
                             .onSizeChanged { layoutSize ->
                                 state.updateAnchors(
-                                    mapOf(
-                                        A to 0f,
-                                        B to layoutSize.width / 2f,
-                                        C to layoutSize.width.toFloat()
-                                    )
+                                    DraggableAnchors {
+                                        A at 0f
+                                        B at layoutSize.width / 2f
+                                        C at layoutSize.width.toFloat()
+                                    }
                                 )
                             }
                             .offset {
@@ -336,8 +311,8 @@ class AnchoredDraggableStateTest {
             }
         }
 
-        val anchorA = state.anchors.getValue(A)
-        val anchorB = state.anchors.getValue(B)
+        val anchorA = state.anchors.positionOf(A)
+        val anchorB = state.anchors.positionOf(B)
         val almostAnchorB = anchorB * 0.9f
         var expectedProgress = almostAnchorB / (anchorB - anchorA)
 
@@ -359,9 +334,13 @@ class AnchoredDraggableStateTest {
 
     @Test
     fun anchoredDraggable_snapTo_updatesImmediately() = runBlocking {
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
         rule.setContent {
-            state = rememberAnchoredDraggableState(initialValue = A)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
@@ -373,11 +352,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -403,13 +382,23 @@ class AnchoredDraggableStateTest {
 
         val initialState = C
         val animationSpec = tween<Float>(durationMillis = 1000)
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = initialState,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = animationSpec
+        )
         lateinit var scope: CoroutineScope
 
         restorationTester.setContent {
-            state = rememberAnchoredDraggableState(initialState, animationSpec)
             SideEffect {
-                state.updateAnchors(mapOf(A to 0f, B to 100f, C to 200f))
+                state.updateAnchors(
+                    DraggableAnchors {
+                        A at 0f
+                        B at 100f
+                        C at 200f
+                    }
+                )
             }
             scope = rememberCoroutineScope()
         }
@@ -433,7 +422,14 @@ class AnchoredDraggableStateTest {
     fun anchoredDraggable_targetState_accessedInInitialComposition() {
         lateinit var targetState: AnchoredDraggableTestValue
         rule.setContent {
-            val state = rememberAnchoredDraggableState(initialValue = B)
+            val state = remember {
+                AnchoredDraggableState(
+                    initialValue = B,
+                    positionalThreshold = defaultPositionalThreshold,
+                    velocityThreshold = defaultVelocityThreshold,
+                    animationSpec = defaultAnimationSpec
+                )
+            }
             LaunchedEffect(state.targetValue) {
                 targetState = state.targetValue
             }
@@ -448,11 +444,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -474,7 +470,14 @@ class AnchoredDraggableStateTest {
     fun anchoredDraggable_progress_accessedInInitialComposition() {
         var progress = Float.NaN
         rule.setContent {
-            val state = rememberAnchoredDraggableState(initialValue = B)
+            val state = remember {
+                AnchoredDraggableState(
+                    initialValue = B,
+                    positionalThreshold = defaultPositionalThreshold,
+                    velocityThreshold = defaultVelocityThreshold,
+                    animationSpec = defaultAnimationSpec
+                )
+            }
             LaunchedEffect(state.progress) {
                 progress = state.progress
             }
@@ -489,11 +492,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -515,10 +518,14 @@ class AnchoredDraggableStateTest {
     @Ignore("Todo: Fix differences between tests and real code - this shouldn't work :)")
     fun anchoredDraggable_requireOffset_accessedInInitialComposition_throws() {
         var exception: Throwable? = null
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
         var offset: Float? = null
         rule.setContent {
-            state = rememberAnchoredDraggableState(initialValue = B)
             Box(Modifier.fillMaxSize()) {
                 Box(
                     Modifier
@@ -530,11 +537,11 @@ class AnchoredDraggableStateTest {
                         )
                         .onSizeChanged { layoutSize ->
                             state.updateAnchors(
-                                mapOf(
-                                    A to 0f,
-                                    B to layoutSize.width / 2f,
-                                    C to layoutSize.width.toFloat()
-                                )
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
                         }
                         .offset {
@@ -550,7 +557,7 @@ class AnchoredDraggableStateTest {
             exception = runCatching { offset = state.requireOffset() }.exceptionOrNull()
         }
 
-        assertThat(state.anchors).isNotEmpty()
+        assertThat(state.anchors.size).isNotEqualTo(0)
         assertThat(offset).isNull()
         assertThat(exception).isNotNull()
         assertThat(exception).isInstanceOf(IllegalStateException::class.java)
@@ -562,7 +569,14 @@ class AnchoredDraggableStateTest {
     fun anchoredDraggable_requireOffset_accessedInEffect_doesntThrow() {
         var exception: Throwable? = null
         rule.setContent {
-            val state = rememberAnchoredDraggableState(initialValue = B)
+            val state = remember {
+                AnchoredDraggableState(
+                    initialValue = B,
+                    positionalThreshold = defaultPositionalThreshold,
+                    velocityThreshold = defaultVelocityThreshold,
+                    animationSpec = defaultAnimationSpec
+                )
+            }
             LaunchedEffect(Unit) {
                 exception = runCatching { state.requireOffset() }.exceptionOrNull()
             }
@@ -576,10 +590,10 @@ class AnchoredDraggableStateTest {
         rule.mainClock.autoAdvance = false
         val minBound = 0f
         val maxBound = 500f
-        val anchors = mapOf(
-            A to minBound,
-            C to maxBound
-        )
+        val anchors = DraggableAnchors {
+            A at minBound
+            C at maxBound
+        }
 
         val animationSpec = FloatSpringSpec(dampingRatio = Spring.DampingRatioHighBouncy)
         val animationDuration = animationSpec.getDurationNanos(
@@ -588,15 +602,16 @@ class AnchoredDraggableStateTest {
             initialVelocity = 0f
         ).let { TimeUnit.NANOSECONDS.toMillis(it) }
 
-        lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = animationSpec
+        )
         lateinit var scope: CoroutineScope
 
         rule.setContent {
             scope = rememberCoroutineScope()
-            state = rememberAnchoredDraggableState(
-                initialValue = A,
-                animationSpec = animationSpec
-            )
             SideEffect {
                 state.updateAnchors(anchors)
             }
@@ -629,43 +644,7 @@ class AnchoredDraggableStateTest {
             highestOffset = state.requireOffset()
             rule.mainClock.advanceTimeBy(16)
         }
-        assertThat(highestOffset).isGreaterThan(anchors.getValue(C))
-    }
-
-    @Test
-    fun anchoredDraggable_bounds_minBoundIsSmallestAnchor() {
-        var minBound = 0f
-        var maxBound = 500f
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
-        )
-        state.updateAnchors(
-            mapOf(
-                A to minBound,
-                B to maxBound / 2,
-                C to maxBound
-            )
-        )
-        var size by mutableStateOf(100.dp)
-
-        assertThat(state.minOffset).isEqualTo(minBound)
-        assertThat(state.maxOffset).isEqualTo(maxBound)
-
-        minBound *= 3
-        maxBound *= 10
-        state.updateAnchors(
-            mapOf(
-                A to minBound,
-                C to maxBound
-            )
-        )
-        size = 200.dp
-        rule.waitForIdle()
-
-        assertThat(state.minOffset).isEqualTo(minBound)
-        assertThat(state.maxOffset).isEqualTo(maxBound)
+        assertThat(highestOffset).isGreaterThan(anchors.positionOf(C))
     }
 
     @Test
@@ -673,9 +652,10 @@ class AnchoredDraggableStateTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        assertThat(state.anchors).isEmpty()
+        assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
         runBlocking { state.animateTo(B) }
         assertThat(state.currentValue).isEqualTo(B)
@@ -686,78 +666,202 @@ class AnchoredDraggableStateTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        assertThat(state.anchors).isEmpty()
+        assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
         runBlocking { state.snapTo(B) }
         assertThat(state.currentValue).isEqualTo(B)
     }
 
     @Test
-    fun anchoredDraggable_updateAnchors_initialUpdate_initialValueInAnchors_shouldntUpdate() {
-        var anchorChangeHandlerInvoked = false
-        val testAnchorChangeHandler =
-            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-                anchorChangeHandlerInvoked = true
-            }
-        val state = AnchoredDraggableState(
+    fun anchoredDraggable_updateAnchors_noOngoingDrag_shouldUpdateOffset() {
+        val anchoredDraggableState = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        val anchors = mapOf(A to 200f, C to 300f)
-        state.updateAnchors(anchors, testAnchorChangeHandler)
-        assertThat(anchorChangeHandlerInvoked).isFalse()
+
+        assertThat(anchoredDraggableState.currentValue).isEqualTo(A)
+        assertThat(anchoredDraggableState.targetValue).isEqualTo(A)
+        assertThat(anchoredDraggableState.offset).isNaN()
+
+        val offsetAtB = 100f
+        anchoredDraggableState.updateAnchors(
+            newAnchors = DraggableAnchors {
+                A at 0f
+                B at offsetAtB
+            },
+            newTarget = B
+        )
+        assertThat(anchoredDraggableState.currentValue).isEqualTo(B)
+        assertThat(anchoredDraggableState.targetValue).isEqualTo(B)
+        assertThat(anchoredDraggableState.offset).isEqualTo(offsetAtB)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun anchoredDraggable_updateAnchors_initialUpdate_initialValueNotInAnchors_shouldUpdate() {
-        var anchorChangeHandlerInvoked = false
-        val testAnchorChangedCallback =
-            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-                anchorChangeHandlerInvoked = true
-            }
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+    fun anchoredDraggable_updateAnchors_ongoingDrag_shouldRestartDrag() = runTest {
+        // Given an anchored draggable state
+        val anchoredDraggableState = AnchoredDraggableState(
+            initialValue = 1,
+            defaultPositionalThreshold,
+            defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        val anchors = mapOf(B to 200f, C to 300f)
-        state.updateAnchors(anchors, testAnchorChangedCallback)
-        assertThat(anchorChangeHandlerInvoked).isTrue()
+
+        val anchorUpdates = Channel<DraggableAnchors<Int>>()
+        val dragJob = launch {
+            anchoredDraggableState.anchoredDrag { newAnchors ->
+                anchorUpdates.send(newAnchors)
+                suspendIndefinitely()
+            }
+        }
+
+        val firstAnchors = anchorUpdates.receive()
+        assertThat(firstAnchors.size).isEqualTo(0)
+
+        // When the anchors change
+        val newAnchors = DraggableAnchors {
+            1 at 100f
+            2 at 200f
+        }
+        Snapshot.withMutableSnapshot {
+            anchoredDraggableState.updateAnchors(newAnchors)
+        }
+
+        // Then the block should be invoked with the new anchors
+        assertThat(dragJob.isActive).isTrue()
+        val secondAnchors = anchorUpdates.receive()
+        assertThat(secondAnchors).isEqualTo(newAnchors)
+        dragJob.cancel()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun anchoredDraggable_updateAnchors_updateExistingAnchors_shouldUpdate() {
-        var anchorChangeHandlerInvoked = false
-        val testAnchorChangedCallback =
-            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-                anchorChangeHandlerInvoked = true
-            }
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+    fun anchoredDraggable_updateAnchors_anchoredDrag_invokedWithLatestAnchors() = runTest {
+        // Given an anchored draggable state
+        val anchoredDraggableState = AnchoredDraggableState(
+            initialValue = 1,
+            defaultPositionalThreshold,
+            defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
 
-        state.updateAnchors(anchors, testAnchorChangedCallback)
-        assertThat(anchorChangeHandlerInvoked).isFalse()
+        val anchorUpdates = Channel<DraggableAnchors<Int>>()
+        val dragJob = launch(Dispatchers.Unconfined) {
+            anchoredDraggableState.anchoredDrag { newAnchors ->
+                anchorUpdates.send(newAnchors)
+                suspendIndefinitely()
+            }
+        }
 
-        state.updateAnchors(mapOf(A to 100f, B to 500f, C to 700f), testAnchorChangedCallback)
-        assertThat(anchorChangeHandlerInvoked).isTrue()
+        val firstAnchors = anchorUpdates.receive()
+        assertThat(firstAnchors.size).isEqualTo(0)
+
+        // When the anchors change
+        val newAnchors = DraggableAnchors {
+            1 at 100f
+            2 at 200f
+        }
+        Snapshot.withMutableSnapshot {
+            anchoredDraggableState.updateAnchors(newAnchors)
+        }
+
+        // Then the block should be invoked with the new anchors
+        assertThat(dragJob.isActive).isTrue()
+        val secondAnchors = anchorUpdates.receive()
+        assertThat(secondAnchors).isEqualTo(newAnchors)
+        dragJob.cancel()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun anchoredDraggable_updateAnchors_anchoredDrag_invokedWithLatestTarget() = runTest {
+        val anchoredDraggableState = AnchoredDraggableState(
+            initialValue = A,
+            defaultPositionalThreshold,
+            defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
+        anchoredDraggableState.updateAnchors(
+            DraggableAnchors {
+                A at 0f
+                B at 200f
+            }
+        )
+
+        assertThat(anchoredDraggableState.targetValue).isEqualTo(A)
+
+        val firstExpectedTarget = B
+        val targetUpdates = Channel<AnchoredDraggableTestValue>()
+        val dragJob = launch(Dispatchers.Unconfined) {
+            anchoredDraggableState.anchoredDrag(firstExpectedTarget) { _, latestTarget ->
+                targetUpdates.send(latestTarget)
+                suspendIndefinitely()
+            }
+        }
+
+        val firstTarget = targetUpdates.receive()
+        assertThat(firstTarget).isEqualTo(firstExpectedTarget)
+
+        // When the anchors and target change
+        val newTarget = A
+        val newAnchors = DraggableAnchors {
+            A at 100f
+            B at 200f
+        }
+        Snapshot.withMutableSnapshot {
+            anchoredDraggableState.updateAnchors(newAnchors, newTarget)
+        }
+
+        // Then the block should be invoked with the new anchors
+        val secondTarget = targetUpdates.receive()
+        assertThat(secondTarget).isEqualTo(newTarget)
+        dragJob.cancel()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun anchoredDraggable_dragCompletesExceptionally_cleansUp() = runTest {
+        val anchoredDraggableState = AnchoredDraggableState(
+            initialValue = A,
+            defaultPositionalThreshold,
+            defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
+        val cancellationSignal = CompletableDeferred(false)
+        val anchoredDragUpdates = Channel<Unit>()
+        val dragJob = launch {
+            anchoredDraggableState.anchoredDrag {
+                anchoredDragUpdates.send(Unit)
+                cancellationSignal.await()
+                cancel()
+            }
+        }
+
+        assertThat(dragJob.isActive).isTrue()
+        assertThat(anchoredDragUpdates.receive()).isEqualTo(Unit)
+        cancellationSignal.complete(true)
+        dragJob.join()
+        assertThat(dragJob.isCancelled).isTrue()
     }
 
     @Test
     fun anchoredDraggable_customDrag_updatesOffset() = runBlocking {
-
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 200f
+            C at 300f
+        }
 
         state.updateAnchors(anchors)
         state.anchoredDrag {
@@ -774,13 +878,17 @@ class AnchoredDraggableStateTest {
 
     @Test
     fun anchoredDraggable_customDrag_updatesVelocity() = runBlocking {
-
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 200f
+            C at 300f
+        }
 
         state.updateAnchors(anchors)
         state.anchoredDrag {
@@ -797,13 +905,18 @@ class AnchoredDraggableStateTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
         )
-        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 200f
+            C at 300f
+        }
 
         state.updateAnchors(anchors)
         dragScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            state.anchoredDrag(targetValue = C) {
+            state.anchoredDrag(targetValue = C) { _, _ ->
                 while (isActive) {
                     withFrameNanos {
                         dragTo(200f)
@@ -817,107 +930,38 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
-    fun anchoredDraggable_customDrag_anchorsPropagation() = runBlocking {
-        val clock = HandPumpTestFrameClock()
-        val dragScope = CoroutineScope(clock)
-
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
-        )
-        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
-        var providedAnchors = emptyMap<AnchoredDraggableTestValue, Float>()
-
-        state.updateAnchors(anchors)
-        dragScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            state.anchoredDrag(targetValue = C) { anchors ->
-                providedAnchors = anchors
-            }
+    fun anchoredDraggable_constructorWithAnchors_updatesAnchorsAndInitializes() {
+        val initialValueOffset = 0f
+        val anchors = DraggableAnchors {
+            A at initialValueOffset
+            B at 200f
         }
-        clock.advanceByFrame()
-        assertThat(providedAnchors).isEqualTo(anchors)
-    }
-
-    @Test
-    fun anchoredDraggable_customDrag_doesntCallConfirm() = runBlocking {
-
-        var counter: Int = 0
-
         val state = AnchoredDraggableState(
             initialValue = A,
+            anchors = anchors,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            confirmValueChange = {
-                counter++
-                false
-            }
+            animationSpec = defaultAnimationSpec
         )
-        state.updateAnchors(mapOf(A to 0f, B to 200f, C to 300f))
-        state.anchoredDrag {
-            // should be B
-            dragTo(200f)
-        }
-
-        assertThat(counter).isEqualTo(0)
-        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.anchors).isEqualTo(anchors)
+        assertThat(state.offset).isEqualTo(initialValueOffset)
     }
 
     @Test
-    fun anchoredDraggable_customDrag_noAnchor_doesntCallConfirm() = runBlocking {
-
-        var counter: Int = 0
-
+    fun anchoredDraggable_constructorWithAnchors_initialValueNotInAnchors_updatesCurrentValue() {
+        val anchors = DraggableAnchors { B at 200f }
         val state = AnchoredDraggableState(
             initialValue = A,
+            anchors = anchors,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            confirmValueChange = {
-                counter++
-                false
-            }
+            animationSpec = defaultAnimationSpec
         )
-        state.updateAnchors(mapOf(A to 0f, B to 200f))
-        state.anchoredDrag(targetValue = C) {
-            // no op, doesn't matter
-        }
-
-        assertThat(counter).isEqualTo(0)
-        assertThat(state.currentValue).isEqualTo(C)
+        assertThat(state.anchors).isEqualTo(anchors)
+        assertThat(state.offset).isNaN()
     }
 
-    @Test
-    fun anchoredDraggable_updateAnchors_ongoingOffsetMutation_shouldNotUpdate() = runBlocking {
-        val clock = HandPumpTestFrameClock()
-        val animationScope = CoroutineScope(clock)
-        val animationDuration = 2000
-
-        var anchorChangeHandlerInvoked = false
-        val testAnchorChangedCallback =
-            AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-                anchorChangeHandlerInvoked = true
-            }
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            animationSpec = tween(animationDuration),
-            positionalThreshold = defaultPositionalThreshold,
-            velocityThreshold = defaultVelocityThreshold
-        )
-        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
-
-        state.updateAnchors(anchors, testAnchorChangedCallback)
-        animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            state.animateTo(B)
-        }
-        clock.advanceByFrame()
-
-        assertThat(state.isAnimationRunning).isTrue()
-
-        val offsetBeforeAnchorUpdate = state.offset
-        state.updateAnchors(mapOf(A to 100f, B to 500f, C to 700f), testAnchorChangedCallback)
-        assertThat(offsetBeforeAnchorUpdate).isEqualTo(state.offset)
-        assertThat(anchorChangeHandlerInvoked).isTrue()
-    }
+    private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 
     private class HandPumpTestFrameClock : MonotonicFrameClock {
         private val frameCh = Channel<Long>(1)
@@ -936,4 +980,6 @@ class AnchoredDraggableStateTest {
     }
 
     private val defaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
+
+    private val defaultAnimationSpec = tween<Float>()
 }
