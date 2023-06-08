@@ -1,6 +1,21 @@
 // Signature format: 4.0
 package androidx.tv.material3 {
 
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class AssistChipDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableChipBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableChipColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public float getContainerHeight();
+    method public androidx.compose.foundation.shape.RoundedCornerShape getContainerShape();
+    method public float getIconSize();
+    method public androidx.tv.material3.ClickableChipGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ClickableChipScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ClickableChipShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final float ContainerHeight;
+    property public final androidx.compose.foundation.shape.RoundedCornerShape ContainerShape;
+    property public final float IconSize;
+    field public static final androidx.tv.material3.AssistChipDefaults INSTANCE;
+  }
+
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Border {
     ctor public Border(androidx.compose.foundation.BorderStroke border, optional float inset, optional androidx.compose.ui.graphics.Shape shape);
     method public androidx.tv.material3.Border copy(optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.ui.unit.Dp? inset, optional androidx.compose.ui.graphics.Shape? shape);
@@ -150,6 +165,28 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
+  public final class ChipKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void AssistChip(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.tv.material3.ClickableChipShape shape, optional androidx.tv.material3.ClickableChipColors colors, optional androidx.tv.material3.ClickableChipScale scale, optional androidx.tv.material3.ClickableChipBorder border, optional androidx.tv.material3.ClickableChipGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void FilterChip(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.tv.material3.SelectableChipShape shape, optional androidx.tv.material3.SelectableChipColors colors, optional androidx.tv.material3.SelectableChipScale scale, optional androidx.tv.material3.SelectableChipBorder border, optional androidx.tv.material3.SelectableChipGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void InputChip(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? avatar, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.tv.material3.SelectableChipShape shape, optional androidx.tv.material3.SelectableChipColors colors, optional androidx.tv.material3.SelectableChipScale scale, optional androidx.tv.material3.SelectableChipBorder border, optional androidx.tv.material3.SelectableChipGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void SuggestionChip(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional androidx.tv.material3.ClickableChipShape shape, optional androidx.tv.material3.ClickableChipColors colors, optional androidx.tv.material3.ClickableChipScale scale, optional androidx.tv.material3.ClickableChipBorder border, optional androidx.tv.material3.ClickableChipGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipColors {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipGlow {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipScale {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipShape {
+  }
+
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceBorder {
   }
 
@@ -279,6 +316,21 @@ package androidx.tv.material3 {
   @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterial3Api {
   }
 
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class FilterChipDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.SelectableChipBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border selectedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedSelectedBorder, optional androidx.tv.material3.Border focusedDisabledBorder, optional androidx.tv.material3.Border pressedSelectedBorder, optional androidx.tv.material3.Border selectedDisabledBorder, optional androidx.tv.material3.Border focusedSelectedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.SelectableChipColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long selectedContainerColor, optional long selectedContentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long focusedSelectedContainerColor, optional long focusedSelectedContentColor, optional long pressedSelectedContainerColor, optional long pressedSelectedContentColor);
+    method public float getContainerHeight();
+    method public androidx.compose.foundation.shape.RoundedCornerShape getContainerShape();
+    method public float getIconSize();
+    method public androidx.tv.material3.SelectableChipGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow, optional androidx.tv.material3.Glow selectedGlow, optional androidx.tv.material3.Glow focusedSelectedGlow, optional androidx.tv.material3.Glow pressedSelectedGlow);
+    method public androidx.tv.material3.SelectableChipScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float selectedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedSelectedScale, optional @FloatRange(from=0.0) float focusedDisabledScale, optional @FloatRange(from=0.0) float pressedSelectedScale, optional @FloatRange(from=0.0) float selectedDisabledScale, optional @FloatRange(from=0.0) float focusedSelectedDisabledScale);
+    method public androidx.tv.material3.SelectableChipShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape selectedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape, optional androidx.compose.ui.graphics.Shape pressedSelectedShape, optional androidx.compose.ui.graphics.Shape selectedDisabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedDisabledShape);
+    property public final float ContainerHeight;
+    property public final androidx.compose.foundation.shape.RoundedCornerShape ContainerShape;
+    property public final float IconSize;
+    field public static final androidx.tv.material3.FilterChipDefaults INSTANCE;
+  }
+
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Glow {
     ctor public Glow(long elevationColor, float elevation);
     method public androidx.tv.material3.Glow copy(optional androidx.compose.ui.graphics.Color? glowColor, optional androidx.compose.ui.unit.Dp? glowElevation);
@@ -345,6 +397,25 @@ package androidx.tv.material3 {
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListScope {
     method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class InputChipDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.SelectableChipBorder border(boolean hasAvatar, optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border selectedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedSelectedBorder, optional androidx.tv.material3.Border focusedDisabledBorder, optional androidx.tv.material3.Border pressedSelectedBorder, optional androidx.tv.material3.Border selectedDisabledBorder, optional androidx.tv.material3.Border focusedSelectedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.SelectableChipColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long selectedContainerColor, optional long selectedContentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long focusedSelectedContainerColor, optional long focusedSelectedContentColor, optional long pressedSelectedContainerColor, optional long pressedSelectedContentColor);
+    method public float getAvatarSize();
+    method public float getContainerHeight();
+    method public androidx.compose.foundation.shape.RoundedCornerShape getContainerShape();
+    method public androidx.compose.foundation.shape.RoundedCornerShape getContainerShapeWithAvatar();
+    method public float getIconSize();
+    method public androidx.tv.material3.SelectableChipGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow, optional androidx.tv.material3.Glow selectedGlow, optional androidx.tv.material3.Glow focusedSelectedGlow, optional androidx.tv.material3.Glow pressedSelectedGlow);
+    method public androidx.tv.material3.SelectableChipScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float selectedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedSelectedScale, optional @FloatRange(from=0.0) float focusedDisabledScale, optional @FloatRange(from=0.0) float pressedSelectedScale, optional @FloatRange(from=0.0) float selectedDisabledScale, optional @FloatRange(from=0.0) float focusedSelectedDisabledScale);
+    method public androidx.tv.material3.SelectableChipShape shape(boolean hasAvatar, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape selectedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape, optional androidx.compose.ui.graphics.Shape pressedSelectedShape, optional androidx.compose.ui.graphics.Shape selectedDisabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedDisabledShape);
+    property public final float AvatarSize;
+    property public final float ContainerHeight;
+    property public final androidx.compose.foundation.shape.RoundedCornerShape ContainerShape;
+    property public final androidx.compose.foundation.shape.RoundedCornerShape ContainerShapeWithAvatar;
+    property public final float IconSize;
+    field public static final androidx.tv.material3.InputChipDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ListItemBorder {
@@ -469,6 +540,21 @@ package androidx.tv.material3 {
     method public void resumeAutoScroll();
   }
 
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipColors {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipGlow {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipScale {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipShape {
+  }
+
   public final class ShapeDefaults {
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
@@ -496,6 +582,19 @@ package androidx.tv.material3 {
     property public final androidx.compose.foundation.shape.CornerBasedShape large;
     property public final androidx.compose.foundation.shape.CornerBasedShape medium;
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SuggestionChipDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableChipBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableChipColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public float getContainerHeight();
+    method public androidx.compose.foundation.shape.RoundedCornerShape getContainerShape();
+    method public androidx.tv.material3.ClickableChipGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ClickableChipScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ClickableChipShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final float ContainerHeight;
+    property public final androidx.compose.foundation.shape.RoundedCornerShape ContainerShape;
+    field public static final androidx.tv.material3.SuggestionChipDefaults INSTANCE;
   }
 
   public final class SurfaceKt {
