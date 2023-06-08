@@ -182,6 +182,12 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipScale {
+    field public static final androidx.tv.material3.ClickableChipScale.Companion Companion;
+  }
+
+  public static final class ClickableChipScale.Companion {
+    method public androidx.tv.material3.ClickableChipScale getNone();
+    property public final androidx.tv.material3.ClickableChipScale None;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableChipShape {
@@ -550,6 +556,12 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipScale {
+    field public static final androidx.tv.material3.SelectableChipScale.Companion Companion;
+  }
+
+  public static final class SelectableChipScale.Companion {
+    method public androidx.tv.material3.SelectableChipScale getNone();
+    property public final androidx.tv.material3.SelectableChipScale None;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipShape {
