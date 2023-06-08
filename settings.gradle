@@ -461,7 +461,6 @@ includeProject(":asynclayoutinflater:asynclayoutinflater-appcompat", [BuildType.
 includeProject(":autofill:autofill", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-benchmark", "benchmark/benchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-common")
-includeProject(":benchmark:benchmark-internal")
 includeProject(":benchmark:benchmark-darwin", [BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":benchmark:benchmark-darwin-core", [BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":benchmark:benchmark-darwin-samples", [BuildType.INFRAROGUE, BuildType.KMP])

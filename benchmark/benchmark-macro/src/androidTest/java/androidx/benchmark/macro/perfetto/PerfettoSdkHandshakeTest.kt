@@ -73,7 +73,10 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
 
     @Before
     fun setUp() {
-        scope = MacrobenchmarkScope(targetPackage, launchWithClearTask = true)
+        scope = MacrobenchmarkScope(
+            targetPackage,
+            launchWithClearTask = true
+        )
 
         // kill process if running to ensure a clean test start
         if (Shell.isPackageAlive(targetPackage)) scope.killProcess()

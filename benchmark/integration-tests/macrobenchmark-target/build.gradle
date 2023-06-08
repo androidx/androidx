@@ -35,7 +35,6 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
     implementation(project(":appcompat:appcompat"))
-    implementation(project(":benchmark:benchmark-internal"))
     implementation(project(":activity:activity"))
     implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":recyclerview:recyclerview"))
