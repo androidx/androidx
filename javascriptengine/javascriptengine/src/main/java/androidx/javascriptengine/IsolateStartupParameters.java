@@ -47,10 +47,12 @@ public final class IsolateStartupParameters {
      * some multiple of bytes, be increased to some minimum value, or reduced to some maximum
      * supported value.
      * <p>
-     * Exceeding this limit will usually result in a {@link MemoryLimitExceededException},
-     * but beware that not all JavaScript sandbox service implementations (particularly older ones)
-     * handle memory exhaustion equally gracefully, and may crash the entire sandbox (see
-     * {@link SandboxDeadException}).
+     * Exceeding this limit will usually result in all unfinished and future evaluations failing
+     * with {@link MemoryLimitExceededException} and the isolate terminating with a status of
+     * {@link TerminationInfo#STATUS_MEMORY_LIMIT_EXCEEDED}, but beware that not all JavaScript
+     * sandbox service implementations (particularly older ones) handle memory exhaustion equally
+     * gracefully, and may crash the entire sandbox (see {@link SandboxDeadException}).
+     *
      * @param size heap size in bytes
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE,

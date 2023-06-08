@@ -24,6 +24,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
 import androidx.javascriptengine.common.LengthLimitExceededException;
 import androidx.javascriptengine.common.Utils;
 
@@ -37,6 +38,7 @@ import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallb
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -65,6 +67,11 @@ final class IsolateUsableState implements IsolateState {
     @GuardedBy("mLock")
     private Set<CallbackToFutureAdapter.Completer<String>> mPendingCompleterSet =
             new HashSet<>();
+    // mOnTerminatedCallbacks does not require this.mLock, as all accesses should be performed
+    // whilst holding the mLock of the JavaScriptIsolate that owns this state object.
+    @NonNull
+    private final HashMap<Consumer<TerminationInfo>, Executor> mOnTerminatedCallbacks =
+            new HashMap<>();
 
     private class IJsSandboxIsolateSyncCallbackStubWrapper extends
             IJsSandboxIsolateSyncCallback.Stub {
@@ -79,6 +86,9 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportResultWithFd(AssetFileDescriptor afd) {
             Objects.requireNonNull(afd);
+            // The completer needs to be removed before offloading to the executor, otherwise there
+            // is a race to complete it if all evaluations are cancelled.
+            removePending(mCompleter);
             mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
                     () -> {
                         String result;
@@ -87,13 +97,11 @@ final class IsolateUsableState implements IsolateState {
                                     mMaxEvaluationReturnSizeBytes,
                                     /*truncate=*/false);
                         } catch (IOException | UnsupportedOperationException ex) {
-                            removePending(mCompleter);
                             mCompleter.setException(
                                     new JavaScriptException(
                                             "Retrieving result failed: " + ex.getMessage()));
                             return;
                         } catch (LengthLimitExceededException ex) {
-                            removePending(mCompleter);
                             if (ex.getMessage() != null) {
                                 mCompleter.setException(
                                         new EvaluationResultSizeLimitExceededException(
@@ -111,6 +119,9 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportErrorWithFd(@ExecutionErrorTypes int type, AssetFileDescriptor afd) {
             Objects.requireNonNull(afd);
+            // The completer needs to be removed before offloading to the executor, otherwise there
+            // is a race to complete it if all evaluations are cancelled.
+            removePending(mCompleter);
             mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
                     () -> {
                         String error;
@@ -119,7 +130,6 @@ final class IsolateUsableState implements IsolateState {
                                     mMaxEvaluationReturnSizeBytes,
                                     /*truncate=*/true);
                         } catch (IOException | UnsupportedOperationException ex) {
-                            removePending(mCompleter);
                             mCompleter.setException(
                                     new JavaScriptException(
                                             "Retrieving error failed: " + ex.getMessage()));
@@ -144,6 +154,7 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportResult(String result) {
             Objects.requireNonNull(result);
+            removePending(mCompleter);
             final long identityToken = Binder.clearCallingIdentity();
             try {
                 handleEvaluationResult(mCompleter, result);
@@ -155,6 +166,7 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportError(@ExecutionErrorTypes int type, String error) {
             Objects.requireNonNull(error);
+            removePending(mCompleter);
             final long identityToken = Binder.clearCallingIdentity();
             try {
                 handleEvaluationError(mCompleter, type, error);
@@ -239,11 +251,12 @@ final class IsolateUsableState implements IsolateState {
                     new IJsSandboxIsolateCallbackStubWrapper(completer);
             try {
                 mJsIsolateStub.evaluateJavascript(code, callbackStub);
-                addToPendingCompleterSet(completer);
+                addPending(completer);
             } catch (DeadObjectException e) {
                 // The sandbox process has died.
-                mJsIsolate.maybeSetSandboxDead();
-                completer.setException(new SandboxDeadException());
+                final TerminationInfo terminationInfo = mJsIsolate.maybeSetSandboxDead();
+                Objects.requireNonNull(terminationInfo);
+                completer.setException(terminationInfo.toJavaScriptException());
             } catch (RemoteException e) {
                 completer.setException(new RuntimeException(e));
             }
@@ -309,49 +322,52 @@ final class IsolateUsableState implements IsolateState {
         } catch (RemoteException e) {
             Log.e(TAG, "RemoteException was thrown during close()", e);
         }
-        cancelAllPendingEvaluations(new IsolateTerminatedException());
+        cancelAllPendingEvaluations(new IsolateTerminatedException("isolate closed"));
     }
 
     @Override
-    public IsolateState setIsolateDead() {
-        IsolateTerminatedException exception = new IsolateTerminatedException();
-        cancelAllPendingEvaluations(exception);
-        return new EnvironmentDeadState(exception);
+    public boolean canDie() {
+        return true;
     }
 
     @Override
-    public IsolateState setSandboxDead() {
-        SandboxDeadException exception = new SandboxDeadException();
-        cancelAllPendingEvaluations(exception);
-        return new EnvironmentDeadState(exception);
+    public void onDied(@NonNull TerminationInfo terminationInfo) {
+        cancelAllPendingEvaluations(terminationInfo.toJavaScriptException());
+        mOnTerminatedCallbacks.forEach(
+                (callback, executor) -> executor.execute(() -> callback.accept(terminationInfo)));
     }
 
+    // Caller should call mJsIsolate.removePending(mCompleter) first
     void handleEvaluationError(@NonNull CallbackToFutureAdapter.Completer<String> completer,
             int type, @NonNull String error) {
-        removePending(completer);
-        boolean crashing = false;
         switch (type) {
             case IJsSandboxIsolateSyncCallback.JS_EVALUATION_ERROR:
                 completer.setException(new EvaluationFailedException(error));
                 break;
             case IJsSandboxIsolateSyncCallback.MEMORY_LIMIT_EXCEEDED:
-                completer.setException(new MemoryLimitExceededException(error));
-                crashing = true;
+                // Note that we won't ever receive a MEMORY_LIMIT_EXCEEDED evaluation error if
+                // the service side supports termination notifications, so this only handles the
+                // case where it doesn't.
+                final TerminationInfo terminationInfo =
+                        new TerminationInfo(TerminationInfo.STATUS_MEMORY_LIMIT_EXCEEDED, error);
+                mJsIsolate.maybeSetIsolateDead(terminationInfo);
+                // The completer was already removed from the set, so we're responsible for it.
+                // Use our exception even if the isolate was already dead or closed. This might
+                // result in an exception which is inconsistent with everything else if there was
+                // a death or close before we called maybeSetIsolateDead above, but that requires
+                // the app to have already set up a race condition.
+                completer.setException(terminationInfo.toJavaScriptException());
                 break;
             default:
                 completer.setException(new JavaScriptException(
-                        "Crashing due to unknown JavaScriptException: " + error));
-                // Assume the worst
-                crashing = true;
-        }
-        if (crashing) {
-            mJsIsolate.maybeSetIsolateDead();
+                        "Unknown error: code " + type + ": " + error));
+                break;
         }
     }
 
+    // Caller should call mJsIsolate.removePending(mCompleter) first
     void handleEvaluationResult(@NonNull CallbackToFutureAdapter.Completer<String> completer,
             @NonNull String result) {
-        removePending(completer);
         completer.set(result);
     }
 
@@ -361,7 +377,7 @@ final class IsolateUsableState implements IsolateState {
         }
     }
 
-    void addToPendingCompleterSet(@NonNull CallbackToFutureAdapter.Completer<String> completer) {
+    void addPending(@NonNull CallbackToFutureAdapter.Completer<String> completer) {
         synchronized (mLock) {
             mPendingCompleterSet.add(completer);
         }
@@ -394,16 +410,32 @@ final class IsolateUsableState implements IsolateState {
                     mJsIsolateStub.evaluateJavascriptWithFd(codeAfd,
                             callbackStub);
                 }
-                addToPendingCompleterSet(completer);
+                addPending(completer);
             } catch (DeadObjectException e) {
                 // The sandbox process has died.
-                mJsIsolate.maybeSetSandboxDead();
-                completer.setException(new SandboxDeadException());
+                final TerminationInfo terminationInfo = mJsIsolate.maybeSetSandboxDead();
+                Objects.requireNonNull(terminationInfo);
+                completer.setException(terminationInfo.toJavaScriptException());
             } catch (RemoteException | IOException e) {
                 completer.setException(new RuntimeException(e));
             }
             // Debug string.
             return futureDebugMessage;
         });
+    }
+
+    @Override
+    public void addOnTerminatedCallback(@NonNull Executor executor,
+            @NonNull Consumer<TerminationInfo> callback) {
+        if (mOnTerminatedCallbacks.putIfAbsent(callback, executor) != null) {
+            throw new IllegalStateException("Termination callback already registered");
+        }
+    }
+
+    @Override
+    public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
+        synchronized (mLock) {
+            mOnTerminatedCallbacks.remove(callback);
+        }
     }
 }
