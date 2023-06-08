@@ -44,7 +44,6 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -156,7 +155,6 @@ class PreviewTest(
             get() = ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
     }
 
-    @Ignore("b/265988873")
     @UiThreadTest
     @Test
     fun canBindToLifeCycleAndDisplayPreview(): Unit = runBlocking {
