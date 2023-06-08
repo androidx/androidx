@@ -61,11 +61,17 @@ class CloseCaptureSessionOnDisconnectQuirk : Quirk {
                 //  switching to a new capture session may trigger camera HAL crashes. Add more
                 //  hardware platforms here when they're identified.
                 true
-            } else {
+            } else if (Build.MODEL.lowercase(Locale.getDefault()).startsWith("cph")) {
                 // For CPH devices, the shutdown sequence oftentimes triggers ANR for the test app.
                 // As a result, we need to close the capture session to stop the captures, then
                 // release the Surfaces by FinalizeSessionOnCloseQuirk.
-                return Build.MODEL.lowercase(Locale.getDefault()).startsWith("cph")
+                true
+            } else {
+                // For Infinix devices, there is a service that actively kills apps that use
+                // significant memory, including the _foreground_ test applications. Closing the
+                // capture session ensures that we finalize every CameraGraph session, slightly
+                // lowering the peak memory.
+                Build.BRAND.lowercase(Locale.getDefault()) == "infinix"
             }
         }
     }
