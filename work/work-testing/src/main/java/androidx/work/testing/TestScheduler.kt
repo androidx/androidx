@@ -174,7 +174,7 @@ class TestScheduler(
             }
         } else {
             if (isRunnableInternalState(spec, state)) {
-                workDatabase.rewindLastEnqueueTimeIfNecessary(spec.id, clock)
+                workDatabase.rewindNextRunTimeToNow(spec.id, clock)
                 launcher.startWork(generateStartStopToken(spec, generationalId))
             }
             // Clock is not considered, only InternalWorkSpec.
@@ -212,6 +212,7 @@ class TestScheduler(
         val initialDelay =
             spec.initialDelay == 0L || state.initialDelayMet || !spec.isFirstPeriodicRun
         val periodic =
+            // .isFirstPeriodicRun is false for overridden first periods.
             if (spec.isPeriodic) (state.periodDelayMet || spec.isFirstPeriodicRun) else true
         return state.isScheduled && constraints && periodic && initialDelay
     }
@@ -233,11 +234,15 @@ internal data class InternalWorkState(
     val isScheduled: Boolean = false,
 )
 
-private val WorkSpec.isFirstPeriodicRun get() = periodCount == 0 && runAttemptCount == 0
+private val WorkSpec.isNextScheduleOverridden get() = nextScheduleTimeOverride != Long.MAX_VALUE
 
-private fun WorkDatabase.rewindLastEnqueueTimeIfNecessary(id: String, clock: Clock): WorkSpec {
+private val WorkSpec.isFirstPeriodicRun get() =
+    periodCount == 0 && runAttemptCount == 0 && !isNextScheduleOverridden
+        // Overrides are treated as continuing periods, not first runs.
+
+private fun WorkDatabase.rewindNextRunTimeToNow(id: String, clock: Clock): WorkSpec {
     // We need to pass check that mWorkSpec.calculateNextRunTime() < now
-    // so we reset "rewind" enqueue time to pass the check
+    // so we reset "rewind" enqueue time or nextScheduleTimeOverride to pass the check
     // we don't reuse available internalWorkState.mWorkSpec, because it
     // is not update with period_count and last_enqueue_time
     val dao: WorkSpecDao = workSpecDao()
@@ -246,7 +251,11 @@ private fun WorkDatabase.rewindLastEnqueueTimeIfNecessary(id: String, clock: Clo
     val now = clock.currentTimeMillis()
     val timeOffset = workSpec.calculateNextRunTime() - now
     if (timeOffset > 0) {
-        dao.setLastEnqueueTime(id, workSpec.lastEnqueueTime - timeOffset)
+        if (workSpec.isNextScheduleOverridden) {
+            dao.setNextScheduleTimeOverride(id, now)
+        } else {
+            dao.setLastEnqueueTime(id, workSpec.lastEnqueueTime - timeOffset)
+        }
     }
     return dao.getWorkSpec(id)
         ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
