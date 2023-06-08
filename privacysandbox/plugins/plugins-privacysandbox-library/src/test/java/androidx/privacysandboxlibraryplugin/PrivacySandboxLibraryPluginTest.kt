@@ -39,9 +39,6 @@ class PrivacySandboxLibraryPluginTest {
 
     @Before
     fun setUp() {
-        File("src/test/test-data", "app-project")
-            .also { it.mkdirs() }
-            .copyRecursively(projectSetup.rootDir)
         File(projectSetup.rootDir, "settings.gradle")
             .writeText("rootProject.name = \"test-privacysandbox-library\"")
         projectSetup.writeDefaultBuildGradle(
