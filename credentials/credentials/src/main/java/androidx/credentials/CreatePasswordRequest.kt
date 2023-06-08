@@ -38,6 +38,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
 class CreatePasswordRequest private constructor(
     val id: String,
     val password: String,
+    isAutoSelectAllowed: Boolean,
     displayInfo: DisplayInfo,
     origin: String? = null,
     preferImmediatelyAvailableCredentials: Boolean,
@@ -46,7 +47,7 @@ class CreatePasswordRequest private constructor(
     credentialData = toCredentialDataBundle(id, password),
     candidateQueryData = toCandidateDataBundle(),
     isSystemProviderRequired = false,
-    isAutoSelectAllowed = false,
+    isAutoSelectAllowed,
     displayInfo,
     origin,
     preferImmediatelyAvailableCredentials,
@@ -64,6 +65,11 @@ class CreatePasswordRequest private constructor(
      * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
      * immediately when there is no available password saving option instead of falling back
      * to discovering remote options, and false (default) otherwise
+     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is
+     * the only one available to the user (note that there is a chance that the credential provider
+     * does not support auto-select even if you turn this bit on); not recommended to be true for
+     * password request type to ensure that the user will always get a confirmation dialog even if
+     * the password saving provider does not offer any UI
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
@@ -75,7 +81,14 @@ class CreatePasswordRequest private constructor(
         password: String,
         origin: String? = null,
         preferImmediatelyAvailableCredentials: Boolean = false,
-    ) : this(id, password, DisplayInfo(id, null), origin, preferImmediatelyAvailableCredentials)
+        isAutoSelectAllowed: Boolean = false,
+    ) : this(
+        id = id,
+        password = password,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        displayInfo = DisplayInfo(id, null),
+        origin = origin,
+        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials)
 
     /**
      * Constructs a [CreatePasswordRequest] to save the user password credential with their
@@ -94,6 +107,11 @@ class CreatePasswordRequest private constructor(
      * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
      * immediately when there is no available passkey registration offering instead of falling back
      * to discovering remote options, and false (preferably) otherwise
+     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is
+     * the only one available to the user (note that there is a chance that the credential provider
+     * does not support auto-select even if you turn this bit on); not recommended to be true for
+     * password request type to ensure that the user will always get a confirmation dialog even if
+     * the password saving provider does not offer any UI
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
@@ -106,12 +124,18 @@ class CreatePasswordRequest private constructor(
         origin: String?,
         preferDefaultProvider: String?,
         preferImmediatelyAvailableCredentials: Boolean,
+        isAutoSelectAllowed: Boolean
     ) : this(
-        id, password, DisplayInfo(
+        id = id,
+        password = password,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        displayInfo = DisplayInfo(
             userId = id,
             userDisplayName = null,
             preferDefaultProvider = preferDefaultProvider,
-        ), origin, preferImmediatelyAvailableCredentials,
+        ),
+        origin = origin,
+        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
     )
 
     init {
@@ -147,17 +171,21 @@ class CreatePasswordRequest private constructor(
                 val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
+                val isAutoSelectAllowed =
+                    data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
                 return if (displayInfo == null) CreatePasswordRequest(
                     id = id!!,
                     password = password!!,
                     origin = origin,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
+                    isAutoSelectAllowed = isAutoSelectAllowed,
                 ) else CreatePasswordRequest(
                     id = id!!,
                     password = password!!,
                     displayInfo = displayInfo,
                     origin = origin,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
+                    isAutoSelectAllowed = isAutoSelectAllowed,
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

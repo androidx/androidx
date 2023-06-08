@@ -96,11 +96,12 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         String originExpected = "origin";
         Boolean preferImmediatelyAvailableCredentialsExpected = true;
         String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        boolean isAutoSelectAllowedExpected = true;
 
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
                 TEST_REQUEST_JSON, clientDataHashExpected,
                 preferImmediatelyAvailableCredentialsExpected, originExpected,
-                defaultProviderExpected);
+                defaultProviderExpected, isAutoSelectAllowedExpected);
 
         assertThat(request.getDisplayInfo().getPreferDefaultProvider())
                 .isEqualTo(defaultProviderExpected);
@@ -109,6 +110,15 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         assertThat(request.getRequestJson()).isEqualTo(TEST_REQUEST_JSON);
         assertThat(request.preferImmediatelyAvailableCredentials())
                 .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(isAutoSelectAllowedExpected);
+    }
+
+    @Test
+    public void constructor_setsAutoSelectToFalseByDefault() {
+        CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
+                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON);
+
+        assertThat(createPublicKeyCredentialRequest.isAutoSelectAllowed()).isFalse();
     }
 
     @Test
@@ -151,7 +161,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         String requestJsonExpected = TEST_REQUEST_JSON;
         byte[] clientDataHash = "hash".getBytes();
         boolean preferImmediatelyAvailableCredentialsExpected = true;
-        boolean autoSelectExpected = false;
+        boolean autoSelectExpected = true;
         Bundle expectedCandidateQueryData = new Bundle();
         expectedCandidateQueryData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -171,7 +181,9 @@ public class CreatePublicKeyCredentialRequestJavaTest {
                 preferImmediatelyAvailableCredentialsExpected);
 
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
-                requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected);
+                requestJsonExpected, clientDataHash,
+                preferImmediatelyAvailableCredentialsExpected,
+                /*origin=*/ null, autoSelectExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedCandidateQueryData))
@@ -204,9 +216,11 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         byte[] clientDataHashExpected = "hash".getBytes();
         String originExpected = "origin";
         Boolean preferImmediatelyAvailableCredentialsExpected = true;
+        boolean isAutoSelectAllowedExpected = true;
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
                 TEST_REQUEST_JSON, clientDataHashExpected,
-                preferImmediatelyAvailableCredentialsExpected, originExpected);
+                preferImmediatelyAvailableCredentialsExpected, originExpected,
+                isAutoSelectAllowedExpected);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
                 request.getType(), getFinalCreateCredentialData(
@@ -223,6 +237,8 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         assertThat(convertedSubclassRequest.getClientDataHash()).isEqualTo(clientDataHashExpected);
         assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials())
                 .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(convertedSubclassRequest.isAutoSelectAllowed())
+                .isEqualTo(isAutoSelectAllowedExpected);
         CreateCredentialRequest.DisplayInfo displayInfo =
                 convertedRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isEqualTo(TEST_USER_DISPLAYNAME);

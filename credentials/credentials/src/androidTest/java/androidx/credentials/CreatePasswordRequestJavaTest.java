@@ -68,6 +68,7 @@ public class CreatePasswordRequestJavaTest {
         assertThat(request.getOrigin()).isNull();
         assertThat(request.getId()).isEqualTo(idExpected);
         assertThat(request.getPassword()).isEqualTo(passwordExpected);
+        assertThat(request.isAutoSelectAllowed()).isFalse();
     }
 
     @Test
@@ -76,9 +77,11 @@ public class CreatePasswordRequestJavaTest {
         String passwordExpected = "password";
         String originExpected = "origin";
         boolean preferImmediatelyAvailableCredentialsExpected = true;
+        boolean isAutoSelectAllowedExpected = true;
 
         CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected,
-                originExpected, preferImmediatelyAvailableCredentialsExpected);
+                originExpected, preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowedExpected);
 
         assertThat(request.preferImmediatelyAvailableCredentials())
                 .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
@@ -86,6 +89,7 @@ public class CreatePasswordRequestJavaTest {
         assertThat(request.getOrigin()).isEqualTo(originExpected);
         assertThat(request.getId()).isEqualTo(idExpected);
         assertThat(request.getPassword()).isEqualTo(passwordExpected);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(isAutoSelectAllowedExpected);
     }
 
     @Test
@@ -104,10 +108,12 @@ public class CreatePasswordRequestJavaTest {
         String originExpected = "origin";
         boolean preferImmediatelyAvailableCredentialsExpected = true;
         String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        boolean isAutoSelectAllowedExpected = true;
 
         CreatePasswordRequest request = new CreatePasswordRequest(
                 idExpected, passwordExpected, originExpected, defaultProviderExpected,
-                preferImmediatelyAvailableCredentialsExpected);
+                preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowedExpected);
 
         assertThat(request.getDisplayInfo().getPreferDefaultProvider())
                 .isEqualTo(defaultProviderExpected);
@@ -116,6 +122,7 @@ public class CreatePasswordRequestJavaTest {
         assertThat(request.getOrigin()).isEqualTo(originExpected);
         assertThat(request.getId()).isEqualTo(idExpected);
         assertThat(request.getPassword()).isEqualTo(passwordExpected);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(isAutoSelectAllowedExpected);
     }
 
     @Test
@@ -140,7 +147,7 @@ public class CreatePasswordRequestJavaTest {
         String passwordExpected = "pwd";
         boolean preferImmediatelyAvailableCredentialsExpected = true;
         Bundle expectedCredentialData = new Bundle();
-        boolean expectedAutoSelect = false;
+        boolean expectedAutoSelect = true;
         expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected);
         expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD,
                 passwordExpected);
@@ -154,7 +161,8 @@ public class CreatePasswordRequestJavaTest {
                 expectedAutoSelect);
 
         CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected,
-                /*origin=*/ null, preferImmediatelyAvailableCredentialsExpected);
+                /*origin=*/ null, preferImmediatelyAvailableCredentialsExpected,
+                expectedAutoSelect);
 
         assertThat(request.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         CreateCredentialRequest.DisplayInfo displayInfo =
@@ -191,9 +199,10 @@ public class CreatePasswordRequestJavaTest {
         boolean preferImmediatelyAvailableCredentialsExpected = true;
         String originExpected = "origin";
         String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        boolean isAutoSelectAllowedExpected = true;
         CreatePasswordRequest request = new CreatePasswordRequest(
                 idExpected, passwordExpected, originExpected, defaultProviderExpected,
-                preferImmediatelyAvailableCredentialsExpected);
+                preferImmediatelyAvailableCredentialsExpected, isAutoSelectAllowedExpected);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
                 request.getType(), getFinalCreateCredentialData(
@@ -210,6 +219,8 @@ public class CreatePasswordRequestJavaTest {
         assertThat(convertedCreatePasswordRequest.preferImmediatelyAvailableCredentials())
                 .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
         assertThat(convertedCreatePasswordRequest.getOrigin()).isEqualTo(originExpected);
+        assertThat(convertedCreatePasswordRequest.isAutoSelectAllowed())
+                .isEqualTo(isAutoSelectAllowedExpected);
         CreateCredentialRequest.DisplayInfo displayInfo =
                 convertedCreatePasswordRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
