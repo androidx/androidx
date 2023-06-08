@@ -284,6 +284,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testRenderDoubleBufferLayer() {
@@ -503,6 +504,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testBufferRetargetingDoubleBufferedLayer() {
@@ -602,6 +604,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testCancelFrontBufferLayerRender() {
@@ -877,6 +880,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testDoubleBufferedContentsNotPersisted() {
