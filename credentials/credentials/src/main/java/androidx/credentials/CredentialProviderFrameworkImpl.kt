@@ -19,6 +19,7 @@ package androidx.credentials
 import android.annotation.SuppressLint
 import android.content.Context
 import android.credentials.CredentialManager
+import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
@@ -328,8 +329,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     }
 
     override fun isAvailableOnDevice(): Boolean {
-        // TODO("b/276492529 Base it on API level check")
-        return true
+        return Build.VERSION.SDK_INT >= 34
     }
 
     override fun onClearCredential(
