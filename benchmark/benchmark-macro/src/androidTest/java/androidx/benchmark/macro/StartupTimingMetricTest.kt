@@ -70,7 +70,10 @@ class StartupTimingMetricTest {
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val intent =
             Intent("androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY")
-        val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            packageName = packageName,
+            launchWithClearTask = true
+        )
         val measurements = measureStartup(packageName, StartupMode.COLD) {
             // Simulate a cold start
             scope.killProcess()
@@ -100,7 +103,10 @@ class StartupTimingMetricTest {
         }
         assumeTrue(isAbiSupported())
 
-        val scope = MacrobenchmarkScope(packageName = Packages.TEST, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            packageName = Packages.TEST,
+            launchWithClearTask = true
+        )
         val launchIntent = ConfigurableActivity.createIntent(
             text = "ORIGINAL TEXT",
             reportFullyDrawnDelayMs = delayMs
