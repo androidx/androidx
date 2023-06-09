@@ -1076,6 +1076,29 @@ class AppBarTest {
     }
 
     @Test
+    fun bottomAppBar_FABshown_whenActionsOverflowRow() {
+        rule.setMaterialContent(lightColorScheme()) {
+            BottomAppBar(
+                actions = {
+                    repeat(20) {
+                        FakeIcon(Modifier)
+                    }
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = { /* do something */ },
+                        modifier = Modifier.testTag("FAB"),
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                    ) {
+                        Icon(Icons.Filled.Add, "Localized description")
+                    }
+                })
+        }
+        rule.onNodeWithTag("FAB").assertIsDisplayed()
+    }
+
+    @Test
     fun bottomAppBar_widthExpandsToScreen() {
         rule
             .setMaterialContentForSizeAssertions {
