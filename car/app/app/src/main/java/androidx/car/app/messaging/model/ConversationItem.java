@@ -86,7 +86,7 @@ public class ConversationItem implements Item {
                         && Objects.equals(mTitle, otherConversationItem.mTitle)
                         && Objects.equals(mIcon, otherConversationItem.mIcon)
                         && PersonsEqualityHelper
-                            .arePersonsEqual(getSelf(), otherConversationItem.getSelf())
+                        .arePersonsEqual(getSelf(), otherConversationItem.getSelf())
                         && mIsGroupConversation == otherConversationItem.mIsGroupConversation
                         && Objects.equals(mMessages, otherConversationItem.mMessages)
                 ;
@@ -100,8 +100,7 @@ public class ConversationItem implements Item {
         this.mIsGroupConversation = builder.mIsGroupConversation;
         this.mMessages = requireNonNull(CollectionUtils.unmodifiableCopy(builder.mMessages));
         checkState(!mMessages.isEmpty(), "Message list cannot be empty.");
-        this.mConversationCallbackDelegate = new ConversationCallbackDelegateImpl(
-                requireNonNull(builder.mConversationCallback));
+        this.mConversationCallbackDelegate = requireNonNull(builder.mConversationCallbackDelegate);
     }
 
     /** Default constructor for serialization. */
@@ -202,7 +201,7 @@ public class ConversationItem implements Item {
         @Nullable
         List<CarMessage> mMessages;
         @Nullable
-        ConversationCallback mConversationCallback;
+        ConversationCallbackDelegate mConversationCallbackDelegate;
 
         /**
          * Specifies a unique identifier for the conversation
@@ -273,9 +272,9 @@ public class ConversationItem implements Item {
         /** Sets a {@link ConversationCallback} for the conversation */
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         @NonNull
-        public Builder setConversationCallback(
-                @NonNull ConversationCallback conversationCallback) {
-            mConversationCallback = conversationCallback;
+        public Builder setConversationCallback(@NonNull ConversationCallback conversationCallback) {
+            mConversationCallbackDelegate =
+                    new ConversationCallbackDelegateImpl(requireNonNull(conversationCallback));
             return this;
         }
 
@@ -283,6 +282,21 @@ public class ConversationItem implements Item {
         @NonNull
         public ConversationItem build() {
             return new ConversationItem(this);
+        }
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
+        }
+
+        /** Returns a builder from the given {@link ConversationItem}. */
+        public Builder(@NonNull ConversationItem other) {
+            this.mId = other.getId();
+            this.mTitle = other.getTitle();
+            this.mSelf = other.getSelf();
+            this.mIcon = other.getIcon();
+            this.mIsGroupConversation = other.isGroupConversation();
+            this.mConversationCallbackDelegate = other.getConversationCallbackDelegate();
+            this.mMessages = other.getMessages();
         }
     }
 }

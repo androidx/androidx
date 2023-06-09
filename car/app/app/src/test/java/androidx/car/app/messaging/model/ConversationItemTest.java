@@ -62,6 +62,7 @@ public class ConversationItemTest {
         );
     }
 
+    @Test
     public void build_throwsException_ifSenderNameMissing() {
         assertThrows(
                 NullPointerException.class,
@@ -73,6 +74,7 @@ public class ConversationItemTest {
         );
     }
 
+    @Test
     public void build_throwsException_ifSenderKeyMissing() {
         assertThrows(
                 NullPointerException.class,
@@ -82,6 +84,15 @@ public class ConversationItemTest {
                                 .build())
                         .build()
         );
+    }
+
+    @Test
+    public void builderConstructor_copiesAllFields() {
+        ConversationItem original = TestConversationFactory.createFullyPopulatedConversationItem();
+
+        ConversationItem result = new ConversationItem.Builder(original).build();
+
+        assertEqual(result, original);
     }
 
     // region .equals() & .hashCode()
