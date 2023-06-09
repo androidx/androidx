@@ -124,4 +124,70 @@ class BadConfigurationProviderTest {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun testNoApp() {
+        // If no application class is found then we don't report an incident.
+        val invalidProvider = kotlin(
+            "com/example/CustomProvider.kt",
+            """
+            package com.example
+
+            import androidx.work.Configuration
+
+            class Provider: Configuration.Provider {
+                override fun getWorkManagerConfiguration(): Configuration = TODO()
+            }
+            """
+        ).indented().within("src")
+
+        lint().files(
+            ANDROID_APPLICATION,
+            WORK_MANAGER_CONFIGURATION_PROVIDER,
+            invalidProvider
+        ).issues(BadConfigurationProviderIssueDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testWithAbstractApp() {
+        // Abstract application classes are ignored, so no incident will be reported.
+        val customApplication = kotlin(
+            "com/example/App.kt",
+            """
+            package com.example
+
+            import android.app.Application
+
+            abstract class App: Application() {
+                override fun onCreate() {
+
+                }
+            }
+            """
+        ).indented().within("src")
+
+        val invalidProvider = kotlin(
+            "com/example/CustomProvider.kt",
+            """
+            package com.example
+
+            import androidx.work.Configuration
+
+            class Provider: Configuration.Provider {
+                override fun getWorkManagerConfiguration(): Configuration = TODO()
+            }
+            """
+        ).indented().within("src")
+
+        lint().files(
+            ANDROID_APPLICATION,
+            WORK_MANAGER_CONFIGURATION_PROVIDER,
+            customApplication,
+            invalidProvider
+        ).issues(BadConfigurationProviderIssueDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
 }
