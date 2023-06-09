@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"เล่นในกลุ่ม"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ไม่มีข้อมูล"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"ไม่มีอุปกรณ์ที่ใช้ได้"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"หาอุปกรณ์ไม่พบ ตรวจสอบว่าอุปกรณ์ของคุณและอุปกรณ์แคสต์ใช้เครือข่าย Wi-Fi เดียวกันแล้วลองอีกครั้ง"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"ตรวจสอบว่าอุปกรณ์ของคุณและอุปกรณ์แคสต์ใช้เครือข่าย Wi-Fi เดียวกัน"</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"เสร็จสิ้น"</string>
 </resources>

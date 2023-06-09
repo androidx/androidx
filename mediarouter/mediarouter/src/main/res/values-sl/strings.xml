@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Predvajanje v skupini"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Ni podatkov"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Nobena naprava ni na voljo"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Naprav ni mogoče najti. Prepričajte se, da sta vaša naprava in naprava za predvajanje povezani v isto omrežje Wi-Fi, in poskusite znova."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Prepričajte se, da sta vaša naprava in naprava za predvajanje povezani v isto omrežje Wi-Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Končano"</string>
 </resources>

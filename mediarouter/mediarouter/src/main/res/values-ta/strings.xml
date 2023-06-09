@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"குழுவில் இயக்கு"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"தகவல் எதுவுமில்லை"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"சாதனங்கள் இல்லை"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"சாதனங்களைக் கண்டறிய முடியவில்லை, உங்கள் சாதனமும் அனுப்பும் சாதனமும் ஒரே வைஃபை நெட்வொர்க்கில் இணைக்கப்பட்டிருப்பதை உறுதிசெய்து மீண்டும் முயலவும்."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"உங்கள் சாதனமும் அனுப்பும் சாதனமும் ஒரே வைஃபை நெட்வொர்க்கில் இணைக்கப்பட்டிருப்பதை உறுதிசெய்துகொள்ளவும்."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"முடிந்தது"</string>
 </resources>

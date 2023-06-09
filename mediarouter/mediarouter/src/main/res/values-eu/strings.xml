@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Erreproduzitu talde batean"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Ez dago informaziorik"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Ez dago gailurik"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Ezin dira aurkitu gailuak. Ziurtatu gailua eta igorpen-gailua wifi-sare berean daudela. Ondoren, saiatu berriro."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Ziurtatu gailua eta igorpen-gailua wifi-sare berean daudela."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Eginda"</string>
 </resources>

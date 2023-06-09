@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Reprodueix en un grup"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"No hi ha informació disponible"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"No hi ha cap dispositiu disponible"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"No es poden trobar els dispositius. Assegura\'t que el teu dispositiu i el dispositiu d\'emissió estiguin connectats a la mateixa xarxa Wi‐Fi i torna-ho a provar."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Comprova que el teu dispositiu i el dispositiu d\'emissió estiguin connectats a la mateixa xarxa Wi‐Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Fet"</string>
 </resources>

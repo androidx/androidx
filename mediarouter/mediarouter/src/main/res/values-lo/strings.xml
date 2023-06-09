@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"ຫຼິ້ນຢູ່ກຸ່ມ"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ບໍ່ມີຂໍ້ມູນ"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"ບໍ່ມີອຸປະກອນທີ່ສາມາດໃຊ້ໄດ້"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"ບໍ່ພົບອຸປະກອນ, ກວດສອບວ່າອຸປະກອນຂອງທ່ານ ແລະ ອຸປະກອນ Chromecast ໃຊ້ເຄືອຂ່າຍ Wi-Fi ດຽວກັນ ແລ້ວລອງໃໝ່."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"ກວດສອບວ່າອຸປະກອນຂອງທ່ານ ແລະ ອຸປະກອນ Chromecast ໃຊ້ເຄືອຂ່າຍ Wi-Fi ດຽວກັນ."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"ແລ້ວໆ"</string>
 </resources>

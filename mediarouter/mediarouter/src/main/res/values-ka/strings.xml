@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"ჯგუფში დაკვრა"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ინფორმაცია მიუწვდომელია"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"ხელმისაწვდომი მოწყობილობები არ არის"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"მოწყობილობების პოვნა ვერ ხერხდება — დარწმუნდით, რომ თქვენი და გადაცემის მოწყობილობა ერთსა და იმავე Wi-Fi ქსელთანაა დაკავშირებული და სცადეთ ხელახლა."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"დარწმუნდით, რომ თქვენი და გადაცემის მოწყობილობა ერთსა და იმავე Wi-Fi ქსელთანაა დაკავშირებული."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"მზადაა"</string>
 </resources>

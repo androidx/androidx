@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"ଏକ ଗ୍ରୁପ୍‌ରେ ପ୍ଲେ କରନ୍ତୁ"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"କୌଣସି ସୂଚନା ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"କୌଣସି ଡିଭାଇସ ଉପଲବ୍ଧ ନାହିଁ"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"ଡିଭାଇସଗୁଡ଼ିକୁ ଖୋଜିବାରେ ଅସମର୍ଥ, ଆପଣଙ୍କ ଡିଭାଇସ ଏବଂ କାଷ୍ଟ ଡିଭାଇସ ସମାନ ୱାଇ-ଫାଇ ନେଟୱାର୍କରେ ଅଛି ବୋଲି ସୁନିଶ୍ଚିତ କରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"ଆପଣଙ୍କ ଡିଭାଇସ ଏବଂ କାଷ୍ଟ ଡିଭାଇସ ସମାନ ୱାଇ-ଫାଇ ନେଟୱାର୍କରେ ଅଛି ବୋଲି ସୁନିଶ୍ଚିତ କରନ୍ତୁ।"</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"ହୋଇଗଲା"</string>
 </resources>

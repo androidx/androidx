@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Riproduci su un gruppo"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Nessuna informazione disponibile"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Nessun dispositivo disponibile"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Impossibile trovare dispositivi, assicurati che il dispositivo e il dispositivo di trasmissione siano sulla stessa rete Wi-Fi e riprova."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Assicurati che il tuo dispositivo e quello di trasmissione siano collegati alla stessa rete Wi-Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Fine"</string>
 </resources>
