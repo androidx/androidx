@@ -21,6 +21,7 @@ import static io.grpc.binder.ParcelableUtils.metadataKey;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,10 +38,12 @@ import io.grpc.Status;
 /**
  * Server interceptor that copies the RemoteViews provided in context to metadata.
  */
-final class RemoteViewsOverMetadataInterceptor implements ServerInterceptor {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class RemoteViewsOverMetadataInterceptor implements ServerInterceptor {
 
     private static final String KEY = "RemoteViews-bin";
-    static final Metadata.Key<RemoteViews> METADATA_KEY = metadataKey(KEY, RemoteViews.CREATOR);
+    public static final Metadata.Key<RemoteViews> METADATA_KEY = metadataKey(KEY,
+            RemoteViews.CREATOR);
     static final Context.Key<AtomicReference<RemoteViews>> RESPONSE = Context.key("RES-" + KEY);
 
     static void setRemoteViews(@NonNull RemoteViews remoteViews) {
