@@ -2279,18 +2279,21 @@ package androidx.compose.ui.modifier {
 package androidx.compose.ui.node {
 
   @kotlin.PublishedApi internal interface ComposeUiNode {
+    method public int getCompositeKeyHash();
     method public androidx.compose.runtime.CompositionLocalMap getCompositionLocalMap();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public androidx.compose.ui.layout.MeasurePolicy getMeasurePolicy();
     method public androidx.compose.ui.Modifier getModifier();
     method public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
+    method public void setCompositeKeyHash(int);
     method public void setCompositionLocalMap(androidx.compose.runtime.CompositionLocalMap);
     method public void setDensity(androidx.compose.ui.unit.Density);
     method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setMeasurePolicy(androidx.compose.ui.layout.MeasurePolicy);
     method public void setModifier(androidx.compose.ui.Modifier);
     method public void setViewConfiguration(androidx.compose.ui.platform.ViewConfiguration);
+    property public abstract int compositeKeyHash;
     property public abstract androidx.compose.runtime.CompositionLocalMap compositionLocalMap;
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;

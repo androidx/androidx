@@ -25,6 +25,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.materialize
-import androidx.compose.ui.node.ComposeUiNode
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
@@ -314,6 +317,7 @@ fun SubcomposeLayout(
     },
     measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val compositionContext = rememberCompositionContext()
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
@@ -327,8 +331,10 @@ fun SubcomposeLayout(
                 intermediateMeasurePolicy,
                 state.setIntermediateMeasurePolicy
             )
-            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
-            set(materialized, ComposeUiNode.SetModifier)
+            set(localMap, SetResolvedCompositionLocals)
+            set(materialized, SetModifier)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
         }
     )
     if (!currentComposer.skipping) {
