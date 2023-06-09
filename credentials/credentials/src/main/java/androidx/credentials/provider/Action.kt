@@ -105,7 +105,6 @@ class Action constructor(
         }
     }
 
-    @Suppress("AcronymName")
     internal companion object {
         private const val TAG = "Action"
         private const val SLICE_SPEC_REVISION = 0
