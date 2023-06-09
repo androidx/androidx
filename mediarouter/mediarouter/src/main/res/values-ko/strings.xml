@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"그룹에서 재생"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"사용할 수 있는 정보 없음"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"사용 가능한 기기 없음"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"기기를 찾을 수 없습니다. 기기와 Cast 기기가 동일한 Wi-Fi 네트워크에 연결되어 있는지 확인 후 다시 시도하세요."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"기기와 Cast 기기가 동일한 Wi-Fi 네트워크에 연결되어 있는지 확인하세요."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"완료"</string>
 </resources>

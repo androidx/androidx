@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Grupis esitamine"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Teave puudub"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Ühtegi seadet pole saadaval"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Seadmeid ei õnnestu leida. Veenduge, et teie seade ja ülekandeseade oleksid samas WiFi-võrgus, ja proovige uuesti."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Veenduge, et teie seade ja ülekandeseade oleksid samas WiFi-võrgus."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Valmis"</string>
 </resources>

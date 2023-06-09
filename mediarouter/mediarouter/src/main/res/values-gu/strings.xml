@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"જૂથમાં રમો"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"કોઈ માહિતી ઉપલબ્ધ નથી"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"કોઈ ડિવાઇસ ઉપલબ્ધ નથી"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"ડિવાઇસ શોધી ન શકતા હો તો ખાતરી કરો કે તમારા ડિવાઇસ અને કાસ્ટ કરી શકતા ડિવાઇસને એક જ વાઇ-ફાઇ નેટવર્ક સાથે કનેક્ટ કર્યા હોય અને ફરી પ્રયાસ કરો."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"ખાતરી કરો કે તમારા ડિવાઇસ અને કાસ્ટ કરી શકતા ડિવાઇસને એક જ વાઇ-ફાઇ નેટવર્ક સાથે કનેક્ટ કર્યા હોય."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"થઈ ગયું"</string>
 </resources>

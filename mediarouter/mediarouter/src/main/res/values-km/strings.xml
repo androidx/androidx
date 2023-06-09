@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"លេងនៅ​លើក្រុម"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"មិនមានព័ត៌មានទេ"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"មិន​មាន​ឧបករណ៍​ទេ"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"រកមិនឃើញឧបករណ៍ទេ សូមប្រាកដថា ឧបករណ៍របស់អ្នក និងឧបករណ៍បញ្ជូនស្ថិតលើបណ្ដាញ Wi-Fi តែមួយ រួចព្យាយាមម្ដងទៀត។"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"សូមប្រាកដថា ឧបករណ៍របស់អ្នក និងឧបករណ៍បញ្ជូន​ស្ថិតលើបណ្តាញ Wi-Fi តែមួយ។"</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"រួចរាល់"</string>
 </resources>

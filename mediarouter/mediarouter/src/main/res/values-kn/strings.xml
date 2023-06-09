@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"ಗುಂಪಿನಲ್ಲಿ ಪ್ಲೇ ಮಾಡಿ"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ಯಾವುದೇ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"ಯಾವುದೇ ಸಾಧನಗಳು ಲಭ್ಯವಿಲ್ಲ"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"ಸಾಧನಗಳನ್ನು ಹುಡುಕಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ, ನಿಮ್ಮ ಸಾಧನ ಮತ್ತು ಬಿತ್ತರಿಸುವ ಸಾಧನವು ಒಂದೇ ವೈ-ಫೈ ನೆಟ್‌ವರ್ಕ್‌ನಲ್ಲಿದೆಯೇ ಎಂಬುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ ಹಾಗೂ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"ನಿಮ್ಮ ಸಾಧನ ಮತ್ತು ಬಿತ್ತರಿಸುವ ಸಾಧನವು ಒಂದೇ ವೈ-ಫೈ ನೆಟ್‌ವರ್ಕ್‌ನಲ್ಲಿರುವುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"ಮುಗಿದಿದೆ"</string>
 </resources>

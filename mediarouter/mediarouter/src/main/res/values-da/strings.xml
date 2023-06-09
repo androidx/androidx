@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Afspil på en gruppe"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Der er ingen tilgængelige oplysninger"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Der er ingen tilgængelige enheder"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Det var ikke muligt at finde enhederne. Sørg for, at din enhed og Cast-enheden har forbindelse til det samme Wi-Fi-netværk, og prøv igen."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Sørg for, at din enhed og Cast-enheden har forbindelse til det samme Wi-Fi-netværk."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Udfør"</string>
 </resources>

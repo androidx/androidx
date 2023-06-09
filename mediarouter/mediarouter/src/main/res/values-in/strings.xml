@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Putar di grup"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Info tidak tersedia"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Perangkat tidak tersedia"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Tidak dapat menemukan perangkat, pastikan perangkat Anda dan perangkat Transmisi berada pada jaringan Wi-Fi yang sama, lalu coba lagi."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Pastikan perangkat Anda dan perangkat Transmisi berada pada jaringan Wi-Fi yang sama."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Selesai"</string>
 </resources>

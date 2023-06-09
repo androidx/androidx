@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Възпроизвеждане в група"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Няма налична информация"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Няма налични устройства"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Не могат да се намерят устройства. Уверете се, че устройството ви и устройството Cast са в една и съща Wi-Fi мрежа, и опитайте отново."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Уверете се, че устройството ви и устройството Cast са в една и съща Wi-Fi мрежа."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Готово"</string>
 </resources>

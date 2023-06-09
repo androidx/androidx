@@ -42,7 +42,4 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Прайграць на групе прылад"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Інфармацыя адсутнічае"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Няма даступных прылад"</string>
-    <string name="mr_chooser_zero_routes_description" msgid="5123320430013505927">"Не ўдалося знайсці прыладу. Пераканайцеся, што ваша прылада і прылада для трансляцыі падключаны да адной і той жа сеткі Wi-Fi."</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="337903053432238985">"Пераканайцеся, што ваша прылада і прылада для трансляцыі падключаны да адной і той жа сеткі Wi-Fi."</string>
-    <string name="mr_chooser_done_button_label" msgid="7897288652928484627">"Гатова"</string>
 </resources>
