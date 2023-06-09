@@ -48,6 +48,8 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -71,6 +73,7 @@ import java.util.concurrent.TimeoutException;
  * such as pressing the d-pad or pressing the Home and Menu buttons.
  */
 public class UiDevice implements Searchable {
+
     static final String TAG = UiDevice.class.getSimpleName();
 
     // Use a short timeout after HOME or BACK key presses, as no events might be generated if
@@ -178,8 +181,10 @@ public class UiDevice implements Searchable {
      * was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull Condition<? super UiDevice, U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
-        return mWaitMixin.wait(condition, timeout);
+        try (Section ignored = Traces.trace("UiDevice#wait")) {
+            Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
+            return mWaitMixin.wait(condition, timeout);
+        }
     }
 
     /**
@@ -192,22 +197,24 @@ public class UiDevice implements Searchable {
      */
     public <U> U performActionAndWait(@NonNull Runnable action,
             @NonNull EventCondition<U> condition, long timeout) {
-        AccessibilityEvent event = null;
-        Log.d(TAG, String.format("Performing action %s and waiting %dms for %s.", action, timeout,
-                condition));
-        try {
-            event = getUiAutomation().executeAndWaitForEvent(
-                    action, condition, timeout);
-        } catch (TimeoutException e) {
-            // Ignore
-            Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout), e);
-        }
+        try (Section ignored = Traces.trace("UiDevice#performActionAndWait")) {
+            AccessibilityEvent event = null;
+            Log.d(TAG, String.format("Performing action %s and waiting %dms for %s.", action,
+                    timeout, condition));
+            try {
+                event = getUiAutomation().executeAndWaitForEvent(
+                        action, condition, timeout);
+            } catch (TimeoutException e) {
+                // Ignore
+                Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout), e);
+            }
 
-        if (event != null) {
-            event.recycle();
-        }
+            if (event != null) {
+                event.recycle();
+            }
 
-        return condition.getResult();
+            return condition.getResult();
+        }
     }
 
     /**
@@ -627,7 +634,9 @@ public class UiDevice implements Searchable {
      * Default wait timeout is 10 seconds
      */
     public void waitForIdle() {
-        getQueryController().waitForIdle();
+        try (Section ignored = Traces.trace("UiDevice#waitForIdle")) {
+            getQueryController().waitForIdle();
+        }
     }
 
     /**
@@ -635,7 +644,9 @@ public class UiDevice implements Searchable {
      * @param timeout in milliseconds
      */
     public void waitForIdle(long timeout) {
-        getQueryController().waitForIdle(timeout);
+        try (Section ignored = Traces.trace("UiDevice#waitForIdle")) {
+            getQueryController().waitForIdle(timeout);
+        }
     }
 
     /**
@@ -980,33 +991,36 @@ public class UiDevice implements Searchable {
      *         window does not have the specified package name
      */
     public boolean waitForWindowUpdate(@Nullable String packageName, long timeout) {
-        if (packageName != null) {
-            if (!packageName.equals(getCurrentPackageName())) {
-                Log.w(TAG, String.format("Skipping wait as package %s does not match current "
-                        + "window %s.", packageName, getCurrentPackageName()));
+        try (Section ignored = Traces.trace("UiDevice#waitForWindowUpdate")) {
+            if (packageName != null) {
+                if (!packageName.equals(getCurrentPackageName())) {
+                    Log.w(TAG, String.format("Skipping wait as package %s does not match current "
+                            + "window %s.", packageName, getCurrentPackageName()));
+                    return false;
+                }
+            }
+            Runnable emptyRunnable = () -> {
+            };
+            AccessibilityEventFilter checkWindowUpdate = t -> {
+                if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+                    return packageName == null || (t.getPackageName() != null
+                            && packageName.contentEquals(t.getPackageName()));
+                }
+                return false;
+            };
+            Log.d(TAG, String.format("Waiting %dms for window update of package %s.", timeout,
+                    packageName));
+            try {
+                getUiAutomation().executeAndWaitForEvent(emptyRunnable, checkWindowUpdate, timeout);
+            } catch (TimeoutException e) {
+                Log.w(TAG, String.format("Timed out waiting %dms on window update.", timeout), e);
+                return false;
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to wait for window update.", e);
                 return false;
             }
+            return true;
         }
-        Runnable emptyRunnable = () -> {};
-        AccessibilityEventFilter checkWindowUpdate = t -> {
-            if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                return packageName == null || (t.getPackageName() != null
-                        && packageName.contentEquals(t.getPackageName()));
-            }
-            return false;
-        };
-        Log.d(TAG, String.format("Waiting %dms for window update of package %s.", timeout,
-                packageName));
-        try {
-            getUiAutomation().executeAndWaitForEvent(emptyRunnable, checkWindowUpdate, timeout);
-        } catch (TimeoutException e) {
-            Log.w(TAG, String.format("Timed out waiting %dms on window update.", timeout), e);
-            return false;
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to wait for window update.", e);
-            return false;
-        }
-        return true;
     }
 
     /**

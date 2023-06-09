@@ -23,6 +23,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,14 +80,16 @@ class ByMatcher {
      */
     static AccessibilityNodeInfo findMatch(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-        ByMatcher matcher = new ByMatcher(device, selector, true);
-        for (AccessibilityNodeInfo root : roots) {
-            List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
-            if (!matches.isEmpty()) {
-                return matches.get(0);
+        try (Section ignored = Traces.trace("ByMatcher.findMatch")) {
+            ByMatcher matcher = new ByMatcher(device, selector, true);
+            for (AccessibilityNodeInfo root : roots) {
+                List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
+                if (!matches.isEmpty()) {
+                    return matches.get(0);
+                }
             }
+            return null;
         }
-        return null;
     }
 
     /**
@@ -94,12 +98,14 @@ class ByMatcher {
      */
     static List<AccessibilityNodeInfo> findMatches(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-        List<AccessibilityNodeInfo> ret = new ArrayList<>();
-        ByMatcher matcher = new ByMatcher(device, selector, false);
-        for (AccessibilityNodeInfo root : roots) {
-            ret.addAll(matcher.findMatches(root));
+        try (Section ignored = Traces.trace("ByMatcher.findMatches")) {
+            List<AccessibilityNodeInfo> ret = new ArrayList<>();
+            ByMatcher matcher = new ByMatcher(device, selector, false);
+            for (AccessibilityNodeInfo root : roots) {
+                ret.addAll(matcher.findMatches(root));
+            }
+            return ret;
         }
-        return ret;
     }
 
     /** Searches the hierarchy under the root for nodes that match the selector. */
