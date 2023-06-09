@@ -50,8 +50,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@RequiresApi(16)
-@SdkSuppress(minSdkVersion = 16)
+@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class CredentialManagerJavaTest {
 
     private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
@@ -102,8 +102,6 @@ public class CredentialManagerJavaTest {
             assertThat(loadedResult.get().getClass()).isEqualTo(
                     CreateCredentialNoCreateOptionException.class);
         }
-        // TODO("Add manifest tests and possibly further separate these tests by API Level
-        //  - maybe a rule perhaps?")
     }
 
     @Test
@@ -146,12 +144,9 @@ public class CredentialManagerJavaTest {
             assertThat(loadedResult.get().getClass()).isEqualTo(
                     NoCredentialException.class);
         }
-        // TODO("Add manifest tests and possibly further separate these tests - maybe a rule
-        //  perhaps?")
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
     public void testPrepareGetCredentialAsyc_throwsUnimplementedError() throws Exception {
         CountDownLatch latch1 = new CountDownLatch(1);
         AtomicReference<PrepareGetCredentialResponse> prepareResult = new AtomicReference<>();
@@ -235,6 +230,5 @@ public class CredentialManagerJavaTest {
         latch.await(100L, TimeUnit.MILLISECONDS);
         assertThat(loadedResult.get().getClass()).isEqualTo(
                 ClearCredentialProviderConfigurationException.class);
-        // TODO(Add manifest tests and split this once postU is implemented for clearCreds")
     }
 }
