@@ -16,7 +16,9 @@
 
 package androidx.tv.integration.playground
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,7 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Tab
+import androidx.tv.material3.TabDefaults
 import androidx.tv.material3.TabRow
+import androidx.tv.material3.TabRowDefaults
 import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
 
@@ -56,6 +60,13 @@ internal fun TopNavigation(
         selectedTabIndex = selectedTabIndex,
         updateSelectedTab = { selectedTabIndex = it }
     )
+
+    // Underlined indicator
+//    UnderlinedIndicatorTabRow(
+//        tabs = tabs,
+//        selectedTabIndex = selectedTabIndex,
+//        updateSelectedTab = { selectedTabIndex = it }
+//    )
 
     LaunchedEffect(selectedTabIndex) {
         // Only update the tab after 250 milliseconds to avoid loading intermediate tabs while
@@ -96,6 +107,47 @@ fun PillIndicatorTabRow(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Underlined indicator tab row for reference
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun UnderlinedIndicatorTabRow(
+    tabs: List<String>,
+    selectedTabIndex: Int,
+    updateSelectedTab: (Int) -> Unit
+) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+
+    TabRow(
+        selectedTabIndex = selectedTabIndex,
+        separator = { Spacer(modifier = Modifier.width(12.dp)) },
+        indicator = { tabPositions ->
+            TabRowDefaults.UnderlinedIndicator(
+                currentTabPosition = tabPositions[selectedTabIndex]
+            )
+        },
+        modifier = Modifier
+            .then(focusRestorerModifiers.parentModifier),
+    ) {
+        tabs.forEachIndexed { index, tab ->
+            Tab(
+                selected = index == selectedTabIndex,
+                onFocus = { updateSelectedTab(index) },
+                modifier = Modifier
+                    .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                colors = TabDefaults.underlinedIndicatorTabColors(),
+            ) {
+                Text(
+                    text = tab,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
             }
         }
     }

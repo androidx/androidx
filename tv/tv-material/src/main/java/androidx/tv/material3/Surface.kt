@@ -16,6 +16,7 @@
 
 package androidx.tv.material3
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.indication
@@ -336,9 +337,13 @@ private fun SurfaceImpl(
     )
 
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    val contentColorAsAnim by animateColorAsState(
+        targetValue = contentColor,
+        label = "Surface.contentColor"
+    )
 
     CompositionLocalProvider(
-        LocalContentColor provides contentColor,
+        LocalContentColor provides contentColorAsAnim,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
         val zIndex by animateFloatAsState(
@@ -427,11 +432,11 @@ private fun Modifier.tvClickable(
     onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource
 ) = handleDPadEnter(
-        enabled = enabled,
-        interactionSource = interactionSource,
-        onClick = onClick,
-        onLongClick = onLongClick
-    )
+    enabled = enabled,
+    interactionSource = interactionSource,
+    onClick = onClick,
+    onLongClick = onLongClick
+)
     // We are not using "clickable" modifier here because if we set "enabled" to false
     // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
     // should be focusable

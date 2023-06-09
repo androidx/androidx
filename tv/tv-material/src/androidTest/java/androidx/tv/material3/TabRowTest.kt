@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -35,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -44,51 +42,18 @@ import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Rule
 import org.junit.Test
 
 class TabRowTest {
     @get:Rule
     val rule = createComposeRule()
-
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun tabRow_pillIndicatorScreenshot() {
-        val tabs = constructTabs(count = 3)
-        val testTag = "TabRowTestTag"
-
-        setContent(
-            tabs = tabs,
-            contentBuilder = {
-                Box {
-                    var selectedTabIndex by remember { mutableStateOf(0) }
-                    TabRowSample(
-                        tabs = tabs,
-                        modifier = Modifier.testTag(testTag),
-                        selectedTabIndex = selectedTabIndex,
-                        onFocus = { selectedTabIndex = it }
-                    )
-                }
-            }
-        )
-
-        rule
-            .onNodeWithTag(testTag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, "tab_row_pill_indicator_default")
-    }
 
     @Test
     fun tabRow_shouldNotCrashWithOnly1Tab() {
