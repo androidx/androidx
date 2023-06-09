@@ -23,12 +23,12 @@ plugins {
 }
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.6.0-rc01")
+    api("androidx.fragment:fragment-ktx:1.6.0")
     api(project(":navigation:navigation-runtime"))
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(libs.kotlinStdlib)
     androidTestImplementation(project(":navigation:navigation-testing"))
-    androidTestImplementation("androidx.fragment:fragment-testing:1.6.0-rc01")
+    androidTestImplementation("androidx.fragment:fragment-testing:1.6.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
