@@ -4063,7 +4063,7 @@ private value class GroupKind private constructor(val value: Int) {
  * Remember observer which is not removed during reuse/deactivate of the group.
  * It is used to preserve composition locals between group deactivation.
  */
-private interface ReusableRememberObserver : RememberObserver
+internal interface ReusableRememberObserver : RememberObserver
 
 /*
  * Integer keys are arbitrary values in the biload range. The do not need to be unique as if

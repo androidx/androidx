@@ -100,6 +100,13 @@ sealed interface ReusableComposition : Composition {
      * @exception IllegalStateException thrown in the composition has been [dispose]d.
      */
     fun setContent(reusing: Boolean, content: @Composable () -> Unit)
+
+    /**
+     * Deactivate all observation scopes in composition and remove all remembered slots while
+     * preserving nodes in place.
+     * The composition can be re-activated by calling [setContent] with a new content.
+     */
+    fun deactivate()
 }
 
 /**
@@ -1221,9 +1228,8 @@ internal class CompositionImpl(
         private val abandoning: MutableSet<RememberObserver>
     ) : RememberManager {
         private val remembering = mutableListOf<RememberObserver>()
-        private val forgetting = mutableListOf<RememberObserver>()
+        private val forgetting = mutableListOf<Any>()
         private val sideEffects = mutableListOf<() -> Unit>()
-        private var deactivating: MutableList<ComposeNodeLifecycleCallback>? = null
         private var releasing: MutableList<ComposeNodeLifecycleCallback>? = null
 
         override fun remembering(instance: RememberObserver) {
@@ -1239,9 +1245,7 @@ internal class CompositionImpl(
         }
 
         override fun deactivating(instance: ComposeNodeLifecycleCallback) {
-            (deactivating ?: mutableListOf<ComposeNodeLifecycleCallback>().also {
-                deactivating = it
-            }) += instance
+            forgetting += instance
         }
 
         override fun releasing(instance: ComposeNodeLifecycleCallback) {
@@ -1251,24 +1255,18 @@ internal class CompositionImpl(
         }
 
         fun dispatchRememberObservers() {
-            // Send node deactivations
-            val deactivating = deactivating
-            if (!deactivating.isNullOrEmpty()) {
-                trace("Compose:deactivations") {
-                    for (i in deactivating.size - 1 downTo 0) {
-                        val instance = deactivating[i]
-                        instance.onDeactivate()
-                    }
-                }
-            }
-
-            // Send forgets
+            // Send forgets and node deactivations
             if (forgetting.isNotEmpty()) {
                 trace("Compose:onForgotten") {
                     for (i in forgetting.size - 1 downTo 0) {
                         val instance = forgetting[i]
                         abandoning.remove(instance)
-                        instance.onForgotten()
+                        if (instance is RememberObserver) {
+                            instance.onForgotten()
+                        }
+                        if (instance is ComposeNodeLifecycleCallback) {
+                            instance.onDeactivate()
+                        }
                     }
                 }
             }
@@ -1286,8 +1284,6 @@ internal class CompositionImpl(
             // Send node releases
             val releasing = releasing
             if (!releasing.isNullOrEmpty()) {
-                // note that in contrast with objects from `forgetting` we will invoke the callback
-                // even for objects being abandoned.
                 trace("Compose:releases") {
                     for (i in releasing.size - 1 downTo 0) {
                         val instance = releasing[i]
@@ -1322,6 +1318,26 @@ internal class CompositionImpl(
                 }
             }
         }
+    }
+
+    override fun deactivate() {
+        val nonEmptySlotTable = slotTable.groupsSize > 0
+        if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
+            trace("Compose:deactivate") {
+                val manager = RememberEventDispatcher(abandonSet)
+                if (nonEmptySlotTable) {
+                    applier.onBeginChanges()
+                    slotTable.write { writer ->
+                        writer.deactivateCurrentGroup(manager)
+                    }
+                    applier.onEndChanges()
+                    manager.dispatchRememberObservers()
+                }
+                manager.dispatchAbandons()
+            }
+        }
+        observations.clear()
+        derivedStates.clear()
     }
 }
 

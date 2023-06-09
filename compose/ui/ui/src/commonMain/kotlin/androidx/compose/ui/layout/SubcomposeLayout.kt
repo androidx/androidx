@@ -27,11 +27,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.currentCompositeKeyHash
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -362,7 +360,7 @@ internal class LayoutNodeSubcompositionsState(
             if (field !== value) {
                 field = value
                 // the new policy will be applied after measure
-                reuseCurrentNodes()
+                markActiveNodesAsReused(deactivate = false)
                 root.requestRemeasure()
             }
         }
@@ -397,11 +395,11 @@ internal class LayoutNodeSubcompositionsState(
     private var precomposedCount = 0
 
     override fun onReuse() {
-        reuseCurrentNodes()
+        markActiveNodesAsReused(deactivate = false)
     }
 
     override fun onDeactivate() {
-        reuseCurrentNodes()
+        markActiveNodesAsReused(deactivate = true)
     }
 
     override fun onRelease() {
@@ -546,6 +544,7 @@ internal class LayoutNodeSubcompositionsState(
                 }
             }
         }
+
         if (needApplyNotification) {
             Snapshot.sendApplyNotifications()
         }
@@ -553,7 +552,7 @@ internal class LayoutNodeSubcompositionsState(
         makeSureStateIsConsistent()
     }
 
-    private fun reuseCurrentNodes() {
+    private fun markActiveNodesAsReused(deactivate: Boolean) {
         precomposedCount = 0
         precomposeMap.clear()
 
@@ -566,7 +565,11 @@ internal class LayoutNodeSubcompositionsState(
                     val nodeState = nodeToNodeState[node]
                     if (nodeState != null && nodeState.active) {
                         node.resetLayoutState()
-                        nodeState.active = false
+                        if (deactivate) {
+                            nodeState.composition?.deactivate()
+                        }
+                        // create a new instance to avoid change notifications
+                        nodeState.activeState = mutableStateOf(false)
                         nodeState.slotId = ReusedSlotId
                     }
                 }
@@ -666,7 +669,8 @@ internal class LayoutNodeSubcompositionsState(
             reusableCount--
             val node = root.foldedChildren[reusableNodesSectionStart]
             val nodeState = nodeToNodeState[node]!!
-            nodeState.active = true
+            // create a new instance to avoid change notifications
+            nodeState.activeState = mutableStateOf(true)
             nodeState.forceReuse = true
             nodeState.forceRecompose = true
             Snapshot.sendApplyNotifications()
@@ -839,7 +843,10 @@ internal class LayoutNodeSubcompositionsState(
     ) {
         var forceRecompose = false
         var forceReuse = false
-        var active: Boolean by mutableStateOf(true)
+        var activeState = mutableStateOf(true)
+        var active: Boolean
+            get() = activeState.value
+            set(value) { activeState.value = value }
     }
 
     private inner class Scope : SubcomposeMeasureScope {

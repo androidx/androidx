@@ -859,6 +859,61 @@ class CompositionReusingTests {
 
         (composition as CompositionImpl).setContent(reusing = true, content)
 
+        revalidate()
+
+        assertEquals(2, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
+    }
+
+    @Test
+    fun deactivatesForgetsWhenContentDidntChange() = compositionTest {
+        val rememberedState = object : RememberObserver {
+            var rememberCount = 0
+            var forgottenCount = 0
+            var abandonCount = 0
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                rememberCount++
+            }
+
+            override fun onForgotten() {
+                forgottenCount++
+            }
+
+            override fun onAbandoned() {
+                abandonCount++
+            }
+        }
+
+        val content = @Composable {
+            Linear {
+                val state = remember { rememberedState }
+                Text(state.toString())
+            }
+        }
+
+        compose(content)
+
+        validate {
+            Linear {
+                Text(rememberedState.toString())
+            }
+        }
+
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(0, rememberedState.forgottenCount)
+
+        (composition as CompositionImpl).deactivate()
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+
+        (composition as CompositionImpl).setContent(reusing = true, content)
+
+        revalidate()
+
         assertEquals(2, rememberedState.rememberCount)
         assertEquals(1, rememberedState.forgottenCount)
         assertEquals(0, rememberedState.abandonCount)
