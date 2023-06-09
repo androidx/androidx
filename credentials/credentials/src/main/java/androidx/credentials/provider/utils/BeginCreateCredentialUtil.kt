@@ -92,7 +92,8 @@ internal class BeginCreateCredentialUtil {
             return frameworkBuilder.build()
         }
 
-        @SuppressLint("MissingPermission")
+        @SuppressLint("MissingPermission") // This is an internal util. Actual permission check
+        // happens at the framework level
         private fun populateRemoteEntry(
             frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
             remoteEntry: RemoteEntry?

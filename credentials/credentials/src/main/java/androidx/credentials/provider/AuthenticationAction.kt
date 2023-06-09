@@ -73,7 +73,6 @@ class AuthenticationAction constructor(
         }
     }
 
-    @Suppress("AcronymName")
     internal companion object {
         private const val TAG = "AuthenticationAction"
         private const val SLICE_SPEC_REVISION = 0
