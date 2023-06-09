@@ -60,13 +60,18 @@ internal sealed class KspMethodElement(
                     )
                 )
             }
+            val startIndex = if (extensionReceiver == null) {
+                0
+            } else {
+                1
+            }
             addAll(
                 declaration.parameters.mapIndexed { index, param ->
                     KspExecutableParameterElement(
                         env = env,
                         enclosingElement = this@KspMethodElement,
                         parameter = param,
-                        parameterIndex = index
+                        parameterIndex = startIndex + index
                     )
                 }
             )
