@@ -20,6 +20,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * For specifying output surface of the extension.
@@ -30,7 +31,7 @@ public interface OutputSurfaceImpl {
     /**
      * Gets the surface.
      */
-    @NonNull
+    @Nullable
     Surface getSurface();
 
 
