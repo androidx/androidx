@@ -369,6 +369,15 @@ class KspTypeNamesGoldenTest {
                         fun method53(param: MyInlineType): MyInlineType = TODO()
                         fun method54(param: MyGenericOut<MyInlineType>): MyGenericOut<MyInlineType> = TODO()
                         fun method55(param: MyGenericIn<MyInlineType>): MyGenericIn<MyInlineType> = TODO()
+                        fun method56(
+                            param: MyGeneric<out MyGeneric<out MyGenericOut<MyInterface>>>
+                        ): MyGeneric<out MyGeneric<out MyGenericOut<MyInterface>>> = TODO()
+                        fun method57(
+                            param: MyGeneric<out MyGeneric<MyGenericOut<MyInterface>>>
+                        ): MyGeneric<out MyGeneric<MyGenericOut<MyInterface>>> = TODO()
+                        fun method58(
+                            param: MyGeneric<out MyGenericOut<MyGenericOut<MyInterface>>>
+                        ): MyGeneric<out MyGenericOut<MyGenericOut<MyInterface>>> = TODO()
                     }
                 """.trimIndent()
             ), listOf("Subject")
