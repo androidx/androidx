@@ -27,6 +27,22 @@ class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K,
         }
     }
 
+    /** Fails if the map is empty. */
+    fun isNotEmpty() {
+        requireNonNull(actual) { "Expected to be not empty, but was null" }
+
+        if (actual.isEmpty()) {
+            asserter.fail("Expected to be not empty, but was $actual")
+        }
+    }
+
+    /** Fails if expected size of map is not equal to actual. */
+    fun hasSize(expectedSize: Int) {
+        require(expectedSize >= 0) { "expectedSize must be >= 0, but was $expectedSize" }
+        requireNonNull(actual) { "Expected to be empty, but was null" }
+        asserter.assertEquals(expectedSize, actual.size)
+    }
+
     /** Fails if the map does not contain the given key. */
     fun containsKey(key: Any?) {
         requireNonNull(actual) { "Expected to contain $key, but was null" }
