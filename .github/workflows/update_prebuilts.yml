@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
       - name: "Run update prebuilt snapshot ids script"
         shell: bash
-        run: development/update_playground.sh
+        run: development/update_playground.sh a
       - name: "Check if anything changed"
         shell: bash
         id: "check-for-changes"
