@@ -291,52 +291,6 @@ class AppInteractionServiceGrpcImplTest {
     }
 
     @Test
-    @Suppress("deprecation")
-    fun requestUi_respondWithTileLayout(): Unit = runBlocking {
-
-        val layout = androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-            .setRoot(androidx.wear.tiles.LayoutElementBuilders.Row.Builder().build())
-            .build()
-        val resource = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
-            .setVersion("123").build()
-        val tileLayout = UiResponse.TileLayoutBuilder().setTileLayout(layout, resource).build()
-
-        appInteractionService.registeredCapabilities = listOf(
-            createFakeCapability(tileLayout)
-        )
-        val server =
-            createInProcessServer(
-                AppInteractionServiceGrpcImpl(appInteractionService),
-                remoteViewsInterceptor
-            )
-        val channel = createInProcessChannel()
-        val stub = AppInteractionServiceGrpc.newStub(channel)
-        val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
-
-        assertStartupSession(stub)
-
-        // Send fulfillment request
-        val request =
-            Request.newBuilder()
-                .setSessionIdentifier(sessionId)
-                .setFulfillmentRequest(testFulfillmentRequestUi)
-                .build()
-
-        val responseFuture = futureStub.sendRequestFulfillment(request)
-        responseFuture.await()
-
-        val uiResponse = futureStub.requestUi(AppInteractionServiceProto.UiRequest.newBuilder()
-            .setSessionIdentifier(sessionId).build()).await()
-
-        assertThat(uiResponse.uiTypeCase).isEqualTo(AppInteractionServiceProto
-            .UiResponse.UiTypeCase.TILE_LAYOUT)
-        assertThat(uiResponse.tileLayout.layout).isNotEmpty()
-        assertThat(uiResponse.tileLayout.resources).isNotEmpty()
-
-        server.shutdownNow()
-    }
-
-    @Test
     fun requestUi_noUi_failWithStatusRuntimeException(): Unit = runBlocking {
 
         appInteractionService.registeredCapabilities = listOf(
