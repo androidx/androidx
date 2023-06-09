@@ -27,6 +27,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /** Utility for time data source. */
 class EpochTimePlatformDataSource {
@@ -34,10 +35,13 @@ class EpochTimePlatformDataSource {
 
     @NonNull final List<DynamicTypeValueReceiverWithPreUpdate<Instant>> mConsumerToTimeCallback =
             new ArrayList<>();
+    @NonNull private final Supplier<Instant> mClock;
     @Nullable private final PlatformTimeUpdateNotifier mUpdateNotifier;
 
     EpochTimePlatformDataSource(
+            @NonNull Supplier<Instant> clock,
             @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier) {
+        this.mClock = clock;
         this.mUpdateNotifier = platformTimeUpdateNotifier;
     }
 
@@ -67,7 +71,7 @@ class EpochTimePlatformDataSource {
                 try {
                     mConsumerToTimeCallback.forEach(
                             DynamicTypeValueReceiverWithPreUpdate::onPreUpdate);
-                    Instant currentTime = Instant.now();
+                    Instant currentTime = mClock.get();
                     mConsumerToTimeCallback.forEach(c -> c.onData(currentTime));
                     completer.set(null);
                 } catch (RuntimeException e) {
