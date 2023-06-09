@@ -20,9 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -48,7 +45,7 @@ class EpochTimePlatformDataSource {
     @UiThread
     void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
         if (mConsumerToTimeCallback.isEmpty() && mUpdateNotifier != null) {
-            mUpdateNotifier.setReceiver(this::tick);
+            mUpdateNotifier.setReceiver(mExecutor, this::tick);
         }
         mConsumerToTimeCallback.add(consumer);
     }
@@ -65,21 +62,11 @@ class EpochTimePlatformDataSource {
      * Updates all registered consumers with the new time.
      */
     @SuppressWarnings("NullAway")
-    private ListenableFuture<Void> tick() {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            mExecutor.execute(() -> {
-                try {
-                    mConsumerToTimeCallback.forEach(
-                            DynamicTypeValueReceiverWithPreUpdate::onPreUpdate);
-                    Instant currentTime = mClock.get();
-                    mConsumerToTimeCallback.forEach(c -> c.onData(currentTime));
-                    completer.set(null);
-                } catch (RuntimeException e) {
-                    completer.setException(e);
-                }
-            });
-            return "EpochTImePlatformDataSource#tick";
-        });
+    private void tick() {
+        mConsumerToTimeCallback.forEach(
+                DynamicTypeValueReceiverWithPreUpdate::onPreUpdate);
+        Instant currentTime = mClock.get();
+        mConsumerToTimeCallback.forEach(c -> c.onData(currentTime));
     }
 
     @VisibleForTesting

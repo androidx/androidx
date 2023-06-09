@@ -27,15 +27,12 @@ import static java.lang.Integer.MAX_VALUE;
 import android.icu.util.ULocale;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +41,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.function.Supplier;
+import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class DynamicTypeEvaluatorTest {
@@ -78,8 +75,7 @@ public class DynamicTypeEvaluatorTest {
         BoundDynamicType boundDynamicType = evaluator.bind(request);
 
         // Evaluation hasn't started yet, nothing should be called.
-        ListenableFuture<Void> resultFuture = notifier.callReceiver();
-        assertThat(resultFuture).isNull();
+        notifier.callReceiver();
         assertThat(results).isEmpty();
 
         // Start evaluation.
@@ -87,9 +83,7 @@ public class DynamicTypeEvaluatorTest {
 
         // Trigger reevaluation, which should send a result.
         for (int i = 0; i < 5; i++) {
-            resultFuture = notifier.callReceiver();
-            assertThat(resultFuture).isNotNull();
-            assertThat(resultFuture.isDone()).isTrue();
+            notifier.callReceiver();
             assertThat(results).hasSize(i + 1);
             assertThat(Integer.parseInt(results.get(i))).isAtLeast(0);
             assertThat(Integer.parseInt(results.get(i))).isLessThan(60);
@@ -204,19 +198,18 @@ public class DynamicTypeEvaluatorTest {
 
     private static final class TestPlatformTimeUpdateNotifier
             extends PlatformTimeUpdateNotifierImpl {
-        private Supplier<ListenableFuture<Void>> mRegisteredReceiver;
+        private Runnable mRegisteredReceiver;
 
-        @Nullable
-        ListenableFuture<Void> callReceiver() {
+        void callReceiver() {
             if (mRegisteredReceiver != null) {
-                return mRegisteredReceiver.get();
+                mRegisteredReceiver.run();
             }
-            return null;
         }
 
         @Override
-        public void setReceiver(@NonNull Supplier<ListenableFuture<Void>> tick) {
-            super.setReceiver(tick);
+        public void setReceiver(
+                @NonNull Executor executor, @NonNull Runnable tick) {
+            super.setReceiver(executor, tick);
 
             mRegisteredReceiver = tick;
         }

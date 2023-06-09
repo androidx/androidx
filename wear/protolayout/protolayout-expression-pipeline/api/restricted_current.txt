@@ -62,7 +62,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
   public interface PlatformTimeUpdateNotifier {
     method public void clearReceiver();
-    method public void setReceiver(java.util.function.Supplier<com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>!>);
+    method public void setReceiver(java.util.concurrent.Executor, Runnable);
   }
 
   public interface QuotaManager {
