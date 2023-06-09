@@ -23,6 +23,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -30,29 +32,33 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 class AccessibilityNodeInfoDumper {
-    private AccessibilityNodeInfoDumper() { }
 
-    private static final String LOGTAG = AccessibilityNodeInfoDumper.class.getSimpleName();
+    private static final String TAG = AccessibilityNodeInfoDumper.class.getSimpleName();
     private static final String[] NAF_EXCLUDED_CLASSES = new String[] {
             android.widget.GridView.class.getName(), android.widget.GridLayout.class.getName(),
             android.widget.ListView.class.getName(), android.widget.TableLayout.class.getName()
     };
 
+    private AccessibilityNodeInfoDumper() { }
+
     public static void dumpWindowHierarchy(UiDevice device, OutputStream out) throws IOException {
-        XmlSerializer serializer = Xml.newSerializer();
-        serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
-        serializer.setOutput(out, "UTF-8");
+        try (Section ignored = Traces.trace("AccessibilityNodeInfoDumper.dumpWindowHierarchy")) {
+            XmlSerializer serializer = Xml.newSerializer();
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            serializer.setOutput(out, "UTF-8");
 
-        serializer.startDocument("UTF-8", true);
-        serializer.startTag("", "hierarchy"); // TODO(allenhair): Should we use a namespace?
-        serializer.attribute("", "rotation", Integer.toString(device.getDisplayRotation()));
+            serializer.startDocument("UTF-8", true);
+            serializer.startTag("", "hierarchy"); // TODO(allenhair): Should we use a namespace?
+            serializer.attribute("", "rotation", Integer.toString(device.getDisplayRotation()));
 
-        for (AccessibilityNodeInfo root : device.getWindowRoots()) {
-            dumpNodeRec(root, serializer, 0, device.getDisplayWidth(), device.getDisplayHeight());
+            for (AccessibilityNodeInfo root : device.getWindowRoots()) {
+                dumpNodeRec(root, serializer, 0, device.getDisplayWidth(),
+                        device.getDisplayHeight());
+            }
+
+            serializer.endTag("", "hierarchy");
+            serializer.endDocument();
         }
-
-        serializer.endTag("", "hierarchy");
-        serializer.endDocument();
     }
 
     private static void dumpNodeRec(AccessibilityNodeInfo node, XmlSerializer serializer,int index,
@@ -90,11 +96,10 @@ class AccessibilityNodeInfoDumper {
                     dumpNodeRec(child, serializer, i, width, height);
                     child.recycle();
                 } else {
-                    Log.i(LOGTAG, String.format("Skipping invisible child: %s", child));
+                    Log.i(TAG, String.format("Skipping invisible child: %s", child));
                 }
             } else {
-                Log.i(LOGTAG, String.format("Null child %d/%d, parent: %s",
-                        i, count, node));
+                Log.i(TAG, String.format("Null child %d/%d, parent: %s", i, count, node));
             }
         }
         serializer.endTag("", "node");
