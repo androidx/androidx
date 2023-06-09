@@ -73,7 +73,7 @@ class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
         @JvmStatic
         internal fun createFromEntrySlice(data: Bundle, id: String):
             BeginGetPublicKeyCredentialOption {
-            val requestJson = "dummy_request_json"
+            val requestJson = "{\"dummy_key\":\"dummy_value\"}"
             return BeginGetPublicKeyCredentialOption(data, id, requestJson)
         }
     }
