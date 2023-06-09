@@ -55,11 +55,11 @@ import kotlin.reflect.KClass
  *        Artist.class
  *    ],
  *    autoMigrations = [
- *        @AutoMigration (
+ *        AutoMigration (
  *            from = 1,
  *            to = 2
  *        ),
- *        @AutoMigration (
+ *        AutoMigration (
  *            from = 2,
  *            to = 3,
  *            spec = MusicDatabase.MyExampleAutoMigration::class
