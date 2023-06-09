@@ -15,10 +15,9 @@
  */
 package androidx.health.connect.client
 
+import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
-import androidx.core.os.BuildCompat
-import androidx.core.os.BuildCompat.PrereleaseSdkCheck
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
@@ -52,7 +51,6 @@ interface PermissionController {
 
         @JvmStatic
         @JvmOverloads
-        @Suppress("IllegalExperimentalApiUsage")
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun createRequestPermissionResultContractLegacy(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
@@ -70,12 +68,10 @@ interface PermissionController {
          */
         @JvmStatic
         @JvmOverloads
-        @PrereleaseSdkCheck
-        @Suppress("IllegalExperimentalApiUsage")
         fun createRequestPermissionResultContract(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<String>, Set<String>> {
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return HealthDataRequestPermissionsUpsideDownCake()
             }
             return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)
