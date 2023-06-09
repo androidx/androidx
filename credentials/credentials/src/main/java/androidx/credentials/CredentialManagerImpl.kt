@@ -125,7 +125,6 @@ internal class CredentialManagerImpl internal constructor(
         val provider: CredentialProvider? = CredentialProviderFactory
             .getBestAvailableProvider(this.context)
         if (provider == null) {
-            // TODO (Update with the right error code when ready)
             callback.onError(
                 GetCredentialProviderConfigurationException(
                     "getCredentialAsync no provider dependencies found - please ensure " +
@@ -224,7 +223,6 @@ internal class CredentialManagerImpl internal constructor(
         val provider: CredentialProvider? = CredentialProviderFactory
             .getBestAvailableProvider(this.context)
         if (provider == null) {
-            // TODO (Update with the right error code when ready)
             callback.onError(CreateCredentialProviderConfigurationException(
                 "createCredentialAsync no provider dependencies found - please ensure the " +
                     "desired provider dependencies are added"))
@@ -261,7 +259,6 @@ internal class CredentialManagerImpl internal constructor(
         val provider: CredentialProvider? = CredentialProviderFactory
             .getBestAvailableProvider(context)
         if (provider == null) {
-            // TODO (Update with the right error code when ready)
             callback.onError(ClearCredentialProviderConfigurationException(
                 "clearCredentialStateAsync no provider dependencies found - please ensure the " +
                     "desired provider dependencies are added"))
