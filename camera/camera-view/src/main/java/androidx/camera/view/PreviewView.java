@@ -660,7 +660,7 @@ public final class PreviewView extends FrameLayout {
         mPreviewViewMeteringPointFactory.recalculate(new Size(getWidth(), getHeight()),
                 getLayoutDirection());
         if (mCameraController != null) {
-            mCameraController.updatePreviewViewTransform(getOutputTransform());
+            mCameraController.updatePreviewViewTransform(getSensorToViewTransform());
         }
     }
 
