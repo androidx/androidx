@@ -36,6 +36,14 @@ class WindowAreaCapability internal constructor(val operation: Operation, val st
 
         companion object {
             /**
+             * Status indicating that the WindowArea feature status is unknown, e.g. a status has
+             * not been received from the extensions implementation yet. Note that this is an
+             * internal status - external clients should receive [WINDOW_AREA_STATUS_UNSUPPORTED]
+             * instead. See [WindowAreaAdapter].
+             */
+            internal val WINDOW_AREA_STATUS_UNKNOWN = Status("UNKNOWN")
+
+            /**
              * Status indicating that the WindowArea feature is not a supported feature on the
              * device.
              */

@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNKNOWN
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.area.utils.DeviceUtils
 import androidx.window.core.BuildConfig
@@ -37,9 +38,13 @@ import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Implementation of WindowAreaController for devices
@@ -58,9 +63,9 @@ internal class WindowAreaControllerImpl(
 
     private lateinit var rearDisplaySessionConsumer: Consumer<Int>
     private var currentRearDisplayModeStatus: WindowAreaCapability.Status =
-        WINDOW_AREA_STATUS_UNSUPPORTED
+        WINDOW_AREA_STATUS_UNKNOWN
     private var currentRearDisplayPresentationStatus: WindowAreaCapability.Status =
-        WINDOW_AREA_STATUS_UNSUPPORTED
+        WINDOW_AREA_STATUS_UNKNOWN
 
     private val currentWindowAreaInfoMap = HashMap<String, WindowAreaInfo>()
 
@@ -200,7 +205,24 @@ internal class WindowAreaControllerImpl(
         executor: Executor,
         windowAreaSessionCallback: WindowAreaSessionCallback
         ) {
-        if (token.interfaceDescriptor == REAR_DISPLAY_BINDER_DESCRIPTOR) {
+        if (token.interfaceDescriptor != REAR_DISPLAY_BINDER_DESCRIPTOR) {
+            executor.execute {
+                windowAreaSessionCallback.onSessionEnded(
+                    IllegalArgumentException("Invalid WindowAreaInfo token"))
+            }
+            return
+        }
+
+        if (currentRearDisplayModeStatus == WINDOW_AREA_STATUS_UNKNOWN) {
+            Log.d(TAG, "Force updating currentRearDisplayModeStatus")
+            // currentRearDisplayModeStatus may be null if the client has not queried
+            // WindowAreaController.windowAreaInfos using this instance. In this case, we query
+            // it for a single value to force update currentRearDisplayModeStatus.
+            CoroutineScope(executor.asCoroutineDispatcher()).launch {
+                windowAreaInfos.first()
+                startRearDisplayMode(activity, executor, windowAreaSessionCallback)
+            }
+        } else {
             startRearDisplayMode(activity, executor, windowAreaSessionCallback)
         }
     }
@@ -211,7 +233,28 @@ internal class WindowAreaControllerImpl(
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
     ) {
-        if (token.interfaceDescriptor == REAR_DISPLAY_BINDER_DESCRIPTOR) {
+        if (token.interfaceDescriptor != REAR_DISPLAY_BINDER_DESCRIPTOR) {
+            executor.execute {
+                windowAreaPresentationSessionCallback.onSessionEnded(
+                    IllegalArgumentException("Invalid WindowAreaInfo token"))
+            }
+            return
+        }
+
+        if (currentRearDisplayPresentationStatus == WINDOW_AREA_STATUS_UNKNOWN) {
+            Log.d(TAG, "Force updating currentRearDisplayPresentationStatus")
+            // currentRearDisplayModeStatus may be null if the client has not queried
+            // WindowAreaController.windowAreaInfos using this instance. In this case, we query
+            // it for a single value to force update currentRearDisplayPresentationStatus.
+            CoroutineScope(executor.asCoroutineDispatcher()).launch {
+                windowAreaInfos.first()
+                startRearDisplayPresentationMode(
+                    activity,
+                    executor,
+                    windowAreaPresentationSessionCallback
+                )
+            }
+        } else {
             startRearDisplayPresentationMode(
                 activity,
                 executor,
