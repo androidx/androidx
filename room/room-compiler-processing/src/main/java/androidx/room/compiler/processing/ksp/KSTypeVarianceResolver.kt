@@ -177,15 +177,24 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         val type = type ?: return this
         val resolvedType = type.getJavaWildcard(scope)
         fun inheritDeclarationSiteVariance(): Boolean {
+            // The variance of previous type arguments on the stack. If the type argument has no
+            // explicit (aka use-site) variance, the type param (aka declaration site) variance is
+            // used.
+            val varianceStack = typeArgStack.indices.map { i ->
+                if (typeArgStack[i].variance != Variance.INVARIANT) {
+                    typeArgStack[i].variance
+                } else {
+                    typeParamStack[i].variance
+                }
+            }
             // Before we check the current variance, we need to check the previous variance in the
             // stack to see if they allow us to inherit the current variance, and that logic differs
             // depending on the scope.
             if (scope.isValOrReturnType()) {
                 // For val and return type scopes, we don't use the declaration-site variance if
                 // none of variances in the stack are contravariant.
-                if (typeParamStack.indices.none { i ->
-                        (typeParamStack[i].variance == Variance.CONTRAVARIANT ||
-                            typeArgStack[i].variance == Variance.CONTRAVARIANT) &&
+                if (varianceStack.indices.none { i ->
+                        (varianceStack[i] == Variance.CONTRAVARIANT) &&
                             // The declaration and use site variance is ignored when using
                             // @JvmWildcard explicitly on a type.
                             !typeArgStack[i].hasJvmWildcardAnnotation()
@@ -195,15 +204,14 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
             } else {
                 // For method parameters and var type scopes, we don't use the declaration-site
                 // variance if all of the following conditions apply.
-                if ( // If the last variance in the type argument stack is not contravariant
-                    typeArgStack.isNotEmpty() &&
-                    typeArgStack.last().variance != Variance.CONTRAVARIANT &&
-                    // And the type parameter stack contains at least one invariant parameter.
-                    typeParamStack.isNotEmpty() &&
-                    typeParamStack.any { it.variance == Variance.INVARIANT } &&
+                if ( // If the last variance in the stack is not contravariant
+                    varianceStack.isNotEmpty() &&
+                    varianceStack.last() != Variance.CONTRAVARIANT &&
+                    // And the stack contains at least one invariant parameter.
+                    varianceStack.any { it == Variance.INVARIANT } &&
                     // And the first invariant comes before the last contravariant (if any).
-                    typeParamStack.indexOfFirst { it.variance == Variance.INVARIANT } >=
-                    typeParamStack.indexOfLast { it.variance == Variance.CONTRAVARIANT }
+                    varianceStack.indexOfFirst { it == Variance.INVARIANT } >=
+                    varianceStack.indexOfLast { it == Variance.CONTRAVARIANT }
                 ) {
                     return false
                 }
