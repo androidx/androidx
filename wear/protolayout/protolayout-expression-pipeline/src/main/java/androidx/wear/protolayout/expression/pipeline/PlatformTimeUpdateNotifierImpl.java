@@ -26,12 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
+import java.util.concurrent.Executor;
 
 /**
  * Controls notifying for time-related updates using Android's clock. Updates can also be
@@ -41,19 +37,20 @@ import java.util.function.Supplier;
 public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifier {
     private static final String TAG = "PlatformTimeUpdateNotifierImpl";
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
-    @Nullable private Supplier<ListenableFuture<Void>> mRegisteredReceiver;
+    @Nullable private Runnable mRegisteredReceiver;
     private final Runnable mNotifyAndSchedule = this::notifyAndScheduleNextSecond;
     private long mLastScheduleTimeMillis = 0;
     private boolean mUpdatesEnabled = false;
-    private final MainThreadExecutor mExecutor = new MainThreadExecutor(mUiHandler);
+    @Nullable private Executor mRegisteredExecutor;
 
     @Override
-    public void setReceiver(@NonNull Supplier<ListenableFuture<Void>> tick) {
+    public void setReceiver(@NonNull Executor executor, @NonNull Runnable tick) {
         if (mRegisteredReceiver != null) {
             Log.w(TAG, "Clearing previously set receiver.");
             clearReceiver();
         }
         mRegisteredReceiver = tick;
+        mRegisteredExecutor = executor;
 
         if (mUpdatesEnabled) {
             // Send first update and schedule next.
@@ -66,6 +63,7 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
     @Override
     public void clearReceiver() {
         mRegisteredReceiver = null;
+        mRegisteredExecutor = null;
 
         // There are no more registered callbacks, stop the periodic call.
         if (this.mUpdatesEnabled) {
@@ -105,20 +103,11 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
 
     /** Call {@link Callable#call()} on the registered receiver and handles exception. */
     private void runReceiver() {
-        if (mRegisteredReceiver == null) {
+        if (mRegisteredReceiver == null || mRegisteredExecutor == null) {
             return;
         }
 
-        ListenableFuture<Void> result;
-        result = mRegisteredReceiver.get();
-        result.addListener(() -> {
-            try {
-                result.get();
-            } catch (ExecutionException | InterruptedException | CancellationException e) {
-                Log.e(TAG, "There was an error while running receiver.", e);
-            }
-        }, mExecutor);
-
+        mRegisteredExecutor.execute(mRegisteredReceiver);
     }
 
     private void scheduleNextSecond() {

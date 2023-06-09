@@ -18,9 +18,7 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.function.Supplier;
+import java.util.concurrent.Executor;
 
 /**
  * Interface used to notify all time based dynamic types that they should be updated with the new
@@ -35,16 +33,12 @@ public interface PlatformTimeUpdateNotifier {
      * <p>Calling this method while there is already a receiver set, should replace the previous
      * receiver.
      *
-     * @param tick The callback to run whenever platform time needs to be reevaluated. The returned
-     *             {@link ListenableFuture} will complete once all of the
-     *             {@link DynamicTypeValueReceiver} callbacks triggered by this reevaluation have
-     *             been called. This callback should be invoked by the implementation of
-     *             this interface whenever platform time needs to be reevaluated.
-     *             Because reevaluations triggered by a call to {@code tick} callback might execute
-     *             asynchronously, the caller should use the returned {@link @ListenableFuture} to
-     *             wait for the success/failure result.
+     * @param executor The Executor to run the given {@code tick} on.
+     * @param tick The callback to run whenever platform time needs to be reevaluated. This
+     *             callback should be invoked by the implementation of this interface whenever
+     *             platform time needs to be reevaluated.
      */
-    void setReceiver(@NonNull Supplier<ListenableFuture<Void>> tick);
+    void setReceiver(@NonNull Executor executor, @NonNull Runnable tick);
 
     /**
      * Clears the receiver from the notifier.

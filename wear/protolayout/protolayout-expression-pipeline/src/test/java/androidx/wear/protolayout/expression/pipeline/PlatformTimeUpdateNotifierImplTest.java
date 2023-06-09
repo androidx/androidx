@@ -19,16 +19,11 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 import android.os.SystemClock;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +34,7 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.time.Duration;
-import java.util.function.Supplier;
+import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 // For mocking the receiver.
@@ -52,22 +47,18 @@ public class PlatformTimeUpdateNotifierImplTest {
 
     private final PlatformTimeUpdateNotifierImpl mNotifierUnderTest =
             new PlatformTimeUpdateNotifierImpl();
-    @Mock private Supplier<ListenableFuture<Void>> mTick;
-
-    @Before
-    public void setUp() {
-        when(mTick.get()).thenReturn(Futures.immediateVoidFuture());
-    }
+    @Mock private Runnable mTick;
+    private final Executor mExecutor = new MainThreadExecutor();
 
 
     @Test
     public void registerForUpdates_callsCallbackEverySecondWhenEnabled() {
         mNotifierUnderTest.setUpdatesEnabled(true);
-        mNotifierUnderTest.setReceiver(mTick);
+        mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
         // First callback to initialize clients
-        verify(mTick).get();
+        verify(mTick).run();
         reset();
 
         for (int i = 0; i < 5; i++) {
@@ -75,7 +66,7 @@ public class PlatformTimeUpdateNotifierImplTest {
             verifyNoInteractions(mTick);
             runFor(500);
 
-            verify(mTick).get();
+            verify(mTick).run();
             reset();
         }
     }
@@ -83,7 +74,7 @@ public class PlatformTimeUpdateNotifierImplTest {
     @Test
     public void disableUpdates_stopsCallingCallback() {
         mNotifierUnderTest.setUpdatesEnabled(true);
-        mNotifierUnderTest.setReceiver(mTick);
+        mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
         // Run a little so it gets set up.
@@ -99,7 +90,7 @@ public class PlatformTimeUpdateNotifierImplTest {
     @Test
     public void enableUpdates_reenablesCallback() {
         mNotifierUnderTest.setUpdatesEnabled(true);
-        mNotifierUnderTest.setReceiver(mTick);
+        mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
         // Run a little so it gets set up.
@@ -113,13 +104,13 @@ public class PlatformTimeUpdateNotifierImplTest {
         runFor(500);
         verifyNoInteractions(mTick);
         runFor(500);
-        verify(mTick).get();
+        verify(mTick).run();
     }
 
     @Test
     public void clearReceiver_stopsUpdates() {
         mNotifierUnderTest.setUpdatesEnabled(true);
-        mNotifierUnderTest.setReceiver(mTick);
+        mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
         // Run a little so it gets set up.
@@ -147,11 +138,11 @@ public class PlatformTimeUpdateNotifierImplTest {
         // system clock, then call ShadowLooper#idle() to trigger any tasks that should have been
         // dispatched in that time.
         mNotifierUnderTest.setUpdatesEnabled(true);
-        mNotifierUnderTest.setReceiver(mTick);
+        mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
         // First callback to initialize clients
-        verify(mTick).get();
+        verify(mTick).run();
         reset();
 
         // Advance by a few seconds...
@@ -163,26 +154,26 @@ public class PlatformTimeUpdateNotifierImplTest {
 
         // The callback should have fired **once**, and another single callback scheduled in 500ms
         // time.
-        verify(mTick).get();
+        verify(mTick).run();
 
         reset();
 
         runFor(500);
 
-        verify(mTick).get();
+        verify(mTick).run();
     }
 
     @Test
     public void attemptToSetMultipleReceivers_replacesFirstOne() {
         mNotifierUnderTest.setUpdatesEnabled(true);
-        mNotifierUnderTest.setReceiver(mTick);
+        mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
 
         // First callback to initialize clients
-        verify(mTick).get();
+        verify(mTick).run();
         reset();
 
-        mNotifierUnderTest.setReceiver(Futures::immediateVoidFuture);
+        mNotifierUnderTest.setReceiver(mExecutor, () -> {});
 
         runFor(2000);
         verifyNoInteractions(mTick);
@@ -194,6 +185,5 @@ public class PlatformTimeUpdateNotifierImplTest {
 
     private void reset() {
         Mockito.reset(mTick);
-        when(mTick.get()).thenReturn(Futures.immediateVoidFuture());
     }
 }
