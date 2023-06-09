@@ -126,23 +126,39 @@ object TestUtils {
     val mCompleteAllCallControlCallbacksImpl = object : CallControlCallback {
         override suspend fun onSetActive(): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onSetActive: completing")
+            mOnSetActiveCallbackCalled = true
             return true
         }
 
         override suspend fun onSetInactive(): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onSetInactive: completing")
+            mOnSetInactiveCallbackCalled = true
             return true
         }
 
         override suspend fun onAnswer(callType: Int): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onAnswer: callType=[$callType]")
+            mOnAnswerCallbackCalled = true
             return true
         }
 
         override suspend fun onDisconnect(disconnectCause: DisconnectCause): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onDisconnect: disconnectCause=[$disconnectCause]")
+            mOnDisconnectCallbackCalled = true
             return true
         }
+    }
+
+    var mOnSetActiveCallbackCalled = false
+    var mOnSetInactiveCallbackCalled = false
+    var mOnAnswerCallbackCalled = false
+    var mOnDisconnectCallbackCalled = false
+
+    fun resetCallbackConfigs() {
+        mOnSetActiveCallbackCalled = false
+        mOnSetInactiveCallbackCalled = false
+        mOnAnswerCallbackCalled = false
+        mOnDisconnectCallbackCalled = false
     }
 
     fun createCallAttributes(

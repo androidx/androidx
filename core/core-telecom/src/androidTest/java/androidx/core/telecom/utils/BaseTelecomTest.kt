@@ -66,12 +66,14 @@ abstract class BaseTelecomTest {
         TestUtils.setDefaultDialer(TestUtils.TEST_PACKAGE)
         maybeCleanupStuckCalls()
         Utils.resetUtils()
+        TestUtils.resetCallbackConfigs()
     }
 
     @After
     fun onDestroyBase() {
         Log.i(L_TAG, "onDestroyBase: in function")
         Utils.resetUtils()
+        TestUtils.resetCallbackConfigs()
         TestUtils.setDefaultDialer(mPreviousDefaultDialer)
         maybeCleanupStuckCalls()
     }
