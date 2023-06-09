@@ -19,21 +19,34 @@ package androidx.wear.protolayout.expression.pipeline;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInstant;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @RunWith(AndroidJUnit4.class)
 public class InstantNodesTest {
+
+    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
+
+    @Captor ArgumentCaptor<Supplier<ListenableFuture<Void>>> receiverCaptor;
 
     @Test
     public void testFixedInstant() {
@@ -49,9 +62,10 @@ public class InstantNodesTest {
     }
 
     @Test
-    public void testPlatformTimeSourceNodeDestroy() {
+    public void testPlatformTimeSourceNode() {
+        PlatformTimeUpdateNotifier notifier = mock(PlatformTimeUpdateNotifier.class);
         EpochTimePlatformDataSource timeSource =
-                new EpochTimePlatformDataSource(mock(PlatformTimeUpdateNotifier.class));
+                new EpochTimePlatformDataSource(() -> Instant.ofEpochSecond(1234567L), notifier);
         List<Instant> results = new ArrayList<>();
 
         PlatformTimeSourceNode node =
@@ -59,6 +73,10 @@ public class InstantNodesTest {
         node.preInit();
         node.init();
         assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(1);
+
+        verify(notifier).setReceiver(receiverCaptor.capture());
+        receiverCaptor.getValue().get(); // Ticking.
+        assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));
 
         node.destroy();
         assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(0);

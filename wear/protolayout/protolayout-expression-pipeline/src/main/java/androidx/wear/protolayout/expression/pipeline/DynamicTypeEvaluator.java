@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.PlatformDataKey;
@@ -86,6 +87,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 /**
  * Evaluates protolayout dynamic types.
@@ -146,6 +148,7 @@ public class DynamicTypeEvaluator {
         @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
                 mSourceKeyToDataProviders = new ArrayMap<>();
         @Nullable private final PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
+        @Nullable private final Supplier<Instant> mClock;
 
         Config(
                 @Nullable StateStore stateStore,
@@ -153,22 +156,25 @@ public class DynamicTypeEvaluator {
                 @Nullable QuotaManager dynamicTypesQuotaManager,
                 @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
                         sourceKeyToDataProviders,
-                @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier) {
+                @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier,
+                @Nullable Supplier<Instant> clock) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
             this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
             this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
             this.mPlatformTimeUpdateNotifier = platformTimeUpdateNotifier;
+            this.mClock = clock;
         }
 
         /** Builds a {@link DynamicTypeEvaluator.Config}. */
         public static final class Builder {
             @Nullable private StateStore mStateStore = null;
             @Nullable private QuotaManager mAnimationQuotaManager = null;
-            @Nullable private QuotaManager mDynamicTypesQuotaManager;
+            @Nullable private QuotaManager mDynamicTypesQuotaManager = null;
             @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
                     mSourceKeyToDataProviders = new ArrayMap<>();
-            @Nullable private PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
+            @Nullable private PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier = null;
+            @Nullable private Supplier<Instant> mClock = null;
 
             /**
              * Sets the state store that will be used for dereferencing the state keys in the
@@ -251,6 +257,18 @@ public class DynamicTypeEvaluator {
                 return this;
             }
 
+            /**
+             * Sets the clock ({@link Instant} supplier) used for providing time data to bindings.
+             * If not set, on every reevaluation, platform time for dynamic values will be set to
+             * {@link Instant#now()}.
+             */
+            @VisibleForTesting
+            @NonNull
+            public Builder setClock(@NonNull Supplier<Instant> clock) {
+                this.mClock = clock;
+                return this;
+            }
+
             @NonNull
             public Config build() {
                 return new Config(
@@ -258,7 +276,8 @@ public class DynamicTypeEvaluator {
                         mAnimationQuotaManager,
                         mDynamicTypesQuotaManager,
                         mSourceKeyToDataProviders,
-                        mPlatformTimeUpdateNotifier);
+                        mPlatformTimeUpdateNotifier,
+                        mClock);
             }
         }
 
@@ -301,6 +320,17 @@ public class DynamicTypeEvaluator {
                     (ArrayMap<PlatformDataKey<?>, PlatformDataProvider>) mSourceKeyToDataProviders);
         }
 
+        /**
+         * Returns the clock ({@link Instant} supplier) used for providing time data to bindings, or
+         * {@code null} which means on every reevaluation, platform time for dynamic values will be
+         * set to {@link Instant#now()}.
+         */
+        @VisibleForTesting
+        @Nullable
+        public Supplier<Instant> getClock() {
+            return mClock;
+        }
+
         /** Gets the notifier used for updating the platform time data. */
         @Nullable
         public PlatformTimeUpdateNotifier getPlatformTimeUpdateNotifier() {
@@ -327,7 +357,8 @@ public class DynamicTypeEvaluator {
             notifier = new PlatformTimeUpdateNotifierImpl();
             ((PlatformTimeUpdateNotifierImpl) notifier).setUpdatesEnabled(true);
         }
-        this.mTimeDataSource = new EpochTimePlatformDataSource(notifier);
+        Supplier<Instant> clock = config.getClock() != null ? config.getClock() : Instant::now;
+        this.mTimeDataSource = new EpochTimePlatformDataSource(clock, notifier);
     }
 
     /**

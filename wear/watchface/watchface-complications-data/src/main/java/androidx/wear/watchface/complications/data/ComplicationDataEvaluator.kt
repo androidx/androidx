@@ -22,6 +22,7 @@ import android.support.wearable.complications.ComplicationData.Companion.TYPE_NO
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.PlatformDataKey
@@ -32,7 +33,9 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider
 import androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier
 import androidx.wear.protolayout.expression.pipeline.StateStore
+import java.time.Instant
 import java.util.concurrent.Executor
+import java.util.function.Supplier
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -54,14 +57,32 @@ import kotlinx.coroutines.launch
 /**
  * Evaluates a [WireComplicationData] with
  * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
+ *
+ * All constructor parameters are forwarded to [DynamicTypeEvaluator.Config.Builder].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ComplicationDataEvaluator(
+class ComplicationDataEvaluator
+@VisibleForTesting
+constructor(
     private val stateStore: StateStore? = StateStore(emptyMap()),
     private val platformTimeUpdateNotifier: PlatformTimeUpdateNotifier? = null,
     private val platformDataProviders: Map<PlatformDataProvider, Set<PlatformDataKey<*>>> = mapOf(),
     private val keepDynamicValues: Boolean = false,
+    private val clock: Supplier<Instant>? = null,
 ) {
+    constructor(
+        stateStore: StateStore? = StateStore(emptyMap()),
+        platformTimeUpdateNotifier: PlatformTimeUpdateNotifier? = null,
+        platformDataProviders: Map<PlatformDataProvider, Set<PlatformDataKey<*>>> = mapOf(),
+        keepDynamicValues: Boolean = false,
+    ) : this(
+        stateStore,
+        platformTimeUpdateNotifier,
+        platformDataProviders,
+        keepDynamicValues,
+        clock = null,
+    )
+
     private val evaluator =
         DynamicTypeEvaluator(
             DynamicTypeEvaluator.Config.Builder()
@@ -72,6 +93,7 @@ class ComplicationDataEvaluator(
                         addPlatformDataProvider(platformDataProvider, dataKeys)
                     }
                 }
+                .apply { clock?.let { @Suppress("VisibleForTests") setClock(it) } }
                 .build()
         )
 
