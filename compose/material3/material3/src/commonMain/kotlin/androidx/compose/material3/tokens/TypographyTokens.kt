@@ -146,7 +146,7 @@ internal object TypographyTokens {
 }
 
 internal val DefaultLineHeightStyle = LineHeightStyle(
-    alignment = LineHeightStyle.Alignment.Proportional,
+    alignment = LineHeightStyle.Alignment.Center,
     trim = LineHeightStyle.Trim.None
 )
 
