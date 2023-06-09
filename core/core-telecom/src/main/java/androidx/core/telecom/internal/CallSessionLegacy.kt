@@ -221,7 +221,7 @@ internal class CallSessionLegacy(
      */
     override fun onAnswer(videoState: Int) {
         CoroutineScope(coroutineContext).launch {
-            val clientCanAnswer = mClientInterface!!.onSetActive()
+            val clientCanAnswer = mClientInterface!!.onAnswer(videoState)
             if (clientCanAnswer) {
                 setActive()
                 setVideoState(videoState)

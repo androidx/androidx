@@ -29,6 +29,7 @@ import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -102,8 +103,11 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
+                    assertFalse(TestUtils.mOnAnswerCallbackCalled)
                     call!!.answer(0) // API under test
                     TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
+                    // Assert that the callback was invoked
+                    assertTrue(TestUtils.mOnAnswerCallbackCalled)
                     // always send the disconnect signal if possible
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
