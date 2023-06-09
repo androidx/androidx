@@ -91,6 +91,7 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
@@ -120,7 +121,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -1159,15 +1159,21 @@ class TextFieldTest {
                 onValueChange = {},
                 visualTransformation = prefixTransformation,
                 label = {
-                    Text("label", color = Color.Red, modifier = Modifier.background(Color.Red))
+                    Text(
+                        text = "label",
+                        color = Color.Red,
+                        modifier = Modifier.testTag("Label").background(Color.Red)
+                    )
                 },
                 textStyle = TextStyle(color = Color.Blue),
                 colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
             )
         }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), true)
-            .captureToImage()
-            .assertPixels { Color.Red }
+        // Label's top padding is only TextFieldPadding in the unfocused state,
+        // but state should be focused
+        val labelBounds = rule.onNodeWithTag("Label", true)
+            .getUnclippedBoundsInRoot()
+        assertThat(labelBounds.top).isLessThan(TextFieldPadding)
     }
 
     @Test
