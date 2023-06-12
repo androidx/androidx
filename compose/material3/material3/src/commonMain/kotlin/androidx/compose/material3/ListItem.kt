@@ -64,8 +64,10 @@ import kotlin.math.max
  * @sample androidx.compose.material3.samples.OneLineListItem
  * - two-line item
  * @sample androidx.compose.material3.samples.TwoLineListItem
- * - three-line item
- * @sample androidx.compose.material3.samples.ThreeLineListItem
+ * - three-line item with both overline and supporting content
+ * @sample androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
+ * - three-line item with extended supporting content
+ * @sample androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
  *
  * @param headlineContent the headline content of the list item
  * @param modifier [Modifier] to be applied to the list item

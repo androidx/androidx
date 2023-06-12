@@ -146,7 +146,8 @@ import androidx.compose.material3.samples.TextFieldWithPlaceholder
 import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
 import androidx.compose.material3.samples.TextTabs
-import androidx.compose.material3.samples.ThreeLineListItem
+import androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
+import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
@@ -559,11 +560,18 @@ val ListsExamples = listOf(
         TwoLineListItem()
     },
     Example(
-        name = ::ThreeLineListItem.name,
+        name = ::ThreeLineListItemWithOverlineAndSupporting.name,
         description = ListsExampleDescription,
         sourceUrl = ListsExampleSourceUrl
     ) {
-        ThreeLineListItem()
+        ThreeLineListItemWithOverlineAndSupporting()
+    },
+    Example(
+        name = ::ThreeLineListItemWithExtendedSupporting.name,
+        description = ListsExampleDescription,
+        sourceUrl = ListsExampleSourceUrl
+    ) {
+        ThreeLineListItemWithExtendedSupporting()
     },
 )
 
