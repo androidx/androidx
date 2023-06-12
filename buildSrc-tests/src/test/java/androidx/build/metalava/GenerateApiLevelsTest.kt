@@ -17,7 +17,10 @@
 package androidx.build.metalava
 
 import androidx.build.Version
+import androidx.build.checkapi.getBuiltApiLocation
 import java.io.File
+import org.gradle.kotlin.dsl.get
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -99,5 +102,20 @@ class GenerateApiLevelsTest {
             Version("1.2.0")
         )
         assertEquals(actualVersions, expectedVersions)
+    }
+
+    @Test
+    fun testArtifactClassifierIsSet() {
+        val project = ProjectBuilder.builder().build()
+
+        val generateApiTask = project.tasks.register("generateApi", GenerateApiTask::class.java) {
+            it.apiLocation.set(project.getBuiltApiLocation())
+        }
+        project.registerVersionMetadataComponent(generateApiTask)
+
+        val config = project.configurations["libraryVersionMetadata"]
+        assertEquals(config.artifacts.size, 1)
+        val artifact = config.artifacts.toList()[0]
+        assertEquals(artifact.classifier, "versionMetadata")
     }
 }
