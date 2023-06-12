@@ -39,7 +39,7 @@ import androidx.credentials.provider.utils.BeginGetCredentialUtil
  * Returns the stored create credential exception from the intent.
  */
 @RequiresApi(34)
-fun Intent.getCreateCredentialException():
+public fun Intent.getCreateCredentialException():
     android.credentials.CreateCredentialException? {
    var key = CredentialProviderService.EXTRA_CREATE_CREDENTIAL_EXCEPTION
    if (!hasExtra(key)) {
@@ -55,7 +55,7 @@ fun Intent.getCreateCredentialException():
  * Returns the stored get credential exception from the intent.
  */
 @RequiresApi(34)
-fun Intent.getGetCredentialException(): android.credentials.GetCredentialException? {
+public fun Intent.getGetCredentialException(): android.credentials.GetCredentialException? {
    var key = CredentialProviderService.EXTRA_GET_CREDENTIAL_EXCEPTION
    if (!hasExtra(key)) {
        return null
@@ -70,7 +70,7 @@ fun Intent.getGetCredentialException(): android.credentials.GetCredentialExcepti
  * Returns the begin get response from the intent.
  */
 @RequiresApi(34)
-fun Intent.getBeginGetResponse(): BeginGetCredentialResponse? {
+public fun Intent.getBeginGetResponse(): BeginGetCredentialResponse? {
    var key = CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE
    if (!hasExtra(key)) {
        return null
@@ -90,7 +90,7 @@ fun Intent.getBeginGetResponse(): BeginGetCredentialResponse? {
  * Returns the get response from the intent.
  */
 @RequiresApi(34)
-fun Intent.getGetCredentialResponse(): android.credentials.GetCredentialResponse? {
+public fun Intent.getGetCredentialResponse(): android.credentials.GetCredentialResponse? {
    var key = CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE
    if (!hasExtra(key)) {
        return null
@@ -105,7 +105,7 @@ fun Intent.getGetCredentialResponse(): android.credentials.GetCredentialResponse
  * Returns the create response from the intent.
  */
 @RequiresApi(34)
-fun Intent.getCreateCredentialCredentialResponse():
+public fun Intent.getCreateCredentialCredentialResponse():
     android.credentials.CreateCredentialResponse? {
    var key = CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESPONSE
    if (!hasExtra(key)) {
