@@ -37,32 +37,60 @@
         android:layout_height="wrap_content"
         app:configName="@string/timestamp_title"/>
 
-    <!-- Display rotation -->
+    <!-- Application Display rotation -->
     <androidx.window.demo.coresdk.WindowStateConfigView
-        android:id="@+id/display_rotation_view"
+        android:id="@+id/application_display_rotation_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:configName="@string/display_rotation_title"/>
+        app:configName="@string/application_display_rotation_title"/>
 
-    <!-- Display bounds -->
+    <!-- Activity Display rotation -->
     <androidx.window.demo.coresdk.WindowStateConfigView
-        android:id="@+id/display_bounds_view"
+        android:id="@+id/activity_display_rotation_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:configName="@string/display_bounds_title"/>
+        app:configName="@string/activity_display_rotation_title"/>
 
-    <!-- Previous Display rotation -->
+    <!-- Application Display bounds -->
     <androidx.window.demo.coresdk.WindowStateConfigView
-        android:id="@+id/prev_display_rotation_view"
+        android:id="@+id/application_display_bounds_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:configName="@string/prev_display_rotation_title"/>
+        app:configName="@string/application_display_bounds_title"/>
 
-    <!-- Previous Display bounds -->
+    <!-- Activity Display bounds -->
     <androidx.window.demo.coresdk.WindowStateConfigView
-        android:id="@+id/prev_display_bounds_view"
+        android:id="@+id/activity_display_bounds_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:configName="@string/prev_display_bounds_title"/>
+        app:configName="@string/activity_display_bounds_title"/>
+
+    <!-- Previous Application Display rotation -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_application_display_rotation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_application_display_rotation_title"/>
+
+    <!-- Previous Activity Display rotation -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_activity_display_rotation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_activity_display_rotation_title"/>
+
+    <!-- Previous Application Display bounds -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_application_display_bounds_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_application_display_bounds_title"/>
+
+    <!-- Previous Activity Display bounds -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_activity_display_bounds_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_activity_display_bounds_title"/>
 
 </LinearLayout>
