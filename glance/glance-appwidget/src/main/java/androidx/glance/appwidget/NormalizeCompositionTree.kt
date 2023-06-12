@@ -167,7 +167,6 @@ private fun GlanceModifier.extractLambdaAction(): Pair<LambdaAction?, GlanceModi
     }
 
 private fun normalizeLazyListItem(view: EmittableLazyItemWithChildren) {
-    if (view.children.size == 1 && view.alignment == Alignment.CenterStart) return
     val box = EmittableBox()
     box.children += view.children
     box.contentAlignment = view.alignment
