@@ -30,6 +30,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
+import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
@@ -56,12 +57,15 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 
 @SdkSuppress(minSdkVersion = 29)
+@OptIn(ExperimentalCoroutinesApi::class)
 @MediumTest
 class GlanceAppWidgetReceiverScreenshotTest {
     private val mScreenshotRule = screenshotRule()
@@ -536,6 +540,76 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "alignment")
+    }
+
+    @Test
+    fun lazyColumn_alignment_end() = runTest {
+        val count = 5
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumnAlignmentTest(
+                count = count,
+                horizontalAlignment = Alignment.End
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildCount(count)
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "lazyColumn_alignment_end")
+    }
+
+    @Test
+    fun lazyColumn_alignment_center() = runTest {
+        val count = 5
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumnAlignmentTest(
+                count = count,
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildCount(count)
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "lazyColumn_alignment_center")
+    }
+
+    @Test
+    fun lazyColumn_alignment_start() = runTest {
+        val count = 5
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumnAlignmentTest(
+                count = count,
+                horizontalAlignment = Alignment.Start
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildCount(count)
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "lazyColumn_alignment_start")
+    }
+}
+
+@Composable
+private fun LazyColumnAlignmentTest(count: Int, horizontalAlignment: Alignment.Horizontal) {
+    val columnColors = listOf(Color(0xffffdbcd), Color(0xff7d2d00))
+    val textBgColors = listOf(Color(0xffa33e00), Color(0xffffb596))
+
+    LazyColumn(
+        modifier = GlanceModifier
+            .fillMaxSize()
+            .background(columnColors[0], columnColors[1]),
+        horizontalAlignment = horizontalAlignment
+    ) {
+        items(count) { index ->
+            Text(
+                text = "item $index",
+                modifier = GlanceModifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(textBgColors[0], textBgColors[1])
+            )
+        }
     }
 }
 

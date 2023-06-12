@@ -294,14 +294,9 @@ EmittableWithChildren(resetsDepthForChildren = true) {
 }
 
 internal class EmittableLazyVerticalGridListItem : EmittableLazyItemWithChildren() {
-    override var modifier: GlanceModifier
-        get() = children.singleOrNull()?.modifier
-            ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
-        set(_) {
-            throw IllegalAccessError(
-              "You cannot set the modifier of an EmittableLazyVerticalGridListItem"
-            )
-        }
+    // Fill max width of the grid cell so that item contents can be aligned per the horizontal
+    // alignment.
+    override var modifier: GlanceModifier = GlanceModifier.wrapContentHeight().fillMaxWidth()
     var itemId: Long = 0
 
     override fun copy(): Emittable = EmittableLazyVerticalGridListItem().also {
