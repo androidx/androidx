@@ -52,6 +52,7 @@ dependencies {
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTestJunit)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":internal-testutils-ktx"))
