@@ -46,7 +46,7 @@ import java.util.Objects;
 public final class MapWithContentTemplate implements Template {
     @Nullable
     private final MapController mMapController;
-    @Nullable
+    @NonNull
     private final Template mTemplate;
     @Nullable
     private final ActionStrip mActionStrip;
@@ -64,7 +64,12 @@ public final class MapWithContentTemplate implements Template {
     /** Constructs an empty instance, used by serialization code. */
     private MapWithContentTemplate() {
         mMapController = null;
-        mTemplate = null;
+        mTemplate = new Template() {
+            @Override
+            public int hashCode() {
+                return super.hashCode();
+            }
+        };
         mActionStrip = null;
     }
 
@@ -83,7 +88,7 @@ public final class MapWithContentTemplate implements Template {
      *
      * @see Builder#setTemplate(Template)
      */
-    @Nullable
+    @NonNull
     public Template getTemplate() {
         return mTemplate;
     }
@@ -122,8 +127,8 @@ public final class MapWithContentTemplate implements Template {
     public static final class Builder {
         @Nullable
         MapController mMapController;
-        @Nullable
-        Template mTemplate;
+        @NonNull
+        Template mTemplate = new Template() {};
         @Nullable
         ActionStrip mActionStrip;
 
@@ -187,7 +192,7 @@ public final class MapWithContentTemplate implements Template {
         @NonNull
         public MapWithContentTemplate build() {
             ContentTemplateConstraints.MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS
-                    .validateOrThrow(requireNonNull(mTemplate));
+                    .validateOrThrow(mTemplate);
 
             return new MapWithContentTemplate(this);
         }
