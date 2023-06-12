@@ -48,6 +48,8 @@ class FlashTooSlowQuirkTest(
             arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_FRONT, false),
             arrayOf("Pixel 3a XL", CameraCharacteristics.LENS_FACING_BACK, true),
             arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_BACK, false),
+            arrayOf("sm-a320f", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("SM-A320FL", CameraCharacteristics.LENS_FACING_BACK, true),
             arrayOf("Samsung S7", CameraCharacteristics.LENS_FACING_BACK, false),
         )
     }
