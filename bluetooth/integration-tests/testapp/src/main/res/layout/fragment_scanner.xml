@@ -87,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="@string/not_connected"
+                android:text="@string/disconnected"
                 android:textAllCaps="true"
                 android:textColor="@color/green_500"
                 android:textSize="16sp" />
