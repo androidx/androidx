@@ -26,7 +26,9 @@ public class LetterSpacingSpan extends MetricAffectingSpan {
 
     private final float mLetterSpacingEm;
 
-    /** @param letterSpacingEm letter-spacing for text. */
+    /**
+     * @param letterSpacingEm letter-spacing for text.
+     */
     public LetterSpacingSpan(float letterSpacingEm) {
         this.mLetterSpacingEm = letterSpacingEm;
     }

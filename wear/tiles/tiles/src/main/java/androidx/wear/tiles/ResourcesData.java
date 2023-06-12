@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
  * Holder for Tiles' Resources class, to be parceled and transferred to Wear.
  *
  * <p>All this does is to serialize Resources as a protobuf and transmit it.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResourcesData extends ProtoParcelable {

@@ -116,7 +116,6 @@ import androidx.wear.protolayout.proto.DimensionProto.SpProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
 import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
-import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
@@ -125,6 +124,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.ArcText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.ContentScaleMode;
+import androidx.wear.protolayout.proto.LayoutElementProto.ExtensionLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
@@ -1180,8 +1180,7 @@ public final class ProtoLayoutInflater {
                                                                         clickable
                                                                                 .getOnClick()
                                                                                 .getLoadAction(),
-                                                                        clickable
-                                                                                .getId()))));
+                                                                        clickable.getId()))));
                 break;
             case VALUE_NOT_SET:
                 break;
@@ -3181,9 +3180,7 @@ public final class ProtoLayoutInflater {
                 break;
             case EXTENSION:
                 try {
-                    inflatedView =
-                            inflateExtension(
-                                    parentViewWrapper, element.getExtension());
+                    inflatedView = inflateExtension(parentViewWrapper, element.getExtension());
                 } catch (IllegalStateException ex) {
                     Log.w(TAG, "Error inflating Extension.", ex);
                 }
@@ -3967,11 +3964,10 @@ public final class ProtoLayoutInflater {
                         break;
                     }
                     mLoadActionExecutor.execute(
-                                    () ->
-                                        mLoadActionListener.onClick(
-                                                buildState(
-                                                        action.getLoadAction(),
-                                                        mClickable.getId())));
+                            () ->
+                                    mLoadActionListener.onClick(
+                                            buildState(
+                                                    action.getLoadAction(), mClickable.getId())));
                     break;
                 case VALUE_NOT_SET:
                     break;

@@ -36,8 +36,8 @@ public class ProgressIndicatorColors {
      * Constructor for {@link ProgressIndicatorColors} object.
      *
      * @param indicatorColor The indicator color to be used for {@link CircularProgressIndicator}.
-     * @param trackColor The background track color to be used for
-     * {@link CircularProgressIndicator}.
+     * @param trackColor The background track color to be used for {@link
+     *     CircularProgressIndicator}.
      */
     public ProgressIndicatorColors(
             @NonNull ColorProp indicatorColor, @NonNull ColorProp trackColor) {
@@ -50,8 +50,8 @@ public class ProgressIndicatorColors {
      *
      * @param indicatorColor The indicator color to be used for {@link CircularProgressIndicator}.
      *     Should be in ARGB format.
-     * @param trackColor The background track color to be used for
-     *     {@link CircularProgressIndicator}. Should be in ARGB format.
+     * @param trackColor The background track color to be used for {@link
+     *     CircularProgressIndicator}. Should be in ARGB format.
      */
     public ProgressIndicatorColors(@ColorInt int indicatorColor, @ColorInt int trackColor) {
         this.mIndicatorColor = argb(indicatorColor);

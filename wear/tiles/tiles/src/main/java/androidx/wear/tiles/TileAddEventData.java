@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
  * Holder for Tiles' TileAddEvent class, to be parceled and transferred to a Tile Service.
  *
  * <p>All this does is to serialize TileAddEvent as a protobuf and transmit it.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileAddEventData extends ProtoParcelable {

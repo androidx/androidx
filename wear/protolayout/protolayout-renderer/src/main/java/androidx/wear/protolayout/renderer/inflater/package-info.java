@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * Internal implementation of the inflater.
- *
- */
+/** Internal implementation of the inflater. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.wear.protolayout.renderer.inflater;
 

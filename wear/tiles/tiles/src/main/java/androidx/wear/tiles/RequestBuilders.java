@@ -21,9 +21,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
+import androidx.wear.protolayout.StateBuilders.State;
 import androidx.wear.protolayout.proto.DeviceParametersProto;
 import androidx.wear.protolayout.proto.StateProto;
-import androidx.wear.protolayout.StateBuilders.State;
 import androidx.wear.tiles.proto.RequestProto;
 
 import java.util.List;
@@ -79,8 +79,8 @@ public final class RequestBuilders {
 
         /**
          * Gets the instance ID of the tile being requested, allocated when the tile instance is
-         * added to the carousel. This ID will remain the same for this tile instance as long it
-         * is not removed from the carousel.
+         * added to the carousel. This ID will remain the same for this tile instance as long it is
+         * not removed from the carousel.
          *
          * @since 1.0
          */

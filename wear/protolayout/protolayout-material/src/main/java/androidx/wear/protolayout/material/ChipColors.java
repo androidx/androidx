@@ -38,12 +38,11 @@ public class ChipColors {
     /**
      * Constructor for the {@link ChipColors} object.
      *
-     * @param backgroundColor The background color to be used for {@link Chip}.
-     *     Should be in ARGB format.
-     * @param iconColor The color to be used for an icon in {@link Chip}. Should be
-     *     in ARGB format.
-     * @param contentColor The text color to be used for a main text in {@link Chip}.
-     *     Should be in ARGB format.
+     * @param backgroundColor The background color to be used for {@link Chip}. Should be in ARGB
+     *     format.
+     * @param iconColor The color to be used for an icon in {@link Chip}. Should be in ARGB format.
+     * @param contentColor The text color to be used for a main text in {@link Chip}. Should be in
+     *     ARGB format.
      * @param secondaryContentColor The text color to be used for a label text in {@link Chip}
      *     Should be in ARGB format.
      */
@@ -61,10 +60,10 @@ public class ChipColors {
     /**
      * Constructor for the {@link ChipColors} object.
      *
-     * @param backgroundColor The background color to be used for {@link Chip}.
-     *     Should be in ARGB format.
-     * @param contentColor The content color to be used for all items inside {@link Chip}
-     *     Should be in ARGB format.
+     * @param backgroundColor The background color to be used for {@link Chip}. Should be in ARGB
+     *     format.
+     * @param contentColor The content color to be used for all items inside {@link Chip} Should be
+     *     in ARGB format.
      */
     public ChipColors(@ColorInt int backgroundColor, @ColorInt int contentColor) {
         mBackgroundColor = argb(backgroundColor);

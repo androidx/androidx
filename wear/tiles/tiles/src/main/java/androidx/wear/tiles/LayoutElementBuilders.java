@@ -17,6 +17,7 @@
 package androidx.wear.tiles;
 
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
+
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.SuppressLint;
@@ -328,9 +329,7 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /**
-         * Get the fingerprint for this object, or null if unknown.
-         */
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
         public Fingerprint getFingerprint() {
@@ -436,8 +435,7 @@ public final class LayoutElementBuilders {
         private final LayoutElementProto.FontWeightProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        FontWeightProp(
-                LayoutElementProto.FontWeightProp impl, @Nullable Fingerprint fingerprint) {
+        FontWeightProp(LayoutElementProto.FontWeightProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -1406,8 +1404,7 @@ public final class LayoutElementBuilders {
         private final LayoutElementProto.ColorFilter mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        ColorFilter(
-                LayoutElementProto.ColorFilter impl, @Nullable Fingerprint fingerprint) {
+        ColorFilter(LayoutElementProto.ColorFilter impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -1731,8 +1728,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return DimensionBuilders.spacerDimensionFromProto(
-                        mImpl.getHeight());
+                return DimensionBuilders.spacerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -1852,8 +1848,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return DimensionBuilders.containerDimensionFromProto(
-                        mImpl.getHeight());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -1866,8 +1861,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return DimensionBuilders.containerDimensionFromProto(
-                        mImpl.getWidth());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -2397,8 +2391,7 @@ public final class LayoutElementBuilders {
     }
 
     /**
-     * Return an instance of one of this object's subtypes, from the protocol buffer
-     * representation.
+     * Return an instance of one of this object's subtypes, from the protocol buffer representation.
      */
     @NonNull
     static Span spanFromProto(@NonNull LayoutElementProto.Span proto) {
@@ -2433,8 +2426,9 @@ public final class LayoutElementBuilders {
         @NonNull
         public List<Span> getSpans() {
             return Collections.unmodifiableList(
-                    mImpl.getSpansList().stream().map(
-                            LayoutElementBuilders::spanFromProto).collect(toList()));
+                    mImpl.getSpansList().stream()
+                            .map(LayoutElementBuilders::spanFromProto)
+                            .collect(toList()));
         }
 
         /**
@@ -2725,8 +2719,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return DimensionBuilders.containerDimensionFromProto(
-                        mImpl.getWidth());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -2739,8 +2732,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return DimensionBuilders.containerDimensionFromProto(
-                        mImpl.getHeight());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -2924,8 +2916,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return DimensionBuilders.containerDimensionFromProto(
-                        mImpl.getWidth());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -2938,8 +2929,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public DimensionBuilders.ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return DimensionBuilders.containerDimensionFromProto(
-                        mImpl.getHeight());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -3636,7 +3626,6 @@ public final class LayoutElementBuilders {
                 mImpl.setThickness(thickness.toProto());
                 return this;
             }
-
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull

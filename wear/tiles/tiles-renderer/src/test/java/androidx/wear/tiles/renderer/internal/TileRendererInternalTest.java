@@ -38,8 +38,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
-import androidx.wear.tiles.TileService;
-import androidx.wear.tiles.TilesTestRunner;
 import androidx.wear.protolayout.proto.ActionProto.Action;
 import androidx.wear.protolayout.proto.ActionProto.AndroidActivity;
 import androidx.wear.protolayout.proto.ActionProto.AndroidBooleanExtra;
@@ -50,6 +48,10 @@ import androidx.wear.protolayout.proto.ActionProto.AndroidLongExtra;
 import androidx.wear.protolayout.proto.ActionProto.AndroidStringExtra;
 import androidx.wear.protolayout.proto.ActionProto.LaunchAction;
 import androidx.wear.protolayout.proto.ActionProto.LoadAction;
+import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
+import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
+import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
+import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
 import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
@@ -67,8 +69,6 @@ import androidx.wear.protolayout.proto.LayoutElementProto.ArcText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Box;
 import androidx.wear.protolayout.proto.LayoutElementProto.Column;
 import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
-import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
-import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
@@ -79,8 +79,6 @@ import androidx.wear.protolayout.proto.LayoutElementProto.SpanImage;
 import androidx.wear.protolayout.proto.LayoutElementProto.SpanText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Spannable;
 import androidx.wear.protolayout.proto.LayoutElementProto.Text;
-import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
-import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
 import androidx.wear.protolayout.proto.ModifiersProto.Border;
 import androidx.wear.protolayout.proto.ModifiersProto.Clickable;
 import androidx.wear.protolayout.proto.ModifiersProto.Modifiers;
@@ -92,6 +90,8 @@ import androidx.wear.protolayout.proto.ResourceProto.ImageResource;
 import androidx.wear.protolayout.proto.ResourceProto.Resources;
 import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.protolayout.proto.TypesProto.StringProp;
+import androidx.wear.tiles.TileService;
+import androidx.wear.tiles.TilesTestRunner;
 import androidx.wear.tiles.renderer.test.R;
 import androidx.wear.widget.ArcLayout;
 import androidx.wear.widget.CurvedTextView;
@@ -124,10 +124,12 @@ public class TileRendererInternalTest {
     @Test
     public void inflate_textView() {
         String textContents = "Hello World";
-        LayoutElement root = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -145,12 +147,17 @@ public class TileRendererInternalTest {
     public void inflate_textView_withColor() {
         int color = 0xFF112233;
         String textContents = "Hello World";
-        LayoutElement root = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents))
-                        .setFontStyle(FontStyle.newBuilder()
-                                .setColor(ColorProp.newBuilder().setArgb(color))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .setColor(
+                                                                ColorProp.newBuilder()
+                                                                        .setArgb(color))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -171,14 +178,19 @@ public class TileRendererInternalTest {
     @Test
     public void inflate_textView_withSemanticsModifier() {
         String textContents = "Hello World";
-        LayoutElement root = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents))
-                        .setModifiers(Modifiers.newBuilder()
-                                .setSemantics(Semantics.newBuilder()
-                                        .setObsoleteContentDescription(
-                                                "Hello World Text Element"))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setSemantics(
+                                                                Semantics.newBuilder()
+                                                                        .setObsoleteContentDescription(
+                                                                                "Hello World Text"
+                                                                                    + " Element"))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -202,19 +214,29 @@ public class TileRendererInternalTest {
     public void inflate_box_withIllegalSize() {
         // Inner box's width set to "expand". Having a single "expand" element in a "wrap" element
         // is an undefined state, so the outer box should not be displayed.
-        Box innerBox = Box.newBuilder()
-                .setWidth(ContainerDimension.newBuilder()
-                        .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance()))
-                .addContents(LayoutElement.newBuilder()
-                        .setText(Text.newBuilder()
-                                .setText(StringProp.newBuilder().setValue("foo"))))
-                .build();
+        Box innerBox =
+                Box.newBuilder()
+                        .setWidth(
+                                ContainerDimension.newBuilder()
+                                        .setExpandedDimension(
+                                                ExpandedDimensionProp.getDefaultInstance()))
+                        .addContents(
+                                LayoutElement.newBuilder()
+                                        .setText(
+                                                Text.newBuilder()
+                                                        .setText(
+                                                                StringProp.newBuilder()
+                                                                        .setValue("foo"))))
+                        .build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setBox(Box.newBuilder()
-                        // Outer box's width and height left at default value of "wrap"
-                        .addContents(LayoutElement.newBuilder().setBox(innerBox)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        // Outer box's width and height left at default value of
+                                        // "wrap"
+                                        .addContents(LayoutElement.newBuilder().setBox(innerBox)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -226,13 +248,21 @@ public class TileRendererInternalTest {
     public void inflate_spacer() {
         int width = 10;
         int height = 20;
-        LayoutElement root = LayoutElement.newBuilder()
-                .setSpacer(Spacer.newBuilder()
-                        .setHeight(SpacerDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(height)))
-                        .setWidth(SpacerDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(width))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder()
+                                                                        .setValue(height)))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder()
+                                                                        .setValue(width))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -249,16 +279,29 @@ public class TileRendererInternalTest {
     public void inflate_spacerWithModifiers() {
         int width = 10;
         int height = 20;
-        LayoutElement root = LayoutElement.newBuilder()
-                .setSpacer(Spacer.newBuilder()
-                        .setModifiers(Modifiers.newBuilder()
-                                .setBorder(Border.newBuilder()
-                                        .setWidth(DpProp.newBuilder().setValue(2))))
-                        .setHeight(SpacerDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(height)))
-                        .setWidth(SpacerDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(width))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setBorder(
+                                                                Border.newBuilder()
+                                                                        .setWidth(
+                                                                                DpProp.newBuilder()
+                                                                                        .setValue(
+                                                                                                2))))
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder()
+                                                                        .setValue(height)))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder()
+                                                                        .setValue(width))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -276,10 +319,13 @@ public class TileRendererInternalTest {
         // Must match a resource ID in buildResources
         String protoResId = "android";
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue(protoResId)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(
+                                                StringProp.newBuilder().setValue(protoResId)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -304,14 +350,21 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_image_withInvalidRatio() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setHeight(ImageDimension.newBuilder()
-                                .setProportionalDimension(ProportionalDimensionProp
-                                        .getDefaultInstance()))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance())))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setProportionalDimension(
+                                                                ProportionalDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance())))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -350,52 +403,63 @@ public class TileRendererInternalTest {
         long int64Val = 1234567890123456789L;
         double doubleVal = 0.1234;
 
-        LaunchAction launchAction = LaunchAction.newBuilder()
-                .setAndroidActivity(AndroidActivity.newBuilder()
-                        .setPackageName(packageName)
-                        .setClassName(className)
-                        .putKeyToExtra(
-                                "stringValue",
-                                AndroidExtra.newBuilder()
-                                        .setStringVal(AndroidStringExtra.newBuilder()
-                                                .setValue(stringVal))
-                                        .build())
-                        .putKeyToExtra(
-                                "int32Value",
-                                AndroidExtra.newBuilder()
-                                        .setIntVal(AndroidIntExtra.newBuilder()
-                                                .setValue(int32Val))
-                                        .build())
-                        .putKeyToExtra(
-                                "int64Value",
-                                AndroidExtra.newBuilder()
-                                        .setLongVal(AndroidLongExtra.newBuilder()
-                                                .setValue(int64Val))
-                                        .build())
-                        .putKeyToExtra(
-                                "doubleValue",
-                                AndroidExtra.newBuilder()
-                                        .setDoubleVal(AndroidDoubleExtra.newBuilder()
-                                                .setValue(doubleVal))
-                                        .build())
-                        .putKeyToExtra(
-                                "boolValue",
-                                AndroidExtra.newBuilder()
-                                        .setBooleanVal(AndroidBooleanExtra.newBuilder()
-                                                .setValue(true))
-                                        .build()))
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setPackageName(packageName)
+                                        .setClassName(className)
+                                        .putKeyToExtra(
+                                                "stringValue",
+                                                AndroidExtra.newBuilder()
+                                                        .setStringVal(
+                                                                AndroidStringExtra.newBuilder()
+                                                                        .setValue(stringVal))
+                                                        .build())
+                                        .putKeyToExtra(
+                                                "int32Value",
+                                                AndroidExtra.newBuilder()
+                                                        .setIntVal(
+                                                                AndroidIntExtra.newBuilder()
+                                                                        .setValue(int32Val))
+                                                        .build())
+                                        .putKeyToExtra(
+                                                "int64Value",
+                                                AndroidExtra.newBuilder()
+                                                        .setLongVal(
+                                                                AndroidLongExtra.newBuilder()
+                                                                        .setValue(int64Val))
+                                                        .build())
+                                        .putKeyToExtra(
+                                                "doubleValue",
+                                                AndroidExtra.newBuilder()
+                                                        .setDoubleVal(
+                                                                AndroidDoubleExtra.newBuilder()
+                                                                        .setValue(doubleVal))
+                                                        .build())
+                                        .putKeyToExtra(
+                                                "boolValue",
+                                                AndroidExtra.newBuilder()
+                                                        .setBooleanVal(
+                                                                AndroidBooleanExtra.newBuilder()
+                                                                        .setValue(true))
+                                                        .build()))
                         .build();
 
         Action action = Action.newBuilder().setLaunchAction(launchAction).build();
 
-        LayoutElement textElement = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents))
-                        .setModifiers(Modifiers.newBuilder()
-                                .setClickable(Clickable.newBuilder()
-                                        .setId("foo")
-                                        .setOnClick(action))))
-                .build();
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo")
+                                                                        .setOnClick(action))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(textElement);
 
@@ -438,22 +502,28 @@ public class TileRendererInternalTest {
         // Activity is not exported. Renderer shouldn't even try and call it.
         ai.exported = false;
 
-        LaunchAction launchAction = LaunchAction.newBuilder()
-                .setAndroidActivity(AndroidActivity.newBuilder()
-                        .setPackageName(packageName)
-                        .setClassName(className))
-                .build();
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setPackageName(packageName)
+                                        .setClassName(className))
+                        .build();
 
         Action action = Action.newBuilder().setLaunchAction(launchAction).build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents))
-                        .setModifiers(Modifiers.newBuilder()
-                                .setClickable(Clickable.newBuilder()
-                                        .setId("foo")
-                                        .setOnClick(action))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo")
+                                                                        .setOnClick(action))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -489,8 +559,10 @@ public class TileRendererInternalTest {
 
         LaunchAction launchAction =
                 LaunchAction.newBuilder()
-                        .setAndroidActivity(AndroidActivity.newBuilder()
-                                .setPackageName(packageName).setClassName(className))
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setPackageName(packageName)
+                                        .setClassName(className))
                         .build();
 
         Action action = Action.newBuilder().setLaunchAction(launchAction).build();
@@ -502,8 +574,10 @@ public class TileRendererInternalTest {
                                         .setText(StringProp.newBuilder().setValue(textContents))
                                         .setModifiers(
                                                 Modifiers.newBuilder()
-                                                        .setClickable(Clickable.newBuilder()
-                                                                .setId("foo").setOnClick(action))))
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo")
+                                                                        .setOnClick(action))))
                         .build();
 
         FrameLayout rootLayout = inflateProto(root);
@@ -519,8 +593,8 @@ public class TileRendererInternalTest {
         // Try and fire the intent.
         tv.performClick();
 
-        expect.that(
-                shadowOf((Application) getApplicationContext()).getNextStartedActivity()).isNull();
+        expect.that(shadowOf((Application) getApplicationContext()).getNextStartedActivity())
+                .isNull();
     }
 
     @Test
@@ -529,14 +603,18 @@ public class TileRendererInternalTest {
 
         Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents))
-                        .setModifiers(Modifiers.newBuilder()
-                                .setClickable(Clickable.newBuilder()
-                                        .setId("foo")
-                                        .setOnClick(action))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo")
+                                                                        .setOnClick(action))))
+                        .build();
 
         State.Builder receivedState = State.newBuilder();
         FrameLayout rootLayout =
@@ -573,22 +651,28 @@ public class TileRendererInternalTest {
         ActivityInfo ai = pkgManager.addActivityIfNotPresent(cn);
         ai.exported = true;
 
-        LaunchAction launchAction = LaunchAction.newBuilder()
-                .setAndroidActivity(AndroidActivity.newBuilder()
-                        .setPackageName(packageName)
-                        .setClassName(className))
-                .build();
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setPackageName(packageName)
+                                        .setClassName(className))
+                        .build();
 
         Action action = Action.newBuilder().setLaunchAction(launchAction).build();
 
-        LayoutElement textElement = LayoutElement.newBuilder()
-                .setText(Text.newBuilder()
-                        .setText(StringProp.newBuilder().setValue(textContents))
-                        .setModifiers(Modifiers.newBuilder()
-                                .setClickable(Clickable.newBuilder()
-                                        .setId("foo")
-                                        .setOnClick(action))))
-                .build();
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(StringProp.newBuilder().setValue(textContents))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo")
+                                                                        .setOnClick(action))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(textElement);
 
@@ -619,16 +703,22 @@ public class TileRendererInternalTest {
     @Test
     public void inflate_arc_withLineDrawnWithArcTo() {
         // Shorter than 360 degrees, so should be drawn as an arc:
-        ArcLine innerArcLine = ArcLine.newBuilder()
-                .setLength(DegreesProp.newBuilder().setValue(30))
-                .setThickness(DpProp.newBuilder().setValue(12))
-                .build();
+        ArcLine innerArcLine =
+                ArcLine.newBuilder()
+                        .setLength(DegreesProp.newBuilder().setValue(30))
+                        .setThickness(DpProp.newBuilder().setValue(12))
+                        .build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setArc(Arc.newBuilder()
-                        .setAnchorAngle(DegreesProp.newBuilder().setValue(0).build())
-                        .addContents(ArcLayoutElement.newBuilder().setLine(innerArcLine)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(
+                                                DegreesProp.newBuilder().setValue(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setLine(innerArcLine)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -644,17 +734,21 @@ public class TileRendererInternalTest {
     @Test
     public void inflate_arc_withLineDrawnWithAddOval() {
         // Longer than 360 degrees, so should be drawn as an oval:
-        ArcLine arcLine = ArcLine.newBuilder()
-                .setLength(DegreesProp.newBuilder().setValue(500))
-                .setThickness(DpProp.newBuilder().setValue(12))
-                .build();
+        ArcLine arcLine =
+                ArcLine.newBuilder()
+                        .setLength(DegreesProp.newBuilder().setValue(500))
+                        .setThickness(DpProp.newBuilder().setValue(12))
+                        .build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setArc(Arc.newBuilder()
-                        .setAnchorAngle(DegreesProp.newBuilder().setValue(0).build())
-                        .addContents(ArcLayoutElement.newBuilder().setLine(arcLine)))
-
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(
+                                                DegreesProp.newBuilder().setValue(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder().setLine(arcLine)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -669,20 +763,20 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_arc_withText() {
-        ArcText text1 = ArcText.newBuilder()
-                .setText(StringProp.newBuilder().setValue("text1"))
-                .build();
-        ArcText text2 = ArcText.newBuilder()
-                .setText(StringProp.newBuilder().setValue("text2"))
-                .build();
+        ArcText text1 =
+                ArcText.newBuilder().setText(StringProp.newBuilder().setValue("text1")).build();
+        ArcText text2 =
+                ArcText.newBuilder().setText(StringProp.newBuilder().setValue("text2")).build();
 
-
-        LayoutElement root = LayoutElement.newBuilder()
-                .setArc(Arc.newBuilder()
-                        .setAnchorAngle(DegreesProp.newBuilder().setValue(0).build())
-                        .addContents(ArcLayoutElement.newBuilder().setText(text1))
-                        .addContents(ArcLayoutElement.newBuilder().setText(text2)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(
+                                                DegreesProp.newBuilder().setValue(0).build())
+                                        .addContents(ArcLayoutElement.newBuilder().setText(text1))
+                                        .addContents(ArcLayoutElement.newBuilder().setText(text2)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -697,16 +791,21 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_arc_withSpacer() {
-        ArcSpacer arcSpacer = ArcSpacer.newBuilder()
-                .setLength(DegreesProp.newBuilder().setValue(90))
-                .setThickness(DpProp.newBuilder().setValue(20))
-                .build();
+        ArcSpacer arcSpacer =
+                ArcSpacer.newBuilder()
+                        .setLength(DegreesProp.newBuilder().setValue(90))
+                        .setThickness(DpProp.newBuilder().setValue(20))
+                        .build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setArc(Arc.newBuilder()
-                        .setAnchorAngle(DegreesProp.newBuilder().setValue(0).build())
-                        .addContents(ArcLayoutElement.newBuilder().setSpacer(arcSpacer)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(
+                                                DegreesProp.newBuilder().setValue(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder().setSpacer(arcSpacer)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -725,9 +824,10 @@ public class TileRendererInternalTest {
 
         LayoutElement image = buildImage(protoResId, 30, 20);
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setRow(Row.newBuilder().addContents(image).addContents(image))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setRow(Row.newBuilder().addContents(image).addContents(image))
+                        .build();
 
         FrameLayout layout = inflateProto(root);
 
@@ -758,9 +858,10 @@ public class TileRendererInternalTest {
 
         LayoutElement image = buildImage(protoResId, 30, 20);
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setColumn(Column.newBuilder().addContents(image).addContents(image))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setColumn(Column.newBuilder().addContents(image).addContents(image))
+                        .build();
 
         FrameLayout layout = inflateProto(root);
 
@@ -784,12 +885,17 @@ public class TileRendererInternalTest {
 
     private static LayoutElement buildImage(String protoResId, float widthDp, float heightDp) {
         return LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue(protoResId))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(widthDp)))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(heightDp))))
+                .setImage(
+                        Image.newBuilder()
+                                .setResourceId(StringProp.newBuilder().setValue(protoResId))
+                                .setWidth(
+                                        ImageDimension.newBuilder()
+                                                .setLinearDimension(
+                                                        DpProp.newBuilder().setValue(widthDp)))
+                                .setHeight(
+                                        ImageDimension.newBuilder()
+                                                .setLinearDimension(
+                                                        DpProp.newBuilder().setValue(heightDp))))
                 .build();
     }
 
@@ -799,12 +905,13 @@ public class TileRendererInternalTest {
         LayoutElement image1 = buildImage(protoResId, 30, 30);
         LayoutElement image2 = buildImage(protoResId, 30, 50);
 
-        Row row = Row.newBuilder()
-                .addContents(image1)
-                .addContents(image2)
-                .setVerticalAlignment(
-                        VerticalAlignmentProp.newBuilder().setValue(alignment))
-                .build();
+        Row row =
+                Row.newBuilder()
+                        .addContents(image1)
+                        .addContents(image2)
+                        .setVerticalAlignment(
+                                VerticalAlignmentProp.newBuilder().setValue(alignment))
+                        .build();
 
         // Gravity = top.
         return LayoutElement.newBuilder().setRow(row).build();
@@ -834,30 +941,43 @@ public class TileRendererInternalTest {
             HorizontalAlignment alignment) {
         final String resName = "android";
 
-        LayoutElement image1 = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue(resName))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(30)))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(30))))
-                .build();
+        LayoutElement image1 =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(StringProp.newBuilder().setValue(resName))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(30)))
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(30))))
+                        .build();
 
-        LayoutElement image2 = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue(resName))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(50)))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(30))))
-                .build();
+        LayoutElement image2 =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(StringProp.newBuilder().setValue(resName))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(50)))
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(30))))
+                        .build();
 
-        Column column = Column.newBuilder()
-                .addContents(image1)
-                .addContents(image2)
-                .setHorizontalAlignment(HorizontalAlignmentProp.newBuilder()
-                        .setValue(alignment))
-                .build();
+        Column column =
+                Column.newBuilder()
+                        .addContents(image1)
+                        .addContents(image2)
+                        .setHorizontalAlignment(
+                                HorizontalAlignmentProp.newBuilder().setValue(alignment))
+                        .build();
 
         // Gravity = top.
         return LayoutElement.newBuilder().setColumn(column).build();
@@ -887,31 +1007,44 @@ public class TileRendererInternalTest {
             HorizontalAlignment hAlign, VerticalAlignment vAlign) {
         final String resName = "android";
 
-        LayoutElement image1 = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue(resName))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(30)))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(30))))
-                .build();
+        LayoutElement image1 =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(StringProp.newBuilder().setValue(resName))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(30)))
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(30))))
+                        .build();
 
-        LayoutElement image2 = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue(resName))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(50)))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(50))))
-                .build();
+        LayoutElement image2 =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(StringProp.newBuilder().setValue(resName))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(50)))
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(50))))
+                        .build();
 
-        Box box = Box.newBuilder()
-                .addContents(image1)
-                .addContents(image2)
-                .setVerticalAlignment(VerticalAlignmentProp.newBuilder().setValue(vAlign))
-                .setHorizontalAlignment(HorizontalAlignmentProp.newBuilder()
-                        .setValue(hAlign))
-                .build();
+        Box box =
+                Box.newBuilder()
+                        .addContents(image1)
+                        .addContents(image2)
+                        .setVerticalAlignment(VerticalAlignmentProp.newBuilder().setValue(vAlign))
+                        .setHorizontalAlignment(
+                                HorizontalAlignmentProp.newBuilder().setValue(hAlign))
+                        .build();
 
         // Gravity = top.
         return LayoutElement.newBuilder().setBox(box).build();
@@ -959,11 +1092,13 @@ public class TileRendererInternalTest {
 
     @Test
     public void buildClickableIntent_setsPackageName() {
-        LaunchAction launchAction = LaunchAction.newBuilder()
-                .setAndroidActivity(AndroidActivity.newBuilder()
-                        .setClassName(TEST_CLICKABLE_CLASS_NAME)
-                        .setPackageName(TEST_CLICKABLE_PACKAGE_NAME))
-                .build();
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setClassName(TEST_CLICKABLE_CLASS_NAME)
+                                        .setPackageName(TEST_CLICKABLE_PACKAGE_NAME))
+                        .build();
 
         Intent i = TileRendererInternal.buildLaunchActionIntent(launchAction, "");
 
@@ -975,11 +1110,13 @@ public class TileRendererInternalTest {
     public void buildClickableIntent_launchAction_containsClickableId() {
         String testId = "HELLOWORLD";
 
-        LaunchAction launchAction = LaunchAction.newBuilder()
-                .setAndroidActivity(AndroidActivity.newBuilder()
-                        .setClassName(TEST_CLICKABLE_CLASS_NAME)
-                        .setPackageName(TEST_CLICKABLE_PACKAGE_NAME))
-                .build();
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setClassName(TEST_CLICKABLE_CLASS_NAME)
+                                        .setPackageName(TEST_CLICKABLE_PACKAGE_NAME))
+                        .build();
 
         Intent i = TileRendererInternal.buildLaunchActionIntent(launchAction, testId);
 
@@ -988,11 +1125,13 @@ public class TileRendererInternalTest {
 
     @Test
     public void buildClickableIntent_noClickableExtraIfNotSet() {
-        LaunchAction launchAction = LaunchAction.newBuilder()
-                .setAndroidActivity(AndroidActivity.newBuilder()
-                        .setClassName(TEST_CLICKABLE_CLASS_NAME)
-                        .setPackageName(TEST_CLICKABLE_PACKAGE_NAME))
-                .build();
+        LaunchAction launchAction =
+                LaunchAction.newBuilder()
+                        .setAndroidActivity(
+                                AndroidActivity.newBuilder()
+                                        .setClassName(TEST_CLICKABLE_CLASS_NAME)
+                                        .setPackageName(TEST_CLICKABLE_PACKAGE_NAME))
+                        .build();
 
         Intent i = TileRendererInternal.buildLaunchActionIntent(launchAction, "");
 
@@ -1008,46 +1147,62 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_imageView_resourceHasNoAndroidResource() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue("no_android_resource_set")))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(
+                                                StringProp.newBuilder()
+                                                        .setValue("no_android_resource_set")))
+                        .build();
 
         inflateProto(root);
     }
 
     @Test
     public void inflate_imageView_androidResourceDoesNotExist() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue("does_not_exist")))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(
+                                                StringProp.newBuilder().setValue("does_not_exist")))
+                        .build();
 
         inflateProto(root);
     }
 
     @Test
     public void inflate_imageView_resourceReferenceDoesNotExist() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue("aaaaaaaaaaaaaa")))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(
+                                                StringProp.newBuilder().setValue("aaaaaaaaaaaaaa")))
+                        .build();
 
         inflateProto(root);
     }
 
     @Test
     public void inflate_imageView_expandsToParentEvenWhenImageBitmapIsNotSet() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue("invalid"))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setExpandedDimension(ExpandedDimensionProp
-                                        .getDefaultInstance()))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setExpandedDimension(ExpandedDimensionProp
-                                        .getDefaultInstance())))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(StringProp.newBuilder().setValue("invalid"))
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance())))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -1059,25 +1214,44 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_imageView_expandsToParentContainerEvenWhenImageBitmapIsNotSet() {
-        Image invalidImage = Image.newBuilder()
-                .setResourceId(StringProp.newBuilder().setValue("invalid"))
-                .setHeight(ImageDimension.newBuilder()
-                        .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance()))
-                .setWidth(ImageDimension.newBuilder()
-                        .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance()))
-                .build();
+        Image invalidImage =
+                Image.newBuilder()
+                        .setResourceId(StringProp.newBuilder().setValue("invalid"))
+                        .setHeight(
+                                ImageDimension.newBuilder()
+                                        .setExpandedDimension(
+                                                ExpandedDimensionProp.getDefaultInstance()))
+                        .setWidth(
+                                ImageDimension.newBuilder()
+                                        .setExpandedDimension(
+                                                ExpandedDimensionProp.getDefaultInstance()))
+                        .build();
 
-        LayoutElement root = LayoutElement.newBuilder()
-                .setBox(Box.newBuilder()
-                        .setHeight(ContainerDimension.newBuilder()
-                                .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance()))
-                        .setWidth(ContainerDimension.newBuilder()
-                                .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance()))
-                                .setModifiers(Modifiers.newBuilder()
-                                        .setPadding(Padding.newBuilder()
-                                                .setTop(DpProp.newBuilder().setValue(50))))
-                                .addContents(LayoutElement.newBuilder().setImage(invalidImage)))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setHeight(
+                                                ContainerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setWidth(
+                                                ContainerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setPadding(
+                                                                Padding.newBuilder()
+                                                                        .setTop(
+                                                                                DpProp.newBuilder()
+                                                                                        .setValue(
+                                                                                                50))))
+                                        .addContents(
+                                                LayoutElement.newBuilder().setImage(invalidImage)))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
         FrameLayout boxLayout = (FrameLayout) rootLayout.getChildAt(0);
@@ -1089,14 +1263,20 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_imageView_usesDimensionsEvenWhenImageBitmapIsNotSet() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setImage(Image.newBuilder()
-                        .setResourceId(StringProp.newBuilder().setValue("invalid"))
-                        .setHeight(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(100)))
-                        .setWidth(ImageDimension.newBuilder()
-                                .setLinearDimension(DpProp.newBuilder().setValue(100))))
-                .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setImage(
+                                Image.newBuilder()
+                                        .setResourceId(StringProp.newBuilder().setValue("invalid"))
+                                        .setHeight(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(100)))
+                                        .setWidth(
+                                                ImageDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                DpProp.newBuilder().setValue(100))))
+                        .build();
 
         FrameLayout rootLayout = inflateProto(root);
 
@@ -1108,23 +1288,38 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_spannable_imageOccupiesSpace() {
-        LayoutElement rootWithoutImage = LayoutElement.newBuilder()
-                .setSpannable(Spannable.newBuilder()
-                        .addSpans(textSpan("Foo"))
-                        .addSpans(textSpan("Bar")))
-                .build();
+        LayoutElement rootWithoutImage =
+                LayoutElement.newBuilder()
+                        .setSpannable(
+                                Spannable.newBuilder()
+                                        .addSpans(textSpan("Foo"))
+                                        .addSpans(textSpan("Bar")))
+                        .build();
 
-        LayoutElement rootWithImage = LayoutElement.newBuilder()
-                .setSpannable(Spannable.newBuilder()
-                        .addSpans(textSpan("Foo"))
-                        .addSpans(Span.newBuilder()
-                                .setImage(SpanImage.newBuilder()
-                                        .setResourceId(StringProp.newBuilder()
-                                                .setValue("android"))
-                                        .setHeight(DpProp.newBuilder().setValue(50))
-                                        .setWidth(DpProp.newBuilder().setValue(50))))
-                                .addSpans(textSpan("Bar")))
-                .build();
+        LayoutElement rootWithImage =
+                LayoutElement.newBuilder()
+                        .setSpannable(
+                                Spannable.newBuilder()
+                                        .addSpans(textSpan("Foo"))
+                                        .addSpans(
+                                                Span.newBuilder()
+                                                        .setImage(
+                                                                SpanImage.newBuilder()
+                                                                        .setResourceId(
+                                                                                StringProp
+                                                                                        .newBuilder()
+                                                                                        .setValue(
+                                                                                                "android"))
+                                                                        .setHeight(
+                                                                                DpProp.newBuilder()
+                                                                                        .setValue(
+                                                                                                50))
+                                                                        .setWidth(
+                                                                                DpProp.newBuilder()
+                                                                                        .setValue(
+                                                                                                50))))
+                                        .addSpans(textSpan("Bar")))
+                        .build();
 
         FrameLayout rootLayoutWithoutImage = inflateProto(rootWithoutImage);
         TextView tvInRootLayoutWithoutImage = (TextView) rootLayoutWithoutImage.getChildAt(0);
@@ -1144,26 +1339,38 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_spannable_onClickCanFire() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setSpannable(Spannable.newBuilder()
-                        .addSpans(Span.newBuilder()
-                                .setText(SpanText.newBuilder()
-                                        .setText(StringProp.newBuilder()
-                                                .setValue("Hello World"))
-                                        .setModifiers(SpanModifiers.newBuilder()
-                                                .setClickable(Clickable.newBuilder()
-                                                        .setOnClick(Action.newBuilder()
-                                                                .setLoadAction(LoadAction
-                                                                        .getDefaultInstance())))))))
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpannable(
+                                Spannable.newBuilder()
+                                        .addSpans(
+                                                Span.newBuilder()
+                                                        .setText(
+                                                                SpanText.newBuilder()
+                                                                        .setText(
+                                                                                StringProp
+                                                                                        .newBuilder()
+                                                                                        .setValue(
+                                                                                                "Hello"
+                                                                                                    + " World"))
+                                                                        .setModifiers(
+                                                                                SpanModifiers
+                                                                                        .newBuilder()
+                                                                                        .setClickable(
+                                                                                                Clickable
+                                                                                                        .newBuilder()
+                                                                                                        .setOnClick(
+                                                                                                                Action
+                                                                                                                        .newBuilder()
+                                                                                                                        .setLoadAction(
+                                                                                                                                LoadAction
+                                                                                                                                        .getDefaultInstance())))))))
                         .build();
 
         List<Boolean> hasFiredList = new ArrayList<>();
         FrameLayout rootLayout =
                 inflateProto(
-                        root,
-                        /* theme= */0,
-                        resourceResolvers(),
-                        p -> hasFiredList.add(true));
+                        root, /* theme= */ 0, resourceResolvers(), p -> hasFiredList.add(true));
 
         TextView tv = (TextView) rootLayout.getChildAt(0);
 
@@ -1198,33 +1405,64 @@ public class TileRendererInternalTest {
 
     @Test
     public void inflate_image_intrinsicSizeIsIgnored() {
-        LayoutElement root = LayoutElement.newBuilder()
-                .setBox(Box.newBuilder()
-                        .setWidth(ContainerDimension.newBuilder()
-                                .setWrappedDimension(WrappedDimensionProp.newBuilder()))
-                        .setHeight(ContainerDimension.newBuilder()
-                                .setWrappedDimension(
-                                        WrappedDimensionProp.newBuilder()))
-                        .addContents(LayoutElement.newBuilder()
-                                .setImage(Image.newBuilder()
-                                        .setWidth(ImageDimension.newBuilder()
-                                                .setLinearDimension(DpProp.newBuilder()
-                                                        .setValue(24f)))
-                                        .setHeight(ImageDimension.newBuilder()
-                                                .setLinearDimension(DpProp.newBuilder()
-                                                        .setValue(24f)))
-                                        .setResourceId(StringProp.newBuilder()
-                                                .setValue("android"))))
-                        .addContents(LayoutElement.newBuilder()
-                                .setImage(Image.newBuilder()
-                                        .setWidth(ImageDimension.newBuilder()
-                                                .setExpandedDimension(
-                                                        ExpandedDimensionProp.newBuilder()))
-                                        .setHeight(ImageDimension.newBuilder()
-                                                .setExpandedDimension(
-                                                        ExpandedDimensionProp.newBuilder()))
-                                        .setResourceId(StringProp.newBuilder()
-                                                .setValue("large_image_120dp")))))
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(
+                                                ContainerDimension.newBuilder()
+                                                        .setWrappedDimension(
+                                                                WrappedDimensionProp.newBuilder()))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder()
+                                                        .setWrappedDimension(
+                                                                WrappedDimensionProp.newBuilder()))
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setImage(
+                                                                Image.newBuilder()
+                                                                        .setWidth(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setLinearDimension(
+                                                                                                DpProp
+                                                                                                        .newBuilder()
+                                                                                                        .setValue(
+                                                                                                                24f)))
+                                                                        .setHeight(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setLinearDimension(
+                                                                                                DpProp
+                                                                                                        .newBuilder()
+                                                                                                        .setValue(
+                                                                                                                24f)))
+                                                                        .setResourceId(
+                                                                                StringProp
+                                                                                        .newBuilder()
+                                                                                        .setValue(
+                                                                                                "android"))))
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setImage(
+                                                                Image.newBuilder()
+                                                                        .setWidth(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setExpandedDimension(
+                                                                                                ExpandedDimensionProp
+                                                                                                        .newBuilder()))
+                                                                        .setHeight(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setExpandedDimension(
+                                                                                                ExpandedDimensionProp
+                                                                                                        .newBuilder()))
+                                                                        .setResourceId(
+                                                                                StringProp
+                                                                                        .newBuilder()
+                                                                                        .setValue(
+                                                                                                "large_image_120dp")))))
                         .build();
 
         FrameLayout rootLayout = inflateProto(root, /* theme= */ 0, resourceResolvers(), p -> {});
@@ -1259,32 +1497,64 @@ public class TileRendererInternalTest {
         // This can happen in the case that a Tile is ever inflated into a Scrolling layout. In that
         // case, the scrolling layout will measure all children with height = UNDEFINED, which can
         // lead to an Image still using its intrinsic size.
-        LayoutElement root = LayoutElement.newBuilder()
-                .setBox(Box.newBuilder()
-                        .setWidth(ContainerDimension.newBuilder()
-                                .setWrappedDimension(WrappedDimensionProp.newBuilder()))
-                        .setHeight(ContainerDimension.newBuilder()
-                                .setWrappedDimension(WrappedDimensionProp.newBuilder()))
-                        .addContents(LayoutElement.newBuilder()
-                                .setImage(Image.newBuilder()
-                                        .setWidth(ImageDimension.newBuilder()
-                                                .setLinearDimension(DpProp.newBuilder()
-                                                        .setValue(24f)))
-                                        .setHeight(ImageDimension.newBuilder()
-                                                .setLinearDimension(DpProp.newBuilder()
-                                                        .setValue(24f)))
-                                        .setResourceId(StringProp.newBuilder()
-                                                .setValue("android"))))
-                        .addContents(LayoutElement.newBuilder()
-                                .setImage(Image.newBuilder()
-                                        .setWidth(ImageDimension.newBuilder()
-                                                .setExpandedDimension(
-                                                        ExpandedDimensionProp.newBuilder()))
-                                        .setHeight(ImageDimension.newBuilder()
-                                                .setExpandedDimension(
-                                                        ExpandedDimensionProp.newBuilder()))
-                                        .setResourceId(StringProp.newBuilder()
-                                                .setValue("large_image_120dp")))))
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(
+                                                ContainerDimension.newBuilder()
+                                                        .setWrappedDimension(
+                                                                WrappedDimensionProp.newBuilder()))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder()
+                                                        .setWrappedDimension(
+                                                                WrappedDimensionProp.newBuilder()))
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setImage(
+                                                                Image.newBuilder()
+                                                                        .setWidth(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setLinearDimension(
+                                                                                                DpProp
+                                                                                                        .newBuilder()
+                                                                                                        .setValue(
+                                                                                                                24f)))
+                                                                        .setHeight(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setLinearDimension(
+                                                                                                DpProp
+                                                                                                        .newBuilder()
+                                                                                                        .setValue(
+                                                                                                                24f)))
+                                                                        .setResourceId(
+                                                                                StringProp
+                                                                                        .newBuilder()
+                                                                                        .setValue(
+                                                                                                "android"))))
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setImage(
+                                                                Image.newBuilder()
+                                                                        .setWidth(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setExpandedDimension(
+                                                                                                ExpandedDimensionProp
+                                                                                                        .newBuilder()))
+                                                                        .setHeight(
+                                                                                ImageDimension
+                                                                                        .newBuilder()
+                                                                                        .setExpandedDimension(
+                                                                                                ExpandedDimensionProp
+                                                                                                        .newBuilder()))
+                                                                        .setResourceId(
+                                                                                StringProp
+                                                                                        .newBuilder()
+                                                                                        .setValue(
+                                                                                                "large_image_120dp")))))
                         .build();
 
         FrameLayout rootLayout = inflateProto(root, /* theme= */ 0, resourceResolvers(), p -> {});
@@ -1371,20 +1641,22 @@ public class TileRendererInternalTest {
                 .putIdToImage(
                         "android",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResId(AndroidImageResourceByResId.newBuilder()
-                                        .setResourceId(R.drawable.android_24dp))
+                                .setAndroidResourceByResId(
+                                        AndroidImageResourceByResId.newBuilder()
+                                                .setResourceId(R.drawable.android_24dp))
                                 .build())
                 .putIdToImage(
                         "does_not_exist",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResId(AndroidImageResourceByResId.newBuilder()
-                                        .setResourceId(-1))
+                                .setAndroidResourceByResId(
+                                        AndroidImageResourceByResId.newBuilder().setResourceId(-1))
                                 .build())
                 .putIdToImage(
                         "large_image_120dp",
                         ImageResource.newBuilder()
-                                .setAndroidResourceByResId(AndroidImageResourceByResId.newBuilder()
-                                        .setResourceId(R.drawable.ic_channel_foreground))
+                                .setAndroidResourceByResId(
+                                        AndroidImageResourceByResId.newBuilder()
+                                                .setResourceId(R.drawable.ic_channel_foreground))
                                 .build())
                 .putIdToImage("no_android_resource_set", ImageResource.getDefaultInstance())
                 .build();

@@ -116,8 +116,8 @@ public class Text implements LayoutElement {
          *
          * @param context The application's context.
          * @param text The text content for this component.
-         * @param stringLayoutConstraint Layout constraints used to correctly measure Text view
-         *                               size and align text when {@code text} has dynamic value.
+         * @param stringLayoutConstraint Layout constraints used to correctly measure Text view size
+         *     and align text when {@code text} has dynamic value.
          */
         public Builder(
                 @NonNull Context context,

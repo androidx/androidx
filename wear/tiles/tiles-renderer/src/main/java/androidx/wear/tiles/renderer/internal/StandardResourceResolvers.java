@@ -20,8 +20,8 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.TileService;
 import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.tiles.TileService;
 
 /** Utility class to get {@link ResourceResolvers} populated with standard options. */
 public class StandardResourceResolvers {
@@ -33,8 +33,8 @@ public class StandardResourceResolvers {
      * <p>Use {@code setFooResolver} calls to change the pre-populated ones or add others.
      *
      * @param protoResources ProtoLayout resources for the current layout.
-     * @param uiContext UI-capable Context for the app that both owns the resources and displays
-     *                  the layout.
+     * @param uiContext UI-capable Context for the app that both owns the resources and displays the
+     *     layout.
      */
     @NonNull
     public static ResourceResolvers.Builder forLocalApp(
@@ -50,8 +50,8 @@ public class StandardResourceResolvers {
     }
 
     /**
-     * Get a builder pre-populated with resolvers for the resources of a {@link
-     * TileService}, hosted within another app on the device.
+     * Get a builder pre-populated with resolvers for the resources of a {@link TileService}, hosted
+     * within another app on the device.
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *
@@ -59,7 +59,7 @@ public class StandardResourceResolvers {
      * @param servicePackageName Package name for the service that owns the resources.
      * @param serviceAndroidResources Android resources from the service.
      * @param hostUiContext UI-capable Context for the app hosting the renderer displaying the
-     *                      layout.
+     *     layout.
      */
     @NonNull
     public static ResourceResolvers.Builder forRemoteService(

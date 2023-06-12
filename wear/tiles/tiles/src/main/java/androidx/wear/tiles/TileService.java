@@ -69,10 +69,13 @@ public abstract class TileService extends Service {
     private static final String TAG = "TileService";
     static final VersionInfo DEFAULT_VERSION =
             VersionInfo.newBuilder().setMajor(1).setMinor(0).build();
+
     @SuppressWarnings("deprecation")
     private static final ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
-            ON_RESOURCES_REQUEST_NOT_IMPLEMENTED = createFailedFuture(
-            new UnsupportedOperationException("onResourcesRequest not implemented"));
+            ON_RESOURCES_REQUEST_NOT_IMPLEMENTED =
+                    createFailedFuture(
+                            new UnsupportedOperationException(
+                                    "onResourcesRequest not implemented"));
 
     /**
      * The intent action used to send update requests to the provider. Tile provider services must
@@ -146,9 +149,10 @@ public abstract class TileService extends Service {
         // compatibility as older clients are overriding onResourcesRequest.
         ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
                 legacyResourcesRequestResult = onResourcesRequest(requestParams);
-        if (legacyResourcesRequestResult == ON_RESOURCES_REQUEST_NOT_IMPLEMENTED){
-            return createFailedFuture(new UnsupportedOperationException("onTileResourcesRequest "
-                    + "not implemented."));
+        if (legacyResourcesRequestResult == ON_RESOURCES_REQUEST_NOT_IMPLEMENTED) {
+            return createFailedFuture(
+                    new UnsupportedOperationException(
+                            "onTileResourcesRequest " + "not implemented."));
         }
 
         ResolvableFuture<Resources> result = ResolvableFuture.create();
