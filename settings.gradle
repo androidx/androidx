@@ -95,9 +95,9 @@ gradleEnterprise {
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
-        // Do not publish scan for androidx-platform-dev
-        // publishAlways()
-        // publishIfAuthenticated()
+	// Publish scan for androidx-main
+	publishAlways()
+	publishIfAuthenticated()
     }
 }
 

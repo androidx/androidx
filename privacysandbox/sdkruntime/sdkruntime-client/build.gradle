@@ -25,11 +25,11 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
-    implementation("androidx.core:core-ktx:1.12.0-alpha03")
+    implementation(projectOrArtifact(":core:core-ktx"))
 
     api project(path: ':privacysandbox:sdkruntime:sdkruntime-core')
 
-    implementation("androidx.core:core:1.12.0-alpha03")
+    implementation(projectOrArtifact(":core:core"))
     implementation(projectOrArtifact(":activity:activity"))
 
     testImplementation(libs.junit)

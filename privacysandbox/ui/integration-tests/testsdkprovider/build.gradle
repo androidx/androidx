@@ -22,8 +22,6 @@ plugins {
 
 android {
     namespace 'androidx.privacysandbox.ui.integration.testsdkprovider'
-    compileSdk 33
-    compileSdkExtension = 5
 
     defaultConfig {
         applicationId "androidx.privacysandbox.ui.integration.testsdkprovider"
