@@ -112,7 +112,15 @@ private class BinderAdapterDelegate(
 
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
             val view = session.view
-            surfaceControlViewHost.setView(view, initialWidth, initialHeight)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val touchTransferringView = TouchFocusTransferringView(
+                    sandboxContext, surfaceControlViewHost)
+                touchTransferringView.addView(view)
+                surfaceControlViewHost.setView(touchTransferringView, initialWidth, initialHeight)
+            } else {
+                surfaceControlViewHost.setView(view, initialWidth, initialHeight)
+            }
+
             val surfacePackage = surfaceControlViewHost.surfacePackage
             val remoteSessionController =
                 RemoteSessionController(surfaceControlViewHost, session)
