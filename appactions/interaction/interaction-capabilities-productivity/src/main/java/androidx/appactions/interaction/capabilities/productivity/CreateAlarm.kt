@@ -36,10 +36,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.CREATE_ALARM"
-
 /** A capability corresponding to actions.intent.CREATE_ALARM */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = CreateAlarm.CAPABILITY_NAME)
 class CreateAlarm private constructor() {
     internal enum class SlotMetadata(val path: String) {
         SCHEDULE("alarm.alarmSchedule"),
@@ -214,6 +212,8 @@ class CreateAlarm private constructor() {
     class Confirmation internal constructor()
 
     companion object {
+        /** Canonical name for [CreateAlarm] capability */
+        const val CAPABILITY_NAME = "actions.intent.CREATE_ALARM"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

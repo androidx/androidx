@@ -31,10 +31,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
-
 /** A capability corresponding to actions.intent.RESET_TIMER */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = ResetTimer.CAPABILITY_NAME)
 class ResetTimer private constructor() {
     internal enum class SlotMetadata(val path: String) {
         TIMER("timer")
@@ -151,6 +149,8 @@ class ResetTimer private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [ResetTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

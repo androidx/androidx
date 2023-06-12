@@ -31,10 +31,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.STOP_TIMER"
-
 /** A capability corresponding to actions.intent.STOP_TIMER */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StopTimer.CAPABILITY_NAME)
 class StopTimer private constructor() {
     internal enum class SlotMetadata(val path: String) {
         TIMER("timer")
@@ -151,6 +149,8 @@ class StopTimer private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [StopTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.STOP_TIMER"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

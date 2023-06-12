@@ -25,10 +25,8 @@ import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import java.time.Duration
 
-private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
-
 /** A capability corresponding to actions.intent.START_EXERCISE */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StartExercise.CAPABILITY_NAME)
 class StartExercise private constructor() {
     internal enum class SlotMetadata(val path: String) {
         NAME("exercise.name"),
@@ -103,6 +101,8 @@ class StartExercise private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [StartExercise] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
         // TODO(b/273602015): Update to use Name property from builtintype library.
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)

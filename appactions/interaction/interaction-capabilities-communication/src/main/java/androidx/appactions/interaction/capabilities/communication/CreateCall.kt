@@ -34,10 +34,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
-
 /** A capability corresponding to actions.intent.CREATE_CALL */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = CreateCall.CAPABILITY_NAME)
 class CreateCall private constructor() {
     internal enum class SlotMetadata(val path: String) {
         CALL_FORMAT("call.callFormat"),
@@ -178,6 +176,8 @@ class CreateCall private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [CreateCall] capability. */
+        const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

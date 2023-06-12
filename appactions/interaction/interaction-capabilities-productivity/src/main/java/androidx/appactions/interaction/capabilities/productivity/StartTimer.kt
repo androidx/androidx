@@ -30,10 +30,8 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 
-private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
-
 /** A capability corresponding to actions.intent.START_TIMER */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StartTimer.CAPABILITY_NAME)
 class StartTimer private constructor() {
     internal enum class SlotMetadata(val path: String) {
         IDENTIFIER("timer.identifier"),
@@ -177,6 +175,8 @@ class StartTimer private constructor() {
     class Confirmation internal constructor()
 
     companion object {
+        /** Canonical name for [StartTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_TIMER"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

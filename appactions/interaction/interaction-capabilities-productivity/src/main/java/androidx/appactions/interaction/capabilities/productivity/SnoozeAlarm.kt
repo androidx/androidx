@@ -32,10 +32,8 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 
-private const val CAPABILITY_NAME = "actions.intent.SNOOZE_ALARM"
-
 /** A capability corresponding to actions.intent.SNOOZE_ALARM */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = SnoozeAlarm.CAPABILITY_NAME)
 class SnoozeAlarm private constructor() {
     internal enum class SlotMetadata(val path: String) {
         DURATION("snoozeDuration"),
@@ -175,6 +173,8 @@ class SnoozeAlarm private constructor() {
     class Confirmation internal constructor()
 
     companion object {
+        /** Canonical name for [SnoozeAlarm] capability */
+        const val CAPABILITY_NAME = "actions.intent.SNOOZE_ALARM"
         private val ACTION_SPEC =
                 ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                         .setArguments(Arguments::class.java,
