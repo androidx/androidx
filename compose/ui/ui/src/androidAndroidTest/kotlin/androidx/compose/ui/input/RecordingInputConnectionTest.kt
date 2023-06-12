@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.input
 
+import android.os.Build
 import android.view.KeyEvent
 import android.view.inputmethod.CorrectionInfo
+import android.view.inputmethod.InputConnection
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
@@ -149,6 +152,56 @@ class RecordingInputConnectionTest {
         )
 
         assertThat(ic.getSelectedText(0)).isEqualTo("Hello, World")
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
+    @Test
+    fun requestCursorUpdates_preT() {
+        ic.requestCursorUpdates(
+            InputConnection.CURSOR_UPDATE_IMMEDIATE or InputConnection.CURSOR_UPDATE_MONITOR
+        )
+
+        verify(mCallback)
+            .onRequestCursorAnchorInfo(
+                immediate = true,
+                monitor = true,
+                includeInsertionMarker = true,
+                includeCharacterBounds = true,
+                includeEditorBounds = false
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun requestCursorUpdates_atLeastT_filterFlags() {
+        ic.requestCursorUpdates(
+            InputConnection.CURSOR_UPDATE_MONITOR or
+                InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS
+        )
+
+        verify(mCallback)
+            .onRequestCursorAnchorInfo(
+                immediate = false,
+                monitor = true,
+                includeInsertionMarker = false,
+                includeCharacterBounds = false,
+                includeEditorBounds = true
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun requestCursorUpdates_atLeastT_noFilterFlags() {
+        ic.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
+
+        verify(mCallback)
+            .onRequestCursorAnchorInfo(
+                immediate = true,
+                monitor = false,
+                includeInsertionMarker = true,
+                includeCharacterBounds = true,
+                includeEditorBounds = true
+            )
     }
 
     @Test

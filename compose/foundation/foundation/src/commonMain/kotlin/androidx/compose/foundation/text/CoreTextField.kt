@@ -384,6 +384,7 @@ internal fun CoreTextField(
 
     val onPositionedModifier = Modifier.onGloballyPositioned {
         state.layoutCoordinates = it
+        state.layoutResult?.innerTextFieldCoordinates = it
         if (enabled) {
             if (state.handleState == HandleState.Selection) {
                 if (state.showFloatingToolbar) {
@@ -401,8 +402,14 @@ internal fun CoreTextField(
                     manager.isSelectionHandleInVisibleBound(isStartHandle = true)
             }
             notifyFocusedRect(state, value, offsetMapping)
+            state.layoutResult?.let { layoutResult ->
+                state.inputSession?.let { inputSession ->
+                    if (state.hasFocus) {
+                        TextFieldDelegate.updateTextLayoutResult(inputSession, value, layoutResult)
+                    }
+                }
+            }
         }
-        state.layoutResult?.innerTextFieldCoordinates = it
     }
 
     val isPassword = visualTransformation is PasswordVisualTransformation
