@@ -39,6 +39,14 @@ dependencies {
 
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
+
+    // pull latest compose (if build fails in future, just comment the following compose deps until
+    // we fix this package)
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:ui:ui"))
 }
 
 androidx {
