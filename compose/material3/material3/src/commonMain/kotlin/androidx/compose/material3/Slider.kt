@@ -1488,18 +1488,44 @@ private class RangeSliderLogic(
     }
 }
 
+/**
+ * Represents the color used by a [Slider] in different states.
+ *
+ * @constructor create an instance with arbitrary colors.
+ * See [SliderDefaults.colors] for the default implementation that follows Material
+ * specifications.
+ *
+ * @param thumbColor thumb color when enabled
+ * @param activeTrackColor color of the track in the part that is "active", meaning that the
+ * thumb is ahead of it
+ * @param activeTickColor colors to be used to draw tick marks on the active track, if `steps`
+ * is specified
+ * @param inactiveTrackColor color of the track in the part that is "inactive", meaning that the
+ * thumb is before it
+ * @param inactiveTickColor colors to be used to draw tick marks on the inactive track, if
+ * `steps` are specified on the Slider is specified
+ * @param disabledThumbColor thumb colors when disabled
+ * @param disabledActiveTrackColor color of the track in the "active" part when the Slider is
+ * disabled
+ * @param disabledActiveTickColor colors to be used to draw tick marks on the active track
+ * when Slider is disabled and when `steps` are specified on it
+ * @param disabledInactiveTrackColor color of the track in the "inactive" part when the
+ * Slider is disabled
+ * @param disabledInactiveTickColor colors to be used to draw tick marks on the inactive part
+ * of the track when Slider is disabled and when `steps` are specified on it
+ */
 @Immutable
-class SliderColors internal constructor(
-    private val thumbColor: Color,
-    private val activeTrackColor: Color,
-    private val activeTickColor: Color,
-    private val inactiveTrackColor: Color,
-    private val inactiveTickColor: Color,
-    private val disabledThumbColor: Color,
-    private val disabledActiveTrackColor: Color,
-    private val disabledActiveTickColor: Color,
-    private val disabledInactiveTrackColor: Color,
-    private val disabledInactiveTickColor: Color
+class SliderColors constructor(
+    val thumbColor: Color,
+    val activeTrackColor: Color,
+    val activeTickColor: Color,
+    val inactiveTrackColor: Color,
+    val inactiveTickColor: Color,
+    val disabledThumbColor: Color,
+    val disabledActiveTrackColor: Color,
+    val disabledActiveTickColor: Color,
+    val disabledInactiveTrackColor: Color,
+    val disabledInactiveTickColor: Color
 ) {
 
     @Composable

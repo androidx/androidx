@@ -320,26 +320,52 @@ object TimePickerDefaults {
 /**
  * Represents the colors used by a [TimePicker] in different states
  *
+ * @constructor create an instance with arbitrary colors.
  * See [TimePickerDefaults.colors] for the default implementation that follows Material
  * specifications.
+ *
+ * @param clockDialColor The color of the clock dial.
+ * @param clockDialSelectedContentColor the color of the numbers of the clock dial when they
+ * are selected or overlapping with the selector
+ * @param clockDialUnselectedContentColor the color of the numbers of the clock dial when they
+ * are unselected
+ * @param selectorColor The color of the clock dial selector.
+ * @param containerColor The container color of the time picker.
+ * @param periodSelectorBorderColor the color used for the border of the AM/PM toggle.
+ * @param periodSelectorSelectedContainerColor the color used for the selected container of
+ * the AM/PM toggle
+ * @param periodSelectorUnselectedContainerColor the color used for the unselected container
+ * of the AM/PM toggle
+ * @param periodSelectorSelectedContentColor color used for the selected content of
+ * the AM/PM toggle
+ * @param periodSelectorUnselectedContentColor color used for the unselected content
+ * of the AM/PM toggle
+ * @param timeSelectorSelectedContainerColor color used for the selected container of the
+ * display buttons to switch between hour and minutes
+ * @param timeSelectorUnselectedContainerColor color used for the unselected container of the
+ * display buttons to switch between hour and minutes
+ * @param timeSelectorSelectedContentColor color used for the selected content of the display
+ * buttons to switch between hour and minutes
+ * @param timeSelectorUnselectedContentColor color used for the unselected content of the
+ * display buttons to switch between hour and minutes
  */
 @Immutable
 @ExperimentalMaterial3Api
-class TimePickerColors internal constructor(
-    internal val clockDialColor: Color,
-    internal val selectorColor: Color,
-    internal val containerColor: Color,
-    internal val periodSelectorBorderColor: Color,
-    private val clockDialSelectedContentColor: Color,
-    private val clockDialUnselectedContentColor: Color,
-    private val periodSelectorSelectedContainerColor: Color,
-    private val periodSelectorUnselectedContainerColor: Color,
-    private val periodSelectorSelectedContentColor: Color,
-    private val periodSelectorUnselectedContentColor: Color,
-    private val timeSelectorSelectedContainerColor: Color,
-    private val timeSelectorUnselectedContainerColor: Color,
-    private val timeSelectorSelectedContentColor: Color,
-    private val timeSelectorUnselectedContentColor: Color,
+class TimePickerColors constructor(
+    val clockDialColor: Color,
+    val selectorColor: Color,
+    val containerColor: Color,
+    val periodSelectorBorderColor: Color,
+    val clockDialSelectedContentColor: Color,
+    val clockDialUnselectedContentColor: Color,
+    val periodSelectorSelectedContainerColor: Color,
+    val periodSelectorUnselectedContainerColor: Color,
+    val periodSelectorSelectedContentColor: Color,
+    val periodSelectorUnselectedContentColor: Color,
+    val timeSelectorSelectedContainerColor: Color,
+    val timeSelectorUnselectedContainerColor: Color,
+    val timeSelectorSelectedContentColor: Color,
+    val timeSelectorUnselectedContentColor: Color,
 ) {
     internal fun periodSelectorContainerColor(selected: Boolean) =
         if (selected) {
