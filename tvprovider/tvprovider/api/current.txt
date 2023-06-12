@@ -195,6 +195,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isSearchable();
     method public boolean isTransient();
     method public android.content.ContentValues! toContentValues();
+    field public static final String![] PROJECTION;
   }
 
   public static final class PreviewProgram.Builder {
@@ -821,6 +822,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isSearchable();
     method public boolean isTransient();
     method public android.content.ContentValues! toContentValues();
+    field public static final String![] PROJECTION;
     field public static final int WATCH_NEXT_TYPE_UNKNOWN = -1; // 0xffffffff
   }
 
