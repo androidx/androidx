@@ -38,10 +38,8 @@ import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 import java.time.ZonedDateTime
 
-private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
-
 /** A capability corresponding to actions.intent.START_SAFETY_CHECK */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StartSafetyCheck.CAPABILITY_NAME)
 class StartSafetyCheck private constructor() {
     internal enum class SlotMetadata(val path: String) {
         DURATION("safetycheck.duration"),
@@ -225,6 +223,8 @@ class StartSafetyCheck private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [StartSafetyCheck] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

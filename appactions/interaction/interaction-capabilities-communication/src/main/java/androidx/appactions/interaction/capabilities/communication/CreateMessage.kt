@@ -35,10 +35,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
-
 /** A capability corresponding to actions.intent.CREATE_MESSAGE */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = CreateMessage.CAPABILITY_NAME)
 class CreateMessage private constructor() {
     internal enum class SlotMetadata(val path: String) {
         TEXT("message.text"),
@@ -176,6 +174,8 @@ class CreateMessage private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [CreateMessage] capability. */
+        const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
