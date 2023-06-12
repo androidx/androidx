@@ -14,7 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * Provides compatibility APIs concerning location altitudes.
- */
+/** Provides compatibility APIs concerning location altitudes. */
 package androidx.core.location.altitude;

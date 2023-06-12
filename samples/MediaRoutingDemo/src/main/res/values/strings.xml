@@ -49,12 +49,16 @@
     <string name="dg_not_unselectable_route_name5"> Dynamic Route 5 - Not unselectable</string>
     <string name="dg_static_group_route_name6"> Dynamic Route 6 - Static Group</string>
 
+    <string name="sender_driven_route_name1">Sender Driven TV 1</string>
+    <string name="sender_driven_route_name2">Sender Driven TV 2</string>
+
     <string name="sample_media_route_provider_remote">Remote Playback (Simulated)</string>
     <string name="sample_media_route_activity_local">Local Playback</string>
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
     <string name="delete_route_alert_dialog_title">Delete this route?</string>
     <string name="delete_route_alert_dialog_message">Are you sure you want to delete this route?</string>
+    <string name="is_sender_driven_switch_label">Is Sender Driven</string>
 
     <string name="settings_activity_show_system_routes">Show system routes</string>
 

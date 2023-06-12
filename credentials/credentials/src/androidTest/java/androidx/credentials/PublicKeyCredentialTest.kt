@@ -32,6 +32,16 @@ import org.junit.runner.RunWith
 @SmallTest
 class PublicKeyCredentialTest {
 
+    companion object Constant {
+        private const val TEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+    }
+
+    @Test
+    fun typeConstant() {
+        assertThat(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
+            .isEqualTo("androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL")
+    }
+
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
@@ -41,10 +51,16 @@ class PublicKeyCredentialTest {
     }
 
     @Test
+    fun constructor_invalidJson_throwsIllegalArgumentException() {
+        Assert.assertThrows(
+            "Expected invalid Json to throw IllegalArgumentException",
+            IllegalArgumentException::class.java
+        ) { PublicKeyCredential("invalid") }
+    }
+
+    @Test
     fun constructor_success() {
-        PublicKeyCredential(
-            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        )
+        PublicKeyCredential(TEST_JSON)
     }
 
     @Test
@@ -73,16 +89,26 @@ class PublicKeyCredentialTest {
 
     @Test
     fun frameworkConversion_success() {
-        val credential = PublicKeyCredential("json")
+        val credential = PublicKeyCredential(TEST_JSON)
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = credential.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
 
         val convertedCredential = createFrom(
-            credential.type, credential.data
+            credential.type, data
         )
 
         assertThat(convertedCredential).isInstanceOf(PublicKeyCredential::class.java)
         val convertedSubclassCredential = convertedCredential as PublicKeyCredential
         assertThat(convertedSubclassCredential.authenticationResponseJson)
             .isEqualTo(credential.authenticationResponseJson)
+        assertThat(convertedCredential.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
     }
 
     @Test

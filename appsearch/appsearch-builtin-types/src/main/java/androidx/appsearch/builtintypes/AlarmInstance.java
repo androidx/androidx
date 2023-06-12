@@ -74,10 +74,11 @@ public class AlarmInstance extends Thing {
     AlarmInstance(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url, @NonNull String scheduledTime,
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions, @NonNull String scheduledTime,
             int status, long snoozeDurationMillis) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mScheduledTime = Preconditions.checkNotNull(scheduledTime);
         mStatus = status;
         mSnoozeDurationMillis = snoozeDurationMillis;
@@ -197,6 +198,7 @@ public class AlarmInstance extends Thing {
         public AlarmInstance build() {
             return new AlarmInstance(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mScheduledTime, mStatus, mSnoozeDurationMillis);
         }
     }

@@ -3,7 +3,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
+        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR, AppSearchResult.RESULT_DENIED, but could be AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
         errorLine1="                            platformResult.getResultCode(), platformResult.getErrorMessage()));"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
+        message="Must be one of: AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR, AppSearchResult.RESULT_DENIED, but could be AppSearchResult.RESULT_OK, AppSearchResult.RESULT_UNKNOWN_ERROR, AppSearchResult.RESULT_INTERNAL_ERROR, AppSearchResult.RESULT_INVALID_ARGUMENT, AppSearchResult.RESULT_IO_ERROR, AppSearchResult.RESULT_OUT_OF_SPACE, AppSearchResult.RESULT_NOT_FOUND, AppSearchResult.RESULT_INVALID_SCHEMA, AppSearchResult.RESULT_SECURITY_ERROR"
         errorLine1="                                            namespaceResult.getResultCode(),"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -148,6 +148,24 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
+        errorLine1="public class SearchSuggestionResultToPlatformConverter {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSuggestionResultToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="public final class SearchSuggestionSpecToPlatformConverter {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSuggestionSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
         errorLine1="public final class SetSchemaRequestToPlatformConverter {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -155,99 +173,9 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    platformResponse.getSchemaTypesNotDisplayedBySystem()) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    platformResponse.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                platformResponse.getSchemaTypesVisibleToPackages();"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlatformSession.getByDocumentId(packageName, databaseName,"
-        errorLine2="                         ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlatformSession.getSchema("
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlatformSession.registerObserverCallback("
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.GlobalSearchSessionImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlatformSession.unregisterObserverCallback(targetPackageName, frameworkCallback);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/GlobalSearchSessionImpl.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            platformMatchInfo.getSubmatchRange().getStart(),"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchResultToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            platformMatchInfo.getSubmatchRange().getEnd()));"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchResultToPlatformConverter.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    platformBuilder.addRequiredPermissionsForSchemaTypeVisibility("
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/SetSchemaRequestToPlatformConverter.java"/>
-    </issue>
-
-    <issue
         id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="                return BuildCompat.isAtLeastT();"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                return BuildCompat.isAtLeastU();"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/FeaturesImpl.java"/>
@@ -255,20 +183,92 @@
 
     <issue
         id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="        if (BuildCompat.isAtLeastT()) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appsearch/platformstorage/converter/GetSchemaResponseToPlatformConverter.java"/>
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
     </issue>
 
     <issue
         id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="        if (BuildCompat.isAtLeastT()) {"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (BuildCompat.isAtLeastU()) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (BuildCompat.isAtLeastU()) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SchemaToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastU()) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/converter/SearchResultToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (!BuildCompat.isAtLeastU() &amp;&amp; mSearchSpec.getJoinSpec() != null) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/SearchResultsImpl.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (!BuildCompat.isAtLeastU()) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/platformstorage/converter/SearchSpecToPlatformConverter.java"/>
     </issue>
 
 </issues>

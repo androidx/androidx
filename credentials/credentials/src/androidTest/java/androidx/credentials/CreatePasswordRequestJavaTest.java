@@ -16,6 +16,7 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.CreateCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -56,11 +57,72 @@ public class CreatePasswordRequestJavaTest {
     }
 
     @Test
+    public void constructor_withDefaults() {
+        String idExpected = "id";
+        String passwordExpected = "password";
+
+        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
+
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isNull();
+        assertThat(request.preferImmediatelyAvailableCredentials()).isFalse();
+        assertThat(request.getOrigin()).isNull();
+        assertThat(request.getId()).isEqualTo(idExpected);
+        assertThat(request.getPassword()).isEqualTo(passwordExpected);
+        assertThat(request.isAutoSelectAllowed()).isFalse();
+    }
+
+    @Test
+    public void constructor_withoutDefaults() {
+        String idExpected = "id";
+        String passwordExpected = "password";
+        String originExpected = "origin";
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        boolean isAutoSelectAllowedExpected = true;
+
+        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected,
+                originExpected, preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowedExpected);
+
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isNull();
+        assertThat(request.getOrigin()).isEqualTo(originExpected);
+        assertThat(request.getId()).isEqualTo(idExpected);
+        assertThat(request.getPassword()).isEqualTo(passwordExpected);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(isAutoSelectAllowedExpected);
+    }
+
+    @Test
     public void constructor_emptyPassword_throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new CreatePasswordRequest("id", "")
         );
+    }
+
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    public void constructor_defaultProviderVariant() {
+        String idExpected = "id";
+        String passwordExpected = "pwd";
+        String originExpected = "origin";
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        boolean isAutoSelectAllowedExpected = true;
+
+        CreatePasswordRequest request = new CreatePasswordRequest(
+                idExpected, passwordExpected, originExpected, defaultProviderExpected,
+                preferImmediatelyAvailableCredentialsExpected,
+                isAutoSelectAllowedExpected);
+
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider())
+                .isEqualTo(defaultProviderExpected);
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(request.getOrigin()).isEqualTo(originExpected);
+        assertThat(request.getId()).isEqualTo(idExpected);
+        assertThat(request.getPassword()).isEqualTo(passwordExpected);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(isAutoSelectAllowedExpected);
     }
 
     @Test
@@ -83,29 +145,40 @@ public class CreatePasswordRequestJavaTest {
     public void getter_frameworkProperties() {
         String idExpected = "id";
         String passwordExpected = "pwd";
-        Bundle expectedData = new Bundle();
-        boolean expectedAutoSelect = false;
-        expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected);
-        expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD, passwordExpected);
-        expectedData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        Bundle expectedCredentialData = new Bundle();
+        boolean expectedAutoSelect = true;
+        expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected);
+        expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD,
+                passwordExpected);
+        expectedCredentialData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                expectedAutoSelect);
+        expectedCredentialData.putBoolean(
+                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                preferImmediatelyAvailableCredentialsExpected);
+        Bundle expectedCandidateData = new Bundle();
+        expectedCandidateData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
                 expectedAutoSelect);
 
-        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
+        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected,
+                /*origin=*/ null, preferImmediatelyAvailableCredentialsExpected,
+                expectedAutoSelect);
 
         assertThat(request.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         CreateCredentialRequest.DisplayInfo displayInfo =
                 request.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
-        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedCandidateData))
+                .isTrue();
         assertThat(request.isSystemProviderRequired()).isFalse();
         Bundle credentialData =
                 getFinalCreateCredentialData(
                         request, mContext);
         assertThat(credentialData.keySet())
-                .hasSize(expectedData.size() + /* added request info */ 1);
-        for (String key : expectedData.keySet()) {
-            assertThat(credentialData.get(key)).isEqualTo(credentialData.get(key));
+                .hasSize(expectedCredentialData.size() + /* added request info */ 1);
+        for (String key : expectedCredentialData.keySet()) {
+            assertThat(credentialData.get(key)).isEqualTo(expectedCredentialData.get(key));
         }
         Bundle displayInfoBundle =
                 credentialData.getBundle(
@@ -122,25 +195,50 @@ public class CreatePasswordRequestJavaTest {
     @Test
     public void frameworkConversion_success() {
         String idExpected = "id";
-        CreatePasswordRequest request = new CreatePasswordRequest(idExpected, "password");
+        String passwordExpected = "pwd";
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        String originExpected = "origin";
+        String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        boolean isAutoSelectAllowedExpected = true;
+        CreatePasswordRequest request = new CreatePasswordRequest(
+                idExpected, passwordExpected, originExpected, defaultProviderExpected,
+                preferImmediatelyAvailableCredentialsExpected, isAutoSelectAllowedExpected);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle credentialData = getFinalCreateCredentialData(
+                request, mContext);
+        String customRequestDataKey = "customRequestDataKey";
+        String customRequestDataValue = "customRequestDataValue";
+        credentialData.putString(customRequestDataKey, customRequestDataValue);
+        Bundle candidateQueryData = request.getCandidateQueryData();
+        String customCandidateQueryDataKey = "customRequestDataKey";
+        Boolean customCandidateQueryDataValue = true;
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
-                request.getType(), getFinalCreateCredentialData(
-                        request, mContext),
-                request.getCandidateQueryData(), request.isSystemProviderRequired(),
-                request.getOrigin()
-        );
+                request.getType(), credentialData, candidateQueryData,
+                request.isSystemProviderRequired(), request.getOrigin());
 
         assertThat(convertedRequest).isInstanceOf(CreatePasswordRequest.class);
         CreatePasswordRequest convertedCreatePasswordRequest =
                 (CreatePasswordRequest) convertedRequest;
-        assertThat(convertedCreatePasswordRequest.getPassword()).isEqualTo(request.getPassword());
-        assertThat(convertedCreatePasswordRequest.getId()).isEqualTo(request.getId());
+        assertThat(convertedCreatePasswordRequest.getPassword()).isEqualTo(passwordExpected);
+        assertThat(convertedCreatePasswordRequest.getId()).isEqualTo(idExpected);
+        assertThat(convertedCreatePasswordRequest.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(convertedCreatePasswordRequest.getOrigin()).isEqualTo(originExpected);
+        assertThat(convertedCreatePasswordRequest.isAutoSelectAllowed())
+                .isEqualTo(isAutoSelectAllowedExpected);
         CreateCredentialRequest.DisplayInfo displayInfo =
                 convertedCreatePasswordRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
         assertThat(displayInfo.getCredentialTypeIcon().getResId())
                 .isEqualTo(R.drawable.ic_password);
+        assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(defaultProviderExpected);
+        assertThat(convertedRequest.getCredentialData().getString(customRequestDataKey))
+                .isEqualTo(customRequestDataValue);
+        assertThat(convertedRequest.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
+                .isEqualTo(customCandidateQueryDataValue);
     }
 }

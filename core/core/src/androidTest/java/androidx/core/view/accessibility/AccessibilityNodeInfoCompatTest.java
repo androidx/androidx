@@ -119,6 +119,15 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testisGranularScrollingSupported() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        assertThat(nodeCompat.isGranularScrollingSupported(), is(false));
+        nodeCompat.setGranularScrollingSupported(true);
+        assertThat(nodeCompat.isGranularScrollingSupported(), is(true));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
@@ -324,5 +333,17 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(false));
         accessibilityNodeInfoCompat.setTextSelectable(true);
         assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @SmallTest
+    @Test
+    public void testActionScrollInDirection() {
+        AccessibilityActionCompat actionCompat =
+                AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION;
+        assertThat(actionCompat.getId(),
+                is(getExpectedActionId(android.R.id.accessibilityActionScrollInDirection)));
+        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: "
+                + "ACTION_SCROLL_IN_DIRECTION"));
     }
 }

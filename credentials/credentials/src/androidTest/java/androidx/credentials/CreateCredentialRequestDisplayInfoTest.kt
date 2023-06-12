@@ -66,7 +66,26 @@ class CreateCredentialRequestDisplayInfoTest {
         assertThat(displayInfo.userId).isEqualTo(expectedUserId)
         assertThat(displayInfo.userDisplayName).isEqualTo(expectedDisplayName)
         assertThat(displayInfo.credentialTypeIcon).isNull()
-        assertThat(displayInfo.defaultProvider).isNull()
+        assertThat(displayInfo.preferDefaultProvider).isNull()
+    }
+
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    fun constructWithUserIdAndDisplayNameAndDefaultProvider_success() {
+        val expectedUserId: CharSequence = "userId"
+        val expectedDisplayName: CharSequence = "displayName"
+        val expectedDefaultProvider = "com.test/com.test.TestProviderComponent"
+
+        val displayInfo = DisplayInfo(
+            userId = expectedUserId,
+            userDisplayName = expectedDisplayName,
+            preferDefaultProvider = expectedDefaultProvider
+        )
+
+        assertThat(displayInfo.userId).isEqualTo(expectedUserId)
+        assertThat(displayInfo.userDisplayName).isEqualTo(expectedDisplayName)
+        assertThat(displayInfo.credentialTypeIcon).isNull()
+        assertThat(displayInfo.preferDefaultProvider).isEqualTo(expectedDefaultProvider)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -85,7 +104,7 @@ class CreateCredentialRequestDisplayInfoTest {
         assertThat(displayInfo.userId).isEqualTo(expectedUserId)
         assertThat(displayInfo.userDisplayName).isEqualTo(expectedDisplayName)
         assertThat(displayInfo.credentialTypeIcon).isEqualTo(expectedIcon)
-        assertThat(displayInfo.defaultProvider).isEqualTo(expectedDefaultProvider)
+        assertThat(displayInfo.preferDefaultProvider).isEqualTo(expectedDefaultProvider)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -105,6 +124,6 @@ class CreateCredentialRequestDisplayInfoTest {
         assertThat(displayInfo.credentialTypeIcon?.resId).isEqualTo(
             R.drawable.ic_password
         )
-        assertThat(displayInfo.defaultProvider).isNull()
+        assertThat(displayInfo.preferDefaultProvider).isNull()
     }
 }

@@ -18,6 +18,7 @@ package androidx.fragment.app
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.BackEventCompat
 import androidx.annotation.CallSuper
 import androidx.core.os.CancellationSignal
 import androidx.core.view.ViewCompat
@@ -131,6 +132,13 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         synchronized(pendingOperations) {
             val signal = CancellationSignal()
             val existingOperation = findPendingOperation(fragmentStateManager.fragment)
+                // Get the running operation if the fragment is current transitioning as that means
+                // we can reverse the effect via the merge if needed.
+                ?: if (fragmentStateManager.fragment.mTransitioning) {
+                    findRunningOperation(fragmentStateManager.fragment)
+                } else {
+                    null
+                }
             if (existingOperation != null) {
                 // Update the existing operation by merging in the new information
                 // rather than creating a new Operation entirely
@@ -211,7 +219,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             "SpecialEffectsController: Cancelling operation $operation"
                         )
                     }
-                    operation.cancel()
+                    // Cancel with seeking if the fragment is transitioning
+                    operation.cancel(operation.fragment.mTransitioning)
                     if (!operation.isComplete) {
                         // Re-add any animations that didn't synchronously call complete()
                         // to continue to track them as running operations
@@ -220,6 +229,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 }
                 updateFinalState()
                 val newPendingOperations = pendingOperations.toMutableList()
+                if (newPendingOperations.isEmpty()) {
+                    return
+                }
                 pendingOperations.clear()
                 runningOperations.addAll(newPendingOperations)
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -332,6 +344,18 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         operations: List<@JvmSuppressWildcards Operation>,
         isPop: Boolean
     )
+
+    fun processProgress(backEvent: BackEventCompat) {
+        runningOperations.forEach { operation ->
+            operation.backInProgressListener?.invoke(backEvent)
+        }
+    }
+
+    fun completeBack() {
+        runningOperations.forEach { operation ->
+            operation.backOnCompleteListener?.invoke()
+        }
+    }
 
     /**
      * Class representing an ongoing special effects operation.
@@ -480,9 +504,15 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         private val completionListeners = mutableListOf<Runnable>()
         private val specialEffectsSignals = mutableSetOf<CancellationSignal>()
+        var backInProgressListener: ((BackEventCompat) -> Unit)? = null
+            private set
+        var backOnCompleteListener: (() -> Unit)? = null
+            private set
         var isCanceled = false
             private set
         var isComplete = false
+            private set
+        var isSeeking = false
             private set
 
         var isStarted = false
@@ -515,6 +545,16 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     signal.cancel()
                 }
             }
+        }
+
+        fun cancel(withSeeking: Boolean) {
+            if (isCanceled) {
+                return
+            }
+            if (withSeeking) {
+                isSeeking = true
+            }
+            cancel()
         }
 
         fun mergeWith(finalState: State, lifecycleImpact: LifecycleImpact) {
@@ -562,6 +602,14 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         fun addCompletionListener(listener: Runnable) {
             completionListeners.add(listener)
+        }
+
+        fun addBackProgressCallbacks(
+            onProgress: (BackEventCompat) -> Unit,
+            onComplete: () -> Unit
+        ) {
+            backInProgressListener = onProgress
+            backOnCompleteListener = onComplete
         }
 
         /**
@@ -612,6 +660,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 )
             }
             isComplete = true
+            backInProgressListener = null
+            backOnCompleteListener = null
             completionListeners.forEach { listener ->
                 listener.run()
             }
@@ -673,6 +723,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         override fun complete() {
             super.complete()
+            // Since we are completing, ensure that the transitioning flag is set to false before
+            // we move to state
+            fragment.mTransitioning = false
             fragmentStateManager.moveToExpectedState()
         }
     }

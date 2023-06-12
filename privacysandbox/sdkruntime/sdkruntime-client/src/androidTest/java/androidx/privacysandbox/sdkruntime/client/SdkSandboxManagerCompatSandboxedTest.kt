@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.client
 
+import android.app.Activity
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
@@ -23,6 +24,7 @@ import android.content.Context
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresExtension
@@ -166,6 +168,19 @@ class SdkSandboxManagerCompatSandboxedTest {
 
         platformCallback.onSdkSandboxDied()
         verify(callback).onSdkSandboxDied()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun startSdkSandboxActivity_whenSandboxAvailable_delegateToPlatform() {
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val fromActivityMock = mock(Activity::class.java)
+        val tokenMock = mock(IBinder::class.java)
+        managerCompat.startSdkSandboxActivity(fromActivityMock, tokenMock)
+
+        verify(sdkSandboxManager).startSdkSandboxActivity(fromActivityMock, tokenMock)
     }
 
     @Test

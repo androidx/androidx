@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -124,7 +124,7 @@ public class VisibilityTest extends BaseTest {
                 return ValueAnimator.ofFloat(0, 1);
             }
         });
-        Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        Transition.TransitionListener listener = spy(new TransitionListenerAdapter());
         set.addListener(listener);
 
         // remove view
@@ -177,7 +177,7 @@ public class VisibilityTest extends BaseTest {
                 return ValueAnimator.ofFloat(0, 1);
             }
         };
-        Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        Transition.TransitionListener listener = spy(new TransitionListenerAdapter());
         visibility.addListener(listener);
 
         // remove view

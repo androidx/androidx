@@ -16,8 +16,11 @@
 package androidx.appsearch.platformstorage;
 
 import android.annotation.SuppressLint;
+import android.app.appsearch.AppSearchResult;
+import android.app.appsearch.BatchResultCallback;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -52,9 +55,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
- * An implementation of {@link androidx.appsearch.app.GlobalSearchSession} which proxies to a
+ * An implementation of {@link GlobalSearchSession} which proxies to a
  * platform {@link android.app.appsearch.GlobalSearchSession}.
  *
  * @hide
@@ -80,7 +84,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mFeatures = Preconditions.checkNotNull(features);
     }
 
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
@@ -95,14 +98,16 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(request);
         ResolvableFuture<AppSearchBatchResult<String, GenericDocument>> future =
                 ResolvableFuture.create();
-        mPlatformSession.getByDocumentId(packageName, databaseName,
-                RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
-                mExecutor,
+        ApiHelperForT.getByDocumentId(mPlatformSession, packageName, databaseName,
+                RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request), mExecutor,
                 new BatchResultCallbackAdapter<>(
                         future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
         return future;
     }
 
+    // TODO(b/265311462): Remove these two lines once BuildCompat.isAtLeastU() is removed
+    @SuppressLint("NewApi")
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public SearchResults search(
@@ -131,6 +136,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return future;
     }
 
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
     @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
@@ -144,10 +151,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                             + " is not supported on this AppSearch implementation.");
         }
         ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
-        mPlatformSession.getSchema(
-                packageName,
-                databaseName,
-                mExecutor,
+        ApiHelperForT.getSchema(mPlatformSession, packageName, databaseName, mExecutor,
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result,
                         future,
@@ -161,9 +165,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return mFeatures;
     }
 
-    // TODO(b/193494000): Remove these two lines once BuildCompat.isAtLeastT() is removed.
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @Override
     public void registerObserverCallback(
             @NonNull String targetPackageName,
@@ -213,10 +215,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             // Regardless of whether this stub was fresh or not, we have to register it again
             // because the user might be supplying a different spec.
             try {
-                mPlatformSession.registerObserverCallback(
-                        targetPackageName,
-                        ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec),
-                        executor,
+                ApiHelperForT.registerObserverCallback(mPlatformSession, targetPackageName,
+                        ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec), executor,
                         frameworkCallback);
             } catch (android.app.appsearch.exceptions.AppSearchException e) {
                 throw new AppSearchException((int) e.getResultCode(), e.getMessage(), e.getCause());
@@ -229,8 +229,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         }
     }
 
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     public void unregisterObserverCallback(
             @NonNull String targetPackageName, @NonNull ObserverCallback observer)
@@ -253,7 +251,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             }
 
             try {
-                mPlatformSession.unregisterObserverCallback(targetPackageName, frameworkCallback);
+                ApiHelperForT.unregisterObserverCallback(mPlatformSession, targetPackageName,
+                        frameworkCallback);
             } catch (android.app.appsearch.exceptions.AppSearchException e) {
                 throw new AppSearchException((int) e.getResultCode(), e.getMessage(), e.getCause());
             }
@@ -266,5 +265,44 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @Override
     public void close() {
         mPlatformSession.close();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForT {
+        private ApiHelperForT() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void getByDocumentId(android.app.appsearch.GlobalSearchSession platformSession,
+                String packageName, String databaseName,
+                android.app.appsearch.GetByDocumentIdRequest request, Executor executor,
+                BatchResultCallback<String, android.app.appsearch.GenericDocument> callback) {
+            platformSession.getByDocumentId(packageName, databaseName, request, executor, callback);
+        }
+
+        @DoNotInline
+        static void getSchema(android.app.appsearch.GlobalSearchSession platformSessions,
+                String packageName, String databaseName, Executor executor,
+                Consumer<AppSearchResult<android.app.appsearch.GetSchemaResponse>> callback) {
+            platformSessions.getSchema(packageName, databaseName, executor, callback);
+        }
+
+        @DoNotInline
+        static void registerObserverCallback(
+                android.app.appsearch.GlobalSearchSession platformSession, String targetPackageName,
+                android.app.appsearch.observer.ObserverSpec spec, Executor executor,
+                android.app.appsearch.observer.ObserverCallback observer)
+                throws android.app.appsearch.exceptions.AppSearchException {
+            platformSession.registerObserverCallback(targetPackageName, spec, executor, observer);
+        }
+
+        @DoNotInline
+        static void unregisterObserverCallback(
+                android.app.appsearch.GlobalSearchSession platformSession, String targetPackageName,
+                android.app.appsearch.observer.ObserverCallback observer)
+                throws android.app.appsearch.exceptions.AppSearchException {
+            platformSession.unregisterObserverCallback(targetPackageName, observer);
+        }
     }
 }

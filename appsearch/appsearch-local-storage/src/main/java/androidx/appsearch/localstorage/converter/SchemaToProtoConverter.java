@@ -99,6 +99,7 @@ public final class SchemaToProtoConverter {
                         .setValueType(
                                 convertJoinableValueTypeToProto(
                                         stringProperty.getJoinableValueType()))
+                        .setPropagateDelete(stringProperty.getDeletionPropagation())
                         .build();
                 builder.setJoinableConfig(joinableConfig);
             }
@@ -188,6 +189,7 @@ public final class SchemaToProtoConverter {
                         .setJoinableValueType(
                                 convertJoinableValueTypeFromProto(
                                         proto.getJoinableConfig().getValueType()))
+                        .setDeletionPropagation(proto.getJoinableConfig().getPropagateDelete())
                         .setTokenizerType(
                                 proto.getStringIndexingConfig().getTokenizerType().getNumber());
 

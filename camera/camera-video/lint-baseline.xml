@@ -37,4 +37,13 @@
             file="src/androidTest/java/androidx/camera/video/internal/encoder/VideoEncoderTest.kt"/>
     </issue>
 
+    <issue
+        id="IgnoreClassLevelDetector"
+        message="@Ignore should not be used at the class level. Move the annotation to each test individually."
+        errorLine1="@Ignore(&quot;b/274840083&quot;)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/video/internal/audio/AudioSourceTest.kt"/>
+    </issue>
+
 </issues>

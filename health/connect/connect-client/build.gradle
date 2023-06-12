@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesGuava)
+    implementation("androidx.core:core-ktx:1.8.0")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -54,6 +55,13 @@ dependencies {
     testImplementation(libs.espressoCore)
     testImplementation(libs.espressoIntents)
     testImplementation(libs.kotlinReflect)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinReflect)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 
     samples(project(":health:connect:connect-client-samples"))
 }

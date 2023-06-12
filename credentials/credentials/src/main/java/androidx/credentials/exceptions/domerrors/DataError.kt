@@ -16,8 +16,6 @@
 
 package androidx.credentials.exceptions.domerrors
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
  * exception contains a data_err code from the fido spec, indicating inadequate data provided. The
@@ -25,7 +23,7 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
  *
  * @see CreatePublicKeyCredentialDomException
  */
-@Suppress("ExtendsError")
+@Suppress("ExtendsError") // This is not a real java `Error`
 class DataError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DATA_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DATA_ERROR: String =

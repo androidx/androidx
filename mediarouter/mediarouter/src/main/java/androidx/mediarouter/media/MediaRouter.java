@@ -899,19 +899,19 @@ public final class MediaRouter {
     }
 
     /**
-     * Adds a remote control client to enable remote control of the volume
-     * of the selected route.
-     * <p>
-     * The remote control client must have previously been registered with
-     * the audio manager using the {@link android.media.AudioManager#registerRemoteControlClient
+     * Adds a remote control client to enable remote control of the volume of the selected route.
+     *
+     * <p>The remote control client must have previously been registered with the audio manager
+     * using the {@link android.media.AudioManager#registerRemoteControlClient
      * AudioManager.registerRemoteControlClient} method.
-     * </p>
      *
      * <p>Must be called on the main thread.
      *
      * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
+     * @deprecated Use {@link #setMediaSessionCompat} instead.
      */
     @MainThread
+    @Deprecated
     public void addRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
             throw new IllegalArgumentException("remoteControlClient must not be null");
@@ -946,14 +946,8 @@ public final class MediaRouter {
     }
 
     /**
-     * Sets the media session to enable remote control of the volume of the
-     * selected route. This should be used instead of
-     * {@link #addRemoteControlClient} when using media sessions. Set the
-     * session to null to clear it.
-     *
-     * <p>Must be called on the main thread.
-     *
-     * @param mediaSession The {@link android.media.session.MediaSession} to use.
+     * Equivalent to {@link #setMediaSessionCompat}, except it takes an {@link
+     * android.media.session.MediaSession}.
      */
     @MainThread
     public void setMediaSession(@Nullable Object mediaSession) {
@@ -965,14 +959,16 @@ public final class MediaRouter {
     }
 
     /**
-     * Sets a compat media session to enable remote control of the volume of the
-     * selected route. This should be used instead of
-     * {@link #addRemoteControlClient} when using {@link MediaSessionCompat}.
-     * Set the session to null to clear it.
+     * Associates the provided {@link MediaSessionCompat} to this router.
+     *
+     * <p>Maintains the internal state of the provided session to signal it's linked to the
+     * currently selected route at any given time. This guarantees that the system UI shows the
+     * correct route name when applicable.
      *
      * <p>Must be called on the main thread.
      *
-     * @param mediaSession The {@link MediaSessionCompat} to use.
+     * @param mediaSession The {@link MediaSessionCompat} to associate to this media router, or null
+     *     to clear the existing association.
      */
     @MainThread
     public void setMediaSessionCompat(@Nullable MediaSessionCompat mediaSession) {
@@ -1015,6 +1011,41 @@ public final class MediaRouter {
     public void setRouterParams(@Nullable MediaRouterParams params) {
         checkCallingThread();
         getGlobalRouter().setRouterParams(params);
+    }
+
+    /**
+     * Sets the {@link RouteListingPreference} of the app associated to this media router.
+     *
+     * <p>This method does nothing on devices running API 33 or older.
+     *
+     * <p>Use this method to inform the system UI of the routes that you would like to list for
+     * media routing, via the Output Switcher.
+     *
+     * <p>You should call this method immediately after creating an instance and immediately after
+     * receiving any {@link Callback route list changes} in order to keep the system UI in a
+     * consistent state. You can also call this method at any other point to update the listing
+     * preference dynamically (which reflect in the system's Output Switcher).
+     *
+     * <p>Notes:
+     *
+     * <ul>
+     *   <li>You should not include the ids of two or more routes with a match in their {@link
+     *       MediaRouteDescriptor#getDeduplicationIds() deduplication ids}. If you do, the system
+     *       will deduplicate them using its own criteria.
+     *   <li>You can use this method to rank routes in the output switcher, placing the more
+     *       important routes first. The system might override the proposed ranking.
+     *   <li>You can use this method to change how routes are listed using dynamic criteria. For
+     *       example, you can disable routing while an {@link
+     *       RouteListingPreference.Item#SUBTEXT_AD_ROUTING_DISALLOWED ad is playing}).
+     * </ul>
+     *
+     * @param routeListingPreference The {@link RouteListingPreference} for the system to use for
+     *     route listing. When null, the system uses its default listing criteria.
+     */
+    @MainThread
+    public void setRouteListingPreference(@Nullable RouteListingPreference routeListingPreference) {
+        checkCallingThread();
+        getGlobalRouter().setRouteListingPreference(routeListingPreference);
     }
 
     /**
@@ -2194,15 +2225,23 @@ public final class MediaRouter {
      * </p>
      */
     public static final class ProviderInfo {
+        // Package private fields to avoid use of a synthetic accessor.
         final MediaRouteProvider mProviderInstance;
         final List<RouteInfo> mRoutes = new ArrayList<>();
+        final boolean mTreatRouteDescriptorIdsAsUnique;
 
         private final ProviderMetadata mMetadata;
         private MediaRouteProviderDescriptor mDescriptor;
 
         ProviderInfo(MediaRouteProvider provider) {
+            this(provider, /* treatRouteDescriptorIdsAsUnique= */ false);
+        }
+
+        /** @hide */
+        ProviderInfo(MediaRouteProvider provider, boolean treatRouteDescriptorIdsAsUnique) {
             mProviderInstance = provider;
             mMetadata = provider.getMetadata();
+            mTreatRouteDescriptorIdsAsUnique = treatRouteDescriptorIdsAsUnique;
         }
 
         /**
@@ -2675,9 +2714,9 @@ public final class MediaRouter {
                             updateDiscoveryRequest();
                         }
                     });
-            addProvider(mSystemProvider);
+            addProvider(mSystemProvider, /* treatRouteDescriptorIdsAsUnique= */ true);
             if (mMr2Provider != null) {
-                addProvider(mMr2Provider);
+                addProvider(mMr2Provider, /* treatRouteDescriptorIdsAsUnique= */ true);
             }
 
             // Start watching for routes published by registered media route
@@ -2693,6 +2732,8 @@ public final class MediaRouter {
             }
             mRegisteredProviderWatcher.stop();
             mActiveScanThrottlingHelper.reset();
+
+            setRouteListingPreference(null);
 
             setMediaSessionCompat(null);
             for (RemoteControlClientRecord record : mRemoteControlClients) {
@@ -2812,7 +2853,7 @@ public final class MediaRouter {
                 if (mMr2Provider == null) {
                     mMr2Provider = new MediaRoute2Provider(
                             mApplicationContext, new Mr2ProviderCallback());
-                    addProvider(mMr2Provider);
+                    addProvider(mMr2Provider, /* treatRouteDescriptorIdsAsUnique= */ true);
                     // Make sure mDiscoveryRequestForMr2Provider is updated
                     updateDiscoveryRequest();
                     mRegisteredProviderWatcher.rescan();
@@ -2836,6 +2877,14 @@ public final class MediaRouter {
                 }
             }
             mCallbackHandler.post(CallbackHandler.MSG_ROUTER_PARAMS_CHANGED, params);
+        }
+
+        public void setRouteListingPreference(
+                @Nullable RouteListingPreference routeListingPreference) {
+            if (mMr2Provider != null
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                mMr2Provider.setRouteListingPreference(routeListingPreference);
+            }
         }
 
         @Nullable
@@ -3120,12 +3169,18 @@ public final class MediaRouter {
                             MediaRouterParams.ENABLE_GROUP_VOLUME_UX, true);
         }
 
-
         @Override
         public void addProvider(@NonNull MediaRouteProvider providerInstance) {
+            addProvider(providerInstance, /* treatRouteDescriptorIdsAsUnique= */ false);
+        }
+
+        private void addProvider(
+                @NonNull MediaRouteProvider providerInstance,
+                boolean treatRouteDescriptorIdsAsUnique) {
             if (findProviderInfo(providerInstance) == null) {
                 // 1. Add the provider to the list.
-                ProviderInfo provider = new ProviderInfo(providerInstance);
+                ProviderInfo provider =
+                        new ProviderInfo(providerInstance, treatRouteDescriptorIdsAsUnique);
                 mProviders.add(provider);
                 if (DEBUG) {
                     Log.d(TAG, "Provider added: " + provider);
@@ -3339,8 +3394,11 @@ public final class MediaRouter {
             // possible for there to be two providers with the same package name.
             // Therefore we must dedupe the composite id.
             String componentName = provider.getComponentName().flattenToShortString();
-            String uniqueId = componentName + ":" + routeDescriptorId;
-            if (findRouteByUniqueId(uniqueId) < 0) {
+            String uniqueId =
+                    provider.mTreatRouteDescriptorIdsAsUnique
+                            ? routeDescriptorId
+                            : (componentName + ":" + routeDescriptorId);
+            if (provider.mTreatRouteDescriptorIdsAsUnique || findRouteByUniqueId(uniqueId) < 0) {
                 mUniqueIdMap.put(new Pair<>(componentName, routeDescriptorId), uniqueId);
                 return uniqueId;
             }

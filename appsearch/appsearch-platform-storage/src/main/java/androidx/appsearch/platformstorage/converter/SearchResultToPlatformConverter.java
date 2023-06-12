@@ -18,6 +18,7 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -38,6 +39,8 @@ public class SearchResultToPlatformConverter {
     private SearchResultToPlatformConverter() {}
 
     /** Translates from Platform to Jetpack versions of {@link SearchResult}. */
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
     @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static SearchResult toJetpackSearchResult(
@@ -55,10 +58,15 @@ public class SearchResultToPlatformConverter {
             SearchResult.MatchInfo jetpackMatchInfo = toJetpackMatchInfo(platformMatches.get(i));
             builder.addMatchInfo(jetpackMatchInfo);
         }
+        if (BuildCompat.isAtLeastU()) {
+            for (android.app.appsearch.SearchResult joinedResult :
+                    ApiHelperForU.getJoinedResults(platformResult)) {
+                builder.addJoinedResult(toJetpackSearchResult(joinedResult));
+            }
+        }
         return builder.build();
     }
 
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
@@ -73,12 +81,46 @@ public class SearchResultToPlatformConverter {
                         new SearchResult.MatchRange(
                                 platformMatchInfo.getSnippetRange().getStart(),
                                 platformMatchInfo.getSnippetRange().getEnd()));
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             builder.setSubmatchRange(
                     new SearchResult.MatchRange(
-                            platformMatchInfo.getSubmatchRange().getStart(),
-                            platformMatchInfo.getSubmatchRange().getEnd()));
+                            ApiHelperForT.getSubmatchRangeStart(platformMatchInfo),
+                            ApiHelperForT.getSubmatchRangeEnd(platformMatchInfo)));
         }
         return builder.build();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForT {
+        private ApiHelperForT() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getSubmatchRangeStart(@NonNull
+                android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
+            return platformMatchInfo.getSubmatchRange().getStart();
+        }
+
+        @DoNotInline
+        static int getSubmatchRangeEnd(@NonNull
+                android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
+            return platformMatchInfo.getSubmatchRange().getEnd();
+        }
+    }
+
+    // TODO(b/265311462): Replace literal '34' with Build.VERSION_CODES.UPSIDE_DOWN_CAKE when the
+    // SDK_INT is finalized.
+    @RequiresApi(34)
+    private static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static List<android.app.appsearch.SearchResult> getJoinedResults(@NonNull
+                android.app.appsearch.SearchResult result) {
+            return result.getJoinedResults();
+        }
     }
 }

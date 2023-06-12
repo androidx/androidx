@@ -58,13 +58,14 @@ class SearchResultsImpl implements SearchResults {
         mExecutor = Preconditions.checkNotNull(executor);
     }
 
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
     @SuppressLint("WrongConstant")
     @Override
     @NonNull
     @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<List<SearchResult>> getNextPageAsync() {
-        // TODO(b/256022027): add isAtLeastU check after Android U.
-        if (mSearchSpec.getJoinSpec() != null) {
+        if (!BuildCompat.isAtLeastU() && mSearchSpec.getJoinSpec() != null) {
             throw new UnsupportedOperationException("Searching with a SearchSpec containing a "
                     + "JoinSpec is not supported on this AppSearch implementation.");
         }

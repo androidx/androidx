@@ -53,7 +53,7 @@ public class TranslationAnimationCreatorTest extends BaseTest {
         assertEquals(20, view.getTranslationX(), 0.01);
 
         verify(transition).addListener(listenerCaptor.capture());
-        listenerCaptor.getValue().onTransitionEnd(transition);
+        listenerCaptor.getValue().onTransitionEnd(transition, false);
         // but onTransitionEnd does
         assertEquals(0, view.getTranslationX(), 0.01);
     }

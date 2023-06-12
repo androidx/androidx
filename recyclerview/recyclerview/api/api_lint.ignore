@@ -161,12 +161,6 @@ InternalField: androidx.recyclerview.widget.OrientationHelper#mLayoutManager:
     Internal field mLayoutManager must not be exposed
 
 
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerView#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerView#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Invalid nullability on parameter `host` in method `dispatchPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
@@ -551,6 +545,10 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchRestoreIns
     Missing nullability on parameter `container` in method `dispatchRestoreInstanceState`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchSaveInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:
     Missing nullability on parameter `container` in method `dispatchSaveInstanceState`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `draw`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Missing nullability on parameter `canvas` in method `drawChild`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
     Missing nullability on parameter `child` in method `drawChild`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#findViewHolderForItemId(long):
@@ -573,6 +571,8 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView#getAccessibilityCl
     Missing nullability on method `getAccessibilityClassName` return
 MissingNullability: androidx.recyclerview.widget.RecyclerView#getChildViewHolder(android.view.View):
     Missing nullability on method `getChildViewHolder` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#onGenericMotionEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `event` in method `onGenericMotionEvent`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:

@@ -17,11 +17,14 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
 import android.os.Build
+import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.config.ResourceRemappingConfig
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -147,6 +150,22 @@ class SdkLoaderTest {
 
     private class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+            throw UnsupportedOperationException("NoOp")
+        }
+
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
+            throw UnsupportedOperationException("NoOp")
+        }
+
+        override fun registerSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ): IBinder {
+            throw UnsupportedOperationException("NoOp")
+        }
+
+        override fun unregisterSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ) {
             throw UnsupportedOperationException("NoOp")
         }
     }

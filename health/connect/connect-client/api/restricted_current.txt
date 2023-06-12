@@ -16,9 +16,6 @@ package androidx.health.connect.client {
     method public default static int getSdkStatus(android.content.Context context);
     method public default static int getSdkStatus(android.content.Context context, optional String providerPackageName);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.InsertRecordsResponse>);
-    method @Deprecated public default static boolean isApiSupported();
-    method @Deprecated public default static boolean isProviderAvailable(android.content.Context context);
-    method @Deprecated public default static boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecord(kotlin.reflect.KClass<T> recordType, String recordId, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -36,9 +33,6 @@ package androidx.health.connect.client {
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public int getSdkStatus(android.content.Context context);
     method public int getSdkStatus(android.content.Context context, optional String providerPackageName);
-    method @Deprecated public boolean isApiSupported();
-    method @Deprecated public boolean isProviderAvailable(android.content.Context context);
-    method @Deprecated public boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
     property public final String ACTION_HEALTH_CONNECT_SETTINGS;
     field public static final int SDK_AVAILABLE = 3; // 0x3
     field public static final int SDK_UNAVAILABLE = 1; // 0x1
@@ -46,16 +40,16 @@ package androidx.health.connect.client {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
-    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
-    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
     method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<? extends java.lang.String>>);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.health.connect.client.PermissionController.Companion Companion;
   }
 
   public static final class PermissionController.Companion {
-    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
-    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
   }
 
 }

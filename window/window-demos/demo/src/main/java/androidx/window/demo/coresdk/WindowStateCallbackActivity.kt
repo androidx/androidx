@@ -16,6 +16,7 @@
 
 package androidx.window.demo.coresdk
 
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
@@ -36,11 +37,18 @@ import kotlinx.coroutines.launch
 /** Activity to show display configuration from different system callbacks. */
 class WindowStateCallbackActivity : AppCompatActivity() {
 
-    private lateinit var displayManager: DisplayManager
+    /**
+     * [DisplayManager]s from `Activity` and `Application` are updated from different resource
+     * configurations, so we listen on them separately.
+     */
+    private lateinit var applicationDisplayManager: DisplayManager
+    private lateinit var activityDisplayManager: DisplayManager
     private lateinit var handler: Handler
 
     private lateinit var latestUpdateView: WindowStateView
-    private lateinit var displayListenerView: WindowStateView
+    private lateinit var applicationDisplayListenerView: WindowStateView
+    private lateinit var activityDisplayListenerView: WindowStateView
+    private lateinit var applicationConfigurationView: WindowStateView
     private lateinit var activityConfigurationView: WindowStateView
     private lateinit var displayFeatureView: WindowStateView
 
@@ -56,7 +64,8 @@ class WindowStateCallbackActivity : AppCompatActivity() {
         }
     }
 
-    private val displayListener = object : DisplayListener {
+    /** [DisplayListener] on `Application`. */
+    private val applicationDisplayListener = object : DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
         }
 
@@ -65,8 +74,33 @@ class WindowStateCallbackActivity : AppCompatActivity() {
 
         override fun onDisplayChanged(displayId: Int) {
             if (displayId == DEFAULT_DISPLAY) {
-                displayListenerView.onWindowStateCallbackInvoked()
+                applicationDisplayListenerView.onWindowStateCallbackInvoked()
             }
+        }
+    }
+
+    /** [DisplayListener] on `Activity`. */
+    private val activityDisplayListener = object : DisplayListener {
+        override fun onDisplayAdded(displayId: Int) {
+        }
+
+        override fun onDisplayRemoved(displayId: Int) {
+        }
+
+        override fun onDisplayChanged(displayId: Int) {
+            if (displayId == DEFAULT_DISPLAY) {
+                activityDisplayListenerView.onWindowStateCallbackInvoked()
+            }
+        }
+    }
+
+    /** [onConfigurationChanged] on `Application`. */
+    private val applicationComponentCallback = object : ComponentCallbacks {
+        override fun onConfigurationChanged(p0: Configuration) {
+            applicationConfigurationView.onWindowStateCallbackInvoked()
+        }
+
+        override fun onLowMemory() {
         }
     }
 
@@ -75,13 +109,20 @@ class WindowStateCallbackActivity : AppCompatActivity() {
         val viewBinding = ActivityCoresdkWindowStateCallbackLayoutBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         latestUpdateView = viewBinding.latestUpdateView
-        displayListenerView = viewBinding.displayListenerView
+        applicationDisplayListenerView = viewBinding.applicationDisplayListenerView
+        activityDisplayListenerView = viewBinding.activityDisplayListenerView
+        applicationConfigurationView = viewBinding.applicationConfigurationView
         activityConfigurationView = viewBinding.activityConfigurationView
         displayFeatureView = viewBinding.displayFeatureView
 
-        displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        applicationDisplayManager =
+            application.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        activityDisplayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         handler = Handler(Looper.getMainLooper())
-        displayManager.registerDisplayListener(displayListener, handler)
+
+        applicationDisplayManager.registerDisplayListener(applicationDisplayListener, handler)
+        activityDisplayManager.registerDisplayListener(activityDisplayListener, handler)
+        application.registerComponentCallbacks(applicationComponentCallback)
         // Collect windowInfo when STARTED and stop when STOPPED.
         lifecycleScope.launch(Dispatchers.Main) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -96,7 +137,9 @@ class WindowStateCallbackActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        displayManager.unregisterDisplayListener(displayListener)
+        applicationDisplayManager.unregisterDisplayListener(applicationDisplayListener)
+        activityDisplayManager.unregisterDisplayListener(activityDisplayListener)
+        application.unregisterComponentCallbacks(applicationComponentCallback)
     }
 
     override fun onResume() {
@@ -110,8 +153,13 @@ class WindowStateCallbackActivity : AppCompatActivity() {
         handler.removeCallbacks(updateWindowStateIfChanged)
     }
 
+    /** [onConfigurationChanged] on `Activity`. */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         activityConfigurationView.onWindowStateCallbackInvoked()
+    }
+
+    companion object {
+        val TAG = WindowStateCallbackActivity::class.simpleName
     }
 }

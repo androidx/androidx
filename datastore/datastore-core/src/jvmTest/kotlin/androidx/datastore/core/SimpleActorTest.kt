@@ -73,6 +73,7 @@ class SimpleActorTest {
         assertThat(msgs).isEqualTo(listOf(1, 2, 3, 4))
     }
 
+    @Ignore("b/281516026")
     @Test
     fun testOnCompleteIsCalledWhenScopeIsCancelled() = runBlocking<Unit> {
         val scope = CoroutineScope(Job())

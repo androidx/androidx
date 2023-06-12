@@ -1,30 +1,71 @@
 // Signature format: 4.0
 package androidx.heifwriter {
 
+  public final class AvifWriter implements java.lang.AutoCloseable {
+    method public void addBitmap(android.graphics.Bitmap);
+    method public void addExifData(int, byte[], int, int);
+    method public void addYuvBuffer(int, byte[]);
+    method public void close();
+    method public android.os.Handler? getHandler();
+    method public android.view.Surface getInputSurface();
+    method public int getMaxImages();
+    method public int getPrimaryIndex();
+    method public int getQuality();
+    method public int getRotation();
+    method public boolean isGridEnabled();
+    method public boolean isHighBitDepthEnabled();
+    method public void setInputEndOfStreamTimestamp(@IntRange(from=0) long);
+    method public void start();
+    method public void stop(@IntRange(from=0) long) throws java.lang.Exception;
+    field public static final int INPUT_MODE_BITMAP = 2; // 0x2
+    field public static final int INPUT_MODE_BUFFER = 0; // 0x0
+    field public static final int INPUT_MODE_SURFACE = 1; // 0x1
+  }
+
+  public static final class AvifWriter.Builder {
+    ctor public AvifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
+    ctor public AvifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
+    method public androidx.heifwriter.AvifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.AvifWriter.Builder setGridEnabled(boolean);
+    method public androidx.heifwriter.AvifWriter.Builder setHandler(android.os.Handler?);
+    method public androidx.heifwriter.AvifWriter.Builder setHighBitDepthEnabled(boolean);
+    method public androidx.heifwriter.AvifWriter.Builder setMaxImages(@IntRange(from=1) int);
+    method public androidx.heifwriter.AvifWriter.Builder setPrimaryIndex(@IntRange(from=0) int);
+    method public androidx.heifwriter.AvifWriter.Builder setQuality(@IntRange(from=0, to=100) int);
+    method public androidx.heifwriter.AvifWriter.Builder setRotation(@IntRange(from=0) int);
+  }
+
   public final class HeifWriter implements java.lang.AutoCloseable {
     method public void addBitmap(android.graphics.Bitmap);
     method public void addExifData(int, byte[], int, int);
     method public void addYuvBuffer(int, byte[]);
     method public void close();
+    method public android.os.Handler? getHandler();
     method public android.view.Surface getInputSurface();
-    method public void setInputEndOfStreamTimestamp(long);
+    method public int getMaxImages();
+    method public int getPrimaryIndex();
+    method public int getQuality();
+    method public int getRotation();
+    method public boolean isGridEnabled();
+    method public boolean isHighBitDepthEnabled();
+    method public void setInputEndOfStreamTimestamp(@IntRange(from=0) long);
     method public void start();
-    method public void stop(long) throws java.lang.Exception;
+    method public void stop(@IntRange(from=0) long) throws java.lang.Exception;
     field public static final int INPUT_MODE_BITMAP = 2; // 0x2
     field public static final int INPUT_MODE_BUFFER = 0; // 0x0
     field public static final int INPUT_MODE_SURFACE = 1; // 0x1
   }
 
   public static final class HeifWriter.Builder {
-    ctor public HeifWriter.Builder(java.io.FileDescriptor, int, int, int);
-    ctor public HeifWriter.Builder(String, int, int, int);
-    method public androidx.heifwriter.HeifWriter! build() throws java.io.IOException;
-    method public androidx.heifwriter.HeifWriter.Builder! setGridEnabled(boolean);
-    method public androidx.heifwriter.HeifWriter.Builder! setHandler(android.os.Handler?);
-    method public androidx.heifwriter.HeifWriter.Builder! setMaxImages(int);
-    method public androidx.heifwriter.HeifWriter.Builder! setPrimaryIndex(int);
-    method public androidx.heifwriter.HeifWriter.Builder! setQuality(int);
-    method public androidx.heifwriter.HeifWriter.Builder! setRotation(int);
+    ctor public HeifWriter.Builder(java.io.FileDescriptor, @IntRange(from=1) int, @IntRange(from=1) int, int);
+    ctor public HeifWriter.Builder(String, @IntRange(from=1) int, @IntRange(from=1) int, int);
+    method public androidx.heifwriter.HeifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.HeifWriter.Builder setGridEnabled(boolean);
+    method public androidx.heifwriter.HeifWriter.Builder setHandler(android.os.Handler?);
+    method public androidx.heifwriter.HeifWriter.Builder setMaxImages(@IntRange(from=1) int);
+    method public androidx.heifwriter.HeifWriter.Builder setPrimaryIndex(@IntRange(from=0) int);
+    method public androidx.heifwriter.HeifWriter.Builder setQuality(@IntRange(from=0, to=100) int);
+    method public androidx.heifwriter.HeifWriter.Builder setRotation(@IntRange(from=0) int);
   }
 
 }

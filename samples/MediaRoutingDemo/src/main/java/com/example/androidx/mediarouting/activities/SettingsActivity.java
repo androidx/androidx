@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
 
@@ -92,6 +93,13 @@ public final class SettingsActivity extends AppCompatActivity {
                         .show();
             }
         };
+
+        Button goToRouteListingPreferenceButton =
+                findViewById(R.id.go_to_route_listing_preference_button);
+        goToRouteListingPreferenceButton.setOnClickListener(
+                unusedView -> {
+                    startActivity(new Intent(this, RouteListingPreferenceActivity.class));
+                });
 
         RecyclerView routeList = findViewById(R.id.routes_recycler_view);
         routeList.setLayoutManager(new LinearLayoutManager(/* context= */ this));

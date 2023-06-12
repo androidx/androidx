@@ -1190,6 +1190,38 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testStringPropertyJoinableType() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty(joinableValueType=1)\n"
+                        + "  String object;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testRepeatedPropertyJoinableType_throwsError() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty(joinableValueType=1)\n"
+                        + "  List<String> object;\n"
+                        + "}\n");
+
+        assertThat(compilation).hadErrorContaining(
+                "Joinable value type 1 not allowed on repeated properties.");
+    }
+
+    @Test
     public void testPropertyName() throws Exception {
         Compilation compilation = compile(
                 "import java.util.*;\n"
@@ -1502,6 +1534,44 @@ public class AppSearchCompilerTest {
 
         assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testMultipleNesting() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.DocumentProperty Middle middleContentA;\n"
+                        + "  @Document.DocumentProperty Middle middleContentB;\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document\n"
+                        + "class Middle {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.DocumentProperty Inner innerContentA;\n"
+                        + "  @Document.DocumentProperty Inner innerContentB;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Inner {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.StringProperty String contents;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+
+        // Check that Gift contains Middle, Middle contains Inner, and Inner returns empty
+        checkResultContains(/* className= */ "Gift.java",
+                /* content= */ "classSet.add(Middle.class);\n    return classSet;");
+        checkResultContains(/* className= */ "Middle.java",
+                /* content= */ "classSet.add(Inner.class);\n    return classSet;");
+        checkResultContains(/* className= */ "Inner.java",
+                /* content= */ "return Collections.emptyList();");
     }
 
     private Compilation compile(String classBody) {

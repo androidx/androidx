@@ -42,6 +42,7 @@ fun TestActivityStack(
     isEmpty: Boolean = false,
 ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty, TEST_ACTIVITY_STACK_TOKEN)
 
+/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting
 @JvmField

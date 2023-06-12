@@ -118,6 +118,11 @@ public class Fade extends Visibility {
                 ViewUtils.getTransitionAlpha(transitionValues.view));
     }
 
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
     /**
      * Utility method to handle creating and running the Animator.
      */
@@ -133,14 +138,6 @@ public class Fade extends Visibility {
         }
         FadeAnimatorListener listener = new FadeAnimatorListener(view);
         anim.addListener(listener);
-        addListener(new TransitionListenerAdapter() {
-            @Override
-            public void onTransitionEnd(@NonNull Transition transition) {
-                ViewUtils.setTransitionAlpha(view, 1);
-                ViewUtils.clearNonTransitionAlpha(view);
-                transition.removeListener(this);
-            }
-        });
         return anim;
     }
 
@@ -153,6 +150,7 @@ public class Fade extends Visibility {
             Log.d(LOG_TAG, "Fade.onAppear: startView, startVis, endView, endVis = "
                     + startView + ", " + view);
         }
+        ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 0);
         if (startAlpha == 1) {
             startAlpha = 0;
@@ -166,7 +164,11 @@ public class Fade extends Visibility {
             @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 1);
-        return createAnimation(view, startAlpha, 0);
+        Animator animator = createAnimation(view, startAlpha, 0);
+        if (animator == null) {
+            ViewUtils.setTransitionAlpha(view, getStartAlpha(endValues, 1f));
+        }
+        return animator;
     }
 
     private static float getStartAlpha(TransitionValues startValues, float fallbackValue) {
@@ -201,11 +203,22 @@ public class Fade extends Visibility {
         @Override
         public void onAnimationEnd(Animator animation) {
             ViewUtils.setTransitionAlpha(mView, 1);
+            ViewUtils.clearNonTransitionAlpha(mView);
             if (mLayerTypeChanged) {
                 mView.setLayerType(View.LAYER_TYPE_NONE, null);
             }
         }
 
+        @Override
+        public void onAnimationEnd(Animator animation, boolean isReverse) {
+            if (!isReverse) {
+                ViewUtils.setTransitionAlpha(mView, 1);
+                ViewUtils.clearNonTransitionAlpha(mView);
+            }
+            if (mLayerTypeChanged) {
+                mView.setLayerType(View.LAYER_TYPE_NONE, null);
+            }
+        }
     }
 
 }

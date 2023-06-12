@@ -579,21 +579,29 @@ public class CameraControllerFragment extends Fragment {
     // For testing
     // -----------------
 
+    /**
+     */
     @VisibleForTesting
     LifecycleCameraController getCameraController() {
         return mCameraController;
     }
 
+    /**
+     */
     @VisibleForTesting
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
         mWrappedAnalyzer = analyzer;
     }
 
+    /**
+     */
     @VisibleForTesting
     PreviewView getPreviewView() {
         return mPreviewView;
     }
 
+    /**
+     */
     @VisibleForTesting
     int getSensorRotation() {
         return mRotation;

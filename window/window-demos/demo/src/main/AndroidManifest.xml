@@ -220,6 +220,34 @@
             android:taskAffinity="androidx.window.demo.split_device_state_activity_affinity">
         </activity>
 
+        <!-- The demo app to show how to change layout with runtime APIs -->
+        <activity
+            android:name=".embedding.SplitAttributesToggleMainActivity"
+            android:exported="true"
+            android:label="Split Toggle at Runtime"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitAttributesTogglePrimaryActivity"
+            android:label="Split Toggle Activity A"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+        <activity
+            android:name=".embedding.SplitAttributesToggleSecondaryActivity"
+            android:label="Split Toggle Activity B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+        <activity
+            android:name=".embedding.SplitAttributesTogglePlaceholderActivity"
+            android:label="Split Toggle Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+
         <!-- The demo app that shows various IME-related use cases -->
 
         <activity android:name=".ImeActivity"

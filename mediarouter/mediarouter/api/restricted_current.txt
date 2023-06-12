@@ -170,8 +170,10 @@ package androidx.mediarouter.media {
     method public android.os.Bundle asBundle();
     method public boolean canDisconnectAndKeepPlaying();
     method public static androidx.mediarouter.media.MediaRouteDescriptor? fromBundle(android.os.Bundle?);
+    method public java.util.Set<java.lang.String!> getAllowedPackages();
     method public int getConnectionState();
     method public java.util.List<android.content.IntentFilter!> getControlFilters();
+    method public java.util.Set<java.lang.String!> getDeduplicationIds();
     method public String? getDescription();
     method public int getDeviceType();
     method public android.os.Bundle? getExtras();
@@ -189,6 +191,7 @@ package androidx.mediarouter.media {
     method public boolean isDynamicGroupRoute();
     method public boolean isEnabled();
     method public boolean isValid();
+    method public boolean isVisibilityPublic();
   }
 
   public static final class MediaRouteDescriptor.Builder {
@@ -201,6 +204,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setCanDisconnect(boolean);
     method @Deprecated public androidx.mediarouter.media.MediaRouteDescriptor.Builder setConnecting(boolean);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setConnectionState(int);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setDeduplicationIds(java.util.Set<java.lang.String!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setDescription(String?);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setDeviceType(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setEnabled(boolean);
@@ -213,6 +217,8 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPlaybackType(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPresentationDisplayId(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setSettingsActivity(android.content.IntentSender?);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVisibilityPublic();
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVisibilityRestricted(java.util.Set<java.lang.String!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVolume(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVolumeHandling(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVolumeMax(int);
@@ -346,7 +352,7 @@ package androidx.mediarouter.media {
     method @MainThread public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback);
     method @MainThread public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int);
     method @MainThread public void addProvider(androidx.mediarouter.media.MediaRouteProvider);
-    method @MainThread public void addRemoteControlClient(Object);
+    method @Deprecated @MainThread public void addRemoteControlClient(Object);
     method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo? getBluetoothRoute();
     method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo getDefaultRoute();
     method @MainThread public static androidx.mediarouter.media.MediaRouter getInstance(android.content.Context);
@@ -363,6 +369,7 @@ package androidx.mediarouter.media {
     method @MainThread public void setMediaSession(Object?);
     method @MainThread public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat?);
     method @MainThread public void setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener?);
+    method @MainThread public void setRouteListingPreference(androidx.mediarouter.media.RouteListingPreference?);
     method @MainThread public void setRouterParams(androidx.mediarouter.media.MediaRouterParams?);
     method @MainThread public void unselect(int);
     method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo updateSelectedRoute(androidx.mediarouter.media.MediaRouteSelector);
@@ -560,6 +567,54 @@ package androidx.mediarouter.media {
     method public void onItemStatusChanged(android.os.Bundle?, String, androidx.mediarouter.media.MediaSessionStatus?, String, androidx.mediarouter.media.MediaItemStatus);
     method public void onSessionChanged(String?);
     method public void onSessionStatusChanged(android.os.Bundle?, String, androidx.mediarouter.media.MediaSessionStatus?);
+  }
+
+  public final class RouteListingPreference {
+    method public java.util.List<androidx.mediarouter.media.RouteListingPreference.Item!> getItems();
+    method public android.content.ComponentName? getLinkedItemComponentName();
+    method public boolean getUseSystemOrdering();
+    field public static final String ACTION_TRANSFER_MEDIA = "android.media.action.TRANSFER_MEDIA";
+    field public static final String EXTRA_ROUTE_ID = "android.media.extra.ROUTE_ID";
+  }
+
+  public static final class RouteListingPreference.Builder {
+    ctor public RouteListingPreference.Builder();
+    method public androidx.mediarouter.media.RouteListingPreference build();
+    method public androidx.mediarouter.media.RouteListingPreference.Builder setItems(java.util.List<androidx.mediarouter.media.RouteListingPreference.Item!>);
+    method public androidx.mediarouter.media.RouteListingPreference.Builder setLinkedItemComponentName(android.content.ComponentName?);
+    method public androidx.mediarouter.media.RouteListingPreference.Builder setUseSystemOrdering(boolean);
+  }
+
+  public static final class RouteListingPreference.Item {
+    method public CharSequence? getCustomSubtextMessage();
+    method public int getFlags();
+    method public String getRouteId();
+    method public int getSelectionBehavior();
+    method public int getSubText();
+    field public static final int FLAG_ONGOING_SESSION = 1; // 0x1
+    field public static final int FLAG_ONGOING_SESSION_MANAGED = 2; // 0x2
+    field public static final int FLAG_SUGGESTED = 4; // 0x4
+    field public static final int SELECTION_BEHAVIOR_GO_TO_APP = 2; // 0x2
+    field public static final int SELECTION_BEHAVIOR_NONE = 0; // 0x0
+    field public static final int SELECTION_BEHAVIOR_TRANSFER = 1; // 0x1
+    field public static final int SUBTEXT_AD_ROUTING_DISALLOWED = 4; // 0x4
+    field public static final int SUBTEXT_CUSTOM = 10000; // 0x2710
+    field public static final int SUBTEXT_DEVICE_LOW_POWER = 5; // 0x5
+    field public static final int SUBTEXT_DOWNLOADED_CONTENT_ROUTING_DISALLOWED = 3; // 0x3
+    field public static final int SUBTEXT_ERROR_UNKNOWN = 1; // 0x1
+    field public static final int SUBTEXT_NONE = 0; // 0x0
+    field public static final int SUBTEXT_SUBSCRIPTION_REQUIRED = 2; // 0x2
+    field public static final int SUBTEXT_TRACK_UNSUPPORTED = 7; // 0x7
+    field public static final int SUBTEXT_UNAUTHORIZED = 6; // 0x6
+  }
+
+  public static final class RouteListingPreference.Item.Builder {
+    ctor public RouteListingPreference.Item.Builder(String);
+    method public androidx.mediarouter.media.RouteListingPreference.Item build();
+    method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setCustomSubtextMessage(CharSequence?);
+    method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setFlags(int);
+    method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setSelectionBehavior(int);
+    method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setSubText(int);
   }
 
 }

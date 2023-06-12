@@ -16,9 +16,12 @@
 
 package androidx.media.app;
 
+import static android.Manifest.permission.MEDIA_CONTENT_CONTROL;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.app.NotificationCompat.COLOR_DEFAULT;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.media.session.MediaSession;
@@ -31,10 +34,16 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.NotificationBuilderWithBuilderAccessor;
+import androidx.core.os.BuildCompat;
 import androidx.media.R;
 
 /**
@@ -133,6 +142,10 @@ public class NotificationCompat {
         MediaSessionCompat.Token mToken;
         boolean mShowCancelButton;
         PendingIntent mCancelButtonIntent;
+        CharSequence mDeviceName;
+        int mDeviceIcon;
+        PendingIntent mDeviceIntent;
+        boolean mShowRemotePlaybackInfo = false;
 
         public MediaStyle() {
         }
@@ -158,6 +171,36 @@ public class NotificationCompat {
          */
         public MediaStyle setMediaSession(MediaSessionCompat.Token token) {
             mToken = token;
+            return this;
+        }
+
+        /**
+         * For media notifications associated with playback on a remote device, provide device
+         * information that will replace the default values for the output switcher chip on the
+         * media control, as well as an intent to use when the output switcher chip is tapped,
+         * on devices where this is supported.
+         * <p>
+         * This method is intended for system applications to provide information and/or
+         * functionality that would otherwise be unavailable to the default output switcher because
+         * the media originated on a remote device.
+         * <p>
+         * Also note that this method is a no-op when running on Tiramisu or less.
+         *
+         * @param deviceName The name of the remote device to display.
+         * @param iconResource Icon resource, of size 12, representing the device.
+         * @param chipIntent PendingIntent to send when the output switcher is tapped. May be
+         *                   {@code null}, in which case the output switcher will be disabled.
+         *                   This intent should open an Activity or it will be ignored.
+         * @return MediaStyle
+         */
+        @RequiresPermission(MEDIA_CONTENT_CONTROL)
+        @NonNull
+        public MediaStyle setRemotePlaybackInfo(@NonNull CharSequence deviceName,
+                @DrawableRes int iconResource, @Nullable PendingIntent chipIntent) {
+            mDeviceName = deviceName;
+            mDeviceIcon = iconResource;
+            mDeviceIntent = chipIntent;
+            mShowRemotePlaybackInfo = true;
             return this;
         }
 
@@ -205,10 +248,17 @@ public class NotificationCompat {
 
         /**
          */
+        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         @RestrictTo(LIBRARY)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 21) {
+            if (BuildCompat.isAtLeastU()) {
+                Api21Impl.setMediaStyle(builder.getBuilder(),
+                        Api21Impl.fillInMediaStyle(Api34Impl.setRemotePlaybackInfo(
+                                Api21Impl.createMediaStyle(), mDeviceName, mDeviceIcon,
+                                        mDeviceIntent, mShowRemotePlaybackInfo),
+                                mActionsToShowInCompact, mToken));
+            } else if (Build.VERSION.SDK_INT >= 21) {
                 Api21Impl.setMediaStyle(builder.getBuilder(),
                         Api21Impl.fillInMediaStyle(Api21Impl.createMediaStyle(),
                                 mActionsToShowInCompact, mToken));
@@ -370,10 +420,17 @@ public class NotificationCompat {
 
         /**
          */
+        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         @RestrictTo(LIBRARY)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 24) {
+            if (BuildCompat.isAtLeastU()) {
+                Api21Impl.setMediaStyle(builder.getBuilder(), Api21Impl.fillInMediaStyle(
+                        Api34Impl.setRemotePlaybackInfo(
+                                Api24Impl.createDecoratedMediaCustomViewStyle(), mDeviceName,
+                                mDeviceIcon, mDeviceIntent, mShowRemotePlaybackInfo),
+                        mActionsToShowInCompact, mToken));
+            } else if (Build.VERSION.SDK_INT >= 24) {
                 Api21Impl.setMediaStyle(builder.getBuilder(),
                         Api21Impl.fillInMediaStyle(Api24Impl.createDecoratedMediaCustomViewStyle(),
                                 mActionsToShowInCompact, mToken));
@@ -542,6 +599,26 @@ public class NotificationCompat {
         @DoNotInline
         static Notification.MediaStyle createDecoratedMediaCustomViewStyle() {
             return new Notification.DecoratedMediaCustomViewStyle();
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+
+        private Api34Impl() {}
+
+        @SuppressLint({"MissingPermission"})
+        @DoNotInline
+        static Notification.MediaStyle setRemotePlaybackInfo(Notification.MediaStyle style,
+                @NonNull CharSequence deviceName, @DrawableRes int iconResource,
+                @Nullable PendingIntent chipIntent, Boolean showRemotePlaybackInfo) {
+            // Suppress @RequiresPermission(MEDIA_CONTENT_CONTROL) because the API is only used
+            // if showRemotePlaybackInfo is set to true. This only happens for callers to
+            // NotificationCompat#setRemotePlaybackInfo.
+            if (showRemotePlaybackInfo) {
+                style.setRemotePlaybackInfo(deviceName, iconResource, chipIntent);
+            }
+            return style;
         }
     }
 }

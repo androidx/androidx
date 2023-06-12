@@ -18,6 +18,7 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -43,8 +44,10 @@ public final class GetSchemaResponseToPlatformConverter {
      * Translates a platform {@link android.app.appsearch.GetSchemaResponse} into a jetpack
      * {@link GetSchemaResponse}.
      */
-    @NonNull
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
     @BuildCompat.PrereleaseSdkCheck
+    @NonNull
     public static GetSchemaResponse toJetpackGetSchemaResponse(
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
         Preconditions.checkNotNull(platformResponse);
@@ -60,17 +63,18 @@ public final class GetSchemaResponseToPlatformConverter {
             jetpackBuilder.addSchema(SchemaToPlatformConverter.toJetpackSchema(platformSchema));
         }
         jetpackBuilder.setVersion(platformResponse.getVersion());
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Convert schemas not displayed by system
             for (String schemaTypeNotDisplayedBySystem :
-                    platformResponse.getSchemaTypesNotDisplayedBySystem()) {
+                    ApiHelperForT.getSchemaTypesNotDisplayedBySystem(platformResponse)) {
                 jetpackBuilder.addSchemaTypeNotDisplayedBySystem(schemaTypeNotDisplayedBySystem);
             }
             // Convert schemas visible to packages
             convertSchemasVisibleToPackages(platformResponse, jetpackBuilder);
             // Convert schemas visible to permissions
             for (Map.Entry<String, Set<Set<Integer>>> entry :
-                    platformResponse.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {
+                    ApiHelperForT.getRequiredPermissionsForSchemaTypeVisibility(platformResponse)
+                            .entrySet()) {
                 jetpackBuilder.setRequiredPermissionsForSchemaTypeVisibility(entry.getKey(),
                         entry.getValue());
             }
@@ -90,7 +94,7 @@ public final class GetSchemaResponseToPlatformConverter {
         //  incorrectly returns {@code null} in some prerelease versions of Android T. Remove
         //  this workaround after the issue is fixed in T.
         Map<String, Set<android.app.appsearch.PackageIdentifier>> schemaTypesVisibleToPackages =
-                platformResponse.getSchemaTypesVisibleToPackages();
+                ApiHelperForT.getSchemaTypesVisibleToPackage(platformResponse);
         if (schemaTypesVisibleToPackages != null) {
             for (Map.Entry<String, Set<android.app.appsearch.PackageIdentifier>> entry
                     : schemaTypesVisibleToPackages.entrySet()) {
@@ -105,6 +109,32 @@ public final class GetSchemaResponseToPlatformConverter {
                 jetpackBuilder.setSchemaTypeVisibleToPackages(
                         entry.getKey(), jetpackPackageIdentifiers);
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForT {
+        private ApiHelperForT() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Set<String> getSchemaTypesNotDisplayedBySystem(
+                android.app.appsearch.GetSchemaResponse platformResponse) {
+            return platformResponse.getSchemaTypesNotDisplayedBySystem();
+        }
+
+        @DoNotInline
+        static Map<String, Set<android.app.appsearch.PackageIdentifier>>
+                getSchemaTypesVisibleToPackage(
+                    android.app.appsearch.GetSchemaResponse platformResponse) {
+            return platformResponse.getSchemaTypesVisibleToPackages();
+        }
+
+        @DoNotInline
+        static Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility(
+                android.app.appsearch.GetSchemaResponse platformResponse) {
+            return platformResponse.getRequiredPermissionsForSchemaTypeVisibility();
         }
     }
 }

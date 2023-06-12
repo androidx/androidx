@@ -18,7 +18,9 @@ package androidx.credentials
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 
 /**
  * Factory that returns the credential provider to be used by Credential Manager.
@@ -26,6 +28,7 @@ import android.util.Log
 internal class CredentialProviderFactory {
     companion object {
         private const val TAG = "CredProviderFactory"
+        private const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 
         /** The metadata key to be used when specifying the provider class name in the
          * android manifest file. */
@@ -38,7 +41,18 @@ internal class CredentialProviderFactory {
          * Post-U, providers will be registered with the framework, and enabled by the user.
          */
         fun getBestAvailableProvider(context: Context): CredentialProvider? {
-            return tryCreatePreUOemProvider(context)
+            return if (Build.VERSION.SDK_INT >= 34) { // Android U
+                CredentialProviderFrameworkImpl(context)
+            } else if (Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) {
+                tryCreatePreUOemProvider(context)
+            } else {
+                null
+            }
+        }
+
+        @RequiresApi(34)
+        fun getUAndAboveProvider(context: Context): CredentialProvider {
+            return CredentialProviderFrameworkImpl(context)
         }
 
         private fun tryCreatePreUOemProvider(context: Context): CredentialProvider? {

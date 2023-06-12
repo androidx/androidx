@@ -224,11 +224,17 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
             mGroupDescriptor = groupRouteBuilder.build();
             mTvSelectedCount = countTvFromRoute(mGroupDescriptor);
 
-            // Initialize DynamicRouteDescriptor with all the route descriptors.
+            RoutesManager routesManager = RoutesManager.getInstance(getContext());
+
+            // Initialize DynamicRouteDescriptor with all the non-sender-driven descriptors.
             List<MediaRouteDescriptor> routeDescriptors = getDescriptor().getRoutes();
             if (routeDescriptors != null && !routeDescriptors.isEmpty()) {
                 for (MediaRouteDescriptor descriptor: routeDescriptors) {
                     String routeId = descriptor.getId();
+                    RouteItem item = routesManager.getRouteWithId(routeId);
+                    if (item != null && item.isSenderDriven()) {
+                        continue;
+                    }
                     boolean selected = memberIds.contains(routeId);
                     DynamicRouteDescriptor.Builder builder =
                             new DynamicRouteDescriptor.Builder(descriptor)

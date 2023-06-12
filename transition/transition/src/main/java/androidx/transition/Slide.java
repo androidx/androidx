@@ -194,6 +194,11 @@ public class Slide extends Visibility {
         captureValues(transitionValues);
     }
 
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
     /**
      * Change the edge that Views appear and disappear from.
      *
