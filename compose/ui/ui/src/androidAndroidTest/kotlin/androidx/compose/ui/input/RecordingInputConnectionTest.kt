@@ -167,13 +167,17 @@ class RecordingInputConnectionTest {
                 monitor = true,
                 includeInsertionMarker = true,
                 includeCharacterBounds = true,
-                includeEditorBounds = false
+                includeEditorBounds = false,
+                includeLineBounds = false
             )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.TIRAMISU,
+        maxSdkVersion = Build.VERSION_CODES.TIRAMISU
+    )
     @Test
-    fun requestCursorUpdates_atLeastT_filterFlags() {
+    fun requestCursorUpdates_T_filterFlags() {
         ic.requestCursorUpdates(
             InputConnection.CURSOR_UPDATE_MONITOR or
                 InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS
@@ -185,13 +189,17 @@ class RecordingInputConnectionTest {
                 monitor = true,
                 includeInsertionMarker = false,
                 includeCharacterBounds = false,
-                includeEditorBounds = true
+                includeEditorBounds = true,
+                includeLineBounds = false
             )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.TIRAMISU,
+        maxSdkVersion = Build.VERSION_CODES.TIRAMISU
+    )
     @Test
-    fun requestCursorUpdates_atLeastT_noFilterFlags() {
+    fun requestCursorUpdates_T_noFilterFlags() {
         ic.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
 
         verify(mCallback)
@@ -200,7 +208,44 @@ class RecordingInputConnectionTest {
                 monitor = false,
                 includeInsertionMarker = true,
                 includeCharacterBounds = true,
-                includeEditorBounds = true
+                includeEditorBounds = true,
+                includeLineBounds = false
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun requestCursorUpdates_atLeastU_filterFlags() {
+        ic.requestCursorUpdates(
+            InputConnection.CURSOR_UPDATE_MONITOR or
+                InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS or
+                InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS
+        )
+
+        verify(mCallback)
+            .onRequestCursorAnchorInfo(
+                immediate = false,
+                monitor = true,
+                includeInsertionMarker = false,
+                includeCharacterBounds = true,
+                includeEditorBounds = false,
+                includeLineBounds = true
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun requestCursorUpdates_atLeastU_noFilterFlags() {
+        ic.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
+
+        verify(mCallback)
+            .onRequestCursorAnchorInfo(
+                immediate = true,
+                monitor = false,
+                includeInsertionMarker = true,
+                includeCharacterBounds = true,
+                includeEditorBounds = true,
+                includeLineBounds = true
             )
     }
 

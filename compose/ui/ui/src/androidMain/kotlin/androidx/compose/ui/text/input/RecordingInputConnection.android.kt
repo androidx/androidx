@@ -271,6 +271,7 @@ internal class RecordingInputConnection(
         var includeInsertionMarker = true
         var includeCharacterBounds = true
         var includeEditorBounds = false
+        var includeLineBounds = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             includeInsertionMarker =
                 cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_INSERTION_MARKER != 0
@@ -278,16 +279,34 @@ internal class RecordingInputConnection(
                 cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS != 0
             includeEditorBounds =
                 cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS != 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                includeLineBounds =
+                    cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS !=
+                        0
+            }
             // If no filter flags are used, then all info should be included.
-            if (!includeInsertionMarker && !includeCharacterBounds && !includeEditorBounds) {
+            if (
+                !includeInsertionMarker &&
+                    !includeCharacterBounds &&
+                    !includeEditorBounds &&
+                    !includeLineBounds
+            ) {
                 includeInsertionMarker = true
                 includeCharacterBounds = true
                 includeEditorBounds = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    includeLineBounds = true
+                }
             }
         }
 
         eventCallback.onRequestCursorAnchorInfo(
-            immediate, monitor, includeInsertionMarker, includeCharacterBounds, includeEditorBounds
+            immediate,
+            monitor,
+            includeInsertionMarker,
+            includeCharacterBounds,
+            includeEditorBounds,
+            includeLineBounds
         )
         return true
     }

@@ -51,7 +51,8 @@ internal interface InputEventCallback2 {
         monitor: Boolean,
         includeInsertionMarker: Boolean,
         includeCharacterBounds: Boolean,
-        includeEditorBounds: Boolean
+        includeEditorBounds: Boolean,
+        includeLineBounds: Boolean
     )
 
     /**
