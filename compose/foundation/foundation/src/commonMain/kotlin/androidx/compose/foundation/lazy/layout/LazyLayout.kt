@@ -81,8 +81,7 @@ internal fun LazyLayout(
                     with(
                         LazyLayoutMeasureScopeImpl(
                             itemContentFactory,
-                            this,
-                            prefetchState?.prefetcher?.timeTracker
+                            this
                         )
                     ) {
                         measurePolicy(constraints)
