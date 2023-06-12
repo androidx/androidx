@@ -55,7 +55,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -78,30 +77,28 @@ class PagingDataDifferTest(
 
     @Test
     fun collectFrom_static() = testScope.runTest {
-        withContext(coroutineContext) {
-            val differ = SimpleDiffer(dummyDifferCallback)
-            val receiver = UiReceiverFake()
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val receiver = UiReceiverFake()
 
-            val job1 = launch {
-                differ.collectFrom(infinitelySuspendingPagingData(receiver))
-            }
-            advanceUntilIdle()
-            job1.cancel()
-
-            val job2 = launch {
-                differ.collectFrom(PagingData.empty())
-            }
-            advanceUntilIdle()
-            job2.cancel()
-
-            // Static replacement should also replace the UiReceiver from previous generation.
-            differ.retry()
-            differ.refresh()
-            advanceUntilIdle()
-
-            assertFalse { receiver.retryEvents.isNotEmpty() }
-            assertFalse { receiver.refreshEvents.isNotEmpty() }
+        val job1 = launch {
+            differ.collectFrom(infinitelySuspendingPagingData(receiver))
         }
+        advanceUntilIdle()
+        job1.cancel()
+
+        val job2 = launch {
+            differ.collectFrom(PagingData.empty())
+        }
+        advanceUntilIdle()
+        job2.cancel()
+
+        // Static replacement should also replace the UiReceiver from previous generation.
+        differ.retry()
+        differ.refresh()
+        advanceUntilIdle()
+
+        assertFalse { receiver.retryEvents.isNotEmpty() }
+        assertFalse { receiver.refreshEvents.isNotEmpty() }
     }
 
     @Test
@@ -1330,49 +1327,47 @@ class PagingDataDifferTest(
     @Test
     fun addLoadStateListener_SynchronouslyUpdates() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
-        withContext(coroutineContext) {
-            var combinedLoadStates: CombinedLoadStates? = null
-            var itemCount = -1
-            differ.addLoadStateListener {
-                combinedLoadStates = it
-                itemCount = differ.size
-            }
-
-            val pager = Pager(
-                config = PagingConfig(
-                    pageSize = 10,
-                    enablePlaceholders = false,
-                    initialLoadSize = 10,
-                    prefetchDistance = 1
-                ),
-                initialKey = 50
-            ) { TestPagingSource() }
-            val job = launch {
-                pager.flow.collectLatest { differ.collectFrom(it) }
-            }
-
-            // Initial refresh
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(10, itemCount)
-            assertEquals(10, differ.size)
-
-            // Append
-            differ[9]
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(20, itemCount)
-            assertEquals(20, differ.size)
-
-            // Prepend
-            differ[0]
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(30, itemCount)
-            assertEquals(30, differ.size)
-
-            job.cancel()
+        var combinedLoadStates: CombinedLoadStates? = null
+        var itemCount = -1
+        differ.addLoadStateListener {
+            combinedLoadStates = it
+            itemCount = differ.size
         }
+
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                initialLoadSize = 10,
+                prefetchDistance = 1
+            ),
+            initialKey = 50
+        ) { TestPagingSource() }
+        val job = launch {
+            pager.flow.collectLatest { differ.collectFrom(it) }
+        }
+
+        // Initial refresh
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(10, itemCount)
+        assertEquals(10, differ.size)
+
+        // Append
+        differ[9]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(20, itemCount)
+        assertEquals(20, differ.size)
+
+        // Prepend
+        differ[0]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(30, itemCount)
+        assertEquals(30, differ.size)
+
+        job.cancel()
     }
 
     @Test
