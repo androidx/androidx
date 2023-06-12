@@ -915,15 +915,24 @@ class TopAppBarState(
  * Represents the colors used by a top app bar in different states.
  * This implementation animates the container color according to the top app bar scroll state. It
  * does not animate the leading, headline, or trailing colors.
+ *
+ * @constructor create an instance with arbitrary colors, see [TopAppBarColors] for a
+ * factory method using the default material3 spec
+ * @param containerColor the color used for the background of this BottomAppBar. Use
+ * [Color.Transparent] to have no color.
+ * @param scrolledContainerColor the container color when content is scrolled behind it
+ * @param navigationIconContentColor the content color used for the navigation icon
+ * @param titleContentColor the content color used for the title
+ * @param actionIconContentColor the content color used for actions
  */
 @ExperimentalMaterial3Api
 @Stable
-class TopAppBarColors internal constructor(
-    private val containerColor: Color,
-    private val scrolledContainerColor: Color,
-    internal val navigationIconContentColor: Color,
-    internal val titleContentColor: Color,
-    internal val actionIconContentColor: Color,
+class TopAppBarColors constructor(
+    val containerColor: Color,
+    val scrolledContainerColor: Color,
+    val navigationIconContentColor: Color,
+    val titleContentColor: Color,
+    val actionIconContentColor: Color,
 ) {
 
     /**

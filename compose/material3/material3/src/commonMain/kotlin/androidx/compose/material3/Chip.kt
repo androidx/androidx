@@ -1599,16 +1599,22 @@ class ChipElevation internal constructor(
  * Note that this default implementation does not take into consideration the `selectable` state
  * passed into its [tonalElevation] and [shadowElevation]. If you wish to apply that state, use a
  * different [SelectableChipElevation].
+ *
+ * @param pressedElevation the elevation used when the chip is pressed.
+ * @param focusedElevation the elevation used when the chip is focused
+ * @param hoveredElevation the elevation used when the chip is hovered
+ * @param draggedElevation the elevation used when the chip is dragged
+ * @param disabledElevation the elevation used when the chip is not enabled
  */
 @ExperimentalMaterial3Api
 @Immutable
 class SelectableChipElevation internal constructor(
-    private val elevation: Dp,
-    private val pressedElevation: Dp,
-    private val focusedElevation: Dp,
-    private val hoveredElevation: Dp,
-    private val draggedElevation: Dp,
-    private val disabledElevation: Dp
+    val elevation: Dp,
+    val pressedElevation: Dp,
+    val focusedElevation: Dp,
+    val hoveredElevation: Dp,
+    val draggedElevation: Dp,
+    val disabledElevation: Dp
 ) {
     /**
      * Represents the tonal elevation used in a chip, depending on [enabled] and
@@ -1753,19 +1759,29 @@ class SelectableChipElevation internal constructor(
 /**
  * Represents the container and content colors used in a clickable chip in different states.
  *
- * See [AssistChipDefaults], [InputChipDefaults], and [SuggestionChipDefaults] for the default
- * colors used in the various Chip configurations.
+ * @constructor create an instance with arbitrary colors, see [AssistChipDefaults],
+ * [InputChipDefaults], and [SuggestionChipDefaults] for the default colors used in the various Chip
+ * configurations.
+ *
+ * @param containerColor the container color of this chip when enabled
+ * @param labelColor the label color of this chip when enabled
+ * @param leadingIconContentColor the color of this chip's start icon when enabled
+ * @param trailingIconContentColor the color of this chip's end icon when enabled
+ * @param disabledContainerColor the container color of this chip when not enabled
+ * @param disabledLabelColor the label color of this chip when not enabled
+ * @param disabledLeadingIconContentColor the color of this chip's start icon when not enabled
+ * @param disabledTrailingIconContentColor the color of this chip's end icon when not enabled
  */
 @Immutable
-class ChipColors internal constructor(
-    private val containerColor: Color,
-    private val labelColor: Color,
-    private val leadingIconContentColor: Color,
-    private val trailingIconContentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledLabelColor: Color,
-    private val disabledLeadingIconContentColor: Color,
-    private val disabledTrailingIconContentColor: Color
+class ChipColors constructor(
+    val containerColor: Color,
+    val labelColor: Color,
+    val leadingIconContentColor: Color,
+    val trailingIconContentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledLabelColor: Color,
+    val disabledLeadingIconContentColor: Color,
+    val disabledTrailingIconContentColor: Color
     // TODO(b/113855296): Support other states: hover, focus, drag
 ) {
     /**
@@ -1850,7 +1866,7 @@ class ChipColors internal constructor(
  */
 @ExperimentalMaterial3Api
 @Immutable
-class SelectableChipColors internal constructor(
+class SelectableChipColors constructor(
     private val containerColor: Color,
     private val labelColor: Color,
     private val leadingIconColor: Color,
