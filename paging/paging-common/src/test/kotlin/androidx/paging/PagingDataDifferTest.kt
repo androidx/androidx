@@ -2182,7 +2182,6 @@ class PagingDataDifferTest(
             pagingSourceFactory = {
                 TestPagingSource(
                     loadDelay = 1000,
-                    loadContext = coroutineContext,
                 ).also { pagingSources.add(it) }
             }
         )
