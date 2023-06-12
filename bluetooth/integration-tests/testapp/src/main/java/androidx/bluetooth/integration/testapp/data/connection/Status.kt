@@ -17,8 +17,7 @@
 package androidx.bluetooth.integration.testapp.data.connection
 
 enum class Status {
-    NOT_CONNECTED,
+    DISCONNECTED,
     CONNECTING,
-    CONNECTED,
-    CONNECTION_FAILED
+    CONNECTED
 }

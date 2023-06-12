@@ -343,7 +343,7 @@ class ScannerFragment : Fragment() {
                     Log.d(TAG, "connectGatt() CancellationException")
                 } else {
                     Log.e(TAG, "connectGatt() exception", exception)
-                    deviceConnection.status = Status.CONNECTION_FAILED
+                    deviceConnection.status = Status.DISCONNECTED
                     launch(Dispatchers.Main) {
                         updateDeviceUI(deviceConnection)
                     }
@@ -357,7 +357,7 @@ class ScannerFragment : Fragment() {
 
         deviceConnection.job?.cancel(MANUAL_DISCONNECT)
         deviceConnection.job = null
-        deviceConnection.status = Status.NOT_CONNECTED
+        deviceConnection.status = Status.DISCONNECTED
         updateDeviceUI(deviceConnection)
     }
 
@@ -368,8 +368,8 @@ class ScannerFragment : Fragment() {
         binding.buttonDisconnect.isVisible = false
 
         when (deviceConnection.status) {
-            Status.NOT_CONNECTED -> {
-                binding.textViewDeviceConnectionStatus.text = getString(R.string.not_connected)
+            Status.DISCONNECTED -> {
+                binding.textViewDeviceConnectionStatus.text = getString(R.string.disconnected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.green_500))
                 binding.buttonReconnect.isVisible = true
             }
@@ -382,11 +382,6 @@ class ScannerFragment : Fragment() {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.indigo_500))
                 binding.buttonDisconnect.isVisible = true
-            }
-            Status.CONNECTION_FAILED -> {
-                binding.textViewDeviceConnectionStatus.text = getString(R.string.connection_failed)
-                binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.red_500))
-                binding.buttonReconnect.isVisible = true
             }
         }
         deviceServicesAdapter?.deviceConnection = deviceConnection

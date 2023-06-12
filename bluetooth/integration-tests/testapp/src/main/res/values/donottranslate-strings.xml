@@ -33,10 +33,9 @@
     <string name="reconnect">Reconnect</string>
     <string name="disconnect">Disconnect</string>
     <string name="scan_results">Scan Results</string>
-    <string name="not_connected">Not Connected</string>
+    <string name="disconnected">Disconnected</string>
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
-    <string name="connection_failed">Connection Failed</string>
     <string name="generic_attribute">Generic Attribute</string>
     <string name="uuid">uuid</string>
     <string name="properties">Properties</string>
