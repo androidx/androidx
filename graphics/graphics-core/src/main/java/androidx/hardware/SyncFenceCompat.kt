@@ -138,7 +138,7 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @androidx.annotation.DoNotInline
         fun createSyncFenceCompatV33(): SyncFenceCompat {
-            val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+            val display = EGL14.eglGetCurrentDisplay()
             if (display == EGL15.EGL_NO_DISPLAY) {
                 throw RuntimeException("no EGL display")
             }
