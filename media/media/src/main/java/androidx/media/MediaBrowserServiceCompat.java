@@ -79,7 +79,9 @@ import android.support.v4.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -93,7 +95,6 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -184,7 +185,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     final ArrayList<ConnectionRecord> mPendingConnections = new ArrayList<>();
     final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap<>();
     ConnectionRecord mCurConnection;
-    final ServiceHandler mHandler = new ServiceHandler(/* serviceRef= */ this);
+    final ServiceHandler mHandler = new ServiceHandler(/* service= */ this);
     MediaSessionCompat.Token mSession;
 
     interface MediaBrowserServiceImpl {
@@ -660,21 +661,28 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     private static final class ServiceHandler extends Handler {
-        private final WeakReference<MediaBrowserServiceCompat> mServiceWeakRef;
 
-        ServiceHandler(MediaBrowserServiceCompat serviceRef) {
-            mServiceWeakRef = new WeakReference<>(serviceRef);
+        // Must only be accessed on the main thread.
+        @Nullable private MediaBrowserServiceCompat mService;
+
+        @MainThread
+        ServiceHandler(@NonNull MediaBrowserServiceCompat service) {
+            mService = service;
         }
 
         @Override
-        @SuppressWarnings("deprecation")
+        @MainThread
         public void handleMessage(@NonNull Message msg) {
-            MediaBrowserServiceCompat service = mServiceWeakRef.get();
-            if (service != null) {
-                service.handleMessageInternal(msg);
+            if (mService != null) {
+                mService.handleMessageInternal(msg);
             } else {
                 removeCallbacksAndMessages(/* token= */ null);
             }
+        }
+
+        @MainThread
+        public void release() {
+            mService = null;
         }
 
         @Override
@@ -1247,6 +1255,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
             mImpl = new MediaBrowserServiceImplBase();
         }
         mImpl.onCreate();
+    }
+
+    @CallSuper
+    @MainThread
+    @Override
+    public void onDestroy() {
+        mHandler.release();
     }
 
     @Override
