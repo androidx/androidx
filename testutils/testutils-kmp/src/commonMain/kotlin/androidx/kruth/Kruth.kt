@@ -36,6 +36,10 @@ fun assertThat(actual: Boolean?): BooleanSubject {
     return BooleanSubject(actual)
 }
 
+fun assertThat(actual: Double?): DoubleSubject {
+    return DoubleSubject(actual)
+}
+
 fun assertThat(actual: String?): StringSubject {
     return StringSubject(actual)
 }
