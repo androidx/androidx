@@ -47,6 +47,7 @@ import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.test.core.app.ApplicationProvider
@@ -116,7 +117,8 @@ internal class CaptureSessionFactoryTest {
                     testCamera.metadata,
                     testCamera.cameraDevice,
                     testCamera.cameraId,
-                    cameraErrorListener
+                    cameraErrorListener,
+                    threads = FakeThreads.fromTestScope(this)
                 ),
                 mapOf(stream1.id to surface),
                 captureSessionState =

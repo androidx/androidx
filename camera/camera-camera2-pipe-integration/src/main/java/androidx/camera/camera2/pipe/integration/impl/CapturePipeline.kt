@@ -256,6 +256,12 @@ class CapturePipelineImpl @Inject constructor(
                             completeSignal.complete(null)
                         }
 
+                        @Deprecated(
+                            message = "Migrating to using RequestFailureWrapper instead of " +
+                                "CaptureFailure",
+                            level = DeprecationLevel.WARNING,
+                            replaceWith = ReplaceWith("onFailed")
+                        )
                         @SuppressLint("ClassVerificationFailure")
                         override fun onFailed(
                             requestMetadata: RequestMetadata,
@@ -283,7 +289,8 @@ class CapturePipelineImpl @Inject constructor(
             } catch (_: CancellationException) {
                 info {
                     "CapturePipeline#submitRequestInternal:" +
-                    " CameraGraph.Session could not be acquired, requests may need re-submission"
+                        " CameraGraph.Session could not be acquired, requests may need " +
+                        "re-submission"
                 }
 
                 // completing the requests exceptionally so that they are retried with next camera
@@ -324,6 +331,7 @@ class CapturePipelineImpl @Inject constructor(
                     CaptureResult.CONTROL_AE_STATE
                 ) == CONTROL_AE_STATE_FLASH_REQUIRED
             }
+
             FLASH_MODE_OFF -> false
             else -> throw AssertionError(flashMode)
         }

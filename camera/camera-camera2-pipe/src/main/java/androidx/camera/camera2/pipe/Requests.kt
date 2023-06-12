@@ -141,6 +141,17 @@ data class Request(
         ) {
         }
 
+        @Deprecated(
+            message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+            level = DeprecationLevel.WARNING
+        )
+        fun onFailed(
+            requestMetadata: RequestMetadata,
+            frameNumber: FrameNumber,
+            captureFailure: CaptureFailure
+        ) {
+        }
+
         /**
          * onFailed occurs when a CaptureRequest failed in some way and the frame will not receive
          * the [onTotalCaptureResult] callback.
@@ -149,13 +160,13 @@ data class Request(
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
-         * @param captureFailure the android [CaptureFailure] data
+         * @param requestFailureWrapper the android [RequestFailureWrapper] data wrapper
          * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureFailed
          */
         fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            captureFailure: CaptureFailure
+            requestFailureWrapper: RequestFailureWrapper
         ) {
         }
 
@@ -236,6 +247,23 @@ data class Request(
     @Suppress("UNCHECKED_CAST")
     private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? =
         this.parameters[key] as T?
+}
+
+/**
+ * Interface wrapper for [CaptureFailure].
+ *
+ * This interface should be used instead of [CaptureFailure] because its package-private
+ * constructor prevents directly creating an instance of it.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface RequestFailureWrapper {
+    val requestMetadata: RequestMetadata
+
+    val frameNumber: FrameNumber
+
+    val reason: Int
+
+    val wasImageCaptured: Boolean
 }
 
 /**
