@@ -39,7 +39,7 @@ object DeviceInfo {
 
     val isEngBuild = Build.FINGERPRINT.contains(":eng/")
 
-    val isRooted =
+    val isRooted = Build.FINGERPRINT.contains(":userdebug/") ||
         arrayOf(
             "/system/app/Superuser.apk",
             "/sbin/su",

@@ -37,6 +37,19 @@ android {
         )
     }
     namespace "androidx.benchmark"
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version libs.versions.cmake.get()
+        }
+    }
 }
 
 wire {
