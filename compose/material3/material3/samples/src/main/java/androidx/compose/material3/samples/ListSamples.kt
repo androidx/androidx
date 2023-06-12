@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -31,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun OneLineListItem() {
     Column {
         ListItem(
@@ -50,7 +48,6 @@ fun OneLineListItem() {
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun TwoLineListItem() {
     Column {
         ListItem(
@@ -71,7 +68,6 @@ fun TwoLineListItem() {
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun ThreeLineListItem() {
     Column {
         ListItem(
