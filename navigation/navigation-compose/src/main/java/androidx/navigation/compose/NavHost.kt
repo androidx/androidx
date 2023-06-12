@@ -244,6 +244,8 @@ public fun NavHost(
         visibleEntries.lastOrNull()
     }
 
+    val zIndices = remember { mutableMapOf<String, Float>() }
+
     if (backStackEntry != null) {
         val finalEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
             val targetDestination = targetState.destination as ComposeNavigator.Destination
@@ -277,12 +279,19 @@ public fun NavHost(
         transition.AnimatedContent(
             modifier,
             transitionSpec = {
-                val zIndex = composeNavigator.backStack.value.size.toFloat()
                 // If the initialState of the AnimatedContent is not in visibleEntries, we are in
                 // a case where visible has cleared the old state for some reason, so instead of
                 // attempting to animate away from the initialState, we skip the animation.
                 if (initialState in visibleEntries) {
-                    ContentTransform(finalEnter(this), finalExit(this), zIndex)
+                    val initialZIndex = zIndices[initialState.id]
+                        ?: 0f.also { zIndices[initialState.id] = 0f }
+                    val targetZIndex = when {
+                        targetState.id == initialState.id -> initialZIndex
+                        composeNavigator.isPop.value -> initialZIndex - 1f
+                        else -> initialZIndex + 1f
+                    }.also { zIndices[targetState.id] = it }
+
+                    ContentTransform(finalEnter(this), finalExit(this), targetZIndex)
                 } else {
                     EnterTransition.None togetherWith ExitTransition.None
                 }
@@ -314,6 +323,9 @@ public fun NavHost(
             visibleEntries.forEach { entry ->
                 composeNavigator.onTransitionComplete(entry)
             }
+            zIndices
+                .filter { it.key != transition.targetState.id }
+                .forEach { zIndices.remove(it.key) }
         }
     }
 
