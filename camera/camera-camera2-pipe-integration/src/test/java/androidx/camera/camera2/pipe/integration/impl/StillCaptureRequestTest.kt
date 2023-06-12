@@ -201,6 +201,7 @@ class StillCaptureRequestTest {
 
         fakeCameraGraphSession.submittedRequests.first().let { request ->
             request.listeners.forEach { listener ->
+                @Suppress("DEPRECATION")
                 listener.onFailed(
                     FakeRequestMetadata(),
                     FrameNumber(0),

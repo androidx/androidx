@@ -308,7 +308,7 @@ class UseCaseCameraState @Inject constructor(
         key: CaptureRequest.Key<*>
     ): Int? = this?.get(key) as? Int
 
-    inner class RequestListener() : Request.Listener {
+    inner class RequestListener : Request.Listener {
         override fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
@@ -324,11 +324,16 @@ class UseCaseCameraState @Inject constructor(
             }
         }
 
+        @Deprecated(
+            message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+            level = DeprecationLevel.WARNING
+        )
         override fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             captureFailure: CaptureFailure,
         ) {
+            @Suppress("DEPRECATION")
             super.onFailed(requestMetadata, frameNumber, captureFailure)
             completeExceptionally(requestMetadata, captureFailure)
         }

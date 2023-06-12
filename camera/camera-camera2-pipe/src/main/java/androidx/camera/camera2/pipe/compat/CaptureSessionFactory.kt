@@ -106,7 +106,7 @@ internal class AndroidLSessionFactory @Inject constructor(private val threads: T
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         if (!cameraDevice.createCaptureSession(
-                surfaces.map { it.value }, captureSessionState, threads.camera2Handler
+                surfaces.map { it.value }, captureSessionState
             )
         ) {
             Log.warn {
@@ -137,8 +137,7 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
                         outputConfig.format.value
                     ),
                     surfaces.map { it.value },
-                    captureSessionState,
-                    threads.camera2Handler
+                    captureSessionState
                 )
             ) {
                 Log.warn {
@@ -149,7 +148,7 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
             }
         } else {
             if (!cameraDevice.createCaptureSession(
-                    surfaces.map { it.value }, captureSessionState, threads.camera2Handler
+                    surfaces.map { it.value }, captureSessionState
                 )
             ) {
                 Log.warn {
@@ -171,7 +170,7 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(private val t
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         if (!cameraDevice.createConstrainedHighSpeedCaptureSession(
-                surfaces.map { it.value }, captureSessionState, threads.camera2Handler
+                surfaces.map { it.value }, captureSessionState
             )
         ) {
             Log.warn {
@@ -213,7 +212,7 @@ constructor(
 
         val result = if (graphConfig.input == null) {
             cameraDevice.createCaptureSessionByOutputConfigurations(
-                outputs.all, captureSessionState, threads.camera2Handler
+                outputs.all, captureSessionState
             )
         } else {
             val outputConfig = graphConfig.input.stream.outputs.single()
@@ -224,8 +223,7 @@ constructor(
                     outputConfig.format.value
                 ),
                 outputs.all,
-                captureSessionState,
-                threads.camera2Handler
+                captureSessionState
             )
         }
         if (!result) {

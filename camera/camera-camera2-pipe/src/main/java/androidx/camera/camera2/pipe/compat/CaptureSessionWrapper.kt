@@ -66,59 +66,47 @@ internal interface CameraCaptureSessionWrapper : UnsafeWrapper, AutoCloseable {
     /**
      * @param request The settings for this exposure
      * @param listener The callback object to notify once this request has been processed.
-     * @param handler The handler on which the listener should be invoked, or null to use the
-     *   current thread's looper.
      * @return An unique capture sequence id.
      * @see [CameraCaptureSession.capture].
      */
     fun capture(
         request: CaptureRequest,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int?
 
     /**
      * @param requests A list of CaptureRequest(s) for this sequence of exposures
      * @param listener A callback object to notify each time one of the requests in the burst has
      *   been processed.
-     * @param handler The handler on which the listener should be invoked, or null to use the
-     *   current thread's looper.
      * @return An unique capture sequence id.
      * @see [CameraCaptureSession.captureBurst].
      */
     fun captureBurst(
         requests: List<CaptureRequest>,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int?
 
     /**
      * @param requests A list of settings to cycle through indefinitely.
      * @param listener A callback object to notify each time one of the requests in the repeating
      *   bursts has finished processing.
-     * @param handler The handler on which the listener should be invoked, or null to use the
-     *   current thread's looper.
      * @return An unique capture sequence ID.
      * @see [CameraCaptureSession.setRepeatingBurst]
      */
     fun setRepeatingBurst(
         requests: List<CaptureRequest>,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int?
 
     /**
      * @param request The request to repeat indefinitely.
      * @param listener The callback object to notify every time the request finishes processing.
-     * @param handler The handler on which the listener should be invoked, or null to use the
-     *   current thread's looper.
      * @return An unique capture sequence ID.
      * @see [CameraCaptureSession.setRepeatingRequest].
      */
     fun setRepeatingRequest(
         request: CaptureRequest,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int?
 
     /** @see [CameraCaptureSession.stopRepeating]. */
@@ -166,7 +154,8 @@ internal class AndroidCaptureSessionStateCallback(
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback,
     lastStateCallback: OnSessionFinalized?,
     private val cameraErrorListener: CameraErrorListener,
-    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
+    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null,
+    private val callbackHandler: Handler
 ) : CameraCaptureSession.StateCallback() {
     private val _lastStateCallback = atomic(lastStateCallback)
     private val captureSession = atomic<CameraCaptureSessionWrapper?>(null)
@@ -237,9 +226,11 @@ internal class AndroidCaptureSessionStateCallback(
         return if (Build.VERSION.SDK_INT >= 23 &&
             session is CameraConstrainedHighSpeedCaptureSession
         ) {
-            AndroidCameraConstrainedHighSpeedCaptureSession(device, session, cameraErrorListener)
+            AndroidCameraConstrainedHighSpeedCaptureSession(
+                device, session, cameraErrorListener, callbackHandler
+            )
         } else {
-            AndroidCameraCaptureSession(device, session, cameraErrorListener)
+            AndroidCameraCaptureSession(device, session, cameraErrorListener, callbackHandler)
         }
     }
 
@@ -272,6 +263,7 @@ internal open class AndroidCameraCaptureSession(
     override val device: CameraDeviceWrapper,
     private val cameraCaptureSession: CameraCaptureSession,
     private val cameraErrorListener: CameraErrorListener,
+    private val callbackHandler: Handler
 ) : CameraCaptureSessionWrapper {
     override fun abortCaptures(): Boolean =
         catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
@@ -280,38 +272,34 @@ internal open class AndroidCameraCaptureSession(
 
     override fun capture(
         request: CaptureRequest,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
         cameraCaptureSession.capture(
             request,
             listener,
-            handler
+            callbackHandler
         )
     }
 
     override fun captureBurst(
         requests: List<CaptureRequest>,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
-        cameraCaptureSession.captureBurst(requests, listener, handler)
+        cameraCaptureSession.captureBurst(requests, listener, callbackHandler)
     }
 
     override fun setRepeatingBurst(
         requests: List<CaptureRequest>,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
-        cameraCaptureSession.setRepeatingBurst(requests, listener, handler)
+        cameraCaptureSession.setRepeatingBurst(requests, listener, callbackHandler)
     }
 
     override fun setRepeatingRequest(
         request: CaptureRequest,
-        listener: CameraCaptureSession.CaptureCallback,
-        handler: Handler?
+        listener: CameraCaptureSession.CaptureCallback
     ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
-        cameraCaptureSession.setRepeatingRequest(request, listener, handler)
+        cameraCaptureSession.setRepeatingRequest(request, listener, callbackHandler)
     }
 
     override fun stopRepeating(): Boolean =
@@ -377,7 +365,8 @@ internal constructor(
     device: CameraDeviceWrapper,
     private val session: CameraConstrainedHighSpeedCaptureSession,
     private val cameraErrorListener: CameraErrorListener,
-) : AndroidCameraCaptureSession(device, session, cameraErrorListener),
+    private val callbackHandler: Handler
+) : AndroidCameraCaptureSession(device, session, cameraErrorListener, callbackHandler),
     CameraConstrainedHighSpeedCaptureSessionWrapper {
     @Throws(ObjectUnavailableException::class)
     override fun createHighSpeedRequestList(request: CaptureRequest): List<CaptureRequest> {

@@ -36,8 +36,10 @@ class VerifyResultListener(capturesCount: Int) : Request.Listener {
     private val waitingCount = atomic(capturesCount)
     private val failureException =
         TimeoutException("Test doesn't complete after waiting for $capturesCount frames.")
-    @Volatile private var startReceiving = false
-    @Volatile private var _verifyBlock: (
+    @Volatile
+    private var startReceiving = false
+    @Volatile
+    private var _verifyBlock: (
         captureRequest: RequestMetadata,
         captureResult: FrameInfo
     ) -> Boolean = { _, _ -> false }
@@ -77,6 +79,10 @@ class VerifyResultListener(capturesCount: Int) : Request.Listener {
         }
     }
 
+    @Deprecated(
+        message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+        level = DeprecationLevel.WARNING
+    )
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,

@@ -612,6 +612,7 @@ class CapturePipelineTest {
         fakeCameraGraphSession.requestHandler = { requests ->
             requests.forEach { request ->
                 // Callback capture fail immediately.
+                @Suppress("DEPRECATION")
                 request.listeners.forEach {
                     it.onFailed(
                         requestMetadata = FakeRequestMetadata(),
@@ -687,11 +688,13 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(Request(
-                streams = emptyList(),
-                parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
-                template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
-            )),
+            requests = listOf(
+                Request(
+                    streams = emptyList(),
+                    parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
+                    template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                )
+            ),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -725,11 +728,13 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(Request(
-                streams = emptyList(),
-                parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
-                template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
-            )),
+            requests = listOf(
+                Request(
+                    streams = emptyList(),
+                    parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
+                    template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                )
+            ),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,

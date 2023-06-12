@@ -166,7 +166,8 @@ constructor(
     private val cameraErrorListener: CameraErrorListener,
     private val camera2DeviceCloser: Camera2DeviceCloser,
     private val timeSource: TimeSource,
-    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
+    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?,
+    private val threads: Threads
 ) {
     internal suspend fun tryOpenCamera(
         cameraId: CameraId,
@@ -183,6 +184,7 @@ constructor(
                 timeSource,
                 cameraErrorListener,
                 camera2DeviceCloser,
+                threads,
                 cameraInteropConfig?.cameraDeviceStateCallback,
                 cameraInteropConfig?.cameraSessionStateCallback
             )

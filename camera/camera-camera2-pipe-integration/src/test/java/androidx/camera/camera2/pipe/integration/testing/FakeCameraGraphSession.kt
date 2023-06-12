@@ -51,6 +51,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         FAILED,
         ABORTED
     }
+
     var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
 
     val submittedRequests = mutableListOf<Request>()
@@ -173,9 +174,11 @@ open class FakeCameraGraphSession : CameraGraph.Session {
                 TOTAL_CAPTURE_DONE -> listener.onTotalCaptureResult(
                     FakeRequestMetadata(request = request), FrameNumber(0), FakeFrameInfo()
                 )
-                FAILED -> listener.onFailed(
+
+                FAILED -> @Suppress("DEPRECATION") listener.onFailed(
                     FakeRequestMetadata(request = request), FrameNumber(0), getFakeCaptureFailure()
                 )
+
                 ABORTED -> listener.onRequestSequenceAborted(
                     FakeRequestMetadata(request = request)
                 )
