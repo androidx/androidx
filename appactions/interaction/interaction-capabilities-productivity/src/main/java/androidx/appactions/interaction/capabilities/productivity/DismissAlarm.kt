@@ -31,10 +31,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.DISMISS_ALARM"
-
 /** A capability corresponding to actions.intent.DISMISS_ALARM */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = DismissAlarm.CAPABILITY_NAME)
 class DismissAlarm private constructor() {
     internal enum class SlotMetadata(val path: String) {
         ALARM("alarm")
@@ -143,6 +141,8 @@ class DismissAlarm private constructor() {
     class Confirmation internal constructor()
 
     companion object {
+        /** Canonical name for [DismissAlarm] capability */
+        const val CAPABILITY_NAME = "actions.intent.DISMISS_ALARM"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

@@ -31,10 +31,8 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
-
 /** A capability corresponding to actions.intent.STOP_SAFETY_CHECK */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StopSafetyCheck.CAPABILITY_NAME)
 class StopSafetyCheck private constructor() {
     class CapabilityBuilder :
         Capability.Builder<
@@ -145,6 +143,8 @@ class StopSafetyCheck private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [StopSafetyCheck] capability */
+        const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)

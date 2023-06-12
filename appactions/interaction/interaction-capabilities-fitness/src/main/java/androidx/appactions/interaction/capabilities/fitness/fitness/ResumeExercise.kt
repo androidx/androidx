@@ -24,10 +24,8 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
-private const val CAPABILITY_NAME = "actions.intent.RESUME_EXERCISE"
-
 /** A capability corresponding to actions.intent.RESUME_EXERCISE */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = ResumeExercise.CAPABILITY_NAME)
 class ResumeExercise private constructor() {
     internal enum class SlotMetadata(val path: String) {
         NAME("exercise.name")
@@ -87,6 +85,8 @@ class ResumeExercise private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [ResumeExercise] capability */
+        const val CAPABILITY_NAME = "actions.intent.RESUME_EXERCISE"
         // TODO(b/273602015): Update to use Name property from builtintype library.
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)

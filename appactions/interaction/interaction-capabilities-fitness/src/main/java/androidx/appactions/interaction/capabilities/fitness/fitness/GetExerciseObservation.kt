@@ -24,10 +24,8 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.time.LocalTime
 
-private const val CAPABILITY_NAME = "actions.intent.GET_EXERCISE_OBSERVATION"
-
 /** A capability corresponding to actions.intent.GET_EXERCISE_OBSERVATION */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = GetExerciseObservation.CAPABILITY_NAME)
 class GetExerciseObservation private constructor() {
     internal enum class SlotMetadata(val path: String) {
         START_TIME("exerciseObservation.startTime"),
@@ -98,6 +96,8 @@ class GetExerciseObservation private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [GetExerciseObservation] capability.  */
+        const val CAPABILITY_NAME = "actions.intent.GET_EXERCISE_OBSERVATION"
         // TODO(b/273602015): Update to use Name property from builtintype library.
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
