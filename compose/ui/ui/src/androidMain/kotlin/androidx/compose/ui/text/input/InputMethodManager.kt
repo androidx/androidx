@@ -19,10 +19,13 @@ package androidx.compose.ui.text.input
 import android.content.Context
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import androidx.core.view.SoftwareKeyboardControllerCompat
 
 internal interface InputMethodManager {
+    fun isActive(): Boolean
+
     fun restartInput()
 
     fun showSoftInput()
@@ -40,6 +43,8 @@ internal interface InputMethodManager {
         compositionStart: Int,
         compositionEnd: Int
     )
+
+    fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo)
 }
 
 /**
@@ -55,6 +60,8 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
 
     private val softwareKeyboardControllerCompat =
         SoftwareKeyboardControllerCompat(view)
+
+    override fun isActive(): Boolean = imm.isActive(view)
 
     override fun restartInput() {
         imm.restartInput(view)
@@ -86,5 +93,9 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
         compositionEnd: Int
     ) {
         imm.updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)
+    }
+
+    override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
+        imm.updateCursorAnchorInfo(view, cursorAnchorInfo)
     }
 }
