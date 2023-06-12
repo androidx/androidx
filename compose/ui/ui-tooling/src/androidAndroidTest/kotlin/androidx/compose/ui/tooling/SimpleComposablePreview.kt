@@ -29,8 +29,12 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -153,6 +157,15 @@ fun Multipreview() {
     Surface(color = Color.Red) {
         Text("Hello world")
     }
+}
+
+@PreviewDynamicColors
+@PreviewFontScale
+@PreviewLightDark
+@PreviewScreenSizes
+@Composable
+fun MultiPreviews() {
+    Text("MultiPreviews test")
 }
 
 class TestContentParameterProviderBoolean : PreviewParameterProvider<Boolean> {
