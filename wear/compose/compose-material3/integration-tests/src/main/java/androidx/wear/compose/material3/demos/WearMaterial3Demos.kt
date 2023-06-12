@@ -20,6 +20,9 @@ import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.samples.FixedFontSize
+import androidx.wear.compose.material3.samples.StepperSample
+import androidx.wear.compose.material3.samples.StepperWithIntegerSample
+import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
 
 val WearMaterial3Demos = DemoCategory(
     "Material 3",
@@ -47,6 +50,31 @@ val WearMaterial3Demos = DemoCategory(
         ComposableDemo("Icon Button") {
             IconButtonDemo()
         },
+        DemoCategory(
+            "Stepper",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Stepper") {
+                            Centralize { StepperSample() }
+                        },
+                        ComposableDemo("Integer Stepper") {
+                            Centralize { StepperWithIntegerSample() }
+                        },
+                        ComposableDemo("Stepper with rangeSemantics") {
+                            Centralize { StepperWithRangeSemanticsSample() }
+                        }
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        // Add Stepper demos here
+                    )
+                )
+            )
+        ),
         ComposableDemo(
             title = "Fixed Font Size"
         ) {
