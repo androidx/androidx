@@ -99,8 +99,7 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
 @ExperimentalFoundationApi
 internal class LazyLayoutMeasureScopeImpl internal constructor(
     private val itemContentFactory: LazyLayoutItemContentFactory,
-    private val subcomposeMeasureScope: SubcomposeMeasureScope,
-    private val timeTracker: LazyLayoutPrefetchState.AverageTimeTracker?
+    private val subcomposeMeasureScope: SubcomposeMeasureScope
 ) : LazyLayoutMeasureScope, MeasureScope by subcomposeMeasureScope {
 
     private val itemProvider = itemContentFactory.itemProvider()
@@ -119,32 +118,12 @@ internal class LazyLayoutMeasureScopeImpl internal constructor(
             val key = itemProvider.getKey(index)
             val contentType = itemProvider.getContentType(index)
             val itemContent = itemContentFactory.getContent(index, key, contentType)
-            val measurables = trackComposition {
-                subcomposeMeasureScope.subcompose(key, itemContent)
+            val measurables = subcomposeMeasureScope.subcompose(key, itemContent)
+            List(measurables.size) { i ->
+                measurables[i].measure(constraints)
+            }.also {
+                placeablesCache[index] = it
             }
-            trackMeasurement {
-                List(measurables.size) { i ->
-                    measurables[i].measure(constraints)
-                }.also {
-                    placeablesCache[index] = it
-                }
-            }
-        }
-    }
-
-    private inline fun <T> trackComposition(block: () -> T): T {
-        return if (timeTracker != null) {
-            timeTracker.trackComposition(block)
-        } else {
-            block()
-        }
-    }
-
-    private inline fun <T> trackMeasurement(block: () -> T): T {
-        return if (timeTracker != null) {
-            timeTracker.trackMeasurement(block)
-        } else {
-            block()
         }
     }
 
