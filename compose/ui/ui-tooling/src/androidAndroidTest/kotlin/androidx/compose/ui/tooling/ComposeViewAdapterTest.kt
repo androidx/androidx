@@ -603,6 +603,10 @@ class ComposeViewAdapterTest {
             "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
             "Multipreview"
         )
+        assertRendersCorrectly(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "MultiPreviews"
+        )
     }
 
     /**
