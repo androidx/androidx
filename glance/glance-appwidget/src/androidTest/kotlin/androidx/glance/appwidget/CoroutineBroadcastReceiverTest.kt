@@ -76,6 +76,7 @@ class CoroutineBroadcastReceiverTest {
         val value = "value"
         context.sendBroadcast(
             Intent(BROADCAST_ACTION)
+                .setPackage(context.packageName)
                 .putExtra(EXTRA_STRING, value)
                 .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         )
