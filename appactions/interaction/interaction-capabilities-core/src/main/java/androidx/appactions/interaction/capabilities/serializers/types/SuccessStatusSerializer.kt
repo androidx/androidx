@@ -16,36 +16,30 @@
 
 package androidx.appactions.interaction.capabilities.serializers.types
 
-import androidx.appactions.builtintypes.types.Timer
+import androidx.appactions.builtintypes.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpecBuilder
 import androidx.appactions.interaction.capabilities.serializers.properties.NAME_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.serializers.properties.TEXT_ONLY_DISAMBIGUATING_DESCRIPTION_TYPE_SPEC
 
-@JvmField
-val TIMER_TYPE_SPEC: TypeSpec<Timer> = TypeSpecBuilder.newBuilder(
-  "Timer",
-  Timer::Builder,
-  Timer.Builder<*>::build
-).bindSpecField(
-  "duration",
-  { it.duration },
-  Timer.Builder<*>::setDuration,
-  TypeSpec.DURATION_TYPE_SPEC
+val SUCCESS_STATUS_TYPE_SPEC: TypeSpec<SuccessStatus> = TypeSpecBuilder.newBuilder(
+  "SuccessStatus",
+  SuccessStatus::Builder,
+  SuccessStatus.Builder<*>::build
 ).bindSpecField(
   "disambiguatingDescription",
   { it.disambiguatingDescription },
-  Timer.Builder<*>::setDisambiguatingDescription,
+  SuccessStatus.Builder<*>::setDisambiguatingDescription,
   TEXT_ONLY_DISAMBIGUATING_DESCRIPTION_TYPE_SPEC
 ).bindSpecField(
   "name",
   { it.name },
-  Timer.Builder<*>::setName,
+  SuccessStatus.Builder<*>::setName,
   NAME_TYPE_SPEC
 ).bindStringField(
   "identifier",
   { it.identifier },
-  Timer.Builder<*>::setIdentifier
+  SuccessStatus.Builder<*>::setIdentifier
 ).bindIdentifier {
   it.identifier
 }.build()
