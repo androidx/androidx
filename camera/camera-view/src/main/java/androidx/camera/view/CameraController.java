@@ -80,7 +80,6 @@ import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
-import androidx.camera.view.transform.OutputTransform;
 import androidx.camera.view.video.AudioConfig;
 import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
@@ -1098,16 +1097,16 @@ public abstract class CameraController {
 
     @OptIn(markerClass = {TransformExperimental.class})
     @MainThread
-    void updatePreviewViewTransform(@Nullable OutputTransform outputTransform) {
+    void updatePreviewViewTransform(@Nullable Matrix matrix) {
         checkMainThread();
         if (mAnalysisAnalyzer == null) {
             return;
         }
-        if (outputTransform == null) {
+        if (matrix == null) {
             mAnalysisAnalyzer.updateTransform(null);
         } else if (mAnalysisAnalyzer.getTargetCoordinateSystem()
                 == COORDINATE_SYSTEM_VIEW_REFERENCED) {
-            mAnalysisAnalyzer.updateTransform(outputTransform.getMatrix());
+            mAnalysisAnalyzer.updateTransform(matrix);
         }
     }
 
