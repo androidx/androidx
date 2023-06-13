@@ -46,10 +46,6 @@ val ALARM_TYPE_SPEC: TypeSpec<Alarm> = TypeSpecBuilder.newBuilder(
   "Alarm",
   Alarm::Builder,
   Alarm.Builder<*>::build
-).bindStringField(
-  "namespace",
-  { it.namespace },
-  Alarm.Builder<*>::setNamespace
 ).bindSpecField(
   "alarmSchedule",
   { it.alarmSchedule },
