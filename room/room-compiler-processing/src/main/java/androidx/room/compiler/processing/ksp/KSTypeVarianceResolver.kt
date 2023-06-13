@@ -118,15 +118,16 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
     }
 
     private fun KSTypeWrapper.replaceSuspendFunctionTypes(): KSTypeWrapper {
+        val newArguments = arguments.map { it.replaceSuspendFunctionTypes() }
         return if (!newType.isSuspendFunctionType) {
-            this
+            replace(newArguments)
         } else {
             val newKSType = newType.replaceSuspendFunctionTypes(resolver)
             val newType = KSTypeWrapper(resolver, newKSType)
             replaceType(newKSType).replace(
                 buildList {
-                    addAll(arguments.dropLast(1))
-                    val originalArg = arguments.last()
+                    addAll(newArguments.dropLast(1))
+                    val originalArg = newArguments.last()
                     val continuationArg = newType.arguments[newType.arguments.lastIndex - 1]
                     add(
                         continuationArg.replace(
@@ -142,6 +143,11 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
                 }
             )
         }
+    }
+
+    private fun KSTypeArgumentWrapper.replaceSuspendFunctionTypes(): KSTypeArgumentWrapper {
+        val type = type ?: return this
+        return replace(type.replaceSuspendFunctionTypes(), variance)
     }
 
     private fun KSTypeWrapper.resolveWildcards(
