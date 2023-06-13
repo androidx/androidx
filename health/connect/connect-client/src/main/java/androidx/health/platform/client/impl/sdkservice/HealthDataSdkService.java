@@ -49,6 +49,7 @@ public final class HealthDataSdkService extends Service {
                         new ThreadFactoryBuilder()
                                 .setNameFormat("HealthData-HealthDataSdkService-%d")
                                 .build());
-        return new HealthDataSdkServiceStubImpl(this, executor);
+        // Pass application context to avoid leaking the service.
+        return new HealthDataSdkServiceStubImpl(this.getApplicationContext(), executor);
     }
 }
