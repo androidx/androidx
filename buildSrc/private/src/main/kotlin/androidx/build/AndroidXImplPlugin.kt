@@ -1057,14 +1057,6 @@ fun Project.hasBenchmarkPlugin(): Boolean {
 }
 
 /**
- * Returns a string that is a valid filename and loosely based on the project name
- * The value returned for each project will be distinct
- */
-fun String.asFilenamePrefix(): String {
-    return this.substring(1).replace(':', '-')
-}
-
-/**
  * Sets the specified [task] as a dependency of the top-level `check` task, ensuring that it runs
  * as part of `./gradlew check`.
  */
