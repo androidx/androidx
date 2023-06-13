@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.productivity
 
 import android.util.SizeF
+import androidx.appactions.builtintypes.types.GenericErrorStatus
 import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
@@ -29,6 +30,9 @@ import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbac
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.awaitSync
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
+import androidx.appactions.interaction.proto.FulfillmentResponse
+import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
+import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.TaskInfo
 import androidx.appactions.interaction.protobuf.Struct
@@ -53,7 +57,11 @@ class PauseTimerTest {
             .setExecutionCallback(
                 ExecutionCallback {
                     argsDeferred.complete(it)
-                    ExecutionResult.Builder<Output>().build()
+                    ExecutionResult.Builder<Output>().setOutput(
+                        Output.Builder().setExecutionStatus(
+                            GenericErrorStatus.Builder().build()
+                        ).build()
+                    ).build()
                 })
             .build()
         val capabilitySession = capability.createSession("fakeSessionId", hostProperties)
@@ -65,7 +73,8 @@ class PauseTimerTest {
             )
                 .build()
         )
-        capabilitySession.execute(ArgumentUtils.buildArgs(args), FakeCallbackInternal())
+        val callback = FakeCallbackInternal()
+        capabilitySession.execute(ArgumentUtils.buildArgs(args), callback)
 
         assertThat(capability.appAction)
             .isEqualTo(
@@ -84,5 +93,19 @@ class PauseTimerTest {
                     )
                     .build()
             )
+        assertThat(callback.receiveResponse().fulfillmentResponse).isEqualTo(
+            FulfillmentResponse.newBuilder().setExecutionOutput(
+                StructuredOutput.newBuilder().addOutputValues(
+                    OutputValue.newBuilder().setName("executionStatus").addValues(
+                        ParamValue.newBuilder().setStructValue(
+                            Struct.newBuilder().putFields(
+                                "@type",
+                                Value.newBuilder().setStringValue("GenericErrorStatus").build()
+                            )
+                        )
+                    )
+                )
+            ).build()
+        )
     }
 }

@@ -133,6 +133,7 @@ private constructor(
      * @param outputFieldGetter a getter of the output from the `OutputT` instance.
      * @param converter    a converter from an output object to a ParamValue.
      */
+    // TODO(dennistwo) after all usages of this overload is removed, remove this method
     fun <T> bindOutput(
         name: String,
         outputFieldGetter: Function<OutputT, T?>,
@@ -149,6 +150,12 @@ private constructor(
         }
         return this
     }
+
+    fun <T> bindOutput(
+        name: String,
+        outputFieldGetter: Function<OutputT, T?>,
+        converter: ParamValueConverter<T>
+    ) = bindOutput(name, outputFieldGetter, converter::toParamValue)
 
     /**
      * Binds a repeated output.
@@ -169,6 +176,12 @@ private constructor(
         }
         return this
     }
+
+    fun <T> bindRepeatedOutput(
+        name: String,
+        outputGetter: Function<OutputT, List<T>>,
+        converter: ParamValueConverter<T>
+    ) = bindRepeatedOutput(name, outputGetter, converter::toParamValue)
 
     /** Builds an `ActionSpec` from this builder.  */
     fun build(): ActionSpec<ArgumentsT, OutputT> {
