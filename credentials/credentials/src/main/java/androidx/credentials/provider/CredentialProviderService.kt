@@ -26,6 +26,8 @@ import android.service.credentials.ClearCredentialStateRequest
 import android.service.credentials.CredentialEntry
 import android.service.credentials.CredentialProviderService
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.provider.utils.BeginCreateCredentialUtil
@@ -88,6 +90,30 @@ import androidx.credentials.provider.utils.ClearCredentialUtil
 @RequiresApi(34)
 abstract class CredentialProviderService : CredentialProviderService() {
 
+    @set:VisibleForTesting
+    @get:VisibleForTesting
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public var isTestMode = false
+
+    @set:VisibleForTesting
+    @get:VisibleForTesting
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public var lastCreateRequest: BeginCreateCredentialRequest? = null
+
+    @set:VisibleForTesting
+    @get:VisibleForTesting
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public var lastGetRequest: BeginGetCredentialRequest? = null
+
+    @set:VisibleForTesting
+    @get:VisibleForTesting
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public var lastClearRequest: ProviderClearCredentialStateRequest? = null
+
     final override fun onBeginGetCredential(
         request: android.service.credentials.BeginGetCredentialRequest,
         cancellationSignal: CancellationSignal,
@@ -108,6 +134,9 @@ abstract class CredentialProviderService : CredentialProviderService() {
                 super.onError(error)
                 callback.onError(GetCredentialException(error.type, error.message))
             }
+        }
+        if (isTestMode) {
+            lastGetRequest = structuredRequest
         }
         this.onBeginGetCredentialRequest(structuredRequest, cancellationSignal, outcome)
     }
@@ -136,10 +165,11 @@ abstract class CredentialProviderService : CredentialProviderService() {
                 )
             }
         }
-        onBeginCreateCredentialRequest(
-            BeginCreateCredentialUtil.convertToJetpackRequest(request),
-            cancellationSignal, outcome
-        )
+        val jetpackRequest = BeginCreateCredentialUtil.convertToJetpackRequest(request)
+        if (isTestMode) {
+            lastCreateRequest = jetpackRequest
+        }
+        onBeginCreateCredentialRequest(jetpackRequest, cancellationSignal, outcome)
     }
 
     final override fun onClearCredentialState(
@@ -157,8 +187,11 @@ abstract class CredentialProviderService : CredentialProviderService() {
                 callback.onError(ClearCredentialStateException(error.type, error.message))
             }
         }
-        onClearCredentialStateRequest(ClearCredentialUtil.convertToJetpackRequest(request),
-            cancellationSignal, outcome)
+        val jetpackRequest = ClearCredentialUtil.convertToJetpackRequest(request)
+        if (isTestMode) {
+            lastClearRequest = jetpackRequest
+        }
+        onClearCredentialStateRequest(jetpackRequest, cancellationSignal, outcome)
     }
 
     /**
