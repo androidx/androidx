@@ -202,7 +202,9 @@ internal class SkiaBasedOwner(
     init {
         snapshotObserver.startObserving()
         root.attach(this)
-        focusOwner.takeFocus()
+        focusOwner.focusTransactionManager.withNewTransaction {
+            focusOwner.takeFocus()
+        }
     }
 
     fun dispose() {

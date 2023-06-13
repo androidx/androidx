@@ -620,7 +620,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
         Log.d(FocusTag, "Owner FocusChanged($gainFocus)")
-        if (gainFocus) focusOwner.takeFocus() else focusOwner.releaseFocus()
+       focusOwner.focusTransactionManager.withExistingTransaction(
+           onCancelled = { if (gainFocus) clearFocus() else requestFocus() }
+       ) {
+           if (gainFocus) focusOwner.takeFocus() else focusOwner.releaseFocus()
+       }
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
