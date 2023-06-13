@@ -29,7 +29,7 @@ import androidx.car.app.model.Template;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * Encapsulates the constraints to apply when creating a Content [Template] within a parent
+ * Encapsulates the constraints to apply when creating a Content {@link Template} within a parent
  * template.
  */
 @ExperimentalCarApi
@@ -56,7 +56,7 @@ public class ContentTemplateConstraints {
     private ImmutableSet<Class<? extends Template>> mAllowedTemplateTypes;
 
     /**
-     * Returns {@code true} if the {@link ContentTemplate} meets the constraint's requirement(s).
+     * Checks if the {@link ContentTemplate} meets the constraint's requirement(s).
      *
      * @throws IllegalArgumentException if any types are not allowed
      */
