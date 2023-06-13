@@ -40,9 +40,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -864,7 +864,8 @@ internal fun Transition<EnterExitState>.createModifier(
 
     val graphicsLayerBlock = createGraphicsLayerBlock(enter, exit, label)
 
-    return (if (disableClip) Modifier else Modifier.clipToBounds())
+    return Modifier
+        .graphicsLayer(clip = !disableClip)
         .then(
             EnterExitTransitionElement(
                 this, sizeAnimation, offsetAnimation, slideAnimation,

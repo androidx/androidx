@@ -74,6 +74,12 @@ internal class LazyLayoutAnimateItemModifierNode(
     }
 
     /**
+     * Tracks the offset of the item in the lookahead pass. When set, this is the animation target
+     * that placementDelta should be applied to.
+     */
+    var lookaheadOffset: IntOffset = NotInitialized
+
+    /**
      * Animate the placement by the given [delta] offset.
      */
     fun animatePlacementDelta(delta: IntOffset) {
