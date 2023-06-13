@@ -71,5 +71,19 @@ package androidx.bluetooth {
   public static final class ScanFilter.Companion {
   }
 
+  public final class ScanResult {
+    method public androidx.bluetooth.BluetoothDevice getDevice();
+    method public androidx.bluetooth.BluetoothAddress getDeviceAddress();
+    method public byte[]? getManufacturerSpecificData(int manufacturerId);
+    method public byte[]? getServiceData(java.util.UUID serviceUuid);
+    method public java.util.List<java.util.UUID> getServiceUuids();
+    method public long getTimestampNanos();
+    method public boolean isConnectable();
+    property public final androidx.bluetooth.BluetoothDevice device;
+    property public final androidx.bluetooth.BluetoothAddress deviceAddress;
+    property public final java.util.List<java.util.UUID> serviceUuids;
+    property public final long timestampNanos;
+  }
+
 }
 
