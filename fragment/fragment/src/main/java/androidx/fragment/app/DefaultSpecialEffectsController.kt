@@ -27,10 +27,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import androidx.annotation.DoNotInline
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
-import androidx.core.os.BuildCompat
 import androidx.core.os.CancellationSignal
 import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.ViewCompat
@@ -134,7 +132,6 @@ internal class DefaultSpecialEffectsController(
         }
     }
 
-    @OptIn(BuildCompat.PrereleaseSdkCheck::class)
     @SuppressLint("NewApi", "PrereleaseSdkCoreDependency")
     private fun startAnimations(
         animationInfos: List<AnimationInfo>,
@@ -207,25 +204,21 @@ internal class DefaultSpecialEffectsController(
                 }
             })
             animator.setTarget(viewToAnimate)
-            if (BuildCompat.isAtLeastU() && operation.fragment.mTransitioning) {
+            if (Build.VERSION.SDK_INT >= 34 && operation.fragment.mTransitioning) {
                 val animatorSet = animationInfo.getAnimation(container.context)?.animator
                 operation.addBackProgressCallbacks({ backEvent ->
-                    if (!BuildCompat.isAtLeastU()) {
-                        animatorSet?.start()
-                    } else {
-                        if (animatorSet != null) {
-                            val totalDuration = Api24Impl.totalDuration(animatorSet)
-                            var time = (backEvent.progress * totalDuration).toLong()
-                            // We cannot let the time get to 0 or the totalDuration to avoid
-                            // completing the operation accidentally.
-                            if (time == 0L) {
-                                time = 1L
-                            }
-                            if (time == totalDuration) {
-                                time = totalDuration - 1
-                            }
-                            Api26Impl.setCurrentPlayTime(animatorSet, time)
+                    if (animatorSet != null) {
+                        val totalDuration = Api24Impl.totalDuration(animatorSet)
+                        var time = (backEvent.progress * totalDuration).toLong()
+                        // We cannot let the time get to 0 or the totalDuration to avoid
+                        // completing the operation accidentally.
+                        if (time == 0L) {
+                            time = 1L
                         }
+                        if (time == totalDuration) {
+                            time = totalDuration - 1
+                        }
+                        Api26Impl.setCurrentPlayTime(animatorSet, time)
                     }
                 }) { animatorSet?.start() }
             } else {

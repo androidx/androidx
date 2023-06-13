@@ -22,11 +22,8 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.annotation.DoNotInline
 import androidx.annotation.MainThread
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.core.os.BuildCompat
-import androidx.core.os.BuildCompat.PrereleaseSdkCheck
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -63,7 +60,6 @@ import androidx.lifecycle.LifecycleOwner
 // fallbackOnBackPressed. To avoid silently breaking source compatibility the new
 // primary constructor has no optional parameters to avoid ambiguity/wrong overload resolution
 // when a single parameter is provided as a trailing lambda.
-@OptIn(PrereleaseSdkCheck::class)
 class OnBackPressedDispatcher constructor(
     private val fallbackOnBackPressed: Runnable?,
     private val onHasEnabledCallbacksChanged: Consumer<Boolean>?
@@ -126,7 +122,7 @@ class OnBackPressedDispatcher constructor(
 
     init {
         if (Build.VERSION.SDK_INT >= 33) {
-            onBackInvokedCallback = if (BuildCompat.isAtLeastU()) {
+            onBackInvokedCallback = if (Build.VERSION.SDK_INT >= 34) {
                 Api34Impl.createOnBackAnimationCallback(
                     { backEvent -> onBackStarted(backEvent) },
                     { backEvent -> onBackProgressed(backEvent) },
