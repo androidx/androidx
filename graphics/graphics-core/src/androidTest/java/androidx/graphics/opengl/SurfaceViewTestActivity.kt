@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.graphics.lowlatency
+package androidx.graphics.opengl
 
 import android.app.Activity
 import android.content.Context
@@ -23,7 +23,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.ViewGroup
 
-class FrontBufferedRendererTestActivity : Activity() {
+class SurfaceViewTestActivity : Activity() {
 
     private lateinit var mSurfaceView: TestSurfaceView
 
