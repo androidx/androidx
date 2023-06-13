@@ -16,8 +16,7 @@
 
 package androidx.room.lint
 
-import com.android.tools.lint.checks.VersionChecks.Companion.isPrecededByVersionCheckExit
-import com.android.tools.lint.checks.VersionChecks.Companion.isWithinVersionCheckConditional
+import com.android.tools.lint.detector.api.ApiConstraint
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -64,10 +63,8 @@ class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
         }
         // If the call is within an SDK_INT check, then its OK
         if (
-            @Suppress("DEPRECATION") // b/262915639
-            VersionChecks.isWithinVersionCheckConditional(context, node, 16) ||
-            @Suppress("DEPRECATION") // b/262915639
-            VersionChecks.isPrecededByVersionCheckExit(context, node, 16)
+            VersionChecks.isWithinVersionCheckConditional(context, node, ApiConstraint.get(16)) ||
+            VersionChecks.isPrecededByVersionCheckExit(context, node, ApiConstraint.get(16))
         ) {
             return
         }
