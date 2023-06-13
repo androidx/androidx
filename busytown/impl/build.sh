@@ -107,6 +107,7 @@ if run ./gradlew --ci "$@"; then
   echo build passed
 else
   if grep "has several compatible actual declarations in modules" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
+    run ./gradlew --stop || true
     # try to copy the OUT_DIR into DIST where we can find it
     cd "$OUT_DIR"
     echo "zipping out into $DIST_DIR/out.zip"
