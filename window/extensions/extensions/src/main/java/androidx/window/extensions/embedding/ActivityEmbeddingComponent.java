@@ -87,6 +87,50 @@ public interface ActivityEmbeddingComponent {
     boolean isActivityEmbedded(@NonNull Activity activity);
 
     /**
+     * Pins the top-most {@link ActivityStack} to keep the stack of the Activities to be
+     * positioned on top. The rest of the activities in the Task will be split with the pinned
+     * {@link ActivityStack}. The pinned {@link ActivityStack} would also have isolated activity
+     * navigation in which only the activities that are started from the pinned
+     * {@link ActivityStack} can be added on top of the {@link ActivityStack}.
+     * <p>
+     * The pinned {@link ActivityStack} is unpinned whenever the parent Task bounds don't
+     * satisfy the dimensions and aspect ratio requirements {@link SplitRule#checkParentMetrics}
+     * to show two {@link ActivityStack}s. See {@link SplitPinRule.Builder#setSticky} if
+     * the same {@link ActivityStack} should be pinned again whenever the parent Task bounds
+     * satisfies the dimensions and aspect ratios requirements defined in the rule.
+     *
+     * @param taskId The id of the Task that top {@link ActivityStack} should be pinned.
+     * @param splitPinRule The SplitRule that specifies how the top {@link ActivityStack} should
+     *                     be split with others.
+     * @return Returns {@code true} if the top {@link ActivityStack} is successfully pinned.
+     *         Otherwise, {@code false}. Few examples are:
+     *         1. There's no {@link ActivityStack}.
+     *         2. There is already an existing pinned {@link ActivityStack}.
+     *         3. There's no other {@link ActivityStack} to split with the top
+     *         {@link ActivityStack}.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_4}
+     */
+    default boolean pinTopActivityStack(int taskId, @NonNull SplitPinRule splitPinRule) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Unpins the pinned {@link ActivityStack}. The {@link ActivityStack} will still be the
+     * top-most {@link ActivityStack} right after unpinned, and the {@link ActivityStack} could
+     * be expanded or continue to be split with the next top {@link ActivityStack} if the current
+     * state matches any of the existing {@link SplitPairRule}. It is a no-op call if the task
+     * does not have a pinned {@link ActivityStack}.
+     *
+     * @param taskId The id of the Task that top {@link ActivityStack} should be unpinned.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_4}
+     */
+    default void unpinTopActivityStack(int taskId) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
      * Sets a function to compute the {@link SplitAttributes} for the {@link SplitRule} and current
      * window state provided in {@link SplitAttributesCalculatorParams}.
      * <p>
