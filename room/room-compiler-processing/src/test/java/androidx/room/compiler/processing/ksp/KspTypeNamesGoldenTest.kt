@@ -181,6 +181,7 @@ class KspTypeNamesGoldenTest {
                 typealias MySuspendLambdaAlias5 = suspend (List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>
                 typealias MySuspendLambdaAlias6 = suspend (List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>
                 typealias MySuspendLambdaAlias7 = suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>
+                typealias MySuspendLambdaAlias8 = List<suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>>
                 typealias JSW = JvmSuppressWildcards
                 typealias JW = JvmWildcard
                 typealias MyLambdaTypeAlias = (@JvmWildcard MyType) -> @JvmWildcard MyType
@@ -378,6 +379,18 @@ class KspTypeNamesGoldenTest {
                         fun method58(
                             param: MyGeneric<out MyGenericOut<MyGenericOut<MyInterface>>>
                         ): MyGeneric<out MyGenericOut<MyGenericOut<MyInterface>>> = TODO()
+                        fun method59(
+                            param: MyGeneric<suspend () -> Unit>
+                        ): MyGeneric<suspend () -> Unit> = TODO()
+                        fun method60(
+                            param: MyGenericIn<suspend () -> Unit>
+                        ): MyGenericIn<suspend () -> Unit> = TODO()
+                        fun method61(
+                            param: MyGenericOut<suspend () -> Unit>
+                        ): MyGenericOut<suspend () -> Unit> = TODO()
+                        fun method62(
+                            param: MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>>
+                        ): MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>> = TODO()
                     }
                 """.trimIndent()
             ), listOf("Subject")
@@ -570,6 +583,7 @@ class KspTypeNamesGoldenTest {
                     fun suspendLambda5(param: MySuspendLambdaAlias5): MySuspendLambdaAlias5 = TODO()
                     fun suspendLambda6(param: MySuspendLambdaAlias6): MySuspendLambdaAlias6 = TODO()
                     fun suspendLambda7(param: MySuspendLambdaAlias7): MySuspendLambdaAlias7 = TODO()
+                    fun suspendLambda8(param: MySuspendLambdaAlias8): MySuspendLambdaAlias8 = TODO()
                     @JSW fun suspendLambda1WithJSW(param: MySuspendLambdaAlias1): MySuspendLambdaAlias1 = TODO()
                     @JSW fun suspendLambda2WithJSW(param: MySuspendLambdaAlias2): MySuspendLambdaAlias2 = TODO()
                     @JSW fun suspendLambda3WithJSW(param: MySuspendLambdaAlias3): MySuspendLambdaAlias3 = TODO()
@@ -577,6 +591,7 @@ class KspTypeNamesGoldenTest {
                     @JSW fun suspendLambda5WithJSW(param: MySuspendLambdaAlias5): MySuspendLambdaAlias5 = TODO()
                     @JSW fun suspendLambda6WithJSW(param: MySuspendLambdaAlias6): MySuspendLambdaAlias6 = TODO()
                     @JSW fun suspendLambda7WithJSW(param: MySuspendLambdaAlias7): MySuspendLambdaAlias7 = TODO()
+                    @JSW fun suspendLambda8WithJSW(param: MySuspendLambdaAlias8): MySuspendLambdaAlias8 = TODO()
                 }
                 """.trimIndent()
             ), listOf(className)
