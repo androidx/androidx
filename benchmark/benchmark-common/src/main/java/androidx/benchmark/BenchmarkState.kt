@@ -304,6 +304,8 @@ class BenchmarkState internal constructor(
             if (it.warmupManager != null) {
                 // warmup phase
                 currentMetrics.captureInit()
+                // Note that warmupManager presence implies only one metric captured,
+                // this is validated in MicrobenchmarkPhase init
                 val lastMeasuredWarmupValue = currentMetrics.data.last()[0]
                 if (it.warmupManager.onNextIteration(lastMeasuredWarmupValue)) {
                     warmupEstimatedIterationTimeNs = lastMeasuredWarmupValue
@@ -585,8 +587,10 @@ class BenchmarkState internal constructor(
             @IntRange(from = 0) thermalThrottleSleepSeconds: Long,
             @IntRange(from = 1) repeatIterations: Int
         ) {
-            val metricsContainer = MetricsContainer(REPEAT_COUNT = dataNs.size)
-            metricsContainer.data[metricsContainer.data.lastIndex] = dataNs.toLongArray()
+            val metricsContainer = MetricsContainer(repeatCount = dataNs.size)
+            dataNs.forEachIndexed { index, value ->
+                metricsContainer.data[index][0] = value
+            }
             val report = BenchmarkResult(
                 className = className,
                 testName = testName,
