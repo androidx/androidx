@@ -2,60 +2,6 @@
 <issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class AvifEncoder extends EncoderBase {"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/AvifEncoder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface InputMode {"
-        errorLine2="                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/AvifWriter.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class EncoderBase implements AutoCloseable,"
-        errorLine2="             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/EncoderBase.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface ProgramType {}"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class WriterBase implements AutoCloseable {"
-        errorLine2="             ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/WriterBase.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface InputMode {}"
-        errorLine2="                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/WriterBase.java"/>
-    </issue>
-
-    <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
         errorLine1="        synchronized void updateInputEOSTime(long timestampNs) {"

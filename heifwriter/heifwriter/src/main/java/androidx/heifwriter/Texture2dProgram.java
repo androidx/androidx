@@ -24,6 +24,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -61,7 +62,8 @@ class Texture2dProgram {
     public static final int TEXTURE_2D = 0;
     public static final int TEXTURE_EXT = 1;
 
-    /** @hide */
+    /** */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         TEXTURE_2D,
         TEXTURE_EXT,

@@ -35,6 +35,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -109,8 +110,8 @@ public final class AvifWriter extends WriterBase {
     public static final int INPUT_MODE_BITMAP = WriterBase.INPUT_MODE_BITMAP;
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         INPUT_MODE_BUFFER, INPUT_MODE_SURFACE, INPUT_MODE_BITMAP,
     })
