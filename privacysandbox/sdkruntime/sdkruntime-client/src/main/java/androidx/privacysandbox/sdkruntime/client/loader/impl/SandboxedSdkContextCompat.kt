@@ -17,6 +17,8 @@ package androidx.privacysandbox.sdkruntime.client.loader.impl
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.database.DatabaseErrorHandler
+import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
@@ -40,6 +42,7 @@ import java.io.FileOutputStream
  * 4) /app_RuntimeEnabledSdksData/<sdk_package_name>/ - SDK Root (data dir)
  * 5) /app_RuntimeEnabledSdksData/<sdk_package_name>/files - [getFilesDir]
  * 6) /app_RuntimeEnabledSdksData/<sdk_package_name>/app_<folder_name> - [getDir]
+ * 7) /app_RuntimeEnabledSdksData/<sdk_package_name>/databases - SDK Databases
  */
 internal class SandboxedSdkContextCompat(
     base: Context,
@@ -140,9 +143,64 @@ internal class SandboxedSdkContextCompat(
         return listOrEmpty(filesDir)
     }
 
+    override fun getDatabasePath(name: String): File {
+        if (name[0] == File.separatorChar) {
+            return baseContext.getDatabasePath(name)
+        }
+        val absolutePath = File(getDatabasesDir(), name)
+        return baseContext.getDatabasePath(absolutePath.absolutePath)
+    }
+
+    override fun openOrCreateDatabase(
+        name: String,
+        mode: Int,
+        factory: SQLiteDatabase.CursorFactory?
+    ): SQLiteDatabase {
+        return openOrCreateDatabase(name, mode, factory, null)
+    }
+
+    override fun openOrCreateDatabase(
+        name: String,
+        mode: Int,
+        factory: SQLiteDatabase.CursorFactory?,
+        errorHandler: DatabaseErrorHandler?
+    ): SQLiteDatabase {
+        return baseContext.openOrCreateDatabase(
+            getDatabasePath(name).absolutePath,
+            mode,
+            factory,
+            errorHandler
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun moveDatabaseFrom(sourceContext: Context, name: String): Boolean {
+        synchronized(SandboxedSdkContextCompat::class.java) {
+            val source = sourceContext.getDatabasePath(name)
+            val target = getDatabasePath(name)
+            return MigrationUtils.moveFiles(
+                source.parentFile!!,
+                target.parentFile!!,
+                source.name
+            )
+        }
+    }
+
+    override fun deleteDatabase(name: String): Boolean {
+        return baseContext.deleteDatabase(
+            getDatabasePath(name).absolutePath
+        )
+    }
+
+    override fun databaseList(): Array<String> {
+        return listOrEmpty(getDatabasesDir())
+    }
     override fun getClassLoader(): ClassLoader? {
         return classLoader
     }
+
+    private fun getDatabasesDir(): File =
+        ensureDirExists(dataDir, "databases")
 
     private fun listOrEmpty(dir: File?): Array<String> {
         return dir?.list() ?: emptyArray()
