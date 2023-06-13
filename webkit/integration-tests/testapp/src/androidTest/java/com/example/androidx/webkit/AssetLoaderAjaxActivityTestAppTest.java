@@ -20,10 +20,10 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,10 +52,10 @@ public final class AssetLoaderAjaxActivityTestAppTest {
                 activity.getUriIdlingResource()));
     }
 
-    @Ignore("b/283485965")
     @Test
     public void testAssetLoaderAjaxActivity() {
-        mRule.getScenario().onActivity(activity -> activity.loadUrl());
+        mRule.getScenario().onActivity(AssetLoaderAjaxActivity::loadUrl);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
                 "title", "Loaded HTML should appear below on success");
         WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
