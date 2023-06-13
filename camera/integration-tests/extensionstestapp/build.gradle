@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-import androidx.build.ApkCopyHelperKt
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -85,10 +83,6 @@ dependencies {
     }
     debugImplementation(libs.testCore)
 }
-
-// Copy apks to dist/apks as they are used outside of androidx test infrastructure
-ApkCopyHelperKt.setupAppApkCopy(project, "debug")
-ApkCopyHelperKt.setupTestApkCopy(project)
 
 androidx {
     deviceTests {

@@ -114,6 +114,8 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "releaseSourcesJar",
     "sourceJarRelease",
     "sourceJar",
+    // Release APKs
+    "copyReleaseApk",
     // The following tests intentionally have the same output of golden images
     "updateGoldenDesktopTest",
     "updateGoldenDebugUnitTest"
