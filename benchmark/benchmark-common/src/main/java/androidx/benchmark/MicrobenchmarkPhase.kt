@@ -20,6 +20,13 @@ internal class MicrobenchmarkPhase(
     private var thermalThrottleSleepsRemaining = thermalThrottleSleepsMax
     var thermalThrottleSleepSeconds = 0L
 
+    init {
+        check(loopMode.warmupManager == null || metricsContainer.names.size == 1) {
+            "If warmup is enabled, must only capture one metric," +
+                " as WarmupManager only one value per repeat"
+        }
+    }
+
     /**
      * @return If true, finishing the phase was successful, otherwise must be retried
      */
