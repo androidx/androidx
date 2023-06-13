@@ -69,7 +69,7 @@ public class MapWithContentTemplateTest {
 
     @Test
     public void createInstance_noTemplate_throws() {
-        assertThrows(NullPointerException.class, () -> new MapWithContentTemplate.Builder()
+        assertThrows(IllegalArgumentException.class, () -> new MapWithContentTemplate.Builder()
                 .build());
     }
 
