@@ -528,7 +528,7 @@ class TimePickerState(
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
     internal var hourAngle by mutableFloatStateOf(
-        RadiansPerHour * initialHour % 12 - FullCircle / 4
+        RadiansPerHour * (initialHour % 12) - FullCircle / 4
     )
     internal var minuteAngle by mutableFloatStateOf(
         RadiansPerMinute * initialMinute - FullCircle / 4
@@ -545,7 +545,7 @@ class TimePickerState(
 
     internal fun setHour(hour: Int) {
         isInnerCircle = hour > 12 || hour == 0
-        hourAngle = RadiansPerHour * hour % 12 - FullCircle / 4
+        hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
     }
 
     internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
