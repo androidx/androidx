@@ -26,7 +26,6 @@ dependencies {
     api(libs.kotlinStdlib)
 
     implementation(libs.kotlinCoroutinesCore)
-    implementation(libs.playServicesDevicePerformance)
     implementation(project(":core:core-performance"))
 
     testImplementation(libs.testCore)
