@@ -97,21 +97,21 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
 
     @Suppress("deprecation")
     private fun verifyAnswerCall() {
+        assertFalse(TestUtils.mOnAnswerCallbackCalled)
         runBlocking {
             mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
                 setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
-                    assertFalse(TestUtils.mOnAnswerCallbackCalled)
                     call!!.answer(0) // API under test
                     TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
-                    // Assert that the callback was invoked
-                    assertTrue(TestUtils.mOnAnswerCallbackCalled)
                     // always send the disconnect signal if possible
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }
+        // Assert that the callback was invoked
+        assertTrue(TestUtils.mOnAnswerCallbackCalled)
     }
 }
