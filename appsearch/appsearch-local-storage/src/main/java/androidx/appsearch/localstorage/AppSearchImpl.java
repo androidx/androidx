@@ -161,7 +161,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * <p>This class is thread safe.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @WorkerThread

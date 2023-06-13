@@ -29,7 +29,7 @@ import androidx.appsearch.annotation.CanIgnoreReturnValue;
  *
  * <p>Indentation is applied after each newline character for the given indent level.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IndentingStringBuilder {

@@ -57,7 +57,7 @@ public final class SearchSuggestionSpec {
     private final Bundle mBundle;
     private final int mMaximumResultCount;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchSuggestionSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -70,7 +70,7 @@ public final class SearchSuggestionSpec {
     /**
      * Ranking Strategy for {@link SearchSuggestionResult}.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @IntDef(value = {
             SUGGESTION_RANKING_STRATEGY_NONE,
@@ -113,7 +113,7 @@ public final class SearchSuggestionSpec {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -174,7 +174,7 @@ public final class SearchSuggestionSpec {
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
     @NonNull
@@ -385,7 +385,7 @@ public final class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names indicating which property in the
          *                      document these snippets correspond to.
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -419,7 +419,7 @@ public final class SearchSuggestionSpec {
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
          *
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -453,7 +453,7 @@ public final class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A
          * {@code dot-delimited sequence of property names indicating which property in the
          * document these snippets correspond to.
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -484,7 +484,7 @@ public final class SearchSuggestionSpec {
          *
          * @param documentClass class annotated with {@link Document}.
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull

@@ -114,7 +114,7 @@ public final class GetByDocumentIdRequest {
      * <p>A more efficient version of {@link #getProjections}, but it returns a modifiable map.
      * This is not meant to be unhidden and should only be used by internal classes.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

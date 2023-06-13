@@ -27,7 +27,7 @@ import java.util.Map;
 
 /**
  * A registry which maintains instances of {@link DocumentClassFactory}.
- * @hide
+ * @exportToFramework:hide
  */
 @AnyThread
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

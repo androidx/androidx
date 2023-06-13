@@ -17,6 +17,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
@@ -100,8 +101,9 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
 
     /**
      * Asserts that this {@link AppSearchBatchResult} has no failures.
-     * @hide
+     * @exportToFramework:hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void checkSuccess() {
         if (!isSuccess()) {
             throw new IllegalStateException("AppSearchBatchResult has failures: " + this);

@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * The nested document that holds all required permissions for a caller need to hold to access the
  * schema which the outer {@link VisibilityDocument} represents.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityPermissionDocument extends GenericDocument {

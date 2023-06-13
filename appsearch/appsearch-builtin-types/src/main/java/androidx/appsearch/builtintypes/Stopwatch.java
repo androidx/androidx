@@ -41,7 +41,7 @@ import java.util.List;
  */
 @Document(name = "builtin:Stopwatch")
 public class Stopwatch extends Thing {
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_RESET, STATUS_RUNNING, STATUS_PAUSED})
     @Retention(RetentionPolicy.SOURCE)

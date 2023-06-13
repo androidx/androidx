@@ -40,7 +40,7 @@ import java.util.concurrent.Executor;
 /**
  * Platform implementation of {@link SearchResults} which proxies to the platform's
  * {@link android.app.appsearch.SearchResults}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

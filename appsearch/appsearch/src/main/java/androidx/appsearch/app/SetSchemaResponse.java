@@ -75,7 +75,7 @@ public class SetSchemaResponse {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -161,7 +161,7 @@ public class SetSchemaResponse {
 
     /**
      * Translates the {@link SetSchemaResponse}'s bundle to {@link Builder}.
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -334,7 +334,7 @@ public class SetSchemaResponse {
         /**
          * Returns the Bundle of the {@link MigrationFailure}.
          *
-         * @hide
+         * @exportToFramework:hide
          */
         @NonNull
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

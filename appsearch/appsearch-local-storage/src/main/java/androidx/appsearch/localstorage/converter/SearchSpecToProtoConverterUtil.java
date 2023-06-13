@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * Utilities for working with {@link SearchSpecToProtoConverter} and
  * {@link SearchSuggestionSpecToProtoConverter}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchSpecToProtoConverterUtil {

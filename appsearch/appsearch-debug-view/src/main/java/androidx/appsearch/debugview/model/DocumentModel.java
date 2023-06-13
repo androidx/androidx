@@ -40,7 +40,7 @@ import java.util.concurrent.ExecutorService;
  *
  * <p>Instances of the ViewModel are created by {@link DocumentModelFactory}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentModel extends ViewModel {

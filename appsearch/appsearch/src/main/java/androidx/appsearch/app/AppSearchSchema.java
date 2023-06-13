@@ -54,7 +54,7 @@ public final class AppSearchSchema {
 
     private final Bundle mBundle;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public AppSearchSchema(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -63,7 +63,7 @@ public final class AppSearchSchema {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -221,8 +221,8 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
          *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
                 DATA_TYPE_STRING,
                 DATA_TYPE_LONG,
@@ -234,34 +234,36 @@ public final class AppSearchSchema {
         @Retention(RetentionPolicy.SOURCE)
         public @interface DataType {}
 
-        /** @hide */
+        /** @exportToFramework:hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_STRING = 1;
 
-        /** @hide */
+        /** @exportToFramework:hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_LONG = 2;
 
-        /** @hide */
+        /** @exportToFramework:hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_DOUBLE = 3;
 
-        /** @hide */
+        /** @exportToFramework:hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_BOOLEAN = 4;
 
         /**
          * Unstructured BLOB.
-         * @hide
+         * @exportToFramework:hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_BYTES = 5;
 
         /**
          * Indicates that the property is itself a {@link GenericDocument}, making it part of a
          * hierarchical schema. Any property using this DataType MUST have a valid
          * {@link PropertyConfig#getSchemaType}.
-         * @hide
+         * @exportToFramework:hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_DOCUMENT = 6;
 
         /**
@@ -270,8 +272,8 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.PropertyConfigProto.Cardinality.Code.
          *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
                 CARDINALITY_REPEATED,
                 CARDINALITY_OPTIONAL,
@@ -379,8 +381,9 @@ public final class AppSearchSchema {
         /**
          * Returns the type of data the property contains (such as string, int, bytes, etc).
          *
-         * @hide
+         * @exportToFramework:hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @DataType
         public int getDataType() {
             return mBundle.getInt(DATA_TYPE_FIELD, -1);
@@ -422,7 +425,7 @@ public final class AppSearchSchema {
          *
          * @throws IllegalArgumentException if the bundle does no contain a recognized
          * value in its {@code DATA_TYPE_FIELD}.
-         * @hide
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
@@ -458,8 +461,9 @@ public final class AppSearchSchema {
 
         /**
          * Encapsulates the configurations on how AppSearch should query/index these terms.
-         * @hide
+         * @exportToFramework:hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
                 INDEXING_TYPE_NONE,
                 INDEXING_TYPE_EXACT_TERMS,
@@ -493,8 +497,8 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.IndexingConfig.TokenizerType.Code.
          *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
                 TOKENIZER_TYPE_NONE,
                 TOKENIZER_TYPE_PLAIN,
@@ -565,7 +569,7 @@ public final class AppSearchSchema {
          * The joinable value type of the property. By setting the appropriate joinable value type
          * for a property, the client can use the property for joining documents from other schema
          * types using Search API (see {@link JoinSpec}).
-         * @hide
+         * @exportToFramework:hide
          */
         // NOTE: The integer values of these constants must match the proto enum constants in
         // com.google.android.icing.proto.JoinableConfig.ValueType.Code.
@@ -573,7 +577,7 @@ public final class AppSearchSchema {
                 JOINABLE_VALUE_TYPE_NONE,
                 JOINABLE_VALUE_TYPE_QUALIFIED_ID,
         })
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         public @interface JoinableValueType {}
 
@@ -831,13 +835,13 @@ public final class AppSearchSchema {
         /**
          * Encapsulates the configurations on how AppSearch should query/index these 64-bit
          * integers.
-         * @hide
+         * @exportToFramework:hide
          */
         @IntDef(value = {
                 INDEXING_TYPE_NONE,
                 INDEXING_TYPE_RANGE
         })
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         public @interface IndexingType {}
 

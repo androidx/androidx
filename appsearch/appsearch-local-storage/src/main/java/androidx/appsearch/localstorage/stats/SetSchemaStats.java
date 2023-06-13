@@ -30,7 +30,7 @@ import androidx.core.util.Preconditions;
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#setSchema(SetSchemaRequest)}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SetSchemaStats {

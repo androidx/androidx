@@ -32,7 +32,7 @@ import java.lang.annotation.RetentionPolicy;
  * Class holds detailed stats for
  * {@link androidx.appsearch.app.AppSearchSession#search(String, SearchSpec)}
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchStats {

@@ -54,7 +54,7 @@ import java.util.concurrent.ExecutorService;
  *
  * <p>Instances of {@link DebugAppSearchManager} are created by calling {@link #create}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DebugAppSearchManager implements Closeable {

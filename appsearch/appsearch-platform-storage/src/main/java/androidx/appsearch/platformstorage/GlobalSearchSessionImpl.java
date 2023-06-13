@@ -61,7 +61,7 @@ import java.util.function.Consumer;
  * An implementation of {@link GlobalSearchSession} which proxies to a
  * platform {@link android.app.appsearch.GlobalSearchSession}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

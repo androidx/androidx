@@ -42,7 +42,7 @@ public final class SearchSuggestionResult {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

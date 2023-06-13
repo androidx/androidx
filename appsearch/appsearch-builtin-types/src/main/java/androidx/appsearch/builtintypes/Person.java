@@ -45,7 +45,7 @@ import java.util.List;
 public class Person extends Thing {
     /** Holds type information for additional names for Person. */
     public static class AdditionalName {
-        /** @hide */
+        /** @exportToFramework:hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef({
                 TYPE_UNKNOWN,
