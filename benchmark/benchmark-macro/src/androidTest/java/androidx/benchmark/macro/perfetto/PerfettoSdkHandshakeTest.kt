@@ -28,12 +28,12 @@ import androidx.benchmark.macro.perfetto.PerfettoSdkHandshakeTest.SdkDelivery.PR
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.tracing.perfetto.PerfettoSdkHandshake
-import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_CANCELLED
-import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.PerfettoSdkHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.handshake.PerfettoSdkHandshake
+import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_CANCELLED
+import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.StringReader
@@ -161,11 +161,11 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
     }
 
     /**
-     * This tests [androidx.tracing.perfetto.PerfettoSdkHandshake] which is used by both Benchmark
-     * and Studio.
+     * This tests [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake] which is used by both
+     * Benchmark and Studio.
      *
      * By contrast, other tests use the [PerfettoCapture.enableAndroidxTracingPerfetto], which
-     * is built on top of [androidx.tracing.perfetto.PerfettoSdkHandshake] and implements
+     * is built on top of [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake] and implements
      * the parts where Studio and Benchmark differ.
      */
     @Test
@@ -173,7 +173,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         assumeTrue(isAbiSupported())
         assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
 
-        /** perform a handshake using [androidx.tracing.perfetto.PerfettoSdkHandshake] */
+        /** perform a handshake using [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake] */
         val libraryZip: File? = resolvePerfettoAar()
         val tmpDir = Outputs.dirUsableByAppAndShell
         val mvTmpDst = createShellFileMover()

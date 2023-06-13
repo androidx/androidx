@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tracing.perfetto
+package androidx.tracing.perfetto.handshake
 
 import java.io.File
 import java.util.zip.ZipFile
