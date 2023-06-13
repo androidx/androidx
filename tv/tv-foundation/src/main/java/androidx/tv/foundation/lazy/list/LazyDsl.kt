@@ -71,11 +71,8 @@ sealed interface TvLazyListScope {
      */
     fun items(
         count: Int,
-        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
-        @Suppress("PrimitiveInLambda")
         contentType: (index: Int) -> Any? = { null },
-        @Suppress("PrimitiveInLambda")
         itemContent: @Composable TvLazyListItemScope.(index: Int) -> Unit
     )
 
@@ -147,7 +144,6 @@ inline fun <T> TvLazyListScope.items(
  */
 inline fun <T> TvLazyListScope.itemsIndexed(
     items: List<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable TvLazyListItemScope.(index: Int, item: T) -> Unit
@@ -204,7 +200,6 @@ inline fun <T> TvLazyListScope.items(
  */
 inline fun <T> TvLazyListScope.itemsIndexed(
     items: Array<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable TvLazyListItemScope.(index: Int, item: T) -> Unit

@@ -824,7 +824,6 @@ private fun BottomDrawerScrim(
 private fun Scrim(
     open: Boolean,
     onClose: () -> Unit,
-    @Suppress("PrimitiveInLambda")
     fraction: () -> Float,
     color: Color
 ) {

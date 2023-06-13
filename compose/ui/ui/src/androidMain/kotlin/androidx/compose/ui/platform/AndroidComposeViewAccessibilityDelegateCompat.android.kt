@@ -982,7 +982,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 getAccessibilitySelectionStart(semanticsNode),
                 getAccessibilitySelectionEnd(semanticsNode)
             )
-            @Suppress("PrimitiveInLambda")
             val setSelectionAction =
                 semanticsNode.unmergedConfig.getOrNull(SemanticsActions.SetSelection)
             // ACTION_SET_SELECTION should be provided even when SemanticsActions.SetSelection
@@ -1080,10 +1079,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return value() > 0f && !reverseScrolling || value() < maxValue() && reverseScrolling
         }
 
-        @Suppress("PrimitiveInLambda")
         val xScrollState =
             semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.HorizontalScrollAxisRange)
-        @Suppress("PrimitiveInLambda")
         val scrollAction = semanticsNode.unmergedConfig.getOrNull(SemanticsActions.ScrollBy)
         if (xScrollState != null && scrollAction != null) {
             // Talkback defines SCROLLABLE_ROLE_FILTER_FOR_DIRECTION_NAVIGATION, so we need to
@@ -1688,10 +1685,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 val scrollVertical = scrollUp || scrollDown || scrollForward || scrollBackward
 
                 if (scrollForward || scrollBackward) {
-                    @Suppress("PrimitiveInLambda")
                     val rangeInfo =
                         node.unmergedConfig.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
-                    @Suppress("PrimitiveInLambda")
                     val setProgressAction =
                         node.unmergedConfig.getOrNull(SemanticsActions.SetProgress)
                     if (rangeInfo != null && setProgressAction != null) {
@@ -1715,9 +1710,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     return amount < 0 && value() > 0 || amount > 0 && value() < maxValue()
                 }
 
-                @Suppress("PrimitiveInLambda")
                 val viewport = node.layoutInfo.coordinates.boundsInParent().size
-                @Suppress("PrimitiveInLambda")
                 val scrollAction =
                     node.unmergedConfig.getOrNull(SemanticsActions.ScrollBy) ?: return false
 
@@ -1848,9 +1841,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
             android.R.id.accessibilityActionShowOnScreen -> {
                 // TODO(b/190865803): Consider scrolling nested containers instead of only the first one.
-                @Suppress("PrimitiveInLambda")
                 var scrollableAncestor: SemanticsNode? = node.parent
-                @Suppress("PrimitiveInLambda")
                 var scrollAction = scrollableAncestor?.config?.getOrNull(SemanticsActions.ScrollBy)
                 while (scrollableAncestor != null) {
                     if (scrollAction != null) {

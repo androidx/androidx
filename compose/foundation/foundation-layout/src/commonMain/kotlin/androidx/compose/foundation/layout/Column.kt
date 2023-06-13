@@ -191,10 +191,7 @@ interface ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleRelativeToSiblings
      */
     @Stable
-    fun Modifier.alignBy(
-        @Suppress("PrimitiveInLambda")
-        alignmentLineBlock: (Measured) -> Int
-    ): Modifier
+    fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
 }
 
 internal object ColumnScopeInstance : ColumnScope {
@@ -225,10 +222,7 @@ internal object ColumnScopeInstance : ColumnScope {
     )
 
     @Stable
-    override fun Modifier.alignBy(
-        @Suppress("PrimitiveInLambda")
-        alignmentLineBlock: (Measured) -> Int
-    ) = this.then(
+    override fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int) = this.then(
         WithAlignmentLineBlockElement(
             block = alignmentLineBlock
         )

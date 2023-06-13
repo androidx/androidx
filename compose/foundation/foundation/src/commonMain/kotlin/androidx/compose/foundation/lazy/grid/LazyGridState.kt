@@ -223,7 +223,6 @@ class LazyGridState constructor(
     /**
      * Finds items on a line and their measurement constraints. Used for prefetching.
      */
-    @Suppress("PrimitiveInLambda")
     internal var prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>> by
         mutableStateOf({ emptyList() })
 

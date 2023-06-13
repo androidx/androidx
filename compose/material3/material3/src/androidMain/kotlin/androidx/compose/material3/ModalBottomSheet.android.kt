@@ -143,7 +143,6 @@ fun ModalBottomSheet(
             }
         }
     }
-    @Suppress("PrimitiveInLambda")
     val settleToDismiss: (velocity: Float) -> Unit = {
         scope.launch { sheetState.settle(it) }.invokeOnCompletion {
             if (!sheetState.isVisible) onDismissRequest()
@@ -326,7 +325,6 @@ private fun Modifier.modalBottomSheetSwipeable(
     sheetState: SheetState,
     anchorChangeHandler: AnchorChangeHandler<SheetValue>,
     screenHeight: Float,
-    @Suppress("PrimitiveInLambda")
     onDragStopped: CoroutineScope.(velocity: Float) -> Unit,
 ) = draggable(
         state = sheetState.swipeableState.swipeDraggableState,
@@ -356,7 +354,6 @@ private fun Modifier.modalBottomSheetSwipeable(
 @ExperimentalMaterial3Api
 private fun ModalBottomSheetAnchorChangeHandler(
     state: SheetState,
-    @Suppress("PrimitiveInLambda")
     animateTo: (target: SheetValue, velocity: Float) -> Unit,
     snapTo: (target: SheetValue) -> Unit,
 ) = AnchorChangeHandler<SheetValue> { previousTarget, previousAnchors, newAnchors ->

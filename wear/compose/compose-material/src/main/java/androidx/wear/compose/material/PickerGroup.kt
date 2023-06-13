@@ -87,13 +87,11 @@ public fun PickerGroup(
     vararg pickers: PickerGroupItem,
     modifier: Modifier = Modifier,
     pickerGroupState: PickerGroupState = rememberPickerGroupState(),
-    @Suppress("PrimitiveInLambda")
     onSelected: (selectedIndex: Int) -> Unit = {},
     autoCenter: Boolean = true,
     propagateMinConstraints: Boolean = false,
     touchExplorationStateProvider: TouchExplorationStateProvider =
         DefaultTouchExplorationStateProvider(),
-    @Suppress("PrimitiveInLambda")
     separator: (@Composable (Int) -> Unit)? = null
 ) {
     val touchExplorationServicesEnabled by touchExplorationStateProvider.touchExplorationState()
@@ -245,7 +243,6 @@ public class PickerGroupItem(
     val focusRequester: FocusRequester? = null,
     val onSelected: () -> Unit = {},
     val readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
-    @Suppress("PrimitiveInLambda")
     val option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit
 )
 

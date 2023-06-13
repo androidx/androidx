@@ -149,7 +149,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun Slider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -244,7 +243,6 @@ fun Slider(
 @ExperimentalMaterial3Api
 fun Slider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -1223,7 +1221,6 @@ private suspend fun AwaitPointerEventScope.awaitSlop(
     type: PointerType
 ): Pair<PointerInputChange, Float>? {
     var initialDelta = 0f
-    @Suppress("PrimitiveInLambda")
     val postPointerSlop = { pointerInput: PointerInputChange, offset: Float ->
         pointerInput.consume()
         initialDelta = offset
@@ -1251,7 +1248,6 @@ private fun calcFraction(a: Float, b: Float, pos: Float) =
 private fun Modifier.sliderSemantics(
     value: Float,
     enabled: Boolean,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -1460,7 +1456,6 @@ private class RangeSliderLogic(
     val endInteractionSource: MutableInteractionSource,
     val rawOffsetStart: State<Float>,
     val rawOffsetEnd: State<Float>,
-    @Suppress("PrimitiveInLambda")
     val onDrag: State<(Boolean, Float) -> Unit>,
 ) {
     fun activeInteraction(draggingStart: Boolean): MutableInteractionSource =
@@ -1608,7 +1603,6 @@ private val DefaultSliderConstraints =
 private val SliderToTickAnimation = TweenSpec<Float>(durationMillis = 100)
 
 internal class SliderDraggableState(
-    @Suppress("PrimitiveInLambda")
     val onDelta: (Float) -> Unit
 ) : DraggableState {
 
@@ -1707,7 +1701,6 @@ class SliderPositions(
 @ExperimentalMaterial3Api
 class SliderState(
     initialValue: Float = 0f,
-    @Suppress("PrimitiveInLambda")
     initialOnValueChange: ((Float) -> Unit)? = null,
     /*@IntRange(from = 0)*/
     val steps: Int = 0,
@@ -1736,7 +1729,6 @@ class SliderState(
     /**
      * callback in which value should be updated
      */
-    @Suppress("PrimitiveInLambda")
     internal var onValueChange: (Float) -> Unit = {
         if (it != value) {
             initialOnValueChange?.invoke(it) ?: defaultOnValueChange(it)

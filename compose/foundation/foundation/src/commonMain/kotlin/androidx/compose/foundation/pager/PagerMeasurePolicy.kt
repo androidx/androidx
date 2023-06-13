@@ -50,7 +50,6 @@ internal fun rememberPagerMeasurePolicy(
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
-    @Suppress("PrimitiveInLambda")
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     contentPadding,

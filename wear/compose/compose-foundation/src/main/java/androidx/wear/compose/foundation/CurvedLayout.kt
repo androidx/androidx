@@ -413,9 +413,6 @@ internal abstract class CurvedChild() {
 
 internal fun Float.toRadians() = this * PI.toFloat() / 180f
 internal fun Float.toDegrees() = this * 180f / PI.toFloat()
-internal fun <T> Iterable<T>.sumOf(
-    @Suppress("PrimitiveInLambda")
-    selector: (T) -> Float
-): Float = map(selector).sum()
+internal fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float = map(selector).sum()
 internal fun offsetFromDistanceAndAngle(distance: Float, angle: Float) =
     Offset(distance * cos(angle), distance * sin(angle))

@@ -90,7 +90,6 @@ fun LazyColumnDragAndDropDemo() {
 @Composable
 fun rememberDragDropState(
     lazyListState: LazyListState,
-    @Suppress("PrimitiveInLambda")
     onMove: (Int, Int) -> Unit
 ): DragDropState {
     val scope = rememberCoroutineScope()
@@ -113,7 +112,6 @@ fun rememberDragDropState(
 class DragDropState internal constructor(
     private val state: LazyListState,
     private val scope: CoroutineScope,
-    @Suppress("PrimitiveInLambda")
     private val onMove: (Int, Int) -> Unit
 ) {
     var draggingItemIndex by mutableStateOf<Int?>(null)

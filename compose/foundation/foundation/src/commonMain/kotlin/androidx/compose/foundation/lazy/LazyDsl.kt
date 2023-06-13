@@ -77,11 +77,8 @@ interface LazyListScope {
      */
     fun items(
         count: Int,
-        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
-        @Suppress("PrimitiveInLambda")
         contentType: (index: Int) -> Any? = { null },
-        @Suppress("PrimitiveInLambda")
         itemContent: @Composable LazyItemScope.(index: Int) -> Unit
     ) {
         error("The method is not implemented")
@@ -90,9 +87,7 @@ interface LazyListScope {
     @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
     fun items(
         count: Int,
-        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
-        @Suppress("PrimitiveInLambda")
         itemContent: @Composable LazyItemScope.(index: Int) -> Unit
     ) {
         items(count, key, { null }, itemContent)
@@ -175,7 +170,6 @@ inline fun <T> LazyListScope.items(
  */
 inline fun <T> LazyListScope.itemsIndexed(
     items: List<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
@@ -190,7 +184,6 @@ inline fun <T> LazyListScope.itemsIndexed(
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 inline fun <T> LazyListScope.itemsIndexed(
     items: List<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) = itemsIndexed(items, key, itemContent = itemContent)
@@ -247,7 +240,6 @@ inline fun <T> LazyListScope.items(
  */
 inline fun <T> LazyListScope.itemsIndexed(
     items: Array<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
@@ -262,7 +254,6 @@ inline fun <T> LazyListScope.itemsIndexed(
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 inline fun <T> LazyListScope.itemsIndexed(
     items: Array<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) = itemsIndexed(items, key, itemContent = itemContent)

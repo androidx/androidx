@@ -139,24 +139,6 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(5000L);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/WorkContinuationImplTest.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(1000L);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
         errorLine1="        Thread.sleep(SLEEP_DURATION_SMALL_MILLIS);"
         errorLine2="               ~~~~~">
         <location

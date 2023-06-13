@@ -141,7 +141,6 @@ private fun RowSnappingItem(position: Int) {
 @Composable
 private fun rememberRowSnapLayoutInfoProvider(
     scrollState: ScrollState,
-    @Suppress("PrimitiveInLambda")
     layoutSize: Density.() -> Float
 ): SnapLayoutInfoProvider {
     return remember(scrollState, layoutSize) {
@@ -157,7 +156,6 @@ private fun rememberRowSnapLayoutInfoProvider(
 @Composable
 private fun rememberMultiPageRowSnapLayoutInfoProvider(
     scrollState: ScrollState,
-    @Suppress("PrimitiveInLambda")
     layoutSize: Density.() -> Float
 ): SnapLayoutInfoProvider {
     val animation: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
@@ -177,7 +175,6 @@ private fun rememberMultiPageRowSnapLayoutInfoProvider(
 @Composable
 private fun rememberViewPortRowSnapLayoutInfoProvider(
     scrollState: ScrollState,
-    @Suppress("PrimitiveInLambda")
     layoutSize: Density.() -> Float
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current

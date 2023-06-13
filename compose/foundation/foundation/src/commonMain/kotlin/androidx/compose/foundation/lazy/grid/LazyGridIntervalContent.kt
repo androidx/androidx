@@ -41,7 +41,6 @@ internal class LazyGridIntervalContent(
         contentType: Any?,
         content: @Composable LazyGridItemScope.() -> Unit
     ) {
-        @Suppress("PrimitiveInLambda") // temp var
         intervals.addInterval(
             1,
             LazyGridInterval(
@@ -61,7 +60,6 @@ internal class LazyGridIntervalContent(
         contentType: (index: Int) -> Any?,
         itemContent: @Composable LazyGridItemScope.(index: Int) -> Unit
     ) {
-        @Suppress("PrimitiveInLambda") // temp var
         intervals.addInterval(
             count,
             LazyGridInterval(
@@ -75,19 +73,14 @@ internal class LazyGridIntervalContent(
     }
 
     private companion object {
-        @Suppress("PrimitiveInLambda")
         val DefaultSpan: LazyGridItemSpanScope.(Int) -> GridItemSpan = { GridItemSpan(1) }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridInterval(
-    @Suppress("PrimitiveInLambda")
     override val key: ((index: Int) -> Any)?,
-    @Suppress("PrimitiveInLambda")
     val span: LazyGridItemSpanScope.(Int) -> GridItemSpan,
-    @Suppress("PrimitiveInLambda")
     override val type: ((index: Int) -> Any?),
-    @Suppress("PrimitiveInLambda")
     val item: @Composable LazyGridItemScope.(Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval

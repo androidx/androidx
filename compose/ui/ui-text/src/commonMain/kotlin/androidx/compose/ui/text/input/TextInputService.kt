@@ -53,7 +53,6 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         value: TextFieldValue,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
-        @Suppress("PrimitiveInLambda")
         onImeActionPerformed: (ImeAction) -> Unit
     ): TextInputSession {
         platformTextInputService.startInput(
@@ -273,7 +272,6 @@ interface PlatformTextInputService {
         value: TextFieldValue,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
-        @Suppress("PrimitiveInLambda")
         onImeActionPerformed: (ImeAction) -> Unit
     )
 

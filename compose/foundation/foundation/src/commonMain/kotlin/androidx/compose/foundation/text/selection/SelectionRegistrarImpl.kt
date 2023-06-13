@@ -59,20 +59,17 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
      * The callback to be invoked when the position change was triggered.
      */
-    @Suppress("PrimitiveInLambda")
     internal var onPositionChangeCallback: ((Long) -> Unit)? = null
 
     /**
      * The callback to be invoked when the selection is initiated.
      */
-    @Suppress("PrimitiveInLambda")
     internal var onSelectionUpdateStartCallback:
         ((Boolean, LayoutCoordinates, Offset, SelectionAdjustment) -> Unit)? = null
 
     /**
      * The callback to be invoked when the selection is initiated with selectAll [Selection].
      */
-    @Suppress("PrimitiveInLambda")
     internal var onSelectionUpdateSelectAll: (
         (Boolean, Long) -> Unit
     )? = null
@@ -81,7 +78,6 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
      * The callback to be invoked when the selection is updated.
      * If the first offset is null it means that the start of selection is unknown for the caller.
      */
-    @Suppress("PrimitiveInLambda")
     internal var onSelectionUpdateCallback:
         ((Boolean, LayoutCoordinates, Offset, Offset, Boolean, SelectionAdjustment) -> Boolean)? =
         null
@@ -94,13 +90,11 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     /**
      * The callback to be invoked when one of the selectable has changed.
      */
-    @Suppress("PrimitiveInLambda")
     internal var onSelectableChangeCallback: ((Long) -> Unit)? = null
 
     /**
      * The callback to be invoked after a selectable is unsubscribed from this [SelectionRegistrar].
      */
-    @Suppress("PrimitiveInLambda")
     internal var afterSelectableUnsubscribe: ((Long) -> Unit)? = null
 
     override var subselections: Map<Long, Selection> by mutableStateOf(emptyMap())

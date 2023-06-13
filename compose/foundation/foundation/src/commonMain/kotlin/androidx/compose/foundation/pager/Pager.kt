@@ -116,12 +116,10 @@ fun HorizontalPager(
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)? = null,
     pageNestedScrollConnection: NestedScrollConnection = remember(state) {
         PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
     },
-    @Suppress("PrimitiveInLambda")
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -226,12 +224,10 @@ fun HorizontalPager(
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)? = null,
     pageNestedScrollConnection: NestedScrollConnection = remember(state) {
         PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
     },
-    @Suppress("PrimitiveInLambda")
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -306,12 +302,10 @@ fun VerticalPager(
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)? = null,
     pageNestedScrollConnection: NestedScrollConnection = remember(state) {
         PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
     },
-    @Suppress("PrimitiveInLambda")
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -415,12 +409,10 @@ fun VerticalPager(
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)? = null,
     pageNestedScrollConnection: NestedScrollConnection = remember(state) {
         PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
     },
-    @Suppress("PrimitiveInLambda")
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(

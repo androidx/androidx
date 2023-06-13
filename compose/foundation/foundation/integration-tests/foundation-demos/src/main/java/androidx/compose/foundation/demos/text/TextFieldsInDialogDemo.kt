@@ -103,7 +103,6 @@ private val dialogDemos = listOf(
     }
 )
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TextFieldsInDialogDemo() {

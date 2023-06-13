@@ -115,7 +115,6 @@ public fun <T> Modifier.swipeAnchors(
     state: SwipeableV2State<T>,
     possibleValues: Set<T>,
     anchorChangeHandler: AnchorChangeHandler<T>? = null,
-    @Suppress("PrimitiveInLambda")
     calculateAnchor: (value: T, layoutSize: IntSize) -> Float?,
 ) = this.then(SwipeAnchorsModifier(
     onDensityChanged = { state.density = it },
@@ -175,7 +174,6 @@ public class SwipeableV2State<T>(
     initialValue: T,
     internal val animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true },
-    @Suppress("PrimitiveInLambda")
     internal val positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeableV2Defaults.PositionalThreshold,
     internal val velocityThreshold: Dp = SwipeableV2Defaults.VelocityThreshold,
@@ -498,7 +496,6 @@ public class SwipeableV2State<T>(
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (T) -> Boolean,
-            @Suppress("PrimitiveInLambda")
             positionalThreshold: Density.(distance: Float) -> Float,
             velocityThreshold: Dp
         ) = Saver<SwipeableV2State<T>, T>(
@@ -557,7 +554,6 @@ internal fun <T : Any> rememberSwipeableV2State(
  */
 @ExperimentalWearFoundationApi
 @RestrictTo(LIBRARY_GROUP)
-@Suppress("PrimitiveInLambda")
 public fun fixedPositionalThreshold(threshold: Dp): Density.(distance: Float) -> Float = {
     threshold.toPx()
 }
@@ -571,7 +567,6 @@ public fun fixedPositionalThreshold(threshold: Dp): Density.(distance: Float) ->
  */
 @ExperimentalWearFoundationApi
 @RestrictTo(LIBRARY_GROUP)
-@Suppress("PrimitiveInLambda")
 public fun fractionalPositionalThreshold(
     fraction: Float
 ): Density.(distance: Float) -> Float = { distance -> distance * fraction }
@@ -596,7 +591,6 @@ public object SwipeableV2Defaults {
     /**
      * The default positional threshold (56 dp) used by [rememberSwipeableV2State]
      */
-    @Suppress("PrimitiveInLambda")
     val PositionalThreshold: Density.(totalDistance: Float) -> Float =
         fixedPositionalThreshold(56.dp)
 
@@ -617,7 +611,6 @@ public object SwipeableV2Defaults {
     @ExperimentalWearFoundationApi
     internal fun <T> ReconcileAnimationOnAnchorChangeHandler(
         state: SwipeableV2State<T>,
-        @Suppress("PrimitiveInLambda")
         animate: (target: T, velocity: Float) -> Unit,
         snap: (target: T) -> Unit
     ) = AnchorChangeHandler { previousTarget, previousAnchors, newAnchors ->

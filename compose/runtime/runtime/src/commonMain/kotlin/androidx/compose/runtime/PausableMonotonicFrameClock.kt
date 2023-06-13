@@ -58,10 +58,7 @@ class PausableMonotonicFrameClock(
         latch.openLatch()
     }
 
-    override suspend fun <R> withFrameNanos(
-        @Suppress("PrimitiveInLambda")
-        onFrame: (frameTimeNanos: Long) -> R
-    ): R {
+    override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
         latch.await()
         return frameClock.withFrameNanos(onFrame)
     }

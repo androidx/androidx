@@ -566,7 +566,6 @@ object Arrangement {
     internal data class SpacedAligned(
         val space: Dp,
         val rtlMirror: Boolean,
-        @Suppress("PrimitiveInLambda")
         val alignment: ((Int, LayoutDirection) -> Int)?
     ) : HorizontalOrVertical {
 

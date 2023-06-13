@@ -77,7 +77,6 @@ internal class NearestRangeKeyIndexMap(
                     fromIndex = first,
                     toIndex = last,
                 ) {
-                    @Suppress("PrimitiveInLambda")
                     val keyFactory = it.value.key
                     val start = maxOf(first, it.startIndex)
                     val end = minOf(last, it.startIndex + it.size - 1)

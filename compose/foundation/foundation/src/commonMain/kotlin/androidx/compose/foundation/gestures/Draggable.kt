@@ -122,10 +122,7 @@ interface DragScope {
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-fun DraggableState(
-    @Suppress("PrimitiveInLambda")
-    onDelta: (Float) -> Unit
-): DraggableState =
+fun DraggableState(onDelta: (Float) -> Unit): DraggableState =
     DefaultDraggableState(onDelta)
 
 /**
@@ -140,10 +137,7 @@ fun DraggableState(
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Composable
-fun rememberDraggableState(
-    @Suppress("PrimitiveInLambda")
-    onDelta: (Float) -> Unit
-): DraggableState {
+fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
     val onDeltaState = rememberUpdatedState(onDelta)
     return remember { DraggableState { onDeltaState.value.invoke(it) } }
 }
@@ -187,9 +181,7 @@ fun Modifier.draggable(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
     startDragImmediately: Boolean = false,
-    @Suppress("PrimitiveInLambda")
     onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
-    @Suppress("PrimitiveInLambda")
     onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
     reverseDirection: Boolean = false
 ): Modifier = this then DraggableElement(
@@ -542,7 +534,6 @@ private suspend fun AwaitPointerEventScope.onDragOrUp(
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit
 ): Boolean {
-    @Suppress("PrimitiveInLambda")
     val motionFromChange: (PointerInputChange) -> Float = if (orientation == Orientation.Vertical) {
         { it.positionChangeIgnoreConsumed().y }
     } else {
@@ -557,10 +548,7 @@ private suspend fun AwaitPointerEventScope.onDragOrUp(
     )?.let(onDrag) != null
 }
 
-private class DefaultDraggableState(
-    @Suppress("PrimitiveInLambda")
-    val onDelta: (Float) -> Unit
-) : DraggableState {
+private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableState {
 
     private val dragScope: DragScope = object : DragScope {
         override fun dragBy(pixels: Float): Unit = onDelta(pixels)

@@ -143,7 +143,6 @@ internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScop
 @OptIn(ExperimentalLayoutApi::class)
 internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope
 
-@Suppress("PrimitiveInLambda")
 private fun getVerticalArrangement(verticalArrangement: Arrangement.Vertical):
         (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit =
     { totalSize: Int, size: IntArray, _, density: Density, outPosition: IntArray ->
@@ -152,7 +151,6 @@ private fun getVerticalArrangement(verticalArrangement: Arrangement.Vertical):
         }
     }
 
-@Suppress("PrimitiveInLambda")
 private fun getHorizontalArrangement(horizontalArrangement: Arrangement.Horizontal) =
     { totalSize: Int, size: IntArray, layoutDirection: LayoutDirection,
         density: Density, outPosition: IntArray ->
@@ -208,12 +206,10 @@ internal fun columnMeasurementHelper(
  */
 private fun flowMeasurePolicy(
     orientation: LayoutOrientation,
-    @Suppress("PrimitiveInLambda")
     mainAxisArrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
     mainAxisArrangementSpacing: Dp,
     crossAxisSize: SizeMode,
     crossAxisAlignment: CrossAxisAlignment,
-    @Suppress("PrimitiveInLambda")
     crossAxisArrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
     crossAxisArrangementSpacing: Dp,
     maxItemsInMainAxis: Int,
@@ -403,7 +399,6 @@ private fun flowMeasurePolicy(
             maxItemsInMainAxis
         )
 
-        @Suppress("PrimitiveInLambda")
         val maxMainAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int =
             if (orientation == LayoutOrientation.Horizontal) { _, h ->
                 maxIntrinsicWidth(h)
@@ -412,7 +407,6 @@ private fun flowMeasurePolicy(
                 maxIntrinsicHeight(w)
             }
 
-        @Suppress("PrimitiveInLambda")
         val maxCrossAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int =
             if (orientation == LayoutOrientation.Horizontal) { _, w ->
                 maxIntrinsicHeight(w)
@@ -421,7 +415,6 @@ private fun flowMeasurePolicy(
                 maxIntrinsicWidth(h)
             }
 
-        @Suppress("PrimitiveInLambda")
         val minCrossAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int =
             if (orientation == LayoutOrientation.Horizontal) { _, w ->
                 minIntrinsicHeight(w)
@@ -430,7 +423,6 @@ private fun flowMeasurePolicy(
                 minIntrinsicWidth(h)
             }
 
-        @Suppress("PrimitiveInLambda")
         val minMainAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int =
             if (orientation == LayoutOrientation.Horizontal) { _, h ->
                 minIntrinsicWidth(h)
@@ -443,7 +435,6 @@ private fun flowMeasurePolicy(
 
 private fun maxIntrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
-    @Suppress("PrimitiveInLambda")
     mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,
     crossAxisAvailable: Int,
     mainAxisSpacing: Int,
@@ -473,9 +464,7 @@ private fun maxIntrinsicMainAxisSize(
  */
 private fun minIntrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
-    @Suppress("PrimitiveInLambda")
     mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,
-    @Suppress("PrimitiveInLambda")
     crossAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,
     crossAxisAvailable: Int,
     mainAxisSpacing: Int,
@@ -556,9 +545,7 @@ private fun intrinsicCrossAxisSize(
  */
 private fun intrinsicCrossAxisSize(
     children: List<IntrinsicMeasurable>,
-    @Suppress("PrimitiveInLambda")
     mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,
-    @Suppress("PrimitiveInLambda")
     crossAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,
     mainAxisAvailable: Int,
     mainAxisSpacing: Int,

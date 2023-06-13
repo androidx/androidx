@@ -539,7 +539,6 @@ private fun updateHeight(
     view: View,
     coordinates: LayoutCoordinates?,
     verticalMarginInPx: Int,
-    @Suppress("PrimitiveInLambda")
     onHeightUpdate: (Int) -> Unit
 ) {
     coordinates ?: return

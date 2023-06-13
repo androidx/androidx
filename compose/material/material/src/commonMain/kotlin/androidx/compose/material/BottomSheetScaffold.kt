@@ -596,13 +596,11 @@ private enum class BottomSheetScaffoldLayoutSlot { TopBar, Body, Sheet, Fab, Sna
 private fun BottomSheetScaffoldLayout(
     topBar: @Composable (() -> Unit)?,
     body: @Composable (innerPadding: PaddingValues) -> Unit,
-    @Suppress("PrimitiveInLambda")
     bottomSheet: @Composable (layoutHeight: Int) -> Unit,
     floatingActionButton: (@Composable () -> Unit)?,
     snackbarHost: @Composable () -> Unit,
     sheetPeekHeight: Dp,
     floatingActionButtonPosition: FabPosition,
-    @Suppress("PrimitiveInLambda")
     sheetOffset: () -> Float,
     sheetState: BottomSheetState,
 ) {

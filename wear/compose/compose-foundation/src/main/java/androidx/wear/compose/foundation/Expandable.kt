@@ -77,9 +77,7 @@ public fun rememberExpandableState(
 public fun ScalingLazyListScope.expandableItems(
     state: ExpandableState,
     count: Int,
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)? = null,
-    @Suppress("PrimitiveInLambda")
     itemContent: @Composable BoxScope.(index: Int) -> Unit
 ) {
     repeat(count) { itemIndex ->

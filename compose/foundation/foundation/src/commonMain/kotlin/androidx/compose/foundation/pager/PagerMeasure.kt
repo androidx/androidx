@@ -57,7 +57,6 @@ internal fun LazyLayoutMeasureScope.measurePager(
     pageAvailableSize: Int,
     beyondBoundsPageCount: Int,
     pinnedPages: List<Int>,
-    @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -420,7 +419,6 @@ private fun createPagesAfterList(
     pagesCount: Int,
     beyondBoundsPageCount: Int,
     pinnedPages: List<Int>,
-    @Suppress("PrimitiveInLambda")
     getAndMeasure: (Int) -> MeasuredPage
 ): List<MeasuredPage> {
     var list: MutableList<MeasuredPage>? = null
@@ -446,7 +444,6 @@ private fun createPagesBeforeList(
     currentFirstPage: Int,
     beyondBoundsPageCount: Int,
     pinnedPages: List<Int>,
-    @Suppress("PrimitiveInLambda")
     getAndMeasure: (Int) -> MeasuredPage
 ): List<MeasuredPage> {
     var list: MutableList<MeasuredPage>? = null
