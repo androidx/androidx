@@ -16,6 +16,7 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
@@ -31,6 +32,7 @@ androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
 
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
