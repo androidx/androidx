@@ -70,11 +70,15 @@ internal class Operations : OperationsDebugStringFormattable {
      * Resets the collection to its initial state, clearing all stored operations and arguments.
      */
     fun clear() {
-        opCodes = arrayOfNulls(InitialCapacity)
+        // We don't technically need to clear the opCodes or intArgs arrays, because we ensure
+        // that every operation that gets pushed to this data structure has all of its arguments
+        // set exactly once. This guarantees that they'll overwrite any stale, dirty values from
+        // previous entries on the stack, so we shouldn't ever run into problems of having
+        // uninitialized values causing undefined behavior for other operations.
         opCodesSize = 0
-        intArgs = IntArray(InitialCapacity)
         intArgsSize = 0
-        objectArgs = arrayOfNulls(InitialCapacity)
+        // Clear the object arguments array to prevent leaking memory
+        objectArgs.fill(null, fromIndex = 0, toIndex = objectArgsSize)
         objectArgsSize = 0
     }
 
@@ -98,7 +102,8 @@ internal class Operations : OperationsDebugStringFormattable {
 
         // Resize arrays if needed
         if (opCodesSize == opCodes.size) {
-            opCodes = opCodes.copyOf(opCodesSize * 2)
+            val resizeAmount = opCodesSize.coerceAtMost(MaxResizeAmount)
+            opCodes = opCodes.copyOf(opCodesSize + resizeAmount)
         }
         ensureIntArgsSizeAtLeast(intArgsSize + operation.ints)
         ensureObjectArgsSizeAtLeast(objectArgsSize + operation.objects)
@@ -109,15 +114,22 @@ internal class Operations : OperationsDebugStringFormattable {
         objectArgsSize += operation.objects
     }
 
-    private fun ensureIntArgsSizeAtLeast(size: Int) {
-        if (size > intArgs.size) {
-            intArgs = intArgs.copyOf((intArgsSize * 2).coerceAtLeast(size))
+    private fun determineNewSize(currentSize: Int, requiredSize: Int): Int {
+        val resizeAmount = currentSize.coerceAtMost(MaxResizeAmount)
+        return (currentSize + resizeAmount).coerceAtLeast(requiredSize)
+    }
+
+    private fun ensureIntArgsSizeAtLeast(requiredSize: Int) {
+        val currentSize = intArgs.size
+        if (requiredSize > currentSize) {
+            intArgs = intArgs.copyOf(determineNewSize(currentSize, requiredSize))
         }
     }
 
-    private fun ensureObjectArgsSizeAtLeast(size: Int) {
-        if (size > objectArgs.size) {
-            objectArgs = objectArgs.copyOf((objectArgsSize * 2).coerceAtLeast(size))
+    private fun ensureObjectArgsSizeAtLeast(requiredSize: Int) {
+        val currentSize = objectArgs.size
+        if (requiredSize > currentSize) {
+            objectArgs = objectArgs.copyOf(determineNewSize(currentSize, requiredSize))
         }
     }
 
@@ -373,6 +385,7 @@ internal class Operations : OperationsDebugStringFormattable {
     }
 
     companion object {
+        private const val MaxResizeAmount = 1024
         internal const val InitialCapacity = 16
     }
 
