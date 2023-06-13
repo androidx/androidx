@@ -28,6 +28,7 @@ import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.io.IOException;
 
@@ -46,8 +47,8 @@ import java.io.IOException;
  * advanced use cases might want to build solutions on top of the HeifEncoder directly.
  * (eg. mux still images and video tracks into a single container).
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class AvifEncoder extends EncoderBase {
     private static final String TAG = "AvifEncoder";
     private static final boolean DEBUG = false;
