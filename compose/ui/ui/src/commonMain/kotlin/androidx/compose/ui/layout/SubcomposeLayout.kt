@@ -377,14 +377,14 @@ internal class LayoutNodeSubcompositionsState(
 
     private var currentIndex = 0
     private var currentPostLookaheadIndex = 0
-    private val nodeToNodeState = mutableMapOf<LayoutNode, NodeState>()
+    private val nodeToNodeState = hashMapOf<LayoutNode, NodeState>()
 
     // this map contains active slotIds (without precomposed or reusable nodes)
-    private val slotIdToNode = mutableMapOf<Any?, LayoutNode>()
+    private val slotIdToNode = hashMapOf<Any?, LayoutNode>()
     private val scope = Scope()
     private val postLookaheadMeasureScope = PostLookaheadMeasureScopeImpl()
 
-    private val precomposeMap = mutableMapOf<Any?, LayoutNode>()
+    private val precomposeMap = hashMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
     // SlotHandles precomposed in the post-lookahead pass.
     private val postLookaheadPrecomposeSlotHandleMap = mutableMapOf<Any?, PrecomposedSlotHandle>()
@@ -427,13 +427,16 @@ internal class LayoutNodeSubcompositionsState(
             }
         }
 
-        val itemIndex = root.foldedChildren.indexOf(node)
-        require(itemIndex >= currentIndex) {
-            "Key \"$slotId\" was already used. If you are using LazyColumn/Row please make " +
-                "sure you provide a unique key for each item."
-        }
-        if (currentIndex != itemIndex) {
-            move(itemIndex, currentIndex)
+        if (root.foldedChildren.getOrNull(currentIndex) !== node) {
+            // the node has a new index in the list
+            val itemIndex = root.foldedChildren.indexOf(node)
+            require(itemIndex >= currentIndex) {
+                "Key \"$slotId\" was already used. If you are using LazyColumn/Row please make " +
+                    "sure you provide a unique key for each item."
+            }
+            if (currentIndex != itemIndex) {
+                move(itemIndex, currentIndex)
+            }
         }
         currentIndex++
 
@@ -548,14 +551,15 @@ internal class LayoutNodeSubcompositionsState(
     }
 
     fun makeSureStateIsConsistent() {
-        require(nodeToNodeState.size == root.foldedChildren.size) {
+        val childrenCount = root.foldedChildren.size
+        require(nodeToNodeState.size == childrenCount) {
             "Inconsistency between the count of nodes tracked by the state " +
                 "(${nodeToNodeState.size}) and the children count on the SubcomposeLayout" +
-                " (${root.foldedChildren.size}). Are you trying to use the state of the" +
+                " ($childrenCount). Are you trying to use the state of the" +
                 " disposed SubcomposeLayout?"
         }
-        require(root.foldedChildren.size - reusableCount - precomposedCount >= 0) {
-            "Incorrect state. Total children ${root.foldedChildren.size}. Reusable children " +
+        require(childrenCount - reusableCount - precomposedCount >= 0) {
+            "Incorrect state. Total children $childrenCount. Reusable children " +
                 "$reusableCount. Precomposed children $precomposedCount"
         }
         require(precomposeMap.size == precomposedCount) {
