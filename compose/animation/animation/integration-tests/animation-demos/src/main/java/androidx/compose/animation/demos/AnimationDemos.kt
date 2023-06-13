@@ -44,6 +44,7 @@ import androidx.compose.animation.demos.lookahead.LookaheadWithBoxWithConstraint
 import androidx.compose.animation.demos.lookahead.LookaheadWithDisappearingMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithIntrinsicsDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithLazyColumn
 import androidx.compose.animation.demos.lookahead.LookaheadWithMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithScaffold
 import androidx.compose.animation.demos.lookahead.LookaheadWithSubcompose
@@ -126,6 +127,7 @@ val AnimationDemos = DemoCategory(
                     LookaheadWithBoxWithConstraints()
                 },
                 ComposableDemo("Lookahead With Subcompose") { LookaheadWithSubcompose() },
+                ComposableDemo("Lookahead With LazyColumn") { LookaheadWithLazyColumn() },
                 ComposableDemo("Lookahead With Flow Row") { LookaheadWithFlowRowDemo() },
                 ComposableDemo("Lookahead With Intrinsics") {
                     LookaheadWithIntrinsicsDemo()

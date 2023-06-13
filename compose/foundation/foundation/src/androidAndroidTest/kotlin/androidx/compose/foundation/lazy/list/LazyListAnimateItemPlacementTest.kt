@@ -49,7 +49,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -86,6 +88,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
 
     private val isVertical: Boolean get() = config.isVertical
     private val reverseLayout: Boolean get() = config.reverseLayout
+    private val isInLookaheadScope: Boolean get() = config.isInLookaheadScope
 
     @get:Rule
     val rule = createComposeRule()
@@ -1842,6 +1845,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     private fun LazyList(
         arrangement: Arrangement.HorizontalOrVertical? = null,
@@ -1854,63 +1858,70 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         endPadding: Dp = 0.dp,
         content: LazyListScope.() -> Unit
     ) {
-        state = rememberLazyListState(startIndex)
-        if (isVertical) {
-            val verticalArrangement =
-                arrangement ?: if (!reverseLayout) Arrangement.Top else Arrangement.Bottom
-            val horizontalAlignment = if (crossAxisAlignment == CrossAxisAlignment.Start) {
-                Alignment.Start
-            } else if (crossAxisAlignment == CrossAxisAlignment.Center) {
-                Alignment.CenterHorizontally
-            } else {
-                Alignment.End
-            }
-            LazyColumn(
-                state = state,
-                modifier = Modifier
-                    .requiredHeightIn(min = minSize, max = maxSize)
-                    .then(
-                        if (crossAxisSize != Dp.Unspecified) {
-                            Modifier.requiredWidth(crossAxisSize)
-                        } else {
-                            Modifier.fillMaxWidth()
-                        }
-                    )
-                    .testTag(ContainerTag),
-                verticalArrangement = verticalArrangement,
-                horizontalAlignment = horizontalAlignment,
-                reverseLayout = reverseLayout,
-                contentPadding = PaddingValues(top = startPadding, bottom = endPadding),
-                content = content
-            )
+        val container: @Composable (@Composable () -> Unit) -> Unit = if (isInLookaheadScope) {
+            { LookaheadScope { it() } }
         } else {
-            val horizontalArrangement =
-                arrangement ?: if (!reverseLayout) Arrangement.Start else Arrangement.End
-            val verticalAlignment = if (crossAxisAlignment == CrossAxisAlignment.Start) {
-                Alignment.Top
-            } else if (crossAxisAlignment == CrossAxisAlignment.Center) {
-                Alignment.CenterVertically
+            { it() }
+        }
+        container {
+            state = rememberLazyListState(startIndex)
+            if (isVertical) {
+                val verticalArrangement =
+                    arrangement ?: if (!reverseLayout) Arrangement.Top else Arrangement.Bottom
+                val horizontalAlignment = if (crossAxisAlignment == CrossAxisAlignment.Start) {
+                    Alignment.Start
+                } else if (crossAxisAlignment == CrossAxisAlignment.Center) {
+                    Alignment.CenterHorizontally
+                } else {
+                    Alignment.End
+                }
+                LazyColumn(
+                    state = state,
+                    modifier = Modifier
+                        .requiredHeightIn(min = minSize, max = maxSize)
+                        .then(
+                            if (crossAxisSize != Dp.Unspecified) {
+                                Modifier.requiredWidth(crossAxisSize)
+                            } else {
+                                Modifier.fillMaxWidth()
+                            }
+                        )
+                        .testTag(ContainerTag),
+                    verticalArrangement = verticalArrangement,
+                    horizontalAlignment = horizontalAlignment,
+                    reverseLayout = reverseLayout,
+                    contentPadding = PaddingValues(top = startPadding, bottom = endPadding),
+                    content = content
+                )
             } else {
-                Alignment.Bottom
+                val horizontalArrangement =
+                    arrangement ?: if (!reverseLayout) Arrangement.Start else Arrangement.End
+                val verticalAlignment = if (crossAxisAlignment == CrossAxisAlignment.Start) {
+                    Alignment.Top
+                } else if (crossAxisAlignment == CrossAxisAlignment.Center) {
+                    Alignment.CenterVertically
+                } else {
+                    Alignment.Bottom
+                }
+                LazyRow(
+                    state = state,
+                    modifier = Modifier
+                        .requiredWidthIn(min = minSize, max = maxSize)
+                        .then(
+                            if (crossAxisSize != Dp.Unspecified) {
+                                Modifier.requiredHeight(crossAxisSize)
+                            } else {
+                                Modifier.fillMaxHeight()
+                            }
+                        )
+                        .testTag(ContainerTag),
+                    horizontalArrangement = horizontalArrangement,
+                    verticalAlignment = verticalAlignment,
+                    reverseLayout = reverseLayout,
+                    contentPadding = PaddingValues(start = startPadding, end = endPadding),
+                    content = content
+                )
             }
-            LazyRow(
-                state = state,
-                modifier = Modifier
-                    .requiredWidthIn(min = minSize, max = maxSize)
-                    .then(
-                        if (crossAxisSize != Dp.Unspecified) {
-                            Modifier.requiredHeight(crossAxisSize)
-                        } else {
-                            Modifier.fillMaxHeight()
-                        }
-                    )
-                    .testTag(ContainerTag),
-                horizontalArrangement = horizontalArrangement,
-                verticalAlignment = verticalAlignment,
-                reverseLayout = reverseLayout,
-                contentPadding = PaddingValues(start = startPadding, end = endPadding),
-                content = content
-            )
         }
     }
 
@@ -1952,19 +1963,22 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() = arrayOf(
-            Config(isVertical = true, reverseLayout = false),
-            Config(isVertical = false, reverseLayout = false),
-            Config(isVertical = true, reverseLayout = true),
-            Config(isVertical = false, reverseLayout = true),
+            Config(isVertical = true, reverseLayout = false, isInLookaheadScope = false),
+            Config(isVertical = false, reverseLayout = false, isInLookaheadScope = false),
+            Config(isVertical = true, reverseLayout = true, isInLookaheadScope = false),
+            Config(isVertical = false, reverseLayout = true, isInLookaheadScope = false),
+            Config(isVertical = true, reverseLayout = false, isInLookaheadScope = true)
         )
 
         class Config(
             val isVertical: Boolean,
-            val reverseLayout: Boolean
+            val reverseLayout: Boolean,
+            val isInLookaheadScope: Boolean
         ) {
             override fun toString() =
                 (if (isVertical) "LazyColumn" else "LazyRow") +
-                    (if (reverseLayout) "(reverse)" else "")
+                    (if (reverseLayout) "(reverse)" else "") +
+                    (if (isInLookaheadScope) "(in LookaheadScope)" else "")
         }
     }
 }
