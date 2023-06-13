@@ -24,7 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.annotation.CallSuper
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
@@ -213,13 +213,11 @@ abstract class PreferenceHeaderFragmentCompat :
         childFragmentManager.addOnBackStackChangedListener {
             onBackPressedCallback!!.isEnabled = childFragmentManager.backStackEntryCount == 0
         }
-        val onBackPressedDispatcherOwner = requireContext() as? OnBackPressedDispatcherOwner
-        onBackPressedDispatcherOwner?.let {
-            it.onBackPressedDispatcher.addCallback(
-                viewLifecycleOwner,
-                onBackPressedCallback!!
-            )
-        }
+        val onBackPressedDispatcherOwner = view.findViewTreeOnBackPressedDispatcherOwner()
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher?.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback!!
+        )
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
