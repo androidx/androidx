@@ -35,6 +35,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -48,9 +49,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class holds common utliities for {@link HeifWriter} and {@link AvifWriter}.
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WriterBase implements AutoCloseable {
     private static final String TAG = "WriterBase";
     private static final boolean DEBUG = false;
@@ -83,7 +83,8 @@ public class WriterBase implements AutoCloseable {
      */
     protected static final int INPUT_MODE_BITMAP = 2;
 
-    /** @hide */
+    /** */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         INPUT_MODE_BUFFER, INPUT_MODE_SURFACE, INPUT_MODE_BITMAP,
     })

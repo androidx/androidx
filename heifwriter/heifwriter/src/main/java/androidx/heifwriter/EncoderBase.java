@@ -40,6 +40,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -65,9 +66,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *  * advanced use cases might want to build solutions on top of the HeifEncoder directly.
  *  * (eg. mux still images and video tracks into a single container).
  *
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EncoderBase implements AutoCloseable,
     SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "EncoderBase";
