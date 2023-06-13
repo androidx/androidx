@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateOnceTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -39,6 +40,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
@@ -141,7 +143,14 @@ class StillCaptureRequestControl @Inject constructor(
         // Prior to submitStillCaptures, wait until the pending flash mode session change is
         // completed. On some devices, AE preCapture triggered in submitStillCaptures may not
         // work properly if the repeating request to change the flash mode is not completed.
-        flashControl.updateSignal.join()
+        debug { "StillCaptureRequestControl: Waiting for flash control" }
+        withTimeoutOrNull(1_000L) {
+            flashControl.updateSignal.join()
+        } ?: {
+            warn { "StillCaptureRequestControl: Waiting for flash control timed out" }
+        }
+        debug { "StillCaptureRequestControl: Waiting for flash control done" }
+        debug { "StillCaptureRequestControl: Issuing single capture" }
         val deferredList = camera.requestControl.issueSingleCaptureAsync(
             request.captureConfigs,
             request.captureMode,
@@ -152,7 +161,10 @@ class StillCaptureRequestControl @Inject constructor(
         return threads.sequentialScope.async {
             // requestControl.issueSingleCaptureAsync shouldn't be invoked from here directly,
             // because sequentialScope.async is may not be executed immediately
-            deferredList.awaitAll()
+            debug { "StillCaptureRequestControl: Waiting for deferred list from $request" }
+            deferredList.awaitAll().also {
+                debug { "StillCaptureRequestControl: Waiting for deferred list from $request done" }
+            }
         }
     }
 
