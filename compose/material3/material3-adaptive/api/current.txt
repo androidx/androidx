@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.compose.material3.adaptive {
 
-  public final class AdaptiveLayoutDirective {
+  @androidx.compose.runtime.Immutable public final class AdaptiveLayoutDirective {
     ctor public AdaptiveLayoutDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, optional int maxVerticalPartitions);
     method public androidx.compose.material3.adaptive.GutterSizes getGutterSizes();
     method public int getMaxHorizontalPartitions();
@@ -29,7 +29,7 @@ package androidx.compose.material3.adaptive {
   @kotlin.RequiresOptIn(message="This material3-adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
-  public final class GutterSizes {
+  @androidx.compose.runtime.Immutable public final class GutterSizes {
     ctor public GutterSizes(float outerVertical, float innerVertical, optional float outerHorizontal, optional float innerHorizontal);
     method public float getInnerHorizontal();
     method public float getInnerVertical();
@@ -41,11 +41,11 @@ package androidx.compose.material3.adaptive {
     property public final float outerVertical;
   }
 
-  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class PaneAdaptedState {
-    field public static final androidx.compose.material3.adaptive.PaneAdaptedState.Companion Companion;
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class PaneAdaptedValue {
+    field public static final androidx.compose.material3.adaptive.PaneAdaptedValue.Companion Companion;
   }
 
-  public static final class PaneAdaptedState.Companion {
+  public static final class PaneAdaptedValue.Companion {
     method public String getExpanded();
     method public String getHidden();
     property public final String Expanded;
@@ -56,7 +56,7 @@ package androidx.compose.material3.adaptive {
     method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, float width);
   }
 
-  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class Posture {
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class Posture {
     ctor public Posture(optional boolean hasVerticalHinge, optional boolean isTabletop, optional boolean hasSeparatingHinge);
     method public boolean getHasSeparatingHinge();
     method public boolean getHasVerticalHinge();
@@ -84,17 +84,17 @@ package androidx.compose.material3.adaptive {
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Tertiary;
   }
 
-  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldState {
-    ctor public ThreePaneScaffoldState(String primaryPaneAdaptedState, String secondaryPaneAdaptedState, String tertiaryPaneAdaptedState);
-    method public String getPrimaryPaneAdaptedState();
-    method public String getSecondaryPaneAdaptedState();
-    method public String getTertiaryPaneAdaptedState();
-    property public final String primaryPaneAdaptedState;
-    property public final String secondaryPaneAdaptedState;
-    property public final String tertiaryPaneAdaptedState;
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue {
+    ctor public ThreePaneScaffoldValue(String primary, String secondary, String tertiary);
+    method public String getPrimary();
+    method public String getSecondary();
+    method public String getTertiary();
+    property public final String primary;
+    property public final String secondary;
+    property public final String tertiary;
   }
 
-  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class WindowAdaptiveInfo {
+  @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class WindowAdaptiveInfo {
     ctor public WindowAdaptiveInfo(androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass, androidx.compose.material3.adaptive.Posture posture);
     method public androidx.compose.material3.adaptive.Posture getPosture();
     method public androidx.compose.material3.windowsizeclass.WindowSizeClass getWindowSizeClass();

@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -140,6 +141,7 @@ fun calculateDenseAdaptiveLayoutDirective(
  * Top-level directives about how an adaptive layout should be arranged and spaced, like how many
  * partitions the layout can be split into and what should be the gutter size.
  */
+@Immutable
 class AdaptiveLayoutDirective(
     /** How many partitions along the horizontal axis the respective layout can be split into. */
     val maxHorizontalPartitions: Int,
@@ -174,6 +176,7 @@ class AdaptiveLayoutDirective(
  * ([outerVertical] and [outerHorizontal]). Usually we will expect larger gutter sizes to be set
  * when the layout is larger and more panes are shown in the layout.
  */
+@Immutable
 class GutterSizes(
     /**
      * Size of the outer vertical gutters. It's similar to left/right paddings of a normal layout.

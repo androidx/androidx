@@ -16,39 +16,43 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.runtime.Immutable
+
 /**
  * The adapted state of [ThreePaneScaffold]. It contains each pane's adapted state.
  * [ThreePaneScaffold] will use the adapted states to decide which panes should be displayed
  * and how they should be displayed. With other input parameters of [ThreePaneScaffold] fixed,
  * each possible instance of this class should represent a unique state of [ThreePaneScaffold]
- * and developers can compare two [ThreePaneScaffoldState] to decide if there is a layout structure
+ * and developers can compare two [ThreePaneScaffoldValue] to decide if there is a layout structure
  * change.
  *
  * For a Material-opinionated layout, it's suggested to use [calculateThreePaneScaffoldState] to
  * calculate the current scaffold state.
+ *
+ * @param primary [PaneAdaptedValue] of the primary pane of [ThreePaneScaffold]
+ * @param secondary [PaneAdaptedValue] of the secondary pane of [ThreePaneScaffold]
+ * @param tertiary [PaneAdaptedValue] of the tertiary pane of [ThreePaneScaffold]
  */
 @ExperimentalMaterial3AdaptiveApi
-class ThreePaneScaffoldState(
-    /** [PaneAdaptedState] of the primary pane of [ThreePaneScaffold]. */
-    val primaryPaneAdaptedState: PaneAdaptedState,
-    /** [PaneAdaptedState] of the secondary pane of [ThreePaneScaffold]. */
-    val secondaryPaneAdaptedState: PaneAdaptedState,
-    /** [PaneAdaptedState] of the tertiary pane of [ThreePaneScaffold]. */
-    val tertiaryPaneAdaptedState: PaneAdaptedState
+@Immutable
+class ThreePaneScaffoldValue(
+    val primary: PaneAdaptedValue,
+    val secondary: PaneAdaptedValue,
+    val tertiary: PaneAdaptedValue
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ThreePaneScaffoldState) return false
-        if (primaryPaneAdaptedState != other.primaryPaneAdaptedState) return false
-        if (secondaryPaneAdaptedState != other.secondaryPaneAdaptedState) return false
-        if (tertiaryPaneAdaptedState != other.tertiaryPaneAdaptedState) return false
+        if (other !is ThreePaneScaffoldValue) return false
+        if (primary != other.primary) return false
+        if (secondary != other.secondary) return false
+        if (tertiary != other.tertiary) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = primaryPaneAdaptedState.hashCode()
-        result = 31 * result + secondaryPaneAdaptedState.hashCode()
-        result = 31 * result + tertiaryPaneAdaptedState.hashCode()
+        var result = primary.hashCode()
+        result = 31 * result + secondary.hashCode()
+        result = 31 * result + tertiary.hashCode()
         return result
     }
 }
