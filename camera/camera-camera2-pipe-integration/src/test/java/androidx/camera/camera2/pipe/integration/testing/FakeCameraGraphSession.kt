@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
+import androidx.camera.camera2.pipe.integration.impl.FakeCaptureFailure
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.ABORTED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.FAILED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
@@ -169,19 +170,26 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         request: Request,
         status: RequestStatus
     ) {
+        val requestMetadata = FakeRequestMetadata(request = request)
         last().listeners.forEach { listener ->
             when (status) {
                 TOTAL_CAPTURE_DONE -> listener.onTotalCaptureResult(
-                    FakeRequestMetadata(request = request), FrameNumber(0), FakeFrameInfo()
+                    requestMetadata, FrameNumber(0), FakeFrameInfo()
                 )
 
-                FAILED -> @Suppress("DEPRECATION") listener.onFailed(
-                    FakeRequestMetadata(request = request), FrameNumber(0), getFakeCaptureFailure()
+                FAILED -> listener.onFailed(
+                    requestMetadata,
+                    FrameNumber(0),
+                    FakeCaptureFailure(
+                        requestMetadata,
+                        false,
+                        FrameNumber(0),
+                        CaptureFailure.REASON_ERROR,
+                        null
+                    )
                 )
 
-                ABORTED -> listener.onRequestSequenceAborted(
-                    FakeRequestMetadata(request = request)
-                )
+                ABORTED -> listener.onRequestSequenceAborted(requestMetadata)
             }
         }
     }
