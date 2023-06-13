@@ -2089,6 +2089,24 @@ class XTypeElementTest(
         }
     }
 
+    @Test
+    fun testClassNameWithDollarSign() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "test.MyClass\$Foo",
+                    """
+                    package test;
+                    class MyClass${'$'}Foo {}
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.MyClass\$Foo")
+            assertThat(subject.asClassName().canonicalName).isEqualTo("test.MyClass\$Foo")
+        }
+    }
+
     /**
      * it is good to exclude methods coming from Object when testing as they differ between KSP
      * and KAPT but irrelevant for Room.
