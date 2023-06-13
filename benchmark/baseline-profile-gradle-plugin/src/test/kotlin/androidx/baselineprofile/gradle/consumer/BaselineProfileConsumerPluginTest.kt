@@ -1020,6 +1020,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             """.trimIndent(),
             buildTypesBlock = "",
             dependencyOnProducerProject = false,
+            dependenciesBlock = """
+                implementation(project(":${projectSetup.dependency.name}"))
+            """.trimIndent(),
             baselineProfileBlock = """
                 variants {
                     free { from(project(":${projectSetup.producer.name}")) }
@@ -1127,6 +1130,131 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
                     Fixtures.CLASS_1_METHOD_1,
                     Fixtures.CLASS_1
                 )
+        }
+    }
+
+    @Test
+    fun testVariantSpecificDependencies() {
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1
+            )
+        )
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            dependenciesBlock = """
+               releaseImplementation(project(":${projectSetup.dependency.name}"))
+            """.trimIndent()
+        )
+        gradleRunner.build("generateReleaseBaselineProfile", "--stacktrace") {
+            assertThat(readBaselineProfileFileContent("release"))
+                .containsExactly(
+                    Fixtures.CLASS_1_METHOD_1,
+                    Fixtures.CLASS_1
+                )
+        }
+    }
+
+    @Test
+    fun testVariantSpecificDependenciesWithFlavorsAndMultipleBuildTypes() {
+        projectSetup.consumer.setupWithBlocks(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavorsBlock = """
+                flavorDimensions = ["tier"]
+                free { dimension "tier" }
+                paid { dimension "tier" }
+            """.trimIndent(),
+            buildTypesBlock = """
+                anotherRelease { initWith(release) }
+            """.trimIndent(),
+            dependencyOnProducerProject = true,
+            dependenciesBlock = """
+                releaseImplementation(project(":${projectSetup.dependency.name}"))
+                anotherReleaseImplementation(project(":${projectSetup.dependency.name}"))
+            """.trimIndent(),
+        )
+        projectSetup.producer.setup(
+            variantProfiles = listOf(
+                VariantProfile(
+                    flavorDimensions = mapOf("tier" to "free"),
+                    buildType = "release",
+                    profileFileLines = mapOf(
+                        "test-output-baseline-free-release" to listOf(
+                            Fixtures.CLASS_1_METHOD_1,
+                            Fixtures.CLASS_1
+                        )
+                    ),
+                    startupFileLines = mapOf()
+                ),
+                VariantProfile(
+                    flavorDimensions = mapOf("tier" to "paid"),
+                    buildType = "release",
+                    profileFileLines = mapOf(
+                        "test-output-baseline-paid-release" to listOf(
+                            Fixtures.CLASS_2_METHOD_1,
+                            Fixtures.CLASS_2
+                        )
+                    ),
+                    startupFileLines = mapOf()
+                ),
+                VariantProfile(
+                    flavorDimensions = mapOf("tier" to "free"),
+                    buildType = "anotherRelease",
+                    profileFileLines = mapOf(
+                        "test-output-baseline-free-anotherRelease" to listOf(
+                            Fixtures.CLASS_3_METHOD_1,
+                            Fixtures.CLASS_3
+                        )
+                    ),
+                    startupFileLines = mapOf()
+                ),
+                VariantProfile(
+                    flavorDimensions = mapOf("tier" to "paid"),
+                    buildType = "anotherRelease",
+                    profileFileLines = mapOf(
+                        "test-output-baseline-paid-anotherRelease" to listOf(
+                            Fixtures.CLASS_4_METHOD_1,
+                            Fixtures.CLASS_4
+                        )
+                    ),
+                    startupFileLines = mapOf()
+                ),
+            )
+        )
+
+        data class Expected(val variantName: String, val profileLines: List<String>)
+        arrayOf(
+            Expected(
+                variantName = "freeRelease",
+                profileLines = listOf(
+                    Fixtures.CLASS_1_METHOD_1,
+                    Fixtures.CLASS_1
+                )
+            ),
+            Expected(
+                variantName = "paidRelease", profileLines = listOf(
+                    Fixtures.CLASS_2_METHOD_1,
+                    Fixtures.CLASS_2
+                )
+            ),
+            Expected(
+                variantName = "freeAnotherRelease", profileLines = listOf(
+                    Fixtures.CLASS_3_METHOD_1,
+                    Fixtures.CLASS_3
+                )
+            ),
+            Expected(
+                variantName = "paidAnotherRelease", profileLines = listOf(
+                    Fixtures.CLASS_4_METHOD_1,
+                    Fixtures.CLASS_4
+                )
+            ),
+        ).forEach { expected ->
+            gradleRunner.build(camelCase("generate", expected.variantName, "baselineProfile")) {
+                assertThat(readBaselineProfileFileContent(expected.variantName))
+                    .containsExactlyElementsIn(expected.profileLines)
+            }
         }
     }
 }
@@ -1535,6 +1663,9 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: String?) {
             otherPluginsBlock = """
                 id("org.jetbrains.kotlin.multiplatform")
             """.trimIndent(),
+            dependenciesBlock = """
+                implementation(project(":${projectSetup.dependency.name}"))
+            """.trimIndent(),
             additionalGradleCodeBlock = """
                 kotlin {
                     jvm { }
@@ -1579,6 +1710,9 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: String?) {
             androidPlugin = ANDROID_LIBRARY_PLUGIN,
             otherPluginsBlock = """
                 id("org.jetbrains.kotlin.multiplatform")
+            """.trimIndent(),
+            dependenciesBlock = """
+                implementation(project(":${projectSetup.dependency.name}"))
             """.trimIndent(),
             additionalGradleCodeBlock = """
                 kotlin {
