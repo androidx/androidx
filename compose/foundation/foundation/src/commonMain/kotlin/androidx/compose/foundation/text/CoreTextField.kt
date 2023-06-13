@@ -208,7 +208,7 @@ internal fun CoreTextField(
 
     // CompositionLocals
     // If the text field is disabled or read-only, we should not deal with the input service
-    val textInputService = if (!enabled || readOnly) null else LocalTextInputService.current
+    val textInputService = LocalTextInputService.current
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor

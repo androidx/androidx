@@ -173,8 +173,8 @@ class ModifierNodeVisitLocalDescendantsTest {
             )
         }
         rule.runOnIdle {
-            child1.detach()
-            child3.detach()
+            child1.markAsDetached()
+            child3.markAsDetached()
         }
 
         // Act.
