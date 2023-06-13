@@ -1,0 +1,34 @@
+// Signature format: 4.0
+package androidx.wear.protolayout.renderer.impl {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProtoLayoutViewInstance implements java.lang.AutoCloseable {
+    ctor public ProtoLayoutViewInstance(androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config);
+    method public void close() throws java.lang.Exception;
+    method @UiThread public void detach(android.view.ViewGroup);
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> renderAndAttach(androidx.wear.protolayout.proto.LayoutElementProto.Layout, androidx.wear.protolayout.proto.ResourceProto.Resources, android.view.ViewGroup);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class ProtoLayoutViewInstance.Config {
+    method public com.google.common.util.concurrent.ListeningExecutorService getBgExecutorService();
+    method public String getClickableIdExtra();
+    method public androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.LoadActionListener getLoadActionListener();
+    method public java.util.Map<androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!,java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>!> getPlatformDataProviders();
+    method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
+    method public android.content.Context getUiContext();
+    method public com.google.common.util.concurrent.ListeningExecutorService getUiExecutorService();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class ProtoLayoutViewInstance.Config.Builder {
+    ctor public ProtoLayoutViewInstance.Config.Builder(android.content.Context, com.google.common.util.concurrent.ListeningExecutorService, com.google.common.util.concurrent.ListeningExecutorService, String);
+    method public androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, androidx.wear.protolayout.expression.PlatformDataKey<?>!...);
+    method public androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config build();
+    method public androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config.Builder setLoadActionListener(androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.LoadActionListener);
+    method public androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.StateStore);
+  }
+
+  public static interface ProtoLayoutViewInstance.LoadActionListener {
+    method public void onClick(androidx.wear.protolayout.proto.StateProto.State);
+  }
+
+}
+
