@@ -22,15 +22,16 @@ import androidx.compose.runtime.Immutable
  * Represents the pane order of [ThreePaneScaffold] from start to end. Note that the values of
  * [firstPane], [secondPane] and [thirdPane] have to be different, otherwise
  * [IllegalArgumentException] will be thrown.
+ *
+ * @param firstPane The first pane from the start of the [ThreePaneScaffold]
+ * @param secondPane The second pane from the start of the [ThreePaneScaffold]
+ * @param thirdPane The third pane from the start of the [ThreePaneScaffold]
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class ThreePaneScaffoldArrangement(
-    /** The first pane from the start of the [ThreePaneScaffold]. */
     val firstPane: ThreePaneScaffoldRole,
-    /** The second pane from the start of the [ThreePaneScaffold]. */
     val secondPane: ThreePaneScaffoldRole,
-    /** The third pane from the start of the [ThreePaneScaffold]. */
     val thirdPane: ThreePaneScaffoldRole
 ) {
     init {

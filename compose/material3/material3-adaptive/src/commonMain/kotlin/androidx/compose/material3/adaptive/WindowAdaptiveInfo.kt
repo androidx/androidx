@@ -17,12 +17,14 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.runtime.Immutable
 
 /**
  * This class collects window info that affects adaptation decisions. An adaptive layout is supposed
  * to use the info from this class to decide how the layout is supposed to be adapted.
  */
 @ExperimentalMaterial3AdaptiveApi
+@Immutable
 class WindowAdaptiveInfo(
     /** [WindowSizeClass] of the current window. */
     val windowSizeClass: WindowSizeClass,

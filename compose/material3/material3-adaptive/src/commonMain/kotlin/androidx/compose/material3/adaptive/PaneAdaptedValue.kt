@@ -22,15 +22,15 @@ package androidx.compose.material3.adaptive
  */
 @ExperimentalMaterial3AdaptiveApi
 @JvmInline
-value class PaneAdaptedState private constructor(private val description: String) {
+value class PaneAdaptedValue private constructor(private val description: String) {
     companion object {
         /**
          * Denotes that the associated pane should be displayed in its full width and height.
          */
-        val Expanded = PaneAdaptedState("Expanded")
+        val Expanded = PaneAdaptedValue("Expanded")
         /**
          * Denotes that the associated pane should be hidden.
          */
-        val Hidden = PaneAdaptedState("Hidden")
+        val Hidden = PaneAdaptedValue("Hidden")
     }
 }
