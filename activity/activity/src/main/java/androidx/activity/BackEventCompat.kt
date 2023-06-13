@@ -16,6 +16,7 @@
 
 package androidx.activity
 
+import android.os.Build
 import android.window.BackEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
@@ -75,7 +76,7 @@ class BackEventCompat @VisibleForTesting constructor(
     @OptIn(BuildCompat.PrereleaseSdkCheck::class)
     @Suppress("PrereleaseSdkCoreDependency")
     fun toBackEvent(): BackEvent {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.createOnBackEvent(touchX, touchY, progress, swipeEdge)
         } else {
             throw UnsupportedOperationException("This method is only supported on API level 34+")
