@@ -24,6 +24,7 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
 import androidx.graphics.drawSquares
+import androidx.graphics.opengl.SurfaceViewTestActivity
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
 import androidx.lifecycle.Lifecycle
@@ -94,7 +95,7 @@ class CanvasFrontBufferedRendererTest {
         var renderer: CanvasFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -170,7 +171,7 @@ class CanvasFrontBufferedRendererTest {
         var renderer: CanvasFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -277,7 +278,7 @@ class CanvasFrontBufferedRendererTest {
         var renderer: CanvasFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -372,7 +373,7 @@ class CanvasFrontBufferedRendererTest {
         var renderer: CanvasFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -411,7 +412,7 @@ class CanvasFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testMultiBufferedContentsNotPersisted() {
-        val screenWidth = FrontBufferedRendererTestActivity.WIDTH
+        val screenWidth = SurfaceViewTestActivity.WIDTH
         val renderLatch = CountDownLatch(1)
         val firstDrawLatch = CountDownLatch(1)
         val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
@@ -456,7 +457,7 @@ class CanvasFrontBufferedRendererTest {
         var renderer: CanvasFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -573,7 +574,7 @@ class CanvasFrontBufferedRendererTest {
             Assert.assertTrue(automation.setRotation(rotation))
             automation.waitForIdle(1000, 3000)
 
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -648,9 +649,9 @@ class CanvasFrontBufferedRendererTest {
             }
         }
         var renderer: CanvasFrontBufferedRenderer<Any>? = null
-        var surfaceView: FrontBufferedRendererTestActivity.TestSurfaceView? = null
+        var surfaceView: SurfaceViewTestActivity.TestSurfaceView? = null
         val createLatch = CountDownLatch(1)
-        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+        ActivityScenario.launch(SurfaceViewTestActivity::class.java)
             .moveToState(Lifecycle.State.CREATED)
             .onActivity {
                 surfaceView = it.getSurfaceView()
