@@ -62,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
@@ -2142,6 +2143,85 @@ class LookaheadScopeTest {
             assertEquals(150, intrinsicsResult["minHeight"])
             assertEquals(100, intrinsicsResult["maxWidth"])
             assertEquals(100, intrinsicsResult["minWidth"])
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun lookaheadSizeTrackedWhenModifierChanges() {
+        var expanded by mutableStateOf(true)
+        val lookaheadHeight = mutableListOf(0, 0, 0)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    Layout(content = {
+                        repeat(3) {
+                            Column(Modifier.layout { measurable, constraints ->
+                                measurable.measure(constraints).run {
+                                    layout(width, height) { place(0, 0) }
+                                }
+                            }) {
+                                Box(
+                                    Modifier
+                                        .requiredHeight(100.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    Text("$it")
+                                }
+                                // Bring in a new modifier while setting the size to 0.
+                                Box(
+                                    (if (!expanded) Modifier.clipToBounds() else Modifier)
+                                        .then(Modifier.layout { measurable, constraints ->
+                                            measurable.measure(constraints).run {
+                                                val (w, h) = if (isLookingAhead) {
+                                                    if (!expanded) IntSize.Zero else IntSize(
+                                                        width,
+                                                        height
+                                                    )
+                                                } else {
+                                                    IntSize(width, height)
+                                                }
+                                                layout(w, h) {
+                                                    place(0, 0)
+                                                }
+                                            }
+                                        })
+                                ) {
+                                    Box(
+                                        Modifier
+                                            .requiredHeight(100.dp)
+                                            .fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+                    }) { measurables, constraints ->
+                        measurables.map { it.measure(constraints) }.run {
+                            layout(this[0].width, this[0].height * 3) {
+                                var h = 0
+                                forEachIndexed { id, placeable ->
+                                    if (isLookingAhead) {
+                                        lookaheadHeight[id] = placeable.height
+                                    }
+                                    placeable.place(0, h)
+                                    h += placeable.height
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repeat(3) {
+            assertEquals(200, lookaheadHeight[it])
+        }
+        rule.runOnIdle {
+            expanded = false
+        }
+        rule.waitForIdle()
+        repeat(3) {
+            assertEquals(100, lookaheadHeight[it])
         }
     }
 
