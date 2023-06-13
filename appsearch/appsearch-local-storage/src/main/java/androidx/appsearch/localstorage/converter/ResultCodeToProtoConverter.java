@@ -26,7 +26,7 @@ import com.google.android.icing.proto.StatusProto;
 
 /**
  * Translates an {@link StatusProto.Code} into a {@link AppSearchResult.ResultCode}
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResultCodeToProtoConverter {

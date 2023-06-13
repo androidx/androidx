@@ -23,7 +23,7 @@ import androidx.core.util.Preconditions;
 
 /**
  * Utilities for working with {@link VisibilityChecker} and {@link VisibilityStore}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityUtil {

@@ -55,7 +55,7 @@ import java.util.Set;
  * <p>These visibility settings won't be used in AppSearch Jetpack, we only store them for clients
  * to look up.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityStore {

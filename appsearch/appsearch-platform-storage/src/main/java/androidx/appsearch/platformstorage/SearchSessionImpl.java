@@ -64,7 +64,7 @@ import java.util.function.Consumer;
 /**
  * An implementation of {@link AppSearchSession} which proxies to a platform
  * {@link android.app.appsearch.AppSearchSession}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

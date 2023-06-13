@@ -37,7 +37,7 @@ import java.util.List;
  *
  * <p>Schema types can be manually changed by calling {@link #setSchemaTypes}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SchemaTypeListItemAdapter extends

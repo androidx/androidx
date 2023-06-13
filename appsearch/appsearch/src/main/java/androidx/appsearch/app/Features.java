@@ -145,7 +145,7 @@ public interface Features {
      * Feature for {@link #isFeatureSupported(String)}. This feature covers setting schemas with
      * circular references for {@link AppSearchSession#setSchemaAsync}
      *
-     * @hide
+     * @exportToFramework:hide
      * TODO(b/280698121): Unhide and request jetpack API approval after this is synced to framework.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -141,7 +141,7 @@ public final class JoinSpec {
     /**
      * Aggregation scoring strategy for join spec.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
     // {@link JoinSpecProto.AggregationScoreStrategy.Code}
@@ -174,7 +174,7 @@ public final class JoinSpec {
 
     private final Bundle mBundle;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public JoinSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -184,7 +184,7 @@ public final class JoinSpec {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

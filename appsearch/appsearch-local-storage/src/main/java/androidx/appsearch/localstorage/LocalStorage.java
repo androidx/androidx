@@ -147,7 +147,7 @@ public class LocalStorage {
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
              *
-             * @hide
+             * @exportToFramework:hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull
@@ -227,7 +227,7 @@ public class LocalStorage {
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
              *
-             * @hide
+             * @exportToFramework:hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull

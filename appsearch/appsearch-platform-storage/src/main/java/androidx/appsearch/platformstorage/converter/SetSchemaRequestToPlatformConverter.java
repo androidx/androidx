@@ -37,7 +37,7 @@ import java.util.function.Function;
 
 /**
  * Translates between Platform and Jetpack versions of {@link SetSchemaRequest}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

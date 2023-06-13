@@ -42,7 +42,7 @@ import java.util.List;
  */
 @Document(name = "builtin:AlarmInstance")
 public class AlarmInstance extends Thing {
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_SCHEDULED, STATUS_FIRING, STATUS_DISMISSED, STATUS_SNOOZED,
             STATUS_MISSED})

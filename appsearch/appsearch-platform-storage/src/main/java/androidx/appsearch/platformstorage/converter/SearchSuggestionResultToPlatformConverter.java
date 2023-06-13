@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Translates between Platform and Jetpack versions of {@link SearchSuggestionResult}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 // TODO(b/227356108) replace literal '34' with Build.VERSION_CODES.U once the SDK_INT is finalized.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

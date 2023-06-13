@@ -30,7 +30,7 @@ import androidx.appsearch.app.GenericDocument;
  *
  * <p>This class is a higher level implement of {@link GenericDocument}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchEmail extends GenericDocument {

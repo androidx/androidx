@@ -58,7 +58,7 @@ import java.util.Set;
 /**
  * Translates a {@link SearchSpec} into icing search protos.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSpecToProtoConverter {

@@ -50,7 +50,7 @@ public final class ObserverSpec {
     @Nullable
     private volatile Set<String> mFilterSchemas;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ObserverSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -60,7 +60,7 @@ public final class ObserverSpec {
     /**
      * Returns the {@link Bundle} backing this spec.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

@@ -137,7 +137,7 @@ public class GenericDocument {
      *
      * @param bundle Packaged {@link GenericDocument} data, such as the result of
      *               {@link #getBundle}.
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("deprecation")
@@ -163,7 +163,7 @@ public class GenericDocument {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

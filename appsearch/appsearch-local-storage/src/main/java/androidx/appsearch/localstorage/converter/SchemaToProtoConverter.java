@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * Translates an {@link AppSearchSchema} into a {@link SchemaTypeConfigProto}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaToProtoConverter {

@@ -38,7 +38,7 @@ public class StorageInfo {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -91,7 +91,7 @@ public final class SetSchemaRequest {
      * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}
      *
      * @see android.Manifest.permission
-     * @hide
+     * @exportToFramework:hide
      */
     @IntDef(value = {
             READ_SMS,
@@ -280,7 +280,7 @@ public final class SetSchemaRequest {
      * modifiable map. This is not meant to be unhidden and should only be used by internal
      * classes.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

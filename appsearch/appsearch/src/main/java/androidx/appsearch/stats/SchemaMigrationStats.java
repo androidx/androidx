@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Class holds detailed stats for Schema migration.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaMigrationStats {
@@ -92,7 +92,7 @@ public final class SchemaMigrationStats {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
