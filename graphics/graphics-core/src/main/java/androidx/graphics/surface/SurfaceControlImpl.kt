@@ -177,7 +177,7 @@ internal interface SurfaceControlImpl {
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl? = null,
-            releaseCallback: (() -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
         ): Transaction
 
         /**
