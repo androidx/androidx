@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.ui.core;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IRemoteSessionController {
     void close();
     void notifyConfigurationChanged(in Configuration configuration);

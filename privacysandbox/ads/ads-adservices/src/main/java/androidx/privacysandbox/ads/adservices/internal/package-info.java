@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.privacysandbox.ads.adservices.internal;
 
