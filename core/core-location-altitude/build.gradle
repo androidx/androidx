@@ -45,7 +45,7 @@ dependencies {
     bundleInside(project(path: ":core:core-location-altitude-proto", configuration: "export"))
 
     implementation(libs.autoValueAnnotations)
-    implementation("androidx.core:core:1.10.0")
+    implementation(project(":core:core"))
     implementation("androidx.room:room-runtime:2.4.3")
 
     annotationProcessor(libs.autoValue)
