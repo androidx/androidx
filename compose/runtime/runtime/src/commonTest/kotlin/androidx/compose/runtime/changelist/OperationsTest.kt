@@ -591,14 +591,14 @@ class OperationsTest {
         }
 
         val actualOpCodes = stack.opCodes
-        if (!actualOpCodes.asIterable().startsWith(expectedOperations, null)) {
+        if (!actualOpCodes.asIterable().startsWith(expectedOperations)) {
             errors += "opCodes array did not match expected operations " +
                 "(expected [${expectedOperations.joinToString()}], was " +
                 "[${actualOpCodes.joinToString()}])"
         }
 
         val actualIntArgs = stack.intArgs
-        if (!actualIntArgs.asIterable().startsWith(expectedIntArgs, 0)) {
+        if (!actualIntArgs.asIterable().startsWith(expectedIntArgs)) {
             errors += "intArgs array did not match expected operations " +
                 "(expected [${expectedIntArgs.joinToString()}], was " +
                 "[${actualIntArgs.joinToString()}])"
@@ -618,6 +618,21 @@ class OperationsTest {
                     errors.joinToString { "\n    - $it" }
             )
         }
+    }
+
+    private fun <T> Iterable<T>.startsWith(
+        other: Iterable<T>
+    ): Boolean {
+        val thisIterator = iterator()
+        val otherIterator = other.iterator()
+
+        while (otherIterator.hasNext()) {
+            if (!thisIterator.hasNext() || thisIterator.next() != otherIterator.next()) {
+                return false
+            }
+        }
+
+        return true
     }
 
     private fun <T> Iterable<T>.startsWith(
