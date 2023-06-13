@@ -18,6 +18,7 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -26,27 +27,16 @@ import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNo
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInstant;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class InstantNodesTest {
-
-    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
-
-    @Captor ArgumentCaptor<Runnable> mReceiverCaptor;
-    @Captor ArgumentCaptor<Executor> mExecutor;
-
     @Test
     public void testFixedInstant() {
         List<Instant> results = new ArrayList<>();
@@ -73,8 +63,9 @@ public class InstantNodesTest {
         node.init();
         assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(1);
 
-        verify(notifier).setReceiver(mExecutor.capture(), mReceiverCaptor.capture());
-        mReceiverCaptor.getValue().run(); // Ticking.
+        ArgumentCaptor<Runnable> receiverCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(notifier).setReceiver(any(), receiverCaptor.capture());
+        receiverCaptor.getValue().run(); // Ticking.
         assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));
 
         node.destroy();
