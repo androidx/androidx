@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
@@ -33,6 +35,9 @@ androidXMultiplatform {
     linux()
     ios()
     android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {

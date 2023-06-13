@@ -18,6 +18,7 @@ package androidx.build
 
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.android.utils.childrenIterator
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
@@ -52,13 +53,14 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 
 fun Project.configureMavenArtifactUpload(
     extension: AndroidXExtension,
+    kmpExtension: AndroidXMultiplatformExtension,
     componentFactory: SoftwareComponentFactory
 ) {
     apply(mapOf("plugin" to "maven-publish"))
     var registered = false
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
         if (!registered) {
-            configureComponentPublishing(extension, component, componentFactory)
+            configureComponentPublishing(extension, kmpExtension, component, componentFactory)
             Release.register(this, extension)
             registered = true
         }
@@ -95,6 +97,7 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
  */
 private fun Project.configureComponentPublishing(
     extension: AndroidXExtension,
+    kmpExtension: AndroidXMultiplatformExtension,
     component: SoftwareComponent,
     componentFactory: SoftwareComponentFactory
 ) {
@@ -154,10 +157,11 @@ private fun Project.configureComponentPublishing(
                 }
             }
         }
-        publications.withType(MavenPublication::class.java).all {
-            it.pom { pom ->
+        publications.withType(MavenPublication::class.java).all { publication ->
+            publication.pom { pom ->
                 addInformativeMetadata(extension, pom)
-                tweakDependenciesMetadata(androidxGroup, pom, androidLibrariesSetProvider)
+                tweakDependenciesMetadata(androidxGroup, pom, androidLibrariesSetProvider,
+                    publication.name == KMP_ANCHOR_PUBLICATION_NAME, kmpExtension.defaultPlatform)
             }
         }
     }
@@ -297,7 +301,7 @@ private fun Project.replaceBaseMultiplatformPublication(
     ) { sourcesComponents ->
         configure<PublishingExtension> {
             publications { pubs ->
-                pubs.create<MavenPublication>("androidxKmp") {
+                pubs.create<MavenPublication>(KMP_ANCHOR_PUBLICATION_NAME) {
                     // Duplicate behavior from KMP plugin
                     // (https://cs.github.com/JetBrains/kotlin/blob/0c001cc9939a2ab11815263ed825c1096b3ce087/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/Publishing.kt#L42)
                     // Should be able to remove internal API usage once
@@ -306,7 +310,7 @@ private fun Project.replaceBaseMultiplatformPublication(
 
                     from(object : ComponentWithVariants, SoftwareComponentInternal {
                         override fun getName(): String {
-                            return "androidxKmp"
+                            return KMP_ANCHOR_PUBLICATION_NAME
                         }
 
                         override fun getUsages(): MutableSet<out UsageContext> {
@@ -454,7 +458,9 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
 private fun tweakDependenciesMetadata(
     mavenGroup: LibraryGroup,
     pom: MavenPom,
-    androidLibrariesSetProvider: Provider<Set<String>>
+    androidLibrariesSetProvider: Provider<Set<String>>,
+    kmpAnchor: Boolean,
+    pomPlatform: String?
 ) {
     pom.withXml { xml ->
         // The following code depends on getProjectsMap which is only available late in
@@ -465,6 +471,10 @@ private fun tweakDependenciesMetadata(
         assignSingleVersionDependenciesInGroupForPom(xml, mavenGroup)
         assignAarTypes(xml, androidLibrariesSetProvider)
         ensureConsistentJvmSuffix(xml)
+
+        if (kmpAnchor && pomPlatform != null) {
+            insertDefaultMultiplatformDependencies(xml, pomPlatform)
+        }
     }
 }
 
@@ -495,6 +505,37 @@ private fun assignAarTypes(
             dep.appendNode("type", "aar")
         }
     }
+}
+
+fun insertDefaultMultiplatformDependencies(
+    xml: XmlProvider,
+    platformId: String
+) {
+    val groupId = xml.asElement().find { it.nodeName == "groupId" }?.textContent ?: return
+    val artifactId = xml.asElement().find { it.nodeName == "artifactId" }?.textContent ?: return
+    val version = xml.asElement().find { it.nodeName == "version" }?.textContent ?: return
+
+    val dependencies = xml.asNode().children().find {
+        it is Node && it.name().toString().endsWith("dependencies")
+    } as Node? ?: return
+
+    dependencies.appendNode("dependency").apply {
+        appendNode("groupId", groupId)
+        appendNode("artifactId", "$artifactId-$platformId")
+        appendNode("version", version)
+        appendNode("scope", "compile")
+    }
+}
+
+private fun org.w3c.dom.Element.find(predicate: (org.w3c.dom.Node) -> Boolean): org.w3c.dom.Node? {
+    val iterator = childrenIterator()
+    while (iterator.hasNext()) {
+        val node = iterator.next()
+        if (predicate(node)) {
+            return node
+        }
+    }
+    return null
 }
 
 /**
@@ -581,3 +622,5 @@ private fun Project.appliesJavaGradlePluginPlugin() = pluginManager.hasPlugin("j
 
 private const val ANDROID_GIT_URL =
     "scm:git:https://android.googlesource.com/platform/frameworks/support"
+
+internal const val KMP_ANCHOR_PUBLICATION_NAME = "androidxKmp"
