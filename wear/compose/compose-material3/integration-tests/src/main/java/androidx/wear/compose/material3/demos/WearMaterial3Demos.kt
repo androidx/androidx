@@ -16,19 +16,30 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.ui.Alignment
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material3.samples.AppCardSample
+import androidx.wear.compose.material3.samples.AppCardWithIconSample
+import androidx.wear.compose.material3.samples.CardSample
 import androidx.wear.compose.material3.samples.FixedFontSize
+import androidx.wear.compose.material3.samples.OutlinedAppCardSample
+import androidx.wear.compose.material3.samples.OutlinedCardSample
+import androidx.wear.compose.material3.samples.OutlinedTitleCardSample
 import androidx.wear.compose.material3.samples.StepperSample
 import androidx.wear.compose.material3.samples.StepperWithIntegerSample
 import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
+import androidx.wear.compose.material3.samples.TitleCardSample
+import androidx.wear.compose.material3.samples.TitleCardWithImageSample
 
 val WearMaterial3Demos = DemoCategory(
     "Material 3",
     listOf(
         DemoCategory(
-            "Buttons",
+            "Button",
             listOf(
                 ComposableDemo("Button") {
                     ButtonDemo()
@@ -41,6 +52,26 @@ val WearMaterial3Demos = DemoCategory(
                 },
                 ComposableDemo("ChildButton") {
                     ChildButtonDemo()
+                }
+            )
+        ),
+        DemoCategory(
+            "Card",
+            listOf(
+                ComposableDemo("Samples") {
+                    ScalingLazyColumn(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        autoCentering = AutoCenteringParams(itemIndex = 0)
+                    ) {
+                        item { CardSample() }
+                        item { AppCardSample() }
+                        item { AppCardWithIconSample() }
+                        item { TitleCardSample() }
+                        item { TitleCardWithImageSample() }
+                        item { OutlinedCardSample() }
+                        item { OutlinedAppCardSample() }
+                        item { OutlinedTitleCardSample() }
+                    }
                 }
             )
         ),
@@ -65,12 +96,6 @@ val WearMaterial3Demos = DemoCategory(
                         ComposableDemo("Stepper with rangeSemantics") {
                             Centralize { StepperWithRangeSemanticsSample() }
                         }
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        // Add Stepper demos here
                     )
                 )
             )
