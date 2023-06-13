@@ -784,7 +784,7 @@ private fun TimeInputImpl(
         }
 
         if (!state.is24hour) {
-            Box(modifier.padding(start = PeriodToggleMargin)) {
+            Box(Modifier.padding(start = PeriodToggleMargin)) {
                 VerticalPeriodToggle(
                     modifier = Modifier.size(
                         PeriodSelectorContainerWidth,
