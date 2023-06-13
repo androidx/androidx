@@ -22,8 +22,10 @@ import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
+import androidx.baselineprofile.gradle.utils.Dependencies
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.copyBuildTypeSources
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
 import com.android.build.api.AndroidPluginVersion
@@ -53,11 +55,26 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
     maxAgpVersion = MAX_AGP_VERSION_REQUIRED
 ) {
 
-    private val benchmarkExtendedToOriginalTypeMap = mutableMapOf<String, String>()
-    private val baselineProfileExtendedToOriginalTypeMap = mutableMapOf<String, String>()
-
     private val ApplicationExtension.debugSigningConfig
         get() = buildTypes.getByName("debug").signingConfig
+
+    private val dependencies = Dependencies(project)
+
+    // Benchmark build type to the original ones. Ex: benchmarkRelease -> release
+    private val benchmarkExtendedToOriginalTypeMap = mutableMapOf<String, String>()
+
+    // This is the opposite. Ex: release -> benchmarkRelease
+    private val benchmarkOriginalToExtendedTypeMap by lazy {
+        benchmarkExtendedToOriginalTypeMap.toList().associate { Pair(it.second, it.first) }
+    }
+
+    // Baseline Profile build type to the original ones. Ex: nonMinifiedRelease -> release
+    private val baselineProfileExtendedToOriginalTypeMap = mutableMapOf<String, String>()
+
+    // This is the opposite. Ex: release -> nonMinifiedRelease
+    private val baselineProfileOriginalToExtendedTypeMap by lazy {
+        baselineProfileExtendedToOriginalTypeMap.toList().associate { Pair(it.second, it.first) }
+    }
 
     override fun onAgpPluginNotFound(pluginIds: Set<AgpPluginId>) {
 
@@ -109,6 +126,55 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
 
     override fun onApplicationVariants(variant: ApplicationVariant) {
 
+        // Extending the build type won't also copy the build type specific dependencies, that
+        // need to be copied separately for both baseline profile and benchmark variants.
+        // Note that the maps used here are organized like: `release` -> `nonMinifiedRelease` and
+        // `release` -> `benchmark`.
+        data class MappingAndPrefix(val mapping: Map<String, String>, val prefix: String)
+        listOf(
+            MappingAndPrefix(
+                baselineProfileOriginalToExtendedTypeMap,
+                BUILD_TYPE_BASELINE_PROFILE_PREFIX
+            ),
+            MappingAndPrefix(
+                benchmarkOriginalToExtendedTypeMap,
+                BUILD_TYPE_BENCHMARK_PREFIX
+            ),
+        ).forEach {
+            if (variant.buildType !in it.mapping.keys) {
+                return@forEach
+            }
+
+            // This would be, for example, `release`.
+            val originalBuildTypeName = variant.buildType
+                ?: throw IllegalStateException(
+                    // Note that this exception cannot happen due to user configuration.
+                    "Variant `${variant.name}` does not have a build type."
+                )
+
+            // This would be, for example, `nonMinifiedRelease`.
+            val extendedBuildTypeName = it.mapping[originalBuildTypeName]
+                ?: throw IllegalStateException(
+                    // Note that this exception cannot happen due to user configuration.
+                    "Build type `${variant.buildType}` was not extended."
+                )
+
+            // Copy build type specific dependencies
+            dependencies.copy(
+                fromPrefix = originalBuildTypeName,
+                toPrefix = extendedBuildTypeName
+            )
+
+            // Copy variant specific dependencies
+            dependencies.copy(
+                fromPrefix = variant.name,
+                toPrefix = camelCase(variant.flavorName ?: "", extendedBuildTypeName)
+            )
+
+            // Note that we don't need to copy flavor specific dependencies because they're applied
+            // to all the build types, including the extended ones.
+        }
+
         // This behavior is only for AGP 8.0: since we cannot support multiple build types in the
         // same gradle invocation (including `assemble` or `build` due to b/265438201), we use a
         // single build type for both benchmark and baseline profile in the producer module.
@@ -119,10 +185,10 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             variant.buildType in baselineProfileExtendedToOriginalTypeMap.keys
         ) {
             variant.proguardFiles.add(
-                GenerateKeepRulesForBaselineProfilesTask.maybeRegister(project)
+                GenerateKeepRulesForBaselineProfilesTask
+                    .maybeRegister(project)
                     .flatMap { it.keepRuleFile }
             )
-            return
         }
     }
 
