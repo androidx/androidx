@@ -23,9 +23,9 @@ import androidx.appsearch.app.GenericDocument;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ThingTest {
-
     @Test
     public void testBuilder() {
         long now = System.currentTimeMillis();
@@ -39,6 +39,16 @@ public class ThingTest {
                 .setDescription("this is my first schema.org object")
                 .setImage("content://images/thing1")
                 .setUrl("content://things/1")
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setName("Start Action")
+                        .setDescription("Starts the thing")
+                        .setUri("package://start")
+                        .build())
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setName("Stop Action")
+                        .setDescription("Stops the thing")
+                        .setUri("package://stop")
+                        .build())
                 .build();
 
         assertThat(thing.getNamespace()).isEqualTo("namespace");
@@ -53,6 +63,17 @@ public class ThingTest {
         assertThat(thing.getDescription()).isEqualTo("this is my first schema.org object");
         assertThat(thing.getImage()).isEqualTo("content://images/thing1");
         assertThat(thing.getUrl()).isEqualTo("content://things/1");
+        assertThat(thing.getPotentialActions()).hasSize(2);
+
+        PotentialAction startAction = thing.getPotentialActions().get(0);
+        assertThat(startAction.getName()).isEqualTo("Start Action");
+        assertThat(startAction.getDescription()).isEqualTo("Starts the thing");
+        assertThat(startAction.getUri()).isEqualTo("package://start");
+
+        PotentialAction stopAction = thing.getPotentialActions().get(1);
+        assertThat(stopAction.getName()).isEqualTo("Stop Action");
+        assertThat(stopAction.getDescription()).isEqualTo("Stops the thing");
+        assertThat(stopAction.getUri()).isEqualTo("package://stop");
     }
 
     @Test
@@ -68,6 +89,11 @@ public class ThingTest {
                 .setDescription("this is my first schema.org object")
                 .setImage("content://images/thing1")
                 .setUrl("content://things/1")
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setName("Stop Action")
+                        .setDescription("Stops the thing")
+                        .setUri("package://stop")
+                        .build())
                 .build();
         Thing thing2 = new Thing.Builder(thing1).build();
 
@@ -83,6 +109,12 @@ public class ThingTest {
         assertThat(thing2.getDescription()).isEqualTo("this is my first schema.org object");
         assertThat(thing2.getImage()).isEqualTo("content://images/thing1");
         assertThat(thing2.getUrl()).isEqualTo("content://things/1");
+        assertThat(thing2.getPotentialActions()).isNotNull();
+        assertThat(thing2.getPotentialActions()).hasSize(1);
+        assertThat(thing2.getPotentialActions().get(0).getName()).isEqualTo("Stop Action");
+        assertThat(thing2.getPotentialActions().get(0).getDescription())
+                .isEqualTo("Stops the thing");
+        assertThat(thing2.getPotentialActions().get(0).getUri()).isEqualTo("package://stop");
     }
 
     @Test
@@ -98,11 +130,25 @@ public class ThingTest {
                 .setDescription("this is my first schema.org object")
                 .setImage("content://images/thing1")
                 .setUrl("content://things/1")
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setDescription("View this thing")
+                        .setUri("package://view")
+                        .build())
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setDescription("Edit this thing")
+                        .setUri("package://edit")
+                        .build())
                 .build();
         Thing thing2 = new Thing.Builder(thing1)
                 .clearAlternateNames()
                 .setImage("content://images/thing2")
                 .setUrl("content://things/2")
+                .clearPotentialActions()
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setName("DeleteAction")
+                        .setDescription("Delete this thing")
+                        .setUri("package://delete")
+                        .build())
                 .build();
 
         assertThat(thing2.getNamespace()).isEqualTo("namespace");
@@ -115,11 +161,99 @@ public class ThingTest {
         assertThat(thing2.getDescription()).isEqualTo("this is my first schema.org object");
         assertThat(thing2.getImage()).isEqualTo("content://images/thing2");
         assertThat(thing2.getUrl()).isEqualTo("content://things/2");
+
+        List<PotentialAction> potentialActions = thing2.getPotentialActions();
+        assertThat(potentialActions).hasSize(1);
+        assertThat(potentialActions.get(0).getName()).isEqualTo("DeleteAction");
+        assertThat(potentialActions.get(0).getDescription()).isEqualTo("Delete this thing");
+        assertThat(potentialActions.get(0).getUri()).isEqualTo("package://delete");
     }
+
+    @Test
+    public void testBuilderCopy_builderReuse() {
+        long now = System.currentTimeMillis();
+        Thing.Builder builder = new Thing.Builder("namespace", "thing1")
+                .setDocumentScore(1)
+                .setCreationTimestampMillis(now)
+                .setDocumentTtlMillis(30000)
+                .setName("my first thing")
+                .addAlternateName("my first object")
+                .addAlternateName("माझी पहिली गोष्ट")
+                .setDescription("this is my first schema.org object")
+                .setImage("content://images/thing1")
+                .setUrl("content://things/1")
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setDescription("View this thing")
+                        .setUri("package://view")
+                        .build())
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setDescription("Edit this thing")
+                        .setUri("package://edit")
+                        .build());
+
+        Thing thing1 = builder.build();
+
+        builder.clearAlternateNames()
+                .setImage("content://images/thing2")
+                .setUrl("content://things/2")
+                .clearPotentialActions()
+                .addPotentialAction(new PotentialAction.Builder()
+                        .setName("DeleteAction")
+                        .setDescription("Delete this thing")
+                        .setUri("package://delete")
+                        .build());
+
+        Thing thing2 = builder.build();
+
+        // Check that thing1 wasn't altered
+        assertThat(thing1.getNamespace()).isEqualTo("namespace");
+        assertThat(thing1.getId()).isEqualTo("thing1");
+        assertThat(thing1.getDocumentScore()).isEqualTo(1);
+        assertThat(thing1.getCreationTimestampMillis()).isEqualTo(now);
+        assertThat(thing1.getDocumentTtlMillis()).isEqualTo(30000);
+        assertThat(thing1.getName()).isEqualTo("my first thing");
+        assertThat(thing1.getAlternateNames())
+                .containsExactly("my first object", "माझी पहिली गोष्ट");
+        assertThat(thing1.getDescription()).isEqualTo("this is my first schema.org object");
+        assertThat(thing1.getImage()).isEqualTo("content://images/thing1");
+        assertThat(thing1.getUrl()).isEqualTo("content://things/1");
+
+        List<PotentialAction> actions1 = thing1.getPotentialActions();
+        assertThat(actions1).hasSize(2);
+        assertThat(actions1.get(0).getDescription()).isEqualTo("View this thing");
+        assertThat(actions1.get(0).getUri()).isEqualTo("package://view");
+        assertThat(actions1.get(1).getDescription()).isEqualTo("Edit this thing");
+        assertThat(actions1.get(1).getUri()).isEqualTo("package://edit");
+
+        // Check that thing2 has the new values
+        assertThat(thing2.getNamespace()).isEqualTo("namespace");
+        assertThat(thing2.getId()).isEqualTo("thing1");
+        assertThat(thing2.getDocumentScore()).isEqualTo(1);
+        assertThat(thing2.getCreationTimestampMillis()).isEqualTo(now);
+        assertThat(thing2.getDocumentTtlMillis()).isEqualTo(30000);
+        assertThat(thing2.getName()).isEqualTo("my first thing");
+        assertThat(thing2.getAlternateNames()).isEmpty();
+        assertThat(thing2.getDescription()).isEqualTo("this is my first schema.org object");
+        assertThat(thing2.getImage()).isEqualTo("content://images/thing2");
+        assertThat(thing2.getUrl()).isEqualTo("content://things/2");
+
+        List<PotentialAction> actions2 = thing2.getPotentialActions();
+        assertThat(actions2).hasSize(1);
+        assertThat(actions2.get(0).getName()).isEqualTo("DeleteAction");
+        assertThat(actions2.get(0).getDescription()).isEqualTo("Delete this thing");
+        assertThat(actions2.get(0).getUri()).isEqualTo("package://delete");
+    }
+
 
     @Test
     public void testToGenericDocument() throws Exception {
         long now = System.currentTimeMillis();
+        PotentialAction potentialAction = new PotentialAction.Builder()
+                .setDescription("Make a phone call")
+                .setName("actions.intent.CALL")
+                .setUri("package://call")
+                .build();
+
         Thing thing = new Thing.Builder("namespace", "thing1")
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(now)
@@ -130,6 +264,7 @@ public class ThingTest {
                 .setDescription("this is my first schema.org object")
                 .setImage("content://images/thing1")
                 .setUrl("content://things/1")
+                .addPotentialAction(potentialAction)
                 .build();
 
         GenericDocument document = GenericDocument.fromDocumentClass(thing);
@@ -147,5 +282,12 @@ public class ThingTest {
                 .isEqualTo("this is my first schema.org object");
         assertThat(document.getPropertyString("image")).isEqualTo("content://images/thing1");
         assertThat(document.getPropertyString("url")).isEqualTo("content://things/1");
+
+        assertThat(document.getPropertyString("potentialActions[0].name"))
+                .isEqualTo("actions.intent.CALL");
+        assertThat(document.getPropertyString("potentialActions[0].description"))
+                .isEqualTo("Make a phone call");
+        assertThat(document.getPropertyString("potentialActions[0].uri"))
+                .isEqualTo("package://call");
     }
 }

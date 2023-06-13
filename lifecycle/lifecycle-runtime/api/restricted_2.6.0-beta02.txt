@@ -1,0 +1,58 @@
+// Signature format: 4.0
+package androidx.lifecycle {
+
+  public class LifecycleRegistry extends androidx.lifecycle.Lifecycle {
+    ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner provider);
+    method public void addObserver(androidx.lifecycle.LifecycleObserver observer);
+    method @VisibleForTesting public static final androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner owner);
+    method public androidx.lifecycle.Lifecycle.State getCurrentState();
+    method public int getObserverCount();
+    method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
+    method @Deprecated @MainThread public void markState(androidx.lifecycle.Lifecycle.State state);
+    method public void removeObserver(androidx.lifecycle.LifecycleObserver observer);
+    method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
+    property public androidx.lifecycle.Lifecycle.State currentState;
+    property public int observerCount;
+    field public static final androidx.lifecycle.LifecycleRegistry.Companion Companion;
+  }
+
+  public static final class LifecycleRegistry.Companion {
+    method @VisibleForTesting public androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner owner);
+  }
+
+  @Deprecated public interface LifecycleRegistryOwner extends androidx.lifecycle.LifecycleOwner {
+    method @Deprecated public androidx.lifecycle.LifecycleRegistry getLifecycle();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ReportFragment extends android.app.Fragment {
+    ctor public ReportFragment();
+    method public static final androidx.lifecycle.ReportFragment get(android.app.Activity);
+    method public static final void injectIfNeededIn(android.app.Activity activity);
+    method public void onActivityCreated(android.os.Bundle? savedInstanceState);
+    method public void onDestroy();
+    method public void onPause();
+    method public void onResume();
+    method public void onStart();
+    method public void onStop();
+    method public final void setProcessListener(androidx.lifecycle.ReportFragment.ActivityInitializationListener? processListener);
+    field public static final androidx.lifecycle.ReportFragment.Companion Companion;
+  }
+
+  public static interface ReportFragment.ActivityInitializationListener {
+    method public void onCreate();
+    method public void onResume();
+    method public void onStart();
+  }
+
+  public static final class ReportFragment.Companion {
+    method public androidx.lifecycle.ReportFragment get(android.app.Activity);
+    method public void injectIfNeededIn(android.app.Activity activity);
+  }
+
+  public final class ViewTreeLifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner? lifecycleOwner);
+  }
+
+}
+

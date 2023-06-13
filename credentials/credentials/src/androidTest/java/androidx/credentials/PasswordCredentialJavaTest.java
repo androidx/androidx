@@ -31,6 +31,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PasswordCredentialJavaTest {
+
+    @Test
+    public void typeConstant() {
+        assertThat(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
+                .isEqualTo("android.credentials.TYPE_PASSWORD_CREDENTIAL");
+    }
+
     @Test
     public void constructor_nullId_throws() {
         assertThrows(
@@ -86,13 +93,21 @@ public class PasswordCredentialJavaTest {
     @Test
     public void frameworkConversion_success() {
         PasswordCredential credential = new PasswordCredential("id", "password");
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle data = credential.getData();
+        String customDataKey = "customRequestDataKey";
+        CharSequence customDataValue = "customRequestDataValue";
+        data.putCharSequence(customDataKey, customDataValue);
 
         Credential convertedCredential = Credential.createFrom(
-                credential.getType(), credential.getData());
+                credential.getType(), data);
 
         assertThat(convertedCredential).isInstanceOf(PasswordCredential.class);
         PasswordCredential convertedSubclassCredential = (PasswordCredential) convertedCredential;
         assertThat(convertedSubclassCredential.getPassword()).isEqualTo(credential.getPassword());
         assertThat(convertedSubclassCredential.getId()).isEqualTo(credential.getId());
+        assertThat(convertedCredential.getData().getCharSequence(customDataKey))
+                .isEqualTo(customDataValue);
     }
 }

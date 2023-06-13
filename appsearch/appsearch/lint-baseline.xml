@@ -13,15 +13,6 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
-        errorLine1="public interface AppSearchObserverCallback extends ObserverCallback {}"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appsearch/observer/AppSearchObserverCallback.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
         errorLine1="    public @interface ResultCode {}"
         errorLine2="                      ~~~~~~~~~~">
         <location
@@ -139,8 +130,8 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
-        errorLine1="        public @DataType int getDataType() {"
-        errorLine2="                             ~~~~~~~~~~~">
+        errorLine1="        public int getDataType() {"
+        errorLine2="                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/app/AppSearchSchema.java"/>
     </issue>
@@ -211,10 +202,37 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
+        errorLine1="public @interface CanIgnoreReturnValue {}"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/annotation/CanIgnoreReturnValue.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
         errorLine1="public final class DocumentClassFactoryRegistry {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/app/DocumentClassFactoryRegistry.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="public interface FeatureConstants {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/app/FeatureConstants.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    String SEARCH_SUGGESTION = &quot;SEARCH_SUGGESTION&quot;;"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appsearch/app/Features.java"/>
     </issue>
 
     <issue

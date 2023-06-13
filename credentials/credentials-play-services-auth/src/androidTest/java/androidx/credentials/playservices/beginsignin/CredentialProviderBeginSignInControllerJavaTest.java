@@ -34,6 +34,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashSet;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -68,7 +69,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                     CredentialProviderBeginSignInController
                             .getInstance(activity)
                             .convertRequestToPlayServices(new GetCredentialRequest(List.of(
-                                    new GetPasswordOption(true)
+                                    new GetPasswordOption(new HashSet<>(), true)
                             )));
 
             assertThat(actualResponse.getPasswordRequestOptions().isSupported()).isTrue();

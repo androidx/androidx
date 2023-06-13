@@ -9,18 +9,12 @@ GetterSetterNames: androidx.viewpager.widget.PagerTabStrip#getDrawFullUnderline(
     Symmetric method for `setDrawFullUnderline` must be named `isDrawFullUnderline`; was `getDrawFullUnderline`
 
 
-InvalidNullabilityOverride: androidx.viewpager.widget.PagerTabStrip#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.viewpager.widget.ViewPager#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.viewpager.widget.ViewPager#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-
-
 ListenerInterface: androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener:
     Listeners should be an interface, or otherwise renamed Callback: SimpleOnPageChangeListener
 
 
+MissingNullability: androidx.viewpager.widget.PagerTabStrip#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.viewpager.widget.PagerTabStrip#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
 MissingNullability: androidx.viewpager.widget.PagerTabStrip#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
@@ -39,6 +33,8 @@ MissingNullability: androidx.viewpager.widget.ViewPager#dispatchKeyEvent(android
     Missing nullability on parameter `event` in method `dispatchKeyEvent`
 MissingNullability: androidx.viewpager.widget.ViewPager#dispatchPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `dispatchPopulateAccessibilityEvent`
+MissingNullability: androidx.viewpager.widget.ViewPager#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.viewpager.widget.ViewPager#generateDefaultLayoutParams():
     Missing nullability on method `generateDefaultLayoutParams` return
 MissingNullability: androidx.viewpager.widget.ViewPager#generateLayoutParams(android.util.AttributeSet):
@@ -49,6 +45,8 @@ MissingNullability: androidx.viewpager.widget.ViewPager#generateLayoutParams(and
     Missing nullability on method `generateLayoutParams` return
 MissingNullability: androidx.viewpager.widget.ViewPager#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `generateLayoutParams`
+MissingNullability: androidx.viewpager.widget.ViewPager#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.viewpager.widget.ViewPager#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
 MissingNullability: androidx.viewpager.widget.ViewPager#onRequestFocusInDescendants(int, android.graphics.Rect) parameter #1:

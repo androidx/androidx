@@ -23,6 +23,7 @@ import android.hardware.SyncFence
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceControl
+import android.view.SurfaceControl.Transaction
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.hardware.SyncFenceImpl
@@ -259,6 +260,52 @@ internal class SurfaceControlV33 internal constructor(
         }
 
         /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        override fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                SurfaceControlTransactionVerificationHelperV34.setExtendedRangeBrightness(
+                    mTransaction,
+                    surfaceControl.asFrameworkSurfaceControl(),
+                    currentBufferRatio,
+                    desiredRatio
+                )
+                return this
+            } else {
+                throw UnsupportedOperationException(
+                    "Configuring the extended range brightness is only available on Android U+"
+                )
+            }
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        override fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
+        ): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                SurfaceControlTransactionVerificationHelperV33.setDataSpace(
+                    mTransaction,
+                    surfaceControl.asFrameworkSurfaceControl(),
+                    dataSpace
+                )
+            } else {
+                throw UnsupportedOperationException(
+                    "Configuring the data space is only available on Android T+"
+                )
+            }
+            return this
+        }
+
+        /**
          * See [SurfaceControlImpl.Transaction.commit]
          */
         override fun commit() {
@@ -295,5 +342,28 @@ internal class SurfaceControlV33 internal constructor(
             } else {
                 throw IllegalArgumentException("Parent implementation is not for Android T")
             }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object SurfaceControlTransactionVerificationHelperV34 {
+
+    @androidx.annotation.DoNotInline
+    fun setExtendedRangeBrightness(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        currentBufferRatio: Float,
+        desiredRatio: Float
+    ) {
+        transaction.setExtendedRangeBrightness(surfaceControl, currentBufferRatio, desiredRatio)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private object SurfaceControlTransactionVerificationHelperV33 {
+
+    @androidx.annotation.DoNotInline
+    fun setDataSpace(transaction: Transaction, surfaceControl: SurfaceControl, dataspace: Int) {
+        transaction.setDataSpace(surfaceControl, dataspace)
     }
 }

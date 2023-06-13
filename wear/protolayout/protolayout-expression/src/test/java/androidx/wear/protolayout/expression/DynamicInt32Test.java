@@ -127,7 +127,7 @@ public final class DynamicInt32Test {
                                 .toString())
                 .isEqualTo(
                         "Int32FormatOp{input=FixedInt32{value=1}, minIntegerDigits=2,"
-                            + " groupingUsed=true}");
+                                + " groupingUsed=true}");
     }
 
     @Test

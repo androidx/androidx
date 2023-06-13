@@ -18,6 +18,7 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -47,6 +48,8 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
+    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastU() is removed.
     @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
@@ -82,7 +85,7 @@ public final class SetSchemaRequestToPlatformConverter {
             for (Map.Entry<String, Set<Set<Integer>>> entry :
                     jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {
                 for (Set<Integer> permissionGroup : entry.getValue()) {
-                    platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(
+                    ApiHelperForT.addRequiredPermissionsForSchemaTypeVisibility(platformBuilder,
                             entry.getKey(), permissionGroup);
                 }
             }
@@ -162,5 +165,19 @@ public final class SetSchemaRequestToPlatformConverter {
             );
         }
         return jetpackBuilder.build();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForT {
+        private ApiHelperForT() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void addRequiredPermissionsForSchemaTypeVisibility(
+                android.app.appsearch.SetSchemaRequest.Builder platformBuilder,
+                String schemaType, Set<Integer> permissions) {
+            platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(schemaType, permissions);
+        }
     }
 }

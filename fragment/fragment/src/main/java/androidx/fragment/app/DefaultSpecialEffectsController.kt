@@ -17,13 +17,20 @@ package androidx.fragment.app
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import androidx.annotation.DoNotInline
+import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
+import androidx.core.os.BuildCompat
 import androidx.core.os.CancellationSignal
 import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.ViewCompat
@@ -127,6 +134,8 @@ internal class DefaultSpecialEffectsController(
         }
     }
 
+    @OptIn(BuildCompat.PrereleaseSdkCheck::class)
+    @SuppressLint("NewApi", "PrereleaseSdkCoreDependency")
     private fun startAnimations(
         animationInfos: List<AnimationInfo>,
         awaitingContainerChanges: MutableList<Operation>,
@@ -198,7 +207,30 @@ internal class DefaultSpecialEffectsController(
                 }
             })
             animator.setTarget(viewToAnimate)
-            animator.start()
+            if (BuildCompat.isAtLeastU() && operation.fragment.mTransitioning) {
+                val animatorSet = animationInfo.getAnimation(container.context)?.animator
+                operation.addBackProgressCallbacks({ backEvent ->
+                    if (!BuildCompat.isAtLeastU()) {
+                        animatorSet?.start()
+                    } else {
+                        if (animatorSet != null) {
+                            val totalDuration = Api24Impl.totalDuration(animatorSet)
+                            var time = (backEvent.progress * totalDuration).toLong()
+                            // We cannot let the time get to 0 or the totalDuration to avoid
+                            // completing the operation accidentally.
+                            if (time == 0L) {
+                                time = 1L
+                            }
+                            if (time == totalDuration) {
+                                time = totalDuration - 1
+                            }
+                            Api26Impl.setCurrentPlayTime(animatorSet, time)
+                        }
+                    }
+                }) { animatorSet?.start() }
+            } else {
+                animator.start()
+            }
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG,
                     "Animator from operation $operation has started.")
@@ -206,10 +238,19 @@ internal class DefaultSpecialEffectsController(
             // Listen for cancellation and use that to cancel the Animator
             val signal: CancellationSignal = animationInfo.signal
             signal.setOnCancelListener {
-                animator.end()
+                if (operation.isSeeking) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Api26Impl.reverse(animator)
+                    }
+                } else {
+                    animator.end()
+                }
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG,
-                        "Animator from operation $operation has been canceled.")
+                    Log.v(
+                        FragmentManager.TAG,
+                        "Animator from operation $operation has been canceled" +
+                            "${if (operation.isSeeking) " with seeking." else "."} "
+                    )
                 }
             }
         }
@@ -872,6 +913,27 @@ internal class DefaultSpecialEffectsController(
                 "Transition $transition for fragment ${operation.fragment} is not a valid " +
                     "framework Transition or AndroidX Transition"
             )
+        }
+    }
+
+    @RequiresApi(24)
+    internal object Api24Impl {
+        @DoNotInline
+        fun totalDuration(animatorSet: AnimatorSet): Long {
+            return animatorSet.totalDuration
+        }
+    }
+
+    @RequiresApi(26)
+    internal object Api26Impl {
+        @DoNotInline
+        fun reverse(animatorSet: AnimatorSet) {
+            animatorSet.reverse()
+        }
+
+        @DoNotInline
+        fun setCurrentPlayTime(animatorSet: AnimatorSet, time: Long) {
+            animatorSet.currentPlayTime = time
         }
     }
 }

@@ -41,6 +41,7 @@
             android:label="@string/main_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.media.action.TRANSFER_MEDIA"/>
                 <category android:name="com.example.androidx.SAMPLE_CODE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -62,6 +63,17 @@
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:label="@string/add_edit_route_activity_label">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.androidx.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.RouteListingPreferenceActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="Route Listing Preference">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.SAMPLE_CODE" />

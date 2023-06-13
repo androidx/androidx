@@ -404,9 +404,6 @@ package androidx.compose.ui.graphics {
     method public operator long invoke();
   }
 
-  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGraphicsApi {
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class FilterQuality {
     method public int getValue();
     property public final int value;

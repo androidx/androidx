@@ -16,17 +16,13 @@
 
 package androidx.credentials.exceptions.domerrors
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
  * exception contains a syntax_err from the fido spec, indicating the string did not match the
  * expected pattern. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
- *
- * @see CreatePublicKeyCredentialDomException
  */
-@Suppress("ExtendsError")
+@Suppress("ExtendsError") // This is not a real java `Error`
 class SyntaxError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_SYNTAX_ERROR) {
     internal companion object {

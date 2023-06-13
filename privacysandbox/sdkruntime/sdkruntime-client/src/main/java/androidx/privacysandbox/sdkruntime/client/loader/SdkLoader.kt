@@ -64,7 +64,7 @@ internal class SdkLoader internal constructor(
             val apiVersion = VersionHandshake.perform(classLoader)
             ResourceRemapping.apply(classLoader, sdkConfig.resourceRemapping)
             if (apiVersion >= 2) {
-                return createSdkProviderV2(classLoader, sdkConfig)
+                return createSdkProviderV2(classLoader, apiVersion, sdkConfig)
             } else if (apiVersion >= 1) {
                 return createSdkProviderV1(classLoader, sdkConfig)
             }
@@ -91,9 +91,10 @@ internal class SdkLoader internal constructor(
 
     private fun createSdkProviderV2(
         sdkClassLoader: ClassLoader,
+        sdkVersion: Int,
         sdkConfig: LocalSdkConfig
     ): LocalSdkProvider {
-        SandboxControllerInjector.inject(sdkClassLoader, controller)
+        SandboxControllerInjector.inject(sdkClassLoader, sdkVersion, controller)
         return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
     }
 

@@ -40,10 +40,18 @@ public class CreatePasswordResponseJavaTest {
     @Test
     public void frameworkConversion_success() {
         CreatePasswordResponse response = new CreatePasswordResponse();
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle data = response.getData();
+        String customDataKey = "customRequestDataKey";
+        CharSequence customDataValue = "customRequestDataValue";
+        data.putCharSequence(customDataKey, customDataValue);
 
         CreateCredentialResponse convertedResponse =
-                CreateCredentialResponse.createFrom(response.getType(), response.getData());
+                CreateCredentialResponse.createFrom(response.getType(), data);
 
         assertThat(convertedResponse).isInstanceOf(CreatePasswordResponse.class);
+        assertThat(convertedResponse.getData().getCharSequence(customDataKey))
+                .isEqualTo(customDataValue);
     }
 }

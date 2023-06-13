@@ -51,10 +51,12 @@ public final class ImageObject extends Thing {
     ImageObject(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url, @NonNull List<Keyword> keywords,
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
+            @NonNull List<Keyword> keywords,
             @Nullable String sha256, @Nullable String thumbnailSha256) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mKeywords = checkNotNull(keywords);
         mSha256 = sha256;
         mThumbnailSha256 = thumbnailSha256;
@@ -157,7 +159,7 @@ public final class ImageObject extends Thing {
         public ImageObject build() {
             return new ImageObject(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
-                    new ArrayList<>(mKeywords), mSha256, mThumbnailSha256);
+                    mPotentialActions, new ArrayList<>(mKeywords), mSha256, mThumbnailSha256);
         }
 
         /**

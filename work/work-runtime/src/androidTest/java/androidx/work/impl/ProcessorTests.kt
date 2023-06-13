@@ -17,6 +17,7 @@
 package androidx.work.impl
 
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -147,7 +148,7 @@ class ProcessorTests : DatabaseTest() {
             .setContentText("content text")
             .setSmallIcon(androidx.core.R.drawable.notification_bg)
             .build()
-        val info = ForegroundInfo(1, notification)
+        val info = ForegroundInfo(1, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         processor.startForeground(startStopToken.id.workSpecId, info)
         // won't actually stopWork, because stopForeground should be used
         processor.stopWork(startStopToken, 0)

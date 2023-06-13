@@ -80,6 +80,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -533,6 +534,7 @@ class TextFieldCursorTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
+    @Ignore("b/285407485")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun brushChanged_doesntResetTimer() {

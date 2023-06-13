@@ -203,6 +203,15 @@ package androidx.core.app {
   @IntDef(flag=true, value={androidx.core.app.FrameMetricsAggregator.TOTAL_DURATION, androidx.core.app.FrameMetricsAggregator.INPUT_DURATION, androidx.core.app.FrameMetricsAggregator.LAYOUT_MEASURE_DURATION, androidx.core.app.FrameMetricsAggregator.DRAW_DURATION, androidx.core.app.FrameMetricsAggregator.SYNC_DURATION, androidx.core.app.FrameMetricsAggregator.COMMAND_DURATION, androidx.core.app.FrameMetricsAggregator.SWAP_DURATION, androidx.core.app.FrameMetricsAggregator.DELAY_DURATION, androidx.core.app.FrameMetricsAggregator.ANIMATION_DURATION, androidx.core.app.FrameMetricsAggregator.EVERY_DURATION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FrameMetricsAggregator.MetricType {
   }
 
+  public final class GrammaticalInflectionManagerCompat {
+    method @AnyThread public static int getApplicationGrammaticalGender(android.content.Context);
+    method @AnyThread public static void setRequestedApplicationGrammaticalGender(android.content.Context, int);
+    field public static final int GRAMMATICAL_GENDER_FEMININE = 2; // 0x2
+    field public static final int GRAMMATICAL_GENDER_MASCULINE = 3; // 0x3
+    field public static final int GRAMMATICAL_GENDER_NEUTRAL = 1; // 0x1
+    field public static final int GRAMMATICAL_GENDER_NOT_SPECIFIED = 0; // 0x0
+  }
+
   @Deprecated public abstract class JobIntentService extends android.app.Service {
     ctor @Deprecated public JobIntentService();
     method @Deprecated public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
@@ -892,6 +901,7 @@ package androidx.core.app {
 
   public final class NotificationManagerCompat {
     method public boolean areNotificationsEnabled();
+    method public boolean canUseFullScreenIntent();
     method public void cancel(int);
     method public void cancel(String?, int);
     method public void cancelAll();
@@ -1073,6 +1083,7 @@ package androidx.core.app {
   }
 
   public final class ServiceCompat {
+    method public static void startForeground(android.app.Service, int, android.app.Notification, int);
     method public static void stopForeground(android.app.Service, @androidx.core.app.ServiceCompat.StopForegroundFlags int);
     field public static final int START_STICKY = 1; // 0x1
     field public static final int STOP_FOREGROUND_DETACH = 2; // 0x2
@@ -1229,7 +1240,6 @@ package androidx.core.content {
     ctor protected FileProvider(@XmlRes int);
     method public int delete(android.net.Uri, String?, String![]?);
     method public String? getType(android.net.Uri);
-    method public String? getTypeAnonymous(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
     method public static android.net.Uri getUriForFile(android.content.Context, String, java.io.File, String);
     method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues);
@@ -2434,6 +2444,26 @@ package androidx.core.provider {
 
 }
 
+package androidx.core.service.quicksettings {
+
+  public class PendingIntentActivityWrapper {
+    ctor public PendingIntentActivityWrapper(android.content.Context, int, android.content.Intent, int, android.os.Bundle?, boolean);
+    ctor public PendingIntentActivityWrapper(android.content.Context, int, android.content.Intent, int, boolean);
+    method public android.content.Context getContext();
+    method public int getFlags();
+    method public android.content.Intent getIntent();
+    method public android.os.Bundle getOptions();
+    method public android.app.PendingIntent? getPendingIntent();
+    method public int getRequestCode();
+    method public boolean isMutable();
+  }
+
+  public class TileServiceCompat {
+    method public static void startActivityAndCollapse(android.service.quicksettings.TileService, androidx.core.service.quicksettings.PendingIntentActivityWrapper);
+  }
+
+}
+
 package androidx.core.telephony {
 
   @RequiresApi(22) public class SubscriptionManagerCompat {
@@ -2587,6 +2617,66 @@ package androidx.core.text.util {
   @IntDef(flag=true, value={android.text.util.Linkify.WEB_URLS, android.text.util.Linkify.EMAIL_ADDRESSES, android.text.util.Linkify.PHONE_NUMBERS, android.text.util.Linkify.MAP_ADDRESSES, android.text.util.Linkify.ALL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LinkifyCompat.LinkifyMask {
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public final class LocalePreferences {
+    method public static String getCalendarType();
+    method public static String getCalendarType(boolean);
+    method public static String getCalendarType(java.util.Locale);
+    method public static String getCalendarType(java.util.Locale, boolean);
+    method public static String getFirstDayOfWeek();
+    method public static String getFirstDayOfWeek(boolean);
+    method public static String getFirstDayOfWeek(java.util.Locale);
+    method public static String getFirstDayOfWeek(java.util.Locale, boolean);
+    method public static String getHourCycle();
+    method public static String getHourCycle(boolean);
+    method public static String getHourCycle(java.util.Locale);
+    method public static String getHourCycle(java.util.Locale, boolean);
+    method public static String getTemperatureUnit();
+    method public static String getTemperatureUnit(boolean);
+    method public static String getTemperatureUnit(java.util.Locale);
+    method public static String getTemperatureUnit(java.util.Locale, boolean);
+  }
+
+  public static class LocalePreferences.CalendarType {
+    field public static final String CHINESE = "chinese";
+    field public static final String DANGI = "dangi";
+    field public static final String DEFAULT = "";
+    field public static final String GREGORIAN = "gregorian";
+    field public static final String HEBREW = "hebrew";
+    field public static final String INDIAN = "indian";
+    field public static final String ISLAMIC = "islamic";
+    field public static final String ISLAMIC_CIVIL = "islamic-civil";
+    field public static final String ISLAMIC_RGSA = "islamic-rgsa";
+    field public static final String ISLAMIC_TBLA = "islamic-tbla";
+    field public static final String ISLAMIC_UMALQURA = "islamic-umalqura";
+    field public static final String PERSIAN = "persian";
+  }
+
+  public static class LocalePreferences.FirstDayOfWeek {
+    field public static final String DEFAULT = "";
+    field public static final String FRIDAY = "fri";
+    field public static final String MONDAY = "mon";
+    field public static final String SATURDAY = "sat";
+    field public static final String SUNDAY = "sun";
+    field public static final String THURSDAY = "thu";
+    field public static final String TUESDAY = "tue";
+    field public static final String WEDNESDAY = "wed";
+  }
+
+  public static class LocalePreferences.HourCycle {
+    field public static final String DEFAULT = "";
+    field public static final String H11 = "h11";
+    field public static final String H12 = "h12";
+    field public static final String H23 = "h23";
+    field public static final String H24 = "h24";
+  }
+
+  public static class LocalePreferences.TemperatureUnit {
+    field public static final String CELSIUS = "celsius";
+    field public static final String DEFAULT = "";
+    field public static final String FAHRENHEIT = "fahrenhe";
+    field public static final String KELVIN = "kelvin";
+  }
+
 }
 
 package androidx.core.util {
@@ -2608,6 +2698,10 @@ package androidx.core.util {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DebugUtils {
     method public static void buildShortClassTag(Object!, StringBuilder!);
+  }
+
+  @java.lang.FunctionalInterface public interface Function<T, R> {
+    method public R! apply(T!);
   }
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
@@ -2708,6 +2802,14 @@ package androidx.core.util {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, StringBuilder!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, long, java.io.PrintWriter!);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int HUNDRED_DAY_FIELD_LEN = 19; // 0x13
+  }
+
+  public class TypedValueCompat {
+    method public static float deriveDimension(int, float, android.util.DisplayMetrics);
+    method public static float dpToPx(float, android.util.DisplayMetrics);
+    method public static float pxToDp(float, android.util.DisplayMetrics);
+    method public static float pxToSp(float, android.util.DisplayMetrics);
+    method public static float spToPx(float, android.util.DisplayMetrics);
   }
 
 }
@@ -3223,9 +3325,15 @@ package androidx.core.view {
     method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @Deprecated public final class VelocityTrackerCompat {
+  public final class VelocityTrackerCompat {
+    method public static float getAxisVelocity(android.view.VelocityTracker, @androidx.core.view.VelocityTrackerCompat.VelocityTrackableMotionEventAxis int);
+    method public static float getAxisVelocity(android.view.VelocityTracker, @androidx.core.view.VelocityTrackerCompat.VelocityTrackableMotionEventAxis int, int);
     method @Deprecated public static float getXVelocity(android.view.VelocityTracker!, int);
     method @Deprecated public static float getYVelocity(android.view.VelocityTracker!, int);
+    method public static boolean isAxisSupported(android.view.VelocityTracker, @androidx.core.view.VelocityTrackerCompat.VelocityTrackableMotionEventAxis int);
+  }
+
+  @IntDef({android.view.MotionEvent.AXIS_X, android.view.MotionEvent.AXIS_Y, android.view.MotionEvent.AXIS_SCROLL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface VelocityTrackerCompat.VelocityTrackableMotionEventAxis {
   }
 
   public class ViewCompat {
@@ -3472,6 +3580,8 @@ package androidx.core.view {
   public final class ViewConfigurationCompat {
     method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method public static int getScaledHoverSlop(android.view.ViewConfiguration);
+    method public static int getScaledMaximumFlingVelocity(android.content.Context, android.view.ViewConfiguration, int, int, int);
+    method public static int getScaledMinimumFlingVelocity(android.content.Context, android.view.ViewConfiguration, int, int, int);
     method @Deprecated public static int getScaledPagingTouchSlop(android.view.ViewConfiguration!);
     method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method @Deprecated public static boolean hasPermanentMenuKey(android.view.ViewConfiguration!);
@@ -3776,6 +3886,7 @@ package androidx.core.view.accessibility {
     field @Deprecated public static final int TYPE_VIEW_HOVER_ENTER = 128; // 0x80
     field @Deprecated public static final int TYPE_VIEW_HOVER_EXIT = 256; // 0x100
     field @Deprecated public static final int TYPE_VIEW_SCROLLED = 4096; // 0x1000
+    field public static final int TYPE_VIEW_TARGETED_BY_SCROLL = 67108864; // 0x4000000
     field @Deprecated public static final int TYPE_VIEW_TEXT_SELECTION_CHANGED = 8192; // 0x2000
     field public static final int TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY = 131072; // 0x20000
     field public static final int TYPE_WINDOWS_CHANGED = 4194304; // 0x400000
@@ -3873,6 +3984,7 @@ package androidx.core.view.accessibility {
     method public boolean isEnabled();
     method public boolean isFocusable();
     method public boolean isFocused();
+    method public boolean isGranularScrollingSupported();
     method public boolean isHeading();
     method public boolean isImportantForAccessibility();
     method public boolean isLongClickable();
@@ -3917,6 +4029,7 @@ package androidx.core.view.accessibility {
     method public void setError(CharSequence!);
     method public void setFocusable(boolean);
     method public void setFocused(boolean);
+    method public void setGranularScrollingSupported(boolean);
     method public void setHeading(boolean);
     method public void setHintText(CharSequence?);
     method public void setImportantForAccessibility(boolean);
@@ -3963,6 +4076,7 @@ package androidx.core.view.accessibility {
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! wrap(android.view.accessibility.AccessibilityNodeInfo);
     field public static final int ACTION_ACCESSIBILITY_FOCUS = 64; // 0x40
     field public static final String ACTION_ARGUMENT_COLUMN_INT = "android.view.accessibility.action.ARGUMENT_COLUMN_INT";
+    field public static final String ACTION_ARGUMENT_DIRECTION_INT = "androidx.core.view.accessibility.action.ARGUMENT_DIRECTION_INT";
     field public static final String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN = "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
     field public static final String ACTION_ARGUMENT_HTML_ELEMENT_STRING = "ACTION_ARGUMENT_HTML_ELEMENT_STRING";
     field public static final String ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT = "ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT";
@@ -3971,6 +4085,7 @@ package androidx.core.view.accessibility {
     field public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT = "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
     field public static final String ACTION_ARGUMENT_PROGRESS_VALUE = "android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE";
     field public static final String ACTION_ARGUMENT_ROW_INT = "android.view.accessibility.action.ARGUMENT_ROW_INT";
+    field public static final String ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT = "androidx.core.view.accessibility.action.ARGUMENT_SCROLL_AMOUNT_FLOAT";
     field public static final String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
     field public static final String ACTION_ARGUMENT_SELECTION_START_INT = "ACTION_ARGUMENT_SELECTION_START_INT";
     field public static final String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE = "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
@@ -4048,6 +4163,7 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_BACKWARD;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_DOWN;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_FORWARD;
+    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_LEFT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_RIGHT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_TO_POSITION;
@@ -4222,6 +4338,7 @@ package androidx.core.view.accessibility {
   }
 
   public class AccessibilityWindowInfoCompat {
+    ctor public AccessibilityWindowInfoCompat();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getAnchor();
     method public void getBoundsInScreen(android.graphics.Rect);
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getChild(int);

@@ -11307,10 +11307,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (mRecyclerView.canScrollVertically(-1) || mRecyclerView.canScrollHorizontally(-1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
                 info.setScrollable(true);
+                info.setGranularScrollingSupported(true);
             }
             if (mRecyclerView.canScrollVertically(1) || mRecyclerView.canScrollHorizontally(1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
                 info.setScrollable(true);
+                info.setGranularScrollingSupported(true);
             }
             final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
                     AccessibilityNodeInfoCompat.CollectionInfoCompat
@@ -11505,6 +11507,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 height = rect.height();
                 width = rect.width();
             }
+
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
                     if (mRecyclerView.canScrollVertically(-1)) {
@@ -11523,9 +11526,54 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     }
                     break;
             }
+
             if (vScroll == 0 && hScroll == 0) {
                 return false;
             }
+
+            float granularScrollAmount = 1F; // The default value.
+
+            if (args != null) {
+                granularScrollAmount = args.getFloat(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT, 1F);
+                if (granularScrollAmount < 0) {
+                    if (sDebugAssertionsEnabled) {
+                        throw new IllegalArgumentException(
+                                "attempting to use ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT with a "
+                                        + "negative value (" + granularScrollAmount + ")");
+                    }
+                    return false;
+                }
+            }
+
+            if (Float.compare(granularScrollAmount, Float.POSITIVE_INFINITY) == 0) {
+                // Assume that the client wants to scroll as far as possible. For
+                // ACTION_SCROLL_BACKWARD, this means scrolling to the beginning of the collection.
+                // For ACTION_SCROLL_FORWARD, this means scrolling to the end of the collection.
+
+                if (mRecyclerView.mAdapter == null) {
+                    return false;
+                }
+                switch (action) {
+                    case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                        mRecyclerView.smoothScrollToPosition(0);
+                        break;
+                    case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                        mRecyclerView.smoothScrollToPosition(
+                                mRecyclerView.mAdapter.getItemCount() - 1);
+                        break;
+                }
+                return true;
+            }
+
+            // No adjustments needed to scroll values if granular scroll amount is 1F, which is
+            // the default, or 0F, which is undefined.
+            if (Float.compare(1F, granularScrollAmount) != 0 && Float.compare(0F,
+                    granularScrollAmount) != 0) {
+                hScroll = (int) (hScroll * granularScrollAmount);
+                vScroll = (int) (vScroll * granularScrollAmount);
+            }
+
             mRecyclerView.smoothScrollBy(hScroll, vScroll, null, UNDEFINED_DURATION, true);
             return true;
         }

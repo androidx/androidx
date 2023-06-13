@@ -214,8 +214,8 @@ public class ChecksumsTest {
     }
 
     private static String executeShellCommand(String command) throws IOException {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return InstallerApi24.executeShellCommand(command);
+        if (Build.VERSION.SDK_INT >= 29) {
+            return InstallerApi29.executeShellCommand(command);
         }
         return "";
     }
@@ -1022,8 +1022,8 @@ public class ChecksumsTest {
     }
 
     void installSplits(String[] names) throws Exception {
-        if (Build.VERSION.SDK_INT >= 24) {
-            new InstallerApi24(mContext).installSplits(names);
+        if (Build.VERSION.SDK_INT >= 29) {
+            new InstallerApi29(mContext).installSplits(names);
         }
     }
 
@@ -1035,17 +1035,17 @@ public class ChecksumsTest {
     }
 
     private boolean isAppInstalled(String packageName) throws IOException {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return InstallerApi24.isAppInstalled(packageName);
+        if (Build.VERSION.SDK_INT >= 29) {
+            return InstallerApi29.isAppInstalled(packageName);
         }
         return false;
     }
 
-    @RequiresApi(24)
-    static class InstallerApi24 {
+    @RequiresApi(29)
+    static class InstallerApi29 {
         protected Context mContext;
 
-        InstallerApi24(Context context) {
+        InstallerApi29(Context context) {
             mContext = context;
         }
 
@@ -1120,9 +1120,10 @@ public class ChecksumsTest {
             final String action = "androidx.core.appdigest.COMMIT_COMPLETE." + resultId;
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(action);
-            mContext.registerReceiver(broadcastReceiver, intentFilter);
+            mContext.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
 
             Intent intent = new Intent(action);
+            intent.setPackage(mContext.getPackageName());
             PendingIntent sender = PendingIntent.getBroadcast(mContext, resultId, intent,
                     PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT
                             | PendingIntent.FLAG_MUTABLE);
@@ -1139,7 +1140,7 @@ public class ChecksumsTest {
     }
 
     @RequiresApi(31)
-    static class InstallerApi31 extends InstallerApi24 {
+    static class InstallerApi31 extends InstallerApi29 {
         InstallerApi31(Context context) {
             super(context);
         }

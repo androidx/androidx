@@ -45,6 +45,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
@@ -66,6 +67,7 @@ import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaRouterParams;
+import androidx.mediarouter.media.RouteListingPreference;
 
 import com.example.androidx.mediarouting.MyMediaRouteControllerDialog;
 import com.example.androidx.mediarouting.R;
@@ -82,6 +84,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Demonstrates how to use the {@link MediaRouter} API to build an application that allows the user
@@ -269,6 +272,10 @@ public class MainActivity extends AppCompatActivity {
         mSessionManager.setCallback(new SampleSessionManagerCallback());
 
         updateUi();
+
+        if (RouteListingPreference.ACTION_TRANSFER_MEDIA.equals(getIntent().getAction())) {
+            showMediaTransferToast();
+        }
     }
 
     @Override
@@ -331,6 +338,26 @@ public class MainActivity extends AppCompatActivity {
     private void requestRequiredPermissions() {
         requestDisplayOverOtherAppsPermission();
         requestPostNotificationsPermission();
+    }
+
+    private void showMediaTransferToast() {
+        String routeId = getIntent().getStringExtra(RouteListingPreference.EXTRA_ROUTE_ID);
+        List<RouteInfo> routes = mMediaRouter.getRoutes();
+        String requestedRouteName = null;
+        for (RouteInfo route : routes) {
+            if (route.getId().equals(routeId)) {
+                requestedRouteName = route.getName();
+                break;
+            }
+        }
+        String stringToDisplay =
+                requestedRouteName != null
+                        ? "Transfer requested to " + requestedRouteName
+                        : "Transfer requested to unknown route: " + routeId;
+
+        // TODO(b/266561322): Replace the toast with a Dialog that allows the user to either
+        // transfer playback to the requested route, or dismiss the intent.
+        Toast.makeText(/* context= */ this, stringToDisplay, Toast.LENGTH_LONG).show();
     }
 
     private void requestDisplayOverOtherAppsPermission() {

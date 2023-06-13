@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 33 (current min is 14): `android.app.sdksandbox.SdkSandboxManager#getSandboxedSdks`"
-        errorLine1="        `when`(sdkSandboxManager.sandboxedSdks)"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompatSandboxedTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 33 (current min is 14): `android.app.sdksandbox.SdkSandboxManager#getSandboxedSdks`"
-        errorLine1="        `when`(sdkSandboxManager.sandboxedSdks)"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompatSandboxedTest.kt"/>
-    </issue>
+<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -44,6 +26,15 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/privacysandbox/sdkruntime/client/loader/impl/SandboxControllerInjector.kt"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            return if (BuildCompat.isAtLeastU()) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt"/>
     </issue>
 
 </issues>

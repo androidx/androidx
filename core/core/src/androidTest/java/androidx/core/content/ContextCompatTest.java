@@ -87,6 +87,7 @@ import android.app.DownloadManager;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.app.SearchManager;
+import android.app.UiAutomation;
 import android.app.UiModeManager;
 import android.app.WallpaperManager;
 import android.app.admin.DevicePolicyManager;
@@ -531,11 +532,15 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     @Test
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32)
     public void testRegisterReceiverPermissionNotGrantedApi26() {
-        InstrumentationRegistry
-                .getInstrumentation().getUiAutomation().adoptShellPermissionIdentity();
-        assertThrows(RuntimeException.class,
-                () -> ContextCompat.registerReceiver(mContext,
-                        mTestReceiver, mTestFilter, ContextCompat.RECEIVER_NOT_EXPORTED));
+        UiAutomation uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        uiAutomation.adoptShellPermissionIdentity();
+        try {
+            assertThrows(RuntimeException.class,
+                    () -> ContextCompat.registerReceiver(mContext,
+                            mTestReceiver, mTestFilter, ContextCompat.RECEIVER_NOT_EXPORTED));
+        } finally {
+            uiAutomation.dropShellPermissionIdentity();
+        }
     }
 
     @Test

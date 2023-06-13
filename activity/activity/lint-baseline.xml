@@ -10,4 +10,13 @@
             file="src/main/java/androidx/activity/ComponentActivity.java"/>
     </issue>
 
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            onBackInvokedCallback = if (BuildCompat.isAtLeastU()) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/activity/OnBackPressedDispatcher.kt"/>
+    </issue>
+
 </issues>

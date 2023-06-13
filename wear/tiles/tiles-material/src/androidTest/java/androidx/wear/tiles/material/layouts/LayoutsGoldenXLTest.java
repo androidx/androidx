@@ -74,6 +74,8 @@ public class LayoutsGoldenXLTest {
     }
 
     @Parameterized.Parameters(name = "{0}")
+    // TODO(b/267744228): Remove the warning suppression.
+    @SuppressWarnings("deprecation")
     public static Collection<Object[]> data() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         DisplayMetrics currentDisplayMetrics = new DisplayMetrics();

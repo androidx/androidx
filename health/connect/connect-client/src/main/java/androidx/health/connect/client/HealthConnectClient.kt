@@ -30,6 +30,7 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.HealthConnectClientImpl
+import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
@@ -312,7 +313,11 @@ interface HealthConnectClient {
         internal const val DEFAULT_PROVIDER_PACKAGE_NAME = "com.google.android.apps.healthdata"
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 35000
+        internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        const val ACTION_HEALTH_CONNECT_SETTINGS_LEGACY =
+            "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
@@ -320,7 +325,10 @@ interface HealthConnectClient {
          */
         @get:JvmName("getHealthConnectSettingsAction")
         @JvmStatic
-        val ACTION_HEALTH_CONNECT_SETTINGS = "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
+        val ACTION_HEALTH_CONNECT_SETTINGS =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                "android.health.connect.action.HEALTH_HOME_SETTINGS"
+            else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
          * The Health Connect SDK is not unavailable on this device at the time. This can be due to
@@ -372,51 +380,32 @@ interface HealthConnectClient {
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Int {
-            @Suppress("Deprecation")
-            if (!isApiSupported()) {
+            if (!isSdkVersionSufficient()) {
                 return SDK_UNAVAILABLE
             }
-            @Suppress("Deprecation")
             if (!isProviderAvailable(context, providerPackageName)) {
                 return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
             }
             return SDK_AVAILABLE
         }
 
-        /**
-         * Determines whether the current Health Connect SDK is supported on this device. If it is
-         * not supported, then installing any provider will not help - instead disable the
-         * integration.
-         *
-         * @return whether the api is supported on the device.
-         */
-        @JvmStatic
-        @Deprecated("use sdkStatus()", ReplaceWith("sdkStatus(context)"))
-        public fun isApiSupported(): Boolean {
-            return isSdkVersionSufficient()
-        }
-
-        /**
-         * Determines whether an implementation of [HealthConnectClient] is available on this device
-         * at the moment. If none is available, apps may choose to redirect to package installers to
-         * find suitable providers.
-         *
-         * @param context the context
-         * @param providerPackageName optional package provider to choose for backend implementation
-         * @return whether the api is available
-         */
         @JvmOverloads
         @JvmStatic
-        @Deprecated("use sdkStatus()", ReplaceWith("sdkStatus(context)"))
-        public fun isProviderAvailable(
+        @AvailabilityStatus
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getSdkStatusLegacy(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-        ): Boolean {
+        ): Int {
             @Suppress("Deprecation")
-            if (!isApiSupported()) {
-                return false
+            if (!isSdkVersionSufficient()) {
+                return SDK_UNAVAILABLE
             }
-            return isPackageInstalled(context.packageManager, providerPackageName)
+            @Suppress("Deprecation")
+            if (!isProviderAvailableLegacy(context, providerPackageName)) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            return SDK_AVAILABLE
         }
 
         /**
@@ -437,12 +426,34 @@ interface HealthConnectClient {
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): HealthConnectClient {
-            @Suppress("Deprecation")
-            if (!isApiSupported()) {
+            val status = getSdkStatus(context, providerPackageName)
+            if (status == SDK_UNAVAILABLE) {
                 throw UnsupportedOperationException("SDK version too low")
             }
-            @Suppress("Deprecation")
-            if (!isProviderAvailable(context, providerPackageName)) {
+            if (status == SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+                throw IllegalStateException("Service not available")
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return HealthConnectClientUpsideDownImpl(context)
+            }
+            return HealthConnectClientImpl(
+                HealthDataService.getClient(context, providerPackageName)
+            )
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getOrCreateLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): HealthConnectClient {
+            val status = getSdkStatusLegacy(context, providerPackageName)
+            if (status == SDK_UNAVAILABLE) {
+                throw UnsupportedOperationException("SDK version too low")
+            }
+            if (status == SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
                 throw IllegalStateException("Service not available")
             }
             return HealthConnectClientImpl(
@@ -453,7 +464,28 @@ interface HealthConnectClient {
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
         internal fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
 
-        internal fun isPackageInstalled(
+        /**
+         * Determines whether an implementation of [HealthConnectClient] is available on this device
+         * at the moment.
+         */
+        internal fun isProviderAvailable(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Boolean {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return true
+            }
+            return isPackageInstalled(context.packageManager, providerPackageName)
+        }
+
+        internal fun isProviderAvailableLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Boolean {
+            return isPackageInstalled(context.packageManager, providerPackageName)
+        }
+
+        private fun isPackageInstalled(
             packageManager: PackageManager,
             packageName: String,
         ): Boolean {

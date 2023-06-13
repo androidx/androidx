@@ -20,15 +20,22 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.hamcrest.Description;
@@ -174,6 +181,279 @@ public class ExplodeTest extends BaseTransitionTest {
         assertThat(Arrays.asList(3f, 2f, 1f), is(decreasing()));
         assertThat(Arrays.asList(1f, 9f, 3f), is(not(increasing())));
         assertThat(Arrays.asList(1f, 9f, 3f), is(not(decreasing())));
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    public void seekingExplode() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        transition.addTransition(new Explode());
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            this.mRedSquare.setVisibility(View.GONE);
+        });
+
+        final TransitionSeekController seekController = seekControllerArr[0];
+
+        float[] translationValues = new float[2];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, ViewUtils.getTransitionAlpha(mRedSquare), 0f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+
+            // Seek past the always there transition before the explode
+            seekController.setCurrentPlayTimeMillis(300);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+
+            // Seek half way:
+            seekController.setCurrentPlayTimeMillis(450);
+            assertNotEquals(0f, mRedSquare.getTranslationX(), 0.01f);
+            assertNotEquals(0f, mRedSquare.getTranslationY(), 0.01f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            translationValues[0] = mRedSquare.getTranslationX();
+            translationValues[1] = mRedSquare.getTranslationY();
+
+            // Seek past the end
+            seekController.setCurrentPlayTimeMillis(800);
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+            assertEquals(View.GONE, mRedSquare.getVisibility());
+
+            // Seek before the explode:
+            seekController.setCurrentPlayTimeMillis(250);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+
+            seekController.setCurrentPlayTimeMillis(450);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from half way values and decrease
+            assertEquals(translationValues[0], mRedSquare.getTranslationX(), 1f);
+            assertEquals(translationValues[1], mRedSquare.getTranslationY(), 1f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    public void seekingImplode() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        Explode implode = new Explode();
+        implode.setInterpolator(new LinearInterpolator());
+        transition.addTransition(implode);
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        rule.runOnUiThread(() -> {
+            mRedSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            mRedSquare.setVisibility(View.VISIBLE);
+        });
+
+        final TransitionSeekController seekController = seekControllerArr[0];
+
+        float[] translationValues = new float[2];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, ViewUtils.getTransitionAlpha(mRedSquare), 0f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertNotEquals(0f, mRedSquare.getTranslationX(), 0.01f);
+            assertNotEquals(0f, mRedSquare.getTranslationY(), 0.01f);
+
+            float startX = mRedSquare.getTranslationX();
+            float startY = mRedSquare.getTranslationY();
+
+            // Seek past the always there transition before the explode
+            seekController.setCurrentPlayTimeMillis(300);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertEquals(startX, mRedSquare.getTranslationX(), 0f);
+            assertEquals(startY, mRedSquare.getTranslationY(), 0f);
+
+            // Seek half way:
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(startX / 2f, mRedSquare.getTranslationX(), 0.01f);
+            assertEquals(startY / 2f, mRedSquare.getTranslationY(), 0.01f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            translationValues[0] = mRedSquare.getTranslationX();
+            translationValues[1] = mRedSquare.getTranslationY();
+
+            // Seek past the end
+            seekController.setCurrentPlayTimeMillis(800);
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+
+            // Seek before the explode:
+            seekController.setCurrentPlayTimeMillis(250);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+            assertEquals(startX, mRedSquare.getTranslationX(), 0f);
+            assertEquals(startY, mRedSquare.getTranslationY(), 0f);
+
+            seekController.setCurrentPlayTimeMillis(450);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from half way values and increase
+            assertEquals(translationValues[0], mRedSquare.getTranslationX(), 1f);
+            assertEquals(translationValues[1], mRedSquare.getTranslationY(), 1f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(View.GONE, mRedSquare.getVisibility());
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    public void seekingImplodeBeforeStart() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        Explode implode = new Explode();
+        implode.setInterpolator(new LinearInterpolator());
+        transition.addTransition(implode);
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        rule.runOnUiThread(() -> {
+            mRedSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            mRedSquare.setVisibility(View.VISIBLE);
+        });
+
+        float[] translationValues = new float[2];
+
+        rule.runOnUiThread(() -> {
+            translationValues[0] = mRedSquare.getTranslationX();
+            translationValues[1] = mRedSquare.getTranslationY();
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from all the way out
+            assertEquals(translationValues[0], mRedSquare.getTranslationX(), 1f);
+            assertEquals(translationValues[1], mRedSquare.getTranslationY(), 1f);
+            assertEquals(View.VISIBLE, mRedSquare.getVisibility());
+
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(View.GONE, mRedSquare.getVisibility());
+            assertEquals(0f, mRedSquare.getTranslationX(), 0f);
+            assertEquals(0f, mRedSquare.getTranslationY(), 0f);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    public void seekWithTranslation() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        rule.runOnUiThread(() -> {
+            mRedSquare.setTranslationX(1f);
+            mRedSquare.setTranslationY(5f);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.GONE);
+        });
+
+        final float[] interruptedTranslation = new float[2];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, mRedSquare.getTranslationX(), 0.01f);
+            assertEquals(5f, mRedSquare.getTranslationY(), 0.01f);
+
+
+            seekControllerArr[0].setCurrentPlayTimeMillis(150);
+            interruptedTranslation[0] = mRedSquare.getTranslationX();
+            interruptedTranslation[1] = mRedSquare.getTranslationY();
+
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from half way values and increase
+            assertEquals(interruptedTranslation[0], mRedSquare.getTranslationX(), 1f);
+            assertEquals(interruptedTranslation[1], mRedSquare.getTranslationY(), 1f);
+
+            // make sure it would go to the start value
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(1f, mRedSquare.getTranslationX(), 0.01f);
+            assertEquals(5f, mRedSquare.getTranslationY(), 0.01f);
+
+            // Now go back to the interrupted position again:
+            seekControllerArr[0].setCurrentPlayTimeMillis(0);
+            assertEquals(interruptedTranslation[0], mRedSquare.getTranslationX(), 1f);
+            assertEquals(interruptedTranslation[1], mRedSquare.getTranslationY(), 1f);
+
+            // Send it back to GONE
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(interruptedTranslation[0], mRedSquare.getTranslationX(), 1f);
+            assertEquals(interruptedTranslation[1], mRedSquare.getTranslationY(), 1f);
+
+            // it should move away (toward the top-left)
+            seekControllerArr[0].setCurrentPlayTimeMillis(299);
+            assertTrue(mRedSquare.getTranslationX() < interruptedTranslation[0]);
+            assertTrue(mRedSquare.getTranslationY() < interruptedTranslation[1]);
+
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Explode());
+            mRedSquare.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should end up at the initial translation
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(1f, mRedSquare.getTranslationX(), 0.01f);
+            assertEquals(5f, mRedSquare.getTranslationY(), 0.01f);
+        });
     }
 
     private Matcher<View> hasVisibility(final int visibility) {

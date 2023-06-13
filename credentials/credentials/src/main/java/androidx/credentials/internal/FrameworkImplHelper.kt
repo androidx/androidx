@@ -37,14 +37,14 @@ internal class FrameworkImplHelper {
         @RequiresApi(23)
         fun getFinalCreateCredentialData(
             request: CreateCredentialRequest,
-            activity: Context,
+            context: Context,
         ): Bundle {
             val createCredentialData = request.credentialData
             val displayInfoBundle = request.displayInfo.toBundle()
             displayInfoBundle.putParcelable(
                 CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON,
                 Icon.createWithResource(
-                    activity,
+                    context,
                     when (request) {
                         is CreatePasswordRequest -> R.drawable.ic_password
                         is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey

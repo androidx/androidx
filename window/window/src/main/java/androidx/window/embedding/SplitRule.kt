@@ -235,7 +235,11 @@ open class SplitRule internal constructor(
             return false
         }
         val bounds = Api30Impl.getBounds(parentMetrics)
-        val density = context.resources.displayMetrics.density
+        val density = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+            context.resources.displayMetrics.density
+        } else {
+            Api34Impl.getDensity(parentMetrics, context)
+        }
         return checkParentBounds(density, bounds)
     }
 
@@ -281,6 +285,19 @@ open class SplitRule internal constructor(
         @DoNotInline
         fun getBounds(windowMetrics: WindowMetrics): Rect {
             return windowMetrics.bounds
+        }
+    }
+
+    @RequiresApi(34)
+    internal object Api34Impl {
+        @DoNotInline
+        fun getDensity(windowMetrics: WindowMetrics, context: Context): Float {
+            // TODO(b/265089843) remove the try catch after U is finalized.
+            return try {
+                windowMetrics.density
+            } catch (e: NoSuchMethodError) {
+                context.resources.displayMetrics.density
+            }
         }
     }
 

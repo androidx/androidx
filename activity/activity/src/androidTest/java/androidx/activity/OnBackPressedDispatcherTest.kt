@@ -441,6 +441,80 @@ class OnBackPressedHandlerTest {
             withActivity { realDispatcher.onBackPressed() }
         }
     }
+
+    @Test
+    fun testOnHasEnabledCallbacks() {
+        var reportedHasEnabledCallbacks = false
+        var reportCount = 0
+        val dispatcher = OnBackPressedDispatcher(
+            fallbackOnBackPressed = null,
+            onHasEnabledCallbacksChanged = {
+                reportedHasEnabledCallbacks = it
+                reportCount++
+            }
+        )
+
+        assertWithMessage("initial reportCount")
+            .that(reportCount)
+            .isEqualTo(0)
+        assertWithMessage("initial reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isFalse()
+
+        val callbackA = dispatcher.addCallback(enabled = false) {}
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(0)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isFalse()
+
+        callbackA.isEnabled = true
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(1)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+
+        val callbackB = dispatcher.addCallback {}
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(1)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+
+        callbackA.remove()
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(1)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+
+        callbackB.remove()
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(2)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isFalse()
+
+        dispatcher.addCallback {}
+
+        assertWithMessage("reportCount")
+            .that(reportCount)
+            .isEqualTo(3)
+        assertWithMessage("reportedHasEnabledCallbacks")
+            .that(reportedHasEnabledCallbacks)
+            .isTrue()
+    }
 }
 
 open class CountingOnBackPressedCallback(

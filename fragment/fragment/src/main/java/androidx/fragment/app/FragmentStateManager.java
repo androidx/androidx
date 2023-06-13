@@ -236,6 +236,11 @@ class FragmentStateManager {
         if (mFragment.mDeferStart && mFragment.mState < Fragment.STARTED) {
             maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
         }
+        // Fragments that are transitioning are part of a seeking effect and must be at least
+        // AWAITING_EXIT_EFFECTS
+        if (mFragment.mTransitioning) {
+            maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
+        }
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(FragmentManager.TAG, "computeExpectedState() of " + maxState + " for "
                     + mFragment);

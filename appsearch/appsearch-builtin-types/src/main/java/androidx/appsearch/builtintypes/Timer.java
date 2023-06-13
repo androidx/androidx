@@ -91,12 +91,13 @@ public class Timer extends Thing {
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
             @Nullable String image, @Nullable String url,
+            @Nullable List<PotentialAction> potentialActions,
             long durationMillis, long originalDurationMillis, long startTimeMillis,
             long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount,
             long remainingDurationMillis, @Nullable String ringtone, int status,
             boolean shouldVibrate) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mDurationMillis = durationMillis;
         mOriginalDurationMillis = originalDurationMillis;
         mStartTimeMillis = startTimeMillis;
@@ -477,6 +478,7 @@ public class Timer extends Thing {
         public Timer build() {
             return new Timer(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mDurationMillis, mOriginalDurationMillis, mStartTimeMillis, mBaseTimeMillis,
                     mBaseTimeMillisInElapsedRealtime, mBootCount, mRemainingDurationMillis,
                     mRingtone, mStatus, mShouldVibrate);

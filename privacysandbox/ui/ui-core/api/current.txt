@@ -20,6 +20,10 @@ package androidx.privacysandbox.ui.core {
     method public void onSessionOpened(androidx.privacysandbox.ui.core.SandboxedUiAdapter.Session session);
   }
 
+  public interface SdkActivityLauncher {
+    method public suspend Object? launchSdkActivity(android.os.IBinder sdkActivityHandlerToken, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+  }
+
   public final class SdkRuntimeUiLibVersions {
     method public int getClientVersion();
     property public final int clientVersion;

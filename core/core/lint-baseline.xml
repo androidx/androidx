@@ -722,6 +722,15 @@
     </issue>
 
     <issue
+        id="Range"
+        message="Value must be ≥ 1 and ≤ 200 but `getSvid` can be 206"
+        errorLine1="        return mWrapped.getSvid(satelliteIndex);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/GnssStatusWrapper.java"/>
+    </issue>
+
+    <issue
         id="WrongConstant"
         message="Must be one of: Callback.DISPATCH_MODE_STOP, Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE"
         errorLine1="                super(compat.getDispatchMode());"
@@ -2042,6 +2051,15 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/os/LocaleListCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.NotificationManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mContext.checkSelfPermission(Manifest.permission.USE_FULL_SCREEN_INTENT);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"/>
     </issue>
 
     <issue

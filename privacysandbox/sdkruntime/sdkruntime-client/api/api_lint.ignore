@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+ForbiddenSuperClass: androidx.privacysandbox.sdkruntime.client.activity.SdkActivity:
+    SdkActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
+
+
 RegistrationName: androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat#addSdkSandboxProcessDeathCallback(java.util.concurrent.Executor, androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat):
     Callback methods should be named register/unregister; was addSdkSandboxProcessDeathCallback
 RegistrationName: androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat#removeSdkSandboxProcessDeathCallback(androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat):

@@ -5332,6 +5332,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setOnConstraintsChanged(ConstraintsChangedListener constraintsChangedListener) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -9240,6 +9249,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="                               int type, int[] consumed) {"
         errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>

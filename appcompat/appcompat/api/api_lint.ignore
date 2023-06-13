@@ -91,12 +91,8 @@ InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatTextView#setFilte
     Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatToggleButton#setFilters(android.text.InputFilter[]) parameter #0:
     Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.appcompat.widget.LinearLayoutCompat#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.ListPopupWindow#getListView():
     Invalid nullability on method `getListView` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#getCustomSelectionActionModeCallback():
     Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#setFilters(android.text.InputFilter[]) parameter #0:
@@ -555,6 +551,8 @@ MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createView(andr
     Missing nullability on parameter `attrs` in method `createView`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawerArrowDrawable#DrawerArrowDrawable(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `DrawerArrowDrawable`
+MissingNullability: androidx.appcompat.graphics.drawable.DrawerArrowDrawable#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.appcompat.graphics.drawable.DrawerArrowDrawable#getPaint():
     Missing nullability on method `getPaint` return
 MissingNullability: androidx.appcompat.graphics.drawable.DrawerArrowDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
@@ -727,6 +725,8 @@ MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#generateLayoutP
     Missing nullability on parameter `p` in method `generateLayoutParams`
 MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#getDividerDrawable():
     Missing nullability on method `getDividerDrawable` return
+MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
 MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo) parameter #0:
@@ -797,6 +797,8 @@ MissingNullability: androidx.appcompat.widget.ShareActionProvider.OnShareTargetS
     Missing nullability on parameter `source` in method `onShareTargetSelected`
 MissingNullability: androidx.appcompat.widget.ShareActionProvider.OnShareTargetSelectedListener#onShareTargetSelected(androidx.appcompat.widget.ShareActionProvider, android.content.Intent) parameter #1:
     Missing nullability on parameter `intent` in method `onShareTargetSelected`
+MissingNullability: androidx.appcompat.widget.SwitchCompat#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `draw`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#getTextOff():
     Missing nullability on method `getTextOff` return
 MissingNullability: androidx.appcompat.widget.SwitchCompat#getTextOn():
@@ -831,6 +833,8 @@ MissingNullability: androidx.appcompat.widget.SwitchCompat#setThumbDrawable(andr
     Missing nullability on parameter `thumb` in method `setThumbDrawable`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#setTrackDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `track` in method `setTrackDrawable`
+MissingNullability: androidx.appcompat.widget.SwitchCompat#verifyDrawable(android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `who` in method `verifyDrawable`
 MissingNullability: androidx.appcompat.widget.Toolbar#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `checkLayoutParams`
 MissingNullability: androidx.appcompat.widget.Toolbar#generateDefaultLayoutParams():

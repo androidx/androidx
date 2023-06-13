@@ -1,6 +1,26 @@
 // Signature format: 4.0
 package androidx.activity {
 
+  public final class BackEventCompat {
+    ctor @RequiresApi(34) public BackEventCompat(android.window.BackEvent backEvent);
+    ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, float progress, int swipeEdge);
+    method public float getProgress();
+    method public int getSwipeEdge();
+    method public float getTouchX();
+    method public float getTouchY();
+    method @RequiresApi(34) public android.window.BackEvent toBackEvent();
+    property public final float progress;
+    property public final int swipeEdge;
+    property public final float touchX;
+    property public final float touchY;
+    field public static final androidx.activity.BackEventCompat.Companion Companion;
+    field public static final int EDGE_LEFT = 0; // 0x0
+    field public static final int EDGE_RIGHT = 1; // 0x1
+  }
+
+  public static final class BackEventCompat.Companion {
+  }
+
   public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyDrawnReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
@@ -85,7 +105,10 @@ package androidx.activity {
 
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean enabled);
+    method @MainThread public void handleOnBackCancelled();
     method @MainThread public abstract void handleOnBackPressed();
+    method @MainThread public void handleOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread public void handleOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
@@ -95,8 +118,12 @@ package androidx.activity {
   public final class OnBackPressedDispatcher {
     ctor public OnBackPressedDispatcher();
     ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
+    ctor public OnBackPressedDispatcher(Runnable? fallbackOnBackPressed, androidx.core.util.Consumer<java.lang.Boolean>? onHasEnabledCallbacksChanged);
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method @MainThread @VisibleForTesting public void dispatchOnBackCancelled();
+    method @MainThread @VisibleForTesting public void dispatchOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread @VisibleForTesting public void dispatchOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);

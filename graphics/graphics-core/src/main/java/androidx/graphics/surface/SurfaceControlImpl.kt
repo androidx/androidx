@@ -310,6 +310,25 @@ internal interface SurfaceControlImpl {
         ): Transaction
 
         /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
+        ): Transaction
+
+        /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
          * This will not release any resources and [SurfaceControlImpl.Transaction.close] must be
          * called to release the transaction.
