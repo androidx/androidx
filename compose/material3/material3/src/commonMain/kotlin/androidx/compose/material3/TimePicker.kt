@@ -496,7 +496,7 @@ class TimePickerState(
 ) {
     init {
         require(initialHour in 0..23) { "initialHour should in [0..23] range" }
-        require(initialHour in 0..59) { "initialMinute should be in [0..59] range" }
+        require(initialMinute in 0..59) { "initialMinute should be in [0..59] range" }
     }
 
     val minute: Int get() = minuteAngle.toMinute()
@@ -524,7 +524,7 @@ class TimePickerState(
     internal val values get() = if (selection == Selection.Minute) Minutes else Hours
 
     internal var selection by mutableStateOf(Selection.Hour)
-    internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
+    internal var isAfternoonToggle by mutableStateOf(initialHour >= 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
     internal var hourAngle by mutableFloatStateOf(

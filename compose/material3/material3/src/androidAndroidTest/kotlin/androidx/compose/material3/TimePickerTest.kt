@@ -564,6 +564,15 @@ class TimePickerTest {
     }
 
     @Test
+    fun clockFace_12Hour_initAtNoon() {
+        val state = TimePickerState(initialHour = 12, initialMinute = 0, is24Hour = false)
+
+        assertThat(state.isAfternoonToggle).isTrue()
+
+        assertThat(state.hour).isEqualTo(12)
+    }
+
+    @Test
     fun clockFace_24HourMinutes_everyValue() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
         state.selection = Selection.Minute
