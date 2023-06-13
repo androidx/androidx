@@ -280,6 +280,10 @@ class CreateEntry internal constructor(
         private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
             "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
 
+        private const val SLICE_SPEC_TYPE = "CreateEntry"
+
+        private const val REVISION_ID = 1
+
         private const val AUTO_SELECT_TRUE_STRING = "true"
 
         private const val AUTO_SELECT_FALSE_STRING = "false"
@@ -295,9 +299,8 @@ class CreateEntry internal constructor(
             val lastUsedTime = createEntry.lastUsedTime
             val credentialCountInformationMap = createEntry.credentialCountInformationMap
             val pendingIntent = createEntry.pendingIntent
-
-            // TODO("Use the right type and revision")
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
+            val sliceBuilder = Slice.Builder(Uri.EMPTY,
+                SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
 
             val autoSelectAllowed = if (createEntry.isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
@@ -363,7 +366,6 @@ class CreateEntry internal constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): CreateEntry? {
-            // TODO("Put the right spec and version value")
             var accountName: CharSequence? = null
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null

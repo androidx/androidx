@@ -168,6 +168,8 @@ class CustomCredentialEntry internal constructor(
         private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
 
+        private const val REVISION_ID = 1
+
         private const val AUTO_SELECT_TRUE_STRING = "true"
 
         private const val AUTO_SELECT_FALSE_STRING = "false"
@@ -184,7 +186,6 @@ class CustomCredentialEntry internal constructor(
             isAutoSelectAllowed: Boolean?,
             beginGetCredentialOption: BeginGetCredentialOption
         ): Slice {
-            // TODO("Put the right revision value")
             val autoSelectAllowed = if (isAutoSelectAllowed == true) {
                 AUTO_SELECT_TRUE_STRING
             } else {
@@ -192,7 +193,7 @@ class CustomCredentialEntry internal constructor(
             }
             val sliceBuilder = Slice.Builder(
                 Uri.EMPTY, SliceSpec(
-                    type, 1
+                    type, REVISION_ID
                 )
             )
                 .addText(

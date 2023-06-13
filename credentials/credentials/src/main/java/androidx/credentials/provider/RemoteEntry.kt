@@ -75,6 +75,10 @@ class RemoteEntry constructor(
         private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
 
+        private const val SLICE_SPEC_TYPE = "RemoteEntry"
+
+        private const val REVISION_ID = 1
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @JvmStatic
@@ -82,8 +86,7 @@ class RemoteEntry constructor(
             remoteEntry: RemoteEntry
         ): Slice {
             val pendingIntent = remoteEntry.pendingIntent
-            // TODO("Put the right spec and version value")
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
             sliceBuilder.addAction(
                 pendingIntent,
                 Slice.Builder(sliceBuilder)
