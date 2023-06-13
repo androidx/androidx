@@ -44,7 +44,6 @@ import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
-import androidx.camera.view.transform.OutputTransform
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
@@ -277,10 +276,7 @@ class CameraControllerTest {
             }
         }
         controller.setImageAnalysisAnalyzer(mainThreadExecutor(), analyzer)
-        val outputTransform = previewTransform?.let {
-            OutputTransform(it, Size(1, 1))
-        }
-        controller.updatePreviewViewTransform(outputTransform)
+        controller.updatePreviewViewTransform(previewTransform)
         return matrix
     }
 
