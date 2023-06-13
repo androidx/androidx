@@ -146,8 +146,8 @@ class GestureController {
 
         // Loop
         MotionEvent event;
-        long elapsedTime = 0;
-        for (; !pending.isEmpty() || !active.isEmpty(); elapsedTime += injectionDelay) {
+        for (long elapsedTime = 0; !pending.isEmpty() || !active.isEmpty();
+                elapsedTime = SystemClock.uptimeMillis() - startTime) {
 
             // Touch up any completed pointers
             while (!active.isEmpty()
@@ -168,7 +168,7 @@ class GestureController {
                     action = MotionEvent.ACTION_POINTER_UP
                             + (index << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
                 }
-                event = getMotionEvent(startTime, SystemClock.uptimeMillis(), action, properties,
+                event = getMotionEvent(startTime, startTime + elapsedTime, action, properties,
                         coordinates, gesture.displayId());
                 getDevice().getUiAutomation().injectInputEvent(event, false);
 
@@ -183,9 +183,8 @@ class GestureController {
 
             }
             if (!active.isEmpty()) {
-                event = getMotionEvent(startTime, SystemClock.uptimeMillis(),
-                        MotionEvent.ACTION_MOVE, properties, coordinates,
-                        active.peek().displayId());
+                event = getMotionEvent(startTime, startTime + elapsedTime, MotionEvent.ACTION_MOVE,
+                        properties, coordinates, active.peek().displayId());
                 getDevice().getUiAutomation().injectInputEvent(event, false);
             }
 
@@ -206,7 +205,7 @@ class GestureController {
                     action = MotionEvent.ACTION_POINTER_DOWN
                             + ((properties.size() - 1) << MotionEvent.ACTION_POINTER_INDEX_SHIFT);
                 }
-                event = getMotionEvent(startTime, SystemClock.uptimeMillis(), action, properties,
+                event = getMotionEvent(startTime, startTime + elapsedTime, action, properties,
                         coordinates, gesture.displayId());
                 getDevice().getUiAutomation().injectInputEvent(event, false);
 
@@ -215,12 +214,6 @@ class GestureController {
             }
 
             SystemClock.sleep(injectionDelay);
-        }
-
-        long upTime = SystemClock.uptimeMillis() - startTime;
-        if (upTime >= 2 * elapsedTime) {
-            Log.w(TAG, String.format("Gestures took longer than expected (%dms >> %dms), device "
-                    + "might be in a busy state.", upTime, elapsedTime));
         }
     }
 
