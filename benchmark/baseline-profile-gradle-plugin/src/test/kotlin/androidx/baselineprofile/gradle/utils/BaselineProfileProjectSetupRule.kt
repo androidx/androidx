@@ -64,7 +64,8 @@ class BaselineProfileProjectSetupRule(
         ConsumerModule(
             rule = consumerSetupRule,
             name = consumerName,
-            producerName = producerName
+            producerName = producerName,
+            dependencyName = dependencyName
         )
     }
 
@@ -80,6 +81,15 @@ class BaselineProfileProjectSetupRule(
         )
     }
 
+    /**
+     * Represents a simple java library dependency module.
+     */
+    val dependency by lazy {
+        DependencyModule(
+            name = dependencyName
+        )
+    }
+
     // Temp folder for temp generated files that need to be referenced by a module.
     private val tempFolder by lazy { File(rootFolder.root, "temp").apply { mkdirs() } }
 
@@ -87,6 +97,7 @@ class BaselineProfileProjectSetupRule(
     private val appTargetSetupRule by lazy { ProjectSetupRule(rootFolder.root) }
     private val consumerSetupRule by lazy { ProjectSetupRule(rootFolder.root) }
     private val producerSetupRule by lazy { ProjectSetupRule(rootFolder.root) }
+    private val dependencySetupRule by lazy { ProjectSetupRule(rootFolder.root) }
 
     // Module names (generated automatically)
     private val appTargetName: String by lazy {
@@ -98,11 +109,15 @@ class BaselineProfileProjectSetupRule(
     private val producerName: String by lazy {
         producerSetupRule.rootDir.relativeTo(rootFolder.root).name
     }
+    private val dependencyName: String by lazy {
+        dependencySetupRule.rootDir.relativeTo(rootFolder.root).name
+    }
 
     override fun apply(base: Statement, description: Description): Statement {
         return RuleChain
             .outerRule(appTargetSetupRule)
             .around(producerSetupRule)
+            .around(dependencySetupRule)
             .around(consumerSetupRule)
             .around { b, _ -> applyInternal(b) }
             .apply(base, description)
@@ -130,6 +145,7 @@ class BaselineProfileProjectSetupRule(
                 """
                 include '$appTargetName'
                 include '$producerName'
+                include '$dependencyName'
                 include '$consumerName'
             """.trimIndent()
             )
@@ -188,11 +204,12 @@ class BaselineProfileProjectSetupRule(
             mapOf(
                 "app-target" to appTargetSetupRule,
                 "consumer" to consumerSetupRule,
-                "producer" to producerSetupRule
+                "producer" to producerSetupRule,
+                "dependency" to dependencySetupRule,
             ).forEach { (folder, project) ->
                 File("src/test/test-data", folder)
                     .apply { deleteOnExit() }
-                    .copyRecursively(project.rootDir)
+                    .copyRecursively(project.rootDir, overwrite = true)
             }
 
             base.evaluate()
@@ -243,6 +260,10 @@ interface Module {
             """.trimIndent()
         )
 }
+
+class DependencyModule(
+    val name: String,
+)
 
 class AppTargetModule(
     override val rule: ProjectSetupRule,
@@ -539,12 +560,16 @@ class ProducerModule(
 class ConsumerModule(
     override val rule: ProjectSetupRule,
     override val name: String,
-    private val producerName: String
+    private val producerName: String,
+    private val dependencyName: String,
 ) : Module {
 
     fun setup(
         androidPlugin: String,
         flavors: Boolean = false,
+        dependenciesBlock: String = """
+            implementation(project(":$dependencyName"))
+        """.trimIndent(),
         dependencyOnProducerProject: Boolean = true,
         buildTypeAnotherRelease: Boolean = false,
         addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
@@ -559,6 +584,7 @@ class ConsumerModule(
                 paid { dimension "version" }
             """.trimIndent() else "",
         dependencyOnProducerProject = dependencyOnProducerProject,
+        dependenciesBlock = dependenciesBlock,
         buildTypesBlock = if (buildTypeAnotherRelease) """
                 anotherRelease { initWith(release) }
         """.trimIndent() else "",
@@ -572,18 +598,12 @@ class ConsumerModule(
         otherPluginsBlock: String = "",
         flavorsBlock: String = "",
         buildTypesBlock: String = "",
+        dependenciesBlock: String = "",
         dependencyOnProducerProject: Boolean = true,
         addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
         baselineProfileBlock: String = "",
         additionalGradleCodeBlock: String = "",
     ) {
-        val dependencyOnProducerProjectBlock = """
-            dependencies {
-                baselineProfile(project(":$producerName"))
-            }
-
-        """.trimIndent()
-
         setBuildGradle(
             """
                 plugins {
@@ -610,7 +630,11 @@ class ConsumerModule(
             }
                 }
 
-               ${if (dependencyOnProducerProject) dependencyOnProducerProjectBlock else ""}
+                dependencies {
+                    ${if (dependencyOnProducerProject) """baselineProfile(project(":$producerName"))""" else ""}
+                    $dependenciesBlock
+
+                }
 
                 baselineProfile {
                     $baselineProfileBlock

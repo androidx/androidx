@@ -55,8 +55,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    implementation(libs.constraintLayout)
+
+    // Specifying build type dependencies is part of the test
+    debugImplementation(libs.kotlinStdlib)
+    debugImplementation(libs.constraintLayout)
+
+    releaseImplementation(libs.kotlinStdlib)
+    releaseImplementation(libs.constraintLayout)
 }
 
 baselineProfile {
