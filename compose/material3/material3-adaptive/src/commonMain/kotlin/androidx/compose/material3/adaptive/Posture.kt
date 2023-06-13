@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Posture info that can help make layout adaptation decisions. For example when
  * [Posture.hasSeparatingHinge] is `true`, the layout may want to avoid putting any content over
@@ -24,6 +26,7 @@ package androidx.compose.material3.adaptive
  * default implementation.
  */
 @ExperimentalMaterial3AdaptiveApi
+@Immutable
 class Posture(
     /**
      * `true` if at least one vertical hinge is present in the middle of the current window. When
