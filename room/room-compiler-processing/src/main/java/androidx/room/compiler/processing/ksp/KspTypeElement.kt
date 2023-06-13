@@ -94,17 +94,19 @@ internal sealed class KspTypeElement(
         if (isInterface()) {
             // interfaces don't have super classes (they do have super types)
             null
+        } else if (this == env.commonTypes.anyType.typeElement) {
+            null
         } else {
-            declaration.superTypes.firstOrNull {
-                val type =
-                    it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
-                type.classKind == ClassKind.CLASS
-            }?.let {
-                env.wrap(
-                    ksType = it.resolve(),
-                    allowPrimitives = false
-                )
-            }
+            declaration.superTypes
+                .map { it.resolve() }
+                .singleOrNull {
+                    (it.declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
+                }?.let {
+                    env.wrap(
+                        ksType = it,
+                        allowPrimitives = false
+                    )
+                } ?: env.commonTypes.anyType
         }
     }
 

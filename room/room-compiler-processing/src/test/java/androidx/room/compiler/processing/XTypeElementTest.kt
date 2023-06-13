@@ -232,6 +232,55 @@ class XTypeElementTest(
     }
 
     @Test
+    fun superTypeWithNoSuperClass() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "foo.bar.KotlinClass.kt",
+                    """
+                    package foo.bar
+                    class KotlinClass
+                    class KotlinClassWithInterface : KotlinInterface
+                    interface KotlinInterface
+                    """.trimIndent()
+                ),
+                Source.java(
+                    "foo.bar.JavaClass",
+                    """
+                    package foo.bar;
+                    class JavaClass {}
+                    class JavaClassWithInterface implements JavaInterface {}
+                    interface JavaInterface {}
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.KotlinClassWithInterface").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.JavaClass").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.JavaClassWithInterface").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+        }
+    }
+
+    @Test
+    fun superTypeOfAny() {
+        runTest(sources = listOf()) { invocation ->
+            val any = invocation.processingEnv.requireTypeElement(Any::class)
+            val obj = invocation.processingEnv.requireTypeElement(Object::class)
+            assertThat(any.superClass).isNull()
+            assertThat(obj.superClass).isNull()
+        }
+    }
+
+    @Test
     fun superInterfaces() {
         val src = Source.kotlin(
             "foo.kt",
