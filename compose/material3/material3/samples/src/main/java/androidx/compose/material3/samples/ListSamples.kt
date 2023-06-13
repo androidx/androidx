@@ -68,12 +68,34 @@ fun TwoLineListItem() {
 @Preview
 @Sampled
 @Composable
-fun ThreeLineListItem() {
+fun ThreeLineListItemWithOverlineAndSupporting() {
     Column {
         ListItem(
             headlineContent = { Text("Three line list item") },
             overlineContent = { Text("OVERLINE") },
             supportingContent = { Text("Secondary text") },
+            leadingContent = {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                )
+            },
+            trailingContent = { Text("meta") }
+        )
+        Divider()
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun ThreeLineListItemWithExtendedSupporting() {
+    Column {
+        ListItem(
+            headlineContent = { Text("Three line list item") },
+            supportingContent = {
+                Text("Secondary text that is long and perhaps goes onto another line")
+            },
             leadingContent = {
                 Icon(
                     Icons.Filled.Favorite,
