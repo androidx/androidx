@@ -373,7 +373,11 @@ private class KSTypeWrapper constructor(
 ) {
     val declaration = newType.declaration
 
+    @OptIn(KspExperimental::class)
     val arguments: List<KSTypeArgumentWrapper> by lazy {
+        if (resolver.isJavaRawType(newType)) {
+            return@lazy emptyList()
+        }
         val arguments = newTypeArguments ?: newType.arguments.indices.map { i ->
             KSTypeArgumentWrapper(
                 originalTypeArg = newType.arguments[i],
