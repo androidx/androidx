@@ -123,12 +123,14 @@ class CapturePipelineImpl @Inject constructor(
         requests: List<Request>,
         captureMode: Int,
         flashMode: Int,
-    ): List<Deferred<Void?>> =
-        if (hasFlashUnit && isFlashRequired(flashMode)) {
+    ): List<Deferred<Void?>> {
+        debug { "CapturePipeline#torchAsFlashCapture" }
+        return if (hasFlashUnit && isFlashRequired(flashMode)) {
             torchApplyCapture(requests, captureMode, CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS)
         } else {
             defaultNoFlashCapture(requests, captureMode)
         }
+    }
 
     private suspend fun defaultCapture(
         requests: List<Request>,
@@ -154,15 +156,24 @@ class CapturePipelineImpl @Inject constructor(
         requests: List<Request>,
         captureMode: Int
     ): List<Deferred<Void?>> {
+        debug { "CapturePipeline#defaultNoFlashCapture" }
         val lock3ARequired = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
         if (lock3ARequired) {
+            debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A" }
             lock3A(CHECK_3A_TIMEOUT_IN_NS)
+            debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A done" }
         }
         return submitRequestInternal(requests).also { captureSignal ->
             if (lock3ARequired) {
                 threads.sequentialScope.launch {
+                    debug { "CapturePipeline#defaultNoFlashCapture: Waiting for capture signal" }
                     captureSignal.joinAll()
-                    unlock3A()
+                    debug {
+                        "CapturePipeline#defaultNoFlashCapture: Waiting for capture signal done"
+                    }
+                    debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A" }
+                    unlock3A(CHECK_3A_TIMEOUT_IN_NS)
+                    debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A done" }
                 }
             }
         }
@@ -173,28 +184,39 @@ class CapturePipelineImpl @Inject constructor(
         captureMode: Int,
         timeLimitNs: Long,
     ): List<Deferred<Void?>> {
+        debug { "CapturePipeline#torchApplyCapture" }
         val torchOnRequired = torchControl.torchStateLiveData.value == TorchState.OFF
         if (torchOnRequired) {
+            debug { "CapturePipeline#torchApplyCapture: Setting torch" }
             torchControl.setTorchAsync(true).join()
+            debug { "CapturePipeline#torchApplyCapture: Setting torch done" }
         }
 
         val lock3ARequired = torchOnRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
         if (lock3ARequired) {
+            debug { "CapturePipeline#torchApplyCapture: Locking 3A" }
             lock3A(timeLimitNs)
+            debug { "CapturePipeline#torchApplyCapture: Locking 3A done" }
         }
 
         return submitRequestInternal(requests).also { captureSignal ->
             if (torchOnRequired) {
                 threads.sequentialScope.launch {
+                    debug { "CapturePipeline#torchApplyCapture: Waiting for capture signal" }
                     captureSignal.joinAll()
+                    debug { "CapturePipeline#torchApplyCapture: Unsetting torch" }
                     @Suppress("DeferredResultUnused")
                     torchControl.setTorchAsync(false)
+                    debug { "CapturePipeline#torchApplyCapture: Unsetting torch done" }
                 }
             }
             if (lock3ARequired) {
                 threads.sequentialScope.launch {
+                    debug { "CapturePipeline#torchApplyCapture: Waiting for capture signal" }
                     captureSignal.joinAll()
-                    unlock3A()
+                    debug { "CapturePipeline#torchApplyCapture: Unlocking 3A" }
+                    unlock3A(CHECK_3A_TIMEOUT_IN_NS)
+                    debug { "CapturePipeline#torchApplyCapture: Unlocking 3A done" }
                 }
             }
         }
@@ -204,16 +226,29 @@ class CapturePipelineImpl @Inject constructor(
         requests: List<Request>,
         timeLimitNs: Long,
     ): List<Deferred<Void?>> {
+        debug { "CapturePipeline#aePreCaptureApplyCapture" }
+        debug { "CapturePipeline#aePreCaptureApplyCapture: Acquiring session for locking 3A" }
         graph.acquireSession().use {
+            debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture" }
             it.lock3AForCapture(timeLimitNs = timeLimitNs).join()
+            debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture done" }
         }
 
         return submitRequestInternal(requests).also { captureSignal ->
             threads.sequentialScope.launch {
+                debug { "CapturePipeline#aePreCaptureApplyCapture: Waiting for capture signal" }
                 captureSignal.joinAll()
+                debug {
+                    "CapturePipeline#aePreCaptureApplyCapture: Waiting for capture signal done"
+                }
+                debug {
+                    "CapturePipeline#aePreCaptureApplyCapture: Acquiring session for unlocking 3A"
+                }
                 graph.acquireSession().use {
+                    debug { "CapturePipeline#aePreCaptureApplyCapture: Unlocking 3A" }
                     @Suppress("DeferredResultUnused")
                     it.unlock3APostCapture()
+                    debug { "CapturePipeline#aePreCaptureApplyCapture: Unlocking 3A done" }
                 }
             }
         }
@@ -228,8 +263,13 @@ class CapturePipelineImpl @Inject constructor(
         )
     }.await()
 
-    private suspend fun unlock3A(): Result3A = graph.acquireSession().use {
-        it.unlock3A(ae = true, af = true, awb = true)
+    private suspend fun unlock3A(timeLimitNs: Long): Result3A = graph.acquireSession().use {
+        it.unlock3A(
+            ae = true,
+            af = true,
+            awb = true,
+            timeLimitNs = timeLimitNs,
+        )
     }.await()
 
     private fun submitRequestInternal(requests: List<Request>): List<Deferred<Void?>> {
@@ -282,15 +322,17 @@ class CapturePipelineImpl @Inject constructor(
         }
 
         threads.sequentialScope.launch {
+            debug {
+                "CapturePipeline#submitRequestInternal: Acquiring session for submitting requests"
+            }
             // graph.acquireSession may fail if camera has entered closing stage
             var cameraGraphSession: CameraGraph.Session? = null
             try {
                 cameraGraphSession = graph.acquireSession()
             } catch (_: CancellationException) {
                 info {
-                    "CapturePipeline#submitRequestInternal:" +
-                        " CameraGraph.Session could not be acquired, requests may need " +
-                        "re-submission"
+                    "CapturePipeline#submitRequestInternal: " +
+                        "CameraGraph.Session could not be acquired, requests may need re-submission"
                 }
 
                 // completing the requests exceptionally so that they are retried with next camera
@@ -311,6 +353,7 @@ class CapturePipelineImpl @Inject constructor(
                     it.stopRepeating()
                 }
 
+                debug { "CapturePipeline#submitRequestInternal: Submitting $requestsToSubmit" }
                 it.submit(requestsToSubmit)
 
                 if (requiresStopRepeating) {

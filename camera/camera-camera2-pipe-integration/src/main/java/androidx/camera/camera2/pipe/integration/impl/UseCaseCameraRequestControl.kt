@@ -281,6 +281,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         return synchronized(lock) {
             infoBundleMap.merge()
         }.let { infoBundle ->
+            debug { "UseCaseCameraRequestControl: Submitting still captures to capture pipeline" }
             capturePipeline.submitStillCaptures(
                 requests = captureSequence.map {
                     configAdapter.mapToRequest(
