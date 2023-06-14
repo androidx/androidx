@@ -40,7 +40,7 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
     @Nullable private Runnable mRegisteredReceiver;
     private final Runnable mNotifyAndSchedule = this::notifyAndScheduleNextSecond;
     private long mLastScheduleTimeMillis = 0;
-    private boolean mUpdatesEnabled = false;
+    private boolean mUpdatesEnabled = true;
     @Nullable private Executor mRegisteredExecutor;
 
     @Override
