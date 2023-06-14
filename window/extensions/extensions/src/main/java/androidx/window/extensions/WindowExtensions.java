@@ -106,22 +106,6 @@ public interface WindowExtensions {
     @RestrictTo(LIBRARY_GROUP)
     int VENDOR_API_LEVEL_3 = 3;
 
-    // TODO(b/241323716) Removed after we have annotation to check API level
-    /**
-     * A vendor API level constant. It helps to unify the format of documenting {@code @since}
-     * block.
-     * <p>
-     * The added APIs for Vendor API level 4 are:
-     * <ul>
-     *     <li>{@link ActivityEmbeddingComponent#pinTopActivityStack}</li>
-     *     <li>{@link ActivityEmbeddingComponent#unpinTopActivityStack}</li>
-     *     <li>{@link androidx.window.extensions.embedding.SplitPinRule}</li>
-     * </ul>
-     * </p>
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    int VENDOR_API_LEVEL_4 = 4;
-
     /**
      * Returns the API level of the vendor library on the device. If the returned version is not
      * supported by the WindowManager library, then some functions may not be available or replaced
