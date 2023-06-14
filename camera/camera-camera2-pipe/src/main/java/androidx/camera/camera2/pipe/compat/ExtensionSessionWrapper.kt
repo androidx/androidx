@@ -238,7 +238,7 @@ internal open class AndroidCameraExtensionSession(
             timestamp: Long
         ) {
             val frameNumber = frameNumbers.incrementAndGet()
-            frameNumbersMap.getOrDefault(session, frameNumber)
+            frameNumbersMap[session] = frameNumber
             frameQueue.add(frameNumber)
             captureCallback.onCaptureStarted(
                 request,
