@@ -29,6 +29,7 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
     private var includeInsertionMarker = false
     private var includeCharacterBounds = false
     private var includeEditorBounds = false
+    private var includeLineBounds = false
 
     private var textFieldValue: TextFieldValue? = null
     private var textLayoutResult: TextLayoutResult? = null
@@ -54,17 +55,20 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
      * @param includeCharacterBounds whether to include character bounds information for the
      *   composition range
      * @param includeEditorBounds whether to include editor bounds information
+     * @param includeLineBounds whether to include line bounds information
      */
     fun requestUpdate(
         immediate: Boolean,
         monitor: Boolean,
         includeInsertionMarker: Boolean,
         includeCharacterBounds: Boolean,
-        includeEditorBounds: Boolean
+        includeEditorBounds: Boolean,
+        includeLineBounds: Boolean
     ) {
         this.includeInsertionMarker = includeInsertionMarker
         this.includeCharacterBounds = includeCharacterBounds
         this.includeEditorBounds = includeEditorBounds
+        this.includeLineBounds = includeLineBounds
 
         if (immediate) {
             hasPendingImmediateRequest = true
@@ -134,7 +138,8 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
                 decorationBoxBounds!!,
                 includeInsertionMarker,
                 includeCharacterBounds,
-                includeEditorBounds
+                includeEditorBounds,
+                includeLineBounds
             )
         )
 

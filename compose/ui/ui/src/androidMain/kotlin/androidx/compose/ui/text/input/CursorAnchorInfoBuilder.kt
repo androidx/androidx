@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
  * @param includeInsertionMarker whether to include insertion marker info in the CursorAnchorInfo
  * @param includeCharacterBounds whether to include character bounds info in the CursorAnchorInfo
  * @param includeEditorBounds whether to include editor bounds info in the CursorAnchorInfo
+ * @param includeLineBounds whether to include line bounds info in the CursorAnchorInfo
  */
 internal fun CursorAnchorInfo.Builder.build(
     textFieldValue: TextFieldValue,
@@ -52,7 +53,8 @@ internal fun CursorAnchorInfo.Builder.build(
     decorationBoxBounds: Rect,
     includeInsertionMarker: Boolean = true,
     includeCharacterBounds: Boolean = true,
-    includeEditorBounds: Boolean = true
+    includeEditorBounds: Boolean = true,
+    includeLineBounds: Boolean = true
 ): CursorAnchorInfo {
     reset()
 
@@ -86,6 +88,14 @@ internal fun CursorAnchorInfo.Builder.build(
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && includeEditorBounds) {
         CursorAnchorInfoApi33Helper.setEditorBoundsInfo(this, decorationBoxBounds)
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && includeLineBounds) {
+        CursorAnchorInfoApi34Helper.addVisibleLineBounds(
+            this,
+            textLayoutResult,
+            innerTextFieldBounds
+        )
     }
 
     return build()
@@ -174,6 +184,31 @@ private object CursorAnchorInfoApi33Helper {
                 .setHandwritingBounds(decorationBoxBounds.toAndroidRectF())
                 .build()
         )
+}
+
+@RequiresApi(34)
+private object CursorAnchorInfoApi34Helper {
+    @JvmStatic
+    @DoNotInline
+    fun addVisibleLineBounds(
+        builder: CursorAnchorInfo.Builder,
+        textLayoutResult: TextLayoutResult,
+        innerTextFieldBounds: Rect
+    ): CursorAnchorInfo.Builder {
+        if (!innerTextFieldBounds.isEmpty) {
+            val firstLine = textLayoutResult.getLineForVerticalPosition(innerTextFieldBounds.top)
+            val lastLine = textLayoutResult.getLineForVerticalPosition(innerTextFieldBounds.bottom)
+            for (index in firstLine..lastLine) {
+                builder.addVisibleLineBounds(
+                    textLayoutResult.getLineLeft(index),
+                    textLayoutResult.getLineTop(index),
+                    textLayoutResult.getLineRight(index),
+                    textLayoutResult.getLineBottom(index)
+                )
+            }
+        }
+        return builder
+    }
 }
 
 /**

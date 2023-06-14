@@ -482,6 +482,97 @@ class CursorAnchorInfoBuilderTest {
         assertThat(cursorAnchorInfo.editorBoundsInfo).isNull()
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testLineBounds() {
+        val fontSize = 10.sp
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
+        // 6 lines of text
+        val textFieldValue = TextFieldValue("a\nbb\nccc\ndddd\neeeee\nffffff")
+        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        // Lines 2, 3, 4 are visible
+        val innerTextFieldBounds =
+            Rect(
+                0f,
+                textLayoutResult.getLineTop(2) + 1f,
+                fontSizeInPx,
+                textLayoutResult.getLineBottom(4) - 1f
+            )
+
+        val cursorAnchorInfo =
+            CursorAnchorInfo.Builder()
+                .build(
+                    textFieldValue,
+                    textLayoutResult,
+                    matrix,
+                    innerTextFieldBounds = innerTextFieldBounds,
+                    decorationBoxBounds = innerTextFieldBounds
+                )
+
+        assertThat(cursorAnchorInfo.visibleLineBounds.size).isEqualTo(3)
+        // Line 2 "ccc" has 3 characters
+        assertThat(cursorAnchorInfo.visibleLineBounds[0])
+            .isEqualTo(
+                RectF(
+                    0f,
+                    textLayoutResult.getLineTop(2),
+                    3 * fontSizeInPx,
+                    textLayoutResult.getLineBottom(2)
+                )
+            )
+        // Line 3 "dddd" has 4 characters
+        assertThat(cursorAnchorInfo.visibleLineBounds[1])
+            .isEqualTo(
+                RectF(
+                    0f,
+                    textLayoutResult.getLineTop(3),
+                    4 * fontSizeInPx,
+                    textLayoutResult.getLineBottom(3)
+                )
+            )
+        // Line 4 "eeeee" has 5 characters
+        assertThat(cursorAnchorInfo.visibleLineBounds[2])
+            .isEqualTo(
+                RectF(
+                    0f,
+                    textLayoutResult.getLineTop(4),
+                    5 * fontSizeInPx,
+                    textLayoutResult.getLineBottom(4)
+                )
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testLineBoundsNotIncludedWhenIncludeLineBoundsFalse() {
+        val fontSize = 10.sp
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
+        // 6 lines of text
+        val textFieldValue = TextFieldValue("a\nbb\nccc\ndddd\neeeee\nffffff")
+        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        // Lines 2, 3, 4 are visible
+        val innerTextFieldBounds =
+            Rect(
+                0f,
+                textLayoutResult.getLineTop(2) + 1f,
+                fontSizeInPx,
+                textLayoutResult.getLineBottom(4) - 1f
+            )
+
+        val cursorAnchorInfo =
+            CursorAnchorInfo.Builder()
+                .build(
+                    textFieldValue,
+                    textLayoutResult,
+                    matrix,
+                    innerTextFieldBounds = innerTextFieldBounds,
+                    decorationBoxBounds = innerTextFieldBounds,
+                    includeLineBounds = false
+                )
+
+        assertThat(cursorAnchorInfo.visibleLineBounds.size).isEqualTo(0)
+    }
+
     private fun getTextLayoutResult(
         text: String,
         fontSize: TextUnit = 12.sp,
@@ -524,7 +615,8 @@ private fun CursorAnchorInfo.Builder.build(
     matrix: Matrix,
     includeInsertionMarker: Boolean = true,
     includeCharacterBounds: Boolean = true,
-    includeEditorBounds: Boolean = true
+    includeEditorBounds: Boolean = true,
+    includeLineBounds: Boolean = true
 ): CursorAnchorInfo {
     val innerTextFieldBounds =
         Rect(0f, 0f, textLayoutResult.size.width.toFloat(), textLayoutResult.size.height.toFloat())
@@ -536,6 +628,7 @@ private fun CursorAnchorInfo.Builder.build(
         decorationBoxBounds = innerTextFieldBounds,
         includeInsertionMarker = includeInsertionMarker,
         includeCharacterBounds = includeCharacterBounds,
-        includeEditorBounds = includeEditorBounds
+        includeEditorBounds = includeEditorBounds,
+        includeLineBounds = includeLineBounds
     )
 }

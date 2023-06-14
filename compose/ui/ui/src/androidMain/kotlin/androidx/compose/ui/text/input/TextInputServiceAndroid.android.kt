@@ -145,14 +145,16 @@ internal class TextInputServiceAndroid(
                     monitor: Boolean,
                     includeInsertionMarker: Boolean,
                     includeCharacterBounds: Boolean,
-                    includeEditorBounds: Boolean
+                    includeEditorBounds: Boolean,
+                    includeLineBounds: Boolean
                 ) {
                     cursorAnchorInfoController.requestUpdate(
                         immediate,
                         monitor,
                         includeInsertionMarker,
                         includeCharacterBounds,
-                        includeEditorBounds
+                        includeEditorBounds,
+                        includeLineBounds
                     )
                 }
 
