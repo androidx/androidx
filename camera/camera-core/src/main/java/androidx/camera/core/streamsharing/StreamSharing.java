@@ -369,4 +369,29 @@ public class StreamSharing extends UseCase {
     SurfaceProcessorNode getSharingNode() {
         return mSharingNode;
     }
+
+    /**
+     * Gets the capture types of all the children use cases when use case is StreamSharing, or just
+     * the capture type of the use case itself otherwise.
+     */
+    @NonNull
+    public static List<UseCaseConfigFactory.CaptureType> getCaptureTypes(@NonNull UseCase useCase) {
+        List<UseCaseConfigFactory.CaptureType> result = new ArrayList<>();
+        if (isStreamSharing(useCase)) {
+            for (UseCase child : ((StreamSharing) useCase).getChildren()) {
+                result.add(child.getCurrentConfig().getCaptureType());
+            }
+        } else {
+            result.add(useCase.getCurrentConfig().getCaptureType());
+        }
+        return result;
+    }
+
+    /**
+     * Checks if the provided use case is a StreamSharing use case.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static boolean isStreamSharing(@Nullable UseCase useCase) {
+        return useCase instanceof StreamSharing;
+    }
 }
