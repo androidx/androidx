@@ -222,6 +222,7 @@ public class MediaBrowserServiceSupport extends MediaBrowserServiceCompat
         // Always release the MediaSession to clean up resources
         // and notify associated MediaController(s).
         mSession.release();
+        super.onDestroy();
     }
 
     @Override
