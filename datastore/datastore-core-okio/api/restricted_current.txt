@@ -2,10 +2,10 @@
 package androidx.datastore.core.okio {
 
   public interface OkioSerializer<T> {
-    method public T! getDefaultValue();
+    method public T getDefaultValue();
     method public suspend Object? readFrom(okio.BufferedSource source, kotlin.coroutines.Continuation<? super T>);
-    method public suspend Object? writeTo(T? t, okio.BufferedSink sink, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public abstract T! defaultValue;
+    method public suspend Object? writeTo(T t, okio.BufferedSink sink, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract T defaultValue;
   }
 
   public final class OkioStorage<T> implements androidx.datastore.core.Storage<T> {
