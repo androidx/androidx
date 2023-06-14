@@ -89,6 +89,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.util.packFloats
+import androidx.compose.ui.util.unpackFloat1
+import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
@@ -418,8 +421,8 @@ fun RangeSlider(
     val endInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 
     RangeSlider(
-        value = value,
-        onValueChange = onValueChange,
+        value = FloatRange(value),
+        onValueChange = { onValueChange(it.start..it.endInclusive) },
         modifier = modifier,
         enabled = enabled,
         valueRange = valueRange,
@@ -508,8 +511,8 @@ fun RangeSlider(
 @Composable
 @ExperimentalMaterial3Api
 fun RangeSlider(
-    value: ClosedFloatingPointRange<Float>,
-    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    value: FloatRange,
+    onValueChange: (FloatRange) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -1265,8 +1268,8 @@ private fun scale(a1: Float, b1: Float, x1: Float, a2: Float, b2: Float) =
     lerp(a2, b2, calcFraction(a1, b1, x1))
 
 // Scale x.start, x.endInclusive from a1..b1 range to a2..b2 range
-private fun scale(a1: Float, b1: Float, x: ClosedFloatingPointRange<Float>, a2: Float, b2: Float) =
-    scale(a1, b1, x.start, a2, b2)..scale(a1, b1, x.endInclusive, a2, b2)
+private fun scale(a1: Float, b1: Float, x: FloatRange, a2: Float, b2: Float) =
+    FloatRange(scale(a1, b1, x.start, a2, b2), scale(a1, b1, x.endInclusive, a2, b2))
 
 // Calculate the 0..1 fraction that `pos` value represents between `a` and `b`
 private fun calcFraction(a: Float, b: Float, pos: Float) =
@@ -1316,7 +1319,11 @@ private fun Modifier.sliderSemantics(
                 }
             }
         )
-    }.progressSemantics(state.value, state.valueRange, state.steps)
+    }.progressSemantics(
+        state.value,
+        state.valueRange.start..state.valueRange.endInclusive,
+        state.steps
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1361,13 +1368,17 @@ private fun Modifier.rangeSliderStartThumbSemantics(
                 if (resolvedValue == coerced) {
                     false
                 } else {
-                    state.onValueChange(resolvedValue..state.coercedEnd)
+                    state.onValueChange(FloatRange(resolvedValue, state.coercedEnd))
                     state.onValueChangeFinished?.invoke()
                     true
                 }
             }
         )
-    }.progressSemantics(state.coercedStart, valueRange, state.startSteps)
+    }.progressSemantics(
+        state.coercedStart,
+        valueRange,
+        state.startSteps
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1409,13 +1420,17 @@ private fun Modifier.rangeSliderEndThumbSemantics(
                 if (resolvedValue == coerced) {
                     false
                 } else {
-                    state.onValueChange(state.coercedStart..resolvedValue)
+                    state.onValueChange(FloatRange(state.coercedStart, resolvedValue))
                     state.onValueChangeFinished?.invoke()
                     true
                 }
             }
         )
-    }.progressSemantics(state.coercedEnd, valueRange, state.endSteps)
+    }.progressSemantics(
+        state.coercedEnd,
+        valueRange,
+        state.endSteps
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1893,7 +1908,7 @@ class SliderState(
 class RangeSliderState(
     initialActiveRangeStart: Float = 0f,
     initialActiveRangeEnd: Float = 1f,
-    initialOnValueChange: ((ClosedFloatingPointRange<Float>) -> Unit)? = null,
+    initialOnValueChange: ((FloatRange) -> Unit)? = null,
     /*@IntRange(from = 0)*/
     val steps: Int = 0,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -1931,8 +1946,8 @@ class RangeSliderState(
         }
         get() = activeRangeEndState
 
-    internal var onValueChange: (ClosedFloatingPointRange<Float>) -> Unit = {
-        if (it != activeRangeStart..activeRangeEnd) {
+    internal var onValueChange: (FloatRange) -> Unit = {
+        if (it != FloatRange(activeRangeStart, activeRangeEnd)) {
             initialOnValueChange?.invoke(it) ?: defaultOnValueChange(it)
         }
     }
@@ -1955,7 +1970,6 @@ class RangeSliderState(
     private var maxPx by mutableFloatStateOf(max(totalWidth - endThumbWidth / 2, 0f))
     private var minPx by mutableFloatStateOf(min(startThumbWidth / 2, maxPx))
 
-    @Suppress("PrimitiveInLambda")
     internal val onDrag: (Boolean, Float) -> Unit = { isStart, offset ->
         val offsetRange = if (isStart) {
             rawOffsetStart = (rawOffsetStart + offset)
@@ -1963,14 +1977,14 @@ class RangeSliderState(
             val offsetEnd = rawOffsetEnd
             var offsetStart = rawOffsetStart.coerceIn(minPx, offsetEnd)
             offsetStart = snapValueToTick(offsetStart, tickFractions, minPx, maxPx)
-            offsetStart..offsetEnd
+            FloatRange(offsetStart, offsetEnd)
         } else {
             rawOffsetEnd = (rawOffsetEnd + offset)
             rawOffsetStart = scaleToOffset(minPx, maxPx, activeRangeStart)
             val offsetStart = rawOffsetStart
             var offsetEnd = rawOffsetEnd.coerceIn(offsetStart, maxPx)
             offsetEnd = snapValueToTick(offsetEnd, tickFractions, minPx, maxPx)
-            offsetStart..offsetEnd
+            FloatRange(offsetStart, offsetEnd)
         }
         onValueChange(scaleToUserValue(minPx, maxPx, offsetRange))
     }
@@ -2001,7 +2015,7 @@ class RangeSliderState(
     internal val endSteps
         get() = floor(steps * (1f - coercedActiveRangeStartAsFraction)).toInt()
 
-    private fun defaultOnValueChange(newRange: ClosedFloatingPointRange<Float>) {
+    private fun defaultOnValueChange(newRange: FloatRange) {
         activeRangeStart = newRange.start
         activeRangeEnd = newRange.endInclusive
     }
@@ -2010,8 +2024,7 @@ class RangeSliderState(
     private fun scaleToUserValue(
         minPx: Float,
         maxPx: Float,
-        offset:
-        ClosedFloatingPointRange<Float>
+        offset: FloatRange
     ) = scale(minPx, maxPx, offset, valueRange.start, valueRange.endInclusive)
 
     // scales float userValue within valueRange.start..valueRange.end to within minPx..maxPx
@@ -2037,3 +2050,62 @@ class RangeSliderState(
         }
     }
 }
+
+@Immutable
+@JvmInline
+value class FloatRange internal constructor(
+    internal val packedValue: Long
+) {
+    @Stable
+    val start: Float
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "FloatRange is unspecified"
+            }
+            return unpackFloat1(packedValue)
+        }
+
+    @Stable
+    val endInclusive: Float
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "FloatRange is unspecified"
+            }
+            return unpackFloat2(packedValue)
+        }
+
+    @Stable
+    operator fun component1(): Float = start
+
+    @Stable
+    operator fun component2(): Float = endInclusive
+
+    companion object {
+        /**
+         * Represents an unspecified [FloatRange] value, usually a replacement for `null`
+         * when a primitive value is desired.
+         */
+        @Stable
+        val Unspecified = FloatRange(Float.NaN, Float.NaN)
+    }
+
+    override fun toString() = if (isSpecified) {
+        "$start..$endInclusive"
+    } else {
+        "FloatRange.Unspecified"
+    }
+}
+
+@Stable
+internal fun FloatRange(start: Float, endInclusive: Float) =
+    FloatRange(packFloats(start, endInclusive))
+
+@Stable
+internal fun FloatRange(range: ClosedFloatingPointRange<Float>) =
+    FloatRange(packFloats(range.start, range.endInclusive))
+
+@Stable
+internal val FloatRange.isSpecified: Boolean get() =
+    packedValue != FloatRange.Unspecified.packedValue
