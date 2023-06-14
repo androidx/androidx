@@ -293,25 +293,26 @@ class SurfaceEdgeTest {
 
     @Test
     fun createSurfaceOutputWithDisconnectedEdge_surfaceOutputNotCreated() {
-        // Arrange: create a SurfaceOutput future from a closed LinkableSurface
+        // Arrange: create a SurfaceOutput future from a closed Edge
+        surfaceEdge.setProvider(provider)
+        provider.setSurface(fakeSurface)
         surfaceEdge.disconnect()
-        val surfaceOutput = createSurfaceOutputFuture(surfaceEdge)
-
         // Act: wait for the SurfaceOutput to return.
-        var successful: Boolean? = null
-        Futures.addCallback(surfaceOutput, object : FutureCallback<SurfaceOutput> {
-            override fun onSuccess(result: SurfaceOutput?) {
-                successful = true
-            }
-
-            override fun onFailure(t: Throwable) {
-                successful = false
-            }
-        }, mainThreadExecutor())
-        shadowOf(getMainLooper()).idle()
+        val surfaceOutput = getSurfaceOutputFromFuture(createSurfaceOutputFuture(surfaceEdge))
 
         // Assert: the SurfaceOutput is not created.
-        assertThat(successful!!).isEqualTo(false)
+        assertThat(surfaceOutput).isNull()
+    }
+
+    @Test
+    fun createSurfaceOutput_inheritSurfaceEdgeTransformation() {
+        // Arrange: set the provider and create a SurfaceOutput future.
+        surfaceEdge.setProvider(provider)
+        provider.setSurface(fakeSurface)
+        // Act: create a SurfaceOutput from the SurfaceEdge
+        val surfaceOutput = getSurfaceOutputFromFuture(createSurfaceOutputFuture(surfaceEdge))
+        // Assert: the SurfaceOutput inherits the transformation from the SurfaceEdge.
+        assertThat(surfaceOutput!!.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
     }
 
     @Test
@@ -540,6 +541,22 @@ class SurfaceEdgeTest {
         // Assert.
         assertThat(transformationInfo).isNotNull()
         assertThat(transformationInfo!!.rotationDegrees).isEqualTo(90)
+    }
+
+    private fun getSurfaceOutputFromFuture(
+        future: ListenableFuture<SurfaceOutput>
+    ): SurfaceOutput? {
+        var surfaceOutput: SurfaceOutput? = null
+        Futures.addCallback(future, object : FutureCallback<SurfaceOutput> {
+            override fun onSuccess(result: SurfaceOutput?) {
+                surfaceOutput = result
+            }
+
+            override fun onFailure(t: Throwable) {
+            }
+        }, mainThreadExecutor())
+        shadowOf(getMainLooper()).idle()
+        return surfaceOutput
     }
 
     private fun createSurfaceOutputFuture(surfaceEdge: SurfaceEdge) =
