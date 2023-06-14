@@ -22,7 +22,6 @@ import android.content.res.Resources
 import android.os.Build
 import android.text.format.DateFormat
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -384,7 +383,7 @@ class TimePickerTest {
             .assertContentDescriptionContains("for minutes")
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_valid() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -412,7 +411,7 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(4)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_outOfRange() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -431,7 +430,7 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(4)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_Nan() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -483,7 +482,7 @@ class TimePickerTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun timeInput_24Hour_writeAfternoonHour() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
@@ -498,6 +497,42 @@ class TimePickerTest {
             }
 
         assertThat(state.hour).isEqualTo(22)
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun timeInput_24Hour_writeNoon() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state)
+        }
+
+        rule.onNodeWithText("10")
+            .performKeyInput {
+                pressKey(Key.One)
+                pressKey(Key.Two)
+            }
+
+        assertThat(state.hour).isEqualTo(12)
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun timeInput_24Hour_writeMidnight() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state)
+        }
+
+        rule.onNodeWithText("10")
+            .performKeyInput {
+                pressKey(Key.Zero)
+                pressKey(Key.Zero)
+            }
+
+        assertThat(state.hour).isEqualTo(0)
     }
 
     @Test
@@ -516,6 +551,24 @@ class TimePickerTest {
             assertThat(state?.hour).isEqualTo(14)
             assertThat(state?.minute).isEqualTo(54)
             assertThat(state?.is24hour).isTrue()
+        }
+    }
+
+    @Test
+    fun state_12h_hourInitializationMatches() {
+        repeat(24) {
+            val state = TimePickerState(initialHour = it, initialMinute = 0, is24Hour = false)
+
+            assertThat(state.hour).isEqualTo(it)
+        }
+    }
+
+    @Test
+    fun state_24h_hourInitializationMatches() {
+        repeat(24) {
+            val state = TimePickerState(initialHour = it, initialMinute = 0, is24Hour = true)
+
+            assertThat(state.hour).isEqualTo(it)
         }
     }
 
