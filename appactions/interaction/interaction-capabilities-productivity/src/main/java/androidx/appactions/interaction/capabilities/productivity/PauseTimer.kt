@@ -55,7 +55,7 @@ class PauseTimer private constructor() {
 
     class Arguments
     internal constructor(
-        val timerList: List<TimerValue>?
+        val timerList: List<TimerReference>?
     ) {
         override fun toString(): String {
             return "Arguments(timerList=$timerList)"
@@ -77,9 +77,9 @@ class PauseTimer private constructor() {
         }
 
         class Builder {
-            private var timerList: List<TimerValue>? = null
+            private var timerList: List<TimerReference>? = null
 
-            fun setTimerList(timerList: List<TimerValue>): Builder = apply {
+            fun setTimerList(timerList: List<TimerReference>): Builder = apply {
                 this.timerList = timerList
             }
 
@@ -161,7 +161,7 @@ class PauseTimer private constructor() {
                 .bindRepeatedParameter(
                     SlotMetadata.TIMER.path,
                     Arguments.Builder::setTimerList,
-                    TimerValue.PARAM_VALUE_CONVERTER
+                    TimerReference.PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",

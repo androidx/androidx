@@ -52,7 +52,7 @@ class DismissAlarm private constructor() {
         )
     }
 
-    class Arguments internal constructor(val alarm: AlarmValue?) {
+    class Arguments internal constructor(val alarm: AlarmReference?) {
         override fun toString(): String {
             return "Arguments(alarm=$alarm)"
         }
@@ -73,9 +73,9 @@ class DismissAlarm private constructor() {
         }
 
         class Builder {
-            private var alarm: AlarmValue? = null
+            private var alarm: AlarmReference? = null
 
-            fun setAlarm(alarm: AlarmValue): Builder = apply { this.alarm = alarm }
+            fun setAlarm(alarm: AlarmReference): Builder = apply { this.alarm = alarm }
 
             fun build(): Arguments = Arguments(alarm)
         }
@@ -150,7 +150,7 @@ class DismissAlarm private constructor() {
                 .bindParameter(
                     SlotMetadata.ALARM.path,
                     Arguments.Builder::setAlarm,
-                    AlarmValue.PARAM_VALUE_CONVERTER
+                    AlarmReference.PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",

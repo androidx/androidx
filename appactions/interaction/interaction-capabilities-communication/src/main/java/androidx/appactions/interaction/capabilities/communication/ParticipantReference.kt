@@ -21,9 +21,9 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 
-class ParticipantValue private constructor(
+class ParticipantReference private constructor(
     val asParticipant: Participant?,
-    val asParticipantFilter: SearchAction<Participant>?,
+    val asSearchAction: SearchAction<Participant>?,
 ) {
     constructor(participant: Participant) : this(participant, null)
 
@@ -31,15 +31,15 @@ class ParticipantValue private constructor(
     constructor(participantFilter: SearchAction<Participant>) : this(null, participantFilter)
 
     companion object {
-        private val TYPE_SPEC = UnionTypeSpec.Builder<ParticipantValue>()
+        private val TYPE_SPEC = UnionTypeSpec.Builder<ParticipantReference>()
             .bindMemberType(
-                memberGetter = ParticipantValue::asParticipant,
-                ctor = { ParticipantValue(it) },
+                memberGetter = ParticipantReference::asParticipant,
+                ctor = { ParticipantReference(it) },
                 typeSpec = TypeConverters.PARTICIPANT_TYPE_SPEC,
             )
             .bindMemberType(
-                memberGetter = ParticipantValue::asParticipantFilter,
-                ctor = { ParticipantValue(it) },
+                memberGetter = ParticipantReference::asSearchAction,
+                ctor = { ParticipantReference(it) },
                 typeSpec = TypeConverters.createSearchActionTypeSpec(
                     TypeConverters.PARTICIPANT_TYPE_SPEC,
                 ),

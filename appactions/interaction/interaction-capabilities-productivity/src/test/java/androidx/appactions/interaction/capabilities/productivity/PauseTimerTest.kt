@@ -79,7 +79,9 @@ class PauseTimerTest {
         assertThat(argsDeferred.awaitSync())
             .isEqualTo(
                 Arguments.Builder()
-                    .setTimerList(listOf(TimerValue(Timer.Builder().setIdentifier("abc").build())))
+                    .setTimerList(
+                        listOf(TimerReference(Timer.Builder().setIdentifier("abc").build()))
+                    )
                     .build()
             )
     }

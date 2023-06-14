@@ -16,55 +16,53 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.builtintypes.types.Timer
+import androidx.appactions.builtintypes.types.Alarm
 import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
-import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
 import java.util.Objects
 
-class TimerValue
-private constructor(
-    val asTimer: Timer?,
-    val asTimerFilter: SearchAction<Timer>?,
+class AlarmReference private constructor(
+    val asAlarm: Alarm?,
+    val asSearchAction: SearchAction<Alarm>?
 ) {
-    constructor(timer: Timer) : this(timer, null)
+    constructor(alarm: Alarm) : this(alarm, null)
 
-    // TODO(b/268071906) add TimerFilter type to SearchAction
-    constructor(timerFilter: SearchAction<Timer>) : this(null, timerFilter)
+    // TODO(b/268071906) add AlarmFilter type to SearchAction
+    constructor(alarmFilter: SearchAction<Alarm>) : this(null, alarmFilter)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as TimerValue
+        other as AlarmReference
 
-        return asTimer == other.asTimer && asTimerFilter == other.asTimerFilter
+        return asAlarm == other.asAlarm && asSearchAction == other.asSearchAction
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(asTimer, asTimerFilter)
+        return Objects.hash(asAlarm, asSearchAction)
     }
 
     companion object {
         private val TYPE_SPEC =
-            UnionTypeSpec.Builder<TimerValue>()
+            UnionTypeSpec.Builder<AlarmReference>()
                 .bindMemberType(
-                    memberGetter = TimerValue::asTimer,
-                    ctor = { TimerValue(it) },
-                    typeSpec = TIMER_TYPE_SPEC,
+                    memberGetter = AlarmReference::asAlarm,
+                    ctor = { AlarmReference(it) },
+                    typeSpec = ALARM_TYPE_SPEC,
                 )
                 .bindMemberType(
-                    memberGetter = TimerValue::asTimerFilter,
-                    ctor = { TimerValue(it) },
+                    memberGetter = AlarmReference::asSearchAction,
+                    ctor = { AlarmReference(it) },
                     typeSpec =
                         TypeConverters.createSearchActionTypeSpec(
-                            TIMER_TYPE_SPEC,
+                            ALARM_TYPE_SPEC
                         ),
                 )
                 .build()
-
         internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
     }
 }
