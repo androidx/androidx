@@ -3321,16 +3321,20 @@ internal class ComposerImpl(
                 } else if (key == referenceKey && objectKey == reference) {
                     // Group is a composition context reference. As this is being removed assume
                     // all movable groups in the composition that have this context will also be
-                    // released whe the compositions are disposed.
+                    // released when the compositions are disposed.
                     val contextHolder = reader.groupGet(group, 0) as? CompositionContextHolder
                     if (contextHolder != null) {
-                        // The contextHolder can be EMPTY in cases wher the content has been
+                        // The contextHolder can be EMPTY in cases where the content has been
                         // deactivated. Content is deactivated if the content is just being
                         // held onto for recycling and is not otherwise active. In this case
                         // the composers we are likely to find here have already been disposed.
                         val compositionContext = contextHolder.ref
                         compositionContext.composers.forEach { composer ->
                             composer.reportAllMovableContent()
+
+                            // Mark the composition as being removed so it will not be recomposed
+                            // this turn.
+                            parentContext.reportRemovedComposition(composer.composition)
                         }
                     }
                     reader.nodeCount(group)
@@ -3550,6 +3554,10 @@ internal class ComposerImpl(
             data: MovableContentState
         ) {
             parentContext.movableContentStateReleased(reference, data)
+        }
+
+        override fun reportRemovedComposition(composition: ControlledComposition) {
+            parentContext.reportRemovedComposition(composition)
         }
     }
 
