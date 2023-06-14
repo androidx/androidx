@@ -570,7 +570,7 @@ class TimePickerState(
     }
 
     internal fun setHour(hour: Int) {
-        isInnerCircle = hour > 12 || hour == 0
+        isInnerCircle = hour >= 12
         hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
     }
 
@@ -617,7 +617,6 @@ class TimePickerState(
     }
 
     private fun hourForDisplay(hour: Int): Int = when {
-        is24hour && isInnerCircle && hour == 0 -> 12
         is24hour -> hour % 24
         hour % 12 == 0 -> 12
         isAfternoon -> hour - 12
@@ -636,8 +635,8 @@ class TimePickerState(
     }
 
     private fun Float.toMinute(): Int {
-        val hourOffset: Float = RadiansPerMinute / 2
-        val totalOffset = hourOffset + QuarterCircle
+        val minuteOffset: Float = RadiansPerMinute / 2
+        val totalOffset = minuteOffset + QuarterCircle
         return ((this + totalOffset) / RadiansPerMinute).toInt() % 60
     }
 
