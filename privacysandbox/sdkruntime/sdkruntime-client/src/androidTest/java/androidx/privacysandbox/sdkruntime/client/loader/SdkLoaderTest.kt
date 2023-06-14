@@ -90,6 +90,21 @@ class SdkLoaderTest {
     }
 
     @Test
+    fun testContextFilesDir() {
+        val loadedSdk = sdkLoader.loadSdk(testSdkConfig)
+
+        val sdkContext = loadedSdk.extractSdkContext()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val expectedSdksRoot = context.getDir("RuntimeEnabledSdksData", Context.MODE_PRIVATE)
+        val expectedSdkData = File(expectedSdksRoot, testSdkConfig.packageName)
+        val expectedSdkFilesDir = File(expectedSdkData, "files")
+
+        assertThat(sdkContext.filesDir)
+            .isEqualTo(expectedSdkFilesDir)
+    }
+
+    @Test
     fun testJavaResources() {
         val loadedSdk = sdkLoader.loadSdk(testSdkConfig)
 
