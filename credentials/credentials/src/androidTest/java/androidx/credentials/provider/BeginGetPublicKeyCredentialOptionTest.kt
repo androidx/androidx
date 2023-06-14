@@ -16,8 +16,6 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.equals
@@ -30,7 +28,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
 class BeginGetPublicKeyCredentialOptionTest {
     companion object {
         private const val BUNDLE_ID_KEY =
@@ -39,9 +36,6 @@ class BeginGetPublicKeyCredentialOptionTest {
     }
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty Json to throw error",
             IllegalArgumentException::class.java
@@ -52,9 +46,6 @@ class BeginGetPublicKeyCredentialOptionTest {
 
     @Test
     fun constructor_invalidJson_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected invalid Json to throw error",
             IllegalArgumentException::class.java
@@ -65,9 +56,6 @@ class BeginGetPublicKeyCredentialOptionTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginGetPublicKeyCredentialOption(
             Bundle(), BUNDLE_ID, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             "client_data_hash".toByteArray()
@@ -76,9 +64,6 @@ class BeginGetPublicKeyCredentialOptionTest {
 
     @Test
     fun getter_clientDataHash_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val testClientDataHashExpected = "client_data_hash".toByteArray()
 
         val beginGetPublicKeyCredentialOpt = BeginGetPublicKeyCredentialOption(
@@ -92,9 +77,6 @@ class BeginGetPublicKeyCredentialOptionTest {
 
     @Test
     fun getter_requestJson_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
 
         val getPublicKeyCredentialOpt = BeginGetPublicKeyCredentialOption(
@@ -107,9 +89,6 @@ class BeginGetPublicKeyCredentialOptionTest {
 
     @Test
     fun getter_frameworkProperties_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val clientDataHash = "client_data_hash".toByteArray()
         val expectedData = Bundle()
@@ -131,11 +110,7 @@ class BeginGetPublicKeyCredentialOptionTest {
     }
 
     @Test
-    fun getter_frameworkCreateFrom() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
+    fun createFrom_success() {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val clientDataHash = "client_data_hash".toByteArray()
         val bundle = Bundle()
@@ -154,11 +129,7 @@ class BeginGetPublicKeyCredentialOptionTest {
     }
 
     @Test
-    fun getter_frameworkCreateFromEntrySlice() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
+    fun createFromEntrySlice_success() {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val clientDataHash = "client_data_hash".toByteArray()
         val bundle = Bundle()

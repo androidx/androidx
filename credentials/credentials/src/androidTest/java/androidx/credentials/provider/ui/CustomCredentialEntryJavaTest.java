@@ -22,13 +22,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
+import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
 import androidx.credentials.provider.BeginGetCredentialOption;
@@ -45,8 +45,8 @@ import org.junit.runner.RunWith;
 import java.time.Instant;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class CustomCredentialEntryJavaTest {
     private static final CharSequence TITLE = "title";
     private static final CharSequence SUBTITLE = "subtitle";
@@ -59,7 +59,7 @@ public class CustomCredentialEntryJavaTest {
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
     private final BeginGetCredentialOption mBeginCredentialOption =
             new BeginGetCustomCredentialOption(
-            "id", "custom", new Bundle());
+            "id", "custom_type", new Bundle());
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();
@@ -69,33 +69,22 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_requiredParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CustomCredentialEntry entry = constructEntryWithRequiredParams();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertEntryWithRequiredParams(entry);
     }
 
     @Test
     public void build_allParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CustomCredentialEntry entry = constructEntryWithAllParams();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertEntryWithAllParams(entry);
     }
 
     @Test
     public void build_nullTitle_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null title to throw NPE",
                 NullPointerException.class,
                 () -> new CustomCredentialEntry.Builder(
@@ -105,9 +94,6 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_nullContext_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null title to throw NPE",
                 NullPointerException.class,
                 () -> new CustomCredentialEntry.Builder(
@@ -117,9 +103,6 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_nullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null pending intent to throw NPE",
                 NullPointerException.class,
                 () -> new CustomCredentialEntry.Builder(
@@ -129,9 +112,6 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_nullBeginOption_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null option to throw NPE",
                 NullPointerException.class,
                 () -> new CustomCredentialEntry.Builder(
@@ -141,9 +121,6 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_emptyTitle_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty title to throw IAE",
                 IllegalArgumentException.class,
                 () -> new CustomCredentialEntry.Builder(
@@ -153,9 +130,6 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_emptyType_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty type to throw NPE",
                 IllegalArgumentException.class,
                 () -> new CustomCredentialEntry.Builder(
@@ -165,9 +139,6 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     public void build_nullIcon_defaultIconSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CustomCredentialEntry entry = constructEntryWithRequiredParams();
 
         assertThat(TestUtilsKt.equals(entry.getIcon(),
@@ -175,28 +146,25 @@ public class CustomCredentialEntryJavaTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CustomCredentialEntry originalEntry = constructEntryWithRequiredParams();
 
+        Slice slice = CustomCredentialEntry.toSlice(originalEntry);
         CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(
-                originalEntry.getSlice());
+                slice);
 
         assertNotNull(entry);
         assertEntryWithRequiredParamsFromSlice(entry);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CustomCredentialEntry originalEntry = constructEntryWithAllParams();
 
-        CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(
-                originalEntry.getSlice());
+        Slice slice = CustomCredentialEntry.toSlice(originalEntry);
+        CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(slice);
 
         assertNotNull(entry);
         assertEntryWithAllParamsFromSlice(entry);
@@ -261,6 +229,5 @@ public class CustomCredentialEntryJavaTest {
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginCredentialOption.getType()).isEqualTo(entry.getType());
-        assertThat(mBeginCredentialOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 }

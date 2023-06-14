@@ -17,9 +17,8 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
@@ -28,13 +27,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 28)
 class BeginCreatePublicKeyCredentialRequestTest {
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty Json to throw error",
             IllegalArgumentException::class.java
@@ -52,9 +48,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructor_invalidJson_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected invalid Json to throw error",
             IllegalArgumentException::class.java
@@ -72,9 +65,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             CallingAppInfo(
@@ -86,9 +76,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructorWithClientDataHash_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             CallingAppInfo(
@@ -101,9 +88,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun getter_requestJson_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
 
         val createPublicKeyCredentialReq = BeginCreatePublicKeyCredentialRequest(
@@ -121,9 +105,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun getter_clientDataHash_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val testClientDataHashExpected = "client_data_hash".toByteArray()
         val createPublicKeyCredentialReq = BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",

@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -25,35 +24,23 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
- @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+ @SdkSuppress(minSdkVersion = 28)
  @RunWith(AndroidJUnit4::class)
  @SmallTest
  class CallingAppInfoTest {
 
      @Test
      fun constructor_success() {
-         if (!BuildCompat.isAtLeastU()) {
-             return
-         }
-
          CallingAppInfo("name", SigningInfo())
      }
 
      @Test
      fun constructor_success_withOrigin() {
-         if (!BuildCompat.isAtLeastU()) {
-             return
-         }
-
          CallingAppInfo("name", SigningInfo(), "origin")
      }
 
      @Test
      fun constructor_fail_emptyPackageName() {
-         if (!BuildCompat.isAtLeastU()) {
-             return
-         }
-
          Assert.assertThrows(
             "Expected exception from no package name",
             IllegalArgumentException::class.java

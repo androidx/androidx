@@ -23,6 +23,7 @@ import android.app.slice.SliceSpec
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -30,6 +31,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
+import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.toSlice
 import java.time.Instant
 import java.util.Collections
 
@@ -62,7 +64,7 @@ import java.util.Collections
  *
  * @throws IllegalArgumentException if [username] is empty
  */
-@RequiresApi(28)
+@RequiresApi(26)
 class PublicKeyCredentialEntry internal constructor(
     val username: CharSequence,
     val displayName: CharSequence?,
@@ -76,18 +78,7 @@ class PublicKeyCredentialEntry internal constructor(
     private val isDefaultIcon: Boolean = false
 ) : CredentialEntry(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    beginGetPublicKeyCredentialOption,
-    toSlice(
-        PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-        username,
-        displayName,
-        pendingIntent,
-        typeDisplayName,
-        lastUsedTime,
-        icon,
-        isAutoSelectAllowed,
-        beginGetPublicKeyCredentialOption
-    )
+    beginGetPublicKeyCredentialOption
 ) {
 
     init {
@@ -142,59 +133,23 @@ class PublicKeyCredentialEntry internal constructor(
         beginGetPublicKeyCredentialOption
     )
 
-    internal companion object {
-        private const val TAG = "PublicKeyCredEntry"
-
-        private const val SLICE_HINT_TYPE_DISPLAY_NAME =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
-
-        private const val SLICE_HINT_TITLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
-
-        private const val SLICE_HINT_SUBTITLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
-
-        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
-
-        private const val SLICE_HINT_ICON =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
-
-        private const val SLICE_HINT_PENDING_INTENT =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
-
-        private const val SLICE_HINT_AUTO_ALLOWED =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
-
-        private const val SLICE_HINT_OPTION_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
-
-        private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
-
-        private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
-
-        private const val REVISION_ID = 1
-
-        private const val AUTO_SELECT_TRUE_STRING = "true"
-
-        private const val AUTO_SELECT_FALSE_STRING = "false"
-
+    @RequiresApi(28)
+    private object Api28Impl {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @RequiresApi(28)
         @JvmStatic
         fun toSlice(
-            type: String,
-            title: CharSequence,
-            subTitle: CharSequence?,
-            pendingIntent: PendingIntent,
-            typeDisplayName: CharSequence?,
-            lastUsedTime: Instant?,
-            icon: Icon,
-            isAutoSelectAllowed: Boolean,
-            beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
+            entry: PublicKeyCredentialEntry
         ): Slice {
+            val type = entry.type
+            val title = entry.username
+            val subTitle = entry.displayName
+            val pendingIntent = entry.pendingIntent
+            val typeDisplayName = entry.typeDisplayName
+            val lastUsedTime = entry.lastUsedTime
+            val icon = entry.icon
+            val isAutoSelectAllowed = entry.isAutoSelectAllowed
+            val beginGetPublicKeyCredentialOption = entry.beginGetCredentialOption
+
             val autoSelectAllowed = if (isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
             } else {
@@ -274,13 +229,12 @@ class PublicKeyCredentialEntry internal constructor(
          * @param slice the [Slice] object constructed through [toSlice]
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
             var typeDisplayName: CharSequence? = null
             var title: CharSequence? = null
-            var subTitle: CharSequence? = null
+            var subtitle: CharSequence? = null
             var icon: Icon? = null
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
@@ -295,7 +249,7 @@ class PublicKeyCredentialEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_TITLE)) {
                     title = it.text
                 } else if (it.hasHint(SLICE_HINT_SUBTITLE)) {
-                    subTitle = it.text
+                    subtitle = it.text
                 } else if (it.hasHint(SLICE_HINT_ICON)) {
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
@@ -319,7 +273,7 @@ class PublicKeyCredentialEntry internal constructor(
             return try {
                 PublicKeyCredentialEntry(
                     title!!,
-                    subTitle,
+                    subtitle,
                     typeDisplayName!!,
                     pendingIntent!!,
                     icon!!,
@@ -336,6 +290,72 @@ class PublicKeyCredentialEntry internal constructor(
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
+        }
+    }
+
+    internal companion object {
+        private const val TAG = "PublicKeyCredEntry"
+
+        private const val SLICE_HINT_TYPE_DISPLAY_NAME =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+
+        private const val SLICE_HINT_TITLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
+
+        private const val SLICE_HINT_SUBTITLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
+
+        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+
+        private const val SLICE_HINT_ICON =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
+
+        private const val SLICE_HINT_PENDING_INTENT =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
+
+        private const val SLICE_HINT_AUTO_ALLOWED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
+
+        private const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+
+        private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+
+        private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+
+        private const val AUTO_SELECT_TRUE_STRING = "true"
+
+        private const val AUTO_SELECT_FALSE_STRING = "false"
+
+        private const val REVISION_ID = 1
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun toSlice(
+            entry: PublicKeyCredentialEntry
+        ): Slice? {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.toSlice(entry)
+            }
+            return null
+        }
+
+        /**
+         * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
+         *
+         * @param slice the [Slice] object constructed through [toSlice]
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.fromSlice(slice)
+            }
+            return null
         }
     }
 
@@ -387,7 +407,7 @@ class PublicKeyCredentialEntry internal constructor(
 
         /** Builds an instance of [PublicKeyCredentialEntry] */
         fun build(): PublicKeyCredentialEntry {
-            if (icon == null) {
+            if (icon == null && Build.VERSION.SDK_INT >= 23) {
                 icon = Icon.createWithResource(context, R.drawable.ic_passkey)
             }
             val typeDisplayName = context.getString(

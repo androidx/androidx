@@ -18,24 +18,24 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import androidx.core.os.BuildCompat
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@SdkSuppress(minSdkVersion = 28)
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class BeginGetCredentialRequestTest {
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginGetCredentialRequest(emptyList(), null)
     }
 
     @Test
     fun getter_beginGetCredentialOptions() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedKey = "query"
         val expectedValue = "data"
         val expectedBundle = Bundle()
@@ -66,9 +66,6 @@ class BeginGetCredentialRequestTest {
 
     @Test
     fun getter_nullCallingAppInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedCallingAppInfo: CallingAppInfo? = null
 
         val beginGetCredentialRequest = BeginGetCredentialRequest(
@@ -82,9 +79,6 @@ class BeginGetCredentialRequestTest {
 
     @Test
     fun getter_nonNullCallingAppInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedPackageName = "john.wick.four.credentials"
         val expectedCallingAppInfo = CallingAppInfo(
             expectedPackageName,

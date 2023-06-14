@@ -21,6 +21,7 @@ import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -41,7 +42,7 @@ import java.util.Collections
  *
  * @throws IllegalArgumentException If [accountName] is empty
  */
-@RequiresApi(28)
+@RequiresApi(26)
 class CreateEntry internal constructor(
     val accountName: CharSequence,
     val pendingIntent: PendingIntent,
@@ -256,40 +257,8 @@ class CreateEntry internal constructor(
         }
     }
 
-    internal companion object {
-        private const val TAG = "CreateEntry"
-        private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
-
-        internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
-
-        private const val SLICE_HINT_ACCOUNT_NAME =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
-
-        private const val SLICE_HINT_NOTE =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_NOTE"
-
-        private const val SLICE_HINT_ICON =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
-
-        private const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
-
-        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
-
-        private const val SLICE_HINT_PENDING_INTENT =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
-
-        private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
-
-        private const val SLICE_SPEC_TYPE = "CreateEntry"
-
-        private const val REVISION_ID = 1
-
-        private const val AUTO_SELECT_TRUE_STRING = "true"
-
-        private const val AUTO_SELECT_FALSE_STRING = "false"
+    @RequiresApi(28)
+    private object Api28Impl {
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
@@ -359,13 +328,7 @@ class CreateEntry internal constructor(
             return sliceBuilder.build()
         }
 
-        /**
-         * Returns an instance of [CreateEntry] derived from a [Slice] object.
-         *
-         * @param slice the [Slice] object constructed through [toSlice]
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): CreateEntry? {
@@ -443,6 +406,69 @@ class CreateEntry internal constructor(
                 return null
             }
             return bundle
+        }
+    }
+
+    internal companion object {
+        private const val TAG = "CreateEntry"
+        private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
+
+        internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
+
+        private const val SLICE_HINT_ACCOUNT_NAME =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
+
+        private const val SLICE_HINT_NOTE =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_NOTE"
+
+        private const val SLICE_HINT_ICON =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
+
+        private const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
+
+        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+
+        private const val SLICE_HINT_PENDING_INTENT =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
+
+        private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
+
+        private const val AUTO_SELECT_TRUE_STRING = "true"
+
+        private const val AUTO_SELECT_FALSE_STRING = "false"
+
+        private const val SLICE_SPEC_TYPE = "CreateEntry"
+
+        private const val REVISION_ID = 1
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun toSlice(
+            createEntry: CreateEntry
+        ): Slice? {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.toSlice(createEntry)
+            }
+            return null
+        }
+
+        /**
+         * Returns an instance of [CreateEntry] derived from a [Slice] object.
+         *
+         * @param slice the [Slice] object constructed through [toSlice]
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun fromSlice(
+            slice: Slice
+        ): CreateEntry? {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.fromSlice(slice)
+            }
+            return null
         }
     }
 }

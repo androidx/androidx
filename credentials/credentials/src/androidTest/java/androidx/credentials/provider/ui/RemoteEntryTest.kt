@@ -18,7 +18,6 @@ package androidx.credentials.provider.ui
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.RemoteEntry
 import androidx.credentials.provider.RemoteEntry.Companion.fromSlice
 import androidx.test.core.app.ApplicationProvider
@@ -32,7 +31,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 class RemoteEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
@@ -41,9 +39,6 @@ class RemoteEntryTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = RemoteEntry(mPendingIntent)
 
         assertNotNull(entry)
@@ -52,9 +47,6 @@ class RemoteEntryTest {
 
     @Test
     fun build_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = RemoteEntry.Builder(mPendingIntent).build()
 
         assertNotNull(entry)
@@ -62,10 +54,8 @@ class RemoteEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = RemoteEntry(mPendingIntent)
 
         val fromSlice = fromSlice(RemoteEntry.toSlice(originalEntry))

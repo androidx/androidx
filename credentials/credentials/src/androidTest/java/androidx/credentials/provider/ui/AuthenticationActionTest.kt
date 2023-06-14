@@ -18,7 +18,6 @@ package androidx.credentials.provider.ui
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.AuthenticationAction
 import androidx.credentials.provider.AuthenticationAction.Companion.fromSlice
 import androidx.test.core.app.ApplicationProvider
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 class AuthenticationActionTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
@@ -42,9 +40,6 @@ class AuthenticationActionTest {
 
     @Test
     fun build_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val action = AuthenticationAction.Builder(TITLE, mPendingIntent).build()
 
         assertThat(mPendingIntent).isEqualTo(action.pendingIntent)
@@ -52,9 +47,6 @@ class AuthenticationActionTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val action = AuthenticationAction(TITLE, mPendingIntent)
 
         assertThat(mPendingIntent).isEqualTo(action.pendingIntent)
@@ -62,9 +54,6 @@ class AuthenticationActionTest {
 
     @Test
     fun constructor_emptyTitle_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty title to throw IAE",
             IllegalArgumentException::class.java
@@ -72,10 +61,8 @@ class AuthenticationActionTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalAction = AuthenticationAction(TITLE, mPendingIntent)
         val slice = AuthenticationAction.toSlice(originalAction)
 
