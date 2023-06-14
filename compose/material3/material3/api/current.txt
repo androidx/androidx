@@ -672,8 +672,10 @@ package androidx.compose.material3 {
   public static final class FabPosition.Companion {
     method public int getCenter();
     method public int getEnd();
+    method public int getStart();
     property public final int Center;
     property public final int End;
+    property public final int Start;
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api public final class FilterChipDefaults {

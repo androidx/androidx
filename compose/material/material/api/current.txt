@@ -453,8 +453,10 @@ package androidx.compose.material {
   public static final class FabPosition.Companion {
     method public int getCenter();
     method public int getEnd();
+    method public int getStart();
     property public final int Center;
     property public final int End;
+    property public final int Start;
   }
 
   @Deprecated @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FixedThreshold implements androidx.compose.material.ThresholdConfig {

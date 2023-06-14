@@ -631,6 +631,7 @@ private fun BottomSheetScaffoldLayout(
         val fabWidth = fabPlaceable?.fastMaxBy { it.width }?.width ?: 0
         val fabHeight = fabPlaceable?.fastMaxBy { it.height }?.height ?: 0
         val fabOffsetX = when (floatingActionButtonPosition) {
+            FabPosition.Start -> FabSpacing.roundToPx()
             FabPosition.Center -> (layoutWidth - fabWidth) / 2
             else -> layoutWidth - fabWidth - FabSpacing.roundToPx()
         }
