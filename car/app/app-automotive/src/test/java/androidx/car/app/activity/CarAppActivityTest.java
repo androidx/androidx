@@ -42,7 +42,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
@@ -75,11 +74,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowPackageManager;
-import org.robolectric.shadows.ShadowPhoneWindow;
 
 /** Tests for {@link CarAppActivity}. */
 @RunWith(RobolectricTestRunner.class)
@@ -397,41 +394,6 @@ public class CarAppActivityTest {
 
         }
 
-    }
-
-    @Test
-    @Config(maxSdk = Build.VERSION_CODES.Q)
-    public void testFitsSystemWindows_whenQAndBelow_shouldSetFitsSystemWindowsToFalse() {
-        Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(newIntent)) {
-            scenario.onActivity(activity -> {
-                try {
-                    assertThat(
-                            activity.getWindow().getDecorView().getFitsSystemWindows()).isFalse();
-                } catch (Exception e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-
-        }
-    }
-
-    @Test
-    @Config(minSdk = Build.VERSION_CODES.R)
-    public void testDecorFitsSystemWindows_whenRAndAbove_shouldSetDecorFitsSystemWindowsToFalse() {
-        Intent newIntent = new Intent(getApplicationContext(), CarAppActivity.class);
-        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(newIntent)) {
-            scenario.onActivity(activity -> {
-                try {
-                    ShadowPhoneWindow shadowPhoneWindow = (ShadowPhoneWindow) shadowOf(
-                            activity.getWindow());
-                    assertThat(shadowPhoneWindow.getDecorFitsSystemWindows()).isFalse();
-                } catch (Exception e) {
-                    fail(Log.getStackTraceString(e));
-                }
-            });
-
-        }
     }
 
     interface CarActivityAction {
