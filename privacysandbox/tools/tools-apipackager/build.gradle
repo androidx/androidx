@@ -15,8 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -37,13 +35,6 @@ dependencies {
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-
-    // TODO(b/281638337): Remove below dependency once SdkActivityLauncher stubs are removed
-    // Include android jar for compilation of generated sources.
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include: "android.jar"
-    ))
 }
 
 androidx {

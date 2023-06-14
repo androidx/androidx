@@ -208,7 +208,7 @@ class PrivacySandboxApiPackagerTest {
 
     /** Compiles the given source file and returns a classpath with the results. */
     private fun compileAndReturnUnzippedPackagedClasspath(source: Source): File {
-        val result = compileAll(listOf(source), includeLibraryStubs = false)
+        val result = compileAll(listOf(source))
         assertThat(result).succeeds()
         assertThat(result.outputClasspath).hasSize(1)
 
