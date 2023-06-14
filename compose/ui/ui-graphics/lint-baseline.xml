@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Double, Double> of &apos;getOetf&apos;."
+        errorLine1="    val oetf: (Double) -> Double = { x ->"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/colorspace/Rgb.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Double, Double> of &apos;getEotf&apos;."
+        errorLine1="    val eotf: (Double) -> Double = { x ->"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/colorspace/Rgb.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor Rgb has parameter &apos;oetf&apos; with type Function1&lt;? super Double, Double>."
+        errorLine1="        oetf: (Double) -> Double,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/colorspace/Rgb.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor Rgb has parameter &apos;eotf&apos; with type Function1&lt;? super Double, Double>."
+        errorLine1="        eotf: (Double) -> Double"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/colorspace/Rgb.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor Rgb has parameter &apos;oetf&apos; with type Function1&lt;? super Double, Double>."
+        errorLine1="        oetf: (Double) -> Double,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/colorspace/Rgb.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor Rgb has parameter &apos;eotf&apos; with type Function1&lt;? super Double, Double>."
+        errorLine1="        eotf: (Double) -> Double,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/colorspace/Rgb.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;outOfBounds&apos; with type Function1&lt;? super Integer, ? extends Boolean>."
+        errorLine1="        val outOfBounds: (Int) -> Boolean = { it &lt; 0 || it >= positions.size }"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>
+    </issue>
+
+</issues>

@@ -265,7 +265,7 @@ fun Composer.materialize(modifier: Modifier): Modifier {
     val result = modifier.foldIn<Modifier>(Modifier) { acc, element ->
         acc.then(
             if (element is ComposedModifier) {
-                @Suppress("UNCHECKED_CAST", "PrimitiveInLambda")
+                @Suppress("UNCHECKED_CAST")
                 val factory = element.factory as Modifier.(Composer, Int) -> Modifier
                 val composedMod = factory(Modifier, this, 0)
                 materialize(composedMod)

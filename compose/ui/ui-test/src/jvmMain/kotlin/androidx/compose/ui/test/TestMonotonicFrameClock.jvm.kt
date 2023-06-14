@@ -56,7 +56,6 @@ class TestMonotonicFrameClock(
     private val coroutineScope: CoroutineScope,
     @get:Suppress("MethodNameUnits") // Nanos for high-precision animation clocks
     val frameDelayNanos: Long = DefaultFrameDelay,
-    @Suppress("PrimitiveInLambda")
     private val onPerformTraversals: (Long) -> Unit = {}
 ) : MonotonicFrameClock {
     private val delayController =
@@ -134,7 +133,6 @@ class TestMonotonicFrameClock(
             // This is set after acquiring the lock in case the virtual time was advanced while
             // waiting for it.
             val frameTime: Long
-            @Suppress("PrimitiveInLambda")
             val toRun = synchronized(lock) {
                 check(scheduledFrameDispatch) { "frame dispatch not scheduled" }
 

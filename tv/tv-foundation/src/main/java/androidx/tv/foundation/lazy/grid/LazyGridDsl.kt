@@ -316,7 +316,6 @@ sealed interface TvLazyGridScope {
      */
     fun item(
         key: Any? = null,
-        @Suppress("PrimitiveInLambda")
         span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)? = null,
         contentType: Any? = null,
         content: @Composable TvLazyGridItemScope.() -> Unit
@@ -342,13 +341,9 @@ sealed interface TvLazyGridScope {
      */
     fun items(
         count: Int,
-        @Suppress("PrimitiveInLambda")
         key: ((index: Int) -> Any)? = null,
-        @Suppress("PrimitiveInLambda")
         span: (TvLazyGridItemSpanScope.(index: Int) -> TvGridItemSpan)? = null,
-        @Suppress("PrimitiveInLambda")
         contentType: (index: Int) -> Any? = { null },
-        @Suppress("PrimitiveInLambda")
         itemContent: @Composable TvLazyGridItemScope.(index: Int) -> Unit
     )
 }
@@ -374,7 +369,6 @@ sealed interface TvLazyGridScope {
 inline fun <T> TvLazyGridScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
-    @Suppress("PrimitiveInLambda")
     noinline span: (TvLazyGridItemSpanScope.(item: T) -> TvGridItemSpan)? = null,
     noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable TvLazyGridItemScope.(item: T) -> Unit
@@ -407,9 +401,7 @@ inline fun <T> TvLazyGridScope.items(
  */
 inline fun <T> TvLazyGridScope.itemsIndexed(
     items: List<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    @Suppress("PrimitiveInLambda")
     noinline span: (TvLazyGridItemSpanScope.(index: Int, item: T) -> TvGridItemSpan)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable TvLazyGridItemScope.(index: Int, item: T) -> Unit
@@ -443,7 +435,6 @@ inline fun <T> TvLazyGridScope.itemsIndexed(
 inline fun <T> TvLazyGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
-    @Suppress("PrimitiveInLambda")
     noinline span: (TvLazyGridItemSpanScope.(item: T) -> TvGridItemSpan)? = null,
     noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable TvLazyGridItemScope.(item: T) -> Unit
@@ -476,9 +467,7 @@ inline fun <T> TvLazyGridScope.items(
  */
 inline fun <T> TvLazyGridScope.itemsIndexed(
     items: Array<T>,
-    @Suppress("PrimitiveInLambda")
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    @Suppress("PrimitiveInLambda")
     noinline span: (TvLazyGridItemSpanScope.(index: Int, item: T) -> TvGridItemSpan)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable TvLazyGridItemScope.(index: Int, item: T) -> Unit

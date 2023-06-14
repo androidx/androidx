@@ -55,4 +55,328 @@
             file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
     </issue>
 
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AlignmentLine has parameter &apos;merger&apos; with type Function2&lt;? super Integer, ? super Integer, Integer>."
+        errorLine1="    internal val merger: (Int, Int) -> Int"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/AlignmentLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Integer, Integer, Integer> of &apos;getMerger$lint_module&apos;."
+        errorLine1="    internal val merger: (Int, Int) -> Int"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/AlignmentLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor VerticalAlignmentLine has parameter &apos;merger&apos; with type Function2&lt;? super Integer, ? super Integer, Integer>."
+        errorLine1="class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/AlignmentLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor HorizontalAlignmentLine has parameter &apos;merger&apos; with type Function2&lt;? super Integer, ? super Integer, Integer>."
+        errorLine1="class HorizontalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/AlignmentLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;setSelectionAction&apos; with type AccessibilityAction&lt;Function3&lt;? super Integer, ? super Integer, ? super Boolean, ? extends Boolean>>."
+        errorLine1="            val setSelectionAction ="
+        errorLine2="            ^">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
+        errorLine1="        val scrollAction = semanticsNode.unmergedConfig.getOrNull(SemanticsActions.ScrollBy)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;setProgressAction&apos; with type AccessibilityAction&lt;Function1&lt;? super Float, ? extends Boolean>>."
+        errorLine1="                    val setProgressAction ="
+        errorLine2="                    ^">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
+        errorLine1="                val scrollAction ="
+        errorLine2="                ^">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;vare2b4ac12&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
+        errorLine1="                    node.unmergedConfig.getOrNull(SemanticsActions.ScrollBy) ?: return false"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
+        errorLine1="                var scrollAction = scrollableAncestor?.config?.getOrNull(SemanticsActions.ScrollBy)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;ComposeUiNode, Integer, Unit> of &apos;getSetCompositeKeyHash&apos;."
+        errorLine1="        val SetCompositeKeyHash: ComposeUiNode.(Int) -> Unit ="
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/ComposeUiNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;factory&apos; with type Function3&lt;? super Modifier, ? super Composer, ? super Integer, ? extends Modifier>."
+        errorLine1="                @Suppress(&quot;UNCHECKED_CAST&quot;)"
+        errorLine2="                ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/ComposedModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;FocusDirection, FocusRequester> of &apos;getEnter&apos;."
+        errorLine1="    var enter: (FocusDirection) -> FocusRequester"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/FocusProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setEnter has parameter &apos;_&apos; with type Function1&lt;? super FocusDirection, FocusRequester>."
+        errorLine1="        set(_) {}"
+        errorLine2="            ~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/FocusProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;FocusDirection, FocusRequester> of &apos;getExit&apos;."
+        errorLine1="    var exit: (FocusDirection) -> FocusRequester"
+        errorLine2="        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/FocusProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setExit has parameter &apos;_&apos; with type Function1&lt;? super FocusDirection, FocusRequester>."
+        errorLine1="        set(_) {}"
+        errorLine2="            ~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/FocusProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method withInfiniteAnimationFrameNanos has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="internal suspend fun &lt;R> withInfiniteAnimationFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R ="
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/platform/InfiniteAnimationPolicy.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor InputModeManagerImpl has parameter &apos;onRequestInputModeChange&apos; with type Function1&lt;? super InputMode, Boolean>."
+        errorLine1="    private val onRequestInputModeChange: (InputMode) -> Boolean"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/input/InputModeManager.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type SemanticsPropertyKey&lt;Function1&lt;Object, Integer>> of &apos;getIndexForKey&apos;."
+        errorLine1="    val IndexForKey = SemanticsPropertyKey&lt;(Any) -> Int>(&quot;IndexForKey&quot;)"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type SemanticsPropertyKey&lt;AccessibilityAction&lt;Function2&lt;Float, Float, Boolean>>> of &apos;getScrollBy&apos;."
+        errorLine1="    val ScrollBy = ActionPropertyKey&lt;(x: Float, y: Float) -> Boolean>(&quot;ScrollBy&quot;)"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type SemanticsPropertyKey&lt;AccessibilityAction&lt;Function1&lt;Integer, Boolean>>> of &apos;getScrollToIndex&apos;."
+        errorLine1="    val ScrollToIndex = ActionPropertyKey&lt;(Int) -> Boolean>(&quot;ScrollToIndex&quot;)"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type SemanticsPropertyKey&lt;AccessibilityAction&lt;Function1&lt;Float, Boolean>>> of &apos;getSetProgress&apos;."
+        errorLine1="    val SetProgress = ActionPropertyKey&lt;(progress: Float) -> Boolean>(&quot;SetProgress&quot;)"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type SemanticsPropertyKey&lt;AccessibilityAction&lt;Function3&lt;Integer, Integer, Boolean, Boolean>>> of &apos;getSetSelection&apos;."
+        errorLine1="    val SetSelection = ActionPropertyKey&lt;(Int, Int, Boolean) -> Boolean>(&quot;SetSelection&quot;)"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor ScrollAxisRange has parameter &apos;value&apos; with type Function0&lt;Float>."
+        errorLine1="    val value: () -> Float,"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function0&lt;Float> of &apos;getValue&apos;."
+        errorLine1="    val value: () -> Float,"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor ScrollAxisRange has parameter &apos;maxValue&apos; with type Function0&lt;Float>."
+        errorLine1="    val maxValue: () -> Float,"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function0&lt;Float> of &apos;getMaxValue&apos;."
+        errorLine1="    val maxValue: () -> Float,"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method indexForKey has parameter &apos;mapping&apos; with type Function1&lt;Object, Integer>."
+        errorLine1="fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method scrollBy has parameter &apos;action&apos; with type Function2&lt;? super Float, ? super Float, Boolean>."
+        errorLine1="    action: ((x: Float, y: Float) -> Boolean)?"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method scrollToIndex has parameter &apos;action&apos; with type Function1&lt;? super Integer, Boolean>."
+        errorLine1="    action: (Int) -> Boolean"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setProgress has parameter &apos;action&apos; with type Function1&lt;? super Float, Boolean>."
+        errorLine1="fun SemanticsPropertyReceiver.setProgress(label: String? = null, action: ((Float) -> Boolean)?) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setSelection has parameter &apos;action&apos; with type Function3&lt;? super Integer, ? super Integer, ? super Boolean, Boolean>."
+        errorLine1="    action: ((startIndex: Int, endIndex: Int, relativeToOriginalText: Boolean) -> Boolean)?"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberVectorPainter has parameter &apos;content&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
+        errorLine1="    content: @Composable @VectorComposable (viewportWidth: Float, viewportHeight: Float) -> Unit"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberVectorPainter has parameter &apos;content&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
+        errorLine1="    content: @Composable @VectorComposable (viewportWidth: Float, viewportHeight: Float) -> Unit"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method composeVector has parameter &apos;composable&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
+        errorLine1="        composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method RenderVector$lint_module has parameter &apos;content&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
+        errorLine1="        content: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorPainter.kt"/>
+    </issue>
+
 </issues>

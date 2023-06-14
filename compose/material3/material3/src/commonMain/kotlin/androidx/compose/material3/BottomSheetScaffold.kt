@@ -318,11 +318,9 @@ private fun BottomSheetScaffoldLayout(
     modifier: Modifier,
     topBar: @Composable (() -> Unit)?,
     body: @Composable (innerPadding: PaddingValues) -> Unit,
-    @Suppress("PrimitiveInLambda")
     bottomSheet: @Composable (layoutHeight: Int) -> Unit,
     snackbarHost: @Composable () -> Unit,
     sheetPeekHeight: Dp,
-    @Suppress("PrimitiveInLambda")
     sheetOffset: () -> Float,
     sheetState: SheetState,
     containerColor: Color,
@@ -375,7 +373,6 @@ private fun BottomSheetScaffoldLayout(
 @ExperimentalMaterial3Api
 private fun BottomSheetScaffoldAnchorChangeHandler(
     state: SheetState,
-    @Suppress("PrimitiveInLambda")
     animateTo: (target: SheetValue, velocity: Float) -> Unit,
     snapTo: (target: SheetValue) -> Unit,
 ) = AnchorChangeHandler<SheetValue> { previousTarget, previousAnchors, newAnchors ->

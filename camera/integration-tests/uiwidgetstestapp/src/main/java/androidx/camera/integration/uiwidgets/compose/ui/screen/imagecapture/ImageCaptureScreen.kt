@@ -111,7 +111,6 @@ fun ImageCaptureScreen(
     modifier: Modifier,
     zoomRatio: Float,
     linearZoom: Float,
-    @Suppress("PrimitiveInLambda")
     onLinearZoomChange: (Float) -> Unit,
     isCameraReady: Boolean,
     hasFlashUnit: Boolean,

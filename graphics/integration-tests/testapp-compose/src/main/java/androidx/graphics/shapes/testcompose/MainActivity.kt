@@ -69,7 +69,6 @@ fun PolygonComposable(polygon: RoundedPolygon, modifier: Modifier = Modifier) =
 @Composable
 private fun MorphComposable(
     sizedMorph: SizedMorph,
-    @Suppress("PrimitiveInLambda")
     progress: () -> Float,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false
@@ -320,7 +319,6 @@ fun MorphScreen(
     }
 
     val scope = rememberCoroutineScope()
-    @Suppress("PrimitiveInLambda")
     val clickFn: (Int) -> Unit = remember {
             { shapeIx ->
             scope.launch {

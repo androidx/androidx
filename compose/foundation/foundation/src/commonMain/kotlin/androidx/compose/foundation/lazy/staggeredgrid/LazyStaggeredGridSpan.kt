@@ -49,7 +49,6 @@ internal class LazyStaggeredGridSpanProvider(
     fun isFullSpan(itemIndex: Int): Boolean {
         if (itemIndex !in 0 until intervals.size) return false
         intervals[itemIndex].run {
-            @Suppress("PrimitiveInLambda")
             val span = value.span
             val localIndex = itemIndex - startIndex
 

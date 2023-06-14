@@ -38,8 +38,7 @@ import androidx.paging.PagingConfig
  * based on the key, which means if you add/remove items before the current visible item the
  * item with the given key will be kept as the first visible one.
  */
-@Suppress("PrimitiveInLambda")
-fun <T : Any> LazyPagingItems<T>.itemKey(
+public fun <T : Any> LazyPagingItems<T>.itemKey(
     key: ((item: @JvmSuppressWildcards T) -> Any)? = null
 ): (index: Int) -> Any {
     return { index ->
@@ -69,8 +68,7 @@ fun <T : Any> LazyPagingItems<T>.itemKey(
  * the same type could be reused more efficiently. Note that null is a valid type and items of
  * such type will be considered compatible.
  */
-@Suppress("PrimitiveInLambda")
-fun <T : Any> LazyPagingItems<T>.itemContentType(
+public fun <T : Any> LazyPagingItems<T>.itemContentType(
     contentType: ((item: @JvmSuppressWildcards T) -> Any?)? = null
 ): (index: Int) -> Any? {
     return { index ->

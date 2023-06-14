@@ -66,7 +66,6 @@ import kotlin.math.roundToInt
 @Composable
 fun Stepper(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     steps: Int,
     decreaseIcon: @Composable () -> Unit,
@@ -147,7 +146,6 @@ fun Stepper(
 @Composable
 fun Stepper(
     value: Int,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Int) -> Unit,
     valueProgression: IntProgression,
     decreaseIcon: @Composable () -> Unit,

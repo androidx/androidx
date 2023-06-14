@@ -70,12 +70,8 @@ internal class LazyStaggeredGridIntervalContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridInterval(
-    @Suppress("PrimitiveInLambda")
     override val key: ((index: Int) -> Any)?,
-    @Suppress("PrimitiveInLambda")
     override val type: ((index: Int) -> Any?),
-    @Suppress("PrimitiveInLambda")
     val span: ((index: Int) -> StaggeredGridItemSpan)?,
-    @Suppress("PrimitiveInLambda")
     val item: @Composable LazyStaggeredGridItemScope.(Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval

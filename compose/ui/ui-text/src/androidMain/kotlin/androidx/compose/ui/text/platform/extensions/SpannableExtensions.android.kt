@@ -172,7 +172,6 @@ internal fun Spannable.setSpanStyles(
     contextTextStyle: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     density: Density,
-    @Suppress("PrimitiveInLambda")
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
 ) {
 
@@ -277,7 +276,6 @@ private fun Spannable.setSpanStyle(
 private fun Spannable.setFontAttributes(
     contextTextStyle: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-    @Suppress("PrimitiveInLambda")
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
 ) {
     val fontRelatedSpanStyles = spanStyles.fastFilter {
@@ -330,7 +328,6 @@ private fun Spannable.setFontAttributes(
 internal fun flattenFontStylesAndApply(
     contextFontSpanStyle: SpanStyle?,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-    @Suppress("PrimitiveInLambda")
     block: (SpanStyle, Int, Int) -> Unit
 ) {
     // quick way out for single SpanStyle or empty list.

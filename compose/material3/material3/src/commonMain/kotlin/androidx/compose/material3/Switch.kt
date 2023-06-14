@@ -106,7 +106,6 @@ fun Switch(
     val thumbPaddingStart = (SwitchHeight - uncheckedThumbDiameter) / 2
     val minBound = with(LocalDensity.current) { thumbPaddingStart.toPx() }
     val maxBound = with(LocalDensity.current) { ThumbPathLength.toPx() }
-    @Suppress("PrimitiveInLambda")
     val valueToOffset = remember<(Boolean) -> Float>(minBound, maxBound) {
         { value -> if (value) maxBound else minBound }
     }

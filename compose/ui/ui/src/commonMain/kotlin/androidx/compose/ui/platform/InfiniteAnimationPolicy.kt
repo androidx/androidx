@@ -59,10 +59,7 @@ interface InfiniteAnimationPolicy : CoroutineContext.Element {
  * to go moving APIs around now if we might change them anyway. b/230369229 tracks cleaning up this
  * clipboard inheritance.
  */
-internal suspend fun <R> withInfiniteAnimationFrameNanos(
-    @Suppress("PrimitiveInLambda")
-    onFrame: (frameTimeNanos: Long) -> R
-): R =
+internal suspend fun <R> withInfiniteAnimationFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
     when (val policy = coroutineContext[InfiniteAnimationPolicy]) {
         null -> withFrameNanos(onFrame)
         else -> policy.onInfiniteOperation { withFrameNanos(onFrame) }

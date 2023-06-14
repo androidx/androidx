@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method sumOf has parameter &apos;selector&apos; with type Function1&lt;? super T, Float>."
+        errorLine1="internal fun &lt;T> Iterable&lt;T>.sumOf(selector: (T) -> Float): Float = map(selector).sum()"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandableItems has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="    key: ((index: Int) -> Any)? = null,"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/Expandable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandableItems has parameter &apos;itemContent&apos; with type Function2&lt;? super BoxScope, ? super Integer, Unit>."
+        errorLine1="    itemContent: @Composable BoxScope.(index: Int) -> Unit"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/Expandable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="        key: ((index: Int) -> Any)? = null,"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super ScalingLazyListItemScope, ? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable ScalingLazyListItemScope.(index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method scalingParams has parameter &apos;viewportVerticalOffsetResolver&apos; with type Function1&lt;? super Constraints, Integer>."
+        errorLine1="        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() }"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method autoCenteringHeight has parameter &apos;getHeight&apos; with type Function0&lt;Integer>."
+        errorLine1="private fun Modifier.autoCenteringHeight(getHeight: () -> Int) ="
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DefaultScalingParams has parameter &apos;viewportVerticalOffsetResolver&apos; with type Function1&lt;? super Constraints, Integer>."
+        errorLine1="    val viewportVerticalOffsetResolver: (Constraints) -> Int,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumnMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Constraints, Integer> of &apos;getViewportVerticalOffsetResolver&apos;."
+        errorLine1="    val viewportVerticalOffsetResolver: (Constraints) -> Int,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumnMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor RevealState has parameter &apos;confirmValueChange&apos; with type Function1&lt;? super RevealValue, Boolean>."
+        errorLine1="    confirmValueChange: (RevealValue) -> Boolean,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor RevealState has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
+        errorLine1="    positionalThreshold: Density.(totalDistance: Float) -> Float,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberRevealState has parameter &apos;confirmValueChange&apos; with type Function1&lt;? super RevealValue, Boolean>."
+        errorLine1="    confirmValueChange: (RevealValue) -> Boolean = { true },"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberRevealState has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
+        errorLine1="    positionalThreshold: Density.(totalDistance: Float) -> Float ="
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;defaultThreshold$lint_module&apos;."
+        errorLine1="    internal fun defaultThreshold() = fractionalPositionalThreshold(threshold)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method swipeAnchors has parameter &apos;calculateAnchor&apos; with type Function2&lt;? super T, ? super IntSize, Float>."
+        errorLine1="    calculateAnchor: (value: T, layoutSize: IntSize) -> Float?,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SwipeableV2State has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
+        errorLine1="    internal val positionalThreshold: Density.(totalDistance: Float) -> Float ="
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;getPositionalThreshold$lint_module&apos;."
+        errorLine1="    internal val positionalThreshold: Density.(totalDistance: Float) -> Float ="
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
+        errorLine1="            positionalThreshold: Density.(distance: Float) -> Float,"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;fixedPositionalThreshold&apos;."
+        errorLine1="public fun fixedPositionalThreshold(threshold: Dp): Density.(distance: Float) -> Float = {"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;fractionalPositionalThreshold&apos;."
+        errorLine1="): Density.(distance: Float) -> Float = { distance -> distance * fraction }"
+        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;getPositionalThreshold&apos;."
+        errorLine1="    val PositionalThreshold: Density.(totalDistance: Float) -> Float ="
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ReconcileAnimationOnAnchorChangeHandler$lint_module has parameter &apos;animate&apos; with type Function2&lt;? super T, ? super Float, Unit>."
+        errorLine1="        animate: (target: T, velocity: Float) -> Unit,"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+</issues>

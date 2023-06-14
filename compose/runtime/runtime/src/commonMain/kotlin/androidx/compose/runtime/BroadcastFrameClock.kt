@@ -37,11 +37,7 @@ class BroadcastFrameClock(
     private val onNewAwaiters: (() -> Unit)? = null
 ) : MonotonicFrameClock {
 
-    private class FrameAwaiter<R>(
-        @Suppress("PrimitiveInLambda")
-        val onFrame: (Long) -> R,
-        val continuation: Continuation<R>
-    ) {
+    private class FrameAwaiter<R>(val onFrame: (Long) -> R, val continuation: Continuation<R>) {
         fun resume(timeNanos: Long) {
             continuation.resumeWith(runCatching { onFrame(timeNanos) })
         }
@@ -79,7 +75,6 @@ class BroadcastFrameClock(
     }
 
     override suspend fun <R> withFrameNanos(
-        @Suppress("PrimitiveInLambda")
         onFrame: (Long) -> R
     ): R = suspendCancellableCoroutine { co ->
         lateinit var awaiter: FrameAwaiter<R>

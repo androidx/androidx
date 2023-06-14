@@ -52,7 +52,6 @@ import kotlin.math.min
  */
 @Immutable
 sealed class AlignmentLine(
-    @Suppress("PrimitiveInLambda")
     internal val merger: (Int, Int) -> Int
 ) {
     companion object {
@@ -80,7 +79,6 @@ internal fun AlignmentLine.merge(position1: Int, position2: Int) = merger(positi
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-@Suppress("PrimitiveInLambda")
 class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 
 /**
@@ -96,7 +94,6 @@ class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-@Suppress("PrimitiveInLambda")
 class HorizontalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 
 /**

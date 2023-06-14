@@ -1171,7 +1171,6 @@ internal fun DateEntryContainer(
 internal fun DisplayModeToggleButton(
     modifier: Modifier,
     displayMode: DisplayMode,
-    @Suppress("PrimitiveInLambda")
     onDisplayModeChange: (DisplayMode) -> Unit
 ) {
     if (displayMode == DisplayMode.Picker) {
@@ -1201,9 +1200,7 @@ private fun SwitchableDateEntryContent(
     selectedDateMillis: Long?,
     displayedMonthMillis: Long,
     displayMode: DisplayMode,
-    @Suppress("PrimitiveInLambda")
     onDateSelectionChange: (dateInMillis: Long?) -> Unit,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -1291,9 +1288,7 @@ private fun SwitchableDateEntryContent(
 private fun DatePickerContent(
     selectedDateMillis: Long?,
     displayedMonthMillis: Long,
-    @Suppress("PrimitiveInLambda")
     onDateSelectionChange: (dateInMillis: Long) -> Unit,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -1446,9 +1441,7 @@ internal fun DatePickerHeader(
 private fun HorizontalMonthsList(
     lazyListState: LazyListState,
     selectedDateMillis: Long?,
-    @Suppress("PrimitiveInLambda")
     onDateSelectionChange: (dateInMillis: Long) -> Unit,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -1511,7 +1504,6 @@ private fun HorizontalMonthsList(
 @OptIn(ExperimentalMaterial3Api::class)
 internal suspend fun updateDisplayedMonth(
     lazyListState: LazyListState,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange
@@ -1585,7 +1577,6 @@ internal fun WeekDays(colors: DatePickerColors, calendarModel: CalendarModel) {
 @Composable
 internal fun Month(
     month: CalendarMonth,
-    @Suppress("PrimitiveInLambda")
     onDateSelectionChange: (dateInMillis: Long) -> Unit,
     todayMillis: Long,
     startDateMillis: Long?,
@@ -1802,7 +1793,6 @@ private fun Day(
 private fun YearPicker(
     modifier: Modifier,
     displayedMonthMillis: Long,
-    @Suppress("PrimitiveInLambda")
     onYearSelected: (year: Int) -> Unit,
     selectableDates: SelectableDates,
     calendarModel: CalendarModel,

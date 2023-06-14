@@ -75,7 +75,6 @@ fun ClickableText(
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    @Suppress("PrimitiveInLambda")
     onClick: (Int) -> Unit
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
@@ -143,7 +142,6 @@ fun ClickableText(
 @Composable
 fun ClickableText(
     text: AnnotatedString,
-    @Suppress("PrimitiveInLambda")
     onHover: ((Int?) -> Unit),
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -151,7 +149,6 @@ fun ClickableText(
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    @Suppress("PrimitiveInLambda")
     onClick: (Int) -> Unit
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }

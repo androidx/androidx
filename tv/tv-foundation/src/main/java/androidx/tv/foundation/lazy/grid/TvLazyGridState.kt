@@ -208,7 +208,6 @@ class TvLazyGridState constructor(
     /**
      * Finds items on a line and their measurement constraints. Used for prefetching.
      */
-    @Suppress("PrimitiveInLambda")
     internal var prefetchInfoRetriever: (line: LineIndex) -> List<Pair<Int, Constraints>> by
     mutableStateOf({ emptyList() })
 

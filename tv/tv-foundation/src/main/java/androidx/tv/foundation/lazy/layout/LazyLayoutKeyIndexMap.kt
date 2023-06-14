@@ -63,11 +63,8 @@ internal interface LazyLayoutKeyIndexMap {
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 internal class NearestRangeKeyIndexMapState(
-    @Suppress("PrimitiveInLambda")
     firstVisibleItemIndex: () -> Int,
-    @Suppress("PrimitiveInLambda")
     slidingWindowSize: () -> Int,
-    @Suppress("PrimitiveInLambda")
     extraItemCount: () -> Int,
     content: () -> LazyLayoutIntervalContent<*>
 ) : State<LazyLayoutKeyIndexMap> {
@@ -124,7 +121,6 @@ private class NearestRangeKeyIndexMap(
                         toIndex = last,
                     ) {
                         if (it.value.key != null) {
-                            @Suppress("PrimitiveInLambda", "ExceptionMessage")
                             val keyFactory = requireNotNull(it.value.key)
                             val start = maxOf(first, it.startIndex)
                             val end = minOf(last, it.startIndex + it.size - 1)

@@ -330,7 +330,6 @@ private fun FontPaddingAndMaxLinesConfiguration(
 @Composable
 private fun SnappingSlider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
