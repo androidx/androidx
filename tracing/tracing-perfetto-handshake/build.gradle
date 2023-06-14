@@ -33,9 +33,9 @@ tasks.withType(Jar) {
 }
 
 androidx {
-    name = "Tracing Perfetto Common"
+    name = "Tracing Perfetto Handshake"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
     inceptionYear = "2022"
-    description = "AndroidX Tracing: Perfetto Common"
+    description = "AndroidX Tracing: Perfetto Handshake"
 }
