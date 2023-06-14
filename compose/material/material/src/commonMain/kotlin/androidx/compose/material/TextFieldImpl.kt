@@ -145,22 +145,14 @@ internal fun CommonDecorationBox(
                 }
             } else null
 
-        val leadingIconColor = if (colors is TextFieldColorsWithIcons) {
-            colors.leadingIconColor(enabled, isError, interactionSource).value
-        } else {
-            colors.leadingIconColor(enabled, isError).value
-        }
+        val leadingIconColor = colors.leadingIconColor(enabled, isError, interactionSource).value
         val decoratedLeading: @Composable (() -> Unit)? = leadingIcon?.let {
             @Composable {
                 Decoration(contentColor = leadingIconColor, content = it)
             }
         }
 
-        val trailingIconColor = if (colors is TextFieldColorsWithIcons) {
-            colors.trailingIconColor(enabled, isError, interactionSource).value
-        } else {
-            colors.trailingIconColor(enabled, isError).value
-        }
+        val trailingIconColor = colors.trailingIconColor(enabled, isError, interactionSource).value
         val decoratedTrailing: @Composable (() -> Unit)? = trailingIcon?.let {
             @Composable {
                 Decoration(contentColor = trailingIconColor, content = it)
