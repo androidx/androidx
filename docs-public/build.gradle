@@ -346,6 +346,7 @@ dependencies {
     docs("androidx.tracing:tracing:1.3.0-alpha01")
     docs("androidx.tracing:tracing-ktx:1.3.0-alpha01")
     docs("androidx.tracing:tracing-perfetto:1.0.0-alpha16")
+    docs("androidx.tracing:tracing-perfetto-common:1.0.0-alpha16") // TODO(243405142) clean-up
     docs("androidx.transition:transition:1.5.0-alpha01")
     docs("androidx.transition:transition-ktx:1.5.0-alpha01")
     docs("androidx.tv:tv-foundation:1.0.0-alpha07")
