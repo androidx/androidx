@@ -38,6 +38,7 @@ import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.WakelockEmptyActivityRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
 import androidx.lifecycle.LiveData
@@ -88,6 +89,9 @@ class ZoomControlDeviceTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var camera: Camera
