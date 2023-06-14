@@ -41,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,6 +89,11 @@ class UseCaseCameraTest {
         state = fakeUseCaseCameraState,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
+
+    @After
+    fun tearDown() {
+        surface.close()
+    }
 
     @Test
     fun setInvalidSessionConfig_repeatingShouldStop() {
