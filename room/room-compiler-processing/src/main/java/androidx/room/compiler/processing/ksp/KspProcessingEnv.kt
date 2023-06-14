@@ -217,6 +217,12 @@ internal class KspProcessingEnv(
     fun wrap(ksTypeArgument: KSTypeArgument): KspType {
         val typeRef = ksTypeArgument.type
         if (typeRef != null && ksTypeArgument.variance == Variance.INVARIANT) {
+            val declaration = typeRef.resolve().declaration
+            // inline classes can't be non-invariant.
+            if (declaration.isValueClass()) {
+                return KspValueClassArgumentType(env = this, typeArg = ksTypeArgument)
+            }
+
             // fully resolved type argument, return regular type.
             return wrap(
                 ksType = typeRef.resolve(),
