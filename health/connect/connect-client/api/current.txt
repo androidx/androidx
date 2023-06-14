@@ -40,16 +40,16 @@ package androidx.health.connect.client {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
+    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
+    method public default static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
     method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<? extends java.lang.String>>);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.health.connect.client.PermissionController.Companion Companion;
   }
 
   public static final class PermissionController.Companion {
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
+    method public androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
   }
 
 }
