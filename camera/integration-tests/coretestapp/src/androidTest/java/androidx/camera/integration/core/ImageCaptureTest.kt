@@ -70,6 +70,7 @@ import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.WakelockEmptyActivityRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.camera.video.Recorder
@@ -133,6 +134,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @get:Rule
     val temporaryFolder =
         TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         @JvmStatic

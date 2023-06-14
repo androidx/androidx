@@ -46,6 +46,7 @@ import androidx.camera.testing.GLUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.StressTestRule
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.WakelockEmptyActivityRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
@@ -103,6 +104,9 @@ class BindUnbindUseCasesStressTest(
 
     @get:Rule
     val repeatRule = RepeatRule()
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
