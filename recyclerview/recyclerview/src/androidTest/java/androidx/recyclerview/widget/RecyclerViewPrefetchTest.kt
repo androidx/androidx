@@ -21,9 +21,11 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -78,24 +80,31 @@ class RecyclerViewPrefetchTest : BaseRecyclerViewInstrumentationTest() {
         return mRecyclerView.mRecycler.mCachedViews
     }
 
-    @Ignore("b/285199733")
     @Test
     @Throws(Throwable::class)
-    fun prefetchTest() {
-        val recyclerView = RecyclerView(activity)
-        recyclerView.adapter = TestAdapter(50)
-        val layout = PrefetchLayoutManager()
-        recyclerView.layoutManager = layout
+    fun prefetchTest() = runBlocking {
+        val layout: PrefetchLayoutManager
+        withContext(Dispatchers.Main) {
+            val recyclerView = RecyclerView(activity)
+            recyclerView.adapter = TestAdapter(50)
+            layout = PrefetchLayoutManager()
+            recyclerView.layoutManager = layout
 
-        layout.expectLayouts(1)
-        setRecyclerView(recyclerView)
+            layout.expectLayouts(1)
+            setRecyclerView(recyclerView)
+        }
+
         layout.waitForLayout(10)
+        withContext(Dispatchers.Main) {
+            assertThat(layout.prefetchLatch.count, `is`(1L)) // shouldn't have fired yet
+            assertThat(cachedViews().size, `is`(0))
+        }
 
-        assertThat(layout.prefetchLatch.count, `is`(1L)) // shouldn't have fired yet
-        assertThat(cachedViews().size, `is`(0))
         smoothScrollBy(50)
         layout.waitForPrefetch(10)
-        assertThat(cachedViews().size, `is`(1))
-        assertThat(cachedViews()[0].absoluteAdapterPosition, `is`(6))
+        withContext(Dispatchers.Main) {
+            assertThat(cachedViews().size, `is`(1))
+            assertThat(cachedViews()[0].absoluteAdapterPosition, `is`(6))
+        }
     }
 }
