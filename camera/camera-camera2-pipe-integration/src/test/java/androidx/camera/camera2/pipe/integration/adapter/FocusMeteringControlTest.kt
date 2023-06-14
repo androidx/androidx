@@ -178,6 +178,10 @@ class FocusMeteringControlTest {
     fun tearDown() {
         // CoroutineScope#cancel can throw exception if the scope has no job left
         try {
+            fakeUseCaseCamera.runningUseCases.forEach {
+                it.onStateDetached()
+                it.onUnbind()
+            }
             // fakeUseCaseThreads may still be using Main dispatcher which sometimes
             // causes Dispatchers.resetMain() to throw an exception:
             // "IllegalStateException: Dispatchers.Main is used concurrently with setting it"
