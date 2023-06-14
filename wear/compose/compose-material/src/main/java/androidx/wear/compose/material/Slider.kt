@@ -94,7 +94,6 @@ import kotlin.math.roundToInt
 @Composable
 public fun InlineSlider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     steps: Int,
     decreaseIcon: @Composable () -> Unit,
@@ -130,7 +129,6 @@ public fun InlineSlider(
 
         val visibleSegments = if (segmented) steps + 1 else 1
 
-        @Suppress("PrimitiveInLambda")
         val updateValue: (Int) -> Unit = { stepDiff ->
             val newValue =
                 RangeDefaults.calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
@@ -257,7 +255,6 @@ public fun InlineSlider(
 @Composable
 public fun InlineSlider(
     value: Int,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Int) -> Unit,
     valueProgression: IntProgression,
     decreaseIcon: @Composable () -> Unit,

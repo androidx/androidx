@@ -31,7 +31,6 @@ import androidx.compose.ui.util.fastFirstOrNull
 internal class LazyStaggeredGridScrollPosition(
     initialIndices: IntArray,
     initialOffsets: IntArray,
-    @Suppress("PrimitiveInLambda")
     private val fillIndices: (targetIndex: Int, laneCount: Int) -> IntArray
 ) : SnapshotMutationPolicy<IntArray> {
     var indices by mutableStateOf(initialIndices, this)

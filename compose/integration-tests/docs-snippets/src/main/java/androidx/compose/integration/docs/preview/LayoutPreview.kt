@@ -75,11 +75,7 @@ private object PreviewSnippet4 {
 
 private object PreviewSnippet5 {
     @Composable
-    fun Counter(
-        count: Int,
-        @Suppress("PrimitiveInLambda")
-        updateCount: (Int) -> Unit
-    ) {
+    fun Counter(count: Int, updateCount: (Int) -> Unit) {
         Button(
             onClick = { updateCount(count + 1) },
             colors = buttonColors(

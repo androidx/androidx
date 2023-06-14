@@ -53,7 +53,6 @@ internal fun Modifier.lazyLayoutSemantics(
             userScrollEnabled
         ) {
             val isVertical = orientation == Orientation.Vertical
-            @Suppress("PrimitiveInLambda")
             val indexForKeyMapping: (Any) -> Int = { needle ->
                 var result = -1
                 for (index in 0 until itemProvider.itemCount) {
@@ -86,7 +85,6 @@ internal fun Modifier.lazyLayoutSemantics(
                 reverseScrolling = reverseScrolling
             )
 
-            @Suppress("PrimitiveInLambda")
             val scrollByAction: ((x: Float, y: Float) -> Boolean)? = if (userScrollEnabled) {
                 { x, y ->
                     val delta = if (isVertical) {
@@ -104,7 +102,6 @@ internal fun Modifier.lazyLayoutSemantics(
                 null
             }
 
-            @Suppress("PrimitiveInLambda")
             val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {
                 { index ->
                     require(index >= 0 && index < itemProvider.itemCount) {

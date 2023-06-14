@@ -117,7 +117,6 @@ public fun HorizontalPageIndicator(
     }
     pagesState.recalculateState(normalizedSelectedPage, normalizedOffset)
 
-    @Suppress("PrimitiveInLambda")
     val indicatorFactory: @Composable (Int) -> Unit = { page ->
         // An external box with a fixed indicatorSize - let us remain the same size for
         // an indicator even if it's shrinked for smooth animations
@@ -242,7 +241,6 @@ public interface PageIndicatorState {
 private fun LinearPageIndicator(
     modifier: Modifier,
     pagesOnScreen: Int,
-    @Suppress("PrimitiveInLambda")
     indicatorFactory: @Composable (Int) -> Unit,
     spacerLeft: @Composable () -> Unit,
     spacerRight: @Composable () -> Unit
@@ -266,7 +264,6 @@ private fun LinearPageIndicator(
 private fun CurvedPageIndicator(
     modifier: Modifier,
     pagesOnScreen: Int,
-    @Suppress("PrimitiveInLambda")
     indicatorFactory: @Composable (Int) -> Unit,
     spacerLeft: @Composable () -> Unit,
     spacerRight: @Composable () -> Unit

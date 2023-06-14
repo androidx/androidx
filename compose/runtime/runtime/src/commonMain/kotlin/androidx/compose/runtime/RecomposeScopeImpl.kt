@@ -209,10 +209,7 @@ internal class RecomposeScopeImpl(
      * Update [block]. The scope is returned by [Composer.endRestartGroup] when [used] is true
      * and implements [ScopeUpdateScope].
      */
-    override fun updateScope(
-        @Suppress("PrimitiveInLambda")
-        block: (Composer, Int) -> Unit
-    ) { this.block = block }
+    override fun updateScope(block: (Composer, Int) -> Unit) { this.block = block }
 
     private var currentToken = 0
     private var trackedInstances: IdentityArrayIntMap? = null

@@ -249,7 +249,6 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.indexForKey
      */
-    @Suppress("PrimitiveInLambda")
     val IndexForKey = SemanticsPropertyKey<(Any) -> Int>("IndexForKey")
 }
 
@@ -281,25 +280,21 @@ object SemanticsActions {
     /**
      * @see SemanticsPropertyReceiver.scrollBy
      */
-    @Suppress("PrimitiveInLambda")
     val ScrollBy = ActionPropertyKey<(x: Float, y: Float) -> Boolean>("ScrollBy")
 
     /**
      * @see SemanticsPropertyReceiver.scrollToIndex
      */
-    @Suppress("PrimitiveInLambda")
     val ScrollToIndex = ActionPropertyKey<(Int) -> Boolean>("ScrollToIndex")
 
     /**
      * @see SemanticsPropertyReceiver.setProgress
      */
-    @Suppress("PrimitiveInLambda")
     val SetProgress = ActionPropertyKey<(progress: Float) -> Boolean>("SetProgress")
 
     /**
      * @see SemanticsPropertyReceiver.setSelection
      */
-    @Suppress("PrimitiveInLambda")
     val SetSelection = ActionPropertyKey<(Int, Int, Boolean) -> Boolean>("SetSelection")
 
     /**
@@ -622,9 +617,7 @@ class CollectionItemInfo(
  * mean bottom, when `false`, 0 [value] will mean top
  */
 class ScrollAxisRange(
-    @Suppress("PrimitiveInLambda")
     val value: () -> Float,
-    @Suppress("PrimitiveInLambda")
     val maxValue: () -> Float,
     val reverseScrolling: Boolean = false
 ) {
@@ -1032,10 +1025,7 @@ fun SemanticsPropertyReceiver.error(description: String) {
  * The index of an item identified by a given key. The key is usually defined during the creation
  * of the container. If the key did not match any of the items' keys, the [mapping] must return -1.
  */
-fun SemanticsPropertyReceiver.indexForKey(
-    @Suppress("PrimitiveInLambda")
-    mapping: (Any) -> Int
-) {
+fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
     this[SemanticsProperties.IndexForKey] = mapping
 }
 
@@ -1102,7 +1092,6 @@ fun SemanticsPropertyReceiver.onLongClick(label: String? = null, action: (() -> 
  */
 fun SemanticsPropertyReceiver.scrollBy(
     label: String? = null,
-    @Suppress("PrimitiveInLambda")
     action: ((x: Float, y: Float) -> Boolean)?
 ) {
     this[SemanticsActions.ScrollBy] = AccessibilityAction(label, action)
@@ -1115,7 +1104,6 @@ fun SemanticsPropertyReceiver.scrollBy(
  */
 fun SemanticsPropertyReceiver.scrollToIndex(
     label: String? = null,
-    @Suppress("PrimitiveInLambda")
     action: (Int) -> Boolean
 ) {
     this[SemanticsActions.ScrollToIndex] = AccessibilityAction(label, action)
@@ -1129,11 +1117,7 @@ fun SemanticsPropertyReceiver.scrollToIndex(
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.SetProgress] is called.
  */
-fun SemanticsPropertyReceiver.setProgress(
-    label: String? = null,
-    @Suppress("PrimitiveInLambda")
-    action: ((Float) -> Boolean)?
-) {
+fun SemanticsPropertyReceiver.setProgress(label: String? = null, action: ((Float) -> Boolean)?) {
     this[SemanticsActions.SetProgress] = AccessibilityAction(label, action)
 }
 
@@ -1253,7 +1237,6 @@ fun SemanticsPropertyReceiver.onImeAction(
  */
 fun SemanticsPropertyReceiver.setSelection(
     label: String? = null,
-    @Suppress("PrimitiveInLambda")
     action: ((startIndex: Int, endIndex: Int, relativeToOriginalText: Boolean) -> Boolean)?
 ) {
     this[SemanticsActions.SetSelection] = AccessibilityAction(label, action)

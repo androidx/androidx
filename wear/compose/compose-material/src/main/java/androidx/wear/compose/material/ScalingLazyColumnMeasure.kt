@@ -215,7 +215,6 @@ internal class DefaultScalingParams(
     override val minTransitionArea: Float,
     override val maxTransitionArea: Float,
     override val scaleInterpolator: Easing,
-    @Suppress("PrimitiveInLambda")
     val viewportVerticalOffsetResolver: (Constraints) -> Int,
 ) : ScalingParams {
 

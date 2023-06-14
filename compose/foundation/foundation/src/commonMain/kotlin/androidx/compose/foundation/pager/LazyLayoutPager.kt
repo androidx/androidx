@@ -84,14 +84,12 @@ internal fun Pager(
     /** A [NestedScrollConnection] that dictates how this [Pager] behaves with nested lists.  **/
     pageNestedScrollConnection: NestedScrollConnection,
     /** a stable and unique key representing the Page **/
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)?,
     /** The alignment to align pages horizontally. Required when isVertical is true */
     horizontalAlignment: Alignment.Horizontal,
     /** The alignment to align pages vertically. Required when isVertical is false */
     verticalAlignment: Alignment.Vertical,
     /** The content of the list */
-    @Suppress("PrimitiveInLambda")
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     require(beyondBoundsPageCount >= 0) {
@@ -221,9 +219,7 @@ internal class PagerLazyLayoutItemProvider(
 
 @OptIn(ExperimentalFoundationApi::class)
 private class PagerLayoutIntervalContent(
-    @Suppress("PrimitiveInLambda")
     val pageContent: @Composable PagerScope.(page: Int) -> Unit,
-    @Suppress("PrimitiveInLambda")
     val key: ((index: Int) -> Any)?,
     val pageCount: Int
 ) : LazyLayoutIntervalContent<PagerIntervalContent>() {
@@ -235,9 +231,7 @@ private class PagerLayoutIntervalContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class PagerIntervalContent(
-    @Suppress("PrimitiveInLambda")
     override val key: ((page: Int) -> Any)?,
-    @Suppress("PrimitiveInLambda")
     val item: @Composable PagerScope.(page: Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval
 
@@ -245,11 +239,8 @@ internal class PagerIntervalContent(
 @Composable
 private fun rememberPagerItemProviderLambda(
     state: PagerState,
-    @Suppress("PrimitiveInLambda")
     pageContent: @Composable PagerScope.(page: Int) -> Unit,
-    @Suppress("PrimitiveInLambda")
     key: ((index: Int) -> Any)?,
-    @Suppress("PrimitiveInLambda")
     pageCount: () -> Int
 ): () -> PagerLazyLayoutItemProvider {
     val latestContent = rememberUpdatedState(pageContent)

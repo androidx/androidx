@@ -62,7 +62,6 @@ public fun InlineSliderButton(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("PrimitiveInLambda")
 public fun Modifier.drawProgressBar(
     selectedBarColor: State<Color>,
     unselectedBarColor: State<Color>,

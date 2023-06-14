@@ -373,7 +373,6 @@ private fun ThemeShapeCornerSizeItem(
     modifier: Modifier = Modifier,
     themeShapeCornerSize: Int,
     themeShapeCornerSizeMax: Int,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (themeShapeCornerSize: Int) -> Unit
 ) {
     Column(modifier = modifier) {

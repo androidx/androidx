@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -17,6 +17,15 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/compose/ui/tooling/ComposeViewAdapterTest.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor InfiniteTransitionClock has parameter &apos;maxDuration&apos; with type Function0&lt;Long>."
+        errorLine1="    private val maxDuration: () -> Long = { 0 }"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/InfiniteTransitionClock.kt"/>
     </issue>
 
 </issues>

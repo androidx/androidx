@@ -215,9 +215,7 @@ internal interface AnchoredDragScope {
 @ExperimentalMaterialApi
 internal class AnchoredDraggableState<T>(
     initialValue: T,
-    @Suppress("PrimitiveInLambda")
     internal val positionalThreshold: (totalDistance: Float) -> Float,
-    @Suppress("PrimitiveInLambda")
     internal val velocityThreshold: () -> Float,
     val animationSpec: AnimationSpec<Float>,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
@@ -244,9 +242,7 @@ internal class AnchoredDraggableState<T>(
     constructor(
         initialValue: T,
         anchors: DraggableAnchors<T>,
-        @Suppress("PrimitiveInLambda")
         positionalThreshold: (totalDistance: Float) -> Float,
-        @Suppress("PrimitiveInLambda")
         velocityThreshold: () -> Float,
         animationSpec: AnimationSpec<Float>,
         confirmValueChange: (newValue: T) -> Boolean = { true }
@@ -630,11 +626,8 @@ internal class AnchoredDraggableState<T>(
         @ExperimentalMaterialApi
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
-            @Suppress("PrimitiveInLambda")
             confirmValueChange: (T) -> Boolean,
-            @Suppress("PrimitiveInLambda")
             positionalThreshold: (distance: Float) -> Float,
-            @Suppress("PrimitiveInLambda")
             velocityThreshold: () -> Float,
         ) = Saver<AnchoredDraggableState<T>, T>(
             save = { it.currentValue },

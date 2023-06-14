@@ -611,9 +611,7 @@ private fun SwitchableDateEntryContent(
     selectedEndDateMillis: Long?,
     displayedMonthMillis: Long,
     displayMode: DisplayMode,
-    @Suppress("PrimitiveInLambda")
     onDatesSelectionChange: (startDateMillis: Long?, endDateMillis: Long?) -> Unit,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -664,9 +662,7 @@ private fun DateRangePickerContent(
     selectedStartDateMillis: Long?,
     selectedEndDateMillis: Long?,
     displayedMonthMillis: Long,
-    @Suppress("PrimitiveInLambda")
     onDatesSelectionChange: (startDateMillis: Long?, endDateMillis: Long?) -> Unit,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -704,9 +700,7 @@ private fun VerticalMonthsList(
     lazyListState: LazyListState,
     selectedStartDateMillis: Long?,
     selectedEndDateMillis: Long?,
-    @Suppress("PrimitiveInLambda")
     onDatesSelectionChange: (startDateMillis: Long?, endDateMillis: Long?) -> Unit,
-    @Suppress("PrimitiveInLambda")
     onDisplayedMonthChange: (monthInMillis: Long) -> Unit,
     calendarModel: CalendarModel,
     yearRange: IntRange,
@@ -784,7 +778,6 @@ private fun VerticalMonthsList(
                         }
                     // The updateDateSelection will invoke the onDatesSelectionChange with the proper
                     // selection according to the current state.
-                    @Suppress("PrimitiveInLambda")
                     val onDateSelectionChange = { dateInMillis: Long ->
                         updateDateSelection(
                             dateInMillis = dateInMillis,
@@ -823,7 +816,6 @@ private fun updateDateSelection(
     dateInMillis: Long,
     currentStartDateMillis: Long?,
     currentEndDateMillis: Long?,
-    @Suppress("PrimitiveInLambda")
     onDatesSelectionChange: (startDateMillis: Long?, endDateMillis: Long?) -> Unit
 ) {
     if ((currentStartDateMillis == null && currentEndDateMillis == null) ||

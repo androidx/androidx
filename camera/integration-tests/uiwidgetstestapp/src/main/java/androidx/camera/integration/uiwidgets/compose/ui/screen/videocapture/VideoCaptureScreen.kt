@@ -90,7 +90,6 @@ fun VideoCaptureScreen(
     modifier: Modifier = Modifier,
     zoomRatio: Float,
     linearZoom: Float,
-    @Suppress("PrimitiveInLambda")
     onLinearZoomChange: (Float) -> Unit,
     isCameraReady: Boolean,
     recordState: VideoCaptureScreenState.RecordState,

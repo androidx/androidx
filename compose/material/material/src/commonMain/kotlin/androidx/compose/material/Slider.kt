@@ -145,7 +145,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun Slider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -806,7 +805,6 @@ private suspend fun AwaitPointerEventScope.awaitSlop(
     type: PointerType
 ): Pair<PointerInputChange, Float>? {
     var initialDelta = 0f
-    @Suppress("PrimitiveInLambda")
     val postPointerSlop = { pointerInput: PointerInputChange, offset: Float ->
         pointerInput.consume()
         initialDelta = offset
@@ -833,7 +831,6 @@ private fun calcFraction(a: Float, b: Float, pos: Float) =
 
 @Composable
 private fun CorrectValueSideEffect(
-    @Suppress("PrimitiveInLambda")
     scaleToOffset: (Float) -> Float,
     valueRange: ClosedFloatingPointRange<Float>,
     trackRange: ClosedFloatingPointRange<Float>,
@@ -854,7 +851,6 @@ private fun CorrectValueSideEffect(
 private fun Modifier.sliderSemantics(
     value: Float,
     enabled: Boolean,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -1046,7 +1042,6 @@ private class RangeSliderLogic(
     val endInteractionSource: MutableInteractionSource,
     val rawOffsetStart: State<Float>,
     val rawOffsetEnd: State<Float>,
-    @Suppress("PrimitiveInLambda")
     val onDrag: State<(Boolean, Float) -> Unit>,
 ) {
     fun activeInteraction(draggingStart: Boolean): MutableInteractionSource =
@@ -1168,7 +1163,6 @@ private val DefaultSliderConstraints =
 private val SliderToTickAnimation = TweenSpec<Float>(durationMillis = 100)
 
 private class SliderDraggableState(
-    @Suppress("PrimitiveInLambda")
     val onDelta: (Float) -> Unit
 ) : DraggableState {
 

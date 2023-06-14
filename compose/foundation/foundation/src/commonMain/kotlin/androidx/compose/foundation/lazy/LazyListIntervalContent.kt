@@ -78,10 +78,7 @@ internal class LazyListIntervalContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyListInterval(
-    @Suppress("PrimitiveInLambda")
     override val key: ((index: Int) -> Any)?,
-    @Suppress("PrimitiveInLambda")
     override val type: ((index: Int) -> Any?),
-    @Suppress("PrimitiveInLambda")
     val item: @Composable LazyItemScope.(index: Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval

@@ -74,7 +74,6 @@ import kotlin.math.sign
 fun rememberPagerState(
     initialPage: Int = 0,
     initialPageOffsetFraction: Float = 0f,
-    @Suppress("PrimitiveInLambda")
     pageCount: () -> Int
 ): PagerState {
     return rememberSaveable(saver = PagerStateImpl.Saver) {
@@ -128,11 +127,9 @@ fun rememberPagerState(
 internal class PagerStateImpl(
     initialPage: Int,
     initialPageOffsetFraction: Float,
-    @Suppress("PrimitiveInLambda")
     updatedPageCount: () -> Int
 ) : PagerState(initialPage, initialPageOffsetFraction) {
 
-    @Suppress("PrimitiveInLambda")
     var pageCountState = mutableStateOf(updatedPageCount)
     override val pageCount: Int get() = pageCountState.value.invoke()
 

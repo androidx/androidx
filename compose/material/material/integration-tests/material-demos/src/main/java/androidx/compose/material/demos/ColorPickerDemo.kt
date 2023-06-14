@@ -184,7 +184,6 @@ private fun MagnifierTransition(
     visible: Boolean,
     maxWidth: Dp,
     maxDiameter: Dp,
-    @Suppress("PrimitiveInLambda")
     content: @Composable (labelWidth: Dp, selectionDiameter: Dp, alpha: Float) -> Unit
 ) {
     val transition = updateTransition(visible)

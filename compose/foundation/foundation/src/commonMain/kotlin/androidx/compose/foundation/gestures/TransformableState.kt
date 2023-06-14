@@ -94,7 +94,6 @@ interface TransformScope {
  * for pan and degrees for rotation. Callers should update their state in this lambda.
  */
 fun TransformableState(
-    @Suppress("PrimitiveInLambda")
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState = DefaultTransformableState(onTransformation)
 
@@ -114,7 +113,6 @@ fun TransformableState(
  */
 @Composable
 fun rememberTransformableState(
-    @Suppress("PrimitiveInLambda")
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState {
     val lambdaState = rememberUpdatedState(onTransformation)
@@ -232,7 +230,6 @@ suspend fun TransformableState.stopTransformation(
 }
 
 private class DefaultTransformableState(
-    @Suppress("PrimitiveInLambda")
     val onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ) : TransformableState {
 

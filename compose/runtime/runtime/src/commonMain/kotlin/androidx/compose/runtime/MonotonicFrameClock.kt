@@ -40,10 +40,7 @@ interface MonotonicFrameClock : CoroutineContext.Element {
      * Time values provided are strictly monotonically increasing; after a call to [withFrameNanos]
      * completes it must not provide the same value again for a subsequent call.
      */
-    suspend fun <R> withFrameNanos(
-        @Suppress("PrimitiveInLambda")
-        onFrame: (frameTimeNanos: Long) -> R
-    ): R
+    suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R
 
     override val key: CoroutineContext.Key<*> get() = Key
 
@@ -86,10 +83,8 @@ suspend inline fun <R> MonotonicFrameClock.withFrameMillis(
  * not present in the [CoroutineContext].
  */
 @OptIn(ExperimentalComposeApi::class)
-suspend fun <R> withFrameNanos(
-    @Suppress("PrimitiveInLambda")
-    onFrame: (frameTimeNanos: Long) -> R
-): R = coroutineContext.monotonicFrameClock.withFrameNanos(onFrame)
+suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+    coroutineContext.monotonicFrameClock.withFrameNanos(onFrame)
 
 /**
  * Suspends until a new frame is requested, immediately invokes [onFrame] with the frame time
@@ -109,10 +104,8 @@ suspend fun <R> withFrameNanos(
  * not present in the [CoroutineContext].
  */
 @OptIn(ExperimentalComposeApi::class)
-suspend fun <R> withFrameMillis(
-    @Suppress("PrimitiveInLambda")
-    onFrame: (frameTimeMillis: Long) -> R
-): R = coroutineContext.monotonicFrameClock.withFrameMillis(onFrame)
+suspend fun <R> withFrameMillis(onFrame: (frameTimeMillis: Long) -> R): R =
+    coroutineContext.monotonicFrameClock.withFrameMillis(onFrame)
 
 /**
  * Returns the [MonotonicFrameClock] for this [CoroutineContext] or throws [IllegalStateException]

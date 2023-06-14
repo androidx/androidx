@@ -62,7 +62,6 @@ internal fun measureLazyGrid(
     placementAnimator: LazyGridItemPlacementAnimator,
     spanLayoutProvider: LazyGridSpanLayoutProvider,
     pinnedItems: LazyLayoutPinnedItemList,
-    @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): TvLazyGridMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }

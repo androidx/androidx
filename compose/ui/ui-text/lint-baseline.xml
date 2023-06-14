@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanInlineOptIn"
@@ -35,6 +35,105 @@
         errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontVariation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method createCharSequence has parameter &apos;resolveTypeface&apos; with type Function4&lt;? super FontFamily, ? super FontWeight, ? super FontStyle, ? super FontSynthesis, ? extends Typeface>."
+        errorLine1="    resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/platform/AndroidParagraphHelper.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;resolveTypeface&apos; with type Function4&lt;? super FontFamily, ? super FontWeight, ? super FontStyle, ? super FontSynthesis, ? extends Typeface>."
+        errorLine1="        val resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface ="
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/platform/AndroidParagraphIntrinsics.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method transform has parameter &apos;transform&apos; with type Function3&lt;? super String, ? super Integer, ? super Integer, ? extends String>."
+        errorLine1="    transform: (String, Int, Int) -> String"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/AnnotatedString.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method transform has parameter &apos;transform&apos; with type Function3&lt;? super String, ? super Integer, ? super Integer, String>."
+        errorLine1="    transform: (String, Int, Int) -> String"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setSpanStyles has parameter &apos;resolveTypeface&apos; with type Function4&lt;? super FontFamily, ? super FontWeight, ? super FontStyle, ? super FontSynthesis, ? extends Typeface>."
+        errorLine1="    resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/platform/extensions/SpannableExtensions.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setFontAttributes has parameter &apos;resolveTypeface&apos; with type Function4&lt;? super FontFamily, ? super FontWeight, ? super FontStyle, ? super FontSynthesis, ? extends Typeface>."
+        errorLine1="    resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/platform/extensions/SpannableExtensions.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method flattenFontStylesAndApply has parameter &apos;block&apos; with type Function3&lt;? super SpanStyle, ? super Integer, ? super Integer, Unit>."
+        errorLine1="    block: (SpanStyle, Int, Int) -> Unit"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/platform/extensions/SpannableExtensions.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method takeOrElse has parameter &apos;block&apos; with type Function0&lt;Float>."
+        errorLine1="private fun Float.takeOrElse(block: () -> Float): Float {"
+        errorLine2="                                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/style/TextForegroundStyle.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method startInput has parameter &apos;onImeActionPerformed&apos; with type Function1&lt;? super ImeAction, Unit>."
+        errorLine1="        onImeActionPerformed: (ImeAction) -> Unit"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/input/TextInputService.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method startInput has parameter &apos;onImeActionPerformed&apos; with type Function1&lt;? super ImeAction, Unit>."
+        errorLine1="        onImeActionPerformed: (ImeAction) -> Unit"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/input/TextInputService.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method applySpanStyle has parameter &apos;resolveTypeface&apos; with type Function4&lt;? super FontFamily, ? super FontWeight, ? super FontStyle, ? super FontSynthesis, ? extends Typeface>."
+        errorLine1="    resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/platform/extensions/TextPaintExtensions.android.kt"/>
     </issue>
 
 </issues>

@@ -102,7 +102,6 @@ fun LazyGridDragAndDropDemo() {
 @Composable
 fun rememberGridDragDropState(
     gridState: LazyGridState,
-    @Suppress("PrimitiveInLambda")
     onMove: (Int, Int) -> Unit
 ): GridDragDropState {
     val scope = rememberCoroutineScope()
@@ -125,7 +124,6 @@ fun rememberGridDragDropState(
 class GridDragDropState internal constructor(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
-    @Suppress("PrimitiveInLambda")
     private val onMove: (Int, Int) -> Unit
 ) {
     var draggingItemIndex by mutableStateOf<Int?>(null)

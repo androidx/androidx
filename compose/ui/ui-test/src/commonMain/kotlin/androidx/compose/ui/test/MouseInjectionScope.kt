@@ -428,7 +428,6 @@ fun MouseInjectionScope.animateBy(
  */
 @ExperimentalTestApi
 fun MouseInjectionScope.animateAlong(
-    @Suppress("PrimitiveInLambda")
     curve: (Long) -> Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
 ) {

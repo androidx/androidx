@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -35,6 +35,78 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidTest/kotlin/androidx/glance/appwidget/GlanceAppWidgetReceiverTest.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemId&apos; with type Function1&lt;? super Integer, Long>."
+        errorLine1="        itemId: ((index: Int) -> Long) = { UnspecifiedItemId },"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable LazyItemScope.(index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemId&apos; with type Function1&lt;? super T, Long>."
+        errorLine1="    noinline itemId: ((item: T) -> Long) = { LazyListScope.UnspecifiedItemId },"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;itemId&apos; with type Function2&lt;? super Integer, ? super T, Long>."
+        errorLine1="    noinline itemId: ((index: Int, item: T) -> Long) = { _, _ -> LazyListScope.UnspecifiedItemId },"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemId&apos; with type Function1&lt;? super Integer, Long>."
+        errorLine1="        itemId: ((index: Int) -> Long) = { UnspecifiedItemId },"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable LazyItemScope.(index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemId&apos; with type Function1&lt;? super T, Long>."
+        errorLine1="    noinline itemId: ((item: T) -> Long) = { LazyVerticalGridScope.UnspecifiedItemId },"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;itemId&apos; with type Function2&lt;? super Integer, ? super T, Long>."
+        errorLine1="    noinline itemId: ((index: Int, item: T) -> Long) = {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
     </issue>
 
 </issues>

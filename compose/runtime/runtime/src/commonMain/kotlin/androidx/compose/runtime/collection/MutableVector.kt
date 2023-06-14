@@ -1169,11 +1169,7 @@ inline fun <reified T> MutableVector(capacity: Int = 16) =
  * return the value to be assigned to the element at its given index.
  */
 @OptIn(ExperimentalContracts::class)
-inline fun <reified T> MutableVector(
-    size: Int,
-    @Suppress("PrimitiveInLambda")
-    noinline init: (Int) -> T
-): MutableVector<T> {
+inline fun <reified T> MutableVector(size: Int, noinline init: (Int) -> T): MutableVector<T> {
     contract { callsInPlace(init) }
     val arr = Array(size, init)
     return MutableVector(arr as Array<T?>, size)

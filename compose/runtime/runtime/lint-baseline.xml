@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(0)"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/jvmTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTestsJvm.kt"/>
-    </issue>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="ExperimentalPropertyAnnotation"
@@ -26,6 +17,132 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/internal/LiveLiteral.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;realFn&apos; with type Function2&lt;? super Composer, ? super Integer, ? extends Unit>."
+        errorLine1="    @Suppress(&quot;UNCHECKED_CAST&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/runtime/ActualJvm.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;realFn&apos; with type Function2&lt;? super Composer, ? super Integer, ? extends T>."
+        errorLine1="    @Suppress(&quot;UNCHECKED_CAST&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/runtime/ActualJvm.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor FrameAwaiter has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="    private class FrameAwaiter&lt;R>(val onFrame: (Long) -> R, val continuation: Continuation&lt;R>) {"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/BroadcastFrameClock.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Long, R> of &apos;getOnFrame&apos;."
+        errorLine1="    private class FrameAwaiter&lt;R>(val onFrame: (Long) -> R, val continuation: Continuation&lt;R>) {"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/BroadcastFrameClock.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method updateScope has parameter &apos;block&apos; with type Function2&lt;? super Composer, ? super Integer, Unit>."
+        errorLine1="    fun updateScope(block: (Composer, Int) -> Unit)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method set has parameter &apos;block&apos; with type Function2&lt;? super T, ? super Integer, Unit>."
+        errorLine1="        noinline block: T.(value: Int) -> Unit"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;block&apos; with type Function2&lt;? super T, ? super Integer, Unit>."
+        errorLine1="        noinline block: T.(value: Int) -> Unit"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method withFrameNanos has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="    suspend fun &lt;R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/MonotonicFrameClock.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method withFrameNanos has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="suspend fun &lt;R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R ="
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/MonotonicFrameClock.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method withFrameMillis has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="suspend fun &lt;R> withFrameMillis(onFrame: (frameTimeMillis: Long) -> R): R ="
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/MonotonicFrameClock.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method MutableVector has parameter &apos;init&apos; with type Function1&lt;? super Integer, ? extends T>."
+        errorLine1="inline fun &lt;reified T> MutableVector(size: Int, noinline init: (Int) -> T): MutableVector&lt;T> {"
+        errorLine2="                                                               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/collection/MutableVector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method forEachData$lint_module has parameter &apos;block&apos; with type Function2&lt;? super Integer, Object, Unit>."
+        errorLine1="    internal fun forEachData(group: Int, block: (index: Int, data: Any?) -> Unit) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method accept$lint_module has parameter &apos;visitor&apos; with type Function5&lt;? super TrieNode&lt;K, V>, ? super Integer, ? super Integer, ? super Integer, ? super Integer, Unit>."
+        errorLine1="    internal fun accept(visitor: (node: TrieNode&lt;K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/implementations/immutableMap/TrieNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method accept has parameter &apos;visitor&apos; with type Function5&lt;? super TrieNode&lt;K, V>, ? super Integer, ? super Integer, ? super Integer, ? super Integer, Unit>."
+        errorLine1="            visitor: (node: TrieNode&lt;K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/implementations/immutableMap/TrieNode.kt"/>
     </issue>
 
 </issues>

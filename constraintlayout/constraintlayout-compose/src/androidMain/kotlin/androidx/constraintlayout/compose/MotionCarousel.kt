@@ -318,12 +318,11 @@ inline fun <T> MotionCarouselScope.items(
 interface MotionCarouselScope {
     fun items(
         count: Int,
-        @Suppress("PrimitiveInLambda")
         itemContent: @Composable (index: Int) -> Unit
     )
 
     @OptIn(ExperimentalMotionApi::class)
-    @Suppress("UnavailableSymbol", "PrimitiveInLambda")
+    @Suppress("UnavailableSymbol")
     fun itemsWithProperties(
         count: Int,
         @Suppress("HiddenTypeParameter")
@@ -376,16 +375,13 @@ interface MotionItemsProvider {
 private class MotionCarouselScopeImpl() : MotionCarouselScope, MotionItemsProvider {
 
     var itemsCount = 0
-    @Suppress("PrimitiveInLambda")
     var itemsProvider: @Composable ((index: Int) -> Unit)? = null
-    @Suppress("PrimitiveInLambda")
     var itemsProviderWithProperties: @Composable ((index: Int,
         properties: androidx.compose.runtime.State<MotionProperties>) -> Unit)? =
         null
 
     override fun items(
         count: Int,
-        @Suppress("PrimitiveInLambda")
         itemContent: @Composable (index: Int) -> Unit
     ) {
         itemsCount = count

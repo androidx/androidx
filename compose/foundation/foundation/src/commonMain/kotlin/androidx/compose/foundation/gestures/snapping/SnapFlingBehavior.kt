@@ -112,7 +112,6 @@ class SnapFlingBehavior(
      */
     suspend fun ScrollScope.performFling(
         initialVelocity: Float,
-        @Suppress("PrimitiveInLambda")
         onSettlingDistanceUpdated: (Float) -> Unit
     ): Float {
         val (remainingOffset, remainingState) = fling(initialVelocity, onSettlingDistanceUpdated)
@@ -126,7 +125,6 @@ class SnapFlingBehavior(
 
     private suspend fun ScrollScope.fling(
         initialVelocity: Float,
-        @Suppress("PrimitiveInLambda")
         onRemainingScrollOffsetUpdate: (Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         // If snapping from scroll (short snap) or fling (long snap)
@@ -144,7 +142,6 @@ class SnapFlingBehavior(
 
     private suspend fun ScrollScope.shortSnap(
         velocity: Float,
-        @Suppress("PrimitiveInLambda")
         onRemainingScrollOffsetUpdate: (Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         debugLog { "Short Snapping" }
@@ -168,7 +165,6 @@ class SnapFlingBehavior(
 
     private suspend fun ScrollScope.longSnap(
         initialVelocity: Float,
-        @Suppress("PrimitiveInLambda")
         onAnimationStep: (remainingScrollOffset: Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         debugLog { "Long Snapping" }
@@ -206,7 +202,6 @@ class SnapFlingBehavior(
     private suspend fun ScrollScope.runApproach(
         initialTargetOffset: Float,
         initialVelocity: Float,
-        @Suppress("PrimitiveInLambda")
         onAnimationStep: (delta: Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
 
@@ -311,7 +306,6 @@ private suspend fun ScrollScope.approach(
     animation: ApproachAnimation<Float, AnimationVector1D>,
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
     density: Density,
-    @Suppress("PrimitiveInLambda")
     onAnimationStep: (delta: Float) -> Unit
 ): AnimationResult<Float, AnimationVector1D> {
 
@@ -355,7 +349,6 @@ private suspend fun ScrollScope.animateDecay(
     targetOffset: Float,
     animationState: AnimationState<Float, AnimationVector1D>,
     decayAnimationSpec: DecayAnimationSpec<Float>,
-    @Suppress("PrimitiveInLambda")
     onAnimationStep: (delta: Float) -> Unit
 ): AnimationResult<Float, AnimationVector1D> {
     var previousValue = 0f
@@ -407,7 +400,6 @@ private suspend fun ScrollScope.animateSnap(
     cancelOffset: Float,
     animationState: AnimationState<Float, AnimationVector1D>,
     snapAnimationSpec: AnimationSpec<Float>,
-    @Suppress("PrimitiveInLambda")
     onAnimationStep: (delta: Float) -> Unit
 ): AnimationResult<Float, AnimationVector1D> {
     var consumedUpToNow = 0f
@@ -463,7 +455,6 @@ private class LowVelocityApproachAnimation(
         scope: ScrollScope,
         offset: Float,
         velocity: Float,
-        @Suppress("PrimitiveInLambda")
         onAnimationStep: (delta: Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         val animationState = AnimationState(initialValue = 0f, initialVelocity = velocity)
@@ -490,7 +481,6 @@ private class HighVelocityApproachAnimation(
         scope: ScrollScope,
         offset: Float,
         velocity: Float,
-        @Suppress("PrimitiveInLambda")
         onAnimationStep: (delta: Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         val animationState = AnimationState(initialValue = 0f, initialVelocity = velocity)

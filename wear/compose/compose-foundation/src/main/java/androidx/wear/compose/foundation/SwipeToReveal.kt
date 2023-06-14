@@ -115,9 +115,7 @@ public fun createAnchors(
 public class RevealState internal constructor(
     initialValue: RevealValue,
     animationSpec: AnimationSpec<Float>,
-    @Suppress("PrimitiveInLambda")
     confirmValueChange: (RevealValue) -> Boolean,
-    @Suppress("PrimitiveInLambda")
     positionalThreshold: Density.(totalDistance: Float) -> Float,
     internal val anchors: Map<RevealValue, Float>
 ) {
@@ -220,9 +218,7 @@ public class RevealState internal constructor(
 public fun rememberRevealState(
     initialValue: RevealValue = RevealValue.Covered,
     animationSpec: AnimationSpec<Float> = SwipeToRevealDefaults.animationSpec,
-    @Suppress("PrimitiveInLambda")
     confirmValueChange: (RevealValue) -> Boolean = { true },
-    @Suppress("PrimitiveInLambda")
     positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeToRevealDefaults.defaultThreshold(),
     anchors: Map<RevealValue, Float> = createAnchors()
@@ -419,7 +415,6 @@ internal object SwipeToRevealDefaults {
 
     internal const val threshold = 0.5f
 
-    @Suppress("PrimitiveInLambda")
     internal fun defaultThreshold() = fractionalPositionalThreshold(threshold)
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanInlineOptIn"
@@ -17,33 +17,6 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalComposeUiApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalComposeUiApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalComposeApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/constraintlayout/compose/TransitionHandler.kt"/>
     </issue>
 
     <issue
@@ -71,6 +44,96 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setThresholds$lint_module has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super Float, ? super Float, Float>."
+        errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Float, Float, Float> of &apos;getThresholds$lint_module&apos;."
+        errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method computeTarget has parameter &apos;thresholds&apos; with type Function2&lt;? super Float, ? super Float, Float>."
+        errorLine1="    thresholds: (Float, Float) -> Float,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable (index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsWithProperties has parameter &apos;itemContent&apos; with type Function2&lt;? super Integer, ? super State&lt;MotionProperties>, Unit>."
+        errorLine1="        itemContent: @Composable ("
+        errorLine2="                     ^">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setItemsProvider has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    var itemsProvider: @Composable ((index: Int) -> Unit)? = null"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Integer, Unit> of &apos;getItemsProvider&apos;."
+        errorLine1="    var itemsProvider: @Composable ((index: Int) -> Unit)? = null"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setItemsProviderWithProperties has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super Integer, ? super State&lt;MotionProperties>, Unit>."
+        errorLine1="    var itemsProviderWithProperties: @Composable ((index: Int,"
+        errorLine2="    ^">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Integer, State&lt;MotionProperties>, Unit> of &apos;getItemsProviderWithProperties&apos;."
+        errorLine1="    var itemsProviderWithProperties: @Composable ((index: Int,"
+        errorLine2="                                     ^">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method fromState has parameter &apos;onUpdate&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="            onUpdate: (newProgress: Float) -> Unit"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionLayout.kt"/>
     </issue>
 
 </issues>

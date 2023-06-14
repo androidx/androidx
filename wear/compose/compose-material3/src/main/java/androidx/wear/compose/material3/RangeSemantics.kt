@@ -39,7 +39,6 @@ import androidx.wear.compose.materialcore.RangeDefaults
 public fun Modifier.rangeSemantics(
     value: Float,
     enabled: Boolean,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int

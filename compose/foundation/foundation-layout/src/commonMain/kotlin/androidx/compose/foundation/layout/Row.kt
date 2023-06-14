@@ -211,10 +211,7 @@ interface RowScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
      */
     @Stable
-    fun Modifier.alignBy(
-        @Suppress("PrimitiveInLambda")
-        alignmentLineBlock: (Measured) -> Int
-    ): Modifier
+    fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
 }
 
 internal object RowScopeInstance : RowScope {

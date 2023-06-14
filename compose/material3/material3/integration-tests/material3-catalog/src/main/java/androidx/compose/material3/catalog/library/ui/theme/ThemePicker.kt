@@ -315,7 +315,6 @@ private fun FontScaleItem(
     fontScale: Float,
     fontScaleMin: Float = MinFontScale,
     fontScaleMax: Float = MaxFontScale,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (textScale: Float) -> Unit,
     onValueChangeFinished: () -> Unit
 ) {

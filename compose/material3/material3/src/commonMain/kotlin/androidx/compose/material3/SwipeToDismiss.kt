@@ -90,7 +90,6 @@ enum class DismissValue {
 class DismissState(
     initialValue: DismissValue,
     confirmValueChange: (DismissValue) -> Boolean = { true },
-    @Suppress("PrimitiveInLambda")
     positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeToDismissDefaults.FixedPositionalThreshold,
 ) {
@@ -180,7 +179,6 @@ class DismissState(
          */
         fun Saver(
             confirmValueChange: (DismissValue) -> Boolean,
-            @Suppress("PrimitiveInLambda")
             positionalThreshold: Density.(totalDistance: Float) -> Float,
         ) =
             Saver<DismissState, DismissValue>(
@@ -208,7 +206,6 @@ class DismissState(
 fun rememberDismissState(
     initialValue: DismissValue = Default,
     confirmValueChange: (DismissValue) -> Boolean = { true },
-    @Suppress("PrimitiveInLambda")
     positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeToDismissDefaults.FixedPositionalThreshold,
 ): DismissState {
@@ -276,7 +273,6 @@ fun SwipeToDismiss(
 @ExperimentalMaterial3Api
 object SwipeToDismissDefaults {
     /** Default positional threshold of 56.dp for [DismissState]. */
-    @Suppress("PrimitiveInLambda")
     val FixedPositionalThreshold: Density.(totalDistance: Float) -> Float = { _ -> 56.dp.toPx() }
 }
 

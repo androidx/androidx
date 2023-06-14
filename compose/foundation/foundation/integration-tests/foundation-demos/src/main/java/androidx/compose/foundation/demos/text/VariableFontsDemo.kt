@@ -58,7 +58,6 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable

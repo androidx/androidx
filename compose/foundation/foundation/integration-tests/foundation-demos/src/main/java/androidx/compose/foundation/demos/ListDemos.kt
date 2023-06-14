@@ -529,7 +529,6 @@ private fun ReverseLayoutAndRtlDemo() {
                 .widthIn(200.dp)
                 .fillMaxHeight()
         }
-        @Suppress("PrimitiveInLambda")
         val item1 = @Composable { index: Int ->
             Text(
                 "${index}A",
@@ -538,7 +537,6 @@ private fun ReverseLayoutAndRtlDemo() {
                     .border(1.dp, Color.Cyan)
             )
         }
-        @Suppress("PrimitiveInLambda")
         val item2 = @Composable { index: Int ->
             Text("${index}B")
         }
@@ -627,7 +625,6 @@ private fun ReverseLayoutAndRtlDemo() {
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @Composable
 private fun NestedLazyDemo() {
     val item = @Composable { index: Int ->

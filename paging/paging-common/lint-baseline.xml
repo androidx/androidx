@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -22,8 +22,8 @@
     <issue
         id="SupportAnnotationUsage"
         message="Did you mean `@get:VisibleForTesting`? Without `get:` this annotates the constructor parameter itself instead of the associated getter."
-        errorLine1="        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        @VisibleForTesting"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/paging/PageFetcher.kt"/>
     </issue>

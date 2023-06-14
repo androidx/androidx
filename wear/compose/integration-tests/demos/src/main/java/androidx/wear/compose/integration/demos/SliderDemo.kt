@@ -203,7 +203,6 @@ fun InlineSliderSegmented() {
 @Composable
 fun DefaultInlineSlider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     steps: Int,
     modifier: Modifier = Modifier,
@@ -231,7 +230,6 @@ fun DefaultInlineSlider(
 @Composable
 fun DefaultInlineSlider(
     value: Int,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

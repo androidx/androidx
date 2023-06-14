@@ -41,7 +41,6 @@ internal class InteractiveFrameClock(
     private val baselineHz: Int = 5,
     private val interactiveHz: Int = 20,
     private val interactiveTimeoutMs: Long = 5_000,
-    @Suppress("PrimitiveInLambda")
     private val nanoTime: () -> Long = { System.nanoTime() }
 ) : MonotonicFrameClock {
     companion object {

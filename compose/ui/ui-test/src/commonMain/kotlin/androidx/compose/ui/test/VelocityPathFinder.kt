@@ -50,7 +50,6 @@ internal class VelocityPathFinder(
         vy = sin(theta) * endVelocity / 1000
     }
 
-    @Suppress("PrimitiveInLambda")
     fun generateFunction(): (Long) -> Offset {
         val fx = createFunctionForVelocity(vx, Offset::x)
         val fy = createFunctionForVelocity(vy, Offset::y)
@@ -88,10 +87,8 @@ internal class VelocityPathFinder(
      *
      * @param velocity The desired velocity in the x or y direction at the end position
      */
-    @Suppress("PrimitiveInLambda")
     private fun createFunctionForVelocity(
         velocity: Double,
-        @Suppress("PrimitiveInLambda")
         value: Offset.() -> Float
     ): (Long) -> Float {
         val T = durationMillis

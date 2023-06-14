@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ThemeShapeCornerSizeItem has parameter &apos;onValueChange&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    onValueChange: (themeShapeCornerSize: Int) -> Unit"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material/catalog/library/ui/theme/ThemePicker.kt"/>
+    </issue>
+
+</issues>
