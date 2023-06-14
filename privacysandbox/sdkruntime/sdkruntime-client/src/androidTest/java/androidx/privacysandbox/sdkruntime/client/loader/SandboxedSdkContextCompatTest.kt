@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 internal class SandboxedSdkContextCompatTest(
-    @Suppress("unused") private val description: String,
+    private val contextType: String,
     private val sdkContextCompat: SandboxedSdkContextCompat,
     private val appStorageContext: Context
 ) {
@@ -235,6 +235,133 @@ internal class SandboxedSdkContextCompatTest(
         val result = sdkContextCompat.fileList().asList()
         assertThat(result).contains("testFileList")
         assertThat(result).isEqualTo(sdkContextCompat.filesDir.list()!!.asList())
+    }
+
+    @Test
+    fun getDatabasePath_whenDataBaseNamePassed_returnPathToDatabaseInSdkDatabasesDir() {
+        val expectedDatabasePath = File(
+            sdkContextCompat.dataDir,
+            "databases/testGetDatabasePath"
+        )
+
+        assertThat(sdkContextCompat.getDatabasePath("testGetDatabasePath"))
+            .isEqualTo(expectedDatabasePath)
+    }
+
+    @Test
+    fun getDatabasePath_whenDataBasePathPassed_returnSamePath() {
+        val expectedDatabasePath = File(
+            sdkContextCompat.dataDir,
+            "databases/testGetDatabasePathAbsolute"
+        )
+
+        assertThat(sdkContextCompat.getDatabasePath(expectedDatabasePath.absolutePath))
+            .isEqualTo(expectedDatabasePath)
+    }
+
+    @Test
+    fun openOrCreateDatabase_returnDatabaseFromSdkDatabasesDir() {
+        val databaseName = "testOpenDataBase.db"
+
+        sdkContextCompat.deleteDatabase(databaseName)
+        val database = sdkContextCompat.openOrCreateDatabase(
+            name = databaseName,
+            mode = Context.MODE_PRIVATE,
+            factory = null
+        )
+
+        database.execSQL("CREATE TABLE test (data int)")
+        database.execSQL("INSERT INTO test (data) values (42)")
+
+        val databaseFrom4ParamMethod = sdkContextCompat.openOrCreateDatabase(
+            name = databaseName,
+            mode = Context.MODE_PRIVATE,
+            factory = null,
+            errorHandler = null
+        )
+
+        val result = databaseFrom4ParamMethod.rawQuery("SELECT * FROM test", null)
+        result.moveToFirst()
+        assertThat(result.getInt(0))
+            .isEqualTo(42)
+
+        val databasePath = sdkContextCompat.getDatabasePath(databaseName)
+        assertThat(databasePath.exists()).isTrue()
+    }
+
+    @Test
+    fun deleteDatabase_deleteDatabaseFromSdkDatabasesDir() {
+        val databaseName = "testDeleteDatabase.db"
+        sdkContextCompat.openOrCreateDatabase(
+            name = databaseName,
+            mode = Context.MODE_PRIVATE,
+            factory = null
+        )
+        assertThat(sdkContextCompat.getDatabasePath(databaseName).exists()).isTrue()
+
+        sdkContextCompat.deleteDatabase(databaseName)
+
+        assertThat(sdkContextCompat.getDatabasePath(databaseName).exists()).isFalse()
+    }
+
+    @Test
+    fun databaseList_returnContentOfSdkDatabasesDir() {
+        val databaseName = "testDatabaseList.db"
+        sdkContextCompat.openOrCreateDatabase(
+            name = databaseName,
+            mode = Context.MODE_PRIVATE,
+            factory = null
+        )
+
+        val result = sdkContextCompat.databaseList().asList()
+        assertThat(result).contains(databaseName)
+        assertThat(result).isEqualTo(
+            File(sdkContextCompat.dataDir, "databases").list()!!.asList()
+        )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun moveDatabaseFrom_migrateDatabaseToSdkDatabasesDir() {
+        val sourceAppStorageContext = if (sdkContextCompat.isDeviceProtectedStorage) {
+            ApplicationProvider.getApplicationContext()
+        } else {
+            appStorageContext.createDeviceProtectedStorageContext()
+        }
+        val sourceContext = SandboxedSdkContextCompat(
+            sourceAppStorageContext,
+            sdkPackageName = SDK_PACKAGE_NAME,
+            classLoader = javaClass.classLoader!!.parent!!
+        )
+
+        val databaseName = "testMoveTo$contextType.db"
+
+        sourceContext.deleteDatabase(databaseName)
+        val database = sourceContext.openOrCreateDatabase(
+            name = databaseName,
+            mode = Context.MODE_PRIVATE,
+            factory = null
+        )
+
+        database.execSQL("CREATE TABLE test (data int)")
+        database.execSQL("INSERT INTO test (data) values (42)")
+
+        val moveResult = sdkContextCompat.moveDatabaseFrom(sourceContext, databaseName)
+        assertThat(moveResult).isTrue()
+
+        val migratedDatabase = sdkContextCompat.openOrCreateDatabase(
+            name = databaseName,
+            mode = Context.MODE_PRIVATE,
+            factory = null
+        )
+
+        val result = migratedDatabase.rawQuery("SELECT * FROM test", null)
+        result.moveToFirst()
+        assertThat(result.getInt(0))
+            .isEqualTo(42)
+
+        val oldDatabasePath = sourceContext.getDatabasePath(databaseName)
+        assertThat(oldDatabasePath.exists()).isFalse()
     }
 
     companion object {
