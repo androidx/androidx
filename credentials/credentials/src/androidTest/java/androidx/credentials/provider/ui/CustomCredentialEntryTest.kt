@@ -204,19 +204,22 @@ class CustomCredentialEntryTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.lastUsedTime)
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
-        // TODO: Assert BeginOption
+        assertThat(BEGIN_OPTION.type).isEqualTo(entry.type)
+        assertThat(BEGIN_OPTION).isEqualTo(entry.beginGetCredentialOption)
     }
 
     private fun assertEntryWithRequiredParams(entry: CustomCredentialEntry) {
         assertThat(TITLE == entry.title)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
-        // TODO: Assert BeginOption
+        assertThat(BEGIN_OPTION.type).isEqualTo(entry.type)
+        assertThat(BEGIN_OPTION).isEqualTo(entry.beginGetCredentialOption)
     }
 
     private fun assertEntryWithRequiredParamsFromSlice(entry: CustomCredentialEntry) {
         assertThat(TITLE == entry.title)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
-        // TODO: Assert BeginOption
+        assertThat(BEGIN_OPTION.type).isEqualTo(entry.type)
+        assertThat(BEGIN_OPTION).isEqualTo(entry.beginGetCredentialOption)
     }
 
     companion object {
