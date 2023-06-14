@@ -120,7 +120,7 @@ class CredentialManagerTest {
                     assertThrows<NoCredentialException> {
                         credentialManager.getCredential(
                             this@withActivity,
-                            prepareGetCredentialResponse.pendingGetCredentialHandle
+                            prepareGetCredentialResponse.pendingGetCredentialHandle!!
                         )
                     }
                 }

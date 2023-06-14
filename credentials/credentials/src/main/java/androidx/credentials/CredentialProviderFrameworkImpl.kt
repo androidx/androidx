@@ -320,12 +320,14 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     internal fun convertPrepareGetResponseToJetpackClass(
         response: android.credentials.PrepareGetCredentialResponse
     ): PrepareGetCredentialResponse {
-        return PrepareGetCredentialResponse(
-            response,
-            PrepareGetCredentialResponse.PendingGetCredentialHandle(
-                response.pendingGetCredentialHandle,
-            )
+        val handle = PrepareGetCredentialResponse.PendingGetCredentialHandle(
+            response.pendingGetCredentialHandle,
         )
+
+        return PrepareGetCredentialResponse.Builder()
+            .setFrameworkResponse(response)
+            .setPendingGetCredentialHandle(handle)
+            .build()
     }
 
     override fun isAvailableOnDevice(): Boolean {
