@@ -293,8 +293,9 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     @Override
     public void stopForeground(@NonNull String workSpecId) {
         synchronized (mLock) {
-            mForegroundWorkMap.remove(workSpecId);
-            stopForegroundService();
+            if (mForegroundWorkMap.remove(workSpecId) != null) {
+                stopForegroundService();
+            }
         }
     }
 
@@ -328,17 +329,6 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             return mEnqueuedWorkMap.containsKey(workSpecId)
                     || mForegroundWorkMap.containsKey(workSpecId);
-        }
-    }
-
-    /**
-     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
-     * @return {@code true} if the id was enqueued as foreground work in the processor.
-     */
-    @Override
-    public boolean isEnqueuedInForeground(@NonNull String workSpecId) {
-        synchronized (mLock) {
-            return mForegroundWorkMap.containsKey(workSpecId);
         }
     }
 
