@@ -23,7 +23,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
-import androidx.benchmark.InstrumentationResults.ideSummaryLineWrapped
 import androidx.benchmark.InstrumentationResults.instrumentationReport
 import androidx.benchmark.InstrumentationResults.reportBundle
 import java.util.concurrent.TimeUnit
@@ -491,23 +490,17 @@ class BenchmarkState internal constructor(
             // these 'legacy' CI output metrics are considered output
             metricResults.forEach { it.putInBundle(status, PREFIX) }
         }
-        val nanos = getMinTimeNanos()
-        val allocations = metricResults.firstOrNull { it.name == "allocationCount" }?.median
-        InstrumentationResultScope(status).ideSummaryRecord(
-            summaryV1 = ideSummaryLineWrapped(
-                key = key,
-                nanos = nanos,
-                allocations = allocations,
-                traceRelPath = null,
-                profilerResult = null
+        InstrumentationResultScope(status).reportSummaryToIde(
+            warningMessage = Errors.acquireWarningStringForLogging() ?: "",
+            testName = key,
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = metricResults,
+                sampledMetrics = emptyList()
             ),
-            summaryV2 = ideSummaryLineWrapped(
-                key = key,
-                nanos = nanos,
-                allocations = allocations,
-                traceRelPath = tracePath?.let { Outputs.relativePathFor(it) },
-                profilerResult = profilerResult
-            ),
+            profilerResults = listOfNotNull(
+                tracePath?.let { Profiler.ResultFile(label = "Trace", absolutePath = tracePath) },
+                profilerResult
+            )
         )
         return status
     }
@@ -605,14 +598,9 @@ class BenchmarkState internal constructor(
                 if (className.isNotEmpty()) "$className.$testName" else testName
 
             instrumentationReport {
-                ideSummaryRecord(
-                    summaryV1 = ideSummaryLineWrapped(
-                        key = fullTestName,
-                        nanos = report.getMetricResult("timeNs").min,
-                        allocations = null,
-                        traceRelPath = null,
-                        profilerResult = null
-                    )
+                reportSummaryToIde(
+                    testName = fullTestName,
+                    measurements = report.metrics,
                 )
             }
 
