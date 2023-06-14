@@ -65,9 +65,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -93,7 +91,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -693,30 +690,6 @@ private class AnimatedPaddingValues(
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = 0.dp
     override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = 0.dp
-}
-
-/**
- * A [WindowInsets] whose values can change without changing the instance. This is useful
- * to avoid recomposition when [WindowInsets] can change.
- *
- * Copied from [androidx.compose.foundation.layout.MutableWindowInsets], which is marked as
- * experimental and thus cannot be used cross-module.
- */
-private class MutableWindowInsets(
-    initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)
-) : WindowInsets {
-    /**
-     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight],
-     * and [bottom][getBottom] values.
-     */
-    var insets by mutableStateOf(initialInsets)
-
-    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
-        insets.getLeft(density, layoutDirection)
-    override fun getTop(density: Density): Int = insets.getTop(density)
-    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
-        insets.getRight(density, layoutDirection)
-    override fun getBottom(density: Density): Int = insets.getBottom(density)
 }
 
 // Measurement specs
