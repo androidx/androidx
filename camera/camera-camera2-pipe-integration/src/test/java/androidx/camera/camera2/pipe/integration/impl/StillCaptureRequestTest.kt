@@ -49,6 +49,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -107,6 +108,11 @@ class StillCaptureRequestTest {
     @Before
     fun setUp() {
         stillCaptureRequestControl.setNewUseCaseCamera()
+    }
+
+    @After
+    fun tearDown() {
+        fakeSurface.close()
     }
 
     @Test

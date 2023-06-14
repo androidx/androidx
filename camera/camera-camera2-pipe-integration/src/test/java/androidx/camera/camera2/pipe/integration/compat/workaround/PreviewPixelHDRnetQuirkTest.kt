@@ -103,7 +103,7 @@ class PreviewPixelHDRnetQuirkTest(
     @Test
     fun previewShouldApplyToneModeForHDRNet() {
         // Arrange
-        val cameraUseCaseAdapter = configureCameraUseCaseAdapter(
+        cameraUseCaseAdapter = configureCameraUseCaseAdapter(
             resolutionVGA,
             configType = PreviewConfig::class.java
         )

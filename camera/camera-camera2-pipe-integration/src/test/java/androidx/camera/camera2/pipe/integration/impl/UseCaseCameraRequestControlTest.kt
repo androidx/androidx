@@ -49,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -92,6 +93,11 @@ class UseCaseCameraRequestControlTest {
         state = fakeUseCaseCameraState,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
+
+    @After
+    fun tearDown() {
+        surface.close()
+    }
 
     @Test
     fun testMergeRequestOptions(): Unit = runBlocking {
