@@ -221,10 +221,15 @@ internal class CallSessionLegacy(
      */
     override fun onAnswer(videoState: Int) {
         CoroutineScope(coroutineContext).launch {
+            // Note the slight deviation here where onAnswer does not put the call into an ACTIVE
+            // state as it does in the platform. This behavior is intentional for this path.
             val clientCanAnswer = mClientInterface!!.onAnswer(videoState)
             if (clientCanAnswer) {
                 setActive()
                 setVideoState(videoState)
+            } else {
+                // Disconnect cause consistent with platform behavior
+                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
             }
         }
     }
