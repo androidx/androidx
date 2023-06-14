@@ -345,11 +345,13 @@ class SingleTurnCapabilityTest {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "requiredString",
+                    Arguments::requiredStringField,
                     Arguments.Builder::setRequiredStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 )
                 .bindParameter(
                     "optionalString",
+                    Arguments::optionalStringField,
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 )
