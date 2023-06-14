@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tracing.perfetto.handshake.protocol
+package androidx.tracing.perfetto.internal.handshake.protocol
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 // rename tracing-perfetto-common to tracing-perfetto-handshake tracked under TODO(243405142)
 
 @RestrictTo(LIBRARY_GROUP)
-public object RequestKeys {
+internal object RequestKeys {
     public const val RECEIVER_CLASS_NAME: String = "androidx.tracing.perfetto.TracingReceiver"
 
     /**
@@ -104,7 +104,7 @@ public object RequestKeys {
 }
 
 @RestrictTo(LIBRARY_GROUP)
-public object ResponseKeys {
+internal object ResponseKeys {
     /** Exit code as listed in [ResponseExitCodes]. */
     public const val KEY_EXIT_CODE: String = "exitCode"
 
@@ -121,7 +121,7 @@ public object ResponseKeys {
     public const val KEY_MESSAGE: String = "message"
 }
 
-public object ResponseExitCodes {
+internal object ResponseExitCodes {
     /**
      * Indicates that the broadcast resulted in `result=0`, which is an equivalent
      * of [android.app.Activity.RESULT_CANCELED].
@@ -168,7 +168,7 @@ public object ResponseExitCodes {
 )
 private annotation class EnableTracingResultCode
 
-public class EnableTracingResponse @RestrictTo(LIBRARY_GROUP) constructor(
+internal class EnableTracingResponse @RestrictTo(LIBRARY_GROUP) constructor(
     @EnableTracingResultCode public val exitCode: Int,
 
     /**
