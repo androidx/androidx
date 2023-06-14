@@ -18,7 +18,6 @@ package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.Handle
-import androidx.compose.foundation.text.selection.getHorizontalPosition
 import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
@@ -88,28 +87,14 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         Handle.SelectionStart -> selection.start
         Handle.SelectionEnd -> selection.end
     }
-    // Center vertically on the current line.
+
     // If the text hasn't been laid out yet, don't show the modifier.
     val layoutResult = textLayoutState.layoutResult ?: return Offset.Unspecified
-    val offsetCenter = layoutResult.getBoundingBox(
-        textOffset.coerceIn(textFieldState.text.indices)
-    ).center
 
     val dragX = localDragPosition.x
     val line = layoutResult.getLineForOffset(textOffset)
-    val lineStartOffset = layoutResult.getLineStart(line)
-    val lineEndOffset = layoutResult.getLineEnd(line, visibleEnd = true)
-    val areHandlesCrossed = selection.start > selection.end
-    val lineStart = layoutResult.getHorizontalPosition(
-        lineStartOffset,
-        isStart = true,
-        areHandlesCrossed = areHandlesCrossed
-    )
-    val lineEnd = layoutResult.getHorizontalPosition(
-        lineEndOffset,
-        isStart = false,
-        areHandlesCrossed = areHandlesCrossed
-    )
+    val lineStart = layoutResult.getLineLeft(line)
+    val lineEnd = layoutResult.getLineRight(line)
     val lineMin = minOf(lineStart, lineEnd)
     val lineMax = maxOf(lineStart, lineEnd)
     val centerX = dragX.coerceIn(lineMin, lineMax)
@@ -121,7 +106,12 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         return Offset.Unspecified
     }
 
-    var offset = Offset(centerX, offsetCenter.y)
+    // Center vertically on the current line.
+    val top = layoutResult.getLineTop(line)
+    val bottom = layoutResult.getLineBottom(line)
+    val centerY = ((bottom - top) / 2) + top
+
+    var offset = Offset(centerX, centerY)
     textLayoutState.innerTextFieldCoordinates?.takeIf { it.isAttached }?.let { innerCoordinates ->
         offset = offset.coerceIn(innerCoordinates.visibleBounds())
     }

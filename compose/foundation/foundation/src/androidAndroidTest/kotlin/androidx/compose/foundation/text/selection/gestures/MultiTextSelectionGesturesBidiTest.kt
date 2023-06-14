@@ -22,12 +22,9 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.MultiSelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
-import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
-import androidx.compose.foundation.text.selection.gestures.util.collapsed
 import androidx.compose.foundation.text.selection.gestures.util.offsetToLocalOffset
 import androidx.compose.foundation.text.selection.gestures.util.offsetToSelectableId
 import androidx.compose.foundation.text.selection.gestures.util.textContentIndices
-import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -35,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.util.fastForEach
@@ -43,17 +39,20 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
+internal class MultiTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTest() {
 
     override val pointerAreaTag = "selectionContainer"
-    override val word = "hello"
-    override val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+    private val ltrWord = "hello"
+    private val rtlWord = "בבבבב"
+    override val textContent = mutableStateOf("""
+        $ltrWord $rtlWord $ltrWord
+        $rtlWord $ltrWord $rtlWord
+        $ltrWord $rtlWord $ltrWord
+    """.trimIndent().trim())
 
     override lateinit var asserter: TextSelectionAsserter
 
@@ -108,7 +107,7 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
         }
     }
 
-    override fun characterPosition(offset: Int): Offset {
+    override fun characterPosition(offset: Int, isRtl: Boolean): Offset {
         val selectableIndex = textContentIndices.value.offsetToSelectableId(offset)
         val localOffset = textContentIndices.value.offsetToLocalOffset(offset)
         val (_, tag) = texts.value[selectableIndex]
@@ -116,39 +115,9 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
             rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val nodePosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(localOffset)
+        val boundingBox = textLayoutResult.getBoundingBox(localOffset)
             .translate(nodePosition - pointerAreaPosition)
-            .centerLeft
-            .nudge(HorizontalDirection.END)
-    }
-
-    @Test
-    override fun whenMouseCollapsedSelectionAcrossLines_thenTouch_showUi() {
-        performMouseGesture {
-            moveTo(centerEnd)
-            press()
-        }
-
-        asserter.applyAndAssert {
-            selection = 23.collapsed
-        }
-
-        mouseDragTo(characterPosition(offset = 24))
-
-        asserter.applyAndAssert {
-            selection = 23 to 24
-        }
-
-        performTouchGesture {
-            enterTouchMode()
-        }
-
-        asserter.applyAndAssert {
-            selectionHandlesShown = true
-
-            // only difference from the parent function, the selection is empty,
-            // so the toolbar for copying won't appear.
-            textToolbarShown = false
-        }
+        return if (isRtl) boundingBox.centerRight - Offset(2f, 0f)
+        else boundingBox.centerLeft + Offset(2f, 0f)
     }
 }

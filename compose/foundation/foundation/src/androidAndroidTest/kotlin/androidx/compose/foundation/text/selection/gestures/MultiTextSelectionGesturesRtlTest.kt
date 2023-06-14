@@ -29,15 +29,19 @@ import androidx.compose.foundation.text.selection.gestures.util.offsetToSelectab
 import androidx.compose.foundation.text.selection.gestures.util.textContentIndices
 import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -49,11 +53,12 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
+internal class MultiTextSelectionGesturesRtlTest : TextSelectionGesturesTest() {
 
     override val pointerAreaTag = "selectionContainer"
-    override val word = "hello"
-    override val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+    override val word = "בבבבב"
+    override val textContent = mutableStateOf("בבבבב\nבבבבב בבבבב בבבבב\nבבבבב")
+    override var textDirection: ResolvedTextDirection = ResolvedTextDirection.Rtl
 
     override lateinit var asserter: TextSelectionAsserter
 
@@ -78,6 +83,9 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
                         endTextDirection = endLayoutDirection,
                     )
             }
+        }.apply {
+            startLayoutDirection = ResolvedTextDirection.Rtl
+            endLayoutDirection = ResolvedTextDirection.Rtl
         }
     }
 
@@ -91,19 +99,20 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
         }
 
         textContentIndices = derivedStateOf { texts.value.textContentIndices() }
-
-        Column {
-            texts.value.fastForEach { (str, tag) ->
-                BasicText(
-                    text = str,
-                    style = TextStyle(
-                        fontFamily = fontFamily,
-                        fontSize = fontSize,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(tag),
-                )
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            Column {
+                texts.value.fastForEach { (str, tag) ->
+                    BasicText(
+                        text = str,
+                        style = TextStyle(
+                            fontFamily = fontFamily,
+                            fontSize = fontSize,
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(tag),
+                    )
+                }
             }
         }
     }
@@ -118,7 +127,7 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
         return textLayoutResult.getBoundingBox(localOffset)
             .translate(nodePosition - pointerAreaPosition)
-            .centerLeft
+            .centerRight
             .nudge(HorizontalDirection.END)
     }
 
