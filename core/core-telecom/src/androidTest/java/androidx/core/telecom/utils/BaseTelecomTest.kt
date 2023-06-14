@@ -18,6 +18,7 @@ package androidx.core.telecom.utils
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.os.Build
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
@@ -51,6 +52,7 @@ abstract class BaseTelecomTest {
     lateinit var mPreviousDefaultDialer: String
     lateinit var mTelecomManager: TelecomManager
     lateinit var mCallsManager: CallsManager
+    lateinit var mAudioManager: AudioManager
     lateinit var mPackagePhoneAccountHandle: PhoneAccountHandle
     internal lateinit var mConnectionService: JetpackConnectionService
 
@@ -58,6 +60,7 @@ abstract class BaseTelecomTest {
     fun setUpBase() {
         Log.i(L_TAG, "setUpBase: in function")
         mTelecomManager = mContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+        mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         mCallsManager = CallsManager(mContext)
         mConnectionService = mCallsManager.mConnectionService
         mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
