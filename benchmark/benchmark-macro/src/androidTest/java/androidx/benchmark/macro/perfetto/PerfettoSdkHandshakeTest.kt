@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
-private const val tracingPerfettoVersion = "1.0.0-alpha16" // TODO(224510255): get by 'reflection'
+private const val tracingPerfettoVersion = "1.0.0-alpha17" // TODO(224510255): get by 'reflection'
 private const val minSupportedSdk = Build.VERSION_CODES.R // TODO(234351579): Support API < 30
 
 @RunWith(Parameterized::class)

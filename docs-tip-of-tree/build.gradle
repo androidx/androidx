@@ -349,7 +349,7 @@ dependencies {
     docs(project(":tracing:tracing"))
     docs(project(":tracing:tracing-ktx"))
     docs(project(":tracing:tracing-perfetto"))
-    docs(project(":tracing:tracing-perfetto-common"))
+    docs(project(":tracing:tracing-perfetto-handshake"))
     docs(project(":transition:transition"))
     docs(project(":transition:transition-ktx"))
     docs(project(":tv:tv-foundation"))
