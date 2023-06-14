@@ -95,6 +95,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     private CallbackToFutureAdapter.Completer<Void> mCloseFutureCompleter;
     @Nullable
     private CameraInternal mCameraInternal;
+    @NonNull
+    private android.graphics.Matrix mSensorToBufferTransform;
 
     SurfaceOutputImpl(
             @NonNull Surface surface,
@@ -105,7 +107,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             @NonNull Rect inputCropRect,
             int rotationDegree,
             boolean mirroring,
-            @Nullable CameraInternal cameraInternal) {
+            @Nullable CameraInternal cameraInternal,
+            @NonNull android.graphics.Matrix sensorToBufferTransform) {
         mSurface = surface;
         mTargets = targets;
         mFormat = format;
@@ -115,6 +118,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         mMirroring = mirroring;
         mRotationDegrees = rotationDegree;
         mCameraInternal = cameraInternal;
+        mSensorToBufferTransform = sensorToBufferTransform;
         calculateAdditionalTransform();
         mCloseFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
@@ -261,6 +265,15 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     public void updateTransformMatrix(@NonNull float[] output, @NonNull float[] input) {
         Matrix.multiplyMM(output, 0, input, 0, mAdditionalTransform, 0);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @NonNull
+    @Override
+    public android.graphics.Matrix getSensorToBufferTransform() {
+        return new android.graphics.Matrix(mSensorToBufferTransform);
     }
 
     /**

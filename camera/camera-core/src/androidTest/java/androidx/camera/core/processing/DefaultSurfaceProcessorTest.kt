@@ -16,8 +16,10 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.Bitmap.createBitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
@@ -427,7 +429,8 @@ class DefaultSurfaceProcessorTest {
             Rect(0, 0, WIDTH, HEIGHT),
             /*rotationDegrees=*/0,
             /*mirroring=*/false,
-            FakeCamera()
+            FakeCamera(),
+            Matrix()
         )
 
     private fun createCustomShaderProvider(
