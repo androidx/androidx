@@ -408,17 +408,6 @@ def update_compose_runtime_version(group_id, artifact_id, old_version):
         version_checker_lines = f.readlines()
     num_lines = len(version_checker_lines)
 
-    for i in range(num_lines):
-        cur_line = version_checker_lines[i]
-        # Skip any line that doesn't declare the compiler/compose version
-        if 'const val compilerVersion: String = ' not in cur_line: continue
-        current_version = cur_line.split('const val compilerVersion: String = ')[1].strip('"\n')
-        # Only update if we have a higher version.
-        version_to_keep = get_higher_version(current_version, updated_compose_version)
-        new_version_line = '        const val compilerVersion: String = "%s"\n' % version_to_keep
-        version_checker_lines[i] = new_version_line
-        break
-
     old_runtime_version = compose_to_runtime_version_map[old_version]["runtime_version"]
     if "alpha" in updated_compose_version or "beta" in updated_compose_version:
         new_compose_runtime_version = old_runtime_version + 100
