@@ -35,7 +35,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.PixelCopy;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -63,6 +62,7 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.core.view.DisplayCutoutCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
@@ -251,11 +251,6 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
             return new WindowInsets.Builder(insets).setInsets(
                     WindowInsets.Type.displayCutout(), Insets.NONE).build();
         }
-
-        @DoNotInline
-        static void setDecorFitsSystemWindows(Window window, boolean decorFitsSystemWindows) {
-            window.setDecorFitsSystemWindows(decorFitsSystemWindows);
-        }
     }
 
     @Override
@@ -336,11 +331,11 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
             return view.onApplyWindowInsets(insets);
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Api30Impl.setDecorFitsSystemWindows(getWindow(), false);
-        } else {
-            getWindow().getDecorView().setFitsSystemWindows(false);
-        }
+        // IMPORTANT: The SystemUiVisibility applied here must match the insets provided to the
+        // host in OnApplyWindowInsetsListener above. Failing to do so would cause a mismatch
+        // between the insets applied to the content on the hosts side vs. the actual visible
+        // window available on the client side.
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         mActivityContainerView.requestApplyInsets();
     }
 
