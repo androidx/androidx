@@ -186,14 +186,22 @@ private fun ScaffoldLayout(
                 val fabWidth = fabPlaceables.maxByOrNull { it.width }!!.width
                 val fabHeight = fabPlaceables.maxByOrNull { it.height }!!.height
                 // FAB distance from the left of the layout, taking into account LTR / RTL
-                val fabLeftOffset = if (fabPosition == FabPosition.End) {
-                    if (layoutDirection == LayoutDirection.Ltr) {
-                        layoutWidth - FabSpacing.roundToPx() - fabWidth
-                    } else {
-                        FabSpacing.roundToPx()
+                val fabLeftOffset = when (fabPosition) {
+                    FabPosition.Start -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            FabSpacing.roundToPx()
+                        } else {
+                            layoutWidth - FabSpacing.roundToPx() - fabWidth
+                        }
                     }
-                } else {
-                    (layoutWidth - fabWidth) / 2
+                    FabPosition.End -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            layoutWidth - FabSpacing.roundToPx() - fabWidth
+                        } else {
+                            FabSpacing.roundToPx()
+                        }
+                    }
+                    else -> (layoutWidth - fabWidth) / 2
                 }
 
                 FabPlacement(
@@ -301,20 +309,27 @@ object ScaffoldDefaults {
 value class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /**
+         * Position FAB at the bottom of the screen at the start, above the [NavigationBar] (if it
+         * exists)
+         */
+        val Start = FabPosition(0)
+
+        /**
          * Position FAB at the bottom of the screen in the center, above the [NavigationBar] (if it
          * exists)
          */
-        val Center = FabPosition(0)
+        val Center = FabPosition(1)
 
         /**
          * Position FAB at the bottom of the screen at the end, above the [NavigationBar] (if it
          * exists)
          */
-        val End = FabPosition(1)
+        val End = FabPosition(2)
     }
 
     override fun toString(): String {
         return when (this) {
+            Start -> "FabPosition.Start"
             Center -> "FabPosition.Center"
             else -> "FabPosition.End"
         }

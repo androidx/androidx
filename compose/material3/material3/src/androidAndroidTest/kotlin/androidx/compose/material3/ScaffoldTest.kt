@@ -67,6 +67,7 @@ class ScaffoldTest {
 
     private val scaffoldTag = "Scaffold"
     private val roundingError = 0.5.dp
+    private val fabSpacing = 16.dp
 
     @Test
     fun scaffold_onlyContent_takesWholeScreen() {
@@ -499,6 +500,118 @@ class ScaffoldTest {
         val fabBottomOffsetDp =
             with(density!!) { (fabPosition!!.y.roundToInt() + fabSize!!.height).toDp() }
         assertThat(rule.rootHeight() - fabBottomOffsetDp - 3.dp).isLessThan(1.dp)
+    }
+
+    @Test
+    fun scaffold_fabPosition_start() {
+        var fabSize: IntSize? = null
+        var fabPosition: Offset? = null
+        rule.setContent {
+            Box(Modifier.requiredSize(200.dp, 200.dp)) {
+                Scaffold(
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .onGloballyPositioned {
+                                    fabSize = it.size
+                                    fabPosition = it.positionInRoot()
+                                }) {
+                            Text("Fab")
+                        }
+                    },
+                    floatingActionButtonPosition = FabPosition.Start,
+                ) {
+                    Box(
+                        Modifier
+                            .requiredSize(10.dp)
+                            .background(color = Color.White)
+                    )
+                }
+            }
+        }
+        with(rule.density) {
+            assertThat(fabPosition!!.x).isWithin(1f).of(fabSpacing.toPx())
+            assertThat(fabPosition!!.y).isWithin(1f).of(
+                200.dp.toPx() - fabSize!!.height - fabSpacing.toPx()
+            )
+        }
+    }
+
+    @Test
+    fun scaffold_fabPosition_center() {
+        var fabSize: IntSize? = null
+        var fabPosition: Offset? = null
+        rule.setContent {
+            Box(Modifier.requiredSize(200.dp, 200.dp)) {
+                Scaffold(
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .onGloballyPositioned {
+                                    fabSize = it.size
+                                    fabPosition = it.positionInRoot()
+                                }) {
+                            Text("Fab")
+                        }
+                    },
+                    floatingActionButtonPosition = FabPosition.Center,
+                ) {
+                    Box(
+                        Modifier
+                            .requiredSize(10.dp)
+                            .background(color = Color.White)
+                    )
+                }
+            }
+        }
+        with(rule.density) {
+            assertThat(fabPosition!!.x).isWithin(1f).of(
+                (200.dp.toPx() - fabSize!!.width) / 2f
+            )
+            assertThat(fabPosition!!.y).isWithin(1f).of(
+                200.dp.toPx() - fabSize!!.height - fabSpacing.toPx()
+            )
+        }
+    }
+
+    @Test
+    fun scaffold_fabPosition_end() {
+        var fabSize: IntSize? = null
+        var fabPosition: Offset? = null
+        rule.setContent {
+            Box(Modifier.requiredSize(200.dp, 200.dp)) {
+                Scaffold(
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .onGloballyPositioned {
+                                    fabSize = it.size
+                                    fabPosition = it.positionInRoot()
+                                }) {
+                            Text("Fab")
+                        }
+                    },
+                    floatingActionButtonPosition = FabPosition.End,
+                ) {
+                    Box(
+                        Modifier
+                            .requiredSize(10.dp)
+                            .background(color = Color.White)
+                    )
+                }
+            }
+        }
+        with(rule.density) {
+            assertThat(fabPosition!!.x).isWithin(1f).of(
+                200.dp.toPx() - fabSize!!.width - fabSpacing.toPx()
+            )
+            assertThat(fabPosition!!.y).isWithin(1f).of(
+                200.dp.toPx() - fabSize!!.height - fabSpacing.toPx()
+            )
+        }
     }
 
     private fun assertDpIsWithinThreshold(actual: Dp, expected: Dp, threshold: Dp) {
