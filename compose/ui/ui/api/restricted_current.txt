@@ -609,7 +609,7 @@ package androidx.compose.ui.focus {
   }
 
   public final class FocusRestorerKt {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier focusRestorer(androidx.compose.ui.Modifier);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier focusRestorer(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function0<androidx.compose.ui.focus.FocusRequester>? onRestoreFailed);
   }
 
   public interface FocusState {
