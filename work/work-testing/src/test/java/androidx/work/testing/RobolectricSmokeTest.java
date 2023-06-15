@@ -29,6 +29,7 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.testing.workers.TestWorker;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -51,6 +52,7 @@ public class RobolectricSmokeTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
     }
 
+    @Ignore // investigating whether this is causing crashes b/285714232
     @Test(timeout = 10000)
     public void testWorker_shouldSucceedSynchronously()
             throws InterruptedException, ExecutionException {
