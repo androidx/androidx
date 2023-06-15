@@ -73,6 +73,7 @@ class ComposeBenchmarkRule : TestRule {
                 block(runner)
             } finally {
                 runner.disposeContent()
+                runner.close()
             }
         }
     }
