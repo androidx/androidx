@@ -21,11 +21,11 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 // Keep these two packages in sync:
-// - `androidx.tracing.perfetto.handshake.protocol` in the tracing/tracing-perfetto-common folder
+// - `androidx.tracing.perfetto.handshake.protocol` in the tracing/tracing-perfetto-handshake folder
 // - `androidx.tracing.perfetto.internal.handshake.protocol` in the tracing/tracing-perfetto folder
 //
-// This is a part of a WIP refactor to decouple tracing-perfetto and tracing-perfetto-common and to
-// rename tracing-perfetto-common to tracing-perfetto-handshake tracked under TODO(243405142)
+// This is a part of a WIP refactor to decouple tracing-perfetto and tracing-perfetto-handshake
+// tracked under TODO(243405142)
 
 @RestrictTo(LIBRARY_GROUP)
 public object RequestKeys {
