@@ -65,6 +65,7 @@ class OnBackPressedDispatcher constructor(
     private val onHasEnabledCallbacksChanged: Consumer<Boolean>?
 ) {
     private val onBackPressedCallbacks = ArrayDeque<OnBackPressedCallback>()
+    private var inProgressCallback: OnBackPressedCallback? = null
     private var onBackInvokedCallback: OnBackInvokedCallback? = null
     private var invokedDispatcher: OnBackInvokedDispatcher? = null
     private var backInvokedCallbackRegistered = false
@@ -232,6 +233,7 @@ class OnBackPressedDispatcher constructor(
         val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
+        inProgressCallback = callback
         if (callback != null) {
             callback.handleOnBackStarted(backEvent)
             return
@@ -269,6 +271,7 @@ class OnBackPressedDispatcher constructor(
         val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
+        inProgressCallback = null
         if (callback != null) {
             callback.handleOnBackPressed()
             return
@@ -287,6 +290,7 @@ class OnBackPressedDispatcher constructor(
         val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
+        inProgressCallback = null
         if (callback != null) {
             callback.handleOnBackCancelled()
             return
@@ -298,6 +302,10 @@ class OnBackPressedDispatcher constructor(
     ) : Cancellable {
         override fun cancel() {
             onBackPressedCallbacks.remove(onBackPressedCallback)
+            if (inProgressCallback == onBackPressedCallback) {
+                onBackPressedCallback.handleOnBackCancelled()
+                inProgressCallback = null
+            }
             onBackPressedCallback.removeCancellable(this)
             onBackPressedCallback.enabledChangedCallback?.invoke()
             onBackPressedCallback.enabledChangedCallback = null
