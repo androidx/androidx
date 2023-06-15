@@ -22,6 +22,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import static java.util.Collections.emptyList;
 
+import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.graphics.Rect;
@@ -61,6 +62,7 @@ import androidx.core.view.accessibility.AccessibilityViewCommand.SetSelectionArg
 import androidx.core.view.accessibility.AccessibilityViewCommand.SetTextArguments;
 
 import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -1445,6 +1447,12 @@ public class AccessibilityNodeInfoCompat {
     private static final String UNIQUE_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
+    private static final String CONTAINER_TITLE_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.CONTAINER_TITLE_KEY";
+
+    private static final String BOUNDS_IN_WINDOW_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.BOUNDS_IN_WINDOW_KEY";
+
     private static final String MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat."
                     + "MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY";
@@ -1455,6 +1463,7 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_IS_HEADING = 0x00000002;
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
+
     private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
     private static final int BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE = 1 << 6;
     private static final int BOOLEAN_PROPERTY_TEXT_SELECTABLE = 1 << 23;
@@ -2612,6 +2621,57 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the node bounds in window coordinates.
+     * <p>
+     * When magnification is enabled, the bounds in window are scaled up by magnification scale
+     * and the positions are also adjusted according to the offset of magnification viewport.
+     * For example, it returns Rect(-180, -180, 0, 0) for original bounds Rect(10, 10, 100, 100),
+     * when the magnification scale is 2 and offsets for X and Y are both 200.
+     * <p/>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op</li>
+     * </ul>
+     * @param outBounds The output node bounds.
+     */
+    public void getBoundsInWindow(@NonNull  Rect outBounds) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.getBoundsInWindow(mInfo, outBounds);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Rect extraBounds = Api19Impl.getExtras(mInfo).getParcelable(BOUNDS_IN_WINDOW_KEY);
+            if (extraBounds != null) {
+                outBounds.set(extraBounds.left, extraBounds.top, extraBounds.right,
+                        extraBounds.bottom);
+            }
+        }
+    }
+
+    /**
+     * Sets the node bounds in window coordinates.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op</li>
+     * </ul>
+     * @param bounds The node bounds.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setBoundsInWindow(@NonNull Rect bounds) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setBoundsInWindow(mInfo, bounds);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putParcelable(BOUNDS_IN_WINDOW_KEY, bounds);
+        }
+    }
+
+    /**
      * Gets whether this node is checkable.
      *
      * @return True if the node is checkable.
@@ -3006,7 +3066,9 @@ public class AccessibilityNodeInfoCompat {
      * Gets the minimum time duration between two content change events.
      */
     public long getMinDurationBetweenContentChangesMillis() {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.getMinDurationBetweenContentChangeMillis(mInfo);
+        } else if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
         }
         return 0;
@@ -3027,7 +3089,9 @@ public class AccessibilityNodeInfoCompat {
      * @param duration the minimum duration between content change events.
      */
     public void setMinDurationBetweenContentChangesMillis(long duration) {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setMinDurationBetweenContentChangeMillis(mInfo, duration);
+        } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
         }
     }
@@ -3383,6 +3447,62 @@ public class AccessibilityNodeInfoCompat {
         } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putString(UNIQUE_ID_KEY, uniqueId);
         }
+    }
+
+    /**
+     * Sets the container title for app-developer-defined container which can be any type of
+     * ViewGroup or layout.
+     * Container title will be used to group together related controls, similar to HTML fieldset.
+     * Or container title may identify a large piece of the UI that is visibly grouped together,
+     * such as a toolbar or a card, etc.
+     * <p>
+     * Container title helps to assist in navigation across containers and other groups.
+     * For example, a screen reader may use this to determine where to put accessibility focus.
+     * </p>
+     * <p>
+     * Container title is different from pane title{@link #setPaneTitle} which indicates that the
+     * node represents a window or activity.
+     * </p>
+     *
+     * <p>
+     *  Example: An app can set container titles on several non-modal menus, containing TextViews
+     *  or ImageButtons that have content descriptions, text, etc. Screen readers can quickly
+     *  switch accessibility focus among menus instead of child views.  Other accessibility-services
+     *  can easily find the menu.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op</li>
+     * </ul>
+     * @param containerTitle The container title that is associated with a ViewGroup/Layout on the
+     *                       screen.
+     */
+    public void setContainerTitle(@Nullable CharSequence containerTitle) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setContainerTitle(mInfo, containerTitle);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(CONTAINER_TITLE_KEY, containerTitle);
+        }
+    }
+
+    /**
+     * Returns the container title.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: Returns null</li>
+     * </ul>
+     * @see #setContainerTitle for details.
+     */
+    @Nullable
+    public CharSequence getContainerTitle() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.getContainerTitle(mInfo);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(CONTAINER_TITLE_KEY);
+        }
+        return null;
     }
 
     /**
@@ -4549,7 +4669,11 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressLint("KotlinPropertyAccess")
     public boolean hasRequestInitialAccessibilityFocus() {
-        return getBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS);
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.hasRequestInitialAccessibilityFocus(mInfo);
+        } else {
+            return getBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS);
+        }
     }
 
     /**
@@ -4572,8 +4696,12 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressLint("GetterSetterNames")
     public void setRequestInitialAccessibilityFocus(boolean requestInitialAccessibilityFocus) {
-        setBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS,
-                requestInitialAccessibilityFocus);
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setRequestInitialAccessibilityFocus(mInfo, requestInitialAccessibilityFocus);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS,
+                    requestInitialAccessibilityFocus);
+        }
     }
 
     /**
@@ -4683,6 +4811,59 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    /**
+     * Connects this node to the View's root so that operations on this node can query the entire
+     * {@link AccessibilityNodeInfoCompat} tree and perform accessibility actions on nodes.
+     *
+     * <p>
+     * Testing or debugging tools should create this {@link AccessibilityNodeInfoCompat} node using
+     * {@link ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)}
+     * or {@link AccessibilityNodeProviderCompat} and call this
+     * method, then navigate and interact with the node tree by calling methods on the node.
+     * Calling this method more than once on the same node is a no-op. After calling this method,
+     * all nodes linked to this node (children, ancestors, etc.) are also queryable.
+     * </p>
+     *
+     * <p>
+     * Here "query" refers to the following node operations:
+     * <ul>
+     *      <li>check properties of this node (example: {@link #isScrollable()})</li>
+     *      <li>find and query children (example: {@link #getChild(int)})</li>
+     *      <li>find and query the parent (example: {@link #getParent()})</li>
+     *      <li>find focus (examples: {@link #findFocus(int)}, {@link #focusSearch(int)})</li>
+     *      <li>find and query other nodes (example:
+     *      {@link #findAccessibilityNodeInfosByText(String)},
+     *      {@link #findAccessibilityNodeInfosByViewId(String)})</li>
+     *      <li>perform actions (example: {@link #performAction(int)})</li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * This is intended for short-lived inspections from testing or debugging tools in the app
+     * process, as operations on this node tree will only succeed as long as the associated
+     * view hierarchy remains attached to a window. {@link AccessibilityNodeInfoCompat} objects can
+     * quickly become out of sync with their corresponding {@link View} objects; if you wish to
+     * inspect a changed or different view hierarchy then create a new node from any view in that
+     * hierarchy and call this method on that new node, instead of disabling & re-enabling the
+     * connection on the previous node.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 34: No-op</li>
+     * </ul>
+     *
+     * @param view The view that generated this node, or any view in the same view-root hierarchy.
+     * @param enabled Whether to enable (true) or disable (false) querying from the app process.
+     * @throws IllegalStateException If called from an {@link AccessibilityService}, or if provided
+     *                               a {@link View} that is not attached to a window.
+     */
+    public void setQueryFromAppProcessEnabled(@NonNull View view, boolean enabled) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setQueryFromAppProcessEnabled(mInfo, view, enabled);
+        }
+    }
+
     @Override
     public int hashCode() {
         return (mInfo == null) ? 0 : mInfo.hashCode();
@@ -4731,6 +4912,9 @@ public class AccessibilityNodeInfoCompat {
         getBoundsInScreen(bounds);
         builder.append("; boundsInScreen: " + bounds);
 
+        getBoundsInWindow(bounds);
+        builder.append("; boundsInWindow: " + bounds);
+
         builder.append("; packageName: ").append(getPackageName());
         builder.append("; className: ").append(getClassName());
         builder.append("; text: ").append(getText());
@@ -4753,6 +4937,7 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; enabled: ").append(isEnabled());
         builder.append("; password: ").append(isPassword());
         builder.append("; scrollable: " + isScrollable());
+        builder.append("; containerTitle: ").append(getContainerTitle());
         builder.append("; granularScrollingSupported: ").append(isGranularScrollingSupported());
         builder.append("; importantForAccessibility: ").append(isImportantForAccessibility());
         builder.append("; visible: ").append(isVisibleToUser());
@@ -4895,6 +5080,18 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static Bundle getExtras(AccessibilityNodeInfo info) {
+            return info.getExtras();
+        }
+    }
+
     @RequiresApi(30)
     private static class Api30Impl {
         private Api30Impl() {
@@ -4962,17 +5159,54 @@ public class AccessibilityNodeInfoCompat {
                 boolean accessibilityDataSensitive) {
             info.setAccessibilityDataSensitive(accessibilityDataSensitive);
         }
-    }
 
-    @RequiresApi(19)
-    private static class Api19Impl {
-        private Api19Impl() {
-            // This class is non instantiable.
+        @DoNotInline
+        public static CharSequence getContainerTitle(AccessibilityNodeInfo info) {
+            return info.getContainerTitle();
         }
 
         @DoNotInline
-        public static Bundle getExtras(AccessibilityNodeInfo info) {
-            return info.getExtras();
+        public static void setContainerTitle(AccessibilityNodeInfo info,
+                CharSequence containerTitle) {
+            info.setContainerTitle(containerTitle);
+        }
+
+        @DoNotInline
+        public static void getBoundsInWindow(AccessibilityNodeInfo info, Rect bounds) {
+            info.getBoundsInWindow(bounds);
+        }
+
+        @DoNotInline
+        public static void setBoundsInWindow(AccessibilityNodeInfo info, Rect bounds) {
+            info.setBoundsInWindow(bounds);
+        }
+
+        @DoNotInline
+        public static boolean hasRequestInitialAccessibilityFocus(AccessibilityNodeInfo info) {
+            return info.hasRequestInitialAccessibilityFocus();
+        }
+
+        @DoNotInline
+        public static void setRequestInitialAccessibilityFocus(AccessibilityNodeInfo info,
+                boolean requestInitialAccessibilityFocus) {
+            info.setRequestInitialAccessibilityFocus(requestInitialAccessibilityFocus);
+        }
+
+        @DoNotInline
+        public static long getMinDurationBetweenContentChangeMillis(AccessibilityNodeInfo info) {
+            return info.getMinDurationBetweenContentChanges().toMillis();
+        }
+
+        @DoNotInline
+        public static void setMinDurationBetweenContentChangeMillis(AccessibilityNodeInfo info,
+                long duration) {
+            info.setMinDurationBetweenContentChanges(Duration.ofMillis(duration));
+        }
+
+        @DoNotInline
+        public static void setQueryFromAppProcessEnabled(AccessibilityNodeInfo info, View view,
+                boolean enabled) {
+            info.setQueryFromAppProcessEnabled(view, enabled);
         }
     }
 }
