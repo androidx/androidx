@@ -68,9 +68,48 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
     @Test
-    fun testBasicCallControlCallbackOperations() {
+    fun testBasicCallControlCallbackAnswerCall() {
         setUpV2Test()
         verifyAnswerCall()
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and disconnect it via
+     * an InCallService that requires the [CallControlCallback.onDisconnect] to accept the request.
+     * The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackDisconnectCall() {
+        setUpV2Test()
+        verifyDisconnectCall()
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and hold it via
+     * an InCallService that requires the [CallControlCallback.onSetInactive] to accept the request.
+     * The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackHoldCall() {
+        setUpV2Test()
+        verifyHoldCall()
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and un-hold it via
+     * an InCallService that requires the [CallControlCallback.onSetActive] to accept the request.
+     * The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackUnholdCall() {
+        setUpV2Test()
+        verifyUnholdCall()
     }
 
     /***********************************************************************************************
@@ -86,9 +125,51 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
     @Test
-    fun testBasicCallControlCallbackOperations_BackwardsCompat() {
+    fun testBasicCallControlCallbackAnswerCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyAnswerCall()
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and disconnect it via
+     * an InCallService that requires the [CallControlCallback.onDisconnect] to accept the request.
+     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackDisconnectCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyDisconnectCall()
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and hold it via
+     * an InCallService that requires the [CallControlCallback.onSetInactive] to accept the request.
+     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackHoldCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyHoldCall()
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and un-hold it via
+     * an InCallService that requires the [CallControlCallback.onSetActive] to accept the request.
+     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackUnholdCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyUnholdCall()
     }
 
     /***********************************************************************************************
@@ -106,12 +187,82 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     assertNotNull("The returned Call object is <NULL>", call)
                     call!!.answer(0) // API under test
                     TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
-                    // always send the disconnect signal if possible
+                    // Always send the disconnect signal if possible:
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }
-        // Assert that the callback was invoked
+        // Assert that the correct callback was invoked
         assertTrue(TestUtils.mOnAnswerCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyDisconnectCall() {
+        assertFalse(TestUtils.mOnDisconnectCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    // Disconnect the call and ensure the disconnect callback is received:
+                    call!!.disconnect()
+                    TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnDisconnectCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyHoldCall() {
+        assertFalse(TestUtils.mOnSetInactiveCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    assertTrue(setActive())
+                    // Wait for the call to be set to ACTIVE:
+                    TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                    // Place the call on hold and ensure the onSetInactive callback is received:
+                    call.hold()
+                    TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
+                    // Always send the disconnect signal if possible:
+                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnSetInactiveCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyUnholdCall() {
+        assertFalse(TestUtils.mOnSetActiveCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    assertTrue(setActive())
+                    // Wait for the call to be set to ACTIVE:
+                    TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                    assertTrue(setInactive())
+                    // Wait for the call to be set to HOLDING (aka inactive):
+                    TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
+                    // Request to un-hold the call and ensure the onSetActive callback is received:
+                    call.unhold()
+                    TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
+                    // Always send the disconnect signal if possible:
+                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnSetActiveCallbackCalled)
     }
 }
