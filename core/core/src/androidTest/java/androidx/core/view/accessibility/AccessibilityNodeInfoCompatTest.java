@@ -324,7 +324,7 @@ public class AccessibilityNodeInfoCompatTest {
                 equalTo(accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo()));
     }
 
-    @SdkSuppress(minSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 19)
     @SmallTest
     @Test
     public void testSetGetTextSelectable() {
