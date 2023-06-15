@@ -125,6 +125,42 @@ class ScaffoldScreenshotTest {
     }
 
     @Test
+    fun startFab_ltr() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = false,
+                    showBottomAppBar = false,
+                    showSnackbar = false,
+                    showFab = true,
+                    fabPosition = FabPosition.Start,
+                    rtl = false
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_startFab_ltr")
+    }
+
+    @Test
+    fun startFab_rtl() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = false,
+                    showBottomAppBar = false,
+                    showSnackbar = false,
+                    showFab = true,
+                    fabPosition = FabPosition.Start,
+                    rtl = true
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_startFab_rtl")
+    }
+
+    @Test
     fun centerFab() {
         composeTestRule.setContent {
             MaterialTheme {
@@ -178,6 +214,42 @@ class ScaffoldScreenshotTest {
     }
 
     @Test
+    fun topAppBar_startFab_ltr() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = true,
+                    showBottomAppBar = false,
+                    showSnackbar = false,
+                    showFab = true,
+                    fabPosition = FabPosition.Start,
+                    rtl = false
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_topAppBar_startFab_ltr")
+    }
+
+    @Test
+    fun topAppBar_startFab_rtl() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = true,
+                    showBottomAppBar = false,
+                    showSnackbar = false,
+                    showFab = true,
+                    fabPosition = FabPosition.Start,
+                    rtl = true
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_topAppBar_startFab_rtl")
+    }
+
+    @Test
     fun topAppBar_centerFab() {
         composeTestRule.setContent {
             MaterialTheme {
@@ -228,6 +300,44 @@ class ScaffoldScreenshotTest {
         }
 
         assertScaffoldMatches("scaffold_topAppBar_endFab_rtl")
+    }
+
+    @Test
+    fun bottomAppBar_startFab_floating_ltr() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = false,
+                    showBottomAppBar = true,
+                    showSnackbar = false,
+                    showFab = true,
+                    dockedFab = false,
+                    fabPosition = FabPosition.Start,
+                    rtl = false
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_bottomAppBar_startFab_floating_ltr")
+    }
+
+    @Test
+    fun bottomAppBar_startFab_floating_rtl() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = false,
+                    showBottomAppBar = true,
+                    showSnackbar = false,
+                    showFab = true,
+                    dockedFab = false,
+                    fabPosition = FabPosition.Start,
+                    rtl = true
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_bottomAppBar_startFab_floating_rtl")
     }
 
     @Test
@@ -359,6 +469,44 @@ class ScaffoldScreenshotTest {
         }
 
         assertScaffoldMatches("scaffold_bottomAppBar_endFab_docked_rtl")
+    }
+
+    @Test
+    fun topAndBottomAppBar_startFab_floating_ltr() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = true,
+                    showBottomAppBar = true,
+                    showSnackbar = false,
+                    showFab = true,
+                    dockedFab = false,
+                    fabPosition = FabPosition.Start,
+                    rtl = false
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_topAndBottomAppBar_startFab_floating_ltr")
+    }
+
+    @Test
+    fun topAndBottomAppBar_startFab_floating_rtl() {
+        composeTestRule.setContent {
+            MaterialTheme {
+                ScreenshotScaffold(
+                    showTopAppBar = true,
+                    showBottomAppBar = true,
+                    showSnackbar = false,
+                    showFab = true,
+                    dockedFab = false,
+                    fabPosition = FabPosition.Start,
+                    rtl = true
+                )
+            }
+        }
+
+        assertScaffoldMatches("scaffold_topAndBottomAppBar_startFab_floating_rtl")
     }
 
     @Test
