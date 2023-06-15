@@ -27,89 +27,58 @@ import androidx.wear.protolayout.DimensionBuilders.DpProp;
 public class ChipDefaults {
     private ChipDefaults() {}
 
-    /**
-     * The default height for standard {@link Chip}
-     *
-     */
+    /** The default height for standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp DEFAULT_HEIGHT = dp(52);
 
-    /**
-     * The default height for standard {@link CompactChip}
-     *
-     */
+    /** The default height for standard {@link CompactChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp COMPACT_HEIGHT = dp(32);
 
-    /**
-     * The minimum width of tappable target area.
-     */
+    /** The minimum width of tappable target area. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp MIN_TAPPABLE_WIDTH = dp(48);
 
-    /**
-     * The minimum height of tappable target area.
-     */
+    /** The minimum height of tappable target area. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp MIN_TAPPABLE_HEIGHT = dp(48);
 
-    /**
-     * The default height for standard {@link TitleChip}
-     *
-     */
+    /** The default height for standard {@link TitleChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp TITLE_HEIGHT = dp(60);
 
-    /**
-     * The recommended horizontal margin used for width for standard {@link Chip}
-     *
-     */
+    /** The recommended horizontal margin used for width for standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final float DEFAULT_MARGIN_PERCENT = 5.2f;
 
-    /**
-     * The recommended horizontal padding for standard {@link Chip}
-     *
-     */
+    /** The recommended horizontal padding for standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp HORIZONTAL_PADDING = dp(14);
 
-    /**
-     * The recommended horizontal padding for standard {@link CompactChip}
-     *
-     */
+    /** The recommended horizontal padding for standard {@link CompactChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp COMPACT_HORIZONTAL_PADDING = dp(12);
 
-    /**
-     * The recommended horizontal padding for standard {@link TitleChip}
-     *
-     */
+    /** The recommended horizontal padding for standard {@link TitleChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp TITLE_HORIZONTAL_PADDING = dp(16);
 
-    /**
-     * The recommended vertical space between icon and text in standard {@link Chip}
-     *
-     */
-    @NonNull
-    static final DpProp ICON_SPACER_WIDTH = dp(6);
+    /** The recommended vertical space between icon and text in standard {@link Chip} */
+    @NonNull static final DpProp ICON_SPACER_WIDTH = dp(6);
 
     /** The icon size used in standard {@link Chip} */
-    @NonNull
-    static final DpProp ICON_SIZE = dp(24);
+    @NonNull static final DpProp ICON_SIZE = dp(24);
 
     /** The icon size used in standard {@link CompactChip} */
-    @NonNull
-    static final DpProp COMPACT_ICON_SIZE = dp(20);
+    @NonNull static final DpProp COMPACT_ICON_SIZE = dp(20);
 
     /** The recommended colors for a primary {@link Chip}. */
     @NonNull

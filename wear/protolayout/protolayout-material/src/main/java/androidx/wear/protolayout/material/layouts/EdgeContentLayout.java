@@ -55,9 +55,9 @@ import java.util.List;
 
 /**
  * ProtoLayout layout that represents the suggested layout style for Material ProtoLayout, which has
- * content around the edge of the screen (e.g. a ProgressIndicator) and the given content inside
- * of it with the recommended margin and padding applied. Optional primary or secondary label can
- * be added above and below the main content, respectively.
+ * content around the edge of the screen (e.g. a ProgressIndicator) and the given content inside of
+ * it with the recommended margin and padding applied. Optional primary or secondary label can be
+ * added above and below the main content, respectively.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:

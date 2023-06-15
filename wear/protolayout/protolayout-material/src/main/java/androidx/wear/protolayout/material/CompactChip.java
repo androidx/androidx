@@ -47,8 +47,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * ProtoLayout component {@link CompactChip} that represents clickable object with the text.
  *
  * <p>The CompactChip is Stadium shape and has a max height designed to take no more than one line
- * of text of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to
- * the text size.
+ * of text of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to the
+ * text size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#COMPACT_PRIMARY_COLORS} to get a color scheme for a primary {@link
@@ -233,9 +233,7 @@ public class CompactChip implements LayoutElement {
         return new CompactChip(new Chip(boxElement));
     }
 
-    /**
-     *  Returns whether the font padding for the primary label is excluded.
-     */
+    /** Returns whether the font padding for the primary label is excluded. */
     @ProtoLayoutExperimental
     public boolean hasExcludeFontPadding() {
         return mElement.hasPrimaryLabelExcludeFontPadding();

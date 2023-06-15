@@ -124,29 +124,42 @@ public class TestCasesGenerator {
                         .setContent(buildColoredBoxPLL(Color.YELLOW))
                         .build());
         testCases.put(
-            "two_chips_content_primarychiplayout_golden" + goldenSuffix,
-            new PrimaryLayout.Builder(deviceParameters)
-                .setPrimaryChipContent(primaryChipBuilder.build())
-                .setContent(
-                    new androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
-                        .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
-                        .setHeight(androidx.wear.tiles.DimensionBuilders.wrap())
-                        .addContent(
-                            new Chip.Builder(context,clickable,deviceParameters)
-                                .setPrimaryLabelContent("First chip")
-                                .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
-                                .build())
-                        .addContent(
-                            new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
-                                .setHeight(androidx.wear.tiles.DimensionBuilders.dp(4))
-                                .build())
-                        .addContent(
-                            new Chip.Builder(context,clickable,deviceParameters)
-                                .setPrimaryLabelContent("Second chip")
-                                .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
-                                .build())
-                        .build())
-                .build());
+                "two_chips_content_primarychiplayout_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .setContent(
+                                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
+                                        .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
+                                        .setHeight(androidx.wear.tiles.DimensionBuilders.wrap())
+                                        .addContent(
+                                                new Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("First chip")
+                                                        .setWidth(
+                                                                androidx.wear.tiles
+                                                                        .DimensionBuilders.expand())
+                                                        .build())
+                                        .addContent(
+                                                new androidx.wear.tiles.LayoutElementBuilders.Spacer
+                                                                .Builder()
+                                                        .setHeight(
+                                                                androidx.wear.tiles
+                                                                        .DimensionBuilders.dp(4))
+                                                        .build())
+                                        .addContent(
+                                                new Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("Second chip")
+                                                        .setWidth(
+                                                                androidx.wear.tiles
+                                                                        .DimensionBuilders.expand())
+                                                        .build())
+                                        .build())
+                        .build());
 
         primaryChipBuilder =
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters);
@@ -312,7 +325,7 @@ public class TestCasesGenerator {
                 new CircularProgressIndicator.Builder().setProgress(0.3f);
         Text textContent =
                 new Text.Builder(context, "Text")
-                        .setColor(androidx.wear.tiles.ColorBuilders.argb(Color.WHITE))
+                        .setColor(color(Color.WHITE))
                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                         .build();
         testCases.put(
@@ -322,17 +335,13 @@ public class TestCasesGenerator {
                         .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
-                                        .setColor(
-                                                androidx.wear.tiles.ColorBuilders.argb(
-                                                        Colors.PRIMARY))
+                                        .setColor(color(Colors.PRIMARY))
                                         .build())
                         .setContent(textContent)
                         .setSecondaryLabelTextContent(
                                 new Text.Builder(context, "Secondary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
-                                        .setColor(
-                                                androidx.wear.tiles.ColorBuilders.argb(
-                                                        Colors.ON_SURFACE))
+                                        .setColor(color(Colors.ON_SURFACE))
                                         .build())
                         .build());
         testCases.put(
@@ -352,29 +361,31 @@ public class TestCasesGenerator {
                                         .build())
                         .build());
         testCases.put(
-            "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
-            new EdgeContentLayout.Builder(deviceParameters)
-                .setEdgeContent(
-                    progressIndicatorBuilder
-                        .setCircularProgressIndicatorColors(
-                            ProgressIndicatorDefaults.DEFAULT_COLORS)
-                        .build())
-                .setContent(
-                        new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
-                            .setWidth(androidx.wear.tiles.DimensionBuilders.dp(500))
-                            .setHeight(androidx.wear.tiles.DimensionBuilders.dp(500))
-                            .setModifiers(
-                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
-                                    .setBackground(
-                                        new androidx.wear.tiles.ModifiersBuilders.Background
-                                            .Builder()
-                                            .setColor(
-                                                androidx.wear.tiles.ColorBuilders.argb(
-                                                    Color.YELLOW))
-                                            .build())
-                                    .build())
-                            .build())
-                .build());
+                "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(
+                                progressIndicatorBuilder
+                                        .setCircularProgressIndicatorColors(
+                                                ProgressIndicatorDefaults.DEFAULT_COLORS)
+                                        .build())
+                        .setContent(
+                                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                                        .setWidth(androidx.wear.tiles.DimensionBuilders.dp(500))
+                                        .setHeight(androidx.wear.tiles.DimensionBuilders.dp(500))
+                                        .setModifiers(
+                                                new androidx.wear.tiles.ModifiersBuilders.Modifiers
+                                                                .Builder()
+                                                        .setBackground(
+                                                                new androidx.wear.tiles
+                                                                                .ModifiersBuilders
+                                                                                .Background
+                                                                                .Builder()
+                                                                        .setColor(
+                                                                                color(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
 
         Button button1 = new Button.Builder(context, clickable).setTextContent("1").build();
         Button button2 = new Button.Builder(context, clickable).setTextContent("2").build();
@@ -597,10 +608,15 @@ public class TestCasesGenerator {
     }
 
     @NonNull
+    private static androidx.wear.tiles.ColorBuilders.ColorProp color(int yellow) {
+        return androidx.wear.tiles.ColorBuilders.argb(yellow);
+    }
+
+    @NonNull
     private static Text buildTextLabel(@NonNull Context context, @NonNull String text) {
         return new Text.Builder(context, text)
                 .setTypography(Typography.TYPOGRAPHY_CAPTION1)
-                .setColor(androidx.wear.tiles.ColorBuilders.argb(Color.WHITE))
+                .setColor(color(Color.WHITE))
                 .build();
     }
 
@@ -614,9 +630,7 @@ public class TestCasesGenerator {
                                 .setBackground(
                                         new androidx.wear.tiles.ModifiersBuilders.Background
                                                         .Builder()
-                                                .setColor(
-                                                        androidx.wear.tiles.ColorBuilders.argb(
-                                                                color))
+                                                .setColor(color(color))
                                                 .build())
                                 .build())
                 .build();
@@ -632,9 +646,7 @@ public class TestCasesGenerator {
                                 .setBackground(
                                         new androidx.wear.tiles.ModifiersBuilders.Background
                                                         .Builder()
-                                                .setColor(
-                                                        androidx.wear.tiles.ColorBuilders.argb(
-                                                                color))
+                                                .setColor(color(color))
                                                 .build())
                                 .build())
                 .build();

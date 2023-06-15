@@ -115,12 +115,7 @@ public final class LayoutElementBuilders {
      * @since 1.0
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({
-            FONT_VARIANT_UNDEFINED,
-            FONT_VARIANT_TITLE,
-            FONT_VARIANT_BODY,
-            FONT_VARIANT_CUSTOM_1
-    })
+    @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY, FONT_VARIANT_CUSTOM_1})
     @Retention(RetentionPolicy.SOURCE)
     @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontVariant {}
@@ -146,8 +141,9 @@ public final class LayoutElementBuilders {
      */
     public static final int FONT_VARIANT_BODY = 2;
 
-    /** Renderer dependent Font variant. If not supported, will behave similar to
-     *  {@link #FONT_VARIANT_UNDEFINED}.
+    /**
+     * Renderer dependent Font variant. If not supported, will behave similar to {@link
+     * #FONT_VARIANT_UNDEFINED}.
      */
     @ProtoLayoutExperimental
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1115,8 +1111,8 @@ public final class LayoutElementBuilders {
         private final LayoutElementProto.AndroidTextStyle mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidTextStyle(LayoutElementProto.AndroidTextStyle impl,
-                @Nullable Fingerprint fingerprint) {
+        AndroidTextStyle(
+                LayoutElementProto.AndroidTextStyle impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -2085,7 +2081,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setContentScaleMode(@ContentScaleMode int contentScaleMode) {
                 return setContentScaleMode(
-                       new ContentScaleModeProp.Builder().setValue(contentScaleMode).build());
+                        new ContentScaleModeProp.Builder().setValue(contentScaleMode).build());
             }
 
             /**
@@ -2621,7 +2617,8 @@ public final class LayoutElementBuilders {
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 return setHorizontalAlignment(
                         new HorizontalAlignmentProp.Builder()
-                                .setValue(horizontalAlignment).build());
+                                .setValue(horizontalAlignment)
+                                .build());
             }
 
             /**
@@ -3720,7 +3717,8 @@ public final class LayoutElementBuilders {
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 return setHorizontalAlignment(
                         new HorizontalAlignmentProp.Builder()
-                                .setValue(horizontalAlignment).build());
+                                .setValue(horizontalAlignment)
+                                .build());
             }
 
             /**
@@ -5289,9 +5287,7 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
-            return LayoutElementProto.LayoutElement.newBuilder()
-                    .setExtension(mImpl)
-                    .build();
+            return LayoutElementProto.LayoutElement.newBuilder().setExtension(mImpl).build();
         }
 
         @Override
@@ -6229,8 +6225,8 @@ public final class LayoutElementBuilders {
      * Font styles, currently set up to match Wear's font styling.
      *
      * @deprecated Use {@link androidx.wear.protolayout.material.Typography} on Material {@link
-     *     androidx.wear.protolayout.material.Text} (highly recommended) or make your own
-     *     {@link FontStyle}.
+     *     androidx.wear.protolayout.material.Text} (highly recommended) or make your own {@link
+     *     FontStyle}.
      */
     @Deprecated
     public static final class FontStyles {
@@ -6340,8 +6336,8 @@ public final class LayoutElementBuilders {
         /**
          * Font style for medium body text.
          *
-         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BODY2}
-         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BODY2} on
+         *     Material {@link androidx.wear.protolayout.material.Text}.
          */
         @NonNull
         @Deprecated

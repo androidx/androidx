@@ -37,7 +37,6 @@ public final class EventBuilders {
             this.mImpl = impl;
         }
 
-
         /**
          * Gets the instance ID of the tile, allocated when the tile instance is added to the
          * carousel. This ID will remain the same for this tile instance as long it is not removed
@@ -257,20 +256,14 @@ public final class EventBuilders {
             return mImpl.getTileId();
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileLeaveEvent fromProto(@NonNull EventProto.TileLeaveEvent proto) {
             return new TileLeaveEvent(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileLeaveEvent toProto() {

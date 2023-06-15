@@ -30,10 +30,7 @@ public class ProgressIndicatorDefaults {
     /** The default stroke width for {@link CircularProgressIndicator} */
     @NonNull public static final DpProp DEFAULT_STROKE_WIDTH = dp(8);
 
-    /**
-     * The default padding for {@link CircularProgressIndicator}
-     *
-     */
+    /** The default padding for {@link CircularProgressIndicator} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static final DpProp DEFAULT_PADDING = dp(6);
