@@ -386,7 +386,8 @@ class LazyColumnTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 31)
+    // b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33)
     fun clickable_addsClickHandlers() {
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {
@@ -449,7 +450,8 @@ class LazyColumnTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 31)
+    // b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
+    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33)
     fun clickTriggersOnlyOneLambda() = runBlocking {
         val received = MutableStateFlow(-1)
         TestGlanceAppWidget.uiDefinition = {
@@ -542,7 +544,8 @@ class LazyColumnTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 32)
+    // b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
+    @SdkSuppress(minSdkVersion = 32, maxSdkVersion = 33)
     fun listCanBeUpdated_RemoteCollectionItems() = runTest {
         val countFlow = MutableStateFlow(0)
         TestGlanceAppWidget.uiDefinition = {
