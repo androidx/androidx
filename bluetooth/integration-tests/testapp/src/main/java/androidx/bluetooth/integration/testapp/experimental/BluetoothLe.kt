@@ -130,7 +130,7 @@ class BluetoothLe(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun gattServer(): Flow<GattServerCallback> =
+    fun gattServer(services: List<BluetoothGattService> = emptyList()): Flow<GattServerCallback> =
         callbackFlow {
             val callback = object : BluetoothGattServerCallback() {
                 override fun onConnectionStateChange(
@@ -271,6 +271,7 @@ class BluetoothLe(private val context: Context) {
             }
 
             val bluetoothGattServer = bluetoothManager?.openGattServer(context, callback)
+            services.forEach { bluetoothGattServer?.addService(it) }
 
             awaitClose {
                 Log.d(TAG, "awaitClose() called")
