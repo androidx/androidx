@@ -25,16 +25,20 @@ import kotlin.test.assertFailsWith
 class MapSubjectKruthTest {
     @Test
     fun containsExactlyEntriesIn_mapInOrder() {
+        // LinkedHashMap preserves ordering of entries, keys and values.
         val map = LinkedHashMap<Int, Int>()
         repeat(5) { map[it] = it }
-        val unsortedMap = HashMap<Int, Int>()
-        repeat(5) { unsortedMap[it] = it }
-        val reverseMap = LinkedHashMap<Int, Int>()
-        repeat(5) { reverseMap[4 - it] = 4 - it }
+        val correctMap = LinkedHashMap<Int, Int>()
+        repeat(5) { correctMap[it] = it }
+        val reversedMap = LinkedHashMap<Int, Int>()
+        repeat(5) { reversedMap[4 - it] = 4 - it }
 
-        assertThat(map).containsExactlyEntriesIn(unsortedMap).inOrder()
+        val mapInOrderCorrect = assertThat(map).containsExactlyEntriesIn(correctMap)
+        mapInOrderCorrect.inOrder()
+
+        val mapInOrderReversed = assertThat(map).containsExactlyEntriesIn(reversedMap)
         assertFailsWith<AssertionError> {
-            assertThat(map).containsExactlyEntriesIn(reverseMap).inOrder()
+            mapInOrderReversed.inOrder()
         }
     }
 }
