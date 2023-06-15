@@ -245,7 +245,8 @@ public class PasswordCredentialEntryJavaTest {
             Boolean assertOptionIdOnly) {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
-        // TODO: Assert BeginOption
+        assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
+        assertThat(mBeginGetPasswordOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 
     private void assertEntryWithAllParams(PasswordCredentialEntry entry) {
@@ -256,6 +257,7 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
-        // TODO: Assert BeginOption
+        assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
+        assertThat(mBeginGetPasswordOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 }
