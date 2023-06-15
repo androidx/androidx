@@ -181,7 +181,8 @@ public:
     void callback(ASurfaceTransactionStats *stats) override {
         JNIEnv *env = getEnv();
         env->CallVoidMethod(mCallbackObject,
-                            gTransactionCompletedListenerClassInfo.onComplete);
+                            gTransactionCompletedListenerClassInfo.onComplete,
+                            reinterpret_cast<jlong>(stats));
     }
 };
 
@@ -215,7 +216,7 @@ void setupTransactionCompletedListenerClassInfo(JNIEnv *env) {
                 static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
         gTransactionCompletedListenerClassInfo.onComplete =
                 env->GetMethodID(transactionCompletedListenerClazz, "onTransactionCompleted",
-                                 "()V");
+                                 "(J)V");
 
         gTransactionCompletedListenerClassInfo.CLASS_INFO_INITIALIZED = true;
     }
@@ -291,7 +292,7 @@ void JniBindings_nSetBuffer(JNIEnv *env, jclass, jlong surfaceTransaction,
     if (android_get_device_api_level() >= 29) {
         auto transaction = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
-        AHardwareBuffer* hardwareBuffer;
+        AHardwareBuffer* hardwareBuffer = nullptr;
         auto fence_fd = -1;
         if (hBuffer) {
             hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(env, hBuffer);
@@ -448,6 +449,32 @@ jstring JniBindings_nGetDisplayOrientation(JNIEnv *env, jclass) {
     return (*env).NewStringUTF(name);
 }
 
+jint JniBindings_nGetPreviousReleaseFenceFd(JNIEnv *env, jclass,
+                                            jlong surfaceControl,
+                                            jlong transactionStats) {
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+    auto stats = reinterpret_cast<ASurfaceTransactionStats *>(transactionStats);
+    int fd = -1;
+    if (stats) {
+        // Sometimes even though a SurfaceControl is part of a transaction it will not show up in
+        // the list of transaction provided by ASurfaceTransactionStats.
+        // So query the SurfaceControls that are within ASurfaceTransactionStats and only query
+        // getPreviousReleaseFenceFd is the target SurfaceControl is included.
+        // If we do not do this search in advance, getPreviousReleaseFenceFd will crash.
+        size_t numSurfaceControls;
+        ASurfaceControl** surfaceControls;
+        ASurfaceTransactionStats_getASurfaceControls(stats, &surfaceControls, &numSurfaceControls);
+        for (int i = 0; i < numSurfaceControls; i++) {
+            if (surfaceControls[i] == sc) {
+                fd = ASurfaceTransactionStats_getPreviousReleaseFenceFd(stats, sc);
+                break;
+            }
+        }
+        ASurfaceTransactionStats_releaseASurfaceControls(surfaceControls);
+    }
+    return static_cast<jint>(fd);
+}
+
 void loadRectInfo(JNIEnv *env) {
     gRectInfo.clazz = env->FindClass("android/graphics/Rect");
 
@@ -573,6 +600,11 @@ static const JNINativeMethod JNI_METHOD_TABLE[] = {
             "nGetDisplayOrientation",
                 "()Ljava/lang/String;",
                 (void *)JniBindings_nGetDisplayOrientation
+        },
+        {
+            "nGetPreviousReleaseFenceFd",
+                "(JJ)I",
+                (void *)JniBindings_nGetPreviousReleaseFenceFd
         }
 };
 
