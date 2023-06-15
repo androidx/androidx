@@ -18,11 +18,9 @@ package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin
-import androidx.build.AndroidXImplPlugin.Companion.ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
-import androidx.build.getConstrainedTestConfigDirectory
 import androidx.build.getSupportRootFolder
 import androidx.build.getTestConfigDirectory
 import androidx.build.hasAndroidTestSourceCode
@@ -81,17 +79,10 @@ fun Project.createTestConfigurationGenerationTask(
         task.outputTestApk.set(
             File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
         )
-        task.constrainedOutputTestApk.set(
-            File(
-                getConstrainedTestConfigDirectory(),
-                "${path.asFilenamePrefix()}-$variantName.apk"
-            )
-        )
         task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
         task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
         task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
         task.outputJson.fileValue(File(getTestConfigDirectory(), jsonName))
-        task.constrainedOutputXml.fileValue(File(getConstrainedTestConfigDirectory(), xmlName))
         task.presubmit.set(isPresubmitBuild())
         // Disable work tests on < API 18: b/178127496
         if (path.startsWith(":work:")) {
@@ -103,12 +94,6 @@ fun Project.createTestConfigurationGenerationTask(
         task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
         task.testRunner.set(testRunner)
         task.testProjectPath.set(path)
-        val detector = AffectedModuleDetector.getInstance(project)
-        task.affectedModuleDetectorSubset.set(
-            project.provider {
-                detector.getSubset(task)
-            }
-        )
         AffectedModuleDetector.configureTaskGuard(task)
     }
     // Disable xml generation for projects that have no test sources
@@ -119,9 +104,7 @@ fun Project.createTestConfigurationGenerationTask(
             it.enabled = androidXExtension.deviceTests.enabled && hasAndroidTestSourceCode()
         }
     }
-    this.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
-        .dependsOn(generateTestConfigurationTask)
-    this.rootProject.tasks.findByName(ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK)!!
+    rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
         .dependsOn(generateTestConfigurationTask)
 }
 
@@ -144,18 +127,6 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
         filename += "-${variant.name}.apk"
         return File(getTestConfigDirectory(), filename)
     }
-    fun constrainedOutputAppApkFile(
-        variant: Variant,
-        path: String,
-        instrumentationPath: String?
-    ): File {
-        var filename = path.asFilenamePrefix()
-        if (instrumentationPath != null) {
-            filename += "-for-${instrumentationPath.asFilenamePrefix()}"
-        }
-        filename += "-${variant.name}.apk"
-        return File(getConstrainedTestConfigDirectory(), filename)
-    }
 
     // For application modules, the instrumentation apk is generated in the module itself
     extensions.findByType(ApplicationAndroidComponentsExtension::class.java)?.apply {
@@ -169,7 +140,6 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
 
                 // The target project is the same being evaluated
                 task.outputAppApk.set(outputAppApkFile(variant, path, null))
-                task.constrainedOutputAppApk.set(constrainedOutputAppApkFile(variant, path, null))
             }
         }
     }
@@ -198,9 +168,6 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                     """.trimIndent())
                 task.outputAppApk.set(
                     outputAppApkFile(variant, targetProjectPath, path)
-                )
-                task.constrainedOutputAppApk.set(
-                    constrainedOutputAppApkFile(variant, targetProjectPath, path)
                 )
 
                 task.appFileCollection.from(
@@ -258,9 +225,6 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                 task.outputAppApk.set(
                     outputAppApkFile(variant, targetAppProject.path, path)
                 )
-                task.constrainedOutputAppApk.set(
-                    constrainedOutputAppApkFile(variant, targetAppProject.path, path)
-                )
 
                 task.appFileCollection.from(
                     configuration.incoming.artifactView { view ->
@@ -290,16 +254,8 @@ private fun getOrCreateMediaTestConfigTask(project: Project, isMedia2: Boolean):
                 GenerateMediaTestConfigurationTask::class.java
             ) { task ->
                 AffectedModuleDetector.configureTaskGuard(task)
-                val detector = AffectedModuleDetector.getInstance(project)
-                task.affectedModuleDetectorSubset.set(
-                    project.provider {
-                        detector.getSubset(task)
-                    }
-                )
             }
             project.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
-                .dependsOn(task)
-            project.rootProject.tasks.findByName(ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK)!!
                 .dependsOn(task)
             return task
         } else {
