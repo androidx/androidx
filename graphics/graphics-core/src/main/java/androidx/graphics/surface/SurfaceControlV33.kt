@@ -26,6 +26,7 @@ import android.view.SurfaceControl
 import android.view.SurfaceControl.Transaction
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceImpl
 import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
@@ -123,14 +124,14 @@ internal class SurfaceControlV33 internal constructor(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
-            releaseCallback: (() -> Unit)?
+            releaseCallback: ((SyncFenceCompat) -> Unit)?
         ): Transaction {
             mTransaction.setBuffer(
                 surfaceControl.asFrameworkSurfaceControl(),
                 buffer,
                 fence?.asSyncFence()
-            ) {
-                releaseCallback?.invoke()
+            ) { syncFence ->
+                releaseCallback?.invoke(SyncFenceCompat(syncFence))
             }
             return this
         }

@@ -190,7 +190,9 @@ internal class SurfaceViewRenderLayer<T>(
                             .setVisibility(frontBufferedLayerSurfaceControl, false)
                             .setVisibility(sc, true)
                             .setBuffer(sc, frameBuffer.hardwareBuffer, syncFenceCompat) {
-                                mLayerCallback?.getFrameBufferPool()?.release(frameBuffer)
+                                    releaseFence ->
+                                mLayerCallback?.getFrameBufferPool()
+                                    ?.release(frameBuffer, releaseFence)
                             }
                         if (mTransformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                             transaction.setBufferTransform(sc, mInverse)

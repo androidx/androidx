@@ -28,6 +28,7 @@ import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOW
 import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
+import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceImpl
 import androidx.hardware.SyncFenceV19
 import java.util.concurrent.Executor
@@ -40,7 +41,7 @@ internal class SurfaceControlV29 internal constructor(
     internal val surfaceControl: SurfaceControlWrapper
 ) : SurfaceControlImpl {
 
-    private var currActiveBufferReleaseCallback: (() -> Unit)? = null
+    private var currActiveBufferReleaseCallback: ((SyncFenceCompat) -> Unit)? = null
 
     /**
      * See [SurfaceControlWrapper.isValid]
@@ -105,7 +106,7 @@ internal class SurfaceControlV29 internal constructor(
         private class BufferData(
             val width: Int,
             val height: Int,
-            val releaseCallback: (() -> Unit)?
+            val releaseCallback: ((SyncFenceCompat) -> Unit)?
         )
 
         /**
@@ -121,7 +122,7 @@ internal class SurfaceControlV29 internal constructor(
 
         private fun updateReleaseCallbacks() {
             // store prev committed callbacks so we only need 1 onComplete callback
-            val callbackInvokeList = mutableListOf<(() -> Unit)>()
+            val callbackInvokeList = mutableListOf<((SyncFenceCompat) -> Unit)>()
 
             for (surfaceControl in uncommittedBufferCallbackMap.keys) {
                 (surfaceControl as? SurfaceControlV29)?.apply {
@@ -137,7 +138,7 @@ internal class SurfaceControlV29 internal constructor(
             if (callbackInvokeList.size > 0) {
                 val callbackListener = object : SurfaceControlCompat.TransactionCompletedListener {
                     override fun onTransactionCompleted() {
-                        callbackInvokeList.forEach { it.invoke() }
+                        callbackInvokeList.forEach { it.invoke(DefaultSyncFence) }
                         callbackInvokeList.clear()
                     }
                 }
@@ -210,7 +211,7 @@ internal class SurfaceControlV29 internal constructor(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
-            releaseCallback: (() -> Unit)?
+            releaseCallback: ((SyncFenceCompat) -> Unit)?
         ): SurfaceControlImpl.Transaction {
             if (buffer != null) {
                 // we have a previous mapping in the same transaction, invoke callback
@@ -219,7 +220,9 @@ internal class SurfaceControlV29 internal constructor(
                     height = buffer.height,
                     releaseCallback = releaseCallback
                 )
-                uncommittedBufferCallbackMap.put(surfaceControl, data)?.releaseCallback?.invoke()
+
+                uncommittedBufferCallbackMap.put(surfaceControl, data)?.releaseCallback?.invoke(
+                    DefaultSyncFence)
             }
 
             val targetBuffer = buffer ?: PlaceholderBuffer
@@ -438,6 +441,8 @@ internal class SurfaceControlV29 internal constructor(
             1,
             FrontBufferUtils.BaseFlags
         )
+
+        val DefaultSyncFence = SyncFenceCompat(SyncFenceV19(-1))
 
         fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
             if (this is SurfaceControlV29) {

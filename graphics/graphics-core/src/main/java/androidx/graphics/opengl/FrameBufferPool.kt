@@ -21,6 +21,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLSpec
+import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -57,10 +58,17 @@ internal class FrameBufferPool(
     private val maxPoolSize: Int
 ) {
 
-    private val mPool = ArrayList<FrameBuffer>()
-    private var mNumAllocated = 0
+    private data class FrameBufferEntry(
+        var frameBuffer: FrameBuffer,
+        var fence: SyncFenceCompat?,
+        var isAvailable: Boolean
+    )
+
+    private val mPool = ArrayList<FrameBufferEntry>()
+    private var mBuffersAvailable = 0
     private val mLock = ReentrantLock()
     private val mCondition = mLock.newCondition()
+    private var mIsClosed = false
 
     init {
         if (maxPoolSize <= 0) {
@@ -75,20 +83,25 @@ internal class FrameBufferPool(
      */
     fun obtain(eglSpec: EGLSpec): FrameBuffer {
         mLock.withLock {
-            while (mPool.isEmpty() && mNumAllocated >= maxPoolSize) {
+            if (mIsClosed) {
+                throw IllegalStateException("Attempt to obtain frame buffer from FrameBufferPool " +
+                    "that has already been closed")
+            }
+            while (mBuffersAvailable == 0 && mPool.size >= maxPoolSize) {
                 Log.w(
                     TAG,
                     "Waiting for FrameBuffer to become available, current allocation " +
-                        "count: $mNumAllocated"
+                        "count: ${mPool.size}"
                 )
                 mCondition.await()
             }
-            return if (mPool.isNotEmpty()) {
-                val frameBuffer = mPool[mPool.size - 1]
-                mPool.removeAt(mPool.size - 1)
-                frameBuffer
+            val entry = mPool.findEntryWith(isAvailable, signaledFence)
+            return if (entry != null) {
+                mBuffersAvailable--
+                entry.isAvailable = false
+                entry.fence?.awaitForever()
+                entry.frameBuffer
             } else {
-                mNumAllocated++
                 FrameBuffer(
                     eglSpec,
                     HardwareBuffer.create(
@@ -98,7 +111,9 @@ internal class FrameBufferPool(
                         1,
                         usage
                     )
-                )
+                ).also {
+                    mPool.add(FrameBufferEntry(it, null, false))
+                }
             }
         }
     }
@@ -109,10 +124,27 @@ internal class FrameBufferPool(
      * via [FrameBufferPool.obtain]
      * This method is thread safe.
      */
-    fun release(frameBuffer: FrameBuffer) {
+    fun release(frameBuffer: FrameBuffer, fence: SyncFenceCompat? = null) {
         mLock.withLock {
-            mPool.add(frameBuffer)
-            mCondition.signal()
+            val entry = mPool.find { entry -> entry.frameBuffer === frameBuffer }
+            if (entry != null) {
+                entry.fence = fence
+                entry.isAvailable = true
+                mBuffersAvailable++
+            } else {
+                throw IllegalArgumentException("No entry associated with this framebuffer " +
+                    "instance. Was this frame buffer created from a different FrameBufferPool?")
+            }
+            if (!mIsClosed) {
+                mCondition.signal()
+            } else {
+                // If a buffer is attempted to be released after the pool is closed
+                // just remove it from the entries and release it
+                frameBuffer.close()
+                if (mBuffersAvailable == mPool.size) {
+                    mPool.clear()
+                }
+            }
         }
     }
 
@@ -123,15 +155,58 @@ internal class FrameBufferPool(
      */
     fun close() {
         mLock.withLock {
-            for (frameBuffer in mPool) {
-                frameBuffer.close()
+            if (!mIsClosed) {
+                for (entry in mPool) {
+                    val frameBuffer = entry.frameBuffer
+                    if (entry.isAvailable) {
+                        frameBuffer.close()
+                    }
+                }
+                if (mBuffersAvailable == mPool.size) {
+                    mPool.clear()
+                }
+                mIsClosed = true
             }
-            mPool.clear()
-            mNumAllocated = 0
         }
     }
 
-    private companion object {
+    internal companion object {
         private const val TAG = "FrameBufferPool"
+
+        /**
+         * Predicate used to search for the first entry within the pool that is either null
+         * or has already signalled
+         */
+        private val signaledFence: (FrameBufferEntry) -> Boolean = { entry ->
+            val fence = entry.fence
+            fence == null || fence.getSignalTimeNanos() != SyncFenceCompat.SIGNAL_TIME_PENDING
+        }
+
+        private val isAvailable: (FrameBufferEntry) -> Boolean = { entry -> entry.isAvailable }
+
+        /**
+         * Finds the first element within the ArrayList that satisfies both primary and
+         * secondary conditions. If no entries satisfy the secondary condition, this returns
+         * the first entry that satisfies the primary condition or null if no entries do.
+         */
+        internal fun <T> ArrayList<T>.findEntryWith(
+            primaryCondition: ((T) -> Boolean),
+            secondaryCondition: ((T) -> Boolean)
+        ): T? {
+            var fallback: T? = null
+            for (entry in this) {
+                if (primaryCondition(entry)) {
+                    if (fallback == null) {
+                        fallback = entry
+                    }
+                    if (secondaryCondition(entry)) {
+                        return entry
+                    }
+                }
+            }
+            // No elements satisfy the condition, return the entry that satisfies the primary
+            // condition if available
+            return fallback
+        }
     }
 }

@@ -373,10 +373,11 @@ class GLFrameBufferRenderer internal constructor(
                 val transaction = SurfaceControlCompat.Transaction()
                     .setVisibility(surfaceControl, true)
                     .setBuffer(surfaceControl, frameBuffer.hardwareBuffer, syncFenceCompat) {
+                        releaseFence ->
                         if (maxBuffers > 1) {
                             // Release the previous buffer only if we are not in single buffered
                             // mode
-                            frameBufferPool.release(frameBuffer)
+                            frameBufferPool.release(frameBuffer, releaseFence)
                         }
                     }
                 if (inverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
