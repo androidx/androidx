@@ -88,6 +88,10 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 // *********************************************************************************************
 class PreviewTest {
 
+    companion object {
+        val FRAME_RATE_RANGE = Range(30, 60)
+    }
+
     private var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
     private lateinit var appSurface: Surface
@@ -158,6 +162,17 @@ class PreviewTest {
         for (handler in handlersToRelease) {
             handler.looper.quitSafely()
         }
+    }
+
+    @Test
+    fun createPreview_sessionConfigMatchesStreamSpec() {
+        // Act: Create a preview use case.
+        val preview = createPreview()
+        // Assert: The session config matches the stream spec.
+        val sessionConfig = preview.sessionConfig
+        assertThat(sessionConfig.expectedFrameRateRange).isEqualTo(FRAME_RATE_RANGE)
+        assertThat(sessionConfig.implementationOptions.retrieveOption(testImplementationOption))
+            .isEqualTo(testImplementationOptionValue)
     }
 
     @Test
@@ -796,6 +811,7 @@ class PreviewTest {
         val streamSpecOptions = MutableOptionsBundle.create()
         streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
         val streamSpec = StreamSpec.builder(Size(640, 480))
+            .setExpectedFrameRateRange(FRAME_RATE_RANGE)
             .setImplementationOptions(streamSpecOptions).build()
         previewToDetach.sensorToBufferTransformMatrix = sensorToBufferTransform
         previewToDetach.updateSuggestedStreamSpec(streamSpec)
