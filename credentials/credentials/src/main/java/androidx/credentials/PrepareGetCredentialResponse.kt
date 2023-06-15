@@ -17,11 +17,13 @@
 package androidx.credentials
 
 import android.Manifest.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS
+import android.annotation.SuppressLint
 import android.credentials.PrepareGetCredentialResponse
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 
 /**
  * A response object that indicates the get-credential prefetch work is complete and provides
@@ -34,23 +36,34 @@ import androidx.annotation.RestrictTo
  * compatibility in mind and can potentially be made accessible <34 if any provider decides to
  * support that.
  *
- * @property frameworkResponse the corresponding framework response, guaranteed to be nonnull
- * at API level >= 34
+ * This class should be constructed using the Builder (see below) for tests/prod usage.
+ *
  * @property pendingGetCredentialHandle a handle that represents this pending get-credential
  * operation; pass this handle to [CredentialManager.getCredential] (Kotlin) /
  * [CredentialManager.getCredentialAsync] (Java) to perform the remaining flows to officially
  * retrieve a credential.
- * @throws NullPointerException If [frameworkResponse] is null at API level >= 34.
+ * @property hasRemoteResultsHandler whether the response has remote results
+ * @property hasAuthenticationResultsHandler whether the response has auth results
+ * @property credentialTypeHandler whether the response has a credential result handler
+ * @property isNullHandlesForTest whether to support null handles for test
+ * @throws NullPointerException If [pendingGetCredentialHandle] is null at API level >= 34.
  */
 @RequiresApi(34)
-class PrepareGetCredentialResponse internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val frameworkResponse: PrepareGetCredentialResponse?,
-    val pendingGetCredentialHandle: PendingGetCredentialHandle,
+@SuppressLint("MissingGetterMatchingBuilder")
+class PrepareGetCredentialResponse private constructor(
+    val pendingGetCredentialHandle: PendingGetCredentialHandle?,
+    val hasRemoteResultsHandler: HasRemoteResultsHandler?,
+    val hasAuthenticationResultsHandler: HasAuthenticationResultsHandler?,
+    val credentialTypeHandler: HasCredentialResultsHandler?,
+    val isNullHandlesForTest: Boolean,
 ) {
+
     init {
-        if (Build.VERSION.SDK_INT >= 34) { // Android U
-            frameworkResponse!!
+        // We don't have these values when we are testing so we should
+        // we should not ensure of their presence. Otherwise, enforce
+        // for Android U+.
+        if (Build.VERSION.SDK_INT >= 34 && !isNullHandlesForTest) {
+            pendingGetCredentialHandle!!
         }
     }
 
@@ -62,7 +75,10 @@ class PrepareGetCredentialResponse internal constructor(
      */
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasCredentialResults(credentialType: String): Boolean {
-        return frameworkResponse?.hasCredentialResults(credentialType) ?: false
+        if (credentialTypeHandler != null) {
+            return credentialTypeHandler.invoke(credentialType)
+        }
+        return false
     }
 
     /**
@@ -73,7 +89,10 @@ class PrepareGetCredentialResponse internal constructor(
      */
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasAuthenticationResults(): Boolean {
-        return frameworkResponse?.hasAuthenticationResults() ?: false
+        if (hasAuthenticationResultsHandler != null) {
+            return hasAuthenticationResultsHandler.invoke()
+        }
+        return false
     }
 
     /**
@@ -83,7 +102,10 @@ class PrepareGetCredentialResponse internal constructor(
      */
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasRemoteResults(): Boolean {
-        return frameworkResponse?.hasRemoteResults() ?: false
+        if (hasRemoteResultsHandler != null) {
+            return hasRemoteResultsHandler.invoke()
+        }
+        return false
     }
 
     /**
@@ -107,4 +129,91 @@ class PrepareGetCredentialResponse internal constructor(
             }
         }
     }
+
+    /** A builder for [PrepareGetCredentialResponse]. */
+    class Builder {
+        private var pendingGetCredentialHandle: PendingGetCredentialHandle? = null
+        private var hasRemoteResultsHandler: HasRemoteResultsHandler? = null
+        private var hasAuthenticationResultsHandler: HasAuthenticationResultsHandler? = null
+        private var hasCredentialResultsHandler: HasCredentialResultsHandler? = null
+        private var frameworkResponse: PrepareGetCredentialResponse? = null
+        private var isNullHandlesForTest = false
+
+        /** Sets the credential type handler. */
+        fun setCredentialTypeHandler(handler: HasCredentialResultsHandler): Builder {
+            this.hasCredentialResultsHandler = handler
+            return this
+        }
+
+        /** Sets the has authentication results bit. */
+        fun setHasAuthenticationResultsHandler(handler: HasAuthenticationResultsHandler): Builder {
+            this.hasAuthenticationResultsHandler = handler
+            return this
+        }
+
+        /** Sets the has remote results bit. */
+        fun setHasRemoteResultsHandler(handler: HasRemoteResultsHandler): Builder {
+            this.hasRemoteResultsHandler = handler
+            return this
+        }
+
+        /** Sets enabling null handles for test. */
+        @VisibleForTesting
+        fun setIsNullHandlesForTest(setValue: Boolean): Builder {
+            this.isNullHandlesForTest = setValue
+            return this
+        }
+
+        /** Sets the framework response. */
+        fun setFrameworkResponse(resp: PrepareGetCredentialResponse?): Builder {
+            this.frameworkResponse = resp
+            if (resp != null) {
+                this.setCredentialTypeHandler(this::hasCredentialType)
+                this.setHasAuthenticationResultsHandler(this::hasAuthenticationResults)
+                this.setHasRemoteResultsHandler(this::hasRemoteResults)
+            }
+            return this
+        }
+
+        @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
+        private fun hasCredentialType(credentialType: String): Boolean {
+            return this.frameworkResponse!!.hasCredentialResults(credentialType)
+        }
+
+        @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
+        private fun hasAuthenticationResults(): Boolean {
+            return this.frameworkResponse!!.hasAuthenticationResults()
+        }
+
+        @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
+        private fun hasRemoteResults(): Boolean {
+            return this.frameworkResponse!!.hasRemoteResults()
+        }
+
+        /** Sets the framework handle. */
+        fun setPendingGetCredentialHandle(handle: PendingGetCredentialHandle): Builder {
+            this.pendingGetCredentialHandle = handle
+            return this
+        }
+
+        /**
+         * Builds a [PrepareGetCredentialResponse].
+         */
+        @SuppressLint("SyntheticAccessor")
+        fun build(): androidx.credentials.PrepareGetCredentialResponse {
+            return androidx.credentials.PrepareGetCredentialResponse(
+                pendingGetCredentialHandle,
+                hasRemoteResultsHandler,
+                hasAuthenticationResultsHandler,
+                hasCredentialResultsHandler,
+                isNullHandlesForTest
+            )
+        }
+    }
 }
+
+typealias HasCredentialResultsHandler = (String) -> Boolean
+
+typealias HasAuthenticationResultsHandler = () -> Boolean
+
+typealias HasRemoteResultsHandler = () -> Boolean
