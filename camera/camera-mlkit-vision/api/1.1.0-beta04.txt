@@ -1,1 +1,20 @@
 // Signature format: 4.0
+package androidx.camera.mlkit.vision {
+
+  @RequiresApi(21) @androidx.camera.core.ExperimentalAnalyzer public class MlKitAnalyzer implements androidx.camera.core.ImageAnalysis.Analyzer {
+    ctor public MlKitAnalyzer(java.util.List<com.google.mlkit.vision.interfaces.Detector<?>!>, int, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.mlkit.vision.MlKitAnalyzer.Result!>);
+    method public final void analyze(androidx.camera.core.ImageProxy);
+    method public final int getTargetCoordinateSystem();
+    method public final android.util.Size getTargetResolutionOverride();
+    method public final void updateTransform(android.graphics.Matrix?);
+  }
+
+  public static final class MlKitAnalyzer.Result {
+    ctor public MlKitAnalyzer.Result(java.util.Map<com.google.mlkit.vision.interfaces.Detector<?>!,java.lang.Object!>, long, java.util.Map<com.google.mlkit.vision.interfaces.Detector<?>!,java.lang.Throwable!>);
+    method public Throwable? getThrowable(com.google.mlkit.vision.interfaces.Detector<?>);
+    method public long getTimestamp();
+    method public <T> T? getValue(com.google.mlkit.vision.interfaces.Detector<T!>);
+  }
+
+}
+

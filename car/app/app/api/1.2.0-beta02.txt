@@ -176,6 +176,9 @@ package androidx.car.app.annotations {
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface CarProtocol {
   }
 
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalCarApi {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface RequiresCarApi {
     method public abstract int value();
   }
@@ -222,13 +225,17 @@ package androidx.car.app.hardware.common {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarUnit {
     method public static String toString(int);
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int IMPERIAL_GALLON = 204; // 0xcc
     field public static final int KILOMETER = 3; // 0x3
     field public static final int KILOMETERS_PER_HOUR = 102; // 0x66
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int LITER = 202; // 0xca
     field public static final int METER = 2; // 0x2
     field public static final int METERS_PER_SEC = 101; // 0x65
     field public static final int MILE = 4; // 0x4
     field public static final int MILES_PER_HOUR = 103; // 0x67
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int MILLILITER = 201; // 0xc9
     field public static final int MILLIMETER = 1; // 0x1
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int US_GALLON = 203; // 0xcb
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarValue<T> {
@@ -297,6 +304,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEnergyIsLow();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getFuelPercent();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getFuelVolumeDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRangeRemainingMeters();
   }
 
@@ -307,6 +315,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setDistanceDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setEnergyIsLow(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelPercent(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelVolumeDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setRangeRemainingMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 
@@ -753,6 +762,14 @@ package androidx.car.app.model {
     method public void onClick();
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface OnContentRefreshDelegate {
+    method public void sendContentRefreshRequested(androidx.car.app.OnDoneCallback);
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public interface OnContentRefreshListener {
+    method public void onContentRefreshRequested();
+  }
+
   @androidx.car.app.annotations.CarProtocol public interface OnItemVisibilityChangedDelegate {
     method public void sendItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
   }
@@ -814,6 +831,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Place? getAnchor();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isCurrentLocationEnabled();
     method public boolean isLoading();
@@ -828,6 +846,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setLoading(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.PlaceListMapTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
@@ -1209,6 +1228,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
@@ -1222,6 +1242,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);

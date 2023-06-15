@@ -1761,6 +1761,12 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.Q) public static boolean isAtLeastQ();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
     method @Deprecated @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
+    method @Deprecated @ChecksSdkIntAtLeast(api=32, codename="Sv2") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastSv2();
+    method @ChecksSdkIntAtLeast(api=33, codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+    method @ChecksSdkIntAtLeast(codename="UpsideDownCake") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastU();
+  }
+
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface BuildCompat.PrereleaseSdkCheck {
   }
 
   public final class CancellationSignal {
