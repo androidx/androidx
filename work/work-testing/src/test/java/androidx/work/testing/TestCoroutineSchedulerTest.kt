@@ -45,6 +45,7 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -92,6 +93,7 @@ class TestCoroutineSchedulerTest {
         synchronizeThreads()
     }
 
+    @Ignore // investigating whether this is causing crashes b/285714232
     @Test
     @Throws(InterruptedException::class, ExecutionException::class)
     fun testDelayedWork_runsOnceTimeHasPassed() {
@@ -118,6 +120,7 @@ class TestCoroutineSchedulerTest {
         assertThat(Futures.getDone(workInfoOnTime).state).isEqualTo(SUCCEEDED)
     }
 
+    @Ignore // investigating whether this is causing crashes b/285714232
     @Test
     @Throws(InterruptedException::class, ExecutionException::class)
     fun testClockDelay_testDriverDelayMet_throws() {
@@ -144,6 +147,7 @@ class TestCoroutineSchedulerTest {
         }
     }
 
+    @Ignore // investigating whether this is causing crashes b/285714232
     @Test
     @Throws(InterruptedException::class, ExecutionException::class)
     fun testDispatcherSchedule() {
@@ -167,6 +171,7 @@ class TestCoroutineSchedulerTest {
         assertThat(testRunnableScheduler.runnables).isEmpty()
     }
 
+    @Ignore // investigating whether this is causing crashes b/285714232
     @Test
     @Throws(InterruptedException::class, ExecutionException::class)
     fun testDispatcherCancel() {
