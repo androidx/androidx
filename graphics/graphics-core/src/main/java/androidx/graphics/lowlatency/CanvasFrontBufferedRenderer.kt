@@ -346,7 +346,8 @@ class CanvasFrontBufferedRenderer<T>(
                 // gets invoked and we can clear the content of the front buffer
                 .setBuffer(frontBufferSurfaceControl, null)
                 .setVisibility(parentSurfaceControl, true)
-                .setBuffer(parentSurfaceControl, buffer) {
+                .setBuffer(parentSurfaceControl, buffer) { releaseFence ->
+                    releaseFence.awaitForever()
                     buffer.close()
                 }
 

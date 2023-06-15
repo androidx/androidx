@@ -18,6 +18,8 @@ package androidx.graphics.opengl
 
 import android.hardware.HardwareBuffer
 import android.os.Build
+import androidx.graphics.opengl.FrameBufferPool.Companion.findEntryWith
+import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
@@ -30,6 +32,7 @@ import kotlin.concurrent.thread
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -68,7 +71,7 @@ internal class FrameBufferPoolTest {
         withEGLSpec { egl ->
             val pool = createPool()
             val frameBuffer = pool.obtain(egl)
-            pool.release(frameBuffer)
+            pool.release(frameBuffer, SyncStrategy.ALWAYS.createSyncFence(egl))
             pool.close()
             assertTrue(frameBuffer.isClosed)
         }
@@ -105,13 +108,74 @@ internal class FrameBufferPoolTest {
                 b3 = pool.obtain(egl)
                 latch.countDown()
             }
-            pool.release(b1)
+            pool.release(b1, SyncStrategy.ALWAYS.createSyncFence(egl))
             assertTrue(latch.await(3, TimeUnit.SECONDS))
             assertTrue(b1 === b3)
         }
     }
 
-    fun createPool(
+    @Test
+    fun testBufferReleasedToDifferentFrameBufferPoolThrows() {
+        withEGLSpec { egl ->
+            val pool1 = createPool()
+            val buffer = pool1.obtain(egl)
+            val pool2 = createPool()
+            try {
+                // Attempting to throw
+                pool2.release(buffer)
+                fail("Releasing a buffer not originally owned by the same FrameBufferPool")
+            } catch (exception: IllegalArgumentException) {
+                // NO-OP expected to throw
+            }
+        }
+    }
+
+    @Test
+    fun testFindQueueEntryWithCondition() {
+        data class Entry(val value: Int?, var available: Boolean = true)
+        val list = ArrayList<Entry>().apply {
+            add(Entry(5))
+            add(Entry(4))
+            add(Entry(2))
+            add(Entry(3))
+            add(Entry(null))
+            add(Entry(1))
+        }
+        val primary: (Entry) -> Boolean = { entry -> entry.available }
+        val secondary: (Entry) -> Boolean = { entry ->
+            // Return the first null or odd entry
+            (entry.value == null || entry.value % 2 == 1)
+        }
+
+        assertEquals(Entry(5, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        assertEquals(Entry(3, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        assertEquals(Entry(null, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        assertEquals(Entry(1, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        assertEquals(Entry(4, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        // Verify that we return the first entry that satisfies the primary condition while there
+        // are no entries that satisfy both.
+        // This should return the first even number we find that is available (4) in this case
+        list[1].available = true
+        assertEquals(Entry(4, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        assertEquals(Entry(2, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false })
+
+        assertEquals(null, list.findEntryWith(primary, secondary))
+    }
+
+    private fun createPool(
         width: Int = 2,
         height: Int = 3,
         format: Int = HardwareBuffer.RGB_565,
@@ -130,11 +194,15 @@ internal class FrameBufferPoolTest {
         block: (egl: EGLSpec) -> Unit = {}
     ) {
         with(EGLManager()) {
-            initialize()
-            if (supportsNativeAndroidFence()) {
-                block(eglSpec)
+            try {
+                initialize()
+                createContext(loadConfig(EGLConfigAttributes.RGBA_8888)!!)
+                if (supportsNativeAndroidFence()) {
+                    block(eglSpec)
+                }
+            } finally {
+                release()
             }
-            release()
         }
     }
 }
