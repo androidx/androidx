@@ -44,16 +44,6 @@ internal interface TextInputSession {
     val isOpen: Boolean
 
     /**
-     * Request this session to show the software keyboard.
-     */
-    fun showSoftwareKeyboard()
-
-    /**
-     * Request this session to hide the software keyboard.
-     */
-    fun hideSoftwareKeyboard()
-
-    /**
      * Destroy this session and clear resources.
      */
     fun dispose()

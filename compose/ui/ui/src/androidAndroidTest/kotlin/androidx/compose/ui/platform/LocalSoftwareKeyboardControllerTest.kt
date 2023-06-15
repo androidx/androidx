@@ -28,14 +28,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.TextInputService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
@@ -81,16 +79,12 @@ class LocalSoftwareKeyboardControllerTest {
     @Test
     fun localSoftwareKeybardController_delegatesTo_textInputService() {
         val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
+        platformTextInputServiceInterceptor = { platformTextInputService }
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                val controller = LocalSoftwareKeyboardController.current
-                SideEffect {
-                    controller?.hide()
-                }
+            val controller = LocalSoftwareKeyboardController.current
+            SideEffect {
+                controller?.hide()
             }
         }
 
@@ -108,27 +102,5 @@ class LocalSoftwareKeyboardControllerTest {
         }
         keyboardController!!.show()
         keyboardController!!.hide()
-    }
-
-    @Test
-    fun showAndHide_noOp_whenProvidedMock() {
-        val mockSoftwareKeyboardController: SoftwareKeyboardController = mock()
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-        var controller: SoftwareKeyboardController? = null
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalSoftwareKeyboardController provides mockSoftwareKeyboardController,
-                LocalTextInputService provides textInputService
-            ) {
-                controller = LocalSoftwareKeyboardController.current
-            }
-        }
-        rule.runOnIdle {
-            controller?.show()
-            controller?.hide()
-        }
-        verify(platformTextInputService, never()).hideSoftwareKeyboard()
-        verify(platformTextInputService, never()).showSoftwareKeyboard()
     }
 }

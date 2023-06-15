@@ -67,14 +67,6 @@ class StatelessInputConnectionTest {
             override val imeOptions: ImeOptions
                 get() = this@StatelessInputConnectionTest.imeOptions
 
-            override fun showSoftwareKeyboard() {
-                // noop
-            }
-
-            override fun hideSoftwareKeyboard() {
-                // noop
-            }
-
             override fun onImeAction(imeAction: ImeAction) {
                 this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
             }
