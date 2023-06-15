@@ -31,7 +31,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -1460,7 +1459,7 @@ class PagingDataDifferTest(
     @Test
     fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
         pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // execute queued initial REFRESH
         loadDispatcher.scheduler.advanceUntilIdle()
@@ -1493,7 +1492,7 @@ class PagingDataDifferTest(
         differ.addLoadStateListener {
             loadStateCallbacks.add(it)
         }
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
         // execute initial refresh
         loadDispatcher.scheduler.advanceUntilIdle()
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
@@ -1540,7 +1539,7 @@ class PagingDataDifferTest(
 
     @Test
     fun appendInvalid_loadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
         loadDispatcher.scheduler.advanceUntilIdle()
@@ -1602,7 +1601,7 @@ class PagingDataDifferTest(
     @Test
     fun prependInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
         pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
         loadDispatcher.scheduler.advanceUntilIdle()
@@ -1656,7 +1655,7 @@ class PagingDataDifferTest(
     @Test
     fun refreshInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
         pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // execute queued initial REFRESH load which will return LoadResult.Invalid()
         pagingSources[0].nextLoadResult = LoadResult.Invalid()
@@ -1686,7 +1685,7 @@ class PagingDataDifferTest(
 
     @Test
     fun appendError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
         loadDispatcher.scheduler.advanceUntilIdle()
@@ -1737,7 +1736,7 @@ class PagingDataDifferTest(
     @Test
     fun prependError_retryLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
         pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
         loadDispatcher.scheduler.advanceUntilIdle()
@@ -1779,7 +1778,7 @@ class PagingDataDifferTest(
 
     @Test
     fun refreshError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial load returns LoadResult.Error
         val exception = Throwable()
@@ -1812,7 +1811,7 @@ class PagingDataDifferTest(
     @Test
     fun prependError_refreshLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
         pagingSources, _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
         loadDispatcher.scheduler.advanceUntilIdle()
@@ -1856,7 +1855,7 @@ class PagingDataDifferTest(
     @Test
     fun refreshError_refreshLoadStates() = runTest { differ, loadDispatcher, pagingSources,
         _, _ ->
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
 
         // the initial load will return LoadResult.Error
         val exception = Throwable()
@@ -1898,7 +1897,7 @@ class PagingDataDifferTest(
             TestPagingSource(loadDelay = 500, items = emptyList())
         }
 
-        val collectLoadStates = differ.collectLoadStates()
+        val collectLoadStates = launch { differ.collectLoadStates() }
         val job = launch {
             pager.flow.collectLatest {
                 differ.collectFrom(it)
@@ -1995,9 +1994,8 @@ class PagingDataDifferTest(
 
         val differ = SimpleDiffer(
             differCallback = dummyDifferCallback,
-            coroutineScope = backgroundScope,
         )
-        differ.collectLoadStates()
+        backgroundScope.launch { differ.collectLoadStates() }
 
         val job = launch {
             pager.collectLatest {
@@ -2014,9 +2012,8 @@ class PagingDataDifferTest(
         // we start a separate differ to recollect on cached Pager.flow
         val differ2 = SimpleDiffer(
             differCallback = dummyDifferCallback,
-            coroutineScope = backgroundScope,
         )
-        differ2.collectLoadStates()
+        backgroundScope.launch { differ2.collectLoadStates() }
 
         val job2 = launch {
             pager.collectLatest {
@@ -2194,7 +2191,7 @@ class PagingDataDifferTest(
                     ).also { pagingSources.add(it) }
                 }
             ),
-        block: (
+        block: TestScope.(
             differ: SimpleDiffer,
             loadDispatcher: TestDispatcher,
             pagingSources: List<TestPagingSource>,
@@ -2204,7 +2201,6 @@ class PagingDataDifferTest(
     ) = testScope.runTest {
         val differ = SimpleDiffer(
             differCallback = dummyDifferCallback,
-            coroutineScope = this,
         )
         val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
         val hintReceivers = mutableListOf<TrackableHintReceiverWrapper>()
@@ -2340,11 +2336,9 @@ private class TrackableHintReceiverWrapper(
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 private class SimpleDiffer(
     differCallback: DifferCallback,
     cachedPagingData: PagingData<Int>? = null,
-    val coroutineScope: CoroutineScope = TestScope(UnconfinedTestDispatcher())
 ) : PagingDataDiffer<Int>(differCallback = differCallback, cachedPagingData = cachedPagingData) {
     override suspend fun presentNewList(
         previousList: NullPaddedList<Int>,
@@ -2366,11 +2360,9 @@ private class SimpleDiffer(
         return newCombinedLoadStates
     }
 
-    fun collectLoadStates(): Job {
-        return coroutineScope.launch {
-            nonNullLoadStateFlow.collect { combinedLoadStates ->
-                _localLoadStates.add(combinedLoadStates)
-            }
+    suspend fun collectLoadStates() {
+        nonNullLoadStateFlow.collect { combinedLoadStates ->
+            _localLoadStates.add(combinedLoadStates)
         }
     }
 }
