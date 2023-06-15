@@ -245,16 +245,13 @@ package androidx.window.embedding {
   }
 
   public final class SplitController {
-    method @Deprecated @androidx.window.core.ExperimentalWindowApi public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
     method @androidx.window.core.ExperimentalWindowApi public void invalidateTopVisibleSplitAttributes();
     method @androidx.window.core.ExperimentalWindowApi public boolean isInvalidatingTopVisibleSplitAttributesSupported();
     method public boolean isSplitAttributesCalculatorSupported();
-    method @Deprecated @androidx.window.core.ExperimentalWindowApi public boolean isSplitSupported();
     method @androidx.window.core.ExperimentalWindowApi public boolean isUpdatingSplitAttributesSupported();
-    method @Deprecated @androidx.window.core.ExperimentalWindowApi public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
     method @androidx.window.core.ExperimentalWindowApi public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
