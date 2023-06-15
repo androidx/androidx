@@ -467,6 +467,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                 @Override
                 public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(FragmentManager.TAG,
+                                "handleOnBackStarted. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     if (USE_PREDICTIVE_BACK) {
                         prepareBackStackTransition();
                     }
@@ -474,6 +479,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                 @Override
                 public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                                "handleOnBackProgressed. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     if (mTransitioningOp != null) {
                         // Collect the correct SpecialEffectsControllers and pass in the progress
                         Set<SpecialEffectsController> changedControllers  =
@@ -490,11 +500,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                 @Override
                 public void handleOnBackPressed() {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(FragmentManager.TAG,
+                                "handleOnBackPressed. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     FragmentManager.this.handleOnBackPressed();
                 }
 
                 @Override
                 public void handleOnBackCancelled() {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(FragmentManager.TAG,
+                                "handleOnBackCancelled. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     if (USE_PREDICTIVE_BACK) {
                         cancelBackStackTransition();
                         mTransitioningOp = null;

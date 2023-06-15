@@ -206,6 +206,12 @@ internal class DefaultSpecialEffectsController(
             animator.setTarget(viewToAnimate)
             if (Build.VERSION.SDK_INT >= 34 && operation.fragment.mTransitioning) {
                 val animatorSet = animationInfo.getAnimation(container.context)?.animator
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(
+                        FragmentManager.TAG,
+                        "Adding BackProgressCallbacks for Animators to operation $operation"
+                    )
+                }
                 operation.addBackProgressCallbacks({ backEvent ->
                     if (animatorSet != null) {
                         val totalDuration = Api24Impl.totalDuration(animatorSet)
@@ -218,9 +224,24 @@ internal class DefaultSpecialEffectsController(
                         if (time == totalDuration) {
                             time = totalDuration - 1
                         }
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(
+                                FragmentManager.TAG,
+                                "Setting currentPlayTime to $time for Animator $animatorSet on " +
+                                    "operation $operation"
+                            )
+                        }
                         Api26Impl.setCurrentPlayTime(animatorSet, time)
                     }
-                }) { animatorSet?.start() }
+                }) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(
+                            FragmentManager.TAG,
+                            "Back Progress Callback Animator has been started."
+                        )
+                    }
+                    animatorSet?.start()
+                }
             } else {
                 animator.start()
             }
