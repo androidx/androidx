@@ -41,7 +41,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -140,30 +139,26 @@ class HomeFragment : Fragment() {
         connectJob?.cancel()
         connectJob = connectScope.launch {
             bluetoothLe.connectGatt(requireContext(), scanResult.device) {
-                launch {
-                    val jobs = ArrayList<Job>()
-                    for (srv in getServices()) {
-                        for (char in srv.characteristics) {
-                            if (char.properties.and(PROPERTY_READ) == 0) continue
-                            jobs.add(launch {
-                                val value = readCharacteristic(char).getOrNull()
-                                if (value != null) {
-                                    Log.d(TAG, "Successfully read characteristic value=$value")
-                                }
-                            })
+                for (srv in getServices()) {
+                    for (char in srv.characteristics) {
+                        if (char.properties.and(PROPERTY_READ) == 0) continue
+                        launch {
+                            val value = readCharacteristic(char).getOrNull()
+                            if (value != null) {
+                                Log.d(TAG, "Successfully read characteristic value=$value")
+                            }
+                        }
+                        launch {
                             if (char.properties.and(PROPERTY_NOTIFY) != 0) {
-                                jobs.add(launch {
-                                    val value = subscribeToCharacteristic(char).first()
-                                    Log.d(TAG, "Successfully get characteristic value=$value")
-                                })
+                                val value = subscribeToCharacteristic(char).first()
+                                Log.d(TAG, "Successfully get characteristic value=$value")
                             }
                         }
                     }
-                    jobs.joinAll()
-                    awaitClose {
-                        Log.d(TAG, "GATT client is closed")
-                        connectJob = null
-                    }
+                }
+                awaitClose {
+                    Log.d(TAG, "GATT client is closed")
+                    connectJob = null
                 }
             }
         }
