@@ -18,21 +18,13 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
-import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import androidx.window.WindowProperties
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetrics
-import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 
 /**
 * The controller class that gets information about the currently active activity
@@ -47,63 +39,6 @@ import kotlinx.coroutines.launch
 * [Activity.startActivity()][android.app.Activity.startActivity].
 */
 class SplitController internal constructor(private val embeddingBackend: EmbeddingBackend) {
-
-    /** A [ReentrantLock] to protect against concurrent access to [consumerToJobMap]. */
-    private val lock = ReentrantLock()
-    @GuardedBy("lock")
-    private val consumerToJobMap = mutableMapOf<Consumer<List<SplitInfo>>, Job>()
-
-    /**
-     * @deprecated Use [splitInfoList] for kotlin usages or delegate to
-     * [androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener] for Java
-     * usages.
-     */
-    @Deprecated(
-        message = "Replace to provide Flow API to get SplitInfo list",
-        replaceWith = ReplaceWith(
-            expression = "splitInfoList",
-            imports = ["androidx.window.embedding.SplitController"]
-        )
-    )
-    @ExperimentalWindowApi
-    fun addSplitListener(
-        activity: Activity,
-        executor: Executor,
-        consumer: Consumer<List<SplitInfo>>
-    ) {
-        lock.withLock {
-            if (consumerToJobMap[consumer] != null) {
-                return
-            }
-            val scope = CoroutineScope(executor.asCoroutineDispatcher())
-            consumerToJobMap[consumer] = scope.launch {
-                splitInfoList(activity).collect { splitInfoList ->
-                    consumer.accept(splitInfoList) }
-            }
-        }
-    }
-
-    /**
-     * @deprecated Use [splitInfoList] for kotlin usages or delegate to
-     * [androidx.window.java.embedding.SplitControllerCallbackAdapter.removeSplitListener] for
-     * Java usages.
-     */
-    @Deprecated(
-        message = "Replace to provide Flow API to get SplitInfo list",
-        replaceWith = ReplaceWith(
-            expression = "splitInfoList",
-            imports = ["androidx.window.embedding.SplitController"]
-        )
-    )
-    @ExperimentalWindowApi
-    fun removeSplitListener(
-        consumer: Consumer<List<SplitInfo>>
-    ) {
-        lock.withLock {
-            consumerToJobMap[consumer]?.cancel()
-            consumerToJobMap.remove(consumer)
-        }
-    }
 
     /**
      * A [Flow] of [SplitInfo] list that contains the current split states that this [activity] is
@@ -128,26 +63,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
             embeddingBackend.removeSplitListenerForActivity(listener)
         }
     }
-
-    /**
-     * Indicates whether split functionality is supported on the device. Note
-     * that devices might not enable splits in all states or conditions. For
-     * example, a foldable device with multiple screens can choose to collapse
-     * splits when apps run on the device's small display, but enable splits
-     * when apps run on the device's large display. In cases like this,
-     * `isSplitSupported` always returns `true`, and if the split is collapsed,
-     * activities are launched on top, following the non-activity embedding
-     * model.
-     *
-     * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED]
-     * must be enabled in AndroidManifest within <application> in order to get the correct
-     * state or `false` will be returned by default.
-     */
-    @ExperimentalWindowApi
-    @Deprecated("Use splitSupportStatus instead",
-        replaceWith = ReplaceWith("splitSupportStatus")
-    )
-    fun isSplitSupported(): Boolean = splitSupportStatus == SplitSupportStatus.SPLIT_AVAILABLE
 
     /**
      * Indicates whether split functionality is supported on the device. Note
@@ -241,7 +156,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * without the need to call this function.
      *
      * The top [SplitInfo] is usually the last element of [SplitInfo] list which was received from
-     * the callback registered in [SplitController.addSplitListener].
+     * the callback registered in [splitInfoList].
      *
      * The call will be ignored if there is no visible split.
      *
