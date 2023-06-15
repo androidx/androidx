@@ -63,7 +63,7 @@ class SnoozeAlarm private constructor() {
     }
 
     class Arguments
-    internal constructor(val snoozeDuration: Duration?, val targetAlarm: AlarmValue?) {
+    internal constructor(val snoozeDuration: Duration?, val targetAlarm: AlarmReference?) {
         override fun toString(): String {
             return "Arguments(snoozeDuration=$snoozeDuration,targetAlarm=$targetAlarm)"
         }
@@ -88,13 +88,13 @@ class SnoozeAlarm private constructor() {
 
         class Builder {
             private var snoozeDuration: Duration? = null
-            private var targetAlarm: AlarmValue? = null
+            private var targetAlarm: AlarmReference? = null
 
             fun setSnoozeDuration(snoozeDuration: Duration): Builder = apply {
                 this.snoozeDuration = snoozeDuration
             }
 
-            fun setTargetAlarm(targetAlarm: AlarmValue): Builder = apply {
+            fun setTargetAlarm(targetAlarm: AlarmReference): Builder = apply {
                 this.targetAlarm = targetAlarm
             }
 
@@ -190,7 +190,7 @@ class SnoozeAlarm private constructor() {
                         .bindParameter(
                                 SlotMetadata.ALARM.path,
                                 Arguments.Builder::setTargetAlarm,
-                                AlarmValue.PARAM_VALUE_CONVERTER
+                                AlarmReference.PARAM_VALUE_CONVERTER
                         )
                         .bindOutput(
                             "executionStatus",
