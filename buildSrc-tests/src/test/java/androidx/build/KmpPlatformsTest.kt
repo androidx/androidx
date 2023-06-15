@@ -23,69 +23,69 @@ class KmpPlatformsTest {
 
     @Test
     fun withAnEmptyFlag_itReturnsTheDefaultValue() {
-        assertThat(KmpFlagParser.parse("")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("")).isEqualTo(
+            setOf(PlatformGroup.JVM, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withANullFlag_itReturnsTheDefaultValue() {
-        assertThat(KmpFlagParser.parse(null)).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag(null)).isEqualTo(
+            setOf(PlatformGroup.JVM, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withASingleDefaultPlatform_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("+jvm")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("+jvm")).isEqualTo(
+            setOf(PlatformGroup.JVM, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withNoPlatforms_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("-jvm,-desktop")).isEqualTo(emptySet<KmpPlatform>())
+        assertThat(parseTargetPlatformsFlag("-jvm,-desktop")).isEqualTo(emptySet<PlatformGroup>())
     }
 
     @Test
     fun withASingleNonDefaultPlatform_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("+js")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.JS, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("+js")).isEqualTo(
+            setOf(PlatformGroup.JVM, PlatformGroup.JS, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withAMultiplePlatforms_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("+js,+mac")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.JS, KmpPlatform.MAC, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("+js,+mac")).isEqualTo(
+            setOf(PlatformGroup.JVM, PlatformGroup.JS, PlatformGroup.MAC, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withNegativeFlags_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("-jvm,+mac")).isEqualTo(
-            setOf(KmpPlatform.MAC, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("-jvm,+mac")).isEqualTo(
+            setOf(PlatformGroup.MAC, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withTheNativeFlag_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("+native")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.MAC, KmpPlatform.LINUX, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("+native")).isEqualTo(
+            setOf(PlatformGroup.JVM, PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withMultipleFlagsIncludingTheNativeFlag_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("-jvm,+native,+js")).isEqualTo(
-            setOf(KmpPlatform.JS, KmpPlatform.MAC, KmpPlatform.LINUX, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("-jvm,+native,+js")).isEqualTo(
+            setOf(PlatformGroup.JS, PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP)
         )
     }
 
     @Test
     fun withRedundentFlags_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("-jvm,+native,+linux,+mac,+linux")).isEqualTo(
-            setOf(KmpPlatform.MAC, KmpPlatform.LINUX, KmpPlatform.DESKTOP)
+        assertThat(parseTargetPlatformsFlag("-jvm,+native,+linux,+mac,+linux")).isEqualTo(
+            setOf(PlatformGroup.MAC, PlatformGroup.LINUX, PlatformGroup.DESKTOP)
         )
     }
 }
