@@ -958,6 +958,9 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     manager: TextFieldSelectionManager,
     magnifierSize: IntSize
 ): Offset {
+    // state read of currentDragPosition so that we always recompose on drag position changes
+    val localDragPosition = manager.currentDragPosition ?: return Offset.Unspecified
+
     // Never show the magnifier in an empty text field.
     if (manager.transformedText?.isEmpty() != false) return Offset.Unspecified
     val rawTextOffset = when (manager.draggingHandle) {
@@ -974,7 +977,6 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     // If the text hasn't been laid out yet, don't show the modifier.
     val offsetCenter = layoutResult.getBoundingBox(textOffset).center
 
-    val localDragPosition = manager.currentDragPosition ?: return Offset.Unspecified
     val dragX = localDragPosition.x
     val line = layoutResult.getLineForOffset(textOffset)
     val lineStartOffset = layoutResult.getLineStart(line)
