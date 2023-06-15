@@ -80,6 +80,11 @@ interface ComposeBenchmarkScope<T> : ComposeExecutionControl {
     fun disposeContent()
 
     /**
+     * Closes the recomposer when benchmark is finished.
+     */
+    fun close()
+
+    /**
      * Returns the current instantiated [ComposeTestCase].
      *
      * Make sure you called [setupContent] or [createTestCase] before calling this.
