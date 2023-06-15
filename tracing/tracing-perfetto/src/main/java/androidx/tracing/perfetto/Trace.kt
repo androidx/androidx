@@ -32,10 +32,16 @@ import java.io.File
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
 
-object Tracing {
+object Trace {
     /**
-     * Indicates whether the tracing library has been loaded and the app registered with
-     * Perfetto SDK.
+     * Checks whether the tracing library has been loaded and the app has been registered with
+     * Perfetto SDK tracing server. This is useful to avoid intermediate string creation for trace
+     * sections that require formatting. It is not necessary to guard all Trace method calls as they
+     * internally already check this. However it is recommended to use this to prevent creating any
+     * temporary objects that would then be passed to those methods to reduce runtime cost when
+     * tracing isn't enabled.
+     *
+     * @return true if tracing is currently enabled, false otherwise
      */
     // Note: some of class' code relies on the field never changing from true -> false,
     // which is realistic (at the time of writing this, we are unable to unload the library and
@@ -116,15 +122,27 @@ object Tracing {
         return EnableTracingResponse(RESULT_CODE_SUCCESS)
     }
 
-    /** Writes a trace message to indicate that a given section of code has begun. */
-    fun traceEventStart(key: Int, traceInfo: String) {
+    /**
+     * Writes a trace message to indicate that a given section of code has begun. This call must
+     * be followed by a corresponding call to [endSection] on the same thread.
+     *
+     * @param sectionName The name of the code section to appear in the trace.
+     */
+    fun beginSection(sectionName: String) {
         if (isEnabled) {
-            PerfettoNative.nativeTraceEventBegin(key, traceInfo)
+            // Note: key is not currently used, so passing 0 for now
+            PerfettoNative.nativeTraceEventBegin(key = 0, traceInfo = sectionName)
         }
     }
 
-    /** Writes a trace message to indicate that a given section of code has ended. */
-    fun traceEventEnd() {
+    /**
+     * Writes a trace message to indicate that a given section of code has ended. This call must
+     * be preceded by a corresponding call to [beginSection]. Calling this method
+     * will mark the end of the most recently begun section of code, so care must be taken to
+     * ensure that [beginSection] / [endSection] pairs are properly nested and called from the same
+     * thread.
+     */
+    fun endSection() {
         if (isEnabled) PerfettoNative.nativeTraceEventEnd()
     }
 
