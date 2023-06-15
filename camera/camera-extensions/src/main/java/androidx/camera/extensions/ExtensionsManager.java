@@ -316,6 +316,7 @@ public final class ExtensionsManager {
             if (ExtensionVersion.getRuntimeVersion() == null) {
                 sInitializeFuture = null;
                 sExtensionsManager = null;
+                ExtensionVersion.injectInstance(null);
                 return Futures.immediateFuture(null);
             }
 
