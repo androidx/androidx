@@ -212,6 +212,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private VideoEncoderInfo mVideoEncoderInfo;
     @Nullable
     private Rect mCropRect;
+    private int mRotationDegrees;
     private boolean mHasCompensatingTransformation = false;
 
     /**
@@ -500,28 +501,55 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         CameraInternal cameraInternal = getCamera();
         SurfaceEdge cameraEdge = mCameraEdge;
         if (cameraInternal != null && cameraEdge != null) {
-            int relativeRotation = getRelativeRotation(cameraInternal,
-                    isMirroringRequired(cameraInternal));
-            cameraEdge.updateTransformation(
-                    adjustRotationWithInProgressTransformation(relativeRotation),
-                    getAppTargetRotation());
+            mRotationDegrees = adjustRotationWithInProgressTransformation(
+                    getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)));
+            cameraEdge.updateTransformation(mRotationDegrees, getAppTargetRotation());
         }
+    }
+
+    @NonNull
+    private Rect adjustCropRectWithInProgressTransformation(@NonNull Rect cropRect,
+            int rotationDegrees) {
+        Rect adjustedCropRect = cropRect;
+        if (shouldCompensateTransformation()) {
+            adjustedCropRect = TransformUtils.sizeToRect(TransformUtils.getRotatedSize(
+                    Preconditions.checkNotNull(
+                            mStreamInfo.getInProgressTransformationInfo()).getCropRect(),
+                    rotationDegrees));
+        }
+        return adjustedCropRect;
     }
 
     private int adjustRotationWithInProgressTransformation(int rotationDegrees) {
         int adjustedRotationDegrees = rotationDegrees;
         if (shouldCompensateTransformation()) {
-            mHasCompensatingTransformation = true;
             adjustedRotationDegrees = TransformUtils.within360((rotationDegrees
                     - mStreamInfo.getInProgressTransformationInfo().getRotationDegrees()));
         }
         return adjustedRotationDegrees;
     }
 
+    @NonNull
+    private Size adjustResolutionWithInProgressTransformation(@NonNull Size resolution,
+            @NonNull Rect originalCropRect, @NonNull Rect targetCropRect) {
+        Size nodeResolution = resolution;
+        if (shouldCompensateTransformation() && !targetCropRect.equals(originalCropRect)) {
+            float targetRatio = ((float) targetCropRect.height()) / originalCropRect.height();
+            nodeResolution = new Size((int) Math.ceil(resolution.getWidth() * targetRatio),
+                    (int) Math.ceil(resolution.getHeight() * targetRatio));
+        }
+        return nodeResolution;
+    }
+
     @VisibleForTesting
     @Nullable
     Rect getCropRect() {
         return mCropRect;
+    }
+
+    @VisibleForTesting
+    int getRotationDegrees() {
+        return mRotationDegrees;
     }
 
     /**
@@ -574,7 +602,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                 videoCapabilities, dynamicRange, mediaSpec, resolution, expectedFrameRate);
-        mCropRect = calculateCropRect(resolution, videoEncoderInfo);
+        mRotationDegrees = adjustRotationWithInProgressTransformation(getRelativeRotation(camera,
+                isMirroringRequired(camera)));
+        Rect originalCropRect = calculateCropRect(resolution, videoEncoderInfo);
+        mCropRect = adjustCropRectWithInProgressTransformation(originalCropRect, mRotationDegrees);
+        Size nodeResolution = adjustResolutionWithInProgressTransformation(resolution,
+                originalCropRect, mCropRect);
+        if (shouldCompensateTransformation()) {
+            // If this pipeline is created with in-progress transformation, we need to reset the
+            // pipeline when the transformation becomes invalid.
+            mHasCompensatingTransformation = true;
+        }
         mNode = createNodeIfNeeded(camera, mCropRect, resolution, dynamicRange);
         // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
@@ -588,8 +626,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // UPTIME when encoder surface is directly sent to camera.
             timebase = Timebase.UPTIME;
         }
+        // Update the StreamSpec with new frame rate range and resolution.
         StreamSpec updatedStreamSpec =
-                streamSpec.toBuilder().setExpectedFrameRateRange(expectedFrameRate).build();
+                streamSpec.toBuilder()
+                        .setResolution(nodeResolution)
+                        .setExpectedFrameRateRange(expectedFrameRate)
+                        .build();
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
         mCameraEdge = new SurfaceEdge(
@@ -599,13 +641,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
                 mCropRect,
-                adjustRotationWithInProgressTransformation(getRelativeRotation(camera,
-                        isMirroringRequired(camera))),
+                mRotationDegrees,
                 getAppTargetRotation(),
                 shouldMirror(camera));
         mCameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
         if (mNode != null) {
-            // Update the StreamSpec to use the frame rate range that is not unspecified.
             SurfaceProcessorNode.OutConfig outConfig =
                     SurfaceProcessorNode.OutConfig.of(mCameraEdge);
             SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
@@ -685,6 +725,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         mCropRect = null;
         mSurfaceRequest = null;
         mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
+        mRotationDegrees = 0;
         mHasCompensatingTransformation = false;
     }
 
