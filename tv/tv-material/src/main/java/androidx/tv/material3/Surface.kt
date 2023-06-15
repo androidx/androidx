@@ -381,7 +381,7 @@ private fun SurfaceImpl(
                     if (border != Border.None) {
                         Modifier.indication(
                             interactionSource = interactionSource,
-                            indication = remember { BorderIndication(border = border) }
+                            indication = remember(border) { BorderIndication(border = border) }
                         )
                     } else Modifier
                 )
