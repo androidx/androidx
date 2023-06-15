@@ -80,17 +80,21 @@ class MemoryLeakTest {
                 activityTestRule.activity
             )
 
-            // Unfortunately we have to ignore the first run as it seems that even though the view
-            // gets properly garbage collected there are some data that remain allocated. Not sure
-            // what is causing this but could be some static variables.
-            loopAndVerifyMemory(iterations = 400, gcFrequency = 40, ignoreFirstRun = true) {
-                try {
-                    runner.createTestCase()
-                    runner.emitContent()
-                } finally {
-                    // This will remove the owner view from the hierarchy
-                    runner.disposeContent()
+            try {
+                // Unfortunately we have to ignore the first run as it seems that even though the view
+                // gets properly garbage collected there are some data that remain allocated. Not sure
+                // what is causing this but could be some static variables.
+                loopAndVerifyMemory(iterations = 400, gcFrequency = 40, ignoreFirstRun = true) {
+                    try {
+                        runner.createTestCase()
+                        runner.emitContent()
+                    } finally {
+                        // This will remove the owner view from the hierarchy
+                        runner.disposeContent()
+                    }
                 }
+            } finally {
+                runner.close()
             }
         }
     }
