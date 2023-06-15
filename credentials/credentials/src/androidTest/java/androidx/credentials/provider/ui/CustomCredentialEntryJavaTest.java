@@ -247,7 +247,8 @@ public class CustomCredentialEntryJavaTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
-        // TODO: Assert BeginOption
+        assertThat(mBeginCredentialOption.getType()).isEqualTo(entry.getType());
+        assertThat(mBeginCredentialOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 
     private void assertEntryWithAllParamsFromSlice(CustomCredentialEntry entry) {
@@ -259,6 +260,7 @@ public class CustomCredentialEntryJavaTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
-        // TODO: Assert BeginOption
+        assertThat(mBeginCredentialOption.getType()).isEqualTo(entry.getType());
+        assertThat(mBeginCredentialOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 }
