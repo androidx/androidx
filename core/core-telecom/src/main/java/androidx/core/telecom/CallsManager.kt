@@ -130,10 +130,12 @@ class CallsManager constructor(context: Context) {
 
     /**
      * VoIP applications should look at each [Capability] annotated above and call this API in
-     * order to start adding calls via [addCall].
+     * order to start adding calls via [addCall].  Registering capabilities must be done before
+     * calling [addCall] or an exception will be thrown by [addCall]. The capabilities can be
+     * updated by re-registering.
      *
-     * Note: Registering capabilities must be done before calling [addCall] or an exception will
-     * be thrown by [addCall].
+     * Note: There is no need to unregister at any point. Telecom will handle unregistering once
+     * the application using core-telecom has been removed from the device.
      *
      * @throws UnsupportedOperationException if the device is on an invalid build
      */
