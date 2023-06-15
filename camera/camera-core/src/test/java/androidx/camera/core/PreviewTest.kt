@@ -176,6 +176,15 @@ class PreviewTest {
     }
 
     @Test
+    fun createPreview_deferrableSurfaceIsTheSurfaceRequestSurface() {
+        // Act: Create a preview use case.
+        val preview = createPreview()
+        // Assert: The preview's deferrable surface is the surface request surface.
+        assertThat(preview.sessionConfig.surfaces.single())
+            .isEqualTo(preview.mCurrentSurfaceRequest!!.deferrableSurface)
+    }
+
+    @Test
     fun verifySupportedEffects() {
         val preview = Preview.Builder().build()
         assertThat(preview.isEffectTargetsSupported(PREVIEW)).isTrue()
