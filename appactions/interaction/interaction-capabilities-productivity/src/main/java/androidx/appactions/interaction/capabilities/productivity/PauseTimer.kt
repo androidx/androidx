@@ -16,20 +16,20 @@ b * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
-import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.builtintypes.types.GenericErrorStatus
+import androidx.appactions.builtintypes.types.SuccessStatus
 import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
-import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.serializers.types.GENERIC_ERROR_STATUS_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.SUCCESS_STATUS_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
-import androidx.appactions.interaction.proto.ParamValue
-import androidx.appactions.interaction.protobuf.Struct
-import androidx.appactions.interaction.protobuf.Value
 
 /** A capability corresponding to actions.intent.PAUSE_TIMER */
 @CapabilityFactory(name = PauseTimer.CAPABILITY_NAME)
@@ -110,6 +110,14 @@ class PauseTimer private constructor() {
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
+            fun setExecutionStatus(successStatus: SuccessStatus) = setExecutionStatus(
+                ExecutionStatus(successStatus)
+            )
+
+            fun setExecutionStatus(genericErrorStatus: GenericErrorStatus) = setExecutionStatus(
+                ExecutionStatus(genericErrorStatus)
+            )
+
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
                 this.executionStatus = executionStatus
             }
@@ -130,20 +138,18 @@ class PauseTimer private constructor() {
             this.genericErrorStatus = genericErrorStatus
         }
 
-        internal fun toParamValue(): ParamValue {
-            var status: String = ""
-            if (successStatus != null) {
-                status = successStatus.toString()
-            }
-            if (genericErrorStatus != null) {
-                status = genericErrorStatus.toString()
-            }
-            val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder()
-                .setStructValue(
-                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
-                )
-                .build()
+        companion object {
+            private val TYPE_SPEC = UnionTypeSpec.Builder<ExecutionStatus>()
+                .bindMemberType(
+                    memberGetter = ExecutionStatus::successStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = SUCCESS_STATUS_TYPE_SPEC
+                ).bindMemberType(
+                    memberGetter = ExecutionStatus::genericErrorStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = GENERIC_ERROR_STATUS_TYPE_SPEC
+                ).build()
+            internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
         }
     }
 
@@ -166,7 +172,7 @@ class PauseTimer private constructor() {
                 .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
-                    ExecutionStatus::toParamValue
+                    ExecutionStatus.PARAM_VALUE_CONVERTER
                 )
                 .build()
     }
