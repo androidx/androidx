@@ -37,8 +37,10 @@ public class DeviceParametersBuildersTest {
         VersionBuilders.VersionInfo rendererVersion =
                 new VersionBuilders.VersionInfo.Builder().setMajor(major).setMinor(minor).build();
         DeviceParametersBuilders.DeviceParameters deviceParameters =
-                new DeviceParametersBuilders.DeviceParameters.Builder().setFontScale(
-                        fontScale).setRendererSchemaVersion(rendererVersion).build();
+                new DeviceParametersBuilders.DeviceParameters.Builder()
+                        .setFontScale(fontScale)
+                        .setRendererSchemaVersion(rendererVersion)
+                        .build();
 
         DeviceParametersProto.DeviceParameters deviceParametersProto = deviceParameters.toProto();
         assertThat(deviceParametersProto.getFontScale()).isEqualTo(fontScale);
@@ -51,8 +53,9 @@ public class DeviceParametersBuildersTest {
         float fontScale = 0.5f;
 
         DeviceParametersBuilders.DeviceParameters deviceParameters =
-                new DeviceParametersBuilders.DeviceParameters.Builder().setFontScale(
-                        fontScale).build();
+                new DeviceParametersBuilders.DeviceParameters.Builder()
+                        .setFontScale(fontScale)
+                        .build();
 
         assertThat(deviceParameters.getFontScale()).isEqualTo(fontScale);
     }

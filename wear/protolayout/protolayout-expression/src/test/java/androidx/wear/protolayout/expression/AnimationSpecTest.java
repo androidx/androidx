@@ -34,18 +34,19 @@ public class AnimationSpecTest {
     @Test
     public void animationSpecToString_deprecated() {
         assertThat(
-                new AnimationSpec.Builder()
-
-                        .setAnimationParameters(
-                                new AnimationParameters.Builder()
-                                        .setDurationMillis(1)
-                                        .setDelayMillis(2)
-                                        .setEasing(
-                                                new CubicBezierEasing.Builder().setX1(3f).build())
-                                        .build())
-                        .setRepeatable(new Repeatable.Builder().setIterations(4).build())
-                        .build()
-                        .toString())
+                        new AnimationSpec.Builder()
+                                .setAnimationParameters(
+                                        new AnimationParameters.Builder()
+                                                .setDurationMillis(1)
+                                                .setDelayMillis(2)
+                                                .setEasing(
+                                                        new CubicBezierEasing.Builder()
+                                                                .setX1(3f)
+                                                                .build())
+                                                .build())
+                                .setRepeatable(new Repeatable.Builder().setIterations(4).build())
+                                .build()
+                                .toString())
                 .isEqualTo(
                         "AnimationSpec{animationParameters=AnimationParameters{durationMillis=1, "
                                 + "easing=CubicBezierEasing{x1=3.0, y1=0.0, x2=0.0, y2=0.0}, "
@@ -58,17 +59,19 @@ public class AnimationSpecTest {
     @Test
     public void animationSpecToString() {
         assertThat(
-                new AnimationSpec.Builder()
-                        .setAnimationParameters(
-                                new AnimationParameters.Builder()
-                                        .setDurationMillis(20)
-                                        .setEasing(
-                                                new CubicBezierEasing.Builder().setX1(3f).build())
-                                        .setDelayMillis(10)
-                                        .build())
-                        .setRepeatable(new Repeatable.Builder().setIterations(4).build())
-                        .build()
-                        .toString())
+                        new AnimationSpec.Builder()
+                                .setAnimationParameters(
+                                        new AnimationParameters.Builder()
+                                                .setDurationMillis(20)
+                                                .setEasing(
+                                                        new CubicBezierEasing.Builder()
+                                                                .setX1(3f)
+                                                                .build())
+                                                .setDelayMillis(10)
+                                                .build())
+                                .setRepeatable(new Repeatable.Builder().setIterations(4).build())
+                                .build()
+                                .toString())
                 .isEqualTo(
                         "AnimationSpec{animationParameters=AnimationParameters{durationMillis=20,"
                                 + " easing=CubicBezierEasing{x1=3.0, y1=0.0, x2=0.0, y2=0.0},"
@@ -80,31 +83,33 @@ public class AnimationSpecTest {
     @Test
     public void cubicBezierEasingToString() {
         assertThat(
-                new CubicBezierEasing.Builder()
-                        .setX1(1f)
-                        .setY1(2f)
-                        .setX2(3f)
-                        .setY2(4f)
-                        .build()
-                        .toString())
+                        new CubicBezierEasing.Builder()
+                                .setX1(1f)
+                                .setY1(2f)
+                                .setX2(3f)
+                                .setY2(4f)
+                                .build()
+                                .toString())
                 .isEqualTo("CubicBezierEasing{x1=1.0, y1=2.0, x2=3.0, y2=4.0}");
     }
 
     @Test
     public void repeatableToString() {
         assertThat(
-                new Repeatable.Builder()
-                        .setIterations(10)
-                        .setRepeatMode(REPEAT_MODE_RESTART)
-                        .setReverseRepeatOverride(
-                                new AnimationParameters.Builder()
-                                        .setDurationMillis(20)
-                                        .setEasing(
-                                                new CubicBezierEasing.Builder().setX1(3f).build())
-                                        .setDelayMillis(10)
-                                        .build())
-                        .build()
-                        .toString())
+                        new Repeatable.Builder()
+                                .setIterations(10)
+                                .setRepeatMode(REPEAT_MODE_RESTART)
+                                .setReverseRepeatOverride(
+                                        new AnimationParameters.Builder()
+                                                .setDurationMillis(20)
+                                                .setEasing(
+                                                        new CubicBezierEasing.Builder()
+                                                                .setX1(3f)
+                                                                .build())
+                                                .setDelayMillis(10)
+                                                .build())
+                                .build()
+                                .toString())
                 .isEqualTo(
                         "Repeatable{iterations=10, repeatMode=1, forwardRepeatOverride=null,"
                                 + " reverseRepeatOverride=AnimationParameters{durationMillis"
@@ -116,12 +121,12 @@ public class AnimationSpecTest {
     @Test
     public void animationParametersToString() {
         assertThat(
-                new AnimationParameters.Builder()
-                        .setDurationMillis(100)
-                        .setEasing(new CubicBezierEasing.Builder().setX1(3f).build())
-                        .setDelayMillis(20)
-                        .build()
-                        .toString())
+                        new AnimationParameters.Builder()
+                                .setDurationMillis(100)
+                                .setEasing(new CubicBezierEasing.Builder().setX1(3f).build())
+                                .setDelayMillis(20)
+                                .build()
+                                .toString())
                 .isEqualTo(
                         "AnimationParameters{durationMillis=100, easing=CubicBezierEasing{x1=3.0, "
                                 + "y1=0.0, x2=0.0, y2=0.0}, delayMillis=20}");

@@ -161,7 +161,7 @@ class NodeInfo implements TreeNode {
                 continue;
             }
             if ((triggerCase == InnerCase.ON_VISIBLE_ONCE_TRIGGER
-                    || triggerCase == InnerCase.ON_LOAD_TRIGGER)
+                            || triggerCase == InnerCase.ON_LOAD_TRIGGER)
                     && entry.mPlayedAtLeastOnce) {
                 continue;
             }
@@ -236,13 +236,12 @@ class NodeInfo implements TreeNode {
     int getRunningAnimationCount() {
         return (int)
                 (mActiveBoundTypes.stream()
-                        .mapToInt(BoundDynamicType::getRunningAnimationCount).sum()
+                                .mapToInt(BoundDynamicType::getRunningAnimationCount)
+                                .sum()
                         + mResolvedAvds.stream().filter(avd -> avd.mDrawable.isRunning()).count());
     }
 
-    /**
-     * Returns how many expression nodes evaluated.
-     */
+    /** Returns how many expression nodes evaluated. */
     @VisibleForTesting
     public int getExpressionNodesCount() {
         return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();

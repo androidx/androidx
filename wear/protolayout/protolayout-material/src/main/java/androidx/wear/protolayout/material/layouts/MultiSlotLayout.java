@@ -49,8 +49,8 @@ import java.util.List;
 
 /**
  * Opinionated ProtoLayout layout, row like style with horizontally aligned and spaced slots (for
- * icons or other small content). Should be used as a content passed in to the
- * {@link PrimaryLayout}.
+ * icons or other small content). Should be used as a content passed in to the {@link
+ * PrimaryLayout}.
  *
  * <p>Recommended number of added slots is 1 to 3. Their width will be the width of an element
  * passed in, with the {@link LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} space

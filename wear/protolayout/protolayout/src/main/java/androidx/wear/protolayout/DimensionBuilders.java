@@ -205,12 +205,7 @@ public final class DimensionBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "DpProp{"
-                    + "value="
-                    + getValue()
-                    + ", dynamicValue="
-                    + getDynamicValue()
-                    + "}";
+            return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
         }
 
         /** Builder for {@link DpProp}. */

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * Internal implementation for Wear Tiles.
- *
- */
+/** Internal implementation for Wear Tiles. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.wear.tiles.timeline.internal;
 

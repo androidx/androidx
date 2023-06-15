@@ -410,18 +410,23 @@ public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.
                                 .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
                                 .setHeight(androidx.wear.tiles.DimensionBuilders.wrap())
                                 .setModifiers(
-                                    new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
-                                        .setPadding(
-                                            new androidx.wear.tiles.ModifiersBuilders.Padding
-                                                .Builder()
-                                                .setStart(
-                                                    androidx.wear.tiles.DimensionBuilders.dp(
-                                                        horizontalChipPadding))
-                                                .setEnd(
-                                                    androidx.wear.tiles.DimensionBuilders.dp(
-                                                        horizontalChipPadding))
+                                        new androidx.wear.tiles.ModifiersBuilders.Modifiers
+                                                        .Builder()
+                                                .setPadding(
+                                                        new androidx.wear.tiles.ModifiersBuilders
+                                                                        .Padding.Builder()
+                                                                .setStart(
+                                                                        androidx.wear.tiles
+                                                                                .DimensionBuilders
+                                                                                .dp(
+                                                                                        horizontalChipPadding))
+                                                                .setEnd(
+                                                                        androidx.wear.tiles
+                                                                                .DimensionBuilders
+                                                                                .dp(
+                                                                                        horizontalChipPadding))
+                                                                .build())
                                                 .build())
-                                        .build())
                                 .addContent(mPrimaryChip)
                                 .build());
             }

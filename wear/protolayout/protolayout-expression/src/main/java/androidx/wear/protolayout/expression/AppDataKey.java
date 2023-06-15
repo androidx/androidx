@@ -28,6 +28,7 @@ public final class AppDataKey<T extends DynamicBuilders.DynamicType> extends Dyn
 
     /**
      * Create a {@link AppDataKey} with the specified key.
+     *
      * @param key The key in the state to bind to.
      */
     public AppDataKey(@NonNull String key) {

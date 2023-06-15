@@ -45,7 +45,6 @@ import androidx.annotation.RestrictTo;
  * sizes (which is handled in RatioViewWrapper), and expand sizes, in which case this image gets
  * ignored for the first measure pass, and will receive an exact measurespec on the second measure
  * pass.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("AppCompatCustomView")

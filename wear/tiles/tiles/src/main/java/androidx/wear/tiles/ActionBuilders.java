@@ -1,23 +1,24 @@
 /*
- * Copyright 2021 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* Copyright 2021 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package androidx.wear.tiles;
 
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
+
 import static java.util.stream.Collectors.toMap;
 
 import android.annotation.SuppressLint;
@@ -76,8 +77,7 @@ public final class ActionBuilders {
         private final ActionProto.AndroidStringExtra mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidStringExtra(
-                ActionProto.AndroidStringExtra impl, @Nullable Fingerprint fingerprint) {
+        AndroidStringExtra(ActionProto.AndroidStringExtra impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -141,8 +141,7 @@ public final class ActionBuilders {
         private final ActionProto.AndroidIntExtra mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidIntExtra(
-                ActionProto.AndroidIntExtra impl, @Nullable Fingerprint fingerprint) {
+        AndroidIntExtra(ActionProto.AndroidIntExtra impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -205,8 +204,7 @@ public final class ActionBuilders {
         private final ActionProto.AndroidLongExtra mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidLongExtra(
-                ActionProto.AndroidLongExtra impl, @Nullable Fingerprint fingerprint) {
+        AndroidLongExtra(ActionProto.AndroidLongExtra impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -269,8 +267,7 @@ public final class ActionBuilders {
         private final ActionProto.AndroidDoubleExtra mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidDoubleExtra(
-                ActionProto.AndroidDoubleExtra impl, @Nullable Fingerprint fingerprint) {
+        AndroidDoubleExtra(ActionProto.AndroidDoubleExtra impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -419,8 +416,7 @@ public final class ActionBuilders {
     }
 
     /**
-     * Return an instance of one of this object's subtypes, from the protocol buffer
-     * representation.
+     * Return an instance of one of this object's subtypes, from the protocol buffer representation.
      */
     @NonNull
     static AndroidExtra androidExtraFromProto(@NonNull ActionProto.AndroidExtra proto) {
@@ -447,8 +443,7 @@ public final class ActionBuilders {
         private final ActionProto.AndroidActivity mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidActivity(
-                ActionProto.AndroidActivity impl, @Nullable Fingerprint fingerprint) {
+        AndroidActivity(ActionProto.AndroidActivity impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -719,8 +714,7 @@ public final class ActionBuilders {
     }
 
     /**
-     * Return an instance of one of this object's subtypes, from the protocol buffer
-     * representation.
+     * Return an instance of one of this object's subtypes, from the protocol buffer representation.
      */
     @NonNull
     static Action actionFromProto(@NonNull ActionProto.Action proto) {

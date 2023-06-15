@@ -68,7 +68,7 @@ public final class TypeBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Int32Prop fromProto(
-            @NonNull TypesProto.Int32Prop proto, @Nullable Fingerprint fingerprint) {
+                @NonNull TypesProto.Int32Prop proto, @Nullable Fingerprint fingerprint) {
             return new Int32Prop(proto, fingerprint);
         }
 
@@ -87,10 +87,7 @@ public final class TypeBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "Int32Prop{"
-                    + "value="
-                    + getValue()
-                    + "}";
+            return "Int32Prop{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link Int32Prop} */
@@ -169,7 +166,7 @@ public final class TypeBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static StringProp fromProto(
-            @NonNull TypesProto.StringProp proto, @Nullable Fingerprint fingerprint) {
+                @NonNull TypesProto.StringProp proto, @Nullable Fingerprint fingerprint) {
             return new StringProp(proto, fingerprint);
         }
 
@@ -418,7 +415,7 @@ public final class TypeBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static FloatProp fromProto(
-            @NonNull TypesProto.FloatProp proto, @Nullable Fingerprint fingerprint) {
+                @NonNull TypesProto.FloatProp proto, @Nullable Fingerprint fingerprint) {
             return new FloatProp(proto, fingerprint);
         }
 
@@ -548,7 +545,7 @@ public final class TypeBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static BoolProp fromProto(
-            @NonNull TypesProto.BoolProp proto, @Nullable Fingerprint fingerprint) {
+                @NonNull TypesProto.BoolProp proto, @Nullable Fingerprint fingerprint) {
             return new BoolProp(proto, fingerprint);
         }
 
@@ -567,10 +564,7 @@ public final class TypeBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "BoolProp{"
-                    + "value="
-                    + getValue()
-                    + "}";
+            return "BoolProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link BoolProp} */

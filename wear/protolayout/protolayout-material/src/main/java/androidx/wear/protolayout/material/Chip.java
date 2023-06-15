@@ -225,9 +225,9 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setCustomContent(@NonNull LayoutElement content) {
             this.mCustomContent = content;
-            this.mPrimaryLabel = "";
-            this.mSecondaryLabel = "";
-            this.mImageResourceId = "";
+            this.mPrimaryLabel = null;
+            this.mSecondaryLabel = null;
+            this.mImageResourceId = null;
             return this;
         }
 
@@ -423,13 +423,7 @@ public class Chip implements LayoutElement {
                             .setModifiers(
                                     new Modifiers.Builder()
                                             .setClickable(mClickable)
-                                            .setMetadata(
-                                                    new ElementMetadata.Builder()
-                                                            .setTagData(
-                                                                    getTagBytes(
-                                                                            getCorrectMetadataTag())
-                                                            )
-                                                            .build())
+                                            .setMetadata(getCorrectMetadataTag())
                                             .setSemantics(
                                                     new Semantics.Builder()
                                                             .setContentDescription(
@@ -468,9 +462,7 @@ public class Chip implements LayoutElement {
                 if (mSecondaryLabel != null) {
                     staticValue += "\n" + mSecondaryLabel;
                 }
-                if (!staticValue.isEmpty()) {
-                    mContentDescription = new StringProp.Builder(staticValue).build();
-                }
+                mContentDescription = new StringProp.Builder(staticValue).build();
             }
             return checkNotNull(mContentDescription);
         }
@@ -487,17 +479,18 @@ public class Chip implements LayoutElement {
             }
         }
 
-        private String getCorrectMetadataTag() {
+        private ElementMetadata getCorrectMetadataTag() {
+            String tag = METADATA_TAG_TEXT;
             if (!mMetadataTag.isEmpty()) {
-                return mMetadataTag;
+                tag = mMetadataTag;
             }
             if (mCustomContent != null) {
-                return METADATA_TAG_CUSTOM_CONTENT;
+                tag = METADATA_TAG_CUSTOM_CONTENT;
             }
             if (mImageResourceId != null) {
-                return METADATA_TAG_ICON;
+                tag = METADATA_TAG_ICON;
             }
-            return METADATA_TAG_TEXT;
+            return new ElementMetadata.Builder().setTagData(getTagBytes(tag)).build();
         }
 
         @NonNull
@@ -731,9 +724,7 @@ public class Chip implements LayoutElement {
         return getMetadataTagName(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
     }
 
-    /**
-     *  Returns whether the font padding for the primary label is excluded.
-     */
+    /** Returns whether the font padding for the primary label is excluded. */
     @ProtoLayoutExperimental
     boolean hasPrimaryLabelExcludeFontPadding() {
         Text primaryLabel = getPrimaryLabelContentObject();
