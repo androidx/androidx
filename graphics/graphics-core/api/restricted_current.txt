@@ -85,23 +85,28 @@ package androidx.graphics.opengl {
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrameBufferRenderer {
     method public void execute(Runnable runnable);
+    method public int getBufferFormat();
     method public androidx.graphics.opengl.GLRenderer getGLRenderer();
     method public int getMaxBuffers();
-    method public int getPixelFormat();
     method public androidx.graphics.opengl.SyncStrategy getSyncStrategy();
     method public long getUsageFlags();
     method public boolean isValid();
     method public void release(boolean cancelPending);
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseCallback);
     method public void render();
+    property public final int bufferFormat;
+    property public final androidx.graphics.opengl.GLRenderer glRenderer;
+    property public final int maxBuffers;
+    property public final androidx.graphics.opengl.SyncStrategy syncStrategy;
+    property public final long usageFlags;
   }
 
   public static final class GLFrameBufferRenderer.Builder {
     ctor public GLFrameBufferRenderer.Builder(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLFrameBufferRenderer.Callback callback);
     method public androidx.graphics.opengl.GLFrameBufferRenderer build();
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setBufferFormat(int format);
     method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setGLRenderer(androidx.graphics.opengl.GLRenderer? glRenderer);
-    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setMaxBuffers(int numBuffers);
-    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setPixelFormat(int format);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setMaxBuffers(@IntRange(from=1L, to=64L) int numBuffers);
     method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setSyncStrategy(androidx.graphics.opengl.SyncStrategy syncStrategy);
     method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setUsageFlags(long usageFlags);
   }

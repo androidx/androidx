@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.lowlatency.BufferInfo
@@ -31,6 +32,8 @@ import androidx.graphics.lowlatency.BufferTransformer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.hardware.HardwareBufferFormat
+import androidx.hardware.HardwareBufferUsage
 import androidx.hardware.SyncFenceCompat
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
@@ -47,10 +50,10 @@ import java.util.concurrent.CountDownLatch
 class GLFrameBufferRenderer internal constructor(
     private val surfaceControlProvider: SurfaceControlProvider,
     callback: Callback,
-    private val format: Int,
-    private val usage: Long,
-    private val maxBuffers: Int,
-    private val syncStrategy: SyncStrategy,
+    private val mFormat: Int,
+    private val mUsage: Long,
+    private val mMaxBuffers: Int,
+    private val mSyncStrategy: SyncStrategy,
     glRenderer: GLRenderer?
 ) {
 
@@ -69,9 +72,9 @@ class GLFrameBufferRenderer internal constructor(
             val frameBufferPool = FrameBufferPool(
                 bufferTransformer.glWidth,
                 bufferTransformer.glHeight,
-                this@GLFrameBufferRenderer.format,
-                usage,
-                maxBuffers
+                this@GLFrameBufferRenderer.mFormat,
+                mUsage,
+                mMaxBuffers
             )
             val renderCallback = createFrameBufferRenderer(
                 surfaceControl,
@@ -94,7 +97,7 @@ class GLFrameBufferRenderer internal constructor(
      * Builder used to create a [GLFrameBufferRenderer] with various configurations
      */
     class Builder {
-        private var mPixelFormat = HardwareBuffer.RGBA_8888
+        private var mBufferFormat = HardwareBuffer.RGBA_8888
         private var mUsageFlags = DefaultFlags
         private var mMaxBuffers = DefaultNumBuffers
         private var mGLRenderer: GLRenderer? = null
@@ -164,15 +167,24 @@ class GLFrameBufferRenderer internal constructor(
         }
 
         /**
-         * Specify the pixel format of the underlying buffers being rendered into by the created
-         * [GLFrameBufferRenderer].
+         * Specify the buffer format of the underlying buffers being rendered into by the created
+         * [GLFrameBufferRenderer]. The set of valid formats is implementation-specific and may
+         * depend on additional EGL extensions. The particular valid combinations for a given
+         * Android version and implementation should be documented by that version.
+         *
+         * [HardwareBuffer.RGBA_8888] and [HardwareBuffer.RGBX_8888] are guaranteed to be supported.
+         * However, consumers are recommended to query the desired HardwareBuffer configuration
+         * using [HardwareBuffer.isSupported].
+         *
+         * See:
+         * khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
          *
          * @param format Pixel format of the buffers to be rendered into. The default is RGBA_8888.
          *
          * @return The builder instance
          */
-        fun setPixelFormat(format: Int): Builder {
-            mPixelFormat = format
+        fun setBufferFormat(@HardwareBufferFormat format: Int): Builder {
+            mBufferFormat = format
             return this
         }
 
@@ -185,11 +197,12 @@ class GLFrameBufferRenderer internal constructor(
          * @see [setSyncStrategy].
          *
          * @param numBuffers The number of buffers within the swap chain to be consumed by the
-         * created [GLFrameBufferRenderer]. This must be greater than zero.
+         * created [GLFrameBufferRenderer]. This must be greater than zero. The default number
+         * of buffers used is 3.
          *
          * @return The builder instance
          */
-        fun setMaxBuffers(numBuffers: Int): Builder {
+        fun setMaxBuffers(@IntRange(from = 1, to = 64) numBuffers: Int): Builder {
             require(numBuffers > 0) { "Must have at least 1 buffer" }
             mMaxBuffers = numBuffers
             return this
@@ -200,11 +213,14 @@ class GLFrameBufferRenderer internal constructor(
          * created by the [GLFrameBufferRenderer].
          *
          * @param usageFlags Usage flags to be configured on the created [HardwareBuffer] instances
-         * that the [GLFrameBufferRenderer] will render into.
+         * that the [GLFrameBufferRenderer] will render into. Must be one of [HardwareBufferUsage].
+         * Note that the provided flags here are combined with the following mandatory default flags,
+         * [HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE], [HardwareBuffer.USAGE_GPU_COLOR_OUTPUT] and
+         * [HardwareBuffer.USAGE_COMPOSER_OVERLAY]
          *
          * @return The builder instance
          */
-        fun setUsageFlags(usageFlags: Long): Builder {
+        fun setUsageFlags(@HardwareBufferUsage usageFlags: Long): Builder {
             mUsageFlags = usageFlags or DefaultFlags
             return this
         }
@@ -236,7 +252,7 @@ class GLFrameBufferRenderer internal constructor(
             return GLFrameBufferRenderer(
                 mSurfaceControlProvider,
                 mCallback,
-                mPixelFormat,
+                mBufferFormat,
                 mUsageFlags,
                 mMaxBuffers,
                 mSyncStrategy,
@@ -264,7 +280,7 @@ class GLFrameBufferRenderer internal constructor(
     private val mGLRenderer: GLRenderer
 
     init {
-        if (maxBuffers < 1) {
+        if (mMaxBuffers < 1) {
             throw IllegalArgumentException("FrameBufferRenderer must have at least 1 buffer")
         }
         val renderer = if (glRenderer == null) {
@@ -300,23 +316,29 @@ class GLFrameBufferRenderer internal constructor(
     }
 
     /**
-     * Returns the pixel format of the buffers that are being rendered into by this
+     * Returns the [HardwareBufferFormat] of the buffers that are being rendered into by this
      * [GLFrameBufferRenderer]
      */
-    fun getPixelFormat(): Int = format
+    @HardwareBufferFormat
+    val bufferFormat: Int
+        get() = mFormat
 
     /**
      * Returns the current usage flag hints of the buffers that are being rendered into by this
      * [GLFrameBufferRenderer]
      */
-    fun getUsageFlags(): Long = usage
+    @HardwareBufferUsage
+    val usageFlags: Long
+        get() = mUsage
 
     /**
      * Returns the [GLRenderer] used for issuing requests to render into the underlying buffers
      * with OpenGL.
      */
-    @Suppress("AcronymName")
-    fun getGLRenderer(): GLRenderer = mGLRenderer
+    val glRenderer: GLRenderer
+        @Suppress("AcronymName")
+        @JvmName("getGLRenderer")
+        get() = mGLRenderer
 
     /**
      * Returns the [SyncStrategy] used for determining when to create [SyncFenceCompat]
@@ -325,13 +347,15 @@ class GLFrameBufferRenderer internal constructor(
      * to the corresponding [SurfaceControlCompat.Transaction.setBuffer] call in order to
      * ensure the underlying buffer is not presented by the display until the fence signals.
      */
-    fun getSyncStrategy(): SyncStrategy = syncStrategy
+    val syncStrategy: SyncStrategy
+        get() = mSyncStrategy
 
     /**
      * Returns the number of buffers within the swap chain used for rendering with this
      * [GLFrameBufferRenderer]
      */
-    fun getMaxBuffers(): Int = maxBuffers
+    val maxBuffers: Int
+        get() = mMaxBuffers
 
     internal fun createFrameBufferRenderer(
         surfaceControl: SurfaceControlCompat,
@@ -352,7 +376,7 @@ class GLFrameBufferRenderer internal constructor(
             override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
                 val currentFrameBuffer = mCurrentFrameBuffer
                 // Single buffer mode if we already allocated 1 buffer just return the previous one
-                return if (maxBuffers == 1 && currentFrameBuffer != null) {
+                return if (mMaxBuffers == 1 && currentFrameBuffer != null) {
                     currentFrameBuffer
                 } else {
                     frameBufferPool.obtain(egl).also {
@@ -374,7 +398,7 @@ class GLFrameBufferRenderer internal constructor(
                     .setVisibility(surfaceControl, true)
                     .setBuffer(surfaceControl, frameBuffer.hardwareBuffer, syncFenceCompat) {
                         releaseFence ->
-                        if (maxBuffers > 1) {
+                        if (mMaxBuffers > 1) {
                             // Release the previous buffer only if we are not in single buffered
                             // mode
                             frameBufferPool.release(frameBuffer, releaseFence)
@@ -387,7 +411,7 @@ class GLFrameBufferRenderer internal constructor(
                 transaction.commit()
             }
         },
-        syncStrategy
+        mSyncStrategy
     )
 
     internal fun drawAsync(onComplete: Runnable? = null) {
@@ -508,8 +532,8 @@ class GLFrameBufferRenderer internal constructor(
     interface Callback {
 
         /**
-         * Callback invoked to render content into a buffer with the specified
-         * parameters.
+         * Callback invoked on the thread backed by the [GLRenderer] to render content into a
+         * buffer with the specified parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the front buffered layer
          * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
@@ -552,8 +576,8 @@ class GLFrameBufferRenderer internal constructor(
         )
 
         /**
-         * Optional callback invoked when rendering to a buffer is complete but before the buffer
-         * is submitted to the hardware compositor.
+         * Optional callback invoked the thread backed by the [GLRenderer] when rendering to a
+         * buffer is complete but before the buffer is submitted to the hardware compositor.
          * This provides consumers a mechanism for synchronizing the transaction with other
          * [SurfaceControlCompat] objects that maybe rendered within the scene.
          *
