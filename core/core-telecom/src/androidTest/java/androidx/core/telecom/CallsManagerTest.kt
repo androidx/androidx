@@ -32,9 +32,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
-@RequiresApi(VERSION_CODES.O)
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
+@RequiresApi(VERSION_CODES.O)
+@RunWith(AndroidJUnit4::class)
 class CallsManagerTest : BaseTelecomTest() {
     private val mTestClassName = "androidx.core.telecom.test"
 
