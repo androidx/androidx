@@ -63,7 +63,7 @@ class CreateMessage private constructor() {
     }
 
     class Arguments
-    internal constructor(val recipientList: List<RecipientValue>, val messageText: String?) {
+    internal constructor(val recipientList: List<RecipientReference>, val messageText: String?) {
         override fun toString(): String {
             return "Arguments(recipient=$recipientList, messageTextList=$messageText)"
         }
@@ -87,10 +87,10 @@ class CreateMessage private constructor() {
         }
 
         class Builder {
-            private var recipientList: List<RecipientValue> = mutableListOf()
+            private var recipientList: List<RecipientReference> = mutableListOf()
             private var messageText: String? = null
 
-            fun setRecipientList(recipientList: List<RecipientValue>): Builder = apply {
+            fun setRecipientList(recipientList: List<RecipientReference>): Builder = apply {
                 this.recipientList = recipientList
             }
 
@@ -183,7 +183,7 @@ class CreateMessage private constructor() {
                 .bindRepeatedParameter(
                     SlotMetadata.RECIPIENT.path,
                     Arguments.Builder::setRecipientList,
-                    RecipientValue.PARAM_VALUE_CONVERTER,
+                    RecipientReference.PARAM_VALUE_CONVERTER,
                 )
                 .bindParameter(
                     SlotMetadata.TEXT.path,

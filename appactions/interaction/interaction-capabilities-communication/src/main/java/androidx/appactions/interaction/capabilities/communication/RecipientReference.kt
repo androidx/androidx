@@ -22,9 +22,9 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 
-class RecipientValue private constructor(
+class RecipientReference private constructor(
     val asRecipient: Recipient?,
-    val asRecipientFilter: SearchAction<Recipient>?,
+    val asSearchAction: SearchAction<Recipient>?,
 ) {
     constructor(recipient: Recipient) : this(recipient, null)
 
@@ -32,15 +32,15 @@ class RecipientValue private constructor(
     constructor(recipientFilter: SearchAction<Recipient>) : this(null, recipientFilter)
 
     companion object {
-        private val TYPE_SPEC = UnionTypeSpec.Builder<RecipientValue>()
+        private val TYPE_SPEC = UnionTypeSpec.Builder<RecipientReference>()
             .bindMemberType(
-                memberGetter = RecipientValue::asRecipient,
-                ctor = { RecipientValue(it) },
+                memberGetter = RecipientReference::asRecipient,
+                ctor = { RecipientReference(it) },
                 typeSpec = TypeConverters.RECIPIENT_TYPE_SPEC,
             )
             .bindMemberType(
-                memberGetter = RecipientValue::asRecipientFilter,
-                ctor = { RecipientValue(it) },
+                memberGetter = RecipientReference::asSearchAction,
+                ctor = { RecipientReference(it) },
                 typeSpec = TypeConverters.createSearchActionTypeSpec(
                     TypeConverters.RECIPIENT_TYPE_SPEC,
                 ),

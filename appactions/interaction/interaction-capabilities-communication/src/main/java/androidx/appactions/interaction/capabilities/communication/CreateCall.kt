@@ -65,7 +65,7 @@ class CreateCall private constructor() {
     class Arguments
     internal constructor(
         val callFormat: Call.CanonicalValue.CallFormat?,
-        val participantList: List<ParticipantValue>
+        val participantList: List<ParticipantReference>
     ) {
         override fun toString(): String {
             return "Arguments(callFormat=$callFormat, participantList=$participantList)"
@@ -91,13 +91,13 @@ class CreateCall private constructor() {
 
         class Builder {
             private var callFormat: Call.CanonicalValue.CallFormat? = null
-            private var participantList: List<ParticipantValue> = mutableListOf()
+            private var participantList: List<ParticipantReference> = mutableListOf()
 
             fun setCallFormat(callFormat: Call.CanonicalValue.CallFormat): Builder = apply {
                 this.callFormat = callFormat
             }
 
-            fun setParticipantList(participantList: List<ParticipantValue>): Builder = apply {
+            fun setParticipantList(participantList: List<ParticipantReference>): Builder = apply {
                 this.participantList = participantList
             }
 
@@ -190,7 +190,7 @@ class CreateCall private constructor() {
                 .bindRepeatedParameter(
                     SlotMetadata.PARTICIPANT.path,
                     Arguments.Builder::setParticipantList,
-                    ParticipantValue.PARAM_VALUE_CONVERTER,
+                    ParticipantReference.PARAM_VALUE_CONVERTER,
                 )
                 .bindOutput(
                     "call",

@@ -53,7 +53,7 @@ class StopTimer private constructor() {
         )
     }
 
-    class Arguments internal constructor(val timerList: List<TimerValue>?) {
+    class Arguments internal constructor(val timerList: List<TimerReference>?) {
         override fun toString(): String {
             return "Arguments(timerList=$timerList)"
         }
@@ -74,10 +74,10 @@ class StopTimer private constructor() {
         }
 
         class Builder {
-            private var timerList: List<TimerValue>? = null
+            private var timerList: List<TimerReference>? = null
 
             fun setTimerList(
-                timerList: List<TimerValue>
+                timerList: List<TimerReference>
             ): Builder = apply { this.timerList = timerList }
 
             fun build(): Arguments = Arguments(timerList)
@@ -158,7 +158,7 @@ class StopTimer private constructor() {
                 .bindRepeatedParameter(
                     SlotMetadata.TIMER.path,
                     Arguments.Builder::setTimerList,
-                    TimerValue.PARAM_VALUE_CONVERTER
+                    TimerReference.PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",
