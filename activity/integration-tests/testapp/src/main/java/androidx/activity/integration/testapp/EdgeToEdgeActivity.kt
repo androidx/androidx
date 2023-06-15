@@ -45,13 +45,24 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
             // API 21,22: Dark scrim (system default).
             enableEdgeToEdge()
         }
-        findViewById<View>(R.id.custom_config).setOnClickListener {
+        findViewById<View>(R.id.auto_config).setOnClickListener {
             // API 29+: Transparent on gesture nav, Auto scrim on 3-button nav (same as default).
             // API 23-28: Yellow bars.
             // API 21,22: Dark scrim (system default).
             val style = SystemBarStyle.auto(
                 lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
                 darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c)
+            )
+            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+        }
+        findViewById<View>(R.id.custom_config).setOnClickListener {
+            // API 29+: Transparent on gesture nav, Auto scrim on 3-button nav (same as default).
+            // API 23-28: Yellow bars.
+            // API 21,22: Dark scrim (system default).
+            val style = SystemBarStyle.auto(
+                lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
+                darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c),
+                detectDarkMode = { false }
             )
             enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }

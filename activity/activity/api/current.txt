@@ -140,6 +140,7 @@ package androidx.activity {
 
   public final class SystemBarStyle {
     method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
     method public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
     method public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
     field public static final androidx.activity.SystemBarStyle.Companion Companion;
@@ -147,6 +148,7 @@ package androidx.activity {
 
   public static final class SystemBarStyle.Companion {
     method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
     method public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
     method public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
   }
