@@ -73,6 +73,19 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
     }
 
     /**
+     * Checks that the subject is less than or equal to [other].
+     *
+     * @throws NullPointerException if [actual] or [other] is `null`.
+     */
+    fun isAtMost(other: T?) {
+        requireNonNull(actual) { "Expected to be at most $other, but was $actual" }
+        requireNonNull(other) { "Expected to be at most $other, but was $actual" }
+        if (actual > other) {
+            asserter.fail("Expected to be at most $other, but was $actual")
+        }
+    }
+
+    /**
      * Checks that the subject is greater than or equal to [other].
      *
      * @throws NullPointerException if [actual] or [other] is `null`.

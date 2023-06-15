@@ -75,7 +75,7 @@ open class Subject<out T> internal constructor(
     /**
      * Fails if the subject is not equal to the given object. For the purposes of this comparison,
      * two objects are equal if any of the following is true:
-     * * they are both `null`
+     * * they are both 'null'
      * * they are equal according to [equals]
      * * they are [Array]s and are considered equal by [Array.contentEquals]
      * * they are boxed integer types ([Byte], [Short], [Char], [Int], or [Long]) and they are

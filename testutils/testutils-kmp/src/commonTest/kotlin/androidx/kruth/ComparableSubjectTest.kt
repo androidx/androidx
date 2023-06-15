@@ -87,6 +87,15 @@ class ComparableSubjectTest {
     }
 
     @Test
+    fun isAtMost() {
+        assertThat(5).isAtMost(5)
+        assertThat(5).isAtMost(6)
+        assertFailsWith<AssertionError> {
+            assertThat(4).isAtMost(3)
+        }
+    }
+
+    @Test
     fun isAtLeast() {
         assertThat(4).isAtLeast(3)
         assertThat(4).isAtLeast(4)
@@ -99,16 +108,20 @@ class ComparableSubjectTest {
 
     @Test
     fun longs() {
+        assertThat(5L).isGreaterThan(4L)
         assertThat(4L).isLessThan(5L)
-
+        assertThat(4L).isAtMost(4L)
+        assertThat(4L).isAtMost(5L)
         assertThat(4L).isAtLeast(4L)
         assertThat(4L).isAtLeast(3L)
     }
 
     @Test
     fun strings() {
+        assertThat("kak").isGreaterThan("gak")
         assertThat("gak").isLessThan("kak")
-
+        assertThat("kak").isAtMost("kak")
+        assertThat("gak").isAtMost("kak")
         assertThat("kak").isAtLeast("kak")
         assertThat("kak").isAtLeast("gak")
     }
