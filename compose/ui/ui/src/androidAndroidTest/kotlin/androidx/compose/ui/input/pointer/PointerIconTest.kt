@@ -20,14 +20,20 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.InspectableValue
@@ -57,10 +63,10 @@ class PointerIconTest {
     private val parentIconTag = "myParentIcon"
     private val childIconTag = "myChildIcon"
     private val grandchildIconTag = "myGrandchildIcon"
-    private val desiredParentIcon = PointerIcon.Crosshair
-    private val desiredChildIcon = PointerIcon.Text
-    private val desiredGrandchildIcon = PointerIcon.Hand
-    private val desiredDefaultIcon = PointerIcon.Default
+    private val desiredParentIcon = PointerIcon.Crosshair // AndroidPointerIcon(type=1007)
+    private val desiredChildIcon = PointerIcon.Text // AndroidPointerIcon(type=1008)
+    private val desiredGrandchildIcon = PointerIcon.Hand // AndroidPointerIcon(type=1002)
+    private val desiredDefaultIcon = PointerIcon.Default // AndroidPointerIcon(type=1000)
     private lateinit var iconService: PointerIconService
 
     @Before
@@ -458,7 +464,6 @@ class PointerIconTest {
      *  Parent Box (output icon = [PointerIcon.Crosshair])
      *    ⤷ Child Box (output icon = [PointerIcon.Crosshair])
      */
-    @Ignore("b/267170292 - not yet implemented")
     @Test
     fun parentChildPartialOverlap_parentModifierDynamicallyAdded() {
         val isVisible = mutableStateOf(false)
@@ -605,6 +610,159 @@ class PointerIconTest {
 
     /**
      * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After several assertions, it reverts back to false in the parent:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *
+     *  Expected Output:
+     *  Initially, the Child Box's [PointerIcon.Text] should win for its entire surface area
+     *  because the parent does not override descendants. After the Parent Box dynamically changes
+     *  overrideDescendants to true, the Parent Box's [PointerIcon.Crosshair] should win for the
+     *  entire surface area of the Parent Box and Child Box because the Parent Box has
+     *  overrideDescendants = true.
+     *
+     *  It should then revert back to Child Box's [PointerIcon.Text] after the Parent Box's
+     *  overrideDescendants is set back to false.
+     *
+     */
+    @Test
+    fun parentChildPartialOverlap_parentModifierDynamicallyChangedToOverrideWithMoveEvents() {
+        var parentOverrideDescendants by mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .then(
+                            Modifier.pointerHoverIcon(
+                                desiredParentIcon,
+                                overrideDescendants = parentOverrideDescendants
+                            )
+                        )
+
+                ) {
+                    Box(
+                        Modifier
+                            .padding(20.dp)
+                            .requiredSize(150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                    )
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over Child Box and verify it has the desired child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move to Parent Box and verify its icon is the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move back to the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Dynamically change the pointerHoverIcon Modifier to the Parent Box to
+        // override descendants.
+        rule.runOnIdle {
+            parentOverrideDescendants = true
+        }
+
+        // Verify the Child Box has updated to respect the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Move within the Child Box and verify it is still respecting the desired parent icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+
+        // Verify the Child Box has updated to respect the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Move to the Parent Box and verify it also has the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Move within the Child Box and verify it is still respecting the desired parent icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Dynamically change the pointerHoverIcon Modifier to the Parent Box to NOT
+        // override descendants.
+        rule.runOnIdle {
+            parentOverrideDescendants = false
+        }
+
+        // Verify it's changed to child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Move to Parent Box and verify its icon is the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move back to the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
      *  The hierarchy for the initial setup of this test is:
      *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
      *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
@@ -621,7 +779,6 @@ class PointerIconTest {
      *  dynamically updated to true, the Parent Box's icon should win for its entire surface area,
      *  including within Child Box.
      */
-    @Ignore("b/266976920 - not yet implemented")
     @Test
     fun parentChildPartialOverlap_parentOverrideDescendantsDynamicallyUpdated() {
         val parentOverrideState = mutableStateOf(false)
@@ -663,6 +820,180 @@ class PointerIconTest {
         verifyIconOnHover(childIconTag, desiredParentIcon)
         // Verify Parent Box also has the desired parent icon
         verifyIconOnHover(parentIconTag, desiredParentIcon)
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over various parts of the screen and verify the results, we update the
+     *  parent's overrideDescendants to true:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After several assertions, it reverts back to false in the parent:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *
+     *  Expected Output:
+     *  Initially, the Child Box's [PointerIcon.Text] should win for its entire surface area
+     *  because the parent does not override descendants. After the Parent Box dynamically changes
+     *  overrideDescendants to true, the Parent Box's [PointerIcon.Crosshair] should win for the
+     *  child's surface area within the Parent Box BUT NOT the portion of the Child Box that is
+     *  outside the Parent Box.
+     *
+     *  It should then revert back to Child Box's [PointerIcon.Text] (in all scenarios) after the
+     *  Parent Box's overrideDescendants is set back to false.
+     *
+     */
+    @Test
+    fun parentChildPartialOverlapAndExtendsBeyondParent_dynamicOverrideDescendants() {
+        var parentOverrideDescendants by mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+
+                Box(
+                    modifier = Modifier
+                        .requiredSize(300.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Green)))
+
+                ) {
+                    // This child extends beyond the borders of the parent (enabling this test)
+                    Box(
+                        modifier = Modifier
+                            .size(150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .testTag(parentIconTag)
+                            .then(
+                                Modifier.pointerHoverIcon(
+                                    desiredParentIcon,
+                                    overrideDescendants = parentOverrideDescendants
+                                )
+                            )
+
+                    ) {
+                        Box(
+                            Modifier
+                                .padding(20.dp)
+                                .offset(100.dp)
+                                .width(300.dp)
+                                .height(100.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                        )
+                    }
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over Child Box and verify it has the desired child icon (outside parent)
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Hover over Child Box and verify it has the desired child icon (inside parent)
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomLeft)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Move to Parent Box and verify its icon is the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move back to the Child Box (portion inside parent)
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomLeft)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Dynamically change the pointerHoverIcon Modifier of the Parent Box to
+        // override descendants.
+        rule.runOnIdle {
+            parentOverrideDescendants = true
+        }
+
+        // Verify the Child Box has updated to respect the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Hover over Child Box and verify it has the desired child icon (outside parent)
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Move to the Parent Box and verify it also has the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Move within the Child Box (portion inside parent) and verify it is still
+        // respecting the desired parent icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomLeft)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+
+        // Dynamically change the pointerHoverIcon Modifier of the Parent Box to NOT
+        // override descendants.
+        rule.runOnIdle {
+            parentOverrideDescendants = false
+        }
+
+        // Verify it's changed to child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Move to Parent Box and verify its icon is the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move back to the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomLeft)
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
     }
 
     /**
@@ -4029,6 +4360,101 @@ class PointerIconTest {
         }
         rule.runOnIdle {
             assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+    }
+
+    @Test
+    fun resetPointerIconWhenChildRemoved_parentDoesSetIcon_iconIsHand() {
+        val defaultIconTag = "myDefaultWrapper"
+        var show by mutableStateOf(true)
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalPointerIconService provides iconService
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .pointerHoverIcon(PointerIcon.Hand)
+                    .testTag(defaultIconTag)
+                ) {
+                    if (show) {
+                        Box(
+                            modifier = Modifier
+                                .pointerHoverIcon(PointerIcon.Text)
+                                .size(10.dp, 10.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // No mouse movement yet, should be default
+            assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
+        }
+
+        rule.onNodeWithTag(defaultIconTag).performMouseInput {
+            moveTo(Offset(x = 5f, y = 5f))
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
+        }
+
+        show = false
+
+        rule.onNodeWithTag(defaultIconTag).performMouseInput {
+            moveTo(Offset(x = 6f, y = 6f))
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
+        }
+    }
+
+    @Test
+    fun resetPointerIconWhenChildRemoved_parentDoesNotSetIcon_iconIsDefault() {
+        val defaultIconTag = "myDefaultWrapper"
+        var show by mutableStateOf(true)
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalPointerIconService provides iconService
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(defaultIconTag)
+                ) {
+                    if (show) {
+                        Box(
+                            modifier = Modifier
+                                .pointerHoverIcon(PointerIcon.Text)
+                                .size(10.dp, 10.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // No mouse movement yet, should be default
+            assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
+        }
+
+        rule.onNodeWithTag(defaultIconTag).performMouseInput {
+            moveTo(Offset(x = 5f, y = 5f))
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
+        }
+
+        show = false
+
+        rule.onNodeWithTag(defaultIconTag).performMouseInput {
+            moveTo(Offset(x = 6f, y = 6f))
+        }
+
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
         }
     }
 
