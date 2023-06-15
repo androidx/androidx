@@ -53,7 +53,9 @@ data class ApiLocation(
     // Directory where native API files are stored
     val nativeApiDirectory: File,
     // Directory where the library's stable AIDL surface is recorded
-    val aidlApiDirectory: File
+    val aidlApiDirectory: File,
+    // File where the API version history is recorded, for use in docs
+    val apiLevelsFile: File
 ) : Serializable {
 
     /**
@@ -93,7 +95,8 @@ data class ApiLocation(
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
                 nativeApiDirectory = File(apiFileDir, NATIVE_API_DIRECTORY_NAME).resolve(baseName),
-                aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName)
+                aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName),
+                apiLevelsFile = File(apiFileDir, API_LEVELS)
             )
         }
 
@@ -131,6 +134,11 @@ data class ApiLocation(
          * Directory name for location of AIDL API files
          */
         private const val AIDL_API_DIRECTORY_NAME = "aidl"
+
+        /**
+         * File name for API version history file.
+         */
+        private const val API_LEVELS = "apiLevels.json"
     }
 }
 

@@ -16,6 +16,7 @@
 
 package androidx.build.metalava
 
+import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
 import androidx.build.getLibraryByName
 import androidx.build.java.JavaCompileInputs
@@ -181,6 +182,33 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
     return args
 }
 
+/**
+ * Returns the args needed to generate a version history JSON from the previous API files.
+ */
+internal fun getGenerateApiLevelsArgs(
+    apiFiles: List<File>,
+    currentVersion: Version,
+    outputLocation: File
+): List<String> {
+    val versions = getVersionsForApiLevels(apiFiles) + currentVersion
+
+    val args = listOf(
+        "--generate-api-version-history",
+        outputLocation.absolutePath,
+        "--api-version-names",
+        versions.joinToString(" ")
+    )
+
+    return if (apiFiles.isEmpty()) {
+        args
+    } else {
+        args + listOf(
+            "--api-version-signature-files",
+            apiFiles.joinToString(":")
+        )
+    }
+}
+
 sealed class GenerateApiMode {
     object PublicApi : GenerateApiMode()
     object AllRestrictedApis : GenerateApiMode()
@@ -195,13 +223,16 @@ sealed class ApiLintMode {
     object Skip : ApiLintMode()
 }
 
-// Generates all of the specified api files
+/**
+ * Generates all of the specified api files, as well as a version history JSON for the public API.
+ */
 fun generateApi(
     metalavaClasspath: FileCollection,
     files: JavaCompileInputs,
     apiLocation: ApiLocation,
     apiLintMode: ApiLintMode,
     includeRestrictToLibraryGroupApis: Boolean,
+    apiLevelsArgs: List<String>,
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null,
@@ -225,6 +256,7 @@ fun generateApi(
             apiLocation,
             generateApiMode,
             apiLintMode,
+            apiLevelsArgs,
             k2UastEnabled,
             workerExecutor,
             pathToManifest
@@ -232,7 +264,10 @@ fun generateApi(
     }
 }
 
-// Gets arguments for generating the specified api file
+/**
+ * Gets arguments for generating the specified api file (and a version history JSON if the
+ * [generateApiMode] is [GenerateApiMode.PublicApi].
+ */
 private fun generateApi(
     metalavaClasspath: FileCollection,
     bootClasspath: FileCollection,
@@ -241,18 +276,22 @@ private fun generateApi(
     outputLocation: ApiLocation,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
+    apiLevelsArgs: List<String>,
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null
 ) {
     val args = getGenerateApiArgs(
         bootClasspath, dependencyClasspath, sourcePaths, outputLocation, generateApiMode,
-        apiLintMode, pathToManifest
+        apiLintMode, apiLevelsArgs, pathToManifest
     )
     runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, workerExecutor)
 }
 
-// Generates the specified api file
+/**
+ * Generates the specified api file, and a version history JSON if the [generateApiMode] is
+ * [GenerateApiMode.PublicApi].
+ */
 fun getGenerateApiArgs(
     bootClasspath: FileCollection,
     dependencyClasspath: FileCollection,
@@ -260,6 +299,7 @@ fun getGenerateApiArgs(
     outputLocation: ApiLocation?,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
+    apiLevelsArgs: List<String>,
     pathToManifest: String? = null
 ): List<String> {
     // generate public API txt
@@ -284,6 +324,8 @@ fun getGenerateApiArgs(
             is GenerateApiMode.PublicApi -> {
                 args += listOf("--api", outputLocation.publicApiFile.toString())
                 args += listOf("--removed-api", outputLocation.removedApiFile.toString())
+                // Generate API levels just for the public API
+                args += apiLevelsArgs
             }
             is GenerateApiMode.AllRestrictedApis,
             GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {

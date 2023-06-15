@@ -59,6 +59,11 @@ object MetalavaTasks {
             task.baselines.set(baselinesApiLocation)
             task.targetsJavaConsumers = extension.targetsJavaConsumers
             task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
+
+            // Arguments needed for generating the API levels JSON
+            task.projectApiDirectory = project.layout.projectDirectory.dir("api")
+            task.currentVersion.set(version)
+
             processManifest?.let {
                 task.manifestPath.set(processManifest.manifestOutputFile)
             }
@@ -190,6 +195,7 @@ object MetalavaTasks {
             regenerateOldApis,
             updateApi,
             regenerateApis,
+            generateApi
         )
     }
 
