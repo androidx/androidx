@@ -377,8 +377,8 @@ public interface SessionProcessorImpl {
          *                             applied by the corresponding framework.
          * @since 1.3
          */
-        void onCaptureCompleted(long timestamp, int captureSequenceId,
-                @NonNull Map<CaptureResult.Key, Object> result);
+        default void onCaptureCompleted(long timestamp, int captureSequenceId,
+                @NonNull Map<CaptureResult.Key, Object> result) {}
 
         /**
          * Capture progress callback that needs to be called when the process capture is
@@ -393,6 +393,6 @@ public interface SessionProcessorImpl {
          * @param progress             Value between 0 and 100.
          * @since 1.4
          */
-        void onCaptureProcessProgressed(int progress);
+        default void onCaptureProcessProgressed(int progress) {}
     }
 }
