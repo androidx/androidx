@@ -165,7 +165,7 @@ fun PlainTooltipBox(
 fun RichTooltipBox(
     text: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    focusable: Boolean = false,
+    focusable: Boolean = true,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
     tooltipState: RichTooltipState = rememberRichTooltipState(action != null),
