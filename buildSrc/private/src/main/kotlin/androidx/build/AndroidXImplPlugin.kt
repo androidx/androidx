@@ -68,6 +68,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.Copy
@@ -746,6 +747,20 @@ class AndroidXImplPlugin @Inject constructor(
         project.afterEvaluate {
             if (androidXExtension.shouldRelease()) {
                 project.extra.set("publish", true)
+            }
+            if (project.hasBenchmarkPlugin()) {
+                // Inject AOT compilation - see b/287358254 for context, b/288167775 for AGP support
+
+                // NOTE: we assume here that all benchmarks have package name $namespace.test
+                val aotCompile = "cmd package compile -m speed -f $namespace.test"
+
+                // only run aotCompile on N+, where it's supported
+                val inject = "if [ `getprop ro.build.version.sdk` -ge 24 ]; then $aotCompile; fi"
+                val options =
+                    "/data/local/tmp/${project.name}-$testBuildType-androidTest.apk && $inject #"
+
+                project.logger.log(LogLevel.WARN, "Injecting benchmark compilation: $options")
+                adbOptions.setInstallOptions(*options.split(" ").toTypedArray())
             }
         }
     }

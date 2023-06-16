@@ -2069,6 +2069,8 @@ objc\[.*\]: Class .*
 xcframework successfully .*
 # > Configure project :internal-testutils-ktx
 WARNING:.*The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
+# Injecting benchmark compilation shell warning
+Injecting benchmark compilation: .*
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 Observed package id 'platforms;android-33-ext5' in inconsistent location.*
 .*xcodebuild.*
