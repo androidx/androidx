@@ -8,7 +8,7 @@ export function expressionFilter(expression: string) {
   } catch (error) {
     // Invalid regular expression.
     // Falling back to substring matching.
-    console.log(`Invalid regular expression ${expression}. Falling back to substring matching.`)
+    console.warn(`Invalid regular expression ${expression}. Falling back to substring matching.`)
   }
   if (regExp) {
     return (label: string) => regExp.test(label);
