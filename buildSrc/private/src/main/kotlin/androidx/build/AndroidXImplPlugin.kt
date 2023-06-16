@@ -79,12 +79,12 @@ import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
@@ -339,6 +339,15 @@ class AndroidXImplPlugin @Inject constructor(
             project.configureKmpTests()
             project.configureSourceJarForMultiplatform()
             project.configureLintForMultiplatform(extension)
+
+            // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
+            // https://youtrack.jetbrains.com/issue/KT-55881
+            project.tasks.withType(Jar::class.java).configureEach { jarTask ->
+                if (jarTask.name.endsWith("SourcesJar") &&
+                    jarTask.description?.startsWith("Assembles a jar archive") == true) {
+                    jarTask.enabled = false
+                }
+            }
         }
     }
 
