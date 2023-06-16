@@ -38,7 +38,7 @@ import java.util.UUID
 class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) {
     /** Remote Bluetooth device found. */
     val device: BluetoothDevice
-        get() = BluetoothDevice(fwkScanResult.device)
+        get() = BluetoothDevice.of(fwkScanResult.device)
 
     // TODO(kihongs) Find a way to get address type from framework scan result
     /** Bluetooth address for the remote device found. */

@@ -30,10 +30,14 @@ import java.util.UUID
  * @property bondState the bondState for this BluetoothDevice
  *
  */
-class BluetoothDevice internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val fwkDevice: FwkBluetoothDevice
+class BluetoothDevice private constructor(
+    internal val fwkDevice: FwkBluetoothDevice
 ) {
+    internal companion object {
+        fun of(device: FwkBluetoothDevice): BluetoothDevice {
+            return BluetoothDevice(device)
+        }
+    }
     val id: UUID = UUID.randomUUID()
 
     @get:RequiresPermission(
