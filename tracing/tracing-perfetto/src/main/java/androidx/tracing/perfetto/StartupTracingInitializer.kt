@@ -43,8 +43,8 @@ class StartupTracingInitializer : Initializer<Unit> {
         // enable tracing
         val libFilePath = config.libFilePath
         val enableTracingResponse =
-            if (libFilePath == null) Tracing.enable()
-            else Tracing.enable(File(libFilePath), context)
+            if (libFilePath == null) Trace.enable()
+            else Trace.enable(File(libFilePath), context)
 
         // log the result for debuggability
         Log.d(TAG, "EnableTracingResponse: { " +

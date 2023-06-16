@@ -24,7 +24,7 @@ import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.tracing.perfetto.StartupTracingConfigStore.store
-import androidx.tracing.perfetto.Tracing.EnableTracingResponse
+import androidx.tracing.perfetto.Trace.EnableTracingResponse
 import androidx.tracing.perfetto.internal.handshake.protocol.EnableTracingResponse
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
@@ -99,7 +99,7 @@ class TracingReceiver : BroadcastReceiver() {
             }
             srcPath != null && context != null -> {
                 try {
-                    Tracing.enable(File(srcPath), context)
+                    Trace.enable(File(srcPath), context)
                 } catch (e: Exception) {
                     EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
                 }
@@ -112,7 +112,7 @@ class TracingReceiver : BroadcastReceiver() {
             }
             else -> {
                 // Library path was not provided, trying to resolve using app's local library files.
-                Tracing.enable()
+                Trace.enable()
             }
         }
 
