@@ -2744,29 +2744,8 @@ internal class ComposerImpl(
             }
             val start = reader.currentGroup
             val end = reader.currentEnd
-            for (group in start until end) {
-                if (reader.isNode(group)) {
-                    val node = reader.node(group)
-                    if (node is ComposeNodeLifecycleCallback) {
-                        changeListWriter.deactivate(node)
-                    }
-                }
-                reader.forEachData(group) { index, data ->
-                    when (data) {
-                        is RememberObserver -> {
-                            reader.reposition(group)
-                            changeListWriter.clearSlotValue(index, data)
-                        }
-                        is RecomposeScopeImpl -> {
-                            data.release()
-                            reader.reposition(group)
-                            changeListWriter.clearSlotValue(index, data)
-                        }
-                    }
-                }
-            }
+            changeListWriter.deactivateCurrentGroup()
             invalidations.removeRange(start, end)
-            reader.reposition(start)
             reader.skipToGroupEnd()
         }
     }
@@ -3761,6 +3740,40 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
     }
 
     removeGroup()
+}
+
+internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager) {
+    // Notify the lifecycle manager of any observers leaving the slot table
+    // The notification order should ensure that listeners are notified of leaving
+    // in opposite order that they are notified of entering.
+
+    // To ensure this order, we call `enters` as a pre-order traversal
+    // of the group tree, and then call `leaves` in the inverse order.
+    val start = currentGroup
+    val end = currentGroupEnd
+    for (group in start until end) {
+        val node = node(group)
+        if (node is ComposeNodeLifecycleCallback) {
+            rememberManager.deactivating(node)
+        }
+
+        forEachData(group) { index, data ->
+            if (data is RememberObserver) {
+                removeData(group, index, data)
+                rememberManager.forgetting(data)
+            }
+            if (data is RecomposeScopeImpl) {
+                removeData(group, index, data)
+                data.release()
+            }
+        }
+    }
+}
+
+private fun SlotWriter.removeData(group: Int, index: Int, data: Any?) {
+    runtimeCheck(data === set(group, index, Composer.Empty)) {
+        "Slot table is out of sync"
+    }
 }
 
 // Mutable list
