@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.InternalXAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XType
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Origin
@@ -52,11 +53,19 @@ internal class KspAnnotation(
     override val annotationValues: List<XAnnotationValue> by lazy {
         // In KSP the annotation members may be represented by constructor parameters in kotlin
         // source or by abstract methods in java source so we check both.
-        val typesByName = if (typeElement.getConstructors().single().parameters.isNotEmpty()) {
-            typeElement.getConstructors()
-                .single()
-                .parameters
-                .associate { it.name to it.type }
+        val declarationConstructors = typeElement.let {
+            // We access constructor using declaration since for compatibility with KAPT,
+            // XTypeElement.getConstructors() will return an empty list for annotation classes.
+            check(it is KspTypeElement)
+            it.declaration.getConstructors().map {
+                KspConstructorElement(
+                    env = env,
+                    declaration = it
+                )
+            }
+        }
+        val typesByName = if (declarationConstructors.single().parameters.isNotEmpty()) {
+            declarationConstructors.single().parameters.associate { it.name to it.type }
         } else {
             typeElement.getDeclaredMethods()
                 .filter { it.isAbstract() }

@@ -16,10 +16,12 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XConstructorType
 
-internal class KspConstructorType(
+internal class KspConstructorType<ConstructorElement>(
     env: KspProcessingEnv,
-    override val origin: KspConstructorElement,
+    override val origin: ConstructorElement,
     containing: KspType?
 ) : KspExecutableType(env, origin, containing), XConstructorType
+    where ConstructorElement : KspExecutableElement, ConstructorElement : XConstructorElement
