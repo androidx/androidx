@@ -43,6 +43,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
+import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
@@ -54,6 +55,7 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -262,6 +264,8 @@ public class SurfaceEdge {
         try {
             DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
             if (mSettableSurface.setProvider(deferrableSurface)) {
+                // TODO(b/286817690): consider close the deferrableSurface directly when the
+                //  SettableSurface is closed. The delay might cause issues on legacy devices.
                 mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
                         directExecutor());
             }
@@ -572,6 +576,11 @@ public class SurfaceEdge {
      *
      * <p>This class provides mechanisms to link an {@link DeferrableSurface}, and propagates
      * Surface releasing/closure to the {@link DeferrableSurface}.
+     *
+     * <p>Closing the parent {@link SettableSurface} does not close the linked
+     * {@link DeferrableSurface}. This is by design. The lifecycle of the child
+     * {@link DeferrableSurface} will be managed by the owner of the child. For example, the
+     * parent could be {@link StreamSharing} and the child could be a {@link Preview}.
      */
     static class SettableSurface extends DeferrableSurface {
 
