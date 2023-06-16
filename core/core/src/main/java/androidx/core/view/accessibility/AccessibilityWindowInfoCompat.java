@@ -21,6 +21,7 @@ import static android.view.Display.DEFAULT_DISPLAY;
 
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.os.Build;
 import android.os.LocaleList;
 import android.os.SystemClock;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -76,6 +77,12 @@ public class AccessibilityWindowInfoCompat {
      * This type of window is present only in split-screen mode.
      */
     public static final int TYPE_SPLIT_SCREEN_DIVIDER = 5;
+
+    /**
+     * Window type: A system window used to show the UI for the interaction with
+     * window-based magnification, which includes the magnified content and the option menu.
+     */
+    public static final int TYPE_MAGNIFICATION_OVERLAY = 6;
 
     /**
      * Creates a wrapper for info implementation.
@@ -160,13 +167,33 @@ public class AccessibilityWindowInfoCompat {
     }
 
     /**
-     * Check if the window is in picture-in-picture mode.
+     * Gets the root node in the window's hierarchy.
      *
+     * @param prefetchingStrategy the prefetching strategy.
+     * @return The root node.
+     *
+     * @see AccessibilityNodeInfoCompat#getParent(int) for a description of prefetching.
+     */
+    @Nullable
+    public AccessibilityNodeInfoCompat getRoot(int prefetchingStrategy) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getRoot(mInfo, prefetchingStrategy);
+        }
+        return getRoot();
+    }
+
+    /**
+     * Check if the window is in picture-in-picture mode.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 26: Returns false.</li>
+     * </ul>
      * @return {@code true} if the window is in picture-in-picture mode, {@code false} otherwise.
      */
     public boolean isInPictureInPictureMode() {
-        if (SDK_INT >= 33) {
-            return Api33Impl.isInPictureInPictureMode((AccessibilityWindowInfo) mInfo);
+        if (SDK_INT >= 26) {
+            return Api26Impl.isInPictureInPictureMode((AccessibilityWindowInfo) mInfo);
         } else {
             return false;
         }
@@ -599,6 +626,18 @@ public class AccessibilityWindowInfoCompat {
         }
     }
 
+    @RequiresApi(26)
+    private static class Api26Impl {
+        private Api26Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        static boolean isInPictureInPictureMode(AccessibilityWindowInfo info) {
+            return info.isInPictureInPictureMode();
+        }
+    }
+
     @RequiresApi(30)
     private static class Api30Impl {
         private Api30Impl() {
@@ -628,8 +667,9 @@ public class AccessibilityWindowInfoCompat {
         }
 
         @DoNotInline
-        static boolean isInPictureInPictureMode(AccessibilityWindowInfo info) {
-            return info.isInPictureInPictureMode();
+        public static AccessibilityNodeInfoCompat getRoot(Object info, int prefetchingStrategy) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                    ((AccessibilityWindowInfo) info).getRoot(prefetchingStrategy));
         }
     }
 
