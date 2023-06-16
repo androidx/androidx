@@ -296,7 +296,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
-    public void testConstraintTrackingWorker_delegatesIsRunInForeground()
+    public void testConstraintTrackingWorker_delegateStopForeground()
             throws InterruptedException {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         setupDelegateForExecution(StopAwareForegroundWorker.class.getName(), executorService);
@@ -309,7 +309,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         mWorkerWrapper.interrupt(0);
         executorService.shutdown();
-        verify(mForegroundProcessor).isEnqueuedInForeground(mWork.getStringId());
+        verify(mForegroundProcessor).stopForeground(mWork.getStringId());
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
