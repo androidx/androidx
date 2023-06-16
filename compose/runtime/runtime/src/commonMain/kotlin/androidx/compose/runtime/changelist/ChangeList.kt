@@ -31,10 +31,9 @@ import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.AdvanceSlotsBy
 import androidx.compose.runtime.changelist.Operation.ApplyChangeList
-import androidx.compose.runtime.changelist.Operation.ClearSlotValue
 import androidx.compose.runtime.changelist.Operation.CopyNodesToNewAnchorLocation
 import androidx.compose.runtime.changelist.Operation.CopySlotTableToAnchorLocation
-import androidx.compose.runtime.changelist.Operation.Deactivate
+import androidx.compose.runtime.changelist.Operation.DeactivateCurrentGroup
 import androidx.compose.runtime.changelist.Operation.DetermineMovableContentNodeIndex
 import androidx.compose.runtime.changelist.Operation.Downs
 import androidx.compose.runtime.changelist.Operation.EndCompositionScope
@@ -77,12 +76,6 @@ internal class ChangeList : OperationsDebugStringFormattable {
         rememberManager: RememberManager
     ) = operations.executeAndFlushAllPendingOperations(applier, slots, rememberManager)
 
-    fun pushDeactivate(node: ComposeNodeLifecycleCallback) {
-        operations.push(Deactivate) {
-            setObject(Deactivate.Node, node)
-        }
-    }
-
     fun pushRemember(value: RememberObserver) {
         operations.push(Remember) {
             setObject(Remember.Value, value)
@@ -100,11 +93,8 @@ internal class ChangeList : OperationsDebugStringFormattable {
         operations.push(ResetSlots)
     }
 
-    fun pushClearSlotValue(index: Int, data: Any) {
-        operations.push(ClearSlotValue) {
-            setInt(ClearSlotValue.Index, index)
-            setObject(ClearSlotValue.Data, data)
-        }
+    fun pushDeactivateCurrentGroup() {
+        operations.push(DeactivateCurrentGroup)
     }
 
     fun pushUpdateAuxData(data: Any?) {
