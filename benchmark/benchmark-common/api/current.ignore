@@ -1,4 +1,40 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int):
+    Removed method androidx.benchmark.BenchmarkState.reportData(String,String,long,java.util.List<java.lang.Long>,int,long,int) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #0:
+    Removed parameter className in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #1:
+    Removed parameter testName in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #2:
+    Removed parameter totalRunTimeNs in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #3:
+    Removed parameter dataNs in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #4:
+    Removed parameter warmupIterations in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #5:
+    Removed parameter thermalThrottleSleepSeconds in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #6:
+    Removed parameter repeatIterations in androidx.benchmark.BenchmarkState.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int):
+    Removed method androidx.benchmark.BenchmarkState.Companion.reportData(String,String,long,java.util.List<java.lang.Long>,int,long,int) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #0:
+    Removed parameter className in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #1:
+    Removed parameter testName in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #2:
+    Removed parameter totalRunTimeNs in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #3:
+    Removed parameter dataNs in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #4:
+    Removed parameter warmupIterations in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #5:
+    Removed parameter thermalThrottleSleepSeconds in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion#reportData(String, String, long, java.util.List<java.lang.Long>, int, long, int) parameter #6:
+    Removed parameter repeatIterations in androidx.benchmark.BenchmarkState.Companion.reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, int warmupIterations, long thermalThrottleSleepSeconds, int repeatIterations) from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport:
+    Removed class androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport from compatibility checked API surface
+
+
 RemovedClass: androidx.benchmark.Api21Kt:
     Removed class androidx.benchmark.Api21Kt
 RemovedClass: androidx.benchmark.Api24Kt:
