@@ -397,7 +397,8 @@ class PreviewTest(
 
     @Test
     fun targetRotationReturnsDisplayRotationIfNotSet() {
-        val displayRotation = DisplayInfoManager.getInstance(context!!).maxSizeDisplay.rotation
+        val displayRotation =
+            DisplayInfoManager.getInstance(context!!).getMaxSizeDisplay(true).rotation
         val useCase = defaultBuilder!!.build()
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, useCase)
 
