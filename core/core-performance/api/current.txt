@@ -2,7 +2,7 @@
 package androidx.core.performance {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
-    method public default static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
+    method public static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
     method public int getMediaPerformanceClass();
     property public abstract int mediaPerformanceClass;
     field public static final androidx.core.performance.DevicePerformance.Companion Companion;

@@ -2,7 +2,7 @@
 package androidx.core.haptics {
 
   public interface HapticManager {
-    method public default static androidx.core.haptics.HapticManager create(android.content.Context context);
+    method public static androidx.core.haptics.HapticManager create(android.content.Context context);
     method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.PredefinedEffect effect);
     field public static final androidx.core.haptics.HapticManager.Companion Companion;
   }
