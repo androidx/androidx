@@ -7,12 +7,12 @@ package androidx.tracing.perfetto {
     method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>> dependencies();
   }
 
-  public final class Tracing {
+  public final class Trace {
+    method public void beginSection(String sectionName);
+    method public void endSection();
     method public boolean isEnabled();
-    method public void traceEventEnd();
-    method public void traceEventStart(int key, String traceInfo);
     property public final boolean isEnabled;
-    field public static final androidx.tracing.perfetto.Tracing INSTANCE;
+    field public static final androidx.tracing.perfetto.Trace INSTANCE;
   }
 
 }
