@@ -16,6 +16,7 @@
 
 package androidx.window.area.reflectionguard
 
+import androidx.window.area.utils.PresentationCompatUtils
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.reflection.ReflectionUtils.validateImplementation
@@ -26,38 +27,67 @@ import androidx.window.reflection.ReflectionUtils.validateImplementation
 internal object WindowAreaComponentValidator {
 
     internal fun isWindowAreaComponentValid(windowAreaComponent: Class<*>, apiLevel: Int): Boolean {
-        return when {
+        val isWindowAreaComponentValid: Boolean = when {
+            apiLevel <= 2 && PresentationCompatUtils
+                .doesSupportPresentationBeforeVendorApi3() -> {
+                    validateImplementation(
+                        windowAreaComponent,
+                        WindowAreaComponentApi1PresentationRequirements::class.java
+                    )
+                }
+
             apiLevel <= 1 -> false
+
             apiLevel == 2 -> validateImplementation(
                 windowAreaComponent, WindowAreaComponentApi2Requirements::class.java
             )
+
             else -> validateImplementation(
                 windowAreaComponent, WindowAreaComponentApi3Requirements::class.java
             )
         }
+        return isWindowAreaComponentValid
     }
 
     internal fun isExtensionWindowAreaStatusValid(
         extensionWindowAreaStatus: Class<*>,
         apiLevel: Int
     ): Boolean {
-        return when {
-            apiLevel <= 1 -> false
+        val isExtensionWindowAreaStatusValid: Boolean = when {
+            apiLevel <= 2 && PresentationCompatUtils
+                .doesSupportPresentationBeforeVendorApi3() -> {
+                validateImplementation(
+                    extensionWindowAreaStatus, ExtensionWindowAreaStatusRequirements::class.java
+                )
+            }
+
+            apiLevel <= 2 -> false
+
             else -> validateImplementation(
                 extensionWindowAreaStatus, ExtensionWindowAreaStatusRequirements::class.java
             )
         }
+        return isExtensionWindowAreaStatusValid
     }
 
     internal fun isExtensionWindowAreaPresentationValid(
         extensionWindowAreaPresentation: Class<*>,
         apiLevel: Int
     ): Boolean {
-        return when {
+        val isExtensionWindowAreaPresentationValid: Boolean = when {
+            apiLevel <= 2 && PresentationCompatUtils
+                .doesSupportPresentationBeforeVendorApi3() -> {
+                validateImplementation(
+                    extensionWindowAreaPresentation, ExtensionWindowAreaPresentation::class.java
+                )
+            }
+
             apiLevel <= 2 -> false
+
             else -> validateImplementation(
                 extensionWindowAreaPresentation, ExtensionWindowAreaPresentation::class.java
             )
         }
+        return isExtensionWindowAreaPresentationValid
     }
 }
