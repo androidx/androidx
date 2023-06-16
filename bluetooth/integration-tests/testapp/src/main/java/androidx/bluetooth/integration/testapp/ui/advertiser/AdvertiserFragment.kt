@@ -19,6 +19,8 @@ package androidx.bluetooth.integration.testapp.ui.advertiser
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once Gatt Server API is in place
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -341,10 +343,21 @@ class AdvertiserFragment : Fragment() {
     private fun openGattServer() {
         Log.d(TAG, "openGattServer() called")
 
+        val sampleService =
+            BluetoothGattService(UUID.randomUUID(), BluetoothGattService.SERVICE_TYPE_PRIMARY)
+        val sampleCharacteristic = BluetoothGattCharacteristic(
+            UUID.randomUUID(),
+            BluetoothGattCharacteristic.PROPERTY_READ,
+            BluetoothGattCharacteristic.PERMISSION_READ
+        )
+        sampleService.addCharacteristic(sampleCharacteristic)
+
+        val services = listOf(sampleService)
+
         gattServerJob = gattServerScope.launch {
             isGattServerOpen = true
 
-            bluetoothLeExperimental.gattServer().collect { gattServerCallback ->
+            bluetoothLeExperimental.gattServer(services).collect { gattServerCallback ->
                 Log.d(TAG, "openGattServer() called with: gattServerCallback = $gattServerCallback")
             }
         }
