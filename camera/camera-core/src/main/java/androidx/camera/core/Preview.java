@@ -252,12 +252,13 @@ public final class Preview extends UseCase {
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
             appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+            mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
         } else {
             mCameraEdge.addOnInvalidatedListener(this::notifyReset);
             mCurrentSurfaceRequest = mCameraEdge.createSurfaceRequest(camera);
+            mSessionDeferrableSurface = mCurrentSurfaceRequest.getDeferrableSurface();
         }
-        // Send the app Surface to the app.
-        mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
+
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
