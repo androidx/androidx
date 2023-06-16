@@ -50,11 +50,11 @@ public class RxDataStore<T : Any> private constructor(
     private val scope: CoroutineScope
 ) : Disposable {
 
-    /**
-     * @hide for datastore-preferences-rxjava2 artifact only
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        /**
+         * Visible for datastore-preferences-rxjava2 artifact only
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun <T : Any> create(delegateDs: DataStore<T>, scope: CoroutineScope):
             RxDataStore<T> {
                 return RxDataStore<T>(delegateDs, scope)
