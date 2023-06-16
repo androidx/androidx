@@ -19,7 +19,6 @@ package androidx.compose.runtime.changelist
 import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
-import androidx.compose.runtime.Composer
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.ControlledComposition
@@ -37,6 +36,7 @@ import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.composeRuntimeError
+import androidx.compose.runtime.deactivateCurrentGroup
 import androidx.compose.runtime.movableContentKey
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck
@@ -146,23 +146,6 @@ internal sealed class Operation(
         }
     }
 
-    object Deactivate : Operation(objects = 1) {
-        inline val Node get() = ObjectParameter<ComposeNodeLifecycleCallback>(0)
-
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Node -> "node"
-            else -> super.objectParamName(parameter)
-        }
-
-        override fun OperationArgContainer.execute(
-            applier: Applier<*>,
-            slots: SlotWriter,
-            rememberManager: RememberManager
-        ) {
-            rememberManager.deactivating(getObject(Node))
-        }
-    }
-
     object Remember : Operation(objects = 1) {
         inline val Value get() = ObjectParameter<RememberObserver>(0)
 
@@ -209,37 +192,6 @@ internal sealed class Operation(
                     rememberManager.forgetting(previous)
                 is RecomposeScopeImpl -> previous.release()
             }
-        }
-    }
-
-    object ClearSlotValue : Operation(ints = 1, objects = 1) {
-        inline val Index get() = IntParameter(0)
-        inline val Data get() = ObjectParameter<Any>(0)
-
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            Index -> "index"
-            else -> super.intParamName(parameter)
-        }
-
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Data -> "data"
-            else -> super.objectParamName(parameter)
-        }
-
-        override fun OperationArgContainer.execute(
-            applier: Applier<*>,
-            slots: SlotWriter,
-            rememberManager: RememberManager
-        ) {
-            val data = getObject(Data)
-            val index = getInt(Index)
-            runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
-                "Slot table is out of sync"
-            }
-            if (data is RememberObserver) {
-                rememberManager.forgetting(data)
-            }
-            slots.set(index, Composer.Empty)
         }
     }
     // endregion operations for Remember and SideEffects
@@ -556,6 +508,16 @@ internal sealed class Operation(
             val nodeApplier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>)
             val nodeToInsert = slots.node(groupAnchor)
             nodeApplier.insertBottomUp(insertIndex, nodeToInsert)
+        }
+    }
+
+    object DeactivateCurrentGroup : Operation() {
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            slots.deactivateCurrentGroup(rememberManager)
         }
     }
     // endregion operations for Nodes and Groups

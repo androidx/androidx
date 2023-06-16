@@ -1047,15 +1047,6 @@ internal class SlotReader(
         return result
     }
 
-    internal inline fun forEachData(group: Int, block: (index: Int, data: Any?) -> Unit) {
-        val start = groups.slotAnchor(group)
-        val end = if (group + 1 < table.groupsSize)
-            table.groups.dataAnchor(group + 1) else table.slotsSize
-        for (index in start until end) {
-            block(index - start, slots[index])
-        }
-    }
-
     override fun toString(): String = "SlotReader(current=$currentGroup, key=$groupKey, " +
         "parent=$parent, end=$currentEnd)"
 
@@ -1150,11 +1141,6 @@ internal class SlotWriter(
     private var groupGapLen: Int = groups.size / Group_Fields_Size - table.groupsSize
 
     /**
-     * The index end of the current group.
-     */
-    private var currentGroupEnd = table.groupsSize
-
-    /**
      * The location of the [slots] array that contains the data for the [parent] group.
      */
     private var currentSlot = 0
@@ -1216,6 +1202,12 @@ internal class SlotWriter(
      * The current group that will be started by [startGroup] or skipped by [skipGroup]
      */
     var currentGroup = 0
+        private set
+
+    /**
+     * The index end of the current group.
+     */
+    var currentGroupEnd = table.groupsSize
         private set
 
     /**
@@ -1447,14 +1439,20 @@ internal class SlotWriter(
     /**
      * Set the group's slot at [index] to [value]. Returns the previous value.
      */
-    fun set(index: Int, value: Any?): Any? {
-        val address = groupIndexToAddress(currentGroup)
+    fun set(index: Int, value: Any?): Any? =
+        set(currentGroup, index, value)
+
+    /**
+     * Set the [group] slot at [index] to [value]. Returns the previous value.
+     */
+    fun set(group: Int, index: Int, value: Any?): Any? {
+        val address = groupIndexToAddress(group)
         val slotsStart = groups.slotIndex(address)
-        val slotsEnd = groups.dataIndex(groupIndexToAddress(currentGroup + 1))
+        val slotsEnd = groups.dataIndex(groupIndexToAddress(group + 1))
         val slotsIndex = slotsStart + index
         @Suppress("ConvertTwoComparisonsToRangeCheck")
         runtimeCheck(slotsIndex >= slotsStart && slotsIndex < slotsEnd) {
-            "Write to an invalid slot index $index for group $currentGroup"
+            "Write to an invalid slot index $index for group $group"
         }
         val slotAddress = dataIndexToDataAddress(slotsIndex)
         val result = slots[slotAddress]
@@ -1830,6 +1828,16 @@ internal class SlotWriter(
             override fun hasNext(): Boolean = current < end
             override fun next(): Any? =
                 if (hasNext()) slots[dataIndexToDataAddress(current++)] else null
+        }
+    }
+
+    inline fun forEachData(group: Int, block: (index: Int, data: Any?) -> Unit) {
+        val address = groupIndexToAddress(group)
+        val slotsStart = groups.slotIndex(address)
+        val slotsEnd = groups.dataIndex(groupIndexToAddress(group + 1))
+
+        for (slot in slotsStart until slotsEnd) {
+            block(slot - slotsStart, slots[dataIndexToDataAddress(slot)])
         }
     }
 
