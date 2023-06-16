@@ -16,9 +16,9 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.kruth.assertThat
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ArrayTypeName

@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
@@ -25,8 +27,6 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement

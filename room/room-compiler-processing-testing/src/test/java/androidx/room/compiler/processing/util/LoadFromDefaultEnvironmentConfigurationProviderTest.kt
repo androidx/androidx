@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import org.junit.Test
 
 class LoadFromDefaultEnvironmentConfigurationProviderTest {

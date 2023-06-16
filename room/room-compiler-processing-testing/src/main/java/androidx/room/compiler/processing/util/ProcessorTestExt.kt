@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingEnvironmentTestConfigProvider
@@ -30,8 +32,6 @@ import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KspCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.TestCompilationParameters
 import com.google.common.io.Files
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
 import java.util.jar.JarEntry
