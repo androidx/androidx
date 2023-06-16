@@ -974,13 +974,16 @@ package androidx.core.app {
   }
 
   public final class PendingIntentCompat {
-    method public static android.app.PendingIntent getActivities(android.content.Context, int, android.content.Intent![], int, android.os.Bundle, boolean);
+    method public static android.app.PendingIntent getActivities(android.content.Context, int, android.content.Intent![], int, android.os.Bundle?, boolean);
     method public static android.app.PendingIntent getActivities(android.content.Context, int, android.content.Intent![], int, boolean);
-    method public static android.app.PendingIntent getActivity(android.content.Context, int, android.content.Intent, int, android.os.Bundle, boolean);
+    method public static android.app.PendingIntent getActivity(android.content.Context, int, android.content.Intent, int, android.os.Bundle?, boolean);
     method public static android.app.PendingIntent getActivity(android.content.Context, int, android.content.Intent, int, boolean);
     method public static android.app.PendingIntent? getBroadcast(android.content.Context, int, android.content.Intent, int, boolean);
     method @RequiresApi(26) public static android.app.PendingIntent getForegroundService(android.content.Context, int, android.content.Intent, int, boolean);
     method public static android.app.PendingIntent getService(android.content.Context, int, android.content.Intent, int, boolean);
+    method public static void send(android.app.PendingIntent, android.content.Context, int, android.content.Intent, android.app.PendingIntent.OnFinished?, android.os.Handler?) throws android.app.PendingIntent.CanceledException;
+    method public static void send(android.app.PendingIntent, android.content.Context, int, android.content.Intent, android.app.PendingIntent.OnFinished?, android.os.Handler?, String?, android.os.Bundle?) throws android.app.PendingIntent.CanceledException;
+    method public static void send(android.app.PendingIntent, int, android.app.PendingIntent.OnFinished?, android.os.Handler?) throws android.app.PendingIntent.CanceledException;
   }
 
   public class Person {
