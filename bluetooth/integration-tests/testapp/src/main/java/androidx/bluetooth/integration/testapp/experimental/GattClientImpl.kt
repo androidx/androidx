@@ -66,6 +66,11 @@ internal class GattClientImpl {
             val status: Int
         ) : CallbackResult
 
+        class OnDescriptorRead(
+            val descriptor: BluetoothGattDescriptor,
+            val value: ByteArray,
+            val status: Int
+        ) : CallbackResult
         class OnDescriptorWrite(
             val descriptor: BluetoothGattDescriptor,
             val status: Int
@@ -85,8 +90,8 @@ internal class GattClientImpl {
     ): R? = coroutineScope {
         val connectResult = CompletableDeferred<Boolean>(parent = coroutineContext.job)
         val finished = Job(parent = coroutineContext.job)
-        val callbackResultsFlow =
-            MutableSharedFlow<CallbackResult>(extraBufferCapacity = Int.MAX_VALUE)
+        val callbackResultsFlow = MutableSharedFlow<CallbackResult>(
+            extraBufferCapacity = Int.MAX_VALUE)
         val subscribeMap: MutableMap<BluetoothGattCharacteristic, SubscribeListener> = arrayMapOf()
         val subscribeMutex = Mutex()
 
@@ -133,6 +138,16 @@ internal class GattClientImpl {
             ) {
                 callbackResultsFlow.tryEmit(
                     CallbackResult.OnCharacteristicWrite(characteristic, status))
+            }
+
+            override fun onDescriptorRead(
+                gatt: BluetoothGatt,
+                descriptor: BluetoothGattDescriptor,
+                status: Int,
+                value: ByteArray
+            ) {
+                callbackResultsFlow.tryEmit(
+                    CallbackResult.OnDescriptorRead(descriptor, value, status))
             }
 
             override fun onDescriptorWrite(
@@ -202,6 +217,35 @@ internal class GattClientImpl {
                     val res = takeMatchingResult<CallbackResult.OnCharacteristicWrite>(
                         callbackResultsFlow) {
                         it.characteristic == characteristic
+                    }
+                    if (res.status == GATT_SUCCESS) Result.success(Unit)
+                    else Result.failure(RuntimeException("fail"))
+                }
+            }
+
+            override suspend fun readDescriptor(descriptor: BluetoothGattDescriptor):
+                Result<ByteArray> {
+                return runTask {
+                    bluetoothGatt.readDescriptor(descriptor)
+                    val res = takeMatchingResult<CallbackResult.OnDescriptorRead>(
+                        callbackResultsFlow) {
+                        it.descriptor == descriptor
+                    }
+
+                    if (res.status == GATT_SUCCESS) Result.success(res.value)
+                    else Result.failure(RuntimeException("fail"))
+                }
+            }
+
+            override suspend fun writeDescriptor(
+                descriptor: BluetoothGattDescriptor,
+                value: ByteArray
+            ): Result<Unit> {
+                return runTask {
+                    bluetoothGatt.writeDescriptor(descriptor, value)
+                    val res = takeMatchingResult<CallbackResult.OnDescriptorWrite>(
+                        callbackResultsFlow) {
+                        it.descriptor == descriptor
                     }
                     if (res.status == GATT_SUCCESS) Result.success(Unit)
                     else Result.failure(RuntimeException("fail"))

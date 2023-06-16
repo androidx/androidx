@@ -117,6 +117,11 @@ class BluetoothLe(private val context: Context) {
             value: ByteArray,
             writeType: Int
         ): Result<Unit>
+        suspend fun readDescriptor(descriptor: BluetoothGattDescriptor): Result<ByteArray>
+        suspend fun writeDescriptor(
+            descriptor: BluetoothGattDescriptor,
+            value: ByteArray
+        ): Result<Unit>
         fun subscribeToCharacteristic(characteristic: BluetoothGattCharacteristic): Flow<ByteArray>
         suspend fun awaitClose(onClosed: () -> Unit)
     }
