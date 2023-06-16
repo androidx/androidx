@@ -18,15 +18,20 @@ export type BenchmarkContext = {
   "sustainedPerformanceModeEnabled": boolean
 };
 
-/**
- * The Metrics Payload.
- */
-export type Metrics = {
+interface IMetrics {
   'minimum': number;
   'maximum': number;
   'median': number;
+};
+export interface Standard extends IMetrics {
   'runs': Array<number>;
 };
+export interface Sampled extends IMetrics {
+  'runs': Array<number[]>;
+};
+
+export type Metrics = Standard | Sampled;
+export type MetricsCollection<T extends Metrics = Metrics> = { readonly [key: string]: T; }
 
 /**
  * The Benchmark.
@@ -36,9 +41,8 @@ export type Benchmark = {
   'params': object;
   'className': string;
   'totalRunTimeNs': number;
-  'metrics': {
-    readonly [key: string]: Metrics;
-  };
+  'sampledMetrics'?: MetricsCollection<Sampled>;
+  'metrics'?: MetricsCollection<Standard>;
   'warmupIterations': number;
   'repeatIterations': number;
   'thermalThrottleSleepSeconds': number;

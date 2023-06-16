@@ -1,4 +1,4 @@
-import type { ChartDataset, Point } from "chart.js";
+import type { ChartDataset } from "chart.js";
 import type { Data } from "./transforms.js";
 
 export function chartData(container: Array<Data>) {
@@ -24,17 +24,9 @@ function xrange(xmax: number): Array<number> {
 }
 
 function chartDataset(data: Data): ChartDataset<'line'> {
-  let points: Array<Point> = [];
-  for (let i = 1; i <= data.data.length; i += 1) {
-    // 1-based index.
-    points.push({
-      x: i,
-      y: data.data[i - 1],
-    });
-  }
   return {
     label: data.name,
-    data: points,
+    data: data.data,
     tension: 0.3
   };
 }
