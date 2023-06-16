@@ -446,10 +446,7 @@ public class WorkerWrapper implements Runnable {
                 mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             }
             if (mWorkSpec != null && mWorker != null) {
-                boolean isInForeground = mForegroundProcessor.isEnqueuedInForeground(mWorkSpecId);
-                if (isInForeground) {
-                    mForegroundProcessor.stopForeground(mWorkSpecId);
-                }
+                mForegroundProcessor.stopForeground(mWorkSpecId);
             }
             mWorkDatabase.setTransactionSuccessful();
         } finally {
