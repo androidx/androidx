@@ -75,6 +75,20 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     }
 
     /**
+     * assert that when an *INCOMING* call is answered via [CallsManager.addCall] and the client
+     * rejects the request in [CallControlCallback.onAnswer], that we disconnect the call. The call
+     * should go into the active state before being disconnected. The call should use the *V2
+     * platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackAnswerCall() {
+        setUpV2Test()
+        verifyRejectAnswerCall(Call.STATE_ACTIVE)
+    }
+
+    /**
      * assert [CallsManager.addCall] can successfully add an *INCOMING* call and disconnect it via
      * an InCallService that requires the [CallControlCallback.onDisconnect] to accept the request.
      * The call should use the *V2 platform APIs* under the hood.
@@ -132,6 +146,21 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     }
 
     /**
+     * assert that when an *INCOMING* call is answered via [CallsManager.addCall] and the client
+     * rejects the request in [CallControlCallback.onAnswer], that we disconnect the call. The call
+     * should never go active and simply be disconnected when it is in the ringing state. The call
+     * should use the *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs*
+     * under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackAnswerCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyRejectAnswerCall(Call.STATE_DISCONNECTED)
+    }
+
+    /**
      * assert [CallsManager.addCall] can successfully add an *INCOMING* call and disconnect it via
      * an InCallService that requires the [CallControlCallback.onDisconnect] to accept the request.
      * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
@@ -182,7 +211,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         assertFalse(TestUtils.mOnAnswerCallbackCalled)
         runBlocking {
             mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
-                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                setCallback(TestUtils.mCallControlCallbacksImpl)
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -202,7 +231,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         assertFalse(TestUtils.mOnDisconnectCallbackCalled)
         runBlocking {
             mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
-                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                setCallback(TestUtils.mCallControlCallbacksImpl)
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -221,7 +250,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         assertFalse(TestUtils.mOnSetInactiveCallbackCalled)
         runBlocking {
             mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
-                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                setCallback(TestUtils.mCallControlCallbacksImpl)
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -245,7 +274,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         assertFalse(TestUtils.mOnSetActiveCallbackCalled)
         runBlocking {
             mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
-                setCallback(TestUtils.mCompleteAllCallControlCallbacksImpl)
+                setCallback(TestUtils.mCallControlCallbacksImpl)
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -265,5 +294,28 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         }
         // Assert that the correct callback was invoked
         assertTrue(TestUtils.mOnSetActiveCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyRejectAnswerCall(callState: Int) {
+        assertFalse(TestUtils.mOnAnswerCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCallControlCallbacksImpl)
+                // Note that this is reset in BaseTelecomTest in setUp/destroy
+                TestUtils.mCompleteOnAnswer = false
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    call!!.answer(0) // API under test
+                    // Ensure that call has moved to the expected state
+                    TestUtils.waitOnCallState(call, callState)
+                    // Ensure that call is automatically disconnected.
+                    TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnAnswerCallbackCalled)
     }
 }

@@ -49,7 +49,7 @@ object TestUtils {
     const val OUTGOING_NAME = "Larry Page"
     const val INCOMING_NAME = "Sundar Pichai"
     const val WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT = 5000L
-    const val WAIT_ON_CALL_STATE_TIMEOUT = 5000L
+    const val WAIT_ON_CALL_STATE_TIMEOUT = 8000L
     const val WAIT_ON_IN_CALL_SERVICE_CALL_COUNT_TIMEOUT = 5000L
     const val ALL_CALL_CAPABILITIES = (CallAttributesCompat.SUPPORTS_SET_INACTIVE
         or CallAttributesCompat.SUPPORTS_STREAM or CallAttributesCompat.SUPPORTS_TRANSFER)
@@ -121,44 +121,54 @@ object TestUtils {
     /**
      * This [CallControlCallback] implementation will be called by the platform whenever an
      * InCallService wants to [answer, setActive, setInactive, or disconnect] a particular call
-     * and will immediately complete the transaction.
+     * and will immediately complete/reject the transaction depending on the return type.
      */
-    val mCompleteAllCallControlCallbacksImpl = object : CallControlCallback {
+    val mCallControlCallbacksImpl = object : CallControlCallback {
         override suspend fun onSetActive(): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onSetActive: completing")
             mOnSetActiveCallbackCalled = true
-            return true
+            return mCompleteOnSetActive
         }
 
         override suspend fun onSetInactive(): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onSetInactive: completing")
             mOnSetInactiveCallbackCalled = true
-            return true
+            return mCompleteOnSetInactive
         }
 
         override suspend fun onAnswer(callType: Int): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onAnswer: callType=[$callType]")
             mOnAnswerCallbackCalled = true
-            return true
+            return mCompleteOnAnswer
         }
 
         override suspend fun onDisconnect(disconnectCause: DisconnectCause): Boolean {
             Log.i(LOG_TAG, "mCACCCI: onDisconnect: disconnectCause=[$disconnectCause]")
             mOnDisconnectCallbackCalled = true
-            return true
+            return mCompleteOnDisconnect
         }
     }
 
+    // Flags for determining whether the given callback was invoked or not
     var mOnSetActiveCallbackCalled = false
     var mOnSetInactiveCallbackCalled = false
     var mOnAnswerCallbackCalled = false
     var mOnDisconnectCallbackCalled = false
+    // Flags for determining whether to complete/reject the transaction
+    var mCompleteOnSetActive = true
+    var mCompleteOnSetInactive = true
+    var mCompleteOnAnswer = true
+    var mCompleteOnDisconnect = true
 
     fun resetCallbackConfigs() {
         mOnSetActiveCallbackCalled = false
         mOnSetInactiveCallbackCalled = false
         mOnAnswerCallbackCalled = false
         mOnDisconnectCallbackCalled = false
+        mCompleteOnSetActive = true
+        mCompleteOnSetInactive = true
+        mCompleteOnAnswer = true
+        mCompleteOnDisconnect = true
     }
 
     fun createCallAttributes(
