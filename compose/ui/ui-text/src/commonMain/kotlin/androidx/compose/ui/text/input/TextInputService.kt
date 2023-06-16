@@ -180,6 +180,7 @@ class TextInputSession(
      * Notify the input service of layout and position changes.
      *
      * @param textFieldValue the text field's [TextFieldValue]
+     * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
      * @param textLayoutPositionInWindow position of the text field relative to the window
      * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
@@ -189,6 +190,7 @@ class TextInputSession(
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textLayoutPositionInWindow: Offset,
         innerTextFieldBounds: Rect,
@@ -196,6 +198,7 @@ class TextInputSession(
     ) = ensureOpenSession {
         platformTextInputService.updateTextLayoutResult(
             textFieldValue,
+            offsetMapping,
             textLayoutResult,
             textLayoutPositionInWindow,
             innerTextFieldBounds,
@@ -323,6 +326,7 @@ interface PlatformTextInputService {
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textLayoutPositionInWindow: Offset,
         innerTextFieldBounds: Rect,
