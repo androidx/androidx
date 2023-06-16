@@ -260,7 +260,7 @@ package androidx.graphics.opengl.egl {
     method public boolean eglQuerySurface(android.opengl.EGLSurface surface, int attribute, int[] result, int offset);
     method public boolean eglSwapBuffers(android.opengl.EGLSurface surface);
     method public default String getErrorMessage();
-    method public default static String getStatusString(int error);
+    method public static String getStatusString(int error);
     method public android.opengl.EGLConfig? loadConfig(androidx.graphics.opengl.egl.EGLConfigAttributes configAttributes);
     field public static final androidx.graphics.opengl.egl.EGLSpec.Companion Companion;
     field public static final androidx.graphics.opengl.egl.EGLSpec V14;

@@ -636,7 +636,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface Alarm extends androidx.appactions.builtintypes.types.Thing {
-    method public default static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.Schedule? getAlarmSchedule();
     method public androidx.appactions.builtintypes.types.Alarm.Builder<?> toBuilder();
     property public abstract androidx.appactions.builtintypes.types.Schedule? alarmSchedule;
@@ -694,7 +694,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface ExecutionStatus extends androidx.appactions.builtintypes.types.Intangible {
-    method public default static androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.ExecutionStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.ExecutionStatus.Companion Companion;
   }
@@ -708,7 +708,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface GenericErrorStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
-    method public default static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.GenericErrorStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.GenericErrorStatus.Companion Companion;
   }
@@ -722,7 +722,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface Intangible extends androidx.appactions.builtintypes.types.Thing {
-    method public default static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.Intangible.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.Intangible.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.Intangible.Companion Companion;
   }
@@ -736,7 +736,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface ObjectCreationLimitReachedStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
-    method public default static androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.ObjectCreationLimitReachedStatus.Companion Companion;
   }
@@ -750,7 +750,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface Person extends androidx.appactions.builtintypes.types.Thing {
-    method public default static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
     method public String? getEmail();
     method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
     property public abstract String? email;
@@ -767,7 +767,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
-    method public default static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
     method public java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
     method public java.util.List<java.lang.Long> getByMonthDays();
     method public java.util.List<java.lang.Long> getByMonthWeeks();
@@ -844,7 +844,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface SuccessStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
-    method public default static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.SuccessStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.SuccessStatus.Companion Companion;
   }
@@ -858,7 +858,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface Thing {
-    method public default static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.Thing.Builder<?> Builder();
     method public androidx.appactions.builtintypes.properties.DisambiguatingDescription? getDisambiguatingDescription();
     method public String? getIdentifier();
     method public androidx.appactions.builtintypes.properties.Name? getName();
@@ -886,7 +886,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface Timer extends androidx.appactions.builtintypes.types.Thing {
-    method public default static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.Timer.Builder<?> Builder();
     method public java.time.Duration? getDuration();
     method public androidx.appactions.builtintypes.types.Timer.Builder<?> toBuilder();
     property public abstract java.time.Duration? duration;
@@ -903,7 +903,7 @@ package androidx.appactions.builtintypes.types {
   }
 
   public interface UnsupportedOperationStatus extends androidx.appactions.builtintypes.types.ExecutionStatus {
-    method public default static androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder();
+    method public static androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> Builder();
     method public androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Builder<?> toBuilder();
     field public static final androidx.appactions.builtintypes.types.UnsupportedOperationStatus.Companion Companion;
   }
