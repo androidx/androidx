@@ -35,8 +35,8 @@ package androidx.wear.watchface.editor {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface EditorSession extends java.lang.AutoCloseable {
-    method @RequiresApi(27) @UiThread public default static androidx.wear.watchface.editor.EditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
-    method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public default static suspend Object? createOnWatchEditorSession(androidx.activity.ComponentActivity activity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>) throws kotlinx.coroutines.TimeoutCancellationException;
+    method @RequiresApi(27) @UiThread public static androidx.wear.watchface.editor.EditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static suspend Object? createOnWatchEditorSession(androidx.activity.ComponentActivity activity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>) throws kotlinx.coroutines.TimeoutCancellationException;
     method public Integer? getBackgroundComplicationSlotId();
     method @UiThread public Integer? getComplicationSlotIdAt(@Px int x, @Px int y);
     method public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> getComplicationSlotsState();

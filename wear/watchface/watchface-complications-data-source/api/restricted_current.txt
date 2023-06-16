@@ -34,7 +34,7 @@ package androidx.wear.watchface.complications.datasource {
   }
 
   public interface ComplicationDataSourceUpdateRequester {
-    method public default static androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester create(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
+    method public static androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester create(android.content.Context context, android.content.ComponentName complicationDataSourceComponent);
     method public void requestUpdate(int... complicationInstanceIds);
     method public void requestUpdateAll();
     field public static final androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester.Companion Companion;

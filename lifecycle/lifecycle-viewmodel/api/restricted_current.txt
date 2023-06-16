@@ -52,7 +52,7 @@ package androidx.lifecycle {
   public static interface ViewModelProvider.Factory {
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
-    method public default static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
+    method public static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
     field public static final androidx.lifecycle.ViewModelProvider.Factory.Companion Companion;
   }
 
