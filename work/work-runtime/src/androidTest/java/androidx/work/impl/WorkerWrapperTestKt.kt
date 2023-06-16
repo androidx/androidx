@@ -34,6 +34,8 @@ import androidx.work.worker.CompletableWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,7 +87,7 @@ class WorkerWrapperTestKt {
     }
 
     @Test
-    fun testInterruptionPreStartWork() = runBlocking {
+    fun testInterruptionPreStartWork() = runBlocking<Unit> {
         val workRequest = OneTimeWorkRequest.from(CompletableWorker::class.java)
         testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
@@ -101,7 +103,16 @@ class WorkerWrapperTestKt {
         // this call will unblock main thread, but interrupt worker
         mainThreadBlocker.countDown()
         assertThat(workerWrapper.future.await()).isTrue()
-        assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(ENQUEUED)
+        // tricky moment, currently due to the race Worker can go through
+        // running state. Exact order would be:
+        // - WorkerWrapper reaches trySetRunning, but doesn't enter it
+        // - WorkerWrapper.interrupt() happens and resolves the future (ENQUEUED state)
+        // - WorkerWrapper enters trySetRunning and sets the state RUNNING
+        // - WorkerWrapper enters tryCheckForInterruptionAndResolve again and
+        //   set the state back to ENQUEUE
+
+        testEnv.db.workSpecDao().getWorkStatusPojoFlowDataForIds(listOf(workRequest.stringId))
+            .map { it.first() }.first { it.state == ENQUEUED }
     }
 
     @Test
