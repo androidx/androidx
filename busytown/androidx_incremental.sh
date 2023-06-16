@@ -58,7 +58,9 @@ if ! impl/check_translations.sh; then
 else
     # Run Gradle
     if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs \
-        --profile "$@"; then
+        --profile \
+        -Pkotlin.incremental=false \
+        "$@"; then
     echo build succeeded
     EXIT_VALUE=0
     else
