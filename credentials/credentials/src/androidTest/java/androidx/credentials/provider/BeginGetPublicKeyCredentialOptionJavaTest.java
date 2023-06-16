@@ -144,5 +144,4 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
             assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
         }
     }
-    // TODO ("Add framework conversion, createFrom tests")
 }

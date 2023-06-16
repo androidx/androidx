@@ -59,6 +59,4 @@ public class BeginGetPasswordOptionJavaTest {
                     .containsExactlyElementsIn(expectedAllowedUserIds);
         }
     }
-
-    // TODO ("Add framework conversion, createFrom tests")
 }

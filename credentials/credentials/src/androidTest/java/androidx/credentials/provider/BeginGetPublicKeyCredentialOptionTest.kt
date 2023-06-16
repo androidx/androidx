@@ -130,5 +130,49 @@ class BeginGetPublicKeyCredentialOptionTest {
         assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
     }
 
-    // TODO ("Add framework conversion, createFrom tests")
+    @Test
+    fun getter_frameworkCreateFrom() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+
+        val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+        val clientDataHash = "client_data_hash".toByteArray()
+        val bundle = Bundle()
+        bundle.putString(
+            PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION)
+        bundle.putString(
+            GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
+            requestJsonExpected)
+        bundle.putByteArray(
+            GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+            clientDataHash)
+
+        val option = BeginGetPublicKeyCredentialOption.createFrom(bundle, "id")
+        assertThat(option.id).isEqualTo("id")
+    }
+
+    @Test
+    fun getter_frameworkCreateFromEntrySlice() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+
+        val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+        val clientDataHash = "client_data_hash".toByteArray()
+        val bundle = Bundle()
+        bundle.putString(
+            PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION)
+        bundle.putString(
+            GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
+            requestJsonExpected)
+        bundle.putByteArray(
+            GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+            clientDataHash)
+
+        val option = BeginGetPublicKeyCredentialOption.createFromEntrySlice(bundle, "id")
+        assertThat(option.id).isEqualTo("id")
+    }
 }
