@@ -42,8 +42,9 @@ import org.junit.runner.RunWith
  * manipulated via the [androidx.core.telecom.utils.MockInCallService].  The MockInCallService will
  * create a [CallControlCallback] request before changing the call state.
  */
-@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = VERSION_CODES.O)
 @RequiresApi(VERSION_CODES.O)
+@RunWith(AndroidJUnit4::class)
 class BasicCallControlCallbacksTest : BaseTelecomTest() {
 
     @Before

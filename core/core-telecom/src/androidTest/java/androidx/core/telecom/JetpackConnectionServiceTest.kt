@@ -37,9 +37,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
-@RequiresApi(VERSION_CODES.O)
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
+@RequiresApi(VERSION_CODES.O)
+@RunWith(AndroidJUnit4::class)
 class JetpackConnectionServiceTest : BaseTelecomTest() {
     private val callChannels = CallChannels()
 
