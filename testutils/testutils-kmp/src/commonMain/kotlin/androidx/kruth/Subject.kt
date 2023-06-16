@@ -28,7 +28,7 @@ import kotlin.reflect.typeOf
  *
  * To create a [Subject] instance, most users will call an [assertThat] method.
  */
-open class Subject<out T> internal constructor(
+open class Subject<out T>(
     val actual: T?,
     private val metadata: FailureMetadata = FailureMetadata(),
 ) {
@@ -209,6 +209,7 @@ open class Subject<out T> internal constructor(
             this is DoubleArray && expected is DoubleArray -> contentEquals(expected)
             this is ShortArray && expected is ShortArray -> contentEquals(expected)
             this is CharArray && expected is CharArray -> contentEquals(expected)
+            this is BooleanArray && expected is BooleanArray -> contentEquals(expected)
             this is Array<*> && expected is Array<*> -> contentDeepEquals(expected)
             isIntegralBoxedPrimitive() && expected.isIntegralBoxedPrimitive() -> {
                 integralValue() == expected.integralValue()
@@ -236,5 +237,22 @@ open class Subject<out T> internal constructor(
         this == null -> toString()
         isIntegralBoxedPrimitive() -> "${this::class.qualifiedName}<$this>"
         else -> toString()
+    }
+
+    /**
+     * In a fluent assertion chain, the argument to the common overload of
+     * [StandardSubjectBuilder.about], the method that specifies what kind of [Subject] to create.
+     *
+     * For more information about the fluent chain, see
+     * [this FAQ entry](https://truth.dev/faq#full-chain).
+     *
+     * **For people extending Kruth**
+     *
+     * When you write a custom subject, see
+     * [our doc on extensions](https://truth.dev/extension). It explains where [Factory] fits into
+     * the process.
+     */
+    fun interface Factory<T, out S : Subject<T>> {
+        fun createSubject(metadata: FailureMetadata, actual: T): S
     }
 }
