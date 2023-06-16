@@ -346,12 +346,24 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     )
 
     fun processProgress(backEvent: BackEventCompat) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(
+                FragmentManager.TAG,
+                "SpecialEffectsController: Processing Progress ${backEvent.progress}"
+            )
+        }
         runningOperations.forEach { operation ->
             operation.backInProgressListener?.invoke(backEvent)
         }
     }
 
     fun completeBack() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(
+                FragmentManager.TAG,
+                "SpecialEffectsController: Completing Back "
+            )
+        }
         runningOperations.forEach { operation ->
             operation.backOnCompleteListener?.invoke()
         }
@@ -608,6 +620,12 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             onProgress: (BackEventCompat) -> Unit,
             onComplete: () -> Unit
         ) {
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(
+                    FragmentManager.TAG,
+                    "SpecialEffectsController: Adding back progress callbacks for operation $this"
+                )
+            }
             backInProgressListener = onProgress
             backOnCompleteListener = onComplete
         }
