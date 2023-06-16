@@ -106,7 +106,6 @@ abstract class CredentialProviderService : CredentialProviderService() {
 
             override fun onError(error: androidx.credentials.exceptions.GetCredentialException) {
                 super.onError(error)
-                // TODO("Change error code to provider error when ready on framework")
                 callback.onError(GetCredentialException(error.type, error.message))
             }
         }
@@ -130,7 +129,6 @@ abstract class CredentialProviderService : CredentialProviderService() {
 
             override fun onError(error: CreateCredentialException) {
                 super.onError(error)
-                // TODO("Change error code to provider error when ready on framework")
                 callback.onError(
                     android.credentials.CreateCredentialException(
                         error.type, error.message
@@ -156,7 +154,6 @@ abstract class CredentialProviderService : CredentialProviderService() {
 
             override fun onError(error: ClearCredentialException) {
                 super.onError(error)
-                // TODO("Change error code to provider error when ready on framework")
                 callback.onError(ClearCredentialStateException(error.type, error.message))
             }
         }
