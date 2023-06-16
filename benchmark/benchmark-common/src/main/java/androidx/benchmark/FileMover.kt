@@ -17,9 +17,12 @@
 package androidx.benchmark
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.BenchmarkState.Companion.TAG
 import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 
 /**
@@ -29,11 +32,19 @@ import java.nio.file.Files
 @RequiresApi(Build.VERSION_CODES.O)
 object FileMover {
     fun File.moveTo(destination: File, overwrite: Boolean = false) {
-        if (overwrite) {
-            destination.delete()
+        try {
+            if (overwrite) {
+                destination.delete()
+            }
+            // Ideally we would have used File.renameTo(...)
+            // On Android we cannot rename across mount points so we are using this API instead.
+            Files.move(this.toPath(), destination.toPath())
+        } catch (exception: IOException) {
+            // Moves can fail when trying to move across mount points. This is especially true
+            // for environments like FTL. In such cases, we fallback to trying to copy the file
+            // instead.
+            Log.w(TAG, "Unable to move $this to $destination. Copying, instead.", exception)
+            copyTo(target = destination, overwrite = overwrite)
         }
-        // Ideally we would have used File.renameTo(...)
-        // On Android we cannot rename across mount points so we are using this API instead.
-        Files.move(this.toPath(), destination.toPath())
     }
 }
