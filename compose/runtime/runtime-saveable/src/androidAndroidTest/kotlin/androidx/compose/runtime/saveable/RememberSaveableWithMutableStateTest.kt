@@ -125,4 +125,22 @@ class RememberSaveableWithMutableStateTest {
             assertThat(state!!.value).isNull()
         }
     }
+
+    @Test
+    fun stateSaverReturnsNull() {
+        var state: MutableState<String>? = null
+        val saver = Saver<String, String>(
+            save = { null },
+            restore = { it }
+        )
+        restorationTester.setContent {
+            state = rememberSaveable(stateSaver = saver) { mutableStateOf("value") }
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.runOnUiThread {
+            assertThat(state!!.value).isEqualTo("value")
+        }
+    }
 }

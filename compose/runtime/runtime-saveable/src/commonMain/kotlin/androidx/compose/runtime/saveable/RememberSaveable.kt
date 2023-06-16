@@ -154,7 +154,14 @@ private fun <T> mutableStateSaver(inner: Saver<T, out Any>) = with(inner as Save
                 "If you use a custom MutableState implementation you have to write a custom " +
                     "Saver and pass it as a saver param to rememberSaveable()"
             }
-            mutableStateOf(save(state.value), state.policy as SnapshotMutationPolicy<Any?>)
+            val saved = save(state.value)
+            if (saved != null) {
+                mutableStateOf(saved, state.policy as SnapshotMutationPolicy<Any?>)
+            } else {
+                // if the inner saver returned null we need to return null as well so the
+                // user's init lambda will be used instead of restoring mutableStateOf(null)
+                null
+            }
         },
         restore = @Suppress("UNCHECKED_CAST", "ExceptionMessage") {
             require(it is SnapshotMutableState<Any?>)
