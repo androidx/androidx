@@ -30,6 +30,11 @@ import androidx.appactions.interaction.proto.ParamValue
 interface ActionSpec<ArgumentsT, OutputT> {
 
     /**
+     * The BII capability name this ActionSpec is for.
+     */
+    val capabilityName: String
+
+    /**
      * Converts the input parameters to the `AppAction` proto.
      * @param identifier                    the capability identifier
      * @param boundProperties               the list of BoundProperty instances.
@@ -42,9 +47,14 @@ interface ActionSpec<ArgumentsT, OutputT> {
         supportsPartialFulfillment: Boolean
     ): AppActionsContext.AppAction
 
-    /** Builds this action's arguments from an ArgumentsWrapper instance.  */
+    /** Builds this action's arguments from a map of slot name to param values.  */
     @Throws(StructConversionException::class)
     fun buildArguments(args: Map<String, List<ParamValue>>): ArgumentsT
+
+    /**
+     * Converts an [ArgumentsT] instance to a Fulfillment proto
+     */
+    fun serializeArguments(args: ArgumentsT): Map<String, List<ParamValue>>
 
     /** Converts the output to the `StructuredOutput` proto.  */
     fun convertOutputToProto(output: OutputT): FulfillmentResponse.StructuredOutput

@@ -109,11 +109,13 @@ class GetExerciseObservation private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.START_TIME.path,
+                    Arguments::startTime,
                     Arguments.Builder::setStartTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.END_TIME.path,
+                    Arguments::endTime,
                     Arguments.Builder::setEndTime,
                     TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER
                 )

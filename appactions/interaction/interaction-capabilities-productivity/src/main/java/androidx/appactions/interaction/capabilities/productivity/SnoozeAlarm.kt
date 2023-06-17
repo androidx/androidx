@@ -183,14 +183,16 @@ class SnoozeAlarm private constructor() {
                         )
                         .setOutput(Output::class.java)
                         .bindParameter(
-                                SlotMetadata.DURATION.path,
-                                Arguments.Builder::setSnoozeDuration,
-                                TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                            SlotMetadata.DURATION.path,
+                            Arguments::snoozeDuration,
+                            Arguments.Builder::setSnoozeDuration,
+                            TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                         )
                         .bindParameter(
-                                SlotMetadata.ALARM.path,
-                                Arguments.Builder::setTargetAlarm,
-                                AlarmReference.PARAM_VALUE_CONVERTER
+                            SlotMetadata.ALARM.path,
+                            Arguments::targetAlarm,
+                            Arguments.Builder::setTargetAlarm,
+                            AlarmReference.PARAM_VALUE_CONVERTER
                         )
                         .bindOutput(
                             "executionStatus",

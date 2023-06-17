@@ -1647,16 +1647,19 @@ class TaskCapabilityImplTest {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
+                    Arguments::requiredStringField,
                     Arguments.Builder::setRequiredStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     "optional",
+                    Arguments::optionalStringField,
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindRepeatedParameter(
                     "repeated",
+                    Arguments::repeatedStringField,
                     Arguments.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )

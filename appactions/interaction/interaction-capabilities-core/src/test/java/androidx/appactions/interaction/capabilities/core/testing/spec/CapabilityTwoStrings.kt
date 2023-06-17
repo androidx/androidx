@@ -78,11 +78,13 @@ class CapabilityTwoStrings {
             .setOutput(Output::class.java)
             .bindParameter(
                 "stringSlotA",
+                Arguments::stringSlotA,
                 Arguments.Builder::setStringSlotA,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .bindParameter(
                 "stringSlotB",
+                Arguments::stringSlotB,
                 Arguments.Builder::setStringSlotB,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )

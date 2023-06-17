@@ -220,16 +220,19 @@ class CreateAlarm private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.IDENTIFIER.path,
+                    Arguments::identifier,
                     Arguments.Builder::setIdentifier,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.NAME.path,
+                    Arguments::name,
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.SCHEDULE.path,
+                    Arguments::schedule,
                     Arguments.Builder::setSchedule,
                     ParamValueConverter.of(SCHEDULE_TYPE_SPEC)
                 )

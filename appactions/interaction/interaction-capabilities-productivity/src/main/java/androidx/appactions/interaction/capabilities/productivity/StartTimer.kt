@@ -190,16 +190,19 @@ class StartTimer private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.IDENTIFIER.path,
+                    Arguments::identifier,
                     Arguments.Builder::setIdentifier,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.NAME.path,
+                    Arguments::name,
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.DURATION.path,
+                    Arguments::duration,
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )

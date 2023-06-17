@@ -110,11 +110,13 @@ class StartExercise private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.DURATION.path,
+                    Arguments::duration,
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.NAME.path,
+                    Arguments::name,
                     Arguments.Builder::setName,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )

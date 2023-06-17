@@ -61,16 +61,18 @@ private constructor(
     /**
      * Binds the parameter name, getter and setter.
      *
-     * @param paramName      the name of this action' parameter.
-     * @param paramGetter    a getter of the param-specific info from the property.
-     * @param argumentSetter a setter to the argument with the input from `ParamValue`.
+     * @param paramName             the name of this action' parameter.
+     * @param paramGetter           a getter of the param-specific info from the property.
+     * @param argumentSetter        a setter to the argument with the input from `ParamValue`.
+     * @param argumentSerializer    a function that serializes this slot on an argument instance.
      * @return the builder itself.
      */
     private fun bindParameterInternal(
         paramName: String,
-        argumentSetter: ArgumentSetter<ArgumentsBuilderT>
+        argumentSetter: ArgumentSetter<ArgumentsBuilderT>,
+        argumentSerializer: (ArgumentsT) -> List<ParamValue>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
-        paramBindingList.add(ParamBinding(paramName, argumentSetter))
+        paramBindingList.add(ParamBinding(paramName, argumentSetter, argumentSerializer))
         return this
     }
 
@@ -81,12 +83,14 @@ private constructor(
      * definition of the capability.
      *
      * @param paramName the name of this action' parameter.
+     * @param paramGetter the function reference that returns the parameter given [Arguments].
      * @param paramConsumer a setter to set the string value in the argument builder.
      * @param paramValueConverter converter FROM assistant ParamValue proto
      * @return the builder itself.
      */
     fun <T> bindParameter(
         paramName: String,
+        paramGetter: (ArgumentsT) -> T?,
         paramConsumer: BiConsumer<in ArgumentsBuilderT, T>,
         paramValueConverter: ParamValueConverter<T>,
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
@@ -99,6 +103,12 @@ private constructor(
                         SlotTypeConverter.ofSingular(paramValueConverter).convert(paramList)
                     )
                 }
+            },
+            {
+                arguments ->
+                listOf(
+                    paramGetter(arguments)?.let(paramValueConverter::toParamValue)
+                ).filterNotNull()
             }
         )
     }
@@ -112,6 +122,7 @@ private constructor(
      */
     fun <T> bindRepeatedParameter(
         paramName: String,
+        paramGetter: (ArgumentsT) -> List<T>,
         paramConsumer: BiConsumer<in ArgumentsBuilderT, List<T>>,
         paramValueConverter: ParamValueConverter<T>
     ): ActionSpecBuilder<ArgumentsT, ArgumentsBuilderT, OutputT> {
@@ -121,6 +132,11 @@ private constructor(
                 paramConsumer.accept(
                     argBuilder,
                     SlotTypeConverter.ofRepeated(paramValueConverter).convert(paramList!!)
+                )
+            },
+            {
+                arguments -> paramGetter(arguments).filterNotNull().map(
+                    paramValueConverter::toParamValue
                 )
             }
         )
