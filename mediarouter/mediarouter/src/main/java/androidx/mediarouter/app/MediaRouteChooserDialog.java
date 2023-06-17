@@ -237,10 +237,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         mOkButton = findViewById(R.id.mr_chooser_ok_button);
         mSearchingProgressBar = findViewById(R.id.mr_chooser_search_progress_bar);
 
-
-        String formFactor = DeviceUtils.getDeviceFormFactorString(getContext());
-        String wifiWarningText =
-                getContext().getString(R.string.mr_chooser_wifi_warning_description, formFactor);
+        String wifiWarningText = DeviceUtils.getDialogChooserWifiWarningDescription(getContext());
         mWifiWarningTextView.setText(wifiWarningText);
 
         mLearnMoreTextView.setMovementMethod(LinkMovementMethod.getInstance());
