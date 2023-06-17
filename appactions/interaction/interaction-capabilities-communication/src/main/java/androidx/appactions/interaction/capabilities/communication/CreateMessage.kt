@@ -182,11 +182,13 @@ class CreateMessage private constructor() {
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
                     SlotMetadata.RECIPIENT.path,
+                    Arguments::recipientList,
                     Arguments.Builder::setRecipientList,
                     RecipientReference.PARAM_VALUE_CONVERTER,
                 )
                 .bindParameter(
                     SlotMetadata.TEXT.path,
+                    Arguments::messageText,
                     Arguments.Builder::setMessageText,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 )

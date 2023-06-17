@@ -253,16 +253,19 @@ class UpdateTimer private constructor() {
                     .setOutput(Output::class.java)
                     .bindParameter(
                         SlotMetadata.TIMER.path,
+                        Arguments::timer,
                         Arguments.Builder::setTimer,
                         TimerReference.PARAM_VALUE_CONVERTER
                     )
                     .bindParameter(
                         SlotMetadata.CHANGE.path,
+                        Arguments::durationChange,
                         Arguments.Builder::setDurationChange,
                         TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                     )
                     .bindParameter(
                         SlotMetadata.OPERATION.path,
+                        { SupportedOperationType.INCREMENT_OPERATION },
                         { _, _ -> },
                         TypeConverters.createEnumParamValueConverter(
                             listOf(SupportedOperationType.INCREMENT_OPERATION)
@@ -270,6 +273,7 @@ class UpdateTimer private constructor() {
                     )
                     .bindParameter(
                         SlotMetadata.FIELD_PATH.path,
+                        { FieldPath.REMAINING_DURATION },
                         { _, _ -> },
                         TypeConverters.createEnumParamValueConverter(
                             listOf(FieldPath.REMAINING_DURATION)
@@ -501,16 +505,19 @@ class UpdateTimer private constructor() {
                     .setOutput(Output::class.java)
                     .bindParameter(
                         SlotMetadata.TIMER.path,
+                        Arguments::timer,
                         Arguments.Builder::setTimer,
                         TimerReference.PARAM_VALUE_CONVERTER
                     )
                     .bindParameter(
                         SlotMetadata.NEW_VALUE.path,
+                        Arguments::duration,
                         Arguments.Builder::setDuration,
                         TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                     )
                     .bindParameter(
                         SlotMetadata.OPERATION.path,
+                        { SupportedOperationType.OVERWRITE_OPERATION },
                         { _, _ -> },
                         TypeConverters.createEnumParamValueConverter(
                             listOf(SupportedOperationType.OVERWRITE_OPERATION)
@@ -518,6 +525,7 @@ class UpdateTimer private constructor() {
                     )
                     .bindParameter(
                         SlotMetadata.FIELD_PATH.path,
+                        { FieldPath.REMAINING_DURATION },
                         { _, _ -> },
                         TypeConverters.createEnumParamValueConverter(
                             listOf(FieldPath.REMAINING_DURATION)
@@ -747,16 +755,19 @@ class UpdateTimer private constructor() {
                     .setOutput(Output::class.java)
                     .bindParameter(
                         SlotMetadata.TIMER.path,
+                        Arguments::timer,
                         Arguments.Builder::setTimer,
                         TimerReference.PARAM_VALUE_CONVERTER
                     )
                     .bindParameter(
                         SlotMetadata.NEW_VALUE.path,
+                        Arguments::name,
                         Arguments.Builder::setName,
                         TypeConverters.STRING_PARAM_VALUE_CONVERTER
                     )
                     .bindParameter(
                         SlotMetadata.OPERATION.path,
+                        { SupportedOperationType.OVERWRITE_OPERATION },
                         { _, _ -> },
                         TypeConverters.createEnumParamValueConverter(
                             listOf(SupportedOperationType.OVERWRITE_OPERATION)
@@ -764,6 +775,7 @@ class UpdateTimer private constructor() {
                     )
                     .bindParameter(
                         SlotMetadata.FIELD_PATH.path,
+                        { FieldPath.NAME },
                         { _, _ -> },
                         TypeConverters.createEnumParamValueConverter(listOf(FieldPath.NAME))
                     )

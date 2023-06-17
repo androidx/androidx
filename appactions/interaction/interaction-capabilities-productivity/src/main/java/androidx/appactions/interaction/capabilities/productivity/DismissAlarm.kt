@@ -147,6 +147,7 @@ class DismissAlarm private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.ALARM.path,
+                    Arguments::alarm,
                     Arguments.Builder::setAlarm,
                     AlarmReference.PARAM_VALUE_CONVERTER
                 )

@@ -184,11 +184,13 @@ class CreateCall private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.CALL_FORMAT.path,
+                    Arguments::callFormat,
                     Arguments.Builder::setCallFormat,
                     TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER
                 )
                 .bindRepeatedParameter(
                     SlotMetadata.PARTICIPANT.path,
+                    Arguments::participantList,
                     Arguments.Builder::setParticipantList,
                     ParticipantReference.PARAM_VALUE_CONVERTER,
                 )
