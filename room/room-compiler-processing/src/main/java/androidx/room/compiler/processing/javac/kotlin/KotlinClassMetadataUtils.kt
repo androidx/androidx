@@ -45,6 +45,7 @@ import kotlinx.metadata.jvm.annotations
 import kotlinx.metadata.jvm.getterSignature
 import kotlinx.metadata.jvm.setterSignature
 import kotlinx.metadata.jvm.signature
+import kotlinx.metadata.jvm.syntheticMethodForAnnotations
 
 internal interface KmFlags {
     val flags: Flags
@@ -115,23 +116,17 @@ internal class KmClassContainer(
         check(method.kind == ElementKind.METHOD) {
             "must pass an element type of method"
         }
-        val methodSignature = method.descriptor()
-        functionList.firstOrNull { it.descriptor == methodSignature }?.let {
-            return it
-        }
-        // might be a property getter or setter
-        return propertyList.firstNotNullOfOrNull { property ->
-            when {
-                property.getter?.descriptor == methodSignature -> {
-                    property.getter
-                }
+        return functionByDescriptor[method.descriptor()]
+    }
 
-                property.setter?.descriptor == methodSignature -> {
-                    property.setter
-                }
-
-                else -> {
-                    null
+    private val functionByDescriptor: Map<String, KmFunctionContainer> by lazy {
+        buildMap {
+            functionList.forEach { put(it.descriptor, it) }
+            propertyList.forEach { property ->
+                property.getter?.descriptor?.let { put(it, property.getter) }
+                property.setter?.descriptor?.let { put(it, property.setter) }
+                property.syntheticMethodForAnnotations?.descriptor?.let {
+                    put(it, property.syntheticMethodForAnnotations)
                 }
             }
         }
@@ -215,10 +210,12 @@ internal interface KmFunctionContainer : KmFlags {
     val parameters: List<KmValueParameterContainer>
     val returnType: KmTypeContainer
 
-    fun isPropertyFunction(): Boolean = this is KmPropertyFunctionContainerImpl
+    fun isSyntheticMethodForAnnotations() =
+        (this as? KmPropertyFunctionContainerImpl)?.syntheticMethodForAnnotations == true
+    fun isPropertyFunction() = this is KmPropertyFunctionContainerImpl
     fun isSuspend() = Flag.Function.IS_SUSPEND(flags)
     fun isExtension() =
-        this is KmFunctionContainerImpl && this.kmFunction.receiverParameterType != null
+        (this as? KmFunctionContainerImpl)?.kmFunction?.receiverParameterType != null
 }
 
 private class KmFunctionContainerImpl(
@@ -239,20 +236,21 @@ private class KmFunctionContainerImpl(
         get() = kmFunction.valueParameters.map { it.asContainer() }
 }
 
-private class KmPropertyFunctionContainerImpl(
+private open class KmPropertyFunctionContainerImpl(
     override val flags: Flags,
     override val name: String,
     override val jvmName: String,
     override val descriptor: String,
     override val parameters: List<KmValueParameterContainer>,
     override val returnType: KmTypeContainer,
+    val syntheticMethodForAnnotations: Boolean = false
 ) : KmFunctionContainer {
     override val typeParameters: List<KmTypeParameterContainer> = emptyList()
 }
 
 internal class KmConstructorContainer(
     private val kmConstructor: KmConstructor,
-    override val returnType: KmTypeContainer
+    override val returnType: KmTypeContainer,
 ) : KmFunctionContainer {
     override val flags: Flags
         get() = kmConstructor.flags
@@ -271,7 +269,8 @@ internal class KmPropertyContainer(
     private val kmProperty: KmProperty,
     val type: KmTypeContainer,
     val getter: KmFunctionContainer?,
-    val setter: KmFunctionContainer?
+    val setter: KmFunctionContainer?,
+    val syntheticMethodForAnnotations: KmFunctionContainer?,
 ) : KmFlags {
     override val flags: Flags
         get() = kmProperty.flags
@@ -435,6 +434,18 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
                 descriptor = it.asString(),
                 parameters = listOf(param.asContainer()),
                 returnType = returnType.asContainer(),
+            )
+        },
+        syntheticMethodForAnnotations = syntheticMethodForAnnotations?.let {
+            val returnType = KmType(0).apply { classifier = KmClassifier.Class("Unit") }
+            KmPropertyFunctionContainerImpl(
+                flags = 0,
+                name = JvmAbi.computeSyntheticMethodForAnnotationsName(this.name),
+                jvmName = it.name,
+                descriptor = it.asString(),
+                parameters = emptyList(),
+                returnType = returnType.asContainer(),
+                syntheticMethodForAnnotations = true,
             )
         },
     )

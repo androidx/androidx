@@ -16,13 +16,11 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeParameterElement
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isConstructor
@@ -33,12 +31,7 @@ internal abstract class KspExecutableElement(
     override val declaration: KSFunctionDeclaration
 ) : KspElement(env, declaration),
     XExecutableElement,
-    XHasModifiers by KspHasModifiers.create(declaration),
-    XAnnotated by KspAnnotated.create(
-        env = env,
-        delegate = declaration,
-        filter = NO_USE_SITE
-    ) {
+    XHasModifiers by KspHasModifiers.create(declaration) {
 
     override val jvmDescriptor: String
         get() = this.jvmDescriptor()

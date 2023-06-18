@@ -16,10 +16,12 @@
 
 package androidx.room.compiler.processing.ksp.synthetic
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspConstructorType
 import androidx.room.compiler.processing.ksp.KspExecutableElement
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
@@ -35,7 +37,13 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal class KspSyntheticNoArgConstructorElement(
     env: KspProcessingEnv,
     declaration: KSFunctionDeclaration
-) : KspExecutableElement(env, declaration), XConstructorElement {
+) : KspExecutableElement(env, declaration),
+    XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = declaration,
+        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_CONSTRUCTOR
+    ),
+    XConstructorElement {
 
     override val enclosingElement: KspTypeElement by lazy {
         declaration.requireEnclosingMemberContainer(env) as? KspTypeElement

@@ -99,31 +99,18 @@ internal sealed class KspTypeElement(
             null
         } else {
             declaration.superTypes
-                .map { it.resolve() }
                 .singleOrNull {
-                    (it.declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
-                }?.let {
-                    env.wrap(
-                        ksType = it,
-                        allowPrimitives = false
-                    )
-                } ?: env.commonTypes.anyType
+                    (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
+                }?.let { env.wrap(it) }
+                ?: env.commonTypes.anyType
         }
     }
 
     override val superInterfaces by lazy {
-        declaration.superTypes.asSequence().map {
-            it.resolve()
-        }
-        .filter {
-            it.declaration is KSClassDeclaration &&
-                (it.declaration as KSClassDeclaration).classKind == ClassKind.INTERFACE
-        }.mapTo(mutableListOf()) {
-            env.wrap(
-                ksType = it,
-                allowPrimitives = false
-            )
-        }
+        declaration.superTypes.asSequence()
+            .filter {
+                (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE
+            }.mapTo(mutableListOf()) { env.wrap(it) }
     }
 
     @Deprecated(
