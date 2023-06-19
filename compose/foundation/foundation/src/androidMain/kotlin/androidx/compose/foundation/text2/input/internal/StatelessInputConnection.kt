@@ -31,11 +31,11 @@ import android.view.inputmethod.InputContentInfo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
-import androidx.compose.ui.text.TextRange
+import androidx.compose.foundation.text2.input.getSelectedText
+import androidx.compose.foundation.text2.input.getTextAfterSelection
+import androidx.compose.foundation.text2.input.getTextBeforeSelection
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlin.math.max
-import kotlin.math.min
 
 @VisibleForTesting
 internal const val SIC_DEBUG = false
@@ -364,34 +364,6 @@ internal class StatelessInputConnection(
     }
 
     // endregion
-
-    /**
-     * Returns the text before the selection.
-     *
-     * @param maxChars maximum number of characters (inclusive) before the minimum value in
-     * [TextFieldCharSequence.selectionInChars].
-     *
-     * @see TextRange.min
-     */
-    fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
-        subSequence(max(0, selectionInChars.min - maxChars), selectionInChars.min)
-
-    /**
-     * Returns the text after the selection.
-     *
-     * @param maxChars maximum number of characters (exclusive) after the maximum value in
-     * [TextFieldCharSequence.selectionInChars].
-     *
-     * @see TextRange.max
-     */
-    fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
-        subSequence(selectionInChars.max, min(selectionInChars.max + maxChars, length))
-
-    /**
-     * Returns the currently selected text.
-     */
-    fun TextFieldCharSequence.getSelectedText(): CharSequence =
-        subSequence(selectionInChars.min, selectionInChars.max)
 
     private fun logDebug(message: String) {
         if (SIC_DEBUG) {
