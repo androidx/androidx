@@ -129,20 +129,25 @@ internal abstract class KspType(
 
     private fun resolveTypeArguments(
         type: KSType,
-        resolvedTypeArguments: Map<String, KSTypeArgument>
+        resolvedTypeArguments: Map<String, KSTypeArgument>,
+        stack: List<KSType> = emptyList()
     ): KSType {
         return type.replace(
             type.arguments.map { argument ->
-                val argDeclaration = argument.type?.resolve()?.declaration
+                val argType = argument.type?.resolve() ?: return@map argument
+                val argDeclaration = argType.declaration
                 if (argDeclaration is KSTypeParameter) {
                     // If this is a type parameter, replace it with the resolved type argument.
                     resolvedTypeArguments[argDeclaration.name.asString()] ?: argument
-                } else if (argument.type?.resolve()?.arguments?.isEmpty() == false) {
+                } else if (argType.arguments.isNotEmpty() && !stack.contains(argType)) {
                     // If this is a type with arguments, the arguments may contain a type parameter,
                     // e.g. Foo<T>, so try to resolve the type and then convert to a type argument.
                     env.resolver.getTypeArgument(
-                        resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
-                            .createTypeReference(),
+                        typeRef = resolveTypeArguments(
+                            type = argType,
+                            resolvedTypeArguments = resolvedTypeArguments,
+                            stack = stack + argType
+                        ).createTypeReference(),
                         variance = Variance.INVARIANT
                     )
                 } else {
