@@ -24,6 +24,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.work.Configuration;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.SerialExecutorImpl;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
@@ -188,6 +189,23 @@ public final class WorkManagerTestInitHelper {
             return TestWorkManagerImplKt.getTestDriver(WorkManagerImpl.getInstance(context));
         } catch (IllegalStateException e) {
             return null;
+        }
+    }
+
+    /**
+     * Closes internal {@link androidx.work.WorkManager}'s database.
+     * <p>
+     * It could be helpful to avoid warnings by CloseGuard in testing infra. You need to be
+     * make sure that {@code WorkManager} finished all operations and won't touch database
+     * anymore. Meaning that both {@link Configuration#getTaskExecutor()} and
+     * {@link Configuration#getExecutor()} are idle.
+     */
+    @SuppressWarnings("deprecation")
+    public static void closeWorkDatabase() {
+        WorkManagerImpl workManager = WorkManagerImpl.getInstance();
+        if (workManager != null) {
+            WorkDatabase workDatabase = workManager.getWorkDatabase();
+            workDatabase.close();
         }
     }
 
