@@ -82,7 +82,7 @@ fun Modifier.transformable(
  * @param state [TransformableState] of the transformable. Defines how transformation events will be
  * interpreted by the user land logic, contains useful information about on-going events and
  * provides animation capabilities.
- * @param canPan whether the pan gesture can be performed or not
+ * @param canPan whether the pan gesture can be performed or not given the pan offset
  * @param lockRotationOnZoomPan If `true`, rotation is allowed only if touch slop is detected for
  * rotation before pan or zoom motions. If not, pan and zoom gestures will be detected, but rotation
  * gestures will not be. If `false`, once touch slop is reached, all three gestures are detected.
@@ -91,7 +91,7 @@ fun Modifier.transformable(
 @ExperimentalFoundationApi
 fun Modifier.transformable(
     state: TransformableState,
-    canPan: () -> Boolean,
+    canPan: (Offset) -> Boolean,
     lockRotationOnZoomPan: Boolean = false,
     enabled: Boolean = true
 ) = composed(
@@ -158,7 +158,7 @@ private sealed class TransformEvent {
 private suspend fun AwaitPointerEventScope.detectZoom(
     panZoomLock: State<Boolean>,
     channel: Channel<TransformEvent>,
-    canPan: State<() -> Boolean>
+    canPan: State<(Offset) -> Boolean>
 ) {
     var rotation = 0f
     var zoom = 1f
@@ -187,7 +187,7 @@ private suspend fun AwaitPointerEventScope.detectZoom(
 
                 if (zoomMotion > touchSlop ||
                     rotationMotion > touchSlop ||
-                    (panMotion > touchSlop && canPan.value.invoke())
+                    (panMotion > touchSlop && canPan.value.invoke(panChange))
                 ) {
                     pastTouchSlop = true
                     lockedToPanZoom = panZoomLock.value && rotationMotion < touchSlop
@@ -199,7 +199,7 @@ private suspend fun AwaitPointerEventScope.detectZoom(
                 val effectiveRotation = if (lockedToPanZoom) 0f else rotationChange
                 if (effectiveRotation != 0f ||
                     zoomChange != 1f ||
-                    (panChange != Offset.Zero && canPan.value.invoke())
+                    (panChange != Offset.Zero && canPan.value.invoke(panChange))
                 ) {
                     channel.trySend(TransformDelta(zoomChange, panChange, effectiveRotation))
                 }
