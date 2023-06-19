@@ -57,7 +57,7 @@ fun IconButtonDemo() {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
+                        contentDescription = "Favorite icon"
                     )
                 }
             }
@@ -75,7 +75,7 @@ fun IconButtonDemo() {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
+                        contentDescription = "Favorite icon"
                     )
                 }
             }
@@ -93,7 +93,7 @@ fun IconButtonDemo() {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
+                        contentDescription = "Favorite icon"
                     )
                 }
             }
@@ -111,7 +111,7 @@ fun IconButtonDemo() {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
+                        contentDescription = "Favorite icon"
                     )
                 }
             }

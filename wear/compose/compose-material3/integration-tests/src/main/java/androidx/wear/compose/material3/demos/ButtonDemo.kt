@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
@@ -47,7 +49,10 @@ fun ButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(text = "1 slot button")
+            Text(
+                text = "1 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             SimpleButtonSample()
@@ -60,7 +65,10 @@ fun ButtonDemo() {
             )
         }
         item {
-            Text(text = "3 slot button")
+            Text(
+                text = "3 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             ButtonSample()
@@ -68,12 +76,12 @@ fun ButtonDemo() {
         item {
             Button(
                 onClick = { /* Do something */ },
-                label = { Text("Button with icon") },
+                label = { Text("Button") },
                 secondaryLabel = { Text("Secondary label") },
                 icon = {
                     Icon(
                         Icons.Filled.Favorite,
-                        contentDescription = "Localized description",
+                        contentDescription = "Favorite icon",
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
@@ -90,7 +98,10 @@ fun FilledTonalButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(text = "1 slot button")
+            Text(
+                text = "1 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             SimpleFilledTonalButtonSample()
@@ -98,12 +109,15 @@ fun FilledTonalButtonDemo() {
         item {
             FilledTonalButton(
                 onClick = { /* Do something */ },
-                label = { Text("FilledTonalButton") },
+                label = { Text("Filled Tonal Button") },
                 enabled = false
             )
         }
         item {
-            Text(text = "3 slot button")
+            Text(
+                text = "3 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             FilledTonalButtonSample()
@@ -111,12 +125,12 @@ fun FilledTonalButtonDemo() {
         item {
             FilledTonalButton(
                 onClick = { /* Do something */ },
-                label = { Text("FilledTonalButton") },
+                label = { Text("Filled Tonal Button") },
                 secondaryLabel = { Text("Secondary label") },
                 icon = {
                     Icon(
                         Icons.Filled.Favorite,
-                        contentDescription = "Localized description",
+                        contentDescription = "Favorite icon",
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
@@ -133,7 +147,10 @@ fun OutlinedButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(text = "1 slot button")
+            Text(
+                text = "1 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             SimpleOutlinedButtonSample()
@@ -141,12 +158,15 @@ fun OutlinedButtonDemo() {
         item {
             OutlinedButton(
                 onClick = { /* Do something */ },
-                label = { Text("OutlinedButton") },
+                label = { Text("Outlined Button") },
                 enabled = false
             )
         }
         item {
-            Text(text = "3 slot button")
+            Text(
+                text = "3 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             OutlinedButtonSample()
@@ -154,12 +174,12 @@ fun OutlinedButtonDemo() {
         item {
             OutlinedButton(
                 onClick = { /* Do something */ },
-                label = { Text("OutlinedButton") },
+                label = { Text("Outlined Button") },
                 secondaryLabel = { Text("Secondary label") },
                 icon = {
                     Icon(
                         Icons.Filled.Favorite,
-                        contentDescription = "Localized description",
+                        contentDescription = "Favorite icon",
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
@@ -176,7 +196,10 @@ fun ChildButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(text = "1 slot button")
+            Text(
+                text = "1 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             SimpleChildButtonSample()
@@ -184,12 +207,15 @@ fun ChildButtonDemo() {
         item {
             ChildButton(
                 onClick = { /* Do something */ },
-                label = { Text("ChildButton") },
+                label = { Text("Child Button") },
                 enabled = false
             )
         }
         item {
-            Text(text = "3 slot button")
+            Text(
+                text = "3 slot button",
+                modifier = Modifier.semantics { heading() }
+            )
         }
         item {
             ChildButtonSample()
@@ -197,12 +223,12 @@ fun ChildButtonDemo() {
         item {
             ChildButton(
                 onClick = { /* Do something */ },
-                label = { Text("ChildButton") },
+                label = { Text("Child Button") },
                 secondaryLabel = { Text("Secondary label") },
                 icon = {
                     Icon(
                         Icons.Filled.Favorite,
-                        contentDescription = "Localized description",
+                        contentDescription = "Favorite icon",
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
