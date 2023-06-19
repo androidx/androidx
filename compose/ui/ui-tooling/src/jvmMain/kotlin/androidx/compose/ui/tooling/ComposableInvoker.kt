@@ -39,17 +39,13 @@ object ComposableInvoker {
     ): Boolean = declaredMethodTypes.size == actualTypes.size &&
         declaredMethodTypes.mapIndexed { index, clazz ->
             val actualType = actualTypes[index]
-            if (clazz.isPrimitive || actualType.isPrimitive) {
-                // We can't use [isAssignableFrom] if we have java primitives.
-                // Java primitives aren't equal to Java classes:
-                // comparing int with kotlin.Int or java.lang.Integer will return false.
-                // However, if we convert them both to a KClass they can be compared:
-                // int and java.lang.Integer will be both converted to Int
-                // see more: https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class)
-                clazz.kotlin == actualType.kotlin
-            } else {
-                clazz.isAssignableFrom(actualType)
-            }
+            // We can't use [isAssignableFrom] if we have java primitives.
+            // Java primitives aren't equal to Java classes:
+            // comparing int with kotlin.Int or java.lang.Integer will return false.
+            // However, if we convert them both to a KClass they can be compared:
+            // int and java.lang.Integer will be both converted to Int
+            // see more: https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class)
+            clazz.kotlin == actualType.kotlin || clazz.isAssignableFrom(actualType)
         }.all { it }
 
     /**
@@ -215,7 +211,6 @@ object ComposableInvoker {
     ) {
         try {
             val composableClass = Class.forName(className)
-
             val method = composableClass.findComposableMethod(methodName, *args)
                 ?: throw NoSuchMethodException("Composable $className.$methodName not found")
             method.isAccessible = true
