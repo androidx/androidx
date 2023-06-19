@@ -43,13 +43,6 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"အုပ်စုလိုက် ဖွင့်ခြင်း"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"အချက်အလက် မရရှိနိုင်ပါ"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"စက်များ မရနိုင်ပါ"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="5384406081821852110">"အခြားစက်သည် ဤ %s နှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"ပိုမိုလေ့လာရန်"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"ကာစ်လုပ်ပုံကို လေ့လာရန်"</string>
-    <string name="mr_device_form_factor_phone" msgid="7463328381315022261">"ဖုန်း"</string>
-    <string name="mr_device_form_factor_tablet" msgid="6055165768102218762">"တက်ဘလက်"</string>
-    <string name="mr_device_form_factor_tv" msgid="1365190301383785606">"tv"</string>
-    <string name="mr_device_form_factor_watch" msgid="6608514228922329622">"လက်ပတ်နာရီ"</string>
-    <string name="mr_device_form_factor_car" msgid="6309192271294837853">"ကား"</string>
-    <string name="mr_device_form_factor_unknown" msgid="3992085921148873128">"စက်"</string>
 </resources>
