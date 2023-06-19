@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName.Companion.ANY_OBJECT
 import androidx.room.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_KTYPE_NAME
@@ -1785,5 +1786,53 @@ class XTypeTest {
             """.trimIndent()
             )
         )
+    }
+
+    @Test
+    fun selfReferenceSuperTypesDoesNotInfinitelyRecurse() {
+        val baseInterface = Source.java(
+            "test.BaseInterface",
+            """
+            package test;
+            public interface BaseInterface<T> {}
+            """.trimIndent()
+        )
+        val selfReferenceClass = Source.java(
+            "test.SelfRef",
+            """
+            package test;
+            public abstract class SelfRef<T extends SelfRef<T>> { }
+            """.trimIndent()
+        )
+        val source = Source.java(
+            "test.Subject",
+            """
+            package test;
+            public final class Subject implements BaseInterface<SelfRef<?>> { }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(
+                baseInterface,
+                selfReferenceClass,
+                source
+            ),
+        ) {
+            val subject = it.processingEnv.requireTypeElement("test.Subject")
+            val superType = subject.type.superTypes
+                .map { it.asTypeName() }
+                .filterNot { it == ANY_OBJECT }
+                .single()
+            assertThat(superType.java)
+                .isEqualTo(
+                    JParameterizedTypeName.get(
+                        JClassName.get("test", "BaseInterface"),
+                        JParameterizedTypeName.get(
+                            JClassName.get("test", "SelfRef"),
+                            JWildcardTypeName.subtypeOf(JClassName.OBJECT)
+                        )
+                    )
+                )
+        }
     }
 }
