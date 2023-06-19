@@ -3809,6 +3809,29 @@ class CompositionTests {
         }
     }
 
+    @Test
+    fun earlyComposableUnitReturn() = compositionTest {
+        var state by mutableStateOf(true)
+        compose {
+            when (state) {
+                true -> return@compose Text("true")
+                false -> Text("false")
+            }
+            Text("after")
+        }
+        validate {
+            Text("true")
+        }
+
+        state = false
+        expectChanges()
+
+        validate {
+            Text("false")
+            Text("after")
+        }
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
