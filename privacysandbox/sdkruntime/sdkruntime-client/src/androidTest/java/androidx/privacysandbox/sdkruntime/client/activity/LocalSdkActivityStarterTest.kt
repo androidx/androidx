@@ -16,18 +16,36 @@
 
 package androidx.privacysandbox.sdkruntime.client.activity
 
+import android.content.Context
+import android.content.Intent
 import android.os.Binder
 import android.view.Window
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import org.junit.Test
 
 class LocalSdkActivityStarterTest {
+
+    @Test
+    fun sdkActivity_doesntRegisterAsLauncherActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val packageManager = context.packageManager
+
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+
+        val launcherActivities = packageManager
+            .queryIntentActivities(intent, 0)
+            .mapNotNull { it.activityInfo?.name }
+        assertThat(launcherActivities)
+            .doesNotContain(SdkActivity::class.qualifiedName)
+    }
 
     @Test
     fun tryStart_whenHandlerRegistered_startSdkActivityAndReturnTrue() {
