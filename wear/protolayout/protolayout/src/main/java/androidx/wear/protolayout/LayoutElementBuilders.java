@@ -78,6 +78,7 @@ public final class LayoutElementBuilders {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontWeight {}
 
     /**
