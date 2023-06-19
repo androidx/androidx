@@ -237,6 +237,10 @@ class SnapFlingBehavior(
     ): Boolean {
         val decayOffset = highVelocityAnimationSpec.calculateTargetValue(NoDistance, velocity)
         val snapStepSize = with(snapLayoutInfoProvider) { density.calculateSnapStepSize() }
+        debugLog {
+            "Evaluating decay possibility with " +
+                "decayOffset=$decayOffset and proposed approach=$offset"
+        }
         return decayOffset.absoluteValue >= (offset.absoluteValue + snapStepSize)
     }
 
@@ -418,6 +422,10 @@ private suspend fun ScrollScope.animateSnap(
             cancelAnimation()
         }
         consumedUpToNow += consumed
+    }
+
+    debugLog {
+        "Snap Animation: Proposed Offset=$targetOffset Achieved Offset=$consumedUpToNow"
     }
 
     // Always course correct velocity so they don't become too large.
