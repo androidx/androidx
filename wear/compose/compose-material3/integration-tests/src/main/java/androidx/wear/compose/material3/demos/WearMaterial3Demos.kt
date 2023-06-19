@@ -44,13 +44,13 @@ val WearMaterial3Demos = DemoCategory(
                 ComposableDemo("Button") {
                     ButtonDemo()
                 },
-                ComposableDemo("FilledTonalButton") {
+                ComposableDemo("Filled Tonal Button") {
                     FilledTonalButtonDemo()
                 },
-                ComposableDemo("OutlinedButton") {
+                ComposableDemo("Outlined Button") {
                     OutlinedButtonDemo()
                 },
-                ComposableDemo("ChildButton") {
+                ComposableDemo("Child Button") {
                     ChildButtonDemo()
                 }
             )
