@@ -22,15 +22,13 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PagingSource.LoadResult
-import androidx.testutils.MainDispatcherRule
-import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -47,14 +45,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -68,11 +63,6 @@ class PagingDataDifferTest(
     private val collectWithCachedIn: Boolean
 ) {
     private val testScope = TestScope(UnconfinedTestDispatcher())
-
-    @get:Rule
-    val dispatcherRule = MainDispatcherRule(
-        testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
-    )
 
     @Test
     fun collectFrom_static() = testScope.runTest {
@@ -256,15 +246,15 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refreshOnLatestGenerationReceiver() = runTest { differ, loadDispatcher, _,
+    fun refreshOnLatestGenerationReceiver() = runTest { differ, _,
         uiReceivers, hintReceivers ->
         // first gen
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
 
         // append a page so we can cache an anchorPosition of [8]
         differ[8]
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
 
@@ -277,7 +267,7 @@ class PagingDataDifferTest(
         differ.refresh()
         assertThat(uiReceivers[0].refreshEvents).hasSize(1)
         assertThat(uiReceivers[1].refreshEvents).hasSize(1)
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(8 until 17)
 
@@ -295,16 +285,16 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun retryOnLatestGenerationReceiver() = runTest { differ, loadDispatcher, pagingSources,
+    fun retryOnLatestGenerationReceiver() = runTest { differ, pagingSources,
         uiReceivers, hintReceivers ->
 
         // first gen
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
 
         // append a page so we can cache an anchorPosition of [8]
         differ[8]
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
 
@@ -315,7 +305,7 @@ class PagingDataDifferTest(
 
         // to recreate a real use-case of retry based on load error
         pagingSources[1].errorNextLoad = true
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         // differ should still have first gen presenter
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
 
@@ -323,7 +313,7 @@ class PagingDataDifferTest(
         differ.retry()
         assertThat(uiReceivers[0].retryEvents).hasSize(0)
         assertThat(uiReceivers[1].retryEvents).hasSize(1)
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // will retry with the correct cached hint
         assertThat(differ.snapshot()).containsExactlyElementsIn(8 until 17)
@@ -835,7 +825,7 @@ class PagingDataDifferTest(
         assertThat(listenerEvents.size).isEqualTo(2)
 
         val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
-        val job = testScope.launch {
+        val job = launch {
             pager.flow.collectLatest { differ.collectFrom(it) }
         }
 
@@ -859,7 +849,7 @@ class PagingDataDifferTest(
         val pager = Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
             TestPagingSource()
         }
-        val job = testScope.launch {
+        val job = launch {
             pager.flow.collectLatest { differ.collectFrom(it) }
         }
 
@@ -888,7 +878,7 @@ class PagingDataDifferTest(
     fun onPagingDataPresentedFlow_empty() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
-        val job1 = testScope.launch {
+        val job1 = launch {
             differ.onPagesUpdatedFlow.collect {
                 listenerEvents.add(Unit)
             }
@@ -902,7 +892,7 @@ class PagingDataDifferTest(
         assertThat(listenerEvents.size).isEqualTo(2)
 
         val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
-        val job2 = testScope.launch {
+        val job2 = launch {
             pager.flow.collectLatest { differ.collectFrom(it) }
         }
 
@@ -920,7 +910,7 @@ class PagingDataDifferTest(
     fun onPagingDataPresentedFlow_insertDrop() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
-        val job1 = testScope.launch {
+        val job1 = launch {
             differ.onPagesUpdatedFlow.collect {
                 listenerEvents.add(Unit)
             }
@@ -929,7 +919,7 @@ class PagingDataDifferTest(
         val pager = Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
             TestPagingSource()
         }
-        val job2 = testScope.launch {
+        val job2 = launch {
             pager.flow.collectLatest { differ.collectFrom(it) }
         }
 
@@ -963,7 +953,7 @@ class PagingDataDifferTest(
         // Trigger update, which should get ignored due to onPagesUpdatedFlow being hot.
         differ.collectFrom(PagingData.empty())
 
-        val job = testScope.launch {
+        val job = launch {
             differ.onPagesUpdatedFlow.collect {
                 listenerEvents.add(Unit)
                 // Await advanceUntilIdle() before accepting another event.
@@ -1421,7 +1411,7 @@ class PagingDataDifferTest(
         }
 
         val pagingData = pager.flow.first()
-        val deferred = testScope.async(Job()) {
+        val deferred = async(Job()) {
             differ.collectFrom(pagingData)
         }
 
@@ -1445,7 +1435,7 @@ class PagingDataDifferTest(
         }
 
         val pagingData = pager.flow.first()
-        val deferred = testScope.async {
+        val deferred = async {
             // only returns if flow is closed, or work canclled, or exception thrown
             // in this case it should cancel due LoadResult.Invalid causing collectFrom to return
             differ.collectFrom(pagingData)
@@ -1457,12 +1447,12 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+    fun refresh_loadStates() = runTest(initialKey = 50) { differ,
         pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // execute queued initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1473,7 +1463,7 @@ class PagingDataDifferTest(
         differ.refresh()
 
         // execute second REFRESH load
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
@@ -1487,14 +1477,14 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refresh_loadStates_afterEndOfPagination() = runTest { differ, loadDispatcher, _, _, _ ->
+    fun refresh_loadStates_afterEndOfPagination() = runTest { differ, _, _, _ ->
         val loadStateCallbacks = mutableListOf<CombinedLoadStates>()
         differ.addLoadStateListener {
             loadStateCallbacks.add(it)
         }
         val collectLoadStates = launch { differ.collectLoadStates() }
         // execute initial refresh
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(
@@ -1509,7 +1499,7 @@ class PagingDataDifferTest(
         differ.refresh()
         // after a refresh, make sure the loading event comes in 1 piece w/ the end of pagination
         // reset
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(
                 refreshLocal = Loading,
@@ -1538,11 +1528,11 @@ class PagingDataDifferTest(
     //  LoadStateUpdate event
 
     @Test
-    fun appendInvalid_loadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
+    fun appendInvalid_loadStates() = runTest { differ, pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1553,7 +1543,7 @@ class PagingDataDifferTest(
         // normal append
         differ[8]
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1570,7 +1560,7 @@ class PagingDataDifferTest(
 
         // using advanceTimeBy instead of advanceUntilIdle, otherwise this invalid APPEND + subsequent
         // REFRESH will auto run consecutively and we won't be able to assert them incrementally
-        loadDispatcher.scheduler.advanceTimeBy(1001)
+        advanceTimeBy(1001)
 
         assertThat(pagingSources.size).isEqualTo(2)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1588,7 +1578,7 @@ class PagingDataDifferTest(
         )
 
         // the LoadResult.Invalid from failed APPEND triggers new pagingSource + initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(11 until 20)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1599,12 +1589,12 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun prependInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+    fun prependInvalid_loadStates() = runTest(initialKey = 50) { differ,
         pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1616,7 +1606,7 @@ class PagingDataDifferTest(
         // normal prepend to ensure LoadStates for Page returns remains the same
         differ[0]
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(47 until 59)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1628,7 +1618,7 @@ class PagingDataDifferTest(
         // do an invalid prepend which will return LoadResult.Invalid
         differ[0]
         pagingSources[0].nextLoadResult = LoadResult.Invalid()
-        loadDispatcher.scheduler.advanceTimeBy(1001)
+        advanceTimeBy(1001)
 
         assertThat(pagingSources.size).isEqualTo(2)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1641,7 +1631,7 @@ class PagingDataDifferTest(
         )
 
         // the LoadResult.Invalid from failed PREPEND triggers new pagingSource + initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // load starts from 0 again because the provided initialKey = 50 is not multi-generational
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
@@ -1653,13 +1643,13 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refreshInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+    fun refreshInvalid_loadStates() = runTest(initialKey = 50) { differ,
         pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // execute queued initial REFRESH load which will return LoadResult.Invalid()
         pagingSources[0].nextLoadResult = LoadResult.Invalid()
-        loadDispatcher.scheduler.advanceTimeBy(1001)
+        advanceTimeBy(1001)
 
         assertThat(differ.snapshot()).isEmpty()
         assertThat(differ.newCombinedLoadStates()).containsExactly(
@@ -1669,7 +1659,7 @@ class PagingDataDifferTest(
         )
 
         // execute second REFRESH load
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
@@ -1684,11 +1674,11 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun appendError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
+    fun appendError_retryLoadStates() = runTest { differ, pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
@@ -1701,7 +1691,7 @@ class PagingDataDifferTest(
         val exception = Throwable()
         pagingSources[0].nextLoadResult = LoadResult.Error(exception)
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(
@@ -1717,7 +1707,7 @@ class PagingDataDifferTest(
 
         // retry append
         differ.retry()
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // make sure append success
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
@@ -1734,12 +1724,12 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun prependError_retryLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+    fun prependError_retryLoadStates() = runTest(initialKey = 50) { differ,
         pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
@@ -1753,7 +1743,7 @@ class PagingDataDifferTest(
         val exception = Throwable()
         pagingSources[0].nextLoadResult = LoadResult.Error(exception)
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(prependLocal = Loading),
@@ -1764,7 +1754,7 @@ class PagingDataDifferTest(
         // retry prepend
         differ.retry()
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // make sure prepend success
         assertThat(differ.snapshot()).containsExactlyElementsIn(47 until 59)
@@ -1777,14 +1767,14 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refreshError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
+    fun refreshError_retryLoadStates() = runTest { differ, pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial load returns LoadResult.Error
         val exception = Throwable()
         pagingSources[0].nextLoadResult = LoadResult.Error(exception)
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
@@ -1795,7 +1785,7 @@ class PagingDataDifferTest(
         // retry refresh
         differ.retry()
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // refresh retry does not trigger new gen
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
@@ -1809,12 +1799,12 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun prependError_refreshLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+    fun prependError_refreshLoadStates() = runTest(initialKey = 50) { differ,
         pagingSources, _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
         // initial REFRESH
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
@@ -1828,7 +1818,7 @@ class PagingDataDifferTest(
         val exception = Throwable()
         pagingSources[0].nextLoadResult = LoadResult.Error(exception)
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(prependLocal = Loading),
@@ -1837,7 +1827,7 @@ class PagingDataDifferTest(
 
         // refresh() should reset local LoadStates and trigger new REFRESH
         differ.refresh()
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         // Initial load starts from 0 because initialKey is single gen.
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
@@ -1853,7 +1843,7 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refreshError_refreshLoadStates() = runTest { differ, loadDispatcher, pagingSources,
+    fun refreshError_refreshLoadStates() = runTest { differ, pagingSources,
         _, _ ->
         val collectLoadStates = launch { differ.collectLoadStates() }
 
@@ -1861,7 +1851,7 @@ class PagingDataDifferTest(
         val exception = Throwable()
         pagingSources[0].nextLoadResult = LoadResult.Error(exception)
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
@@ -1872,7 +1862,7 @@ class PagingDataDifferTest(
         // refresh should trigger new generation
         differ.refresh()
 
-        loadDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         // Goes directly from Error --> Loading without resetting refresh to NotLoading
@@ -2028,7 +2018,7 @@ class PagingDataDifferTest(
 
         job.cancel()
         job2.cancel()
-        testScope.coroutineContext.cancelChildren()
+        coroutineContext.cancelChildren()
     }
 
     @Test
@@ -2177,28 +2167,24 @@ class PagingDataDifferTest(
     }
 
     private fun runTest(
-        loadDispatcher: TestDispatcher = StandardTestDispatcher(),
         initialKey: Int? = null,
-        pagingSources: MutableList<TestPagingSource> = mutableListOf(),
-        pager: Pager<Int, Int> =
-            Pager(
-                config = PagingConfig(pageSize = 3, enablePlaceholders = false),
-                initialKey = initialKey,
-                pagingSourceFactory = {
-                    TestPagingSource(
-                        loadDelay = 1000,
-                        loadContext = loadDispatcher,
-                    ).also { pagingSources.add(it) }
-                }
-            ),
         block: TestScope.(
             differ: SimpleDiffer,
-            loadDispatcher: TestDispatcher,
             pagingSources: List<TestPagingSource>,
             uiReceivers: List<TrackableUiReceiverWrapper>,
             hintReceivers: List<TrackableHintReceiverWrapper>
         ) -> Unit
     ) = testScope.runTest {
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, enablePlaceholders = false),
+            initialKey = initialKey,
+            pagingSourceFactory = {
+                TestPagingSource(
+                    loadDelay = 1000,
+                ).also { pagingSources.add(it) }
+            }
+        )
         val differ = SimpleDiffer(
             differCallback = dummyDifferCallback,
         )
@@ -2227,7 +2213,7 @@ class PagingDataDifferTest(
         }
 
         try {
-            block(differ, loadDispatcher, pagingSources, uiReceivers, hintReceivers)
+            block(differ, pagingSources, uiReceivers, hintReceivers)
         } finally {
             collection.cancel()
         }
@@ -2339,7 +2325,11 @@ private class TrackableHintReceiverWrapper(
 private class SimpleDiffer(
     differCallback: DifferCallback,
     cachedPagingData: PagingData<Int>? = null,
-) : PagingDataDiffer<Int>(differCallback = differCallback, cachedPagingData = cachedPagingData) {
+) : PagingDataDiffer<Int>(
+    differCallback = differCallback,
+    mainContext = EmptyCoroutineContext,
+    cachedPagingData = cachedPagingData
+) {
     override suspend fun presentNewList(
         previousList: NullPaddedList<Int>,
         newList: NullPaddedList<Int>,
