@@ -84,7 +84,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesAndroid)
 
                 implementation("androidx.activity:activity-ktx:1.7.0")
-                implementation(project(":core:core"))
+                implementation("androidx.core:core:1.11.0-beta02")
                 implementation('androidx.collection:collection:1.0.0')
                 implementation("androidx.customview:customview-poolingcontainer:1.0.0")
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
