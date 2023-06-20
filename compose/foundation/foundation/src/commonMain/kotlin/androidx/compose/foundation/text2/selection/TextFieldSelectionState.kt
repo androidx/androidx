@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -87,17 +88,9 @@ internal class TextFieldSelectionState(
     var isInTouchMode: Boolean by mutableStateOf(true)
 
     /**
-     * The gesture detector state, to indicate whether to show the appropriate handles for current
-     * selection or just the cursor.
-     *
-     * In the false state, no selection or cursor handle is shown, only the cursor is shown.
-     * TextField is initially in this state. To enter this state, input anything from the
-     * keyboard and modify the text.
-     *
-     * In the true state, either selection or cursor handle is shown according to current selection
-     * state of the TextField.
+     * Whether to show the cursor handle below cursor indicator when the TextField is focused.
      */
-    var showHandles by mutableStateOf(false)
+    var showCursorHandle by mutableStateOf(false)
 
     /**
      * Whether cursor handle is currently being dragged.
@@ -111,15 +104,14 @@ internal class TextFieldSelectionState(
     private var textToolbarVisible by mutableStateOf(false)
 
     /**
-     * True if the position of the cursor is within a visible part of the window (i.e. not scrolled
-     * out of view) and the handle should be drawn.
+     * State of the cursor handle that includes its visibility and position.
      */
-    val cursorHandleVisible: Boolean by derivedStateOf {
-        val existsCondition = showHandles && textFieldState.text.selectionInChars.collapsed
-        if (!existsCondition) return@derivedStateOf false
+    val cursorHandle by derivedStateOf {
+        if (!showCursorHandle || !textFieldState.text.selectionInChars.collapsed)
+            return@derivedStateOf TextFieldHandleState.Hidden
 
         // either cursor is dragging or inside visible bounds.
-        return@derivedStateOf isCursorDragging ||
+        val visible = isCursorDragging ||
             textLayoutState.innerTextFieldCoordinates
                 ?.visibleBounds()
                 // Visibility of cursor handle should only be decided by changes to showHandles and
@@ -127,6 +119,15 @@ internal class TextFieldSelectionState(
                 // handle may start flickering while moving and scrolling the text field.
                 ?.containsInclusive(Snapshot.withoutReadObservation { cursorRect.bottomCenter })
             ?: false
+
+        if (!visible) return@derivedStateOf TextFieldHandleState.Hidden
+
+        // text direction is useless for cursor handle, any value is fine.
+        TextFieldHandleState(
+            visible = true,
+            position = cursorRect.bottomCenter,
+            direction = ResolvedTextDirection.Ltr
+        )
     }
 
     /**
@@ -166,12 +167,57 @@ internal class TextFieldSelectionState(
         )
     }
 
+    val startSelectionHandle by derivedStateOf {
+        val layoutResult = textLayoutState.layoutResult
+            ?: return@derivedStateOf TextFieldHandleState.Hidden
+
+        val selection = textFieldState.text.selectionInChars
+
+        if (selection.collapsed) return@derivedStateOf TextFieldHandleState.Hidden
+
+        var position = getHandlePosition(true)
+
+        val visible = textLayoutState.innerTextFieldCoordinates
+                ?.visibleBounds()
+                // Visibility of cursor handle should only be decided by changes to showHandles and
+                // innerTextFieldCoordinates. If we also react to position changes of cursor, cursor
+                // handle may start flickering while moving and scrolling the text field.
+                ?.containsInclusive(position)
+            ?: false
+
+        val direction = layoutResult.getBidiRunDirection(selection.start)
+        TextFieldHandleState(visible, position, direction)
+    }
+
+    val endSelectionHandle by derivedStateOf {
+        val layoutResult = textLayoutState.layoutResult
+            ?: return@derivedStateOf TextFieldHandleState.Hidden
+
+        val selection = textFieldState.text.selectionInChars
+
+        if (selection.collapsed)
+            return@derivedStateOf TextFieldHandleState.Hidden
+
+        var position = getHandlePosition(false)
+
+        val visible = textLayoutState.innerTextFieldCoordinates
+                ?.visibleBounds()
+                // Visibility of cursor handle should only be decided by changes to showHandles and
+                // innerTextFieldCoordinates. If we also react to position changes of cursor, cursor
+                // handle may start flickering while moving and scrolling the text field.
+                ?.containsInclusive(position)
+            ?: false
+
+        val direction = layoutResult.getBidiRunDirection(max(selection.end - 1, 0))
+        TextFieldHandleState(visible, position, direction)
+    }
+
     /**
      * Responsible for responding to tap events on TextField.
      */
     fun onTapTextField(offset: Offset) {
         if (textFieldState.text.isNotEmpty()) {
-            showHandles = true
+            showCursorHandle = true
         }
 
         textToolbarVisible = false
@@ -228,7 +274,7 @@ internal class TextFieldSelectionState(
                 launch { observeTextToolbarVisibility() }
             }
         } finally {
-            showHandles = false
+            showCursorHandle = false
             if (textToolbarVisible) {
                 hideTextToolbar()
             }
@@ -315,7 +361,7 @@ internal class TextFieldSelectionState(
             // first value needs to be dropped because it cannot be compared to a prior value
             .drop(1)
             .collect {
-                showHandles = false
+                showCursorHandle = false
                 textToolbarVisible = false
             }
     }
@@ -457,7 +503,7 @@ internal class TextFieldSelectionState(
             selectCharsIn(TextRange(selection.min + clipboardText.length))
         }
 
-        showHandles = false
+        showCursorHandle = false
         // TODO(halilibo): undoManager force snapshot
     }
 

@@ -78,7 +78,12 @@ internal actual fun SelectionHandle(
                             } else {
                                 Handle.SelectionEnd
                             },
-                            position = position
+                            position = position,
+                            anchor = if (isLeft) {
+                                SelectionHandleAnchor.Left
+                            } else {
+                                SelectionHandleAnchor.Right
+                            }
                         )
                     },
                 isStartHandle = isStartHandle,
