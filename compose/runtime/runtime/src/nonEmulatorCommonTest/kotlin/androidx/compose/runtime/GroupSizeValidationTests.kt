@@ -53,7 +53,7 @@ class GroupSizeValidationTests {
     fun textLikeSize() = compositionTest {
         slotExpect(
             name = "TextLike",
-            noMoreGroupsThan = 5,
+            noMoreGroupsThan = 4,
             noMoreSlotsThan = 4
         ) {
             TextLike("")
