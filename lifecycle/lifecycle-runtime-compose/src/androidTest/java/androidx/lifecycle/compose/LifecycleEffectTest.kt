@@ -27,6 +27,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Rule
@@ -119,7 +120,7 @@ class LifecycleEffectTest {
         composeTestRule.waitForIdle()
         composeTestRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
-                LifecycleStartEffect {
+                LifecycleStartEffect(key1 = null) {
                     startCount++
 
                     onStopOrDispose {
@@ -159,7 +160,7 @@ class LifecycleEffectTest {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 state = remember { mutableStateOf(true) }
                 if (state.value) {
-                    LifecycleStartEffect {
+                    LifecycleStartEffect(null) {
                         startCount++
 
                         onStopOrDispose {
@@ -202,6 +203,124 @@ class LifecycleEffectTest {
             assertWithMessage("Lifecycle should not have been re-started")
                 .that(startCount)
                 .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun lifecycleStartEffectTest_disposal_onKeyChange() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        val key = mutableStateOf(true)
+        var startCount = 0
+        var stopCount = 0
+        var disposalCount = 0
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleStartEffect(key.value) {
+                    startCount++
+
+                    onStopOrDispose {
+                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                            disposalCount++
+                        } else {
+                            stopCount++
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not yet be started (or stopped)")
+                .that(startCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            assertWithMessage("Lifecycle should have been started")
+                .that(startCount)
+                .isEqualTo(1)
+        }
+
+        runOnUiThread {
+            // Change key, kicking off cleanup
+            key.value = false
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("ON_START effect work should have been cleaned up")
+                .that(disposalCount)
+                .isEqualTo(1)
+
+            assertWithMessage("Lifecycle should have been re-started")
+                .that(startCount)
+                .isEqualTo(2)
+
+            assertWithMessage("Lifecycle should never have been stopped (only disposed)")
+                .that(stopCount)
+                .isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun lifecycleStartEffectTest_effectsLambdaUpdate() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        val state = mutableStateOf("default")
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleStartEffect(key1 = null) {
+                    state.value += " started"
+
+                    onStopOrDispose {
+                        state.value += " disposed"
+                    }
+                }
+            }
+        }
+
+        runOnUiThread {
+            state.value = "updated"
+        }
+
+        composeTestRule.runOnIdle {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            assertThat(state.value)
+                .isEqualTo("updated started disposed")
+        }
+    }
+
+    @Test
+    fun lifecycleStartEffectTest_effectsLambdaAndKeyChange() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        var state = mutableStateOf("default")
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleStartEffect(key1 = state) {
+                    state.value += " started"
+
+                    onStopOrDispose {
+                        state.value += " disposed"
+                    }
+                }
+            }
+        }
+
+        runOnUiThread {
+            state = mutableStateOf("changed")
+        }
+
+        composeTestRule.runOnIdle {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            assertThat(state.value)
+                .isEqualTo("changed started disposed")
         }
     }
 
@@ -296,6 +415,124 @@ class LifecycleEffectTest {
             assertWithMessage("Lifecycle should not have been resumed")
                 .that(resumeCount)
                 .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun lifecycleResumeEffectTest_disposal_onKeyChange() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        val key = mutableStateOf(true)
+        var resumeCount = 0
+        var pauseCount = 0
+        var disposalCount = 0
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleResumeEffect(key.value) {
+                    resumeCount++
+
+                    onPauseOrDispose {
+                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                            disposalCount++
+                        } else {
+                            pauseCount++
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not yet be resumed (or paused)")
+                .that(resumeCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            assertWithMessage("Lifecycle should have been resumed")
+                .that(resumeCount)
+                .isEqualTo(1)
+        }
+
+        runOnUiThread {
+            // Change key, kicking off cleanup
+            key.value = false
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("ON_RESUME effect work should have been cleaned up")
+                .that(disposalCount)
+                .isEqualTo(1)
+
+            assertWithMessage("Lifecycle should have been resumed again")
+                .that(resumeCount)
+                .isEqualTo(2)
+
+            assertWithMessage("Lifecycle should never have been paused (only disposed)")
+                .that(pauseCount)
+                .isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun lifecycleResumeEffectTest_effectsLambdaUpdate() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        val state = mutableStateOf("default")
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleResumeEffect(key1 = null) {
+                    state.value += " resumed"
+
+                    onPauseOrDispose {
+                        state.value += " disposed"
+                    }
+                }
+            }
+        }
+
+        runOnUiThread {
+            state.value = "updated"
+        }
+
+        composeTestRule.runOnIdle {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            assertThat(state.value)
+                .isEqualTo("updated resumed disposed")
+        }
+    }
+
+    @Test
+    fun lifecycleResumeEffectTest_effectsLambdaAndKeyChange() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        var state = mutableStateOf("default")
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                LifecycleResumeEffect(key1 = state) {
+                    state.value += " resumed"
+
+                    onPauseOrDispose {
+                        state.value += " disposed"
+                    }
+                }
+            }
+        }
+
+        runOnUiThread {
+            state = mutableStateOf("changed")
+        }
+
+        composeTestRule.runOnIdle {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            assertThat(state.value)
+                .isEqualTo("changed resumed disposed")
         }
     }
 }
