@@ -138,6 +138,19 @@ internal class TextLayoutState {
     }
 
     /**
+     * Returns true if the screen coordinates position (x,y) corresponds to a character displayed
+     * in the view. Returns false when the position is in the empty space of left/right of text.
+     * This function may return true even when [offset] is below or above the text layout.
+     */
+    fun isPositionOnText(offset: Offset): Boolean {
+        val layoutResult = layoutResult ?: return false
+        val relativeOffset = offset.coercedInVisibleBoundsOfInputText().relativeToInputText()
+        val line = layoutResult.getLineForVerticalPosition(relativeOffset.y)
+        return relativeOffset.x >= layoutResult.getLineLeft(line) &&
+            relativeOffset.x <= layoutResult.getLineRight(line)
+    }
+
+    /**
      * Translates the click happened on the decoration box to the position in the inner text
      * field coordinates. This relative position is then used to determine symbol position in
      * text using TextLayoutResult object.
