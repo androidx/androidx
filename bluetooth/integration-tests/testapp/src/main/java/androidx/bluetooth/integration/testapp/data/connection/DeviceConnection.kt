@@ -16,12 +16,11 @@
 
 package androidx.bluetooth.integration.testapp.data.connection
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
+import androidx.bluetooth.BluetoothDevice
 import java.util.UUID
 import kotlinx.coroutines.Job
 
