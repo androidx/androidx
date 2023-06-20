@@ -295,6 +295,8 @@ class AndroidXImplPlugin @Inject constructor(
         extension: AndroidXExtension,
         plugin: KotlinBasePluginWrapper
     ) {
+        project.configureKtfmt()
+
         project.afterEvaluate {
             project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
                 if (extension.type == LibraryType.COMPILER_PLUGIN) {
