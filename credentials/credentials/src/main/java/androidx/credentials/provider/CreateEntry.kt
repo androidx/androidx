@@ -62,7 +62,10 @@ class CreateEntry internal constructor(
      * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
      * system to attach the final request
      * @param description the localized description shown on UI about where the credential is stored
-     * @param icon the icon to be displayed with this entry on the UI
+     * @param icon the icon to be displayed with this entry on the UI, must be created using
+     * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+     * the latter consumes more memory and may cause undefined behavior due to memory implications
+     * on internal transactions
      * @param lastUsedTime the last time the account underlying this entry was used by the user,
      * distinguishable up to the milli second mark only such that if two entries have the same
      * millisecond precision, they will be considered to have been used at the same time
