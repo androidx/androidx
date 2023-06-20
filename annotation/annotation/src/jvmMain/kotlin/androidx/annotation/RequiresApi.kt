@@ -20,12 +20,13 @@ import java.lang.annotation.ElementType.FIELD
 import java.lang.annotation.ElementType.METHOD
 import java.lang.annotation.ElementType.PACKAGE
 import java.lang.annotation.ElementType.TYPE
+
 /**
  * Denotes that the annotated element should only be called on the given API level or higher.
  *
- * This is similar in purpose to the older `@TargetApi` annotation, but more clearly
- * expresses that this is a requirement on the caller, rather than being used to "suppress" warnings
- * within the method that exceed the `minSdkVersion`.
+ * This is similar in purpose to the older `@TargetApi` annotation, but more clearly expresses that
+ * this is a requirement on the caller, rather than being used to "suppress" warnings within the
+ * method that exceed the `minSdkVersion`.
  *
  * For API requirements on SDK extensions, see the [RequiresExtension] annotation.
  */
@@ -46,10 +47,8 @@ import java.lang.annotation.ElementType.TYPE
 @Suppress("DEPRECATED_JAVA_ANNOTATION", "SupportAnnotationUsage")
 @java.lang.annotation.Target(TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE)
 public annotation class RequiresApi(
-    /**
-     * The API level to require. Alias for [.api] which allows you to leave out the `api=` part.
-     */
+    /** The API level to require. Alias for [.api] which allows you to leave out the `api=` part. */
     @IntRange(from = 1) val value: Int = 1,
-    /** The API level to require  */
+    /** The API level to require */
     @IntRange(from = 1) val api: Int = 1
 )

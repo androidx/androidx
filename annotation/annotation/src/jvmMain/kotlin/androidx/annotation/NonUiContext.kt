@@ -16,12 +16,10 @@
 package androidx.annotation
 
 /**
- * Denotes a [android.content.Context] that **can not** be used to obtain a
- * [android.view.Display] via [android.content.Context.getDisplay] nor to obtain an
- * instance of a visual service, such a [android.view.WindowManager],
- * [android.view.LayoutInflater] or [android.app.WallpaperManager] via
+ * Denotes a [android.content.Context] that **can not** be used to obtain a [android.view.Display]
+ * via [android.content.Context.getDisplay] nor to obtain an instance of a visual service, such a
+ * [android.view.WindowManager], [android.view.LayoutInflater] or [android.app.WallpaperManager] via
  * [android.content.Context.getSystemService].
- *
  *
  * This is a marker annotation and has no specific attributes.
  *
@@ -29,7 +27,6 @@ package androidx.annotation
  * @see android.content.Context.getSystemService
  * @see android.content.Context.getSystemService
  * @see UiContext
- *
  * @see DisplayContext
  */
 @Retention(AnnotationRetention.SOURCE)

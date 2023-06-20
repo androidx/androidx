@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a layout resource reference (e.g. `android.R.layout.list_content`).
+ * Denotes that an integer parameter, field or method return value is expected to be a layout
+ * resource reference (e.g. `android.R.layout.list_content`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated element, while not disallowed or deprecated, is one that
- * programmers are generally discouraged from using.
+ * Denotes that the annotated element, while not disallowed or deprecated, is one that programmers
+ * are generally discouraged from using.
  *
  * Example:
  * ```
@@ -27,7 +27,6 @@ package androidx.annotation
  *     ...
  * }
  * ```
- *
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(

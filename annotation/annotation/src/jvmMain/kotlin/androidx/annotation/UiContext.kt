@@ -16,21 +16,18 @@
 package androidx.annotation
 
 /**
- * Denotes a [android.content.Context] that can be used to create UI, meaning that it can
- * provide a [android.view.Display] via [android.content.Context.getDisplay] and can
- * be used to obtain an instance of a UI-related service, such as
- * [android.view.WindowManager], [android.view.LayoutInflater] or
- * [android.app.WallpaperManager] via
- * [android.content.Context.getSystemService]. A [android.content.Context]
- * which is marked as [UiContext] implies that the
- * [android.content.Context] is also a [DisplayContext].
+ * Denotes a [android.content.Context] that can be used to create UI, meaning that it can provide a
+ * [android.view.Display] via [android.content.Context.getDisplay] and can be used to obtain an
+ * instance of a UI-related service, such as [android.view.WindowManager],
+ * [android.view.LayoutInflater] or [android.app.WallpaperManager] via
+ * [android.content.Context.getSystemService]. A [android.content.Context] which is marked as
+ * [UiContext] implies that the [android.content.Context] is also a [DisplayContext].
  *
- *
- * This kind of [android.content.Context] is usually an [android.app.Activity] or an
- * instance created via [android.content.Context.createWindowContext]. The
- * [android.content.res.Configuration] for these types of Context types is correctly
- * adjusted to the visual bounds of your window so it can be used to get the correct values
- * for {link android.view.WindowMetrics} and other UI related queries.
+ * This kind of [android.content.Context] is usually an [android.app.Activity] or an instance
+ * created via [android.content.Context.createWindowContext]. The
+ * [android.content.res.Configuration] for these types of Context types is correctly adjusted to the
+ * visual bounds of your window so it can be used to get the correct values for {link
+ * android.view.WindowMetrics} and other UI related queries.
  *
  * This is a marker annotation and has no specific attributes.
  *

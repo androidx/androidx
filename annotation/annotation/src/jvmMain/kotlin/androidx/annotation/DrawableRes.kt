@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a drawable resource reference (e.g. `android.R.attr.alertDialogIcon`).
+ * Denotes that an integer parameter, field or method return value is expected to be a drawable
+ * resource reference (e.g. `android.R.attr.alertDialogIcon`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

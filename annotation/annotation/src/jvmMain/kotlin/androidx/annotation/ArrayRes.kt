@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be an array resource reference (e.g. `android.R.array.phoneTypes`).
+ * Denotes that an integer parameter, field or method return value is expected to be an array
+ * resource reference (e.g. `android.R.array.phoneTypes`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)
