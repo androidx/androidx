@@ -83,25 +83,30 @@ fun LifecycleEventEffect(
  * Schedule a pair of effects to run when the [Lifecycle] receives either a
  * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP]. The ON_START effect will
  * be the body of the [effects] block and the ON_STOP effect will be within the
- * (onStop clause)[LifecycleStartStopEffectScope.onStop]:
+ * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
  *
  * LifecycleStartEffect(lifecycleOwner) {
- *     // add ON_START effect work here
+ *     // add ON_START effect here
  *
- *     onStop {
- *         // add ON_STOP effect work here
+ *     onStopOrDispose {
+ *         // add clean up for work kicked off in the ON_START effect here
  *     }
  * }
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
  *
- * A [LifecycleStartEffect] **must** include an [onStop][LifecycleStartStopEffectScope.onStop]
- * clause as the final statement in its [effects] block. If your operation does not require
- * an effect for both ON_START and ON_STOP, a [LifecycleEventEffect] should be used instead.
+ * A [LifecycleStartEffect] **must** include an
+ * [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] clause as the final
+ * statement in its [effects] block. If your operation does not require an effect for
+ * _both_ [Lifecycle.Event.ON_START] and [Lifecycle.Event.ON_STOP], a [LifecycleEventEffect]
+ * should be used instead.
  *
  * This function uses a [LifecycleEventObserver] to listen for when [LifecycleStartEffect]
  * enters the composition and the effects will be launched when receiving a
- * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively.
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively. If the
+ * [LifecycleStartEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_STOP]
+ * event, [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] will be called to
+ * clean up the work that was kicked off in the ON_START effect.
  *
  * This function should **not** be used to launch tasks in response to callback
  * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
@@ -114,19 +119,21 @@ fun LifecycleEventEffect(
 @Composable
 fun LifecycleStartEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
 ) {
-    val lifecycleStartStopEffectScope = LifecycleStartStopEffectScope()
+    val lifecycleStartStopEffectScope = LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
+
     // Safely update the current `onStart` lambda when a new one is provided
     val currentEffects by rememberUpdatedState(effects)
     DisposableEffect(lifecycleOwner) {
+        var effectResult: LifecycleStopOrDisposeEffectResult? = null
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START ->
-                    lifecycleStartStopEffectScope.currentEffects()
+                Lifecycle.Event.ON_START -> with(lifecycleStartStopEffectScope) {
+                        effectResult = currentEffects()
+                    }
 
-                Lifecycle.Event.ON_STOP ->
-                    lifecycleStartStopEffectScope.currentEffects().runStopEffect()
+                Lifecycle.Event.ON_STOP -> effectResult?.runStopOrDisposeEffect()
 
                 else -> {}
             }
@@ -136,33 +143,40 @@ fun LifecycleStartEffect(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            effectResult?.runStopOrDisposeEffect()
         }
     }
 }
 
 /**
- * Interface used for [LifecycleStartEffect] to run the effect within the onStop
- * clause when an (ON_STOP)[Lifecycle.Event.ON_STOP] event is received.
+ * Interface used for [LifecycleStartEffect] to run the effect within the onStopOrDispose
+ * clause when an (ON_STOP)[Lifecycle.Event.ON_STOP] event is received or when cleanup is
+ * needed for the work that was kicked off in the ON_START effect.
  */
-interface LifecycleStopEffectResult {
-    fun runStopEffect()
+interface LifecycleStopOrDisposeEffectResult {
+    fun runStopOrDisposeEffect()
 }
 
 /**
- * Receiver scope for [LifecycleStartEffect] that offers the [onStop] clause to
+ * Receiver scope for [LifecycleStartEffect] that offers the [onStopOrDispose] clause to
  * couple the ON_START effect. This should be the last statement in any call to
  * [LifecycleStartEffect].
+ *
+ * This scope is also a [LifecycleOwner] to allow access to the
+ * (lifecycle)[LifecycleStartStopEffectScope.lifecycle] within the [onStopOrDispose] clause.
+ *
+ * @param lifecycle The lifecycle being observed by this receiver scope
  */
-class LifecycleStartStopEffectScope {
+class LifecycleStartStopEffectScope(override val lifecycle: Lifecycle) : LifecycleOwner {
     /**
-     * Provide the [onStopEffect] to the [LifecycleStartEffect] to run when the observer
-     * receives an (ON_STOP)[Lifecycle.Event.ON_STOP] event.
+     * Provide the [onStopOrDisposeEffect] to the [LifecycleStartEffect] to run when the
+     * observer receives an (ON_STOP)[Lifecycle.Event.ON_STOP] event or must undergo cleanup.
      */
-    inline fun onStop(
-        crossinline onStopEffect: () -> Unit
-    ): LifecycleStopEffectResult = object : LifecycleStopEffectResult {
-        override fun runStopEffect() {
-            onStopEffect()
+    inline fun onStopOrDispose(
+        crossinline onStopOrDisposeEffect: LifecycleOwner.() -> Unit
+    ): LifecycleStopOrDisposeEffectResult = object : LifecycleStopOrDisposeEffectResult {
+        override fun runStopOrDisposeEffect() {
+            onStopOrDisposeEffect()
         }
     }
 }
@@ -170,26 +184,31 @@ class LifecycleStartStopEffectScope {
 /**
  * Schedule a pair of effects to run when the [Lifecycle] receives either a
  * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE]. The ON_RESUME effect
- * will be the body of the [effects] block and the ON_PAUSE effect will be within the
- * (onPause clause)[LifecycleResumePauseEffectScope.onPause]:
+ * will be the body of the [effects] block and the ON_PAUSE effect will be within
+ * the (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
  *
  * LifecycleResumeEffect(lifecycleOwner) {
- *     // add ON_RESUME effect work here
+ *     // add ON_RESUME effect here
  *
- *     onPause {
- *         // add ON_PAUSE effect work here
+ *     onPauseOrDispose {
+ *         // add clean up for work kicked off in the ON_RESUME effect here
  *     }
  * }
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
  *
- * A [LifecycleResumeEffect] **must** include an [onPause][LifecycleResumePauseEffectScope.onPause]
- * clause as the final statement in its [effects] block. If your operation does not require
- * an effect for both ON_RESUME and ON_PAUSE, a [LifecycleEventEffect] should be used instead.
+ * A [LifecycleResumeEffect] **must** include an
+ * [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] clause as
+ * the final statement in its [effects] block. If your operation does not require
+ * an effect for _both_ [Lifecycle.Event.ON_RESUME] and [Lifecycle.Event.ON_PAUSE],
+ * a [LifecycleEventEffect] should be used instead.
  *
  * This function uses a [LifecycleEventObserver] to listen for when [LifecycleResumeEffect]
  * enters the composition and the effects will be launched when receiving a
- * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively.
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively. If the
+ * [LifecycleResumeEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_PAUSE]
+ * event, [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] will be called
+ * to clean up the work that was kicked off in the ON_RESUME effect.
  *
  * This function should **not** be used to launch tasks in response to callback
  * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
@@ -204,17 +223,20 @@ fun LifecycleResumeEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseEffectResult
 ) {
-    val lifecycleResumePauseEffectScope = LifecycleResumePauseEffectScope()
+    val lifecycleResumePauseEffectScope =
+        LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
+
     // Safely update the current `onResume` lambda when a new one is provided
     val currentEffects by rememberUpdatedState(effects)
     DisposableEffect(lifecycleOwner) {
+        var effectResult: LifecyclePauseEffectResult? = null
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_RESUME ->
-                    lifecycleResumePauseEffectScope.currentEffects()
+                Lifecycle.Event.ON_RESUME -> with(lifecycleResumePauseEffectScope) {
+                        effectResult = currentEffects()
+                    }
 
-                Lifecycle.Event.ON_PAUSE ->
-                    lifecycleResumePauseEffectScope.currentEffects().runPauseEffect()
+                Lifecycle.Event.ON_PAUSE -> effectResult?.runPauseOrOnDisposeEffect()
 
                 else -> {}
             }
@@ -224,33 +246,40 @@ fun LifecycleResumeEffect(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            effectResult?.runPauseOrOnDisposeEffect()
         }
     }
 }
 
 /**
- * Interface used for [LifecycleResumeEffect] to run the effect within the onPause
- * clause when an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event is received.
+ * Interface used for [LifecycleResumeEffect] to run the effect within the onPauseOrDispose
+ * clause when an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event is received or when cleanup is
+ *  * needed for the work that was kicked off in the ON_RESUME effect.
  */
 interface LifecyclePauseEffectResult {
-    fun runPauseEffect()
+    fun runPauseOrOnDisposeEffect()
 }
 
 /**
- * Receiver scope for [LifecycleResumeEffect] that offers the [onPause] clause to
+ * Receiver scope for [LifecycleResumeEffect] that offers the [onPauseOrDispose] clause to
  * couple the ON_RESUME effect. This should be the last statement in any call to
  * [LifecycleResumeEffect].
+ *
+ * This scope is also a [LifecycleOwner] to allow access to the
+ * (lifecycle)[LifecycleResumePauseEffectScope.lifecycle] within the [onPauseOrDispose] clause.
+ *
+ * @param lifecycle The lifecycle being observed by this receiver scope
  */
-class LifecycleResumePauseEffectScope {
+class LifecycleResumePauseEffectScope(override val lifecycle: Lifecycle) : LifecycleOwner {
     /**
-     * Provide the [onPauseEffect] to the [LifecycleResumeEffect] to run when the observer
-     * receives an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event.
+     * Provide the [onPauseOrDisposeEffect] to the [LifecycleResumeEffect] to run when the observer
+     * receives an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event or must undergo cleanup.
      */
-    inline fun onPause(
-        crossinline onPauseEffect: () -> Unit
+    inline fun onPauseOrDispose(
+        crossinline onPauseOrDisposeEffect: LifecycleOwner.() -> Unit
     ): LifecyclePauseEffectResult = object : LifecyclePauseEffectResult {
-        override fun runPauseEffect() {
-            onPauseEffect()
+        override fun runPauseOrOnDisposeEffect() {
+            onPauseOrDisposeEffect()
         }
     }
 }

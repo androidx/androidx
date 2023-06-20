@@ -17,16 +17,17 @@
 package androidx.lifecycle.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +38,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LifecycleEffectTest {
 
-    private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var lifecycleOwner: TestLifecycleOwner
 
     @get:Rule
@@ -45,8 +45,7 @@ class LifecycleEffectTest {
 
     @Before
     fun setup() {
-        lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = dispatcher)
-        Dispatchers.setMain(dispatcher)
+        lifecycleOwner = TestLifecycleOwner()
     }
 
     @Test
@@ -113,10 +112,7 @@ class LifecycleEffectTest {
 
     @Test
     fun lifecycleStartEffectTest() {
-        lifecycleOwner = TestLifecycleOwner(
-            Lifecycle.State.INITIALIZED,
-            dispatcher
-        )
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var startCount = 0
         var stopCount = 0
 
@@ -126,7 +122,7 @@ class LifecycleEffectTest {
                 LifecycleStartEffect {
                     startCount++
 
-                    onStop {
+                    onStopOrDispose {
                         stopCount++
                     }
                 }
@@ -151,6 +147,65 @@ class LifecycleEffectTest {
     }
 
     @Test
+    fun lifecycleStartEffectTest_disposal() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        var startCount = 0
+        var stopCount = 0
+        var disposalCount = 0
+        lateinit var state: MutableState<Boolean>
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                state = remember { mutableStateOf(true) }
+                if (state.value) {
+                    LifecycleStartEffect {
+                        startCount++
+
+                        onStopOrDispose {
+                            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                                disposalCount++
+                            } else {
+                                stopCount++
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not yet be started (or stopped)")
+                .that(startCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            assertWithMessage("Lifecycle should have been started")
+                .that(startCount)
+                .isEqualTo(1)
+        }
+
+        runOnUiThread {
+            // Change state, kicking off cleanup
+            state.value = false
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("ON_START effect work should have been cleaned up")
+                .that(disposalCount)
+                .isEqualTo(1)
+
+            assertWithMessage("Lifecycle should not have been stopped")
+                .that(stopCount)
+                .isEqualTo(0)
+
+            assertWithMessage("Lifecycle should not have been re-started")
+                .that(startCount)
+                .isEqualTo(1)
+        }
+    }
+
+    @Test
     fun lifecycleResumeEffectTest() {
         var resumeCount = 0
         var pauseCount = 0
@@ -161,7 +216,7 @@ class LifecycleEffectTest {
                 LifecycleResumeEffect {
                     resumeCount++
 
-                    onPause {
+                    onPauseOrDispose {
                         pauseCount++
                     }
                 }
@@ -181,6 +236,65 @@ class LifecycleEffectTest {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             assertWithMessage("Lifecycle should have been paused")
                 .that(pauseCount)
+                .isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun lifecycleResumeEffectTest_disposal() {
+        lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+        var resumeCount = 0
+        var pauseCount = 0
+        var disposalCount = 0
+        lateinit var state: MutableState<Boolean>
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                state = remember { mutableStateOf(true) }
+                if (state.value) {
+                    LifecycleResumeEffect {
+                        resumeCount++
+
+                        onPauseOrDispose {
+                            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                                disposalCount++
+                            } else {
+                                pauseCount++
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not be resumed (or paused)")
+                .that(resumeCount)
+                .isEqualTo(0)
+
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            assertWithMessage("Lifecycle should have been resumed")
+                .that(resumeCount)
+                .isEqualTo(1)
+        }
+
+        runOnUiThread {
+            // Change state, kicking off cleanup
+            state.value = false
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("ON_RESUME effect work should have been cleaned up")
+                .that(disposalCount)
+                .isEqualTo(1)
+
+            assertWithMessage("Lifecycle should not have been paused")
+                .that(pauseCount)
+                .isEqualTo(0)
+
+            assertWithMessage("Lifecycle should not have been resumed")
+                .that(resumeCount)
                 .isEqualTo(1)
         }
     }
