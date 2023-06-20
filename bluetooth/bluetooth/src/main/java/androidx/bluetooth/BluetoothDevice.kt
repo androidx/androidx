@@ -18,6 +18,7 @@ package androidx.bluetooth
 
 import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
 import java.util.UUID
 
 /**
@@ -29,7 +30,10 @@ import java.util.UUID
  * @property bondState the bondState for this BluetoothDevice
  *
  */
-class BluetoothDevice internal constructor(private val fwkDevice: FwkBluetoothDevice) {
+class BluetoothDevice internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val fwkDevice: FwkBluetoothDevice
+) {
     val id: UUID = UUID.randomUUID()
 
     @get:RequiresPermission(
@@ -38,6 +42,10 @@ class BluetoothDevice internal constructor(private val fwkDevice: FwkBluetoothDe
     )
     val name: String?
         get() = fwkDevice.name
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val address: String
+        get() = fwkDevice.address
 
     @get:RequiresPermission(
         anyOf = ["android.permission.BLUETOOTH",
