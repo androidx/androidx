@@ -48,8 +48,10 @@ import java.util.Collections
  * @property lastUsedTime the last used time of this entry, distinguishable up to the milli
  * second mark, such that if two entries have the same millisecond precision,
  * they will be considered to have been used at the same time
- * @property icon the icon to be displayed with this entry on the selector. If not set, a
- * default icon representing a password credential type is set by the library
+ * @param icon the icon to be displayed with this entry on the UI, must be created using
+ * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+ * the latter consumes more memory and may cause undefined behavior due to memory implications
+ * on internal transactions; defaulted to a fallback password credential icon if not provided
  * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
  * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
  * system to attach the final request

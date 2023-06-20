@@ -48,8 +48,10 @@ import java.util.Collections
  * @property lastUsedTime the last used time of this entry. Note that this value will only be
  * distinguishable up to the milli second mark. If two entries have the same millisecond precision,
  * they will be considered to have been used at the same time
- * @property icon the icon to be displayed with this entry on the selector. If not set, a
- * default icon representing a public key credential type is set by the library
+ * @param icon the icon to be displayed with this entry on the UI, must be created using
+ * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+ * the latter consumes more memory and may cause undefined behavior due to memory implications
+ * on internal transactions; defaulted to a fallback public key credential icon if not provided
  * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
  * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
  * that the system can add the complete request to the extras of the associated intent
