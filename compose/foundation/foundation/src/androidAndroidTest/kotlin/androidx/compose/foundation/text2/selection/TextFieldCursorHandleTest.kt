@@ -26,8 +26,6 @@ import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
-import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope

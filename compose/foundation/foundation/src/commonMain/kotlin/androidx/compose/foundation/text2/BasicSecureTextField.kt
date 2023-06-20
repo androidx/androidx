@@ -25,7 +25,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -264,7 +264,7 @@ internal class PasswordRevealFilter(
 
     override fun filter(
         originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBufferWithSelection
+        valueWithChanges: TextFieldBuffer
     ) {
         // We only care about a single character insertion changes
         val singleCharacterInsertion = valueWithChanges.changes.changeCount == 1 &&
