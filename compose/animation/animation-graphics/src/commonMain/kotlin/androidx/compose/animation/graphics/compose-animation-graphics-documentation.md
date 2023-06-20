@@ -2,7 +2,7 @@
 
 Compose Animation Graphics
 
-# Package androidx.compose.anamition.graphics
+# Package androidx.compose.animation.graphics
 
 In this page, you'll find documentation for types, properties, and functions available in the
 `androidx.compose.animation.graphics` package.
