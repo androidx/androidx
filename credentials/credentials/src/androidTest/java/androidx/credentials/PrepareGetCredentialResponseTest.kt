@@ -53,9 +53,8 @@ class PrepareGetCredentialResponseTest {
         }
 
         // Construct the test class.
-        val response = PrepareGetCredentialResponse.Builder()
-            .setIsNullHandlesForTest(true)
-            .setCredentialTypeHandler { option ->
+        val response = PrepareGetCredentialResponse.TestBuilder()
+            .setCredentialTypeDelegate { option ->
                 option.equals("password") ||
                 option.equals("otherValid")
             }
@@ -76,9 +75,8 @@ class PrepareGetCredentialResponseTest {
         }
 
         // Construct the test class.
-        val response = PrepareGetCredentialResponse.Builder()
-            .setIsNullHandlesForTest(true)
-            .setHasAuthenticationResultsHandler {
+        val response = PrepareGetCredentialResponse.TestBuilder()
+            .setHasAuthResultsDelegate {
                 true
             }
             .build()
@@ -98,9 +96,8 @@ class PrepareGetCredentialResponseTest {
         }
 
         // Construct the test class.
-        val response = PrepareGetCredentialResponse.Builder()
-            .setIsNullHandlesForTest(true)
-            .setHasRemoteResultsHandler {
+        val response = PrepareGetCredentialResponse.TestBuilder()
+            .setHasRemoteResultsDelegate {
                 true
             }
             .build()
