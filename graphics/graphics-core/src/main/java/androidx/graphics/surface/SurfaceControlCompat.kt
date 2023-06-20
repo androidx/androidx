@@ -193,7 +193,7 @@ class SurfaceControlCompat internal constructor(
          * this callback may be reused after this point.
          */
         @JniVisible
-        fun onTransactionCompleted()
+        fun onTransactionCompleted(transactionStats: Long)
     }
 
     /**
