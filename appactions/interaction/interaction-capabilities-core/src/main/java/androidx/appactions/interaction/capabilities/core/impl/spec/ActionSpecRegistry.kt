@@ -25,7 +25,6 @@ import kotlin.reflect.KClass
  * Contains a mapping of argument Class to its ActionSpec. This is used for testing.
  * The ActionSpec can be used to convert an Arguments instance into wire-format representation.
  */
-@VisibleForTesting
 object ActionSpecRegistry {
   private val argumentsClassToActionSpec = IdentityHashMap<Class<*>, ActionSpec<Any, *>>()
 
@@ -37,6 +36,7 @@ object ActionSpecRegistry {
     )
   }
 
+  @VisibleForTesting
   fun getActionSpecForArguments(arguments: Any): ActionSpec<Any, *>? {
     return argumentsClassToActionSpec[arguments.javaClass]
   }

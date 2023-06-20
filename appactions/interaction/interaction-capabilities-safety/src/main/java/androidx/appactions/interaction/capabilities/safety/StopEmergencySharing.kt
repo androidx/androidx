@@ -25,6 +25,7 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
@@ -159,5 +160,8 @@ class StopEmergencySharing private constructor() {
                     ExecutionStatus::toParamValue,
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+        }
     }
 }

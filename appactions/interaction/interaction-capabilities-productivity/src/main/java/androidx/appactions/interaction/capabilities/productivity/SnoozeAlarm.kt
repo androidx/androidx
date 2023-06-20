@@ -27,6 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.serializers.types.GENERIC_ERROR_STATUS_TYPE_SPEC
@@ -176,29 +177,32 @@ class SnoozeAlarm private constructor() {
         /** Canonical name for [SnoozeAlarm] capability */
         const val CAPABILITY_NAME = "actions.intent.SNOOZE_ALARM"
         private val ACTION_SPEC =
-                ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                        .setArguments(Arguments::class.java,
-                            Arguments::Builder,
-                            Arguments.Builder::build
-                        )
-                        .setOutput(Output::class.java)
-                        .bindParameter(
-                            SlotMetadata.DURATION.path,
-                            Arguments::snoozeDuration,
-                            Arguments.Builder::setSnoozeDuration,
-                            TypeConverters.DURATION_PARAM_VALUE_CONVERTER
-                        )
-                        .bindParameter(
-                            SlotMetadata.ALARM.path,
-                            Arguments::targetAlarm,
-                            Arguments.Builder::setTargetAlarm,
-                            AlarmReference.PARAM_VALUE_CONVERTER
-                        )
-                        .bindOutput(
-                            "executionStatus",
-                            Output::executionStatus,
-                            ExecutionStatus.PARAM_VALUE_CONVERTER
-                        )
-                        .build()
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java,
+                    Arguments::Builder,
+                    Arguments.Builder::build
+                )
+                .setOutput(Output::class.java)
+                .bindParameter(
+                    SlotMetadata.DURATION.path,
+                    Arguments::snoozeDuration,
+                    Arguments.Builder::setSnoozeDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                )
+                .bindParameter(
+                    SlotMetadata.ALARM.path,
+                    Arguments::targetAlarm,
+                    Arguments.Builder::setTargetAlarm,
+                    AlarmReference.PARAM_VALUE_CONVERTER
+                )
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus.PARAM_VALUE_CONVERTER
+                )
+                .build()
+        init {
+            ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+        }
     }
 }

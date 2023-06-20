@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
@@ -99,5 +100,8 @@ class ResumeExercise private constructor() {
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+        }
     }
 }
