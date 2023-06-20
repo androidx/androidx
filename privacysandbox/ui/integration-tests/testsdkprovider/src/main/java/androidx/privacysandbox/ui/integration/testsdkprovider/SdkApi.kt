@@ -25,7 +25,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
@@ -38,6 +40,7 @@ import java.util.concurrent.Executor
 
 class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
     private var mContext: Context? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         mContext = sdkContext
@@ -67,28 +70,32 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
             clientExecutor: Executor,
             client: SandboxedUiAdapter.SessionClient,
         ) {
-            Log.d(TAG, "Session requested")
-            lateinit var adView: View
-            if (isWebView) {
-                // To test error cases.
-                if (isAirplaneModeOn()) {
-                    clientExecutor.execute {
-                        client.onSessionError(Throwable("Cannot load WebView in airplane mode."))
+            handler.post(Runnable lambda@{
+                Log.d(TAG, "Session requested")
+                lateinit var adView: View
+                if (isWebView) {
+                    // To test error cases.
+                    if (isAirplaneModeOn()) {
+                        clientExecutor.execute {
+                            client.onSessionError(
+                                Throwable("Cannot load WebView in airplane mode.")
+                            )
+                        }
+                        return@lambda
                     }
-                    return
+                    val webView = WebView(context)
+                    webView.loadUrl(AD_URL)
+                    webView.layoutParams = ViewGroup.LayoutParams(
+                        initialWidth, initialHeight
+                    )
+                    adView = webView
+                } else {
+                    adView = TestView(context, withSlowDraw, text)
                 }
-                val webView = WebView(context)
-                webView.loadUrl(AD_URL)
-                webView.layoutParams = ViewGroup.LayoutParams(
-                    initialWidth, initialHeight
-                )
-                adView = webView
-            } else {
-                adView = TestView(context, withSlowDraw, text)
-            }
-            clientExecutor.execute {
-                client.onSessionOpened(BannerAdSession(adView))
-            }
+                clientExecutor.execute {
+                    client.onSessionOpened(BannerAdSession(adView))
+                }
+            })
         }
 
         private inner class BannerAdSession(private val adView: View) : SandboxedUiAdapter.Session {

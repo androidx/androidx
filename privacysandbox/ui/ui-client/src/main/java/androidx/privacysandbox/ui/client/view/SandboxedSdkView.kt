@@ -19,6 +19,7 @@ package androidx.privacysandbox.ui.client.view
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Rect
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.AttributeSet
@@ -268,7 +269,12 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     internal fun removeSurfaceViewAndOpenSession() {
-        windowInputToken = surfaceView.hostToken
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            windowInputToken = surfaceView.hostToken
+        } else {
+            // Since there is no SdkSandbox, we don't need windowInputToken for creating SCVH
+            windowInputToken = Binder()
+        }
         super.removeView(surfaceView)
         checkClientOpenSession()
     }

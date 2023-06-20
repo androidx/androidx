@@ -21,6 +21,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Binder
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
 import android.view.MotionEvent
@@ -37,11 +38,11 @@ import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
@@ -52,17 +53,26 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @MediumTest
-class IntegrationTests {
+class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @get:Rule
     var activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
 
     companion object {
+        const val TEST_ONLY_USE_REMOTE_ADAPTER = "testOnlyUseRemoteAdapter"
         const val TIMEOUT = 1000.toLong()
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{index}: invokeBackwardsCompatFlow={0}")
+        fun data(): Array<Any> = arrayOf(
+            arrayOf(true),
+            arrayOf(false),
+        )
     }
 
     private lateinit var context: Context
@@ -74,6 +84,7 @@ class IntegrationTests {
     @Before
     fun setup() {
         Assume.assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+
         context = InstrumentationRegistry.getInstrumentation().context
         activity = activityScenarioRule.withActivity { this }
         view = SandboxedSdkView(context)
@@ -100,7 +111,7 @@ class IntegrationTests {
             null,
             false /* hasFailiningTestSession */
         )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val userRemoteAdapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(userRemoteAdapter)
 
@@ -145,15 +156,16 @@ class IntegrationTests {
     }
 
     @Test
-    fun testSessionOpen() {
+    fun testOpenSession_onSetAdapter() {
         val openSessionLatch = CountDownLatch(1)
         val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val userRemoteAdapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(userRemoteAdapter)
 
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(adapter.isOpenSessionCalled)
+        assertTrue(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS))
+        assertWithMessage("openSession is called on adapter")
+                .that(adapter.isOpenSessionCalled).isTrue()
         var isSessionInitialised = try {
             adapter.session
             true
@@ -164,10 +176,10 @@ class IntegrationTests {
     }
 
     @Test
-    fun testOpenSessionFromAdapter() {
+    fun testOpenSession_fromAdapter() {
         val openSessionLatch = CountDownLatch(1)
         val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         val testSessionClient = TestSandboxedUiAdapter.TestSessionClient()
 
@@ -195,7 +207,7 @@ class IntegrationTests {
             configChangedLatch,
             false
         )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterFromCoreLibInfo)
         activity.runOnUiThread {
@@ -264,15 +276,21 @@ class IntegrationTests {
         val adapter = TestSandboxedUiAdapter(
             null, null, true
         )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterThatFailsToCreateUi =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterThatFailsToCreateUi)
-        errorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+        assertThat(errorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertTrue(stateChangeListener.currentState is SandboxedSdkUiSessionState.Error)
         val errorMessage = (stateChangeListener.currentState as
             SandboxedSdkUiSessionState.Error).throwable.message
-        assertTrue(errorMessage == "Test Session Exception")
+        assertThat(errorMessage).isEqualTo("Test Session Exception")
+    }
+
+    private fun getCoreLibInfoFromAdapter(sdkAdapter: SandboxedUiAdapter): Bundle {
+        val bundle = sdkAdapter.toCoreLibInfo(context)
+        bundle.putBoolean(TEST_ONLY_USE_REMOTE_ADAPTER, !invokeBackwardsCompatFlow)
+        return bundle
     }
 
     private fun openSessionAndWaitToBeActive(initialZOrder: Boolean): TestSandboxedUiAdapter {
@@ -321,10 +339,18 @@ class IntegrationTests {
         }
     }
 
+    /**
+     *  TestSandboxedUiAdapter provides content from a fake SDK to show on the host's UI.
+     *
+     *  A [SandboxedUiAdapter] is supposed to fetch the content from SandboxedSdk, but we fake the
+     *  source of content in this class.
+     *
+     *  If [hasFailingTestSession] is true, the fake server side logic returns error.
+     */
     class TestSandboxedUiAdapter(
-        val openSessionLatch: CountDownLatch?,
+        private val openSessionLatch: CountDownLatch?,
         val configChangedLatch: CountDownLatch?,
-        val hasFailingTestSession: Boolean
+        private val hasFailingTestSession: Boolean
     ) : SandboxedUiAdapter {
 
         var isOpenSessionCalled = false
@@ -355,6 +381,9 @@ class IntegrationTests {
             openSessionLatch?.countDown()
         }
 
+        /**
+         * A failing session that always sends error notice to the client when content is requested.
+         */
         inner class FailingTestSession(
             private val context: Context
         ) : SandboxedUiAdapter.Session {
@@ -389,10 +418,6 @@ class IntegrationTests {
                         }
                     }
                 }
-
-            init {
-                internalClient.onSessionOpened(this)
-            }
 
             override fun notifyResized(width: Int, height: Int) {
             }
