@@ -93,7 +93,10 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
                             resolutionStrategy).build());
         }
 
-        int targetRotation = mDisplayInfoManager.getMaxSizeDisplay().getRotation();
+        // The default rotation value should be determined by the max non-state-off display.
+        // Calling getMaxSizeDisplay() function with parameter `true` can skips the displays with
+        // off state.
+        int targetRotation = mDisplayInfoManager.getMaxSizeDisplay(true).getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
 
         if (captureType == CaptureType.VIDEO_CAPTURE || captureType == CaptureType.STREAM_SHARING) {
