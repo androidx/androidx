@@ -18,12 +18,15 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
+import android.os.Binder
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 /**
@@ -55,5 +58,35 @@ class ActivityEmbeddingControllerTest {
         whenever(mockEmbeddingBackend.isActivityEmbedded(mockActivity)).thenReturn(false)
 
         assertFalse(activityEmbeddingController.isActivityEmbedded(mockActivity))
+    }
+
+    @Test
+    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    fun testGetActivityStack() {
+        val activityStack = ActivityStack(listOf(), true, Binder())
+        whenever(mockEmbeddingBackend.getActivityStack(mockActivity)).thenReturn(activityStack)
+
+        assertEquals(activityStack, activityEmbeddingController.getActivityStack(mockActivity))
+    }
+
+    @Test
+    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    fun testIsFinishingActivityStacksSupported() {
+        whenever(mockEmbeddingBackend.isFinishActivityStacksSupported()).thenReturn(true)
+
+        assertTrue(activityEmbeddingController.isFinishingActivityStacksSupported())
+
+        whenever(mockEmbeddingBackend.isFinishActivityStacksSupported()).thenReturn(false)
+
+        assertFalse(activityEmbeddingController.isFinishingActivityStacksSupported())
+    }
+
+    @Test
+    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    fun testFinishActivityStacks() {
+        val activityStacks: Set<ActivityStack> = mock()
+        activityEmbeddingController.finishActivityStacks(activityStacks)
+
+        verify(mockEmbeddingBackend).finishActivityStacks(activityStacks)
     }
 }
