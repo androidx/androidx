@@ -28,10 +28,10 @@ import java.lang.IllegalStateException
 /** Converts exception returned by the platform to one of standard exception class hierarchy. */
 internal fun HealthConnectException.toKtException(): Exception {
     return when (errorCode) {
-        HealthConnectException.ERROR_IO -> IOException(message)
+        HealthConnectException.ERROR_IO -> IOException(this)
         HealthConnectException.ERROR_REMOTE -> RemoteException(message)
-        HealthConnectException.ERROR_SECURITY -> SecurityException(message)
-        HealthConnectException.ERROR_INVALID_ARGUMENT -> IllegalArgumentException(message)
-        else -> IllegalStateException(message)
+        HealthConnectException.ERROR_SECURITY -> SecurityException(this)
+        HealthConnectException.ERROR_INVALID_ARGUMENT -> IllegalArgumentException(this)
+        else -> IllegalStateException(this)
     }
 }
