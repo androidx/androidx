@@ -31,6 +31,12 @@ package androidx.appsearch.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.DoubleProperty {
     method public abstract String name() default "";
     method public abstract boolean required() default false;
+    method public abstract Class<?> serializer() default androidx.appsearch.annotation.Document.DoubleProperty.DefaultSerializer.class;
+  }
+
+  public static final class Document.DoubleProperty.DefaultSerializer {
+    method public static double deserialize(double);
+    method public static double serialize(double);
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.Id {
@@ -40,6 +46,12 @@ package androidx.appsearch.annotation {
     method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
+    method public abstract Class<?> serializer() default androidx.appsearch.annotation.Document.LongProperty.DefaultSerializer.class;
+  }
+
+  public static final class Document.LongProperty.DefaultSerializer {
+    method public static long deserialize(long);
+    method public static long serialize(long);
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.Namespace {
@@ -53,7 +65,13 @@ package androidx.appsearch.annotation {
     method public abstract int joinableValueType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
+    method public abstract Class<?> serializer() default androidx.appsearch.annotation.Document.StringProperty.DefaultSerializer.class;
     method public abstract int tokenizerType() default androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
+  }
+
+  public static final class Document.StringProperty.DefaultSerializer {
+    method public static String deserialize(String);
+    method public static String serialize(String);
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.TtlMillis {
