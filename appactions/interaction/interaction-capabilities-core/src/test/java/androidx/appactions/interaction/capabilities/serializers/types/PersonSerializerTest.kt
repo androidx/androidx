@@ -17,30 +17,32 @@
 package androidx.appactions.interaction.capabilities.serializers.types
 
 import androidx.appactions.builtintypes.types.Person
-import androidx.appactions.builtintypes.types.Thing
 import androidx.appactions.interaction.capabilities.serializers.stringValue
 import androidx.appactions.interaction.protobuf.Struct
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Test
 
-class SerializeTest {
+class PersonSerializerTest {
     @Test
-    fun serialize_dynamicallyDispatchesToTheCorrectSerializer() {
-        val thing: Thing = Person.Builder().setName("Jane").setEmail("jane@gmail.com").build()
-        assertThat(serialize(thing))
-            .isEqualTo(Struct.newBuilder().putFields("@type", stringValue("Person")).build())
-        // TODO(kalindthakkar): Expand to check the name once serialization logic is in
+    fun returnsValidTypeNameAndClassRef() {
+        assertThat(PersonSerializer().typeName).isEqualTo("Person")
+        assertThat(PersonSerializer().classRef).isSameInstanceAs(Person::class.java)
     }
 
     @Test
-    fun deserialize_throwsNotImplementedError() {
-        val struct =
-            Struct.newBuilder()
-                .putFields("@type", stringValue("Person"))
-                .putFields("name", stringValue("Jane"))
-                .putFields("email", stringValue("jane@gmail.com"))
-                .build()
-        assertThrows(NotImplementedError::class.java) { deserialize(struct) }
+    fun serializesToStructWithTypeName() {
+        val person = Person.Builder().setName("Jane").build()
+        assertThat(PersonSerializer().serialize(person).fieldsMap)
+            .containsEntry("@type", stringValue("Person"))
+        // TODO(kalindthakkar): Add more tests once serialization logic is in
+    }
+
+    @Test
+    fun deserializesFromStruct() {
+        val struct = Struct.newBuilder()
+            .putFields("@type", stringValue("Person"))
+            .build()
+        assertThat(PersonSerializer().deserialize(struct)).isEqualTo(Person.Builder().build())
+        // TODO(kalindthakkar): Add more tests once deserialization logic is in
     }
 }
