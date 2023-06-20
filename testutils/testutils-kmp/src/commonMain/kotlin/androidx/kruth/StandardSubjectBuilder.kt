@@ -47,6 +47,9 @@ class StandardSubjectBuilder internal constructor(
     fun that(actual: Boolean?): BooleanSubject =
         BooleanSubject(actual = actual, metadata = metadata)
 
+    fun that(actual: Double?): DoubleSubject =
+        DoubleSubject(actual = actual, metadata = metadata)
+
     fun that(actual: String?): StringSubject =
         StringSubject(actual = actual, metadata = metadata)
 
