@@ -194,13 +194,17 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @get:Throws(RemoteException::class) public val previewReferenceInstant: Instant
 
     /**
-     * The watchface's [OverlayStyle] which configures the system status overlay on Wear 3.0 and
-     * beyond. Note for older watch faces which don't support this, the default value will be
-     * returned.
+     * The watchface's [OverlayStyle] which may be null.
+     *
+     * Note while this plumbing got built, it was never used by the system ui on any platform
+     * and it will be removed.
      */
+    @Deprecated("OverlayStyle will be removed in a future release.")
     @get:Throws(RemoteException::class)
+    @Suppress("Deprecation")
     public val overlayStyle: OverlayStyle
         // Default implementation, overridden below.
+        @Suppress("Deprecation")
         get() = OverlayStyle()
 
     /**
@@ -564,6 +568,8 @@ internal constructor(
     override val previewReferenceInstant: Instant
         get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
 
+    @Suppress("Deprecation")
+    @Deprecated("OverlayStyle will be removed in a future release.")
     override val overlayStyle: OverlayStyle
         get() {
             if (iInteractiveWatchFace.apiVersion >= 4) {

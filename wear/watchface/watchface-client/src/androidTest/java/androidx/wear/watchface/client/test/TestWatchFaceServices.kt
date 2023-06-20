@@ -211,6 +211,7 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
     }
 }
 
+@Suppress("Deprecation")
 internal class TestWatchfaceOverlayStyleWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder,

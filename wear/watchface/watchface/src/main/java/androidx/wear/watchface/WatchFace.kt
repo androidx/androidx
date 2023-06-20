@@ -390,9 +390,12 @@ public class WatchFace(
 
     /**
      * This class allows the watch face to configure the status overlay which is rendered by the
-     * system on top of the watch face. These settings are applicable from Wear 3.0 and will be
-     * ignored on earlier devices.
+     * system on top of the watch face.
+     *
+     * Note: While the plumbing was built, the System UI side of the this feature was never
+     * implemented, and this method will be removed.
      */
+    @Deprecated("OverlayStyle will be removed in a future release.")
     public class OverlayStyle(
         /**
          * The background color of the status indicator tray. This can be any color, including
@@ -424,6 +427,7 @@ public class WatchFace(
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
+            @Suppress("Deprecation")
             other as OverlayStyle
 
             if (backgroundColor != other.backgroundColor) return false
@@ -453,11 +457,21 @@ public class WatchFace(
         }
     }
 
-    /** The [OverlayStyle] which affects Wear 3.0 devices and beyond. */
+    /**
+     * The [OverlayStyle]. This feature is unimplemented on any platform, and will be
+     * removed.
+     */
+    @Deprecated("OverlayStyle will be removed in a future release.")
+    @Suppress("Deprecation")
     public var overlayStyle: OverlayStyle = OverlayStyle()
         private set
 
-    /** Sets the [OverlayStyle] which affects Wear 3.0 devices and beyond. */
+    /**
+     * Sets the [OverlayStyle] which is ignored because this feature is unimplemented on any
+     * platform, and will be removed.
+     */
+    @Deprecated("OverlayStyle will be removed in a future release.")
+    @Suppress("Deprecation")
     public fun setOverlayStyle(watchFaceOverlayStyle: OverlayStyle): WatchFace = apply {
         this.overlayStyle = watchFaceOverlayStyle
     }
@@ -617,6 +631,7 @@ constructor(
     private val tapListener = watchface.tapListener
     internal var complicationDeniedDialogIntent = watchface.complicationDeniedDialogIntent
     internal var complicationRationaleDialogIntent = watchface.complicationRationaleDialogIntent
+    @Suppress("Deprecation")
     internal var overlayStyle = watchface.overlayStyle
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
