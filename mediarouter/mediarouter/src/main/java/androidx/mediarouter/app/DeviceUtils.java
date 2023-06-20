@@ -63,27 +63,27 @@ final class DeviceUtils {
     }
 
     /**
-     * Returns a string representation of a device form factor. Supported form factors are:
-     * {@link #{R.string.mr_device_form_factor_phone} and
-     * @link #{R.string.mr_device_form_factor_tablet} and
-     * @link #{R.string.mr_device_form_factor_tv} and
-     * @link #{R.string.mr_device_form_factor_watch} and
-     * @link #{R.string.mr_device_form_factor_car} and
-     * @link #{R.string.mr_device_form_factor_unknown}}
+     * Returns a device specific string representation of wifi warning description. It can be one
+     * of the following values: {@link #{R.string.mr_chooser_wifi_warning_description_phone} and
+     * @link #{R.string.mr_chooser_wifi_warning_description_tablet} and
+     * @link #{R.string.mr_chooser_wifi_warning_description_tv} and
+     * @link #{R.string.mr_chooser_wifi_warning_description_watch} and
+     * @link #{R.string.mr_chooser_wifi_warning_description_car} and
+     * @link #{R.string.mr_chooser_wifi_warning_description_unknown}}
      */
-    static String getDeviceFormFactorString(@NonNull Context context) {
+    static String getDialogChooserWifiWarningDescription(@NonNull Context context) {
         if (isPhone(context) || isFoldable(context)) {
-            return context.getString(R.string.mr_device_form_factor_phone);
+            return context.getString(R.string.mr_chooser_wifi_warning_description_phone);
         } else if (isTablet(context) || isSevenInchTablet(context)) {
-            return context.getString(R.string.mr_device_form_factor_tablet);
+            return context.getString(R.string.mr_chooser_wifi_warning_description_tablet);
         } else if (isTv(context)) {
-            return context.getString(R.string.mr_device_form_factor_tv);
+            return context.getString(R.string.mr_chooser_wifi_warning_description_tv);
         } else if (isWearable(context)) {
-            return context.getString(R.string.mr_device_form_factor_watch);
+            return context.getString(R.string.mr_chooser_wifi_warning_description_watch);
         } else if (isAuto(context)) {
-            return context.getString(R.string.mr_device_form_factor_car);
+            return context.getString(R.string.mr_chooser_wifi_warning_description_car);
         } else {
-            return context.getString(R.string.mr_device_form_factor_unknown);
+            return context.getString(R.string.mr_chooser_wifi_warning_description_unknown);
         }
     }
 
