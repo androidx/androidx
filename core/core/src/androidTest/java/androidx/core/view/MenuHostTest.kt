@@ -38,19 +38,20 @@ import org.junit.runner.RunWith
 class MenuHostTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private val menuProvider = object : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menuInflater.inflate(R.menu.example_menu, menu)
-        }
+    private val menuProvider =
+        object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.example_menu, menu)
+            }
 
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-            return when (menuItem.itemId) {
-                R.id.item1 -> true
-                R.id.item2 -> true
-                else -> false
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.item1 -> true
+                    R.id.item2 -> true
+                    else -> false
+                }
             }
         }
-    }
 
     @Test
     fun onMenuItemSelected() {

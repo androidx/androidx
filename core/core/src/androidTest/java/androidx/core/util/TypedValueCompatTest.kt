@@ -51,15 +51,14 @@ class TypedValueCompatTest {
         metrics.scaledDensity = 0f
 
         listOf(
-            TypedValue.COMPLEX_UNIT_DIP,
-            TypedValue.COMPLEX_UNIT_SP,
-            TypedValue.COMPLEX_UNIT_PT,
-            TypedValue.COMPLEX_UNIT_IN,
-            TypedValue.COMPLEX_UNIT_MM
-        )
+                TypedValue.COMPLEX_UNIT_DIP,
+                TypedValue.COMPLEX_UNIT_SP,
+                TypedValue.COMPLEX_UNIT_PT,
+                TypedValue.COMPLEX_UNIT_IN,
+                TypedValue.COMPLEX_UNIT_MM
+            )
             .forEach { dimenType ->
-                assertThat(TypedValueCompat.deriveDimension(dimenType, 23f, metrics))
-                    .isEqualTo(0)
+                assertThat(TypedValueCompat.deriveDimension(dimenType, 23f, metrics)).isEqualTo(0)
             }
     }
 
@@ -82,14 +81,14 @@ class TypedValueCompatTest {
         metrics.xdpi = 2f
         metrics.scaledDensity = 2f
 
-         listOf(
-            TypedValue.COMPLEX_UNIT_PX,
-            TypedValue.COMPLEX_UNIT_DIP,
-            TypedValue.COMPLEX_UNIT_SP,
-            TypedValue.COMPLEX_UNIT_PT,
-            TypedValue.COMPLEX_UNIT_IN,
-            TypedValue.COMPLEX_UNIT_MM
-        )
+        listOf(
+                TypedValue.COMPLEX_UNIT_PX,
+                TypedValue.COMPLEX_UNIT_DIP,
+                TypedValue.COMPLEX_UNIT_SP,
+                TypedValue.COMPLEX_UNIT_PT,
+                TypedValue.COMPLEX_UNIT_IN,
+                TypedValue.COMPLEX_UNIT_MM
+            )
             .forEach { dimenType ->
                 for (i: Int in -1000 until 1000) {
                     assertThat(TypedValueCompat.deriveDimension(dimenType, i.toFloat(), metrics))
@@ -107,13 +106,13 @@ class TypedValueCompatTest {
         metrics.scaledDensity = 2f
 
         listOf(
-            TypedValue.COMPLEX_UNIT_PX,
-            TypedValue.COMPLEX_UNIT_DIP,
-            TypedValue.COMPLEX_UNIT_SP,
-            TypedValue.COMPLEX_UNIT_PT,
-            TypedValue.COMPLEX_UNIT_IN,
-            TypedValue.COMPLEX_UNIT_MM
-        )
+                TypedValue.COMPLEX_UNIT_PX,
+                TypedValue.COMPLEX_UNIT_DIP,
+                TypedValue.COMPLEX_UNIT_SP,
+                TypedValue.COMPLEX_UNIT_PT,
+                TypedValue.COMPLEX_UNIT_IN,
+                TypedValue.COMPLEX_UNIT_MM
+            )
             .forEach { dimenType ->
                 for (i: Int in -10000 until 10000) {
                     assertRoundTripIsEqual(i.toFloat(), dimenType, metrics)
@@ -152,13 +151,13 @@ class TypedValueCompatTest {
         val actualPx = TypedValue.applyDimension(dimenType, dimenValueToTest, metrics)
         val actualDimenValue = TypedValueCompat.deriveDimension(dimenType, actualPx, metrics)
         assertWithMessage(
-            "TypedValue.applyDimension for type %s on %s = %s should equal " +
-                "TypedValueCompat.deriveDimension of %s",
-            dimenType,
-            dimenValueToTest,
-            actualPx,
-            actualDimenValue
-        )
+                "TypedValue.applyDimension for type %s on %s = %s should equal " +
+                    "TypedValueCompat.deriveDimension of %s",
+                dimenType,
+                dimenValueToTest,
+                actualPx,
+                actualDimenValue
+            )
             .that(dimenValueToTest)
             .isWithin(0.05f)
             .of(actualDimenValue)
