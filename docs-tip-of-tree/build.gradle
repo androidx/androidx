@@ -203,6 +203,7 @@ dependencies {
     docs(project(":glance:glance-wear-tiles-preview"))
     docs(project(":graphics:filters:filters"))
     docs(project(":graphics:graphics-core"))
+    samples(project(":graphics:graphics-core:graphics-core-samples"))
     docs(project(":graphics:graphics-path"))
     docs(project(":graphics:graphics-shapes"))
     docs(project(":gridlayout:gridlayout"))
