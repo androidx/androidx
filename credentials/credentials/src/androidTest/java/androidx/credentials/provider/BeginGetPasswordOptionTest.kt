@@ -36,6 +36,7 @@ class BeginGetPasswordOptionTest {
             "android.service.credentials.BeginGetCredentialOption.BUNDLE_ID_KEY"
         private const val BUNDLE_ID = "id"
     }
+
     @Test
     fun getter_frameworkProperties() {
         if (!BuildCompat.isAtLeastU()) {
@@ -56,5 +57,37 @@ class BeginGetPasswordOptionTest {
         assertThat(option.allowedUserIds).containsExactlyElementsIn(expectedAllowedUserIds)
     }
 
-    // TODO ("Add framework conversion, createFrom tests")
+    @Test
+    fun getter_frameworkCreateFrom() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+
+        val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
+        val bundle = Bundle()
+        bundle.putStringArrayList(
+            GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
+            ArrayList(expectedAllowedUserIds)
+        )
+
+        var option = BeginGetPasswordOption.createFrom(bundle, "id")
+        assertThat(option.id).isEqualTo("id")
+    }
+
+    @Test
+    fun getter_frameworkCreateFromEntrySlice() {
+        if (!BuildCompat.isAtLeastU()) {
+            return
+        }
+
+        val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
+        val bundle = Bundle()
+        bundle.putStringArrayList(
+            GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
+            ArrayList(expectedAllowedUserIds)
+        )
+
+        var option = BeginGetPasswordOption.createFrom(bundle, "id")
+        assertThat(option.id).isEqualTo("id")
+    }
 }
