@@ -43,13 +43,6 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"I-play sa isang pangkat"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Walang available na impormasyon"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Walang available na device"</string>
-    <string name="mr_chooser_wifi_warning_description" msgid="5384406081821852110">"Tiyaking nasa iisang Wi-Fi network ang ibang device at ang %s na ito"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Matuto pa"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Matutunan kung paano mag-cast"</string>
-    <string name="mr_device_form_factor_phone" msgid="7463328381315022261">"telepono"</string>
-    <string name="mr_device_form_factor_tablet" msgid="6055165768102218762">"tablet"</string>
-    <string name="mr_device_form_factor_tv" msgid="1365190301383785606">"tv"</string>
-    <string name="mr_device_form_factor_watch" msgid="6608514228922329622">"relo"</string>
-    <string name="mr_device_form_factor_car" msgid="6309192271294837853">"sasakyan"</string>
-    <string name="mr_device_form_factor_unknown" msgid="3992085921148873128">"device"</string>
 </resources>
