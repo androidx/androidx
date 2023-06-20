@@ -29,6 +29,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.EntityC
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
@@ -289,6 +290,9 @@ class UpdateAlarm private constructor() {
                         ExecutionStatus::toParamValue
                     )
                     .build()
+            init {
+                ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+            }
         }
     }
 
@@ -540,6 +544,9 @@ class UpdateAlarm private constructor() {
                         ExecutionStatus::toParamValue
                     )
                     .build()
+            init {
+                ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+            }
         }
     }
 
