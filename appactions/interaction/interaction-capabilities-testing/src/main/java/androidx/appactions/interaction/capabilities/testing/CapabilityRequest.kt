@@ -28,4 +28,19 @@ class CapabilityRequest @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
   @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
   val fulfillmentRequest: FulfillmentRequest
-)
+) {
+  /**
+   * Returns a new CapabilityRequest that sets an identifier to the first Fulfillment in this
+   * request.
+   * Fulfillments after the first are dropped.
+   */
+  @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+  fun addCapabilityIdentifier(capabilityIdentifier: String): CapabilityRequest {
+    val fulfillment = fulfillmentRequest.getFulfillments(0)
+    return CapabilityRequest(
+      FulfillmentRequest.newBuilder().addFulfillments(
+        fulfillment.toBuilder().setIdentifier(capabilityIdentifier).build()
+      ).build()
+    )
+  }
+}

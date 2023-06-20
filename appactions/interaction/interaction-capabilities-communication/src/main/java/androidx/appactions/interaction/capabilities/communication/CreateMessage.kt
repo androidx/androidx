@@ -95,8 +95,8 @@ class CreateMessage private constructor() {
                 this.recipientList = recipientList
             }
 
-            fun setMessageText(messageTextList: String): Builder = apply {
-                this.messageText = messageTextList
+            fun setMessageText(messageText: String): Builder = apply {
+                this.messageText = messageText
             }
 
             fun build(): Arguments = Arguments(recipientList, messageText)
