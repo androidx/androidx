@@ -41,8 +41,6 @@ internal class SurfaceControlV29 internal constructor(
     internal val surfaceControl: SurfaceControlWrapper
 ) : SurfaceControlImpl {
 
-    private var currActiveBufferReleaseCallback: ((SyncFenceCompat) -> Unit)? = null
-
     /**
      * See [SurfaceControlWrapper.isValid]
      */
@@ -122,23 +120,33 @@ internal class SurfaceControlV29 internal constructor(
 
         private fun updateReleaseCallbacks() {
             // store prev committed callbacks so we only need 1 onComplete callback
-            val callbackInvokeList = mutableListOf<((SyncFenceCompat) -> Unit)>()
+            data class CallbackEntry(
+                val surfaceControl: SurfaceControlV29,
+                val callback: (SyncFenceCompat) -> Unit
+            )
+            val callbackInvokeList = mutableListOf<CallbackEntry>()
 
             for (surfaceControl in uncommittedBufferCallbackMap.keys) {
                 (surfaceControl as? SurfaceControlV29)?.apply {
                     // add active buffers callback to list if we have a new buffer about to overwrite
-                    currActiveBufferReleaseCallback?.let { callbackInvokeList.add(it) }
-
-                    // add as new active buffer callback
-                    currActiveBufferReleaseCallback =
-                        uncommittedBufferCallbackMap[surfaceControl]?.releaseCallback
+                    val entry = uncommittedBufferCallbackMap[surfaceControl]
+                    if (entry?.releaseCallback != null) {
+                        callbackInvokeList.add(CallbackEntry(this, entry.releaseCallback))
+                    }
                 }
             }
 
             if (callbackInvokeList.size > 0) {
                 val callbackListener = object : SurfaceControlCompat.TransactionCompletedListener {
-                    override fun onTransactionCompleted() {
-                        callbackInvokeList.forEach { it.invoke(DefaultSyncFence) }
+                    override fun onTransactionCompleted(transactionStats: Long) {
+                        callbackInvokeList.forEach {
+                            val surfaceControl = it.surfaceControl.asWrapperSurfaceControl()
+                            val fileDescriptor = JniBindings.nGetPreviousReleaseFenceFd(
+                                surfaceControl.mNativeSurfaceControl,
+                                transactionStats
+                            )
+                            it.callback.invoke(SyncFenceCompat(SyncFenceV19(fileDescriptor)))
+                        }
                         callbackInvokeList.clear()
                     }
                 }
@@ -213,17 +221,20 @@ internal class SurfaceControlV29 internal constructor(
             fence: SyncFenceImpl?,
             releaseCallback: ((SyncFenceCompat) -> Unit)?
         ): SurfaceControlImpl.Transaction {
-            if (buffer != null) {
-                // we have a previous mapping in the same transaction, invoke callback
-                val data = BufferData(
-                    width = buffer.width,
-                    height = buffer.height,
-                    releaseCallback = releaseCallback
+            val previousEntry: BufferData? = if (buffer != null) {
+                uncommittedBufferCallbackMap.put(
+                    surfaceControl,
+                    BufferData(
+                        width = buffer.width,
+                        height = buffer.height,
+                        releaseCallback = releaseCallback
+                    )
                 )
-
-                uncommittedBufferCallbackMap.put(surfaceControl, data)?.releaseCallback?.invoke(
-                    DefaultSyncFence)
+            } else {
+                uncommittedBufferCallbackMap.remove(surfaceControl)
             }
+            // we have a previous mapping in the same transaction, invoke callback
+            previousEntry?.releaseCallback?.invoke(DefaultSyncFence)
 
             val targetBuffer = buffer ?: PlaceholderBuffer
             // Ensure if we have a null value, we default to the default value for SyncFence
