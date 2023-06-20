@@ -64,6 +64,7 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -75,6 +76,7 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -392,6 +394,7 @@ internal fun ModalBottomSheetPopup(
     val id = rememberSaveable { UUID.randomUUID() }
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
+    val layoutDirection = LocalLayoutDirection.current
     val modalBottomSheetWindow = remember {
         ModalBottomSheetWindow(
             onDismissRequest = onDismissRequest,
@@ -416,6 +419,7 @@ internal fun ModalBottomSheetPopup(
 
     DisposableEffect(modalBottomSheetWindow) {
         modalBottomSheetWindow.show()
+        modalBottomSheetWindow.superSetLayoutDirection(layoutDirection)
         onDispose {
             modalBottomSheetWindow.disposeComposition()
             modalBottomSheetWindow.dismiss()
@@ -536,5 +540,19 @@ private class ModalBottomSheetWindow(
 
     override fun onGlobalLayout() {
         // No-op
+    }
+
+    override fun setLayoutDirection(layoutDirection: Int) {
+        // Do nothing. ViewRootImpl will call this method attempting to set the layout direction
+        // from the context's locale, but we have one already from the parent composition.
+    }
+
+    // Sets the "real" layout direction for our content that we obtain from the parent composition.
+    fun superSetLayoutDirection(layoutDirection: LayoutDirection) {
+        val direction = when (layoutDirection) {
+            LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
+            LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
+        }
+        super.setLayoutDirection(direction)
     }
 }
