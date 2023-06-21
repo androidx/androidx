@@ -16,15 +16,12 @@
 
 package androidx.credentials
 
-import android.app.Activity
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
-import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
-import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -46,8 +43,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(16)
-@SdkSuppress(minSdkVersion = 16)
+@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 34)
 class CredentialManagerTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
 
@@ -56,23 +53,6 @@ class CredentialManagerTest {
     @Before
     fun setup() {
         credentialManager = CredentialManager.create(context)
-    }
-
-    @Test
-    fun createCredential_throws() = runBlocking<Unit> {
-        if (Looper.myLooper() == null) {
-            Looper.prepare()
-        }
-        if (!isPostFrameworkApiLevel()) {
-            assertThrows<CreateCredentialProviderConfigurationException> {
-                credentialManager.createCredential(
-                    Activity(),
-                    CreatePasswordRequest("test-user-id", "test-password")
-                )
-            }
-        }
-        // TODO("Add manifest tests and possibly further separate these tests by API Level
-        //  - maybe a rule perhaps?")
     }
 
     @Test
@@ -87,20 +67,12 @@ class CredentialManagerTest {
         withUse(ActivityScenario.launch(TestActivity::class.java)) {
             withActivity {
                 runBlocking {
-                    if (!isPostFrameworkApiLevel()) {
-                        assertThrows<GetCredentialProviderConfigurationException> {
-                            credentialManager.getCredential(this@withActivity, request)
-                        }
-                    } else {
-                        assertThrows<NoCredentialException> {
-                            credentialManager.getCredential(this@withActivity, request)
-                        }
+                    assertThrows<NoCredentialException> {
+                        credentialManager.getCredential(this@withActivity, request)
                     }
                 }
             }
         }
-        // TODO("Add manifest tests and possibly further separate these tests by API Level
-        //  - maybe a rule perhaps?")
     }
 
     @Test
@@ -126,21 +98,6 @@ class CredentialManagerTest {
                 }
             }
         }
-    }
-
-    @Test
-    fun testClearCredentialSession_throws() = runBlocking<Unit> {
-        if (Looper.myLooper() == null) {
-            Looper.prepare()
-        }
-
-        if (!isPostFrameworkApiLevel()) {
-            assertThrows<ClearCredentialProviderConfigurationException> {
-                credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            }
-        }
-        // TODO("Add manifest tests and possibly further separate these tests by API Level
-        //  - maybe a rule perhaps?")
     }
 
     @Test
@@ -173,26 +130,15 @@ class CredentialManagerTest {
         if (loadedResult.get() == null) {
             return // A strange flow occurred where an exception wasn't propagated up
         }
-        if (!isPostFrameworkApiLevel()) {
-            assertThat(loadedResult.get().javaClass).isEqualTo(
-                CreateCredentialProviderConfigurationException::class.java
-            )
-        } else {
-            assertThat(loadedResult.get().javaClass).isEqualTo(
-                CreateCredentialNoCreateOptionException::class.java
-            )
-        }
-        // TODO("Add manifest tests and possibly further separate these tests by API Level
-        //  - maybe a rule perhaps?")
+        assertThat(loadedResult.get().javaClass).isEqualTo(
+            CreateCredentialNoCreateOptionException::class.java
+        )
     }
 
     @Test
     fun testClearCredentialSessionAsync_throws() {
         if (Looper.myLooper() == null) {
             Looper.prepare()
-        }
-        if (isPostFrameworkApiLevel()) {
-            return // TODO(Support!)
         }
         val latch = CountDownLatch(1)
         val loadedResult: AtomicReference<ClearCredentialException> = AtomicReference()
@@ -210,10 +156,14 @@ class CredentialManagerTest {
             })
 
         latch.await(100L, TimeUnit.MILLISECONDS)
+        if (loadedResult.get() == null) {
+            return // A strange flow occurred where an exception wasn't propagated up
+        }
+
+        // Check the exception is the correct type.
         assertThat(loadedResult.get().type).isEqualTo(
             ClearCredentialProviderConfigurationException
                 .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
         )
-        // TODO(Add manifest tests and split this once postU is implemented for clearCreds")
     }
 }
