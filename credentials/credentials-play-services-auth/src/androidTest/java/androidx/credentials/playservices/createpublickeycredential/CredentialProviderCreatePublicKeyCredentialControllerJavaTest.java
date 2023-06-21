@@ -29,6 +29,7 @@ import static androidx.credentials.playservices.createkeycredential.CreatePublic
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.createJsonObjectFromPublicKeyCredentialCreationOptions;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
@@ -109,14 +110,19 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
-            // TODO("Add a check for keywords in error messages")
-            assertThrows("Expected bad required json to throw",
-                    JSONException.class,
-                    () -> CredentialProviderCreatePublicKeyCredentialController
+            try {
+                CredentialProviderCreatePublicKeyCredentialController
                             .getInstance(activity)
                             .convertRequestToPlayServices(
                                     new CreatePublicKeyCredentialRequest(
-                                            MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD)));
+                                            MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD));
+
+                // Should not reach here.
+                assertWithMessage("Exception should be thrown").that(true).isFalse();
+            } catch (Exception e) {
+                assertThat(e.getMessage().contains("No value for id")).isTrue();
+                assertThat(e.getClass().getName().contains("JSONException")).isTrue();
+            }
         });
     }
 
