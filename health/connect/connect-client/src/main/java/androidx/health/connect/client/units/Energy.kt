@@ -90,7 +90,7 @@ private constructor(
         @JvmStatic fun joules(value: Double): Energy = Energy(value, Type.JOULES)
 
         /** Creates [Energy] with the specified value in kilojoules. */
-        @JvmStatic fun kilojoules(value: Double): Energy = Energy(value, Type.KILOCALORIES)
+        @JvmStatic fun kilojoules(value: Double): Energy = Energy(value, Type.KILOJOULES)
     }
 
     private enum class Type {
