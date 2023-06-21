@@ -104,6 +104,8 @@ internal class BasicTextField2ImmIntegrationTest {
         }
 
         rule.runOnIdle {
+            imm.expectCall("hideSoftInput")
+            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }
