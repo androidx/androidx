@@ -77,8 +77,14 @@ class AudioSourceTest {
 
         // Assert: Audio stream is started.
         audioStream.verifyStartCall(CallTimes(1), COMMON_TIMEOUT_MS)
-        // Assert: Buffers are continuously written.
+
+        // Since the AudioSource's read call might not be synchronized to the AudioStream
+        // immediately, waiting for the AudioStream to produce more data than required to ensure
+        // that the AudioSource has data to be read.
         val verifyCount = 3
+        audioStream.verifyReadCall(CallTimesAtLeast(verifyCount + 1), COMMON_TIMEOUT_MS)
+
+        // Assert: Buffers are continuously written.
         bufferProvider.verifySubmittedBufferCall(
             CallTimesAtLeast(verifyCount),
             COMMON_TIMEOUT_MS
