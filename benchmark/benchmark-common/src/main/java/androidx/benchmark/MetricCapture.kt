@@ -111,3 +111,48 @@ internal class AllocationCountCapture : MetricCapture(
         currentTotalPaused += Debug.getGlobalAllocCount() - currentPausedStarted
     }
 }
+
+@Suppress
+internal class CpuEventCounterCapture(
+    private val cpuEventCounter: CpuEventCounter,
+    private val events: List<CpuEventCounter.Event>
+) : MetricCapture(events.map { it.name }) {
+    constructor(
+        cpuEventCounter: CpuEventCounter,
+        mask: Int
+    ) : this(cpuEventCounter, CpuEventCounter.Event.values().filter {
+        it.flag.and(mask) != 0
+    })
+
+    private val values = CpuEventCounter.Values()
+    private val flags = events.getFlags()
+    private var hasResetEvents = false
+
+    override fun captureStart(timeNs: Long) {
+        if (!hasResetEvents) {
+            // must be called on measure thread, so we wait until after init (which can be separate)
+            cpuEventCounter.resetEvents(flags)
+            hasResetEvents = true
+        } else {
+            // flags already set, fast path
+            cpuEventCounter.reset()
+        }
+        cpuEventCounter.start()
+    }
+
+    override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
+        cpuEventCounter.stop()
+        cpuEventCounter.read(values)
+        events.forEachIndexed { index, event ->
+            output[offset + index] = values.getValue(event)
+        }
+    }
+
+    override fun capturePaused() {
+        cpuEventCounter.stop()
+    }
+
+    override fun captureResumed() {
+        cpuEventCounter.start()
+    }
+}

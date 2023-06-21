@@ -16,18 +16,14 @@
 
 package androidx.benchmark.benchmark
 
-import android.os.Build
-import androidx.benchmark.CpuCounter
-import androidx.benchmark.DeviceInfo
-import androidx.benchmark.PropOverride
-import androidx.benchmark.Shell
+import androidx.benchmark.CpuEventCounter
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,39 +32,22 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-class CpuCounterBenchmark {
+class CpuEventCounterBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
-    private val values = CpuCounter.Values()
-
-    private val perfHardenProp = PropOverride("security.perf_harden", "0")
-    private var shouldResetEnforce1 = false
+    private val values = CpuEventCounter.Values()
 
     @Before
     fun before() {
-        // TODO: make this automatic
-        if (Build.VERSION.SDK_INT > 29) {
-            val blockedBySelinux = Shell.isSELinuxEnforced()
-            Assume.assumeTrue(
-                "blocked by selinux = $blockedBySelinux, rooted = ${DeviceInfo.isRooted}",
-                !blockedBySelinux || DeviceInfo.isRooted
-            )
-            if (blockedBySelinux && DeviceInfo.isRooted) {
-                Shell.executeScriptSilent("setenforce 0")
-                shouldResetEnforce1 = true
-            }
-            perfHardenProp.forceValue()
+        // skip test if need root, or event fails to enable
+        CpuEventCounter.forceEnable()?.let { errorMessage ->
+            assumeTrue(errorMessage, false)
         }
-        val error = CpuCounter.checkPerfEventSupport()
-        Assume.assumeTrue(error, error == null)
     }
 
     @After
     fun after() {
-        perfHardenProp.resetIfOverridden()
-        if (shouldResetEnforce1) {
-            Shell.executeScriptSilent("setenforce 1")
-        }
+        CpuEventCounter.reset()
     }
 
     /**
@@ -77,12 +56,12 @@ class CpuCounterBenchmark {
      * We can expect to see some portion of this impact measurements directtly.
      */
     @Test
-    fun startStopOnly() = CpuCounter().use { counter ->
+    fun startStopOnly() = CpuEventCounter().use { counter ->
         counter.resetEvents(
             listOf(
-                CpuCounter.Event.CpuCycles,
-                CpuCounter.Event.L1IMisses,
-                CpuCounter.Event.Instructions,
+                CpuEventCounter.Event.CpuCycles,
+                CpuEventCounter.Event.L1IMisses,
+                CpuEventCounter.Event.Instructions,
             )
         )
         benchmarkRule.measureRepeated {
@@ -101,12 +80,12 @@ class CpuCounterBenchmark {
      * may correlate with other intrusiveness, e.g. cache interference from reset/reading values
      */
     @Test
-    fun perIterationCost() = CpuCounter().use { counter ->
+    fun perIterationCost() = CpuEventCounter().use { counter ->
         counter.resetEvents(
             listOf(
-                CpuCounter.Event.CpuCycles,
-                CpuCounter.Event.L1IMisses,
-                CpuCounter.Event.Instructions,
+                CpuEventCounter.Event.CpuCycles,
+                CpuEventCounter.Event.L1IMisses,
+                CpuEventCounter.Event.Instructions,
             )
         )
         var out = 0L
@@ -115,9 +94,9 @@ class CpuCounterBenchmark {
             counter.start()
             counter.stop()
             counter.read(values)
-            out += values.getValue(CpuCounter.Event.CpuCycles)
-            out += values.getValue(CpuCounter.Event.L1IMisses)
-            out += values.getValue(CpuCounter.Event.Instructions)
+            out += values.getValue(CpuEventCounter.Event.CpuCycles)
+            out += values.getValue(CpuEventCounter.Event.L1IMisses)
+            out += values.getValue(CpuEventCounter.Event.Instructions)
         }
     }
 }
