@@ -328,13 +328,14 @@ private fun macrobenchmark(
             """.trimIndent()
         }
         InstrumentationResults.instrumentationReport {
-            val (summaryV1, summaryV2) = ideSummaryStrings(
-                warningMessage,
-                uniqueName,
-                measurements,
-                tracePaths
+            reportSummaryToIde(
+                warningMessage = warningMessage,
+                testName = uniqueName,
+                measurements = measurements,
+                iterationTracePaths = tracePaths,
+                profilerResults = emptyList() // TODO: use this for method tracing
             )
-            ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
+
             warningMessage = "" // warning only printed once
             measurements.singleMetrics.forEach {
                 it.putInBundle(bundle, suppressionState?.prefix ?: "")
