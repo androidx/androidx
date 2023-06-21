@@ -357,7 +357,7 @@ class AdvertiserFragment : Fragment() {
         gattServerJob = gattServerScope.launch {
             isGattServerOpen = true
 
-            bluetoothLeExperimental.gattServer(services).collect { gattServerCallback ->
+            bluetoothLeExperimental.openGattServer(services).collect { gattServerCallback ->
                 Log.d(TAG, "openGattServer() called with: gattServerCallback = $gattServerCallback")
             }
         }
