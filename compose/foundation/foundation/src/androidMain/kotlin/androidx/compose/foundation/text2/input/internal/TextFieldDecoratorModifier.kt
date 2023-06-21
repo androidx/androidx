@@ -21,13 +21,11 @@ import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
-import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.foundation.text2.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -69,6 +67,7 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -147,34 +146,23 @@ internal class TextFieldDecoratorModifierNode(
     CompositionLocalConsumerModifierNode {
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        coroutineScope.launch {
-            awaitPointerEventScope {
-                while (true) {
-                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                    textFieldSelectionState.isInTouchMode = !event.isPrecisePointer
-                }
+        coroutineScope {
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                with(textFieldSelectionState) { detectTouchMode() }
+            }
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                detectTapAndPress(onTap = { offset ->
+                    if (!isFocused) {
+                        requestFocus()
+                    }
+
+                    if (enabled && !readOnly && isFocused) {
+                        textInputSession?.showSoftwareKeyboard()
+                        textFieldSelectionState.onTapTextField(offset)
+                    }
+                })
             }
         }
-        detectTapAndPress(onTap = { offset ->
-            if (!isFocused) {
-                requestFocus()
-            }
-
-            if (enabled && !readOnly && isFocused) {
-                textInputSession?.showSoftwareKeyboard()
-
-                if (textFieldState.text.isNotEmpty()) {
-                    textFieldSelectionState.showHandles = true
-                }
-
-                // find the cursor position
-                val cursorIndex = textLayoutState.getOffsetForPosition(offset)
-                // update the state
-                if (cursorIndex >= 0) {
-                    textFieldState.edit { selectCharsIn(TextRange(cursorIndex)) }
-                }
-            }
-        })
     })
 
     var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
@@ -228,8 +216,8 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     /**
-     * A coroutine job that observes only text changes to hide selection and cursor handles when
-     * content changes.
+     * A coroutine job that observes text and layout changes in selection state to react to those
+     * changes.
      */
     private var inputSessionJob: Job? = null
 
@@ -432,7 +420,7 @@ internal class TextFieldDecoratorModifierNode(
         inputSessionJob = coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
             previousInputSessionJob?.cancelAndJoin()
             launch(start = CoroutineStart.UNDISPATCHED) {
-                textFieldSelectionState.observeTextChanges()
+                textFieldSelectionState.observeChanges()
             }
         }
     }

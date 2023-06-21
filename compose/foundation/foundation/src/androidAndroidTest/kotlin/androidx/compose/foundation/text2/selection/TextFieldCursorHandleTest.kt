@@ -104,6 +104,29 @@ class TextFieldCursorHandleTest {
     }
 
     @Test
+    fun tapTextField_cursorHandleFiltered() = with(rule.density) {
+        state = TextFieldState("hello")
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                filter = { _, valueWithChanges ->
+                    valueWithChanges.selectCharsIn(TextRange(4))
+                },
+                modifier = Modifier.testTag(TAG)
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            click(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
+        }
+
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(4))
+    }
+
+    @Test
     fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_ltr() = with(rule.density) {
         state = TextFieldState("hello")
         rule.setContent {
@@ -479,6 +502,33 @@ class TextFieldCursorHandleTest {
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
     }
 
+    @Test
+    fun cursorHandleDrag_getsFiltered() {
+        state = TextFieldState("abc abc")
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                filter = { _, valueWithChanges ->
+                    valueWithChanges.selectCharsIn(TextRange.Zero)
+                },
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(with(rule.density) { fontSize.toDp() } * 10)
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput { click(Offset(1f, 1f)) } // click most left
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+
+        swipeToRight(fontSizePx * 5)
+        rule.waitForIdle()
+
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange.Zero)
+    }
+
     // region ltr drag tests
     @Test
     fun moveCursorHandleToRight_ltr() {
@@ -710,10 +760,12 @@ class TextFieldCursorHandleTest {
 
     @Test
     fun moveCursorHandleToLeft_rtl_outOfBounds_scrollable_continuesDrag() {
-        state = TextFieldState("\u05D0\u05D1\u05D2\u05D3 " +
+        state = TextFieldState(
             "\u05D0\u05D1\u05D2\u05D3 " +
-            "\u05D0\u05D1\u05D2\u05D3 " +
-            "\u05D0\u05D1\u05D2\u05D3")
+                "\u05D0\u05D1\u05D2\u05D3 " +
+                "\u05D0\u05D1\u05D2\u05D3 " +
+                "\u05D0\u05D1\u05D2\u05D3"
+        )
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
