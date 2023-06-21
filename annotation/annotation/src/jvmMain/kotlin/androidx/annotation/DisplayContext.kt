@@ -16,20 +16,16 @@
 package androidx.annotation
 
 /**
- * Denotes a [android.content.Context] that is tied to a [android.view.Display] and
- * can be used to obtain one via [android.content.Context.getDisplay]. Note: it is not
- * considered to be a UI or visual Context and **must not** be used to obtain UI-related
- * services, such as [android.view.WindowManager], [android.view.LayoutInflater] or
- * [android.app.WallpaperManager] via
- * [android.content.Context.getSystemService]. If the UI services mentioned above
- * are required, instead please use Contexts which are marked as [UiContext].
- *
+ * Denotes a [android.content.Context] that is tied to a [android.view.Display] and can be used to
+ * obtain one via [android.content.Context.getDisplay]. Note: it is not considered to be a UI or
+ * visual Context and **must not** be used to obtain UI-related services, such as
+ * [android.view.WindowManager], [android.view.LayoutInflater] or [android.app.WallpaperManager] via
+ * [android.content.Context.getSystemService]. If the UI services mentioned above are required,
+ * instead please use Contexts which are marked as [UiContext].
  *
  * [android.app.Activity], Context instances created with
- * [android.content.Context.createWindowContext] or
- * [android.content.Context.createDisplayContext] can be used to get an associated
- * [android.view.Display] instance.
- *
+ * [android.content.Context.createWindowContext] or [android.content.Context.createDisplayContext]
+ * can be used to get an associated [android.view.Display] instance.
  *
  * This is a marker annotation and has no specific attributes.
  *

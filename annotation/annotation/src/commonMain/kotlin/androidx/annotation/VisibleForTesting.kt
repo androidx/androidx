@@ -40,19 +40,13 @@ public annotation class VisibleForTesting(
     @ProductionVisibility val otherwise: Int = PRIVATE
 ) {
     public companion object {
-        /**
-         * The annotated element would have `private` visibility.
-         */
+        /** The annotated element would have `private` visibility. */
         public const val PRIVATE: Int = 2 // Happens to be the same as Modifier.PRIVATE
 
-        /**
-         * The annotated element would have `package private` visibility.
-         */
+        /** The annotated element would have `package private` visibility. */
         public const val PACKAGE_PRIVATE: Int = 3
 
-        /**
-         * The annotated element would have `protected` visibility.
-         */
+        /** The annotated element would have `protected` visibility. */
         public const val PROTECTED: Int = 4 // Happens to be the same as Modifier.PROTECTED
 
         /**

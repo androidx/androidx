@@ -16,11 +16,9 @@
 package androidx.annotation
 
 /**
- *
- * Denotes that the annotated element represents a half-precision floating point
- * value. Such values are stored in short data types and can be manipulated with
- * the `android.util.Half` class. If applied to an array of short, every
- * element in the array represents a half-precision float.
+ * Denotes that the annotated element represents a half-precision floating point value. Such values
+ * are stored in short data types and can be manipulated with the `android.util.Half` class. If
+ * applied to an array of short, every element in the array represents a half-precision float.
  *
  * Example:
  * ```

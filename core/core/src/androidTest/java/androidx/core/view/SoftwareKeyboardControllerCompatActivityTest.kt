@@ -56,8 +56,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
 
         container = scenario.withActivity { findViewById(R.id.container) }
         scenario.withActivity {
-            softwareKeyboardControllerCompat =
-                SoftwareKeyboardControllerCompat(container)
+            softwareKeyboardControllerCompat = SoftwareKeyboardControllerCompat(container)
             WindowCompat.setDecorFitsSystemWindows(window, false)
         }
         // Close the IME if it's open, so we start from a known scenario
@@ -71,9 +70,8 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         val container: View = scenario.withActivity { findViewById(R.id.container) }
         scenario.withActivity { findViewById<View>(R.id.edittext).requestFocus() }
 
-        val softwareKeyboardControllerCompat = scenario.withActivity {
-            SoftwareKeyboardControllerCompat(container)
-        }
+        val softwareKeyboardControllerCompat =
+            scenario.withActivity { SoftwareKeyboardControllerCompat(container) }
         container.doAndAwaitNextInsets(
             insetsPredicate = { !it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
@@ -95,9 +93,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
 
     @Test
     public fun do_not_show_IME_if_TextView_not_focused() {
-        val editText = scenario.withActivity {
-            findViewById<EditText>(R.id.edittext)
-        }
+        val editText = scenario.withActivity { findViewById<EditText>(R.id.edittext) }
 
         // We hide the edit text to ensure it won't be automatically focused
         scenario.onActivity {
@@ -106,9 +102,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         }
 
         container.doAndAwaitNextInsets(
-            insetsPredicate = {
-                !it.isVisible(WindowInsetsCompat.Type.ime())
-            }
+            insetsPredicate = { !it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
             scenario.onActivity { softwareKeyboardControllerCompat.show() }
         }
@@ -119,9 +113,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
         val editText = scenario.withActivity { findViewById(R.id.edittext) }
-        val controller = scenario.withActivity {
-            SoftwareKeyboardControllerCompat(editText)
-        }
+        val controller = scenario.withActivity { SoftwareKeyboardControllerCompat(editText) }
 
         scenario.onActivity {
             editText.requestFocus()
@@ -129,9 +121,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         }
 
         container.doAndAwaitNextInsets(
-            insetsPredicate = {
-                it.isVisible(WindowInsetsCompat.Type.ime())
-            }
+            insetsPredicate = { it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
             scenario.onActivity {
                 editText.requestFocus()
@@ -144,16 +134,16 @@ public class SoftwareKeyboardControllerCompatActivityTest {
 
     @Test
     public fun do_not_show_IME_if_TextView_in_dialog_not_focused() {
-        val dialog = scenario.withActivity {
-            object : Dialog(this) {
-                override fun onAttachedToWindow() {
-                    super.onAttachedToWindow()
-                    WindowCompat.setDecorFitsSystemWindows(window!!, false)
-                }
-            }.apply {
-                setContentView(R.layout.insets_compat_activity)
+        val dialog =
+            scenario.withActivity {
+                object : Dialog(this) {
+                        override fun onAttachedToWindow() {
+                            super.onAttachedToWindow()
+                            WindowCompat.setDecorFitsSystemWindows(window!!, false)
+                        }
+                    }
+                    .apply { setContentView(R.layout.insets_compat_activity) }
             }
-        }
 
         val editText = dialog.findViewById<TextView>(R.id.edittext)
 
@@ -165,40 +155,33 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         }
 
         container.doAndAwaitNextInsets(
-            insetsPredicate = {
-                !it.isVisible(WindowInsetsCompat.Type.ime())
-            }
+            insetsPredicate = { !it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
-            scenario.onActivity {
-                SoftwareKeyboardControllerCompat(editText).show()
-            }
+            scenario.onActivity { SoftwareKeyboardControllerCompat(editText).show() }
         }
     }
 
     @Test
     fun show_IME_fromEditText_in_dialog() {
-        val dialog = scenario.withActivity {
-            object : Dialog(this) {
-                override fun onAttachedToWindow() {
-                    super.onAttachedToWindow()
-                    WindowCompat.setDecorFitsSystemWindows(window!!, false)
-                }
-            }.apply {
-                setContentView(R.layout.insets_compat_activity)
+        val dialog =
+            scenario.withActivity {
+                object : Dialog(this) {
+                        override fun onAttachedToWindow() {
+                            super.onAttachedToWindow()
+                            WindowCompat.setDecorFitsSystemWindows(window!!, false)
+                        }
+                    }
+                    .apply { setContentView(R.layout.insets_compat_activity) }
             }
-        }
 
         val editText = dialog.findViewById<TextView>(R.id.edittext)
 
         scenario.onActivity { dialog.show() }
 
-        val controller =
-            SoftwareKeyboardControllerCompat(editText)
+        val controller = SoftwareKeyboardControllerCompat(editText)
 
         container.doAndAwaitNextInsets(
-            insetsPredicate = {
-                it.isVisible(WindowInsetsCompat.Type.ime())
-            }
+            insetsPredicate = { it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
             scenario.onActivity { controller.show() }
         }
@@ -210,16 +193,12 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         assumeNotCuttlefish()
 
         container.doAndAwaitNextInsets(
-            insetsPredicate = {
-                it.isVisible(WindowInsetsCompat.Type.ime())
-            }
+            insetsPredicate = { it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
             Espresso.onView(ViewMatchers.withId(R.id.edittext)).perform(ViewActions.click())
         }
         container.doAndAwaitNextInsets(
-            insetsPredicate = {
-                !it.isVisible(WindowInsetsCompat.Type.ime())
-            }
+            insetsPredicate = { !it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
             scenario.onActivity { softwareKeyboardControllerCompat.hide() }
         }
