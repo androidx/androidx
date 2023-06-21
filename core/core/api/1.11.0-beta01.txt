@@ -1446,7 +1446,7 @@ package androidx.core.graphics {
     method @ColorInt public static int HSLToColor(float[]);
     method @ColorInt public static int LABToColor(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double);
     method public static void LABToXYZ(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double, double[]);
-    method @ColorInt public static int M3HCTToColor(@FloatRange(from=0.0, to=360, toInclusive=false) float, @FloatRange(from=0.0, to=java.lang.Double.POSITIVE_INFINITY, toInclusive=false) float, @FloatRange(from=0.0, to=100) float);
+    method @ColorInt public static int M3HCTtoColor(float, float, float);
     method public static void RGBToHSL(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, float[]);
     method public static void RGBToLAB(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
     method public static void RGBToXYZ(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
@@ -1460,7 +1460,7 @@ package androidx.core.graphics {
     method public static int calculateMinimumAlpha(@ColorInt int, @ColorInt int, float);
     method public static void colorToHSL(@ColorInt int, float[]);
     method public static void colorToLAB(@ColorInt int, double[]);
-    method public static void colorToM3HCT(@ColorInt int, @Size(3) float[]);
+    method public static void colorToM3HCT(@ColorInt int, float[]);
     method public static void colorToXYZ(@ColorInt int, double[]);
     method @RequiresApi(26) public static android.graphics.Color compositeColors(android.graphics.Color, android.graphics.Color);
     method public static int compositeColors(@ColorInt int, @ColorInt int);
@@ -1842,10 +1842,17 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.Q) public static boolean isAtLeastQ();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
     method @Deprecated @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
+    method @Deprecated @ChecksSdkIntAtLeast(api=32, codename="Sv2") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastSv2();
+    method @Deprecated @ChecksSdkIntAtLeast(api=33, codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+    method @ChecksSdkIntAtLeast(api=34, codename="UpsideDownCake") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastU();
+    method @ChecksSdkIntAtLeast(codename="VanillaIceCream") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastV();
     field @ChecksSdkIntAtLeast(extension=android.os.ext.SdkExtensions.AD_SERVICES) public static final int AD_SERVICES_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.R) public static final int R_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.S) public static final int S_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.TIRAMISU) public static final int T_EXTENSION_INT;
+  }
+
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface BuildCompat.PrereleaseSdkCheck {
   }
 
   public final class BundleCompat {

@@ -194,6 +194,9 @@ package androidx.compose.ui.unit {
     property public final long Zero;
   }
 
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") public @interface ExperimentalUnitApi {
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
     method @androidx.compose.runtime.Stable public operator int component1();
     method @androidx.compose.runtime.Stable public operator int component2();
@@ -350,6 +353,7 @@ package androidx.compose.ui.unit {
   }
 
   public final class TextUnitKt {
+    method @androidx.compose.ui.unit.ExperimentalUnitApi public static long TextUnit(float value, long type);
     method public static long getEm(float);
     method public static long getEm(double);
     method public static long getEm(int);

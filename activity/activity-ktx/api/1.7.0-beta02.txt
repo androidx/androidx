@@ -6,6 +6,10 @@ package androidx.activity {
     method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
   }
 
+  public final class PipHintTrackerKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) @kotlinx.coroutines.ExperimentalCoroutinesApi public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
 }
 
 package androidx.activity.result {
