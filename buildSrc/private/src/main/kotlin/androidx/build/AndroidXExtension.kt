@@ -298,6 +298,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             if (project.path.contains("-ktx")) return false
             if (project.path.contains("compose")) return false
             if (project.path.startsWith(":ui")) return false
+            if (project.path.startsWith(":text:text")) return false
             return field
         }
     private var licenses: MutableCollection<License> = ArrayList()
