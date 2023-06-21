@@ -730,8 +730,15 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // This FragmentManager needs to have a back stack for this to be enabled
         // And the parent fragment, if it exists, needs to be the primary navigation
         // fragment.
-        mOnBackPressedCallback.setEnabled(getBackStackEntryCount() > 0
-                && isPrimaryNavigation(mParent));
+        boolean isEnabled = getBackStackEntryCount() > 0
+                && isPrimaryNavigation(mParent);
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG,
+                    "OnBackPressedCallback for FragmentManager " + this + " enabled state is "
+                            + isEnabled
+            );
+        }
+        mOnBackPressedCallback.setEnabled(isEnabled);
     }
 
     /**
