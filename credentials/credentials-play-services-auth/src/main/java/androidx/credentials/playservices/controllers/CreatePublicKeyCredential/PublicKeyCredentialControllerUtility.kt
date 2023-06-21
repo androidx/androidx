@@ -403,7 +403,6 @@ internal class PublicKeyCredentialControllerUtility {
                         UserVerificationMethodExtension(true)
                     )
                 }
-                // TODO("Ensure JSON keys are correctly named")
                 builder.setAuthenticationExtensions(extensionBuilder.build())
             }
         }
