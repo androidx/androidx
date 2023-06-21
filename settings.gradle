@@ -775,6 +775,7 @@ includeProject(":glance:glance-wear-tiles:integration-tests:template-demos", [Bu
 includeProject(":glance:glance-wear-tiles", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles-preview", [BuildType.GLANCE])
 includeProject(":graphics:filters:filters", [BuildType.MAIN])
+includeProject(":graphics:graphics-core:graphics-core-samples", "graphics/graphics-core/samples", [BuildType.MAIN])
 includeProject(":graphics:graphics-path", [BuildType.MAIN])
 includeProject(":graphics:graphics-core", [BuildType.MAIN])
 includeProject(":graphics:graphics-shapes", [BuildType.MAIN, BuildType.COMPOSE])

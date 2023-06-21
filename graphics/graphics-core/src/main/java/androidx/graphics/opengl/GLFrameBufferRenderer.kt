@@ -558,15 +558,17 @@ class GLFrameBufferRenderer internal constructor(
          *      myMatrix, // matrix
          *      0, // offset starting index into myMatrix
          *      0f, // left
-         *      bufferInfo.bufferWidth.toFloat(), // right
+         *      bufferInfo.width.toFloat(), // right
          *      0f, // bottom
-         *      bufferInfo.bufferHeight.toFloat(), // top
+         *      bufferInfo.height.toFloat(), // top
          *      -1f, // near
          *      1f, // far
          * )
          * val result = FloatArray(16)
          * Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
          * ```
+         *
+         * @sample androidx.graphics.core.samples.glFrameBufferSample
          */
         @WorkerThread
         fun onDrawFrame(
