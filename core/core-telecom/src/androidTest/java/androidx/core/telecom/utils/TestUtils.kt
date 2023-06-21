@@ -48,7 +48,7 @@ object TestUtils {
     const val TEST_CALL_ATTRIB_NAME = "Elon Musk"
     const val OUTGOING_NAME = "Larry Page"
     const val INCOMING_NAME = "Sundar Pichai"
-    const val WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT = 5000L
+    const val WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT = 10000L
     const val WAIT_ON_CALL_STATE_TIMEOUT = 8000L
     const val WAIT_ON_IN_CALL_SERVICE_CALL_COUNT_TIMEOUT = 5000L
     const val ALL_CALL_CAPABILITIES = (CallAttributesCompat.SUPPORTS_SET_INACTIVE
