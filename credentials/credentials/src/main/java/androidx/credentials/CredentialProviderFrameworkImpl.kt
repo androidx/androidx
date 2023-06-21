@@ -359,7 +359,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
             override fun onError(error: android.credentials.ClearCredentialStateException) {
                 Log.i(TAG, "ClearCredentialStateException error returned from framework")
-                // TODO("Covert to the appropriate exception")
                 callback.onError(ClearCredentialUnknownException())
             }
         }
