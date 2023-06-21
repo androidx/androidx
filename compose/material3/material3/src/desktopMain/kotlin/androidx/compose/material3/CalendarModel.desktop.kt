@@ -20,7 +20,8 @@ package androidx.compose.material3
  * Returns a [CalendarModel] to be used by the date picker.
  */
 @ExperimentalMaterial3Api
-internal actual fun CalendarModel(): CalendarModel = LegacyCalendarModelImpl()
+internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel =
+    LegacyCalendarModelImpl(locale)
 
 /**
  * Formats a UTC timestamp into a string with a given date format skeleton.
