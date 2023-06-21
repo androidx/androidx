@@ -407,6 +407,7 @@ internal class TextInputServiceAndroid(
 
     override fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textLayoutPositionInWindow: Offset,
         innerTextFieldBounds: Rect,
@@ -414,6 +415,7 @@ internal class TextInputServiceAndroid(
     ) {
         cursorAnchorInfoController.updateTextLayoutResult(
             textFieldValue,
+            offsetMapping,
             textLayoutResult,
             textLayoutPositionInWindow,
             innerTextFieldBounds,

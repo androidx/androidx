@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.InputMethodManager
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputServiceAndroid
@@ -108,12 +109,14 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
         var textLayoutPositionInWindow = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -128,6 +131,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         val expected =
             builder.build(
                 textFieldValue,
+                offsetMapping,
                 textLayoutResult,
                 matrix,
                 innerTextFieldBounds,
@@ -139,6 +143,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         textLayoutPositionInWindow = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -160,12 +165,14 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         // No immediate update until updateTextLayoutResult call
         verify(inputMethodManager, never()).updateCursorAnchorInfo(any())
 
+        val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
         var textLayoutPositionInWindow = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -178,6 +185,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         val expected =
             builder.build(
                 textFieldValue,
+                offsetMapping,
                 textLayoutResult,
                 matrix,
                 innerTextFieldBounds,
@@ -189,6 +197,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         textLayoutPositionInWindow = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -205,12 +214,14 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
         var textLayoutPositionInWindow = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -226,6 +237,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         textLayoutPositionInWindow = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -238,6 +250,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         val expected =
             builder.build(
                 textFieldValue,
+                offsetMapping,
                 textLayoutResult,
                 matrix,
                 innerTextFieldBounds,
@@ -256,6 +269,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         textLayoutPositionInWindow = Offset(3f, 3f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -268,6 +282,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         val expected2 =
             builder.build(
                 textFieldValue,
+                offsetMapping,
                 textLayoutResult,
                 matrix,
                 innerTextFieldBounds,
@@ -282,12 +297,14 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
         var textLayoutPositionInWindow = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -304,6 +321,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         val expected =
             builder.build(
                 textFieldValue,
+                offsetMapping,
                 textLayoutResult,
                 matrix,
                 innerTextFieldBounds,
@@ -315,6 +333,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         textLayoutPositionInWindow = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -327,6 +346,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         val expected2 =
             builder.build(
                 textFieldValue,
+                offsetMapping,
                 textLayoutResult,
                 matrix,
                 innerTextFieldBounds,
@@ -341,12 +361,14 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
         var textLayoutPositionInWindow = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
@@ -369,6 +391,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
         textLayoutPositionInWindow = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
+            offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             textLayoutPositionInWindow = textLayoutPositionInWindow,
             innerTextFieldBounds = innerTextFieldBounds,
