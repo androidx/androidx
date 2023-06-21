@@ -16,11 +16,16 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +46,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -52,14 +58,28 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * Standard animation length in milliseconds.
+ * Short animation in milliseconds.
  */
-internal const val STANDARD_ANIMATION = 300
+internal const val SHORT_ANIMATION = 50
+/**
+ * Flash animation length in milliseconds.
+ */
+internal const val FLASH_ANIMATION = 100
+
+/**
+ * Rapid animation length in milliseconds.
+ */
+internal const val RAPID_ANIMATION = 200
 
 /**
  * Quick animation length in milliseconds.
  */
 internal const val QUICK_ANIMATION = 250
+
+/**
+ * Standard easing for Swipe To Reveal.
+ */
+internal val STANDARD_IN_OUT = CubicBezierEasing(0.20f, 0.0f, 0.0f, 1.00f)
 
 /**
  * Different values which the swipeable modifier can be configured to.
@@ -371,18 +391,35 @@ public fun SwipeToReveal(
 
         // Draw the buttons only when offset is greater than zero.
         if (abs(state.offset) > 0) {
-            Row(
+            Box(
                 modifier = Modifier.matchParentSize(),
-                horizontalArrangement = Arrangement.Absolute.Right
+                contentAlignment = AbsoluteAlignment.CenterRight
             ) {
-                Crossfade(
+                AnimatedContent(
                     targetState = swipeCompleted && undoAction != null,
-                    animationSpec = tween(durationMillis = STANDARD_ANIMATION),
-                    label = "CrossFadeS2R"
+                    transitionSpec = {
+                        if (targetState) { // Fade in the Undo composable and fade out actions
+                            fadeInUndo()
+                        } else { // Fade in the actions and fade out the undo composable
+                            fadeOutUndo()
+                        }
+                    },
+                    label = "AnimatedContentS2R"
                 ) { displayUndo ->
                     if (displayUndo && undoAction != null) {
+                        val undoActionAlpha = animateFloatAsState(
+                            targetValue = if (swipeCompleted) 1f else 0f,
+                            animationSpec = tween(
+                                durationMillis = RAPID_ANIMATION,
+                                delayMillis = FLASH_ANIMATION,
+                                easing = STANDARD_IN_OUT,
+                            ),
+                            label = "UndoActionAlpha"
+                        )
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .graphicsLayer { alpha = undoActionAlpha.value }
+                                .fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
                             ActionSlot(revealScope, content = undoAction)
@@ -394,17 +431,23 @@ public fun SwipeToReveal(
                             animationSpec = tween(durationMillis = QUICK_ANIMATION),
                             label = "SecondaryActionAnimationSpec"
                         )
-                        val actionOpacity = animateFloatAsState(
+                        val actionContentAlpha = animateFloatAsState(
                             targetValue = if (hideActions) 0f else 1f,
                             animationSpec = tween(durationMillis = 100, easing = LinearEasing),
-                            label = "ActionOpacity"
+                            label = "ActionContentOpacity"
+                        )
+                        val revealedContentAlpha = animateFloatAsState(
+                            targetValue = if (swipeCompleted) 0f else 1f,
+                            animationSpec = tween(
+                                durationMillis = FLASH_ANIMATION,
+                                easing = LinearEasing
+                            ),
+                            label = "RevealedContentAlpha"
                         )
                         Row(
-                            modifier = if (hideActions) {
-                                Modifier.width(offsetWidth)
-                            } else {
-                                Modifier.width(availableWidth)
-                            },
+                            modifier = Modifier
+                                .graphicsLayer { alpha = revealedContentAlpha.value }
+                                .width(if (hideActions) offsetWidth else availableWidth),
                             horizontalArrangement = Arrangement.Absolute.Right
                         ) {
                             // weight cannot be 0 so remove the composable when weight becomes 0
@@ -413,7 +456,7 @@ public fun SwipeToReveal(
                                 ActionSlot(
                                     revealScope,
                                     weight = secondaryActionWeight.value,
-                                    opacity = actionOpacity,
+                                    opacity = actionContentAlpha,
                                     content = secondaryAction,
                                 )
                             }
@@ -421,7 +464,7 @@ public fun SwipeToReveal(
                             ActionSlot(
                                 revealScope,
                                 content = primaryAction,
-                                opacity = actionOpacity
+                                opacity = actionContentAlpha
                             )
                         }
                     }
@@ -520,3 +563,48 @@ private fun RowScope.ActionSlot(
         }
     }
 }
+
+private fun fadeInUndo(): ContentTransform =
+    ContentTransform(
+        // animation spec for the fading in undo action (fadeIn + scaleIn)
+        targetContentEnter = fadeIn(
+            animationSpec = tween(
+                durationMillis = RAPID_ANIMATION,
+                delayMillis = FLASH_ANIMATION,
+                easing = LinearEasing,
+            )
+        ) + scaleIn(
+            initialScale = 1.2f,
+            animationSpec = tween(
+                durationMillis = RAPID_ANIMATION,
+                delayMillis = FLASH_ANIMATION,
+                easing = STANDARD_IN_OUT
+            )
+        ),
+        // animation spec for the fading out content and actions (fadeOut)
+        initialContentExit = fadeOut(
+            animationSpec = tween(
+                durationMillis = FLASH_ANIMATION,
+                easing = LinearEasing
+            )
+        )
+    )
+
+private fun fadeOutUndo(): ContentTransform =
+    ContentTransform(
+        // No animation, fade-in in 0 milliseconds since enter transition is mandatory
+        targetContentEnter = fadeIn(
+            animationSpec = tween(
+                durationMillis = 0,
+                delayMillis = SHORT_ANIMATION
+            )
+        ),
+
+        // animation spec for the fading out undo action (fadeOut + scaleOut)
+        initialContentExit = fadeOut(
+            animationSpec = tween(
+                durationMillis = SHORT_ANIMATION,
+                easing = LinearEasing
+            )
+        )
+    )
