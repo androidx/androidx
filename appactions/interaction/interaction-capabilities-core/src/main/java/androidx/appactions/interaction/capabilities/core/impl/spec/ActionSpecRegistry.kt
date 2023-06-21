@@ -27,17 +27,31 @@ import kotlin.reflect.KClass
  */
 object ActionSpecRegistry {
   private val argumentsClassToActionSpec = IdentityHashMap<Class<*>, ActionSpec<Any, *>>()
+  private val outputClassToActionSpec = IdentityHashMap<Class<*>, ActionSpec<*, Any>>()
 
   @Suppress("UNCHECKED_CAST")
-  fun <T : Any> registerArgumentsClass(argumentsClass: KClass<T>, actionSpec: ActionSpec<T, *>) {
+  fun <T : Any, R : Any> registerActionSpec(
+    argumentsClass: KClass<T>,
+    outputClass: KClass<R>,
+    actionSpec: ActionSpec<T, R>
+  ) {
     argumentsClassToActionSpec.put(
       argumentsClass.java,
       actionSpec as ActionSpec<Any, *>
+    )
+    outputClassToActionSpec.put(
+      outputClass.java,
+      actionSpec as ActionSpec<*, Any>
     )
   }
 
   @VisibleForTesting
   fun getActionSpecForArguments(arguments: Any): ActionSpec<Any, *>? {
     return argumentsClassToActionSpec[arguments.javaClass]
+  }
+
+  @VisibleForTesting
+  fun getActionSpecForOutput(output: Any): ActionSpec<*, Any>? {
+    return outputClassToActionSpec[output.javaClass]
   }
 }
