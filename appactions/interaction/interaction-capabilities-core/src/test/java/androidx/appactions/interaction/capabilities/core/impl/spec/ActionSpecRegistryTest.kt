@@ -19,6 +19,7 @@ package androidx.appactions.interaction.capabilities.core.impl.spec
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
+import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -28,7 +29,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 public class ActionSpecRegistryTest {
   @Test
-  fun actionSpecRegistry_retrieveRegisteredSpec() {
+  fun actionSpecRegistry_retrieveRegisteredSpecForArguments() {
     val arguments = Arguments.Builder()
       .setRequiredStringField("a")
       .setRepeatedStringField(listOf("a", "b", "c"))
@@ -46,6 +47,36 @@ public class ActionSpecRegistryTest {
           ParamValue.newBuilder().setStringValue("c").build()
         )
       )
+    )
+  }
+
+  @Test
+  fun actionSpecRegistry_retrieveRegisteredSpecForOutput() {
+    val output = Output.Builder()
+      .setOptionalStringField("a")
+      .setRepeatedStringField(listOf("a", "b", "c"))
+      .build()
+    val actionSpec = ActionSpecRegistry.getActionSpecForOutput(output)!!
+    assertThat(actionSpec.capabilityName).isEqualTo("actions.intent.TEST")
+    assertThat(
+      actionSpec.convertOutputToProto(output).getOutputValuesList()
+    ).containsExactly(
+      OutputValue.newBuilder()
+        .setName("repeatedStringOutput")
+        .addValues(
+          ParamValue.newBuilder().setStringValue("a")
+        )
+        .addValues(
+          ParamValue.newBuilder().setStringValue("b")
+        )
+        .addValues(
+          ParamValue.newBuilder().setStringValue("c")
+        ).build(),
+      OutputValue.newBuilder()
+        .setName("optionalStringOutput")
+        .addValues(
+          ParamValue.newBuilder().setStringValue("a")
+        ).build()
     )
   }
 
@@ -79,7 +110,11 @@ public class ActionSpecRegistryTest {
           TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
         .build()
     init {
-      ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+      ActionSpecRegistry.registerActionSpec(
+        Arguments::class,
+        Output::class,
+        ACTION_SPEC
+      )
     }
   }
 }

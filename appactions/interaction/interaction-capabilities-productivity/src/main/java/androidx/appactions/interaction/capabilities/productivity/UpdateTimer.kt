@@ -292,7 +292,7 @@ class UpdateTimer private constructor() {
                     )
                     .build()
             init {
-                ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+                ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
             }
         }
     }
@@ -547,7 +547,7 @@ class UpdateTimer private constructor() {
                     )
                     .build()
             init {
-                ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+                ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
             }
         }
     }
@@ -798,7 +798,7 @@ class UpdateTimer private constructor() {
                     )
                     .build()
             init {
-                ActionSpecRegistry.registerArgumentsClass(Arguments::class, ACTION_SPEC)
+                ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
             }
         }
     }
