@@ -32,7 +32,6 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.heightInLines
-import androidx.compose.foundation.text.isInTouchMode
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.textFieldMinSize
@@ -49,6 +48,7 @@ import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModif
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.selection.TextFieldSelectionState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -56,10 +56,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -162,10 +164,27 @@ fun BasicTextField2(
 
     val textLayoutState = remember { TextLayoutState() }
 
-    val textFieldSelectionState = remember(state, textLayoutState, density) {
-        TextFieldSelectionState(state, textLayoutState, density)
+    val textFieldSelectionState = remember(state, textLayoutState) {
+        TextFieldSelectionState(
+            textFieldState = state,
+            textLayoutState = textLayoutState,
+            textEditFilter = filter,
+            density = density,
+            editable = enabled && !readOnly
+        )
     }
     textFieldSelectionState.hapticFeedBack = LocalHapticFeedback.current
+    textFieldSelectionState.clipboardManager = LocalClipboardManager.current
+    textFieldSelectionState.textToolbar = LocalTextToolbar.current
+    textFieldSelectionState.textEditFilter = filter
+    textFieldSelectionState.density = density
+    textFieldSelectionState.editable = enabled && !readOnly
+
+    DisposableEffect(textFieldSelectionState) {
+        onDispose {
+            textFieldSelectionState.dispose()
+        }
+    }
 
     val decorationModifiers = modifier
         .then(
@@ -267,7 +286,7 @@ internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
                     )
                 }
                 .pointerInput(selectionState) {
-                    with(selectionState) { detectCursorHandleDragGestures() }
+                    with(selectionState) { cursorHandleGestures() }
                 },
             content = null
         )

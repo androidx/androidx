@@ -123,3 +123,34 @@ private class TextFieldCharSequenceWrapper(
         return result
     }
 }
+
+/**
+ * Returns the text before the selection.
+ *
+ * @param maxChars maximum number of characters (inclusive) before the minimum value in
+ * [TextFieldCharSequence.selectionInChars].
+ *
+ * @see TextRange.min
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
+    subSequence(kotlin.math.max(0, selectionInChars.min - maxChars), selectionInChars.min)
+
+/**
+ * Returns the text after the selection.
+ *
+ * @param maxChars maximum number of characters (exclusive) after the maximum value in
+ * [TextFieldCharSequence.selectionInChars].
+ *
+ * @see TextRange.max
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
+    subSequence(selectionInChars.max, kotlin.math.min(selectionInChars.max + maxChars, length))
+
+/**
+ * Returns the currently selected text.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal fun TextFieldCharSequence.getSelectedText(): CharSequence =
+    subSequence(selectionInChars.min, selectionInChars.max)
