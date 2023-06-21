@@ -18,9 +18,13 @@ package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionObserver
+import androidx.compose.runtime.CompositionObserverHandle
 import androidx.compose.runtime.ControlledComposition
+import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.observe
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -56,6 +60,21 @@ fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runTest {
                 val composition = Composition(ViewApplier(root), recomposer)
                 this.composition = composition
                 composition.setContent(block)
+            }
+
+            @OptIn(ExperimentalComposeRuntimeApi::class)
+            override fun compose(
+                observer: CompositionObserver,
+                block: @Composable () -> Unit
+            ): CompositionObserverHandle {
+                check(!composed) { "Compose should only be called once" }
+                composed = true
+                root = View().apply { name = "root" }
+                val composition = Composition(ViewApplier(root), recomposer)
+                val result = composition.observe(observer)
+                this.composition = composition
+                composition.setContent(block)
+                return result
             }
 
             override fun advanceCount(ignorePendingWork: Boolean): Long {
@@ -102,6 +121,16 @@ interface CompositionTestScope : CoroutineScope {
      * Compose a block using the mock view composer.
      */
     fun compose(block: @Composable () -> Unit)
+
+    /**
+     * Compose a block observed using the mock view composer.
+     */
+
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    fun compose(
+        observer: CompositionObserver,
+        block: @Composable () -> Unit
+    ): CompositionObserverHandle
 
     /**
      * Advance the state which executes any pending compositions, if any. Returns true if
