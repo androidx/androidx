@@ -31,12 +31,16 @@ class EnergyTest {
     fun equals_sameValues_areEqual() {
         expect.that(Energy.kilocalories(235.0)).isEqualTo(Energy.kilocalories(235.0))
         expect.that(Energy.kilocalories(235.0)).isEqualTo(Energy.calories(235_000.0))
+        expect.that(Energy.kilocalories(235.0)).isEqualTo(Energy.joules(56.1663479835))
+        expect.that(Energy.kilocalories(235.0)).isEqualTo(Energy.kilojoules(56166.3479835))
     }
 
     @Test
     fun equals_differentValues_areNotEqual() {
         expect.that(Energy.kilocalories(235.001)).isNotEqualTo(Energy.kilocalories(235.0))
         expect.that(Energy.kilocalories(235.001)).isNotEqualTo(Energy.calories(235_000.0))
+        expect.that(Energy.kilocalories(235.001)).isNotEqualTo(Energy.joules(56.1663479835))
+        expect.that(Energy.kilocalories(235.001)).isNotEqualTo(Energy.kilojoules(56166.3479835))
     }
 
     @Test
@@ -52,4 +56,5 @@ class EnergyTest {
             .that(Energy.kilocalories(235.001).hashCode())
             .isNotEqualTo(Energy.calories(235_000.0).hashCode())
     }
+    
 }
