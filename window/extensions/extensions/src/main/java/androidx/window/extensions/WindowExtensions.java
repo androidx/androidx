@@ -63,7 +63,6 @@ public interface WindowExtensions {
      *     <li>{@link androidx.window.extensions.layout.FoldingFeature} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.WindowLayoutInfo} APIs</li>
      *     <li>{@link androidx.window.extensions.layout.WindowLayoutComponent} APIs</li>
-     *     <li>{@link androidx.window.extensions.area.WindowAreaComponent} APIs</li>
      * </ul>
      * </p>
      */
@@ -100,6 +99,7 @@ public interface WindowExtensions {
      *     <li>{@link ActivityEmbeddingComponent#updateSplitAttributes(IBinder, SplitAttributes)}
      *     </li>
      *     <li>{@link ActivityEmbeddingComponent#finishActivityStacks(Set)}</li>
+     *     <li>{@link androidx.window.extensions.area.WindowAreaComponent} APIs</li>
      * </ul>
      * </p>
      */
