@@ -11,12 +11,16 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors childButtonColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledTonalButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
+    method public float getButtonHorizontalPadding();
+    method public float getButtonVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public float getIconSize();
     method public float getLargeIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors imageBackgroundButtonColors(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedButtonBorder(boolean enabled, optional long borderColor, optional long disabledBorderColor, optional float borderWidth);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors outlinedButtonColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor);
+    property public final float ButtonHorizontalPadding;
+    property public final float ButtonVerticalPadding;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public final float IconSize;
     property public final float LargeIconSize;
