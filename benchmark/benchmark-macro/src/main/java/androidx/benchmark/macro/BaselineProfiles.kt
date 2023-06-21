@@ -220,8 +220,12 @@ private fun reportResults(
         profileTsPath = tsAbsolutePath
     )
     InstrumentationResults.instrumentationReport {
-        val summary = summaryRecord(results)
-        ideSummaryRecord(summaryV1 = summary, summaryV2 = summary)
+        // Ideally would link trace as a profiler result for consistency with other codepaths,
+        // but we don't to change BP's custom link appearance to the default simple one
+        reportSummaryToIde(
+            testName = uniqueFilePrefix,
+            message = summaryRecord(results),
+        )
         Log.d(TAG, "Total Run Time Ns: $totalRunTime")
     }
 }
