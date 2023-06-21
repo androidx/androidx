@@ -33,7 +33,7 @@ import androidx.window.embedding.RuleController.Companion.parseRules
  * startup before any activities complete initialization. The rule updates only apply to future
  * [android.app.Activity] launches and do not apply to already running activities.
  */
-class RuleController private constructor(private val embeddingBackend: EmbeddingBackend) {
+class RuleController internal constructor(private val embeddingBackend: EmbeddingBackend) {
 
     // TODO(b/258356512): Make this API a make this a coroutine API that returns
     //  Flow<Set<EmbeddingRule>>.
@@ -41,14 +41,14 @@ class RuleController private constructor(private val embeddingBackend: Embedding
      * Returns a copy of the currently registered rules.
      */
     fun getRules(): Set<EmbeddingRule> {
-        return embeddingBackend.getRules().toSet()
+        return embeddingBackend.getRules()
     }
 
     /**
      * Registers a new rule, or updates an existing rule if the [tag][EmbeddingRule.tag] has been
      * registered with [RuleController]. Will be cleared automatically when the process is stopped.
      *
-     * Registering a `SplitRule` may fail if the [SplitController.isSplitSupported]
+     * Registering a `SplitRule` may fail if the [SplitController.splitSupportStatus]
      * returns `false`. If not supported, it could be either because
      * [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] not enabled
      * in AndroidManifest or the feature not available on the device.
@@ -85,7 +85,7 @@ class RuleController private constructor(private val embeddingBackend: Embedding
      * - [SplitPlaceholderRule.Builder]
      * - [ActivityRule.Builder]
      *
-     * Registering `SplitRule`s may fail if the [SplitController.isSplitSupported]
+     * Registering `SplitRule`s may fail if the [SplitController.splitSupportStatus]
      * returns `false`. If not supported, it could be either because
      * [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] not enabled
      * in AndroidManifest or the feature not available on the device.
