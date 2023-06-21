@@ -72,7 +72,6 @@ internal class CredentialProviderFactory {
                     val klass = Class.forName(className)
                     val p = klass.getConstructor(Context::class.java).newInstance(context) as
                         CredentialProvider
-                    // TODO("Retrys and look into multiple constructors")
                     if (p.isAvailableOnDevice()) {
                         if (provider != null) {
                             Log.i(TAG, "Only one active OEM CredentialProvider allowed")
