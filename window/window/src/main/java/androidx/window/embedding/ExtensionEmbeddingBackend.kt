@@ -136,7 +136,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     @GuardedBy("globalLock")
     override fun getRules(): Set<EmbeddingRule> {
-        globalLock.withLock { return ruleTracker.splitRules }
+        globalLock.withLock { return ruleTracker.splitRules.toSet() }
     }
 
     @GuardedBy("globalLock")
