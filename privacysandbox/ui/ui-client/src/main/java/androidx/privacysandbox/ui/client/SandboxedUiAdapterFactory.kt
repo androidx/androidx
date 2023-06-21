@@ -158,6 +158,13 @@ object SandboxedUiAdapterFactory {
                         Throwable::class.java)
                         methodOrig.invoke(origClient, throwable)
                     }
+                    "onResizeRequested" -> {
+                        args!! // This method will always have an argument, so safe to !!
+
+                        val methodOrig = origClient.javaClass.getMethod("onResizeRequested",
+                                Int::class.java, Int::class.java)
+                        methodOrig.invoke(origClient, args[0], args[1])
+                    }
                     "toString" -> {
                         origClient.javaClass.getMethod("toString").invoke(origClient)
                     }
@@ -186,6 +193,27 @@ object SandboxedUiAdapterFactory {
                     }
                     "getView" -> {
                         origClient.javaClass.getMethod("getView").invoke(origClient)
+                    }
+                    "notifyResized" -> {
+                        args!! // This method will always have an argument, so safe to !!
+
+                        val methodOrig = origClient.javaClass.getMethod("notifyResized",
+                                Int::class.java, Int::class.java)
+                        methodOrig.invoke(origClient, args[0], args[1])
+                    }
+                    "notifyZOrderChanged" -> {
+                        args!! // This method will always have an argument, so safe to !!
+
+                        val methodOrig = origClient.javaClass.getMethod("notifyZOrderChanged",
+                                Boolean::class.java)
+                        methodOrig.invoke(origClient, args[0])
+                    }
+                    "notifyConfigurationChanged" -> {
+                        args!! // This method will always have an argument, so safe to !!
+
+                        val methodOrig = origClient.javaClass.getMethod(
+                            "notifyConfigurationChanged", Configuration::class.java)
+                        methodOrig.invoke(origClient, args[0])
                     }
                     "toString" -> {
                         origClient.javaClass.getMethod("toString").invoke(origClient)
