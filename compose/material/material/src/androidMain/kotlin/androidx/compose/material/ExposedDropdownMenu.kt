@@ -577,8 +577,9 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     private val errorLabelColor: Color,
     private val placeholderColor: Color,
     private val disabledPlaceholderColor: Color
-) : TextFieldColorsWithIcons {
+) : TextFieldColors {
 
+    @Suppress("OVERRIDE_DEPRECATION")
     @Composable
     override fun leadingIconColor(enabled: Boolean, isError: Boolean): State<Color> {
         return rememberUpdatedState(
@@ -590,6 +591,7 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
         )
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     @Composable
     override fun trailingIconColor(enabled: Boolean, isError: Boolean): State<Color> {
         return rememberUpdatedState(
