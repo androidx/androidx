@@ -349,6 +349,7 @@ internal class TextInputCommandExecutor(
             command.applyToState()
             logDebug { "command: $command applied to state" }
         }
+        textInputCommandQueue.clear()
 
         logDebug { "commands are applied. startInput = $startInput, showKeyboard = $showKeyboard" }
 

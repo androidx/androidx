@@ -311,6 +311,7 @@ internal class TextInputServiceAndroid(
                 )
             }
         }
+        textInputCommandQueue.clear()
 
         // Now that we've calculated what operations we need to perform on the actual input
         // manager, perform them.
