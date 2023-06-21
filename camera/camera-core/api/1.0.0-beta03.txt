@@ -63,6 +63,9 @@ package androidx.camera.core {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float);
   }
 
+  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  }
+
   public interface ExtendableBuilder<T> {
     method public T build();
   }
@@ -203,6 +206,7 @@ package androidx.camera.core {
     method public android.graphics.Rect getCropRect();
     method public int getFormat();
     method public int getHeight();
+    method @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
     method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
     method public int getWidth();

@@ -30,15 +30,23 @@ package androidx.paging {
 package androidx.paging.rxjava2 {
 
   public final class PagingRx {
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Observable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Boolean>> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Iterable<R>>> transform);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagingData<Value>> getFlowable(androidx.paging.Pager<Key,Value>);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <Key, Value> io.reactivex.Observable<androidx.paging.PagingData<Value>> getObservable(androidx.paging.Pager<Key,Value>);
     method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.Maybe<R>> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<R>> transform);
   }
 
   public final class PagingRx {
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Flowable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Observable<androidx.paging.PagingData<T>> cachedIn(io.reactivex.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Boolean>> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Iterable<R>>> transform);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagingData<Value>> getFlowable(androidx.paging.Pager<Key,Value>);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <Key, Value> io.reactivex.Observable<androidx.paging.PagingData<Value>> getObservable(androidx.paging.Pager<Key,Value>);
     method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.Maybe<R>> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<R>> transform);
   }
@@ -47,6 +55,14 @@ package androidx.paging.rxjava2 {
     ctor public RxPagingSource();
     method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public abstract io.reactivex.Single<androidx.paging.PagingSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagingSource.LoadParams<Key> params);
+  }
+
+  @androidx.paging.ExperimentalPagingApi public abstract class RxRemoteMediator<Key, Value> extends androidx.paging.RemoteMediator<Key,Value> {
+    ctor public RxRemoteMediator();
+    method public final suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> p);
+    method public io.reactivex.Single<androidx.paging.RemoteMediator.InitializeAction> initializeSingle();
+    method public final suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
+    method public abstract io.reactivex.Single<androidx.paging.RemoteMediator.MediatorResult> loadSingle(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state);
   }
 
 }
