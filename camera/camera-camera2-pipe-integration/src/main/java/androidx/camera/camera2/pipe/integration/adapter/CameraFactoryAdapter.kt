@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
@@ -28,6 +29,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraInfo
@@ -43,24 +45,32 @@ import androidx.camera.core.impl.CameraThreadConfig
  * to share resources across Camera instances.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CameraFactoryAdapter(
+internal class CameraFactoryAdapter(
+    lazyCameraPipe: Lazy<CameraPipe>,
     context: Context,
     threadConfig: CameraThreadConfig,
-    availableCamerasSelector: CameraSelector?
+    camera2InteropCallbacks: CameraInteropStateCallbackRepository,
+    availableCamerasSelector: CameraSelector?,
 ) : CameraFactory {
     private val appComponent: CameraAppComponent by lazy {
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
         val timeSource = SystemTimeSource()
         val start = Timestamps.now(timeSource)
         val result = DaggerCameraAppComponent.builder()
-            .config(CameraAppConfig(context, threadConfig))
+            .config(
+                CameraAppConfig(
+                    context,
+                    threadConfig,
+                    lazyCameraPipe.value,
+                    camera2InteropCallbacks
+                )
+            )
             .build()
         debug { "Created CameraFactoryAdapter in ${start.measureNow(timeSource).formatMs()}" }
         debug { "availableCamerasSelector: $availableCamerasSelector " }
         Debug.traceStop()
         result
     }
-
     private var mAvailableCamerasSelector: CameraSelector? = availableCamerasSelector
     private var mAvailableCameraIds: List<String>
 
@@ -124,5 +134,5 @@ class CameraFactoryAdapter(
         }
     }
 
-    override fun getCameraManager(): Any? = appComponent
+    override fun getCameraManager(): Any = appComponent
 }
