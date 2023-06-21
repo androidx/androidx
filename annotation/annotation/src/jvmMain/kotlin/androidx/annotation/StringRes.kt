@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a String resource reference (e.g. `android.R.string.ok`).
+ * Denotes that an integer parameter, field or method return value is expected to be a String
+ * resource reference (e.g. `android.R.string.ok`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

@@ -33,9 +33,7 @@ import org.junit.Test
 private const val EXTERNAL_STORAGE_PROVIDER_AUTHORITY = "com.android.externalstorage.documents"
 private const val DOWNLOAD_DOCID = "primary:Download"
 
-/**
- * Tests for {@link DocumentsContractCompat}.
- */
+/** Tests for {@link DocumentsContractCompat}. */
 @SmallTest
 class DocumentsContractCompatTest {
 
@@ -53,10 +51,12 @@ class DocumentsContractCompatTest {
         if (isAtLeastKitKat()) {
             assertEquals(
                 DocumentsContractCompat.buildChildDocumentsUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
                 ),
                 DocumentsContract.buildChildDocumentsUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
                 )
             )
         } else {
@@ -72,9 +72,11 @@ class DocumentsContractCompatTest {
     @Test
     fun testBuildChildDocumentsUriUsingTree() {
         if (isAtLeastLollipop()) {
-            val treeUri = DocumentsContract.buildTreeDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
+            val treeUri =
+                DocumentsContract.buildTreeDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
             assertEquals(
                 DocumentsContractCompat.buildChildDocumentsUriUsingTree(treeUri, DOWNLOAD_DOCID),
                 DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, DOWNLOAD_DOCID)
@@ -96,16 +98,19 @@ class DocumentsContractCompatTest {
         if (isAtLeastKitKat()) {
             assertEquals(
                 DocumentsContractCompat.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
                 ),
                 DocumentsContract.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
                 )
             )
         } else {
             assertNull(
                 DocumentsContractCompat.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
                 )
             )
         }
@@ -114,18 +119,18 @@ class DocumentsContractCompatTest {
     @Test
     fun testBuildDocumentUriUsingTree() {
         if (isAtLeastLollipop()) {
-            val treeUri = DocumentsContract.buildTreeDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
+            val treeUri =
+                DocumentsContract.buildTreeDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
             assertEquals(
                 DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID),
                 DocumentsContract.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID)
             )
         } else {
             val treeUri = buildTreeDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
-            assertNull(
-                DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID)
-            )
+            assertNull(DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID))
         }
     }
 
@@ -145,7 +150,8 @@ class DocumentsContractCompatTest {
         } else {
             assertNull(
                 DocumentsContractCompat.buildTreeDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
                 )
             )
         }
@@ -154,27 +160,29 @@ class DocumentsContractCompatTest {
     @Test
     fun testGetDocumentId() {
         if (isAtLeastKitKat()) {
-            val documentUri = DocumentsContract.buildDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
+            val documentUri =
+                DocumentsContract.buildDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
             assertEquals(
                 DocumentsContractCompat.getDocumentId(documentUri),
                 DocumentsContract.getDocumentId(documentUri)
             )
         } else {
             val documentUri = buildDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
-            assertNull(
-                DocumentsContractCompat.getDocumentId(documentUri)
-            )
+            assertNull(DocumentsContractCompat.getDocumentId(documentUri))
         }
     }
 
     @Test
     fun testGetTreeDocumentId() {
         if (isAtLeastLollipop()) {
-            val treeUri = DocumentsContract.buildTreeDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
+            val treeUri =
+                DocumentsContract.buildTreeDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
             val treeUriWithDocId =
                 DocumentsContract.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID)
             assertEquals(
@@ -197,16 +205,19 @@ class DocumentsContractCompatTest {
     @Test
     fun testIsTreeUri() {
         if (isAtLeastLollipop()) {
-            val documentUri = DocumentsContract.buildDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
+            val documentUri =
+                DocumentsContract.buildDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
             assertFalse(DocumentsContractCompat.isTreeUri(documentUri))
-            val downloadTree = DocumentsContract.buildTreeDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
-            val downloadTreeDocUri = DocumentsContract.buildDocumentUriUsingTree(
-                downloadTree, DOWNLOAD_DOCID
-            )
+            val downloadTree =
+                DocumentsContract.buildTreeDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
+            val downloadTreeDocUri =
+                DocumentsContract.buildDocumentUriUsingTree(downloadTree, DOWNLOAD_DOCID)
             // A bare "tree" Uri is a tree Uri.
             assertTrue(DocumentsContractCompat.isTreeUri(downloadTree))
             // So is a "tree" Uri that includes a "document" part.
@@ -223,9 +234,9 @@ class DocumentsContractCompatTest {
     }
 
     /**
-     * This is a "medium" test because it performs IPC to lookup if the authority of the Uri
-     * passed in is a [android.provider.DocumentsProvider]. To be safe, we use the
-     * authority of `com.android.externalstorage.ExternalStorageProvider`.
+     * This is a "medium" test because it performs IPC to lookup if the authority of the Uri passed
+     * in is a [android.provider.DocumentsProvider]. To be safe, we use the authority of
+     * `com.android.externalstorage.ExternalStorageProvider`.
      */
     @MediumTest
     @Test
@@ -237,9 +248,11 @@ class DocumentsContractCompatTest {
         assertFalse(DocumentsContractCompat.isDocumentUri(context, mediaStoreUri))
 
         if (isAtLeastKitKat()) {
-            val documentUri = DocumentsContract.buildDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
+            val documentUri =
+                DocumentsContract.buildDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
             assertTrue(DocumentsContractCompat.isDocumentUri(context, documentUri))
         } else {
             val documentUri = buildDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
@@ -249,12 +262,13 @@ class DocumentsContractCompatTest {
         }
 
         if (isAtLeastLollipop()) {
-            val downloadTree = DocumentsContract.buildTreeDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID
-            )
-            val downloadTreeDocUri = DocumentsContract.buildDocumentUriUsingTree(
-                downloadTree, DOWNLOAD_DOCID
-            )
+            val downloadTree =
+                DocumentsContract.buildTreeDocumentUri(
+                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                    DOWNLOAD_DOCID
+                )
+            val downloadTreeDocUri =
+                DocumentsContract.buildDocumentUriUsingTree(downloadTree, DOWNLOAD_DOCID)
             // A bare "tree" Uri is not a "document" Uri.
             assertFalse(DocumentsContractCompat.isDocumentUri(context, downloadTree))
             // But a "tree" with a "document" part is.
@@ -272,31 +286,35 @@ class DocumentsContractCompatTest {
     private fun isAtLeastKitKat() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
     private fun isAtLeastLollipop() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
 
-    /**
-     * Helper method that works similar to [DocumentsContract.buildDocumentUri].
-     */
+    /** Helper method that works similar to [DocumentsContract.buildDocumentUri]. */
     @Suppress("SameParameterValue")
     private fun buildDocUri(authority: String, docId: String) =
-        Uri.Builder().scheme("content")
-            .authority(authority).appendPath("document").appendPath(docId).build()
-
-    /**
-     * Helper method that works similar to [DocumentsContract.buildDocumentUriUsingTree].
-     */
-    @Suppress("SameParameterValue")
-    private fun buildDocUriWithTree(treeUri: Uri, docId: String) =
-        Uri.Builder().scheme("content")
-            .authority(treeUri.authority)
-            .appendPath("tree").appendPath(treeUri.pathSegments[1])
-            .appendPath("document").appendPath(docId)
+        Uri.Builder()
+            .scheme("content")
+            .authority(authority)
+            .appendPath("document")
+            .appendPath(docId)
             .build()
 
-    /**
-     * Helper method that works similar to [DocumentsContract.buildTreeDocumentUri].
-     */
+    /** Helper method that works similar to [DocumentsContract.buildDocumentUriUsingTree]. */
+    @Suppress("SameParameterValue")
+    private fun buildDocUriWithTree(treeUri: Uri, docId: String) =
+        Uri.Builder()
+            .scheme("content")
+            .authority(treeUri.authority)
+            .appendPath("tree")
+            .appendPath(treeUri.pathSegments[1])
+            .appendPath("document")
+            .appendPath(docId)
+            .build()
+
+    /** Helper method that works similar to [DocumentsContract.buildTreeDocumentUri]. */
     @Suppress("SameParameterValue")
     private fun buildTreeDocUri(authority: String, docId: String) =
-        Uri.Builder().scheme("content")
-            .authority(authority).appendPath("tree").appendPath(docId)
+        Uri.Builder()
+            .scheme("content")
+            .authority(authority)
+            .appendPath("tree")
+            .appendPath(docId)
             .build()
 }

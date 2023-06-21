@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a boolean resource reference.
+ * Denotes that an integer parameter, field or method return value is expected to be a boolean
+ * resource reference.
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a plurals resource reference.
+ * Denotes that an integer parameter, field or method return value is expected to be a plurals
+ * resource reference.
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

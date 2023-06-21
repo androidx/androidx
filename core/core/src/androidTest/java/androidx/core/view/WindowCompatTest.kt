@@ -31,9 +31,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class WindowCompatTest : BaseInstrumentationTestCase<WindowCompatActivity>(
-    WindowCompatActivity::class.java
-) {
+class WindowCompatTest :
+    BaseInstrumentationTestCase<WindowCompatActivity>(WindowCompatActivity::class.java) {
     @Test
     @SdkSuppress(minSdkVersion = 16)
     fun tests_setDecorFitsSystemWindows() {
@@ -41,9 +40,7 @@ class WindowCompatTest : BaseInstrumentationTestCase<WindowCompatActivity>(
 
         // Record the initial position
         val initialPosition = IntArray(2)
-        mActivityTestRule.runOnUiThread {
-            view.getLocationInWindow(initialPosition)
-        }
+        mActivityTestRule.runOnUiThread { view.getLocationInWindow(initialPosition) }
 
         // Now call setDecorFitsSystemWindows()
         mActivityTestRule.runOnUiThread {
@@ -57,9 +54,7 @@ class WindowCompatTest : BaseInstrumentationTestCase<WindowCompatActivity>(
 
         // Now check the new position
         val finalPosition = IntArray(2)
-        mActivityTestRule.runOnUiThread {
-            view.getLocationInWindow(finalPosition)
-        }
+        mActivityTestRule.runOnUiThread { view.getLocationInWindow(finalPosition) }
 
         // Assert that the content view has moved to be laid at from 0,0 in the window
         assertNotEquals(initialPosition, finalPosition)

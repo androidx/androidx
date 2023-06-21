@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be an anim resource reference (e.g. `android.R.anim.fade_in`).
+ * Denotes that an integer parameter, field or method return value is expected to be an anim
+ * resource reference (e.g. `android.R.anim.fade_in`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)
