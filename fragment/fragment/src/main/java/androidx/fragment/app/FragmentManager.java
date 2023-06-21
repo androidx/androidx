@@ -116,7 +116,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG = "FragmentManager";
 
-    static boolean USE_PREDICTIVE_BACK = true;
+    static boolean USE_PREDICTIVE_BACK = false;
 
     /**
      * Control whether FragmentManager uses the new state predictive back feature that allows
