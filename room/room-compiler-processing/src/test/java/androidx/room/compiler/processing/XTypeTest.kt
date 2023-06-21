@@ -1835,4 +1835,37 @@ class XTypeTest {
                 )
         }
     }
+
+    @Test
+    fun valueTypes() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinClass.kt",
+            """
+            @JvmInline value class PackageName(val value: String)
+
+            class KotlinClass {
+                fun getPackageNames(): Set<PackageName> = emptySet()
+                fun setPackageNames(pkgNames: Set<PackageName>) { }
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(kotlinSrc)
+        ) { invocation ->
+            val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
+            kotlinElm.getMethodByJvmName("getPackageNames").apply {
+                assertThat(returnType.typeName.toString())
+                    .isEqualTo("java.util.Set<PackageName>")
+                assertThat(returnType.typeArguments.single().typeName.toString())
+                    .isEqualTo("PackageName")
+            }
+            kotlinElm.getMethodByJvmName("setPackageNames").apply {
+                val paramType = parameters.single().type
+                assertThat(paramType.typeName.toString())
+                    .isEqualTo("java.util.Set<PackageName>")
+                assertThat(paramType.typeArguments.single().typeName.toString())
+                    .isEqualTo("PackageName")
+            }
+        }
+    }
 }
