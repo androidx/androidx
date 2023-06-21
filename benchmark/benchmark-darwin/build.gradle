@@ -1,10 +1,14 @@
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
     id("AndroidXPlugin")
 }
-
+def enableNative = KmpPlatformsKt.enableNative(project)
 androidXMultiplatform {
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
     ios {
@@ -15,29 +19,48 @@ androidXMultiplatform {
             xcf.add(it)
         }
     }
+    // needed for snapshot publishing to trigger component creation
+    jvm()
+    // default platform is not JVM but we need to use it because it is
+    // the only platform built on all machines
+    defaultPlatform(PlatformIdentifier.JVM)
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
+        // checking this avoids the warning about sourcesets that
+        // are created but not added to compilation
+        if (enableNative) {
+            darwinMain {
+                dependencies {
+                    api(libs.kotlinStdlib)
+                }
             }
-        }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
+            darwinTest {
+                dependencies {
+                    implementation(libs.kotlinTest)
+                    implementation(libs.kotlinTestAnnotationsCommon)
+                }
             }
-        }
-        iosArm64Main {
-            dependsOn(commonMain)
-            dependencies {
-                api(project(":benchmark:benchmark-darwin-core"))
+            iosArm64Main {
+                dependsOn(darwinMain)
+                dependencies {
+                    api(project(":benchmark:benchmark-darwin-core"))
+                }
             }
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosArm64Main)
-        }
-        iosX64Main {
-            dependsOn(iosArm64Main)
+            iosSimulatorArm64Main {
+                dependsOn(iosArm64Main)
+            }
+            iosX64Main {
+                dependsOn(iosArm64Main)
+            }
+            targets.all { target ->
+                if (target.platformType == KotlinPlatformType.native) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(darwinMain)
+                    }
+                    target.compilations["test"].defaultSourceSet {
+                        dependsOn(darwinTest)
+                    }
+                }
+            }
         }
     }
 }
@@ -46,4 +69,5 @@ androidx {
     name = "Benchmarks - Darwin"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin"
+    publish = Publish.SNAPSHOT_ONLY
 }
