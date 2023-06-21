@@ -66,7 +66,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 
 /**
@@ -229,7 +231,7 @@ internal class TextFieldDecoratorModifierNode(
      * A coroutine job that observes only text changes to hide selection and cursor handles when
      * content changes.
      */
-    private var textChangesObserverJob: Job? = null
+    private var inputSessionJob: Job? = null
 
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
@@ -274,12 +276,7 @@ internal class TextFieldDecoratorModifierNode(
         ) {
             if (writeable && isFocused) {
                 // The old session will be implicitly disposed.
-                textInputSession = textInputAdapter?.startInputSession(
-                    textFieldState,
-                    this.keyboardOptions.toImeOptions(singleLine),
-                    filter,
-                    onImeActionPerformed
-                )
+                startInputSession()
             } else if (!writeable) {
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
@@ -376,21 +373,10 @@ internal class TextFieldDecoratorModifierNode(
         isFocused = focusState.isFocused
 
         if (focusState.isFocused) {
-            textInputSession = textInputAdapter?.startInputSession(
-                textFieldState,
-                keyboardOptions.toImeOptions(singleLine),
-                filter,
-                onImeActionPerformed
-            )
-
-            textChangesObserverJob?.cancel()
-            textChangesObserverJob = coroutineScope.launch {
-                textFieldSelectionState.observeTextChanges()
-            }
+            startInputSession()
             // TODO(halilibo): bringIntoView
         } else {
-            textChangesObserverJob?.cancel()
-            textChangesObserverJob = null
+            disposeInputSession()
             textFieldState.deselect()
         }
     }
@@ -433,7 +419,27 @@ internal class TextFieldDecoratorModifierNode(
         )
     }
 
+    private fun startInputSession() {
+        textInputSession = textInputAdapter?.startInputSession(
+            textFieldState,
+            keyboardOptions.toImeOptions(singleLine),
+            filter,
+            onImeActionPerformed
+        )
+
+        // Re-start observing changes in case our TextFieldState instance changed.
+        val previousInputSessionJob = inputSessionJob
+        inputSessionJob = coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            previousInputSessionJob?.cancelAndJoin()
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                textFieldSelectionState.observeTextChanges()
+            }
+        }
+    }
+
     private fun disposeInputSession() {
+        inputSessionJob?.cancel()
+        inputSessionJob = null
         textInputSession?.dispose()
         textInputSession = null
     }
