@@ -531,7 +531,6 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_ltr_outOfBounds() {
         state = TextFieldState("abc")
-        var cursorPositions = mutableListOf<Int>()
         rule.setContent {
             BasicTextField2(
                 state,
@@ -540,10 +539,6 @@ class TextFieldCursorHandleTest {
                     .testTag(TAG)
                     .width(with(rule.density) { fontSize.toDp() } * 5)
             )
-        }
-
-        state.editProcessor.addResetListener { _, newValue ->
-            cursorPositions.add(newValue.selectionInChars.start)
         }
 
         focusAndWait()
@@ -554,13 +549,12 @@ class TextFieldCursorHandleTest {
         swipeToRight(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(cursorPositions).isEqualTo(listOf(0, 1, 2, 3))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
     }
 
     @Test
     fun moveCursorHandleToLeft_ltr_outOfBounds() {
         state = TextFieldState("abc")
-        var cursorPositions = mutableListOf<Int>()
         rule.setContent {
             BasicTextField2(
                 state,
@@ -571,10 +565,6 @@ class TextFieldCursorHandleTest {
             )
         }
 
-        state.editProcessor.addResetListener { _, newValue ->
-            cursorPositions.add(newValue.selectionInChars.start)
-        }
-
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performTouchInput { click(topRight - Offset(1f, 1f)) }
@@ -583,13 +573,12 @@ class TextFieldCursorHandleTest {
         swipeToLeft(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(cursorPositions).isEqualTo(listOf(3, 2, 1, 0))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange.Zero)
     }
 
     @Test
     fun moveCursorHandleToRight_ltr_outOfBounds_scrollable_continuesDrag() {
         state = TextFieldState("abcd abcd abcd abcd abcd")
-        var cursorPositions = mutableListOf<Int>()
         rule.setContent {
             BasicTextField2(
                 state,
@@ -601,10 +590,6 @@ class TextFieldCursorHandleTest {
             )
         }
 
-        state.editProcessor.addResetListener { _, newValue ->
-            cursorPositions.add(newValue.selectionInChars.start)
-        }
-
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(1f, 1f)) }
@@ -613,7 +598,7 @@ class TextFieldCursorHandleTest {
         swipeToRight(getTextFieldWidth() * 3)
         rule.waitForIdle()
 
-        assertThat(cursorPositions).isEqualTo((0..state.text.length).toList())
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(state.text.length))
     }
 
     // endregion
@@ -674,7 +659,6 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_rtl_outOfBounds() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        var cursorPositions = mutableListOf<Int>()
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
@@ -685,10 +669,6 @@ class TextFieldCursorHandleTest {
                         .width(with(rule.density) { fontSize.toDp() } * 5)
                 )
             }
-        }
-
-        state.editProcessor.addResetListener { _, newValue ->
-            cursorPositions.add(newValue.selectionInChars.start)
         }
 
         focusAndWait()
@@ -699,13 +679,12 @@ class TextFieldCursorHandleTest {
         swipeToRight(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(cursorPositions).isEqualTo(listOf(3, 2, 1, 0))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange.Zero)
     }
 
     @Test
     fun moveCursorHandleToLeft_rtl_outOfBounds() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        var cursorPositions = mutableListOf<Int>()
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
@@ -718,10 +697,6 @@ class TextFieldCursorHandleTest {
             }
         }
 
-        state.editProcessor.addResetListener { _, newValue ->
-            cursorPositions.add(newValue.selectionInChars.start)
-        }
-
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performTouchInput { click(topRight - Offset(1f, 1f)) }
@@ -730,7 +705,7 @@ class TextFieldCursorHandleTest {
         swipeToLeft(getTextFieldWidth() * 2)
         rule.waitForIdle()
 
-        assertThat(cursorPositions).isEqualTo(listOf(0, 1, 2, 3))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(state.text.length))
     }
 
     @Test
@@ -739,7 +714,6 @@ class TextFieldCursorHandleTest {
             "\u05D0\u05D1\u05D2\u05D3 " +
             "\u05D0\u05D1\u05D2\u05D3 " +
             "\u05D0\u05D1\u05D2\u05D3")
-        var cursorPositions = mutableListOf<Int>()
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
@@ -753,10 +727,6 @@ class TextFieldCursorHandleTest {
             }
         }
 
-        state.editProcessor.addResetListener { _, newValue ->
-            cursorPositions.add(newValue.selectionInChars.start)
-        }
-
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performTouchInput { click(topRight - Offset(1f, 1f)) }
@@ -765,7 +735,7 @@ class TextFieldCursorHandleTest {
         swipeToLeft(getTextFieldWidth() * 3)
         rule.waitForIdle()
 
-        assertThat(cursorPositions).isEqualTo((0..state.text.length).toList())
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(state.text.length))
     }
 
     // endregion
