@@ -320,7 +320,7 @@ public fun SplitToggleChip(
                     .clickable(
                         enabled = enabled,
                         onClick = onClick,
-                        role = Role.Checkbox,
+                        role = Role.Button,
                         indication = rememberRipple(),
                         interactionSource = clickInteractionSource,
                     )

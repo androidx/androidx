@@ -479,7 +479,7 @@ class ToggleChipBehaviourTest {
     }
 
     @Test
-    fun split_chip_has_role_checkbox() {
+    fun split_chip_has_roles_button_and_checkbox() {
         rule.setContentWithTheme {
             SplitToggleChip(
                 checked = false,
@@ -492,6 +492,14 @@ class ToggleChipBehaviourTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Role,
+                    Role.Button
+                )
+            )
+
+        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
