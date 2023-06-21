@@ -34,10 +34,12 @@ private val EmptyPersistentCompositionLocalMap: PersistentCompositionLocalMap =
  *
  * @see rememberCompositionContext
  */
-@OptIn(InternalComposeApi::class)
+@OptIn(InternalComposeApi::class, ExperimentalComposeRuntimeApi::class)
 abstract class CompositionContext internal constructor() {
     internal abstract val compoundHashKey: Int
     internal abstract val collectingParameterInformation: Boolean
+    internal open val observerHolder: CompositionObserverHolder? get() = null
+
     /**
      *  The [CoroutineContext] with which effects for the composition will be executed in.
      **/
