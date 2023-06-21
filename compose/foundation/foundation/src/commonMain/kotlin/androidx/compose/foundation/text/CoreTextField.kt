@@ -405,7 +405,12 @@ internal fun CoreTextField(
             state.layoutResult?.let { layoutResult ->
                 state.inputSession?.let { inputSession ->
                     if (state.hasFocus) {
-                        TextFieldDelegate.updateTextLayoutResult(inputSession, value, layoutResult)
+                        TextFieldDelegate.updateTextLayoutResult(
+                            inputSession,
+                            value,
+                            offsetMapping,
+                            layoutResult
+                        )
                     }
                 }
             }
