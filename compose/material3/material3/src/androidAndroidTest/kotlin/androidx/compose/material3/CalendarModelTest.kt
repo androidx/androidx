@@ -36,6 +36,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
 
     @Before
     fun before() {
+        // Using the JVM Locale.getDefault() for testing purposes only.
         defaultLocale = Locale.getDefault()
     }
 
@@ -150,32 +151,56 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun dateInputFormat() {
-        Locale.setDefault(Locale.US)
-        assertThat(model.getDateInputFormat().patternWithDelimiters).isEqualTo("MM/dd/yyyy")
-        assertThat(model.getDateInputFormat().patternWithoutDelimiters).isEqualTo("MMddyyyy")
-        assertThat(model.getDateInputFormat().delimiter).isEqualTo('/')
+        // Note: This test ignores the parameterized model, as we need to create a new model per
+        // Locale.
+        var newModel = CalendarModelImpl(Locale.US)
+        var legacyModel = LegacyCalendarModelImpl(Locale.US)
 
-        Locale.setDefault(Locale.CHINA)
-        assertThat(model.getDateInputFormat().patternWithDelimiters).isEqualTo("yyyy/MM/dd")
-        assertThat(model.getDateInputFormat().patternWithoutDelimiters).isEqualTo("yyyyMMdd")
-        assertThat(model.getDateInputFormat().delimiter).isEqualTo('/')
+        assertThat(newModel.getDateInputFormat().patternWithDelimiters).isEqualTo("MM/dd/yyyy")
+        assertThat(newModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("MMddyyyy")
+        assertThat(newModel.getDateInputFormat().delimiter).isEqualTo('/')
+        assertThat(legacyModel.getDateInputFormat().patternWithDelimiters).isEqualTo("MM/dd/yyyy")
+        assertThat(legacyModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("MMddyyyy")
+        assertThat(legacyModel.getDateInputFormat().delimiter).isEqualTo('/')
 
-        Locale.setDefault(Locale.UK)
-        assertThat(model.getDateInputFormat().patternWithDelimiters).isEqualTo("dd/MM/yyyy")
-        assertThat(model.getDateInputFormat().patternWithoutDelimiters).isEqualTo("ddMMyyyy")
-        assertThat(model.getDateInputFormat().delimiter).isEqualTo('/')
+        newModel = CalendarModelImpl(Locale.CHINA)
+        legacyModel = LegacyCalendarModelImpl(Locale.CHINA)
+        assertThat(newModel.getDateInputFormat().patternWithDelimiters).isEqualTo("yyyy/MM/dd")
+        assertThat(newModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("yyyyMMdd")
+        assertThat(newModel.getDateInputFormat().delimiter).isEqualTo('/')
+        assertThat(legacyModel.getDateInputFormat().patternWithDelimiters).isEqualTo("yyyy/MM/dd")
+        assertThat(legacyModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("yyyyMMdd")
+        assertThat(legacyModel.getDateInputFormat().delimiter).isEqualTo('/')
 
-        Locale.setDefault(Locale.KOREA)
-        assertThat(model.getDateInputFormat().patternWithDelimiters).isEqualTo("yyyy.MM.dd")
-        assertThat(model.getDateInputFormat().patternWithoutDelimiters).isEqualTo("yyyyMMdd")
-        assertThat(model.getDateInputFormat().delimiter).isEqualTo('.')
+        newModel = CalendarModelImpl(Locale.UK)
+        legacyModel = LegacyCalendarModelImpl(Locale.UK)
+        assertThat(newModel.getDateInputFormat().patternWithDelimiters).isEqualTo("dd/MM/yyyy")
+        assertThat(newModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("ddMMyyyy")
+        assertThat(newModel.getDateInputFormat().delimiter).isEqualTo('/')
+        assertThat(legacyModel.getDateInputFormat().patternWithDelimiters).isEqualTo("dd/MM/yyyy")
+        assertThat(legacyModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("ddMMyyyy")
+        assertThat(legacyModel.getDateInputFormat().delimiter).isEqualTo('/')
 
-        Locale.setDefault(Locale("es", "CL"))
-        assertThat(model.getDateInputFormat().patternWithDelimiters).isEqualTo("dd-MM-yyyy")
-        assertThat(model.getDateInputFormat().patternWithoutDelimiters).isEqualTo("ddMMyyyy")
-        assertThat(model.getDateInputFormat().delimiter).isEqualTo('-')
+        newModel = CalendarModelImpl(Locale.KOREA)
+        legacyModel = LegacyCalendarModelImpl(Locale.KOREA)
+        assertThat(newModel.getDateInputFormat().patternWithDelimiters).isEqualTo("yyyy.MM.dd")
+        assertThat(newModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("yyyyMMdd")
+        assertThat(newModel.getDateInputFormat().delimiter).isEqualTo('.')
+        assertThat(legacyModel.getDateInputFormat().patternWithDelimiters).isEqualTo("yyyy.MM.dd")
+        assertThat(legacyModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("yyyyMMdd")
+        assertThat(legacyModel.getDateInputFormat().delimiter).isEqualTo('.')
+
+        newModel = CalendarModelImpl(Locale("es", "CL"))
+        legacyModel = LegacyCalendarModelImpl(Locale("es", "CL"))
+        assertThat(newModel.getDateInputFormat().patternWithDelimiters).isEqualTo("dd-MM-yyyy")
+        assertThat(newModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("ddMMyyyy")
+        assertThat(newModel.getDateInputFormat().delimiter).isEqualTo('-')
+        assertThat(legacyModel.getDateInputFormat().patternWithDelimiters).isEqualTo("dd-MM-yyyy")
+        assertThat(legacyModel.getDateInputFormat().patternWithoutDelimiters).isEqualTo("ddMMyyyy")
+        assertThat(legacyModel.getDateInputFormat().delimiter).isEqualTo('-')
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -183,8 +208,9 @@ internal class CalendarModelTest(private val model: CalendarModel) {
     fun equalModelsOutput() {
         // Note: This test ignores the parameters and just runs a few equality tests for the output.
         // It will execute twice, but that should to tolerable :)
-        val newModel = CalendarModelImpl()
-        val legacyModel = LegacyCalendarModelImpl()
+        // Using the JVM Locale.getDefault() for testing purposes only.
+        val newModel = CalendarModelImpl(Locale.getDefault())
+        val legacyModel = LegacyCalendarModelImpl(Locale.getDefault())
 
         val date = newModel.getCanonicalDate(January2022Millis) // 1/1/2022
         val legacyDate = legacyModel.getCanonicalDate(January2022Millis)
@@ -216,12 +242,13 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         @JvmStatic
         fun parameters() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Using the JVM Locale.getDefault() for testing purposes only.
                 arrayOf(
-                    CalendarModelImpl(),
-                    LegacyCalendarModelImpl()
+                    CalendarModelImpl(Locale.getDefault()),
+                    LegacyCalendarModelImpl(Locale.getDefault())
                 )
             } else {
-                arrayOf(LegacyCalendarModelImpl())
+                arrayOf(LegacyCalendarModelImpl(Locale.getDefault()))
             }
     }
 }

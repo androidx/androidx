@@ -312,8 +312,12 @@ class DatePickerTest {
         }
         with(datePickerState) {
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
+            // Using the JVM Locale.getDefault() for testing purposes only.
             assertThat(displayedMonthMillis).isEqualTo(
-                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
             )
         }
     }
@@ -331,7 +335,10 @@ class DatePickerTest {
             // timestamp
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
             assertThat(displayedMonthMillis).isEqualTo(
-                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
             )
         }
     }
@@ -350,7 +357,8 @@ class DatePickerTest {
         with(datePickerState) {
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
             // Assert that the displayed month is the current month as of today.
-            val calendarModel = CalendarModel.Default
+            // Using the JVM Locale.getDefault() for testing purposes only.
+            val calendarModel = createCalendarModel(Locale.getDefault())
             assertThat(displayedMonthMillis).isEqualTo(
                 calendarModel.getMonth(calendarModel.today.utcTimeMillis).startUtcTimeMillis
             )
@@ -371,7 +379,7 @@ class DatePickerTest {
         with(datePickerState) {
             assertThat(selectedDateMillis).isNull()
             // Assert that the displayed month is the current month as of today.
-            val calendarModel = CalendarModel.Default
+            val calendarModel = createCalendarModel(Locale.getDefault())
             assertThat(displayedMonthMillis).isEqualTo(
                 calendarModel.getMonth(calendarModel.today.utcTimeMillis).startUtcTimeMillis
             )
@@ -392,7 +400,10 @@ class DatePickerTest {
         with(datePickerState) {
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
             assertThat(displayedMonthMillis).isEqualTo(
-                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
             )
             // Reset the selection
             datePickerState.selectedDateMillis = null
@@ -410,7 +421,8 @@ class DatePickerTest {
             datePickerState = rememberDatePickerState()
         }
 
-        val calendarModel = CalendarModel.Default
+        // Using the JVM Locale.getDefault() for testing purposes only.
+        val calendarModel = createCalendarModel(Locale.getDefault())
         with(datePickerState!!) {
             val date = calendarModel.getCanonicalDate(1649721600000L) // 04/12/2022
             val displayedMonth = calendarModel.getMonth(date)

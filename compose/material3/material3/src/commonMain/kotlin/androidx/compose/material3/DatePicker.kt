@@ -169,7 +169,8 @@ fun DatePicker(
     showModeToggle: Boolean = true,
     colors: DatePickerColors = DatePickerDefaults.colors()
 ) {
-    val calendarModel = remember { CalendarModel() }
+    val defaultLocale = defaultLocale()
+    val calendarModel = remember(defaultLocale) { createCalendarModel(defaultLocale) }
     DateEntryContainer(
         modifier = modifier,
         title = title,
@@ -357,16 +358,20 @@ fun rememberDatePickerState(
     yearRange: IntRange = DatePickerDefaults.YearRange,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
     selectableDates: SelectableDates = object : SelectableDates {}
-): DatePickerState = rememberSaveable(
-    saver = DatePickerStateImpl.Saver(selectableDates)
-) {
-    DatePickerStateImpl(
-        initialSelectedDateMillis = initialSelectedDateMillis,
-        initialDisplayedMonthMillis = initialDisplayedMonthMillis,
-        yearRange = yearRange,
-        initialDisplayMode = initialDisplayMode,
-        selectableDates = selectableDates
-    )
+): DatePickerState {
+    val locale = defaultLocale()
+    return rememberSaveable(
+        saver = DatePickerStateImpl.Saver(selectableDates, locale)
+    ) {
+        DatePickerStateImpl(
+            initialSelectedDateMillis = initialSelectedDateMillis,
+            initialDisplayedMonthMillis = initialDisplayedMonthMillis,
+            yearRange = yearRange,
+            initialDisplayMode = initialDisplayMode,
+            selectableDates = selectableDates,
+            locale = locale
+        )
+    }
 }
 
 /**
@@ -899,10 +904,11 @@ class DatePickerColors constructor(
 internal abstract class BaseDatePickerStateImpl(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
     val yearRange: IntRange,
-    val selectableDates: SelectableDates
+    val selectableDates: SelectableDates,
+    locale: CalendarLocale
 ) {
 
-    val calendarModel = CalendarModel.Default
+    val calendarModel = createCalendarModel(locale)
 
     private var _displayedMonth =
         mutableStateOf(if (initialDisplayedMonthMillis != null) {
@@ -955,11 +961,13 @@ private class DatePickerStateImpl(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
     yearRange: IntRange,
     initialDisplayMode: DisplayMode,
-    selectableDates: SelectableDates
+    selectableDates: SelectableDates,
+    locale: CalendarLocale
 ) : BaseDatePickerStateImpl(
     initialDisplayedMonthMillis,
     yearRange,
-    selectableDates
+    selectableDates,
+    locale
 ), DatePickerState {
 
     /**
@@ -1015,7 +1023,10 @@ private class DatePickerStateImpl(
          * @param selectableDates a [SelectableDates] instance that is consulted to check if a date
          * is allowed
          */
-        fun Saver(selectableDates: SelectableDates): Saver<DatePickerStateImpl, Any> = listSaver(
+        fun Saver(
+            selectableDates: SelectableDates,
+            locale: CalendarLocale
+        ): Saver<DatePickerStateImpl, Any> = listSaver(
             save = {
                 listOf(
                     it.selectedDateMillis,
@@ -1031,7 +1042,8 @@ private class DatePickerStateImpl(
                     initialDisplayedMonthMillis = value[1] as Long?,
                     yearRange = IntRange(value[2] as Int, value[3] as Int),
                     initialDisplayMode = DisplayMode(value[4] as Int),
-                    selectableDates = selectableDates
+                    selectableDates = selectableDates,
+                    locale = locale
                 )
             }
         )
