@@ -238,7 +238,7 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "openGattServer() called")
 
         gattServerJob = gattServerScope.launch {
-            bluetoothLe.gattServer().collect { gattServerCallback ->
+            bluetoothLe.openGattServer().collect { gattServerCallback ->
                 when (gattServerCallback) {
                     is GattServerCallback.OnCharacteristicReadRequest -> {
                         val onCharacteristicReadRequest:
