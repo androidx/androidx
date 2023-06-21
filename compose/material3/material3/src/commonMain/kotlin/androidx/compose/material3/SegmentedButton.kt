@@ -374,13 +374,13 @@ private fun InteractionSource.interactionCountAsState(): State<Int> {
             when (interaction) {
                 is PressInteraction.Press,
                 is FocusInteraction.Focus -> {
-                    interactionCount.value++
+                    interactionCount.intValue++
                 }
 
                 is PressInteraction.Release,
                 is FocusInteraction.Unfocus,
                 is PressInteraction.Cancel -> {
-                    interactionCount.value--
+                    interactionCount.intValue--
                 }
             }
         }
