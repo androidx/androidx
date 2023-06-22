@@ -88,6 +88,7 @@ internal class InteractiveWatchFaceImpl(
                 ?: Log.w(TAG, "removeWatchFaceListener ignored due to null engine")
         }
 
+    @Suppress("Deprecation")
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
         aidlMethod(TAG, "getWatchFaceOverlayStyle") {
             WatchFaceService.awaitDeferredWatchFaceThenRunOnUiThread(
