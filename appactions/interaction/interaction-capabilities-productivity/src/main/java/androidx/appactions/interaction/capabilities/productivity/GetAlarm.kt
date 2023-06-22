@@ -22,6 +22,7 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
 
@@ -94,5 +95,8 @@ class GetAlarm private constructor() {
                     AlarmReference.PARAM_VALUE_CONVERTER
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }
