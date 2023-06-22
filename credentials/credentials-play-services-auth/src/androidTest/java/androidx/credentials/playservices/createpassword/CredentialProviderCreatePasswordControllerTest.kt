@@ -16,31 +16,56 @@
 
 package androidx.credentials.playservices.createpassword
 
+import android.app.Activity
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.DoNotInline
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.playservices.TestCredentialsActivity
 import androidx.credentials.playservices.TestUtils.Companion.equals
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.Companion.getInstance
 import androidx.test.core.app.ActivityScenario
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SmallTest
-class CredentialProviderCreatePasswordControllerTest {
+class CredentialProviderCreatePasswordControllerTest(val useFragmentActivity: Boolean) {
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun initParameters() = listOf(true, false)
+    }
+
+    @DoNotInline
+    private fun launchTestActivity(callback: (activity: Activity) -> Unit) {
+        if (useFragmentActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            var activityScenario =
+                            ActivityScenario.launch(
+                                    androidx.credentials.playservices
+                                            .TestCredentialsFragmentActivity::class.java)
+            activityScenario.onActivity { activity: Activity ->
+                callback.invoke(activity)
+            }
+        } else {
+            var activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+            activityScenario.onActivity { activity: Activity ->
+                callback.invoke(activity)
+            }
+        }
+    }
+
     @Test
     fun convertResponseToCredentialManager_unitInput_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
         val expectedResponseType = CreatePasswordResponse().type
-        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+        launchTestActivity { activity: Activity ->
 
-            val actualResponse = getInstance(activity!!)
+            val actualResponse = getInstance(activity)
                 .convertResponseToCredentialManager(Unit)
 
             assertThat(actualResponse.type)
@@ -51,14 +76,11 @@ class CredentialProviderCreatePasswordControllerTest {
 
     @Test
     fun convertRequestToPlayServices_createPasswordRequest_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
         val expectedId = "LM"
         val expectedPassword = "SodaButton"
-        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+        launchTestActivity { activity: Activity ->
 
-            val actualRequest = getInstance(activity!!)
+            val actualRequest = getInstance(activity)
                 .convertRequestToPlayServices(CreatePasswordRequest(
                         expectedId, expectedPassword)).signInPassword
 
@@ -70,12 +92,9 @@ class CredentialProviderCreatePasswordControllerTest {
 
     @Test
     fun duplicateGetInstance_shouldBeEqual() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
-        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+        launchTestActivity { activity: Activity ->
 
-            val firstInstance = getInstance(activity!!)
+            val firstInstance = getInstance(activity)
             val secondInstance = getInstance(activity)
             assertThat(firstInstance).isEqualTo(secondInstance)
         }

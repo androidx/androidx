@@ -35,9 +35,11 @@ import androidx.credentials.exceptions.domerrors.EncodingError
 import androidx.credentials.exceptions.domerrors.UnknownError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
+import androidx.credentials.playservices.GmsCoreUtils
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import androidx.credentials.playservices.controllers.CredentialProviderController
+import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.fido.Fido
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
@@ -120,6 +122,19 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
         }
+
+        // If we were passed a fragment activity use that instead of a hidden one.
+        if (context is FragmentActivity) {
+            try {
+                GmsCoreUtils.handleCreatePublicKeyCredential(Fido.getFido2ApiClient(context),
+                    resultReceiver, fidoRegistrationRequest, GmsCoreUtils.DEFAULT_REQUEST_CODE,
+                    context)
+                return
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to use fragment flow", e)
+            }
+        }
+
         val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent,

@@ -36,11 +36,13 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
+import androidx.credentials.playservices.GmsCoreUtils
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.BeginSignIn.BeginSignInControllerUtility.Companion.constructBeginSignInRequest
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import androidx.credentials.playservices.controllers.CredentialProviderController
+import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInCredential
@@ -117,6 +119,20 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         }
 
         val convertedRequest: BeginSignInRequest = this.convertRequestToPlayServices(request)
+
+        // If we were passed a fragment activity use that instead of a hidden one.
+        if (context is FragmentActivity) {
+            try {
+                GmsCoreUtils.handleBeginSignIn(
+                    Identity.getSignInClient(context),
+                    resultReceiver, convertedRequest, GmsCoreUtils.DEFAULT_REQUEST_CODE,
+                    context)
+                return
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to use fragment flow", e)
+            }
+        }
+
         val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent, BEGIN_SIGN_IN_TAG)
