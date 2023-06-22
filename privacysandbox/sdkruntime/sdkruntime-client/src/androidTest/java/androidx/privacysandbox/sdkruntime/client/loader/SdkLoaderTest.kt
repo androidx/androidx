@@ -67,7 +67,8 @@ class SdkLoaderTest {
         )
 
         // Clean extracted SDKs between tests
-        File(context.cacheDir, "RuntimeEnabledSdk").deleteRecursively()
+        val codeCacheDir = File(context.applicationInfo.dataDir, "code_cache")
+        File(codeCacheDir, "RuntimeEnabledSdk").deleteRecursively()
     }
 
     @Test
