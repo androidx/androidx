@@ -384,13 +384,29 @@ public final class SetSchemaRequest {
                 throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
             resetIfBuilt();
-            List<AppSearchSchema> schemas = new ArrayList<>(documentClasses.size());
+
             DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-            for (Class<?> documentClass : documentClasses) {
-                DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
-                schemas.add(factory.getSchema());
-                addDocumentClasses(factory.getDependencyDocumentClasses());
+
+            List<Class<?>> processedClasses = new ArrayList<>(documentClasses.size());
+            processedClasses.addAll(documentClasses);
+
+            for (int i = 0; i < processedClasses.size(); i++) {
+                DocumentClassFactory<?> factory =
+                        registry.getOrCreateFactory(processedClasses.get(i));
+                for (Class<?> nested: factory.getDependencyDocumentClasses()) {
+                    if (!processedClasses.contains(nested)) {
+                        processedClasses.add(nested);
+                    }
+                }
             }
+
+            List<AppSearchSchema> schemas = new ArrayList<>(processedClasses.size());
+            for (Class<?> documentClass : processedClasses) {
+                DocumentClassFactory<?> factory =
+                        registry.getOrCreateFactory(documentClass);
+                schemas.add(factory.getSchema());
+            }
+
             return addSchemas(schemas);
         }
 // @exportToFramework:endStrip()

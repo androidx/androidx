@@ -2152,6 +2152,31 @@ public class AppSearchCompilerTest {
                 "Document.StringProperty doesn't accept the data type of property field getPrice");
     }
 
+    public void testCyclicalSchema() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.DocumentProperty Letter letter;\n"
+                        + "}\n"
+                        + "\n"
+                        + "@Document\n"
+                        + "class Letter {\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.DocumentProperty Gift gift;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+
+        checkResultContains("Gift.java",
+                "classSet.add(Letter.class);\n    return classSet;");
+        checkResultContains("Letter.java",
+                "classSet.add(Gift.class);\n    return classSet;");
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }

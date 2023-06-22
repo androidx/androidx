@@ -988,5 +988,44 @@ public class SetSchemaRequestCtsTest {
         );
     }
 
+    @Document
+    static class ClassA {
+        @Document.Id
+        String mId;
+
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.DocumentProperty
+        ClassB mClassB;
+    }
+
+    @Document
+    static class ClassB {
+        @Document.Id
+        String mId;
+
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.DocumentProperty
+        ClassA mClassA;
+    }
+
+    @Test
+    public void testNestedSchemasCyclicalReference() throws AppSearchException {
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addDocumentClasses(ClassA.class, ClassB.class)
+                .setForceOverride(true)
+                .build();
+
+        DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+
+        Set<AppSearchSchema> schemas = request.getSchemas();
+        assertThat(schemas).hasSize(2);
+        assertThat(schemas).contains(registry.getOrCreateFactory(ClassA.class).getSchema());
+        assertThat(schemas).contains(registry.getOrCreateFactory(ClassB.class).getSchema());
+    }
+
 // @exportToFramework:endStrip()
 }
