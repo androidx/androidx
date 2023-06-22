@@ -1850,6 +1850,11 @@ internal class ComposerImpl(
         return result as T
     }
 
+    private fun updateSlot(value: Any?) {
+        nextSlot()
+        updateValue(value)
+    }
+
     /**
      * Schedule the current value in the slot table to be updated to [value].
      *
@@ -1949,8 +1954,8 @@ internal class ComposerImpl(
     ): PersistentCompositionLocalMap {
         val providerScope = parentScope.mutate { it.putAll(currentProviders) }
         startGroup(providerMapsKey, providerMaps)
-        changed(providerScope)
-        changed(currentProviders)
+        updateSlot(providerScope)
+        updateSlot(currentProviders)
         endGroup()
         return providerScope
     }
@@ -1981,7 +1986,7 @@ internal class ComposerImpl(
             val oldValues = reader.groupGet(1) as PersistentCompositionLocalMap
 
             // skipping is true iff parentScope has not changed.
-            if (!skipping || oldValues != currentProviders) {
+            if (!skipping || reusing || oldValues != currentProviders) {
                 providers = updateProviderMapGroup(parentScope, currentProviders)
 
                 // Compare against the old scope as currentProviders might have modified the scope
@@ -1990,7 +1995,7 @@ internal class ComposerImpl(
                 // currentProviders for that key. If the scope has not changed, because these
                 // providers obscure a change in the parent as described above, re-enable skipping
                 // for the child region.
-                invalid = providers != oldScope
+                invalid = reusing || providers != oldScope
             } else {
                 // Nothing has changed
                 skipGroup()
