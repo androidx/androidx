@@ -110,4 +110,8 @@ androidx {
     description = "Provides backwards-compatible implementations of UI-related Android SDK " +
             "functionality, including dark mode and Material theming."
     failOnDeprecationWarnings = false
+    deviceTests {
+        // Temporarily disabled due to b/286161632
+        enabled = false
+    }
 }
