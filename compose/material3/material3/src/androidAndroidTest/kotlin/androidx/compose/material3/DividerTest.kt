@@ -45,44 +45,65 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class DividerUiTest {
+class DividerTest {
 
     @get:Rule
     val rule = createComposeRule()
 
-    private val defaultHeight = 1.dp
+    private val defaultThickness = 1.dp
 
     @Test
-    fun divider_DefaultSizes() {
+    fun horizontalDivider_DefaultSizes() {
         rule
             .setMaterialContentForSizeAssertions {
                 Divider()
             }
-            .assertHeightIsEqualTo(defaultHeight)
+            .assertHeightIsEqualTo(defaultThickness)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
     @Test
-    fun divider_CustomSizes() {
-        val height = 20.dp
+    fun horizontalDivider_CustomSizes() {
+        val thickness = 20.dp
         rule
             .setMaterialContentForSizeAssertions {
-                Divider(thickness = height)
+                Divider(thickness = thickness)
             }
             .assertWidthIsEqualTo(rule.rootWidth())
-            .assertHeightIsEqualTo(height)
+            .assertHeightIsEqualTo(thickness)
+    }
+
+    @Test
+    fun verticalDivider_DefaultSizes() {
+        rule
+            .setMaterialContentForSizeAssertions {
+                Divider(horizontal = false)
+            }
+            .assertHeightIsEqualTo(rule.rootHeight())
+            .assertWidthIsEqualTo(defaultThickness)
+    }
+
+    @Test
+    fun verticalDivider_CustomSizes() {
+        val thickness = 20.dp
+        rule
+            .setMaterialContentForSizeAssertions {
+                Divider(thickness = thickness, horizontal = false)
+            }
+            .assertWidthIsEqualTo(thickness)
+            .assertHeightIsEqualTo(rule.rootHeight())
     }
 
     @Test
     fun divider_SizesWithIndent_DoesNotChanged() {
         val indent = 75.dp
-        val height = 21.dp
+        val thickness = 21.dp
 
         rule
             .setMaterialContentForSizeAssertions {
-                Divider(modifier = Modifier.padding(start = indent), thickness = height)
+                Divider(modifier = Modifier.padding(start = indent), thickness = thickness)
             }
-            .assertHeightIsEqualTo(height)
+            .assertHeightIsEqualTo(thickness)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
