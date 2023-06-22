@@ -408,13 +408,18 @@ object IconButtonDefaults {
  * [FilledIconButton].
  * - See [IconButtonDefaults.outlinedIconButtonColors] for the default colors used in an
  * [OutlinedIconButton].
+ *
+ * @param containerColor the background color of this icon button when enabled.
+ * @param contentColor the color of this icon when enabled.
+ * @param disabledContainerColor the background color of this icon button when not enabled.
+ * @param disabledContentColor the color of this icon when not enabled.
  */
 @Immutable
 class IconButtonColors constructor(
-    private val containerColor: Color,
-    private val contentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledContentColor: Color,
+    val containerColor: Color,
+    val contentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this icon button, depending on [enabled].
