@@ -96,6 +96,14 @@ class MultimapQueryTest {
         443,
         1973
     )
+    private val mRhcpSong3: Song = Song(
+        5,
+        "Parallel Universe",
+        "Red Hot Chili Peppers",
+        "Californication",
+        529,
+        1999
+    )
     private val mRhcp: Artist = Artist(
         1,
         "Red Hot Chili Peppers",
@@ -170,6 +178,15 @@ class MultimapQueryTest {
         "Red Hot Chili Peppers",
         "stadium_arcadium_image".toByteArray(),
         Date(1146787200000L),
+        ImageFormat.MPEG
+    )
+
+    private val mTheClashAlbumCover: Image = Image(
+        3,
+        1979L,
+        "The Clash",
+        "london_calling_image".toByteArray(),
+        Date(11873445200000L),
         ImageFormat.MPEG
     )
 
@@ -1130,6 +1147,191 @@ class MultimapQueryTest {
         val artistNameToImagesMap: ArrayMap<Artist, Long> =
             mMusicDao.allArtistsWithAlbumCoverYearArrayMap()
         assertThat(artistNameToImagesMap[mRhcp]).isEqualTo(2006L)
+    }
+
+    @Test
+    fun testSingleNestedMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addAlbums(
+            mStadiumArcadium,
+            mCalifornication,
+            mTheDarkSideOfTheMoon,
+            mHighwayToHell,
+            mDreamland
+        )
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1, mRhcpSong3)
+
+        val singleNestedMap = mMusicDao.getArtistToAlbumsMappedToSongs()
+        val rhcpMap = singleNestedMap.getValue(mRhcp)
+        val stadiumArcadiumList = rhcpMap.getValue(mStadiumArcadium)
+        val californicationList = rhcpMap.getValue(mCalifornication)
+
+        val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
+        val californicationExpectedList = listOf(mRhcpSong3)
+
+        assertThat(rhcpMap.keys).containsExactlyElementsIn(
+            listOf(mCalifornication, mStadiumArcadium)
+        )
+        assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
+        assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
+    }
+
+    @Test
+    fun testDoubleNestedMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addAlbums(
+            mStadiumArcadium,
+            mCalifornication,
+            mTheDarkSideOfTheMoon,
+            mHighwayToHell,
+            mDreamland
+        )
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1, mRhcpSong3)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
+
+        val doubleNestedMap = mMusicDao.getImageToArtistToAlbumsMappedToSongs()
+        val rhcpImageMap = doubleNestedMap.getValue(mRhcpAlbumCover)
+        val rhcpMap = rhcpImageMap.getValue(mRhcp)
+        val stadiumArcadiumList = rhcpMap.getValue(mStadiumArcadium)
+        val californicationList = rhcpMap.getValue(mCalifornication)
+
+        val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
+        val californicationExpectedList = listOf(mRhcpSong3)
+
+        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
+            listOf(mPinkFloydAlbumCover, mRhcpAlbumCover)
+        )
+        assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
+        assertThat(rhcpMap.keys).containsExactlyElementsIn(
+            listOf(mCalifornication, mStadiumArcadium)
+        )
+        assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
+        assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
+    }
+
+    @Test
+    fun testSingleNestedMapWithMapInfoLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addAlbums(
+            mStadiumArcadium,
+            mCalifornication,
+            mTheDarkSideOfTheMoon,
+            mHighwayToHell,
+            mDreamland
+        )
+        mMusicDao.addSongs(mRhcpSong1, mAcdcSong1, mPinkFloydSong1, mRhcpSong3)
+
+        val singleNestedMap = mMusicDao.getArtistToAlbumsMappedToSongNamesMapInfoLeftJoin()
+        val rhcpMap = singleNestedMap.getValue(mRhcp)
+
+        assertThat(rhcpMap.keys).containsExactlyElementsIn(
+            listOf(mCalifornication, mStadiumArcadium)
+        )
+        assertThat(rhcpMap[mStadiumArcadium]).isEqualTo(mRhcpSong1.mTitle)
+        assertThat(rhcpMap[mCalifornication]).isEqualTo(mRhcpSong3.mTitle)
+
+        // LEFT JOIN Checks
+        assertThat(singleNestedMap[mTheClash]).isEmpty()
+    }
+
+    @Test
+    fun testDoubleNestedMapWithMapInfoKeyLeftJoin() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mPinkFloyd)
+        mMusicDao.addAlbums(
+            mStadiumArcadium,
+            mCalifornication,
+            mTheDarkSideOfTheMoon,
+            mHighwayToHell,
+            mDreamland
+        )
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
+
+        val doubleNestedMap = mMusicDao.getImageYearToArtistToAlbumsMappedToSongs()
+        val rhcpImageMap = doubleNestedMap.getValue(mRhcpAlbumCover.mImageYear)
+        val rhcpMap = rhcpImageMap.getValue(mRhcp)
+        val stadiumArcadiumList = rhcpMap.getValue(mStadiumArcadium)
+        val californicationList = rhcpMap.getValue(mCalifornication)
+
+        val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
+        val californicationExpectedList = listOf(mRhcpSong3)
+
+        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
+            listOf(
+                mPinkFloydAlbumCover.mImageYear,
+                mRhcpAlbumCover.mImageYear,
+                mTheClashAlbumCover.mImageYear
+            )
+        )
+        assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
+        assertThat(rhcpMap.keys).containsExactlyElementsIn(
+            listOf(mCalifornication, mStadiumArcadium)
+        )
+        assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
+        assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
+
+        // LEFT JOIN Checks
+        assertThat(doubleNestedMap).containsKey(mTheClashAlbumCover.mImageYear)
+        assertThat(doubleNestedMap[mTheClashAlbumCover.mImageYear]).isEmpty()
+        assertThat(doubleNestedMap).containsKey(mPinkFloydAlbumCover.mImageYear)
+        assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]).containsKey(mPinkFloyd)
+        assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd])
+            .containsKey(mTheDarkSideOfTheMoon)
+        assertThat(
+            doubleNestedMap[mPinkFloydAlbumCover.mImageYear]
+            !![mPinkFloyd]
+            !![mTheDarkSideOfTheMoon]
+        ).isEmpty()
+    }
+
+    @Test
+    fun testNestedMapWithMapInfoKeyAndValue() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mPinkFloyd)
+        mMusicDao.addAlbums(
+            mStadiumArcadium,
+            mCalifornication,
+            mTheDarkSideOfTheMoon,
+            mHighwayToHell,
+            mDreamland
+        )
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
+
+        val doubleNestedMap = mMusicDao.getNestedMapWithMapInfoKeyAndValue()
+        val rhcpImageMap = doubleNestedMap.getValue(mRhcpAlbumCover.mImageYear)
+        val rhcpMap = rhcpImageMap.getValue(mRhcp)
+        val stadiumArcadiumList = rhcpMap.getValue(mStadiumArcadium)
+        val californicationList = rhcpMap.getValue(mCalifornication)
+
+        val stadiumArcadiumExpectedList = listOf(mRhcpSong1.mTitle, mRhcpSong2.mTitle)
+        val californicationExpectedList = listOf(mRhcpSong3.mTitle)
+
+        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
+            listOf(
+                mPinkFloydAlbumCover.mImageYear,
+                mRhcpAlbumCover.mImageYear,
+                mTheClashAlbumCover.mImageYear
+            )
+        )
+        assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
+        assertThat(rhcpMap.keys).containsExactlyElementsIn(
+            listOf(mCalifornication, mStadiumArcadium)
+        )
+        assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
+        assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
+
+        // LEFT JOIN Checks
+        assertThat(doubleNestedMap).containsKey(mTheClashAlbumCover.mImageYear)
+        assertThat(doubleNestedMap[mTheClashAlbumCover.mImageYear]).isEmpty()
+        assertThat(doubleNestedMap).containsKey(mPinkFloydAlbumCover.mImageYear)
+        assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]).containsKey(mPinkFloyd)
+        assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd])
+            .containsKey(mTheDarkSideOfTheMoon)
+        assertThat(
+            doubleNestedMap[mPinkFloydAlbumCover.mImageYear]
+            !![mPinkFloyd]
+            !![mTheDarkSideOfTheMoon]
+        ).isEmpty()
     }
 
     /**
