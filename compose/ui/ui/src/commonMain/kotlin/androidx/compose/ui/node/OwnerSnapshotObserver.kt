@@ -63,7 +63,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    private val onCommitAffectingLookaheadLayout: (LayoutNode) -> Unit = { layoutNode ->
+    private val onCommitAffectingLookahead: (LayoutNode) -> Unit = { layoutNode ->
         if (layoutNode.isValidOwnerScope) {
             layoutNode.requestLookaheadRelayout()
         }
@@ -78,7 +78,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         block: () -> Unit
     ) {
         if (affectsLookahead && node.lookaheadRoot != null) {
-            observeReads(node, onCommitAffectingLookaheadLayout, block)
+            observeReads(node, onCommitAffectingLookahead, block)
         } else {
             observeReads(node, onCommitAffectingLayout, block)
         }
