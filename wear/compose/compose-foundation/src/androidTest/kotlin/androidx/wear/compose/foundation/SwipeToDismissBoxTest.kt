@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,8 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -53,6 +56,8 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -416,6 +421,58 @@ class SwipeToDismissBoxTest {
         ) { scrollState ->
             // Fling right to the start (0)
             assertEquals(scrollState.value, 0)
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun partial_swipe_maintains_focus() {
+        var focusedBackground by mutableStateOf(false)
+        var focusedContent by mutableStateOf(false)
+
+        rule.setContent {
+            val state = rememberSwipeToDismissBoxState()
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) { isBackground ->
+                if (isBackground) {
+                    val focusRequester = rememberActiveFocusRequester()
+                    BasicText(
+                        BACKGROUND_MESSAGE,
+                        Modifier
+                            .onFocusChanged { focusedBackground = it.isFocused }
+                            .focusRequester(focusRequester)
+                            .focusable())
+                } else {
+                    val focusRequester = rememberActiveFocusRequester()
+                    BasicText(
+                        CONTENT_MESSAGE,
+                        Modifier
+                            .onFocusChanged { focusedContent = it.isFocused }
+                            .focusRequester(focusRequester)
+                            .focusable())
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertTrue(focusedContent)
+            assertFalse(focusedBackground)
+        }
+
+        // Click down and drag across 1/4 of the screen to start a swipe,
+        // but don't release the finger, so that the screen can be inspected
+        // (note that swipeRight would release the finger and does not pause time midway).
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(Offset(x = 0f, y = height / 2f))
+            moveTo(Offset(x = width / 4f, y = height / 2f))
+        }
+
+        // We started showing the background, but focus hasn't changed.
+        rule.runOnIdle {
+            assertTrue(focusedContent)
+            assertFalse(focusedBackground)
         }
     }
 
