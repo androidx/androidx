@@ -43,7 +43,7 @@ public class DialogNavigator : Navigator<Destination>() {
      * Dismiss the dialog destination associated with the given [backStackEntry].
      */
     internal fun dismiss(backStackEntry: NavBackStackEntry) {
-        state.popWithTransition(backStackEntry, false)
+        popBackStack(backStackEntry, false)
     }
 
     override fun navigate(
@@ -62,6 +62,13 @@ public class DialogNavigator : Navigator<Destination>() {
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         state.popWithTransition(popUpTo, savedState)
+        // When popping, the incoming dialog is marked transitioning to hold it in
+        // STARTED. With pop complete, we can remove it from transition so it can move to RESUMED.
+        val popIndex = state.transitionsInProgress.value.indexOf(popUpTo)
+        // do not mark complete for entries up to and including popUpTo
+        state.transitionsInProgress.value.forEachIndexed { index, entry ->
+            if (index > popIndex) onTransitionComplete(entry)
+        }
     }
 
     internal fun onTransitionComplete(entry: NavBackStackEntry) {
