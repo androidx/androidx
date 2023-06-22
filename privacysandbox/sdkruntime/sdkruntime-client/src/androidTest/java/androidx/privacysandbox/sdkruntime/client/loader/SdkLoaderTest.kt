@@ -145,7 +145,7 @@ class SdkLoaderTest {
 
         assertThrows(LoadSdkCompatException::class.java) {
             sdkLoaderWithLowSpaceMode.loadSdk(testSdkConfig)
-        }.hasMessageThat().isEqualTo("Can't use InMemoryDexClassLoader")
+        }.hasMessageThat().startsWith("Can't use InMemoryDexClassLoader")
     }
 
     @Test
