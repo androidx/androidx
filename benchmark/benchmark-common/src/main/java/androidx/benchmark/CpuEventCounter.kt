@@ -16,6 +16,8 @@
 
 package androidx.benchmark
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.io.Closeable
 
@@ -33,16 +35,17 @@ import java.io.Closeable
  *  - security.perf_harden 0
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class CpuCounter : Closeable {
+class CpuEventCounter : Closeable {
     private var profilerPtr = CpuCounterJni.newProfiler()
     private var hasReset = false
 
     fun resetEvents(events: List<Event>) {
+        resetEvents(events.getFlags())
+    }
+
+    fun resetEvents(eventFlags: Int) {
         hasReset = true
-        val flags = events.fold(0) { acc, event ->
-            acc.or(event.flag)
-        }
-        CpuCounterJni.resetEvents(profilerPtr, flags)
+        CpuCounterJni.resetEvents(profilerPtr, eventFlags)
     }
 
     override fun close() {
@@ -103,6 +106,52 @@ class CpuCounter : Closeable {
 
     companion object {
         fun checkPerfEventSupport(): String? = CpuCounterJni.checkPerfEventSupport()
+
+        /**
+         * Forces system properties and selinux into correct mode for capture
+         *
+         * Reset still required if failure occurs partway through
+         */
+        fun forceEnable(): String? {
+            if (Build.VERSION.SDK_INT >= 29) {
+                Api29Enabler.forceEnable()?.let { return it }
+            }
+            return checkPerfEventSupport()
+        }
+        fun reset() {
+            if (Build.VERSION.SDK_INT >= 29) {
+                Api29Enabler.reset()
+            }
+        }
+
+        /**
+         * Enable setenforce 0 and setprop perf_harden to 0, only observed this required on API 29+
+         */
+        @RequiresApi(29)
+        object Api29Enabler {
+            private val perfHardenProp = PropOverride("security.perf_harden", "0")
+            private var shouldResetEnforce1 = false
+            fun forceEnable(): String? {
+                if (Shell.isSELinuxEnforced()) {
+                    if (DeviceInfo.isRooted) {
+                        Shell.executeScriptSilent("setenforce 0")
+                        shouldResetEnforce1 = true
+                    } else {
+                        return "blocked by selinux, can't `setenforce 0` without rooted device"
+                    }
+                }
+                perfHardenProp.forceValue()
+                return null
+            }
+
+            fun reset() {
+                perfHardenProp.resetIfOverridden()
+                if (shouldResetEnforce1) {
+                    Shell.executeScriptSilent("setenforce 1")
+                    shouldResetEnforce1 = false
+                }
+            }
+        }
     }
 }
 
@@ -120,4 +169,8 @@ private object CpuCounterJni {
     external fun start(profilerPtr: Long)
     external fun stop(profilerPtr: Long)
     external fun read(profilerPtr: Long, outData: LongArray)
+}
+
+internal fun List<CpuEventCounter.Event>.getFlags() = fold(0) { acc, event ->
+    acc.or(event.flag)
 }

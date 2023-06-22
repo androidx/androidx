@@ -90,7 +90,8 @@ class BenchmarkState internal constructor(
             profiler = Arguments.profiler,
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
-            simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
+            simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
+            cpuEventCountersMask = Arguments.cpuEventCounterMask
         )
     )
 
@@ -203,9 +204,7 @@ class BenchmarkState internal constructor(
      */
     fun pauseTiming() {
         check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
-        if (!currentPhase.ignorePauseEvent) {
-            currentMetrics.capturePaused()
-        }
+        currentMetrics.capturePaused()
         paused = true
     }
 
@@ -235,9 +234,7 @@ class BenchmarkState internal constructor(
      */
     fun resumeTiming() {
         check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
-        if (!currentPhase.ignorePauseEvent) {
-            currentMetrics.captureResumed()
-        }
+        currentMetrics.captureResumed()
         paused = false
     }
 
@@ -303,9 +300,9 @@ class BenchmarkState internal constructor(
             if (it.warmupManager != null) {
                 // warmup phase
                 currentMetrics.captureInit()
-                // Note that warmupManager presence implies only one metric captured,
-                // this is validated in MicrobenchmarkPhase init
-                val lastMeasuredWarmupValue = currentMetrics.data.last()[0]
+                // Note that warmup is based on repeat time, *not* the timeNs metric, since we want
+                // to account for paused time during warmup (paused work should stabilize too)
+                val lastMeasuredWarmupValue = currentMetrics.peekSingleRepeatTime()
                 if (it.warmupManager.onNextIteration(lastMeasuredWarmupValue)) {
                     warmupEstimatedIterationTimeNs = lastMeasuredWarmupValue
                     warmupRepeats = currentMeasurement

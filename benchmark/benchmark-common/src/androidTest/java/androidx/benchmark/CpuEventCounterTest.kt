@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -32,35 +31,18 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-class CpuCounterTest {
-    private val perfHardenProp = PropOverride("security.perf_harden", "0")
-    private var shouldResetEnforce1 = false
-
+class CpuEventCounterTest {
     @Before
     fun before() {
-        // TODO: make this automatic
-        if (Build.VERSION.SDK_INT > 29) {
-            val blockedBySelinux = Shell.isSELinuxEnforced()
-            assumeTrue(
-                "blocked by selinux = $blockedBySelinux, rooted = ${DeviceInfo.isRooted}",
-                !blockedBySelinux || DeviceInfo.isRooted
-            )
-            if (blockedBySelinux && DeviceInfo.isRooted) {
-                Shell.executeScriptSilent("setenforce 0")
-                shouldResetEnforce1 = true
-            }
-            perfHardenProp.forceValue()
+        // skip test if need root, or event fails to enable
+        CpuEventCounter.forceEnable()?.let { errorMessage ->
+            assumeTrue(errorMessage, false)
         }
-        val error = CpuCounter.checkPerfEventSupport()
-        assumeTrue(error, error == null)
     }
 
     @After
     fun after() {
-        perfHardenProp.resetIfOverridden()
-        if (shouldResetEnforce1) {
-            Shell.executeScriptSilent("setenforce 1")
-        }
+        CpuEventCounter.reset()
     }
 
     /**
@@ -70,14 +52,14 @@ class CpuCounterTest {
      * instructions != cycles != l1 misses), since this may be brittle.
      */
     @Test
-    fun basic() = CpuCounter().use { counter ->
-        val values = CpuCounter.Values()
+    fun basic() = CpuEventCounter().use { counter ->
+        val values = CpuEventCounter.Values()
 
         counter.resetEvents(
             listOf(
-                CpuCounter.Event.Instructions,
-                CpuCounter.Event.CpuCycles,
-                CpuCounter.Event.L1IReferences,
+                CpuEventCounter.Event.Instructions,
+                CpuEventCounter.Event.CpuCycles,
+                CpuEventCounter.Event.L1IReferences,
             )
         )
         counter.reset()
@@ -110,25 +92,25 @@ class CpuCounterTest {
 
         // As counters are enabled in order of ID, these are in order of ID as well
         if (values.numberOfCounters >= 1) {
-            assertNotEquals(0, values.getValue(CpuCounter.Event.Instructions))
+            assertNotEquals(0, values.getValue(CpuEventCounter.Event.Instructions))
         }
         if (values.numberOfCounters >= 2) {
-            assertNotEquals(0, values.getValue(CpuCounter.Event.CpuCycles))
+            assertNotEquals(0, values.getValue(CpuEventCounter.Event.CpuCycles))
         }
         if (values.numberOfCounters >= 3) {
-            assertNotEquals(0, values.getValue(CpuCounter.Event.L1IMisses))
+            assertNotEquals(0, values.getValue(CpuEventCounter.Event.L1IMisses))
         }
     }
 
     @Test
-    fun instructions() = CpuCounter().use { counter ->
-        val values = CpuCounter.Values()
+    fun instructions() = CpuEventCounter().use { counter ->
+        val values = CpuEventCounter.Values()
 
         counter.resetEvents(
             listOf(
-                CpuCounter.Event.Instructions,
-                CpuCounter.Event.CpuCycles,
-                CpuCounter.Event.L1IReferences
+                CpuEventCounter.Event.Instructions,
+                CpuEventCounter.Event.CpuCycles,
+                CpuEventCounter.Event.L1IReferences
             )
         )
 
@@ -144,7 +126,7 @@ class CpuCounterTest {
             }
             counter.stop()
             counter.read(values)
-            values.getValue(CpuCounter.Event.Instructions)
+            values.getValue(CpuEventCounter.Event.Instructions)
         }
 
         assertTrue(instructions.all { it != 0L })
@@ -157,8 +139,8 @@ class CpuCounterTest {
     }
 
     @Test
-    fun read_withoutReset(): Unit = CpuCounter().use { counter ->
-        val values = CpuCounter.Values()
+    fun read_withoutReset(): Unit = CpuEventCounter().use { counter ->
+        val values = CpuEventCounter.Values()
 
         // not yet reset, should fail...
         assertFailsWith<IllegalStateException> {
@@ -169,10 +151,10 @@ class CpuCounterTest {
     }
 
     @Test
-    fun read_afterClose(): Unit = CpuCounter().use { counter ->
-        val values = CpuCounter.Values()
+    fun read_afterClose(): Unit = CpuEventCounter().use { counter ->
+        val values = CpuEventCounter.Values()
         // reset, but closed / deleted, should fail...
-        counter.resetEvents(listOf(CpuCounter.Event.Instructions))
+        counter.resetEvents(listOf(CpuEventCounter.Event.Instructions))
         counter.close()
         assertFailsWith<IllegalStateException> {
             counter.read(values)
