@@ -2846,7 +2846,7 @@ internal class ComposerImpl(
     ) {
         // Start the movable content group
         startMovableGroup(movableContentKey, content)
-        changed(parameter)
+        updateSlot(parameter)
 
         // All movable content has a compound hash value rooted at the content itself so the hash
         // value doesn't change as the content moves in the tree.
