@@ -115,7 +115,7 @@ class GitRunnerGitClientTest {
                     n = 1
                 ),
                 keepMerges = true,
-                fullProjectDir = workingDir
+                projectDir = workingDir
         )
         assertEquals(1, commitList.size)
     }
