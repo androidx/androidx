@@ -704,6 +704,7 @@ includeProject(":core:haptics:haptics-demos", "core/haptics/haptics/integration-
 includeProject(":core:uwb:uwb", [BuildType.MAIN])
 includeProject(":core:uwb:uwb-rxjava3", [BuildType.MAIN])
 includeProject(":credentials:credentials", [BuildType.MAIN])
+includeProject(":credentials:credentials-samples", "credentials/credentials/samples", [BuildType.MAIN])
 includeProject(":credentials:credentials-play-services-auth", [BuildType.MAIN])
 includeProject(":credentials:credentials-provider", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", [BuildType.MAIN])
