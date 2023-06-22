@@ -13,5 +13,5 @@ export function expressionFilter(expression: string) {
   if (regExp) {
     return (label: string) => regExp.test(label);
   }
-  return (label: string) => label.indexOf(expression) >= 0
+  return (label: string) => label.indexOf(expression) >= 0;
 }
