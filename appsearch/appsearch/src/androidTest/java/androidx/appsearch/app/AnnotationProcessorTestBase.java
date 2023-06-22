@@ -946,9 +946,41 @@ public abstract class AnnotationProcessorTestBase {
         @Document.StringProperty
         String getOrganizationDescription();
 
-        static Organization createOrganization(String id, String namespace, long creationTimestamp,
-                String organizationDescription) {
-            return new OrganizationImpl(id, namespace, creationTimestamp, organizationDescription);
+        @Document.BuilderProducer
+        static OrganizationBuilder getBuilder() {
+            return new OrganizationBuilder();
+        }
+    }
+
+    static class OrganizationBuilder {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mOrganizationDescription;
+
+        public Organization build() {
+            return new OrganizationImpl(mId, mNamespace, mCreationTimestamp,
+                    mOrganizationDescription);
+        }
+
+        public OrganizationBuilder setId(String id) {
+            mId = id;
+            return this;
+        }
+
+        public OrganizationBuilder setNamespace(String namespace) {
+            mNamespace = namespace;
+            return this;
+        }
+
+        public OrganizationBuilder setCreationTimestamp(long creationTimestamp) {
+            mCreationTimestamp = creationTimestamp;
+            return this;
+        }
+
+        public OrganizationBuilder setOrganizationDescription(String organizationDescription) {
+            mOrganizationDescription = organizationDescription;
+            return this;
         }
     }
 
@@ -1072,6 +1104,33 @@ public abstract class AnnotationProcessorTestBase {
     }
 
     @Test
+    public void testGenericDocumentConversion_AnnotatedBuilder() throws Exception {
+        // Create Organization document
+        Organization organization = Organization.getBuilder()
+                .setId("id")
+                .setNamespace("namespace")
+                .setCreationTimestamp(3000)
+                .setOrganizationDescription("organization_dec")
+                .build();
+
+        // Test the conversion from Organization to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(organization);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(3000);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Organization");
+        assertThat(genericDocument.getPropertyString("organizationDescription")).isEqualTo(
+                "organization_dec");
+
+        // Test the conversion from GenericDocument to Organization
+        Organization newOrganization = genericDocument.toDocumentClass(Organization.class);
+        assertThat(newOrganization.getId()).isEqualTo("id");
+        assertThat(newOrganization.getNamespace()).isEqualTo("namespace");
+        assertThat(newOrganization.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newOrganization.getOrganizationDescription()).isEqualTo("organization_dec");
+    }
+
+    @Test
     public void testPolymorphismForInterface() throws Exception {
         assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
 
@@ -1098,8 +1157,12 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(placeGeneric.getSchemaType()).isEqualTo("Place");
         assertThat(placeGeneric.getPropertyString("location")).isEqualTo("place_loc");
 
-        Organization organization = Organization.createOrganization("id2", "namespace", 3000,
-                "organization_dec");
+        Organization organization = Organization.getBuilder()
+                .setId("id2")
+                .setNamespace("namespace")
+                .setCreationTimestamp(3000)
+                .setOrganizationDescription("organization_dec")
+                .build();
         GenericDocument organizationGeneric = GenericDocument.fromDocumentClass(organization);
         assertThat(organizationGeneric.getId()).isEqualTo("id2");
         assertThat(organizationGeneric.getNamespace()).isEqualTo("namespace");
