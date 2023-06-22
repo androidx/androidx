@@ -36,6 +36,7 @@ import androidx.room.compiler.processing.util.asJTypeName
 import androidx.room.compiler.processing.util.asKTypeName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getDeclaredField
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -1095,18 +1096,20 @@ class XAnnotationTest(
     @Test
     fun propertyTargetInPrimaryCtorProperty() {
         runTest(
-            sources = listOf(Source.kotlin(
-                "Foo.kt",
-                """
-            package test
-            class Subject(
-                @MyAnnotation val valField: String,
-                @MyAnnotation var varField: String,
-            )
-            @Target(AnnotationTarget.PROPERTY)
-            annotation class MyAnnotation
-            """.trimIndent()
-            )),
+            sources = listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+                    package test
+                    class Subject(
+                        @MyAnnotation val valField: String,
+                        @MyAnnotation var varField: String,
+                    )
+                    @Target(AnnotationTarget.PROPERTY)
+                    annotation class MyAnnotation
+                    """.trimIndent()
+                )
+            ),
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("test.Subject")
             val myAnnotation = invocation.processingEnv.requireTypeElement("test.MyAnnotation")
@@ -1142,15 +1145,36 @@ class XAnnotationTest(
             """
             package foo.bar
 
-            interface MyInterface
-            open class Base
+            interface Foo<T>
+            open class FooImpl<T>
+            class Bar
 
             @Target(AnnotationTarget.TYPE)
             annotation class A
+            @Target(
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.FIELD,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.VALUE_PARAMETER,
+                AnnotationTarget.TYPE
+            )
+            annotation class B
+            @Target(
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.FIELD,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.VALUE_PARAMETER,
+            )
+            annotation class C
+            annotation class D
 
-            class Subject(i: @A MyInterface) : @A Base(), @A MyInterface {
-                val p: @A MyInterface = TODO()
-                fun f(a: @A MyInterface): @A MyInterface = TODO()
+            class Subject @B @C @D constructor(
+                @B @C @D param: @A @B Foo<@A @B Bar>
+            ) : @A @B FooImpl<@A @B Bar>(), @A @B Foo<@A @B Bar> {
+                @B @C @D val field: @A @B Foo<@A @B Bar> = TODO()
+                @B @C @D fun method(
+                    @B @C @D param: @A @B Foo<@A @B Bar>
+                ): @A @B Foo<@A @B Bar> = TODO()
             }
             """.trimIndent()
         )
@@ -1162,16 +1186,33 @@ class XAnnotationTest(
             import java.lang.annotation.Target;
             import java.lang.annotation.Repeatable;
 
-            interface MyInterface {}
-            class Base {}
+            interface Foo<T> {}
+            class FooImpl<T> {}
+            class Bar {}
 
             @Target(ElementType.TYPE_USE)
             @interface A {}
+            @Target({
+                ElementType.METHOD,
+                ElementType.FIELD,
+                ElementType.CONSTRUCTOR,
+                ElementType.PARAMETER,
+                ElementType.TYPE_USE
+            })
+            @interface B {}
+            @Target({
+                ElementType.METHOD,
+                ElementType.FIELD,
+                ElementType.CONSTRUCTOR,
+                ElementType.PARAMETER,
+            })
+            @interface C {}
+            @interface D {}
 
-            class Subject extends @A Base implements @A MyInterface {
-                Subject(@A MyInterface i) {}
-                @A MyInterface p;
-                @A MyInterface f(@A MyInterface a) {
+            class Subject extends @A @B FooImpl<@A @B Bar> implements @A @B Foo<@A @B Bar> {
+                @A @B @C @D Foo<@A @B Bar> field;
+                @B @C @D Subject(@A @B @C @D Foo<@A @B Bar> param) {}
+                @A @B @C @D Foo<@A @B Bar> method(@A @B @C @D Foo<@A @B Bar> param) {
                     throw new RuntimeException();
                 }
             }
@@ -1182,38 +1223,113 @@ class XAnnotationTest(
             runTest(
                 sources = listOf(source)
             ) { invocation ->
-                // We can't see type annotations from precompiled Java classes. Skipping it for now:
-                // https://github.com/google/ksp/issues/1296
-                if (source == javaSource && preCompiled) {
-                    return@runTest
+                fun XAnnotated.getAllAnnotationTypeElements(): List<XTypeElement> {
+                    return getAllAnnotations().filter {
+                        !it.qualifiedName.contentEquals("org.jetbrains.annotations.NotNull")
+                    }.map { it.typeElement }
                 }
+
                 val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
-                // There's an issue in KSP that prevents us from getting type annotations in
-                // places other than supertypes: https://github.com/google/ksp/issues/1325
-                val annotations = if (invocation.isKsp) {
-                    listOf(
-                        subject.superClass!!.getAllAnnotations().first(),
-                        subject.superInterfaces.first().getAllAnnotations().first(),
-                    )
+                val superClass = subject.superClass!!
+                val superInterface = subject.superInterfaces.single()
+                val field = subject.getDeclaredField("field")
+                val method = subject.getDeclaredMethodByJvmName("method")
+                val constructor = subject.getConstructors().single()
+                val a = invocation.processingEnv.requireTypeElement("foo.bar.A")
+                val b = invocation.processingEnv.requireTypeElement("foo.bar.B")
+                val c = invocation.processingEnv.requireTypeElement("foo.bar.C")
+                val d = invocation.processingEnv.requireTypeElement("foo.bar.D")
+
+                // Check the annotations on the elements
+                if (!invocation.isKsp && source == kotlinSource) {
+                    // KAPT places property annotations without targets on the property, which then
+                    // get put onto the synthetic $annotations method in the KAPT stub.
+                    // Unfortunately, synthetic methods can only be read when processing the source
+                    // so it's missing on precompiled class files:
+                    // https://youtrack.jetbrains.com/issue/KT-34684
+                    // TODO(b/288415136): The following should be fixed for non-precompiled sources
+                    //  where we can get the annotation from the $annotations method in KAPT.
+                    assertThat(field.getAllAnnotationTypeElements()).containsExactly(b, c)
                 } else {
-                    listOf(
-                        subject.superClass!!.getAllAnnotations().first(),
-                        subject.superInterfaces.first().getAllAnnotations().first(),
-                        subject.getDeclaredField("p").type.getAllAnnotations().first(),
-                        subject.getConstructors().first().parameters.first().type
-                            .getAllAnnotations().first(),
-                        subject.getMethodByJvmName("f").returnType
-                            .getAllAnnotations().first(),
-                        subject.getMethodByJvmName("f").parameters.first().type
-                            .getAllAnnotations().first()
-                    )
+                    assertThat(field.getAllAnnotationTypeElements()).containsExactly(b, c, d)
                 }
-                annotations.forEach { annotation ->
-                    assertThat(annotation.qualifiedName).isEqualTo("foo.bar.A")
+                if (invocation.isKsp && source == javaSource && !preCompiled) {
+                    // TODO(b/288413750): The following cases should be fixed in KAPT to match KSP.
+                    //  In particular, type-only annotation, A, should not show up on elements.
+                    assertThat(method.getAllAnnotationTypeElements()).containsExactly(a, b, c, d)
+                } else {
+                    assertThat(method.getAllAnnotationTypeElements()).containsExactly(b, c, d)
                 }
-                assertThat(subject.superClass!!.hasAnnotationWithPackage("foo.bar")).isTrue()
-                subject.superInterfaces.forEach {
-                    assertThat(it.hasAnnotationWithPackage("foo.bar")).isTrue()
+                assertThat(method.parameters.single().getAllAnnotationTypeElements())
+                    .containsExactly(b, c, d)
+                assertThat(constructor.getAllAnnotationTypeElements()).containsExactly(b, c, d)
+                assertThat(constructor.parameters.single().getAllAnnotationTypeElements())
+                    .containsExactly(b, c, d)
+
+                val isKsp = invocation.isKsp
+                val isJavaSource = source == javaSource
+
+                // Check the annotations on the types
+                mapOf(
+                    "superClass" to superClass,
+                    "superInterface" to superInterface,
+                    "field" to field.type,
+                    "methodReturnType" to method.returnType,
+                    "methodParameter" to method.parameters.single().type,
+                    "constructorParameter" to constructor.parameters.single().type,
+                ).forEach { (desc, type) ->
+                    // We can't see type annotations from precompiled Java classes in JAVAC.
+                    //   https://github.com/google/ksp/issues/1296
+                    if ((!isKsp && source == javaSource && preCompiled) ||
+                        // TODO(b/288415954): The following cases should be fixed in KSP to match
+                        //  KAPT by working around https://github.com/google/ksp/issues/1325.
+                        (isKsp && isJavaSource && preCompiled && desc == "superClass") ||
+                        (isKsp && isJavaSource && preCompiled && desc == "superInterface") ||
+                        (isKsp && isJavaSource && preCompiled && desc == "field") ||
+                        (isKsp && isJavaSource && preCompiled && desc == "methodReturnType") ||
+                        (isKsp && isJavaSource && preCompiled && desc == "methodParameter") ||
+                        (isKsp && isJavaSource && preCompiled && desc == "constructorParameter") ||
+                        (isKsp && !preCompiled && desc == "methodReturnType") ||
+                        (isKsp && !preCompiled && desc == "methodParameter") ||
+                        (isKsp && !preCompiled && desc == "field") ||
+                        (isKsp && !preCompiled && desc == "constructorParameter")
+                    ) {
+                        assertWithMessage("%s type: %s", desc, type.toString())
+                            .that(type.getAllAnnotationTypeElements())
+                            .isEmpty()
+                    } else {
+                        assertWithMessage("%s type: %s", desc, type.toString())
+                            .that(type.getAllAnnotationTypeElements())
+                            .containsExactly(a, b)
+                    }
+                }
+
+                // Check the annotations on the type arguments
+                mapOf(
+                    "superClass" to superClass.typeArguments.single(),
+                    "superInterface" to superInterface.typeArguments.single(),
+                    "field" to field.type.typeArguments.single(),
+                    "methodReturnType" to method.returnType.typeArguments.single(),
+                    "methodParameter" to method.parameters.single().type.typeArguments.single(),
+                    "constructorParameter" to
+                        constructor.parameters.single().type.typeArguments.single(),
+                ).forEach { (desc, type) ->
+                    // We can't see type annotations from precompiled Java classes in JAVAC.
+                    //   https://github.com/google/ksp/issues/1296
+                    if ((!isKsp && isJavaSource && preCompiled) ||
+                        // TODO(b/288415954): The following cases should be fixed in KSP to match
+                        //  KAPT by working around https://github.com/google/ksp/issues/1325.
+                        (isKsp && !preCompiled) ||
+                        (isKsp && isJavaSource && preCompiled)
+                    ) {
+                        assertWithMessage("%s type-argument: %s", desc, type.toString())
+                            .that(type.getAllAnnotationTypeElements())
+                            .isEmpty()
+                    } else {
+                        assertWithMessage("%s type-argument: %s", desc, type.toString())
+                            .that(type.getAllAnnotationTypeElements())
+                            .containsExactly(a, b)
+                    }
                 }
             }
         }
