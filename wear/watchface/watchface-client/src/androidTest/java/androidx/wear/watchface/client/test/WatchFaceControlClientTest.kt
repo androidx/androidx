@@ -503,6 +503,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     fun getInteractiveWatchFaceInstance() {
         val testId = "testId"
         // Create and wait for an interactive instance without capturing a reference to it
@@ -927,6 +928,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun isComplicationDisplayPolicySupported() {
         val wallpaperService =
             TestWatchfaceOverlayStyleWatchFaceService(
@@ -959,6 +961,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     fun watchfaceOverlayStyle() {
         val wallpaperService =
             TestWatchfaceOverlayStyleWatchFaceService(
@@ -978,6 +981,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     fun watchfaceOverlayStyle_after_close() {
         val wallpaperService =
             TestWatchfaceOverlayStyleWatchFaceService(

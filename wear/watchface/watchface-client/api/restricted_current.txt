@@ -140,7 +140,7 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public String getInstanceId() throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle getOverlayStyle() throws android.os.RemoteException;
+    method @Deprecated @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle getOverlayStyle() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws android.os.RemoteException;
     method public default boolean isComplicationDisplayPolicySupported();
@@ -160,7 +160,7 @@ package androidx.wear.watchface.client {
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract java.util.List<androidx.wear.watchface.ContentDescriptionLabel> contentDescriptionLabels;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract String instanceId;
     property public default boolean isRemoteWatchFaceViewHostSupported;
-    property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle overlayStyle;
+    property @Deprecated @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle overlayStyle;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract java.time.Instant previewReferenceInstant;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     field public static final androidx.wear.watchface.client.InteractiveWatchFaceClient.Companion Companion;
@@ -184,13 +184,13 @@ package androidx.wear.watchface.client {
     method public void onWatchFaceReady();
   }
 
-  public final class OverlayStyle {
-    ctor public OverlayStyle();
-    ctor public OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
-    method public android.graphics.Color? getBackgroundColor();
-    method public android.graphics.Color? getForegroundColor();
-    property public final android.graphics.Color? backgroundColor;
-    property public final android.graphics.Color? foregroundColor;
+  @Deprecated public final class OverlayStyle {
+    ctor @Deprecated public OverlayStyle();
+    ctor @Deprecated public OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
+    method @Deprecated public android.graphics.Color? getBackgroundColor();
+    method @Deprecated public android.graphics.Color? getForegroundColor();
+    property @Deprecated public final android.graphics.Color? backgroundColor;
+    property @Deprecated public final android.graphics.Color? foregroundColor;
   }
 
   public interface RemoteWatchFaceViewHost extends java.lang.AutoCloseable {
