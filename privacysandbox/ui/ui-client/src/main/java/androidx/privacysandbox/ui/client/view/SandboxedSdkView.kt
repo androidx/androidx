@@ -232,7 +232,12 @@ class SandboxedSdkView @JvmOverloads constructor(
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        getChildAt(0)?.layout(left, top, right, bottom)
+        // Child needs to receive coordinates that are relative to the parent.
+        getChildAt(0)?.layout(
+            /* l = */ 0,
+            /* t = */ 0,
+            /* r = */ right - left,
+            /* b = */ bottom - top)
         checkClientOpenSession()
     }
 
