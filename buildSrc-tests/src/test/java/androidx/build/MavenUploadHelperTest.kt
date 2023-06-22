@@ -16,6 +16,9 @@
 
 package androidx.build
 
+import androidx.build.testutils.POM_COLLECTION
+import androidx.build.testutils.POM_COLLECTION_JVM
+import androidx.build.testutils.XmlProviderImpl
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,22 +28,21 @@ import org.junit.runners.JUnit4
 class MavenUploadHelperTest {
 
     @Test
-    fun testSortPomDependencies() {
+    fun insertDefaultMultiplatformDependenciesTest() {
+        val pom = XmlProviderImpl(POM_COLLECTION)
+
         /* ktlint-disable max-line-length */
-        val pom = """<?xml version="1.0" encoding="UTF-8"?>
+
+        // Expect that collection-jvm has been inserted in <dependencies>.
+        val expected = """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <!-- This module was also published with a richer model, Gradle metadata,  -->
-  <!-- which should be used instead. Do not delete the following line which  -->
-  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
-  <!-- that they should prefer consuming it instead. -->
-  <!-- do_not_remove: published-with-gradle-metadata -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>androidx.collection</groupId>
-  <artifactId>collection-jvm</artifactId>
-  <version>1.3.0-alpha01</version>
-  <name>Android Support Library collections</name>
+  <artifactId>collection</artifactId>
+  <version>1.3.0-alpha05</version>
+  <name>collections</name>
   <description>Standalone efficient collections.</description>
-  <url>https://developer.android.com/jetpack/androidx/releases/collection#1.3.0-alpha01</url>
+  <url>https://developer.android.com/jetpack/androidx/releases/collection#1.3.0-alpha05</url>
   <inceptionYear>2018</inceptionYear>
   <licenses>
     <license>
@@ -61,24 +63,32 @@ class MavenUploadHelperTest {
   <dependencies>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-common</artifactId>
-      <version>1.6.10</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
-      <version>1.6.10</version>
-      <scope>compile</scope>
+      <version>1.8.21</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>androidx.annotation</groupId>
-      <artifactId>annotation</artifactId>
-      <version>1.3.0</version>
+      <groupId>androidx.collection</groupId>
+      <artifactId>collection-jvm</artifactId>
+      <version>1.3.0-alpha05</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
-</project>"""
+</project>
+"""
+        /* ktlint-enable max-line-length */
+
+        insertDefaultMultiplatformDependencies(pom, "jvm")
+
+        val actual = pom.toString()
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testSortPomDependencies() {
+        val pom = POM_COLLECTION_JVM
+
+        /* ktlint-disable max-line-length */
 
         // Expect that elements in <dependencies> are sorted alphabetically.
         val expected = """<?xml version="1.0" encoding="UTF-8"?>
@@ -91,10 +101,10 @@ class MavenUploadHelperTest {
   <modelVersion>4.0.0</modelVersion>
   <groupId>androidx.collection</groupId>
   <artifactId>collection-jvm</artifactId>
-  <version>1.3.0-alpha01</version>
-  <name>Android Support Library collections</name>
+  <version>1.3.0-alpha05</version>
+  <name>collections</name>
   <description>Standalone efficient collections.</description>
-  <url>https://developer.android.com/jetpack/androidx/releases/collection#1.3.0-alpha01</url>
+  <url>https://developer.android.com/jetpack/androidx/releases/collection#1.3.0-alpha05</url>
   <inceptionYear>2018</inceptionYear>
   <licenses>
     <license>
@@ -112,6 +122,15 @@ class MavenUploadHelperTest {
     <connection>scm:git:https://android.googlesource.com/platform/frameworks/support</connection>
     <url>https://cs.android.com/androidx/platform/frameworks/support</url>
   </scm>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>androidx.collection</groupId>
+        <artifactId>collection-ktx</artifactId>
+        <version>1.3.0-alpha01</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>androidx.annotation</groupId>
@@ -122,13 +141,7 @@ class MavenUploadHelperTest {
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
-      <version>1.6.10</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-common</artifactId>
-      <version>1.6.10</version>
+      <version>1.8.21</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
