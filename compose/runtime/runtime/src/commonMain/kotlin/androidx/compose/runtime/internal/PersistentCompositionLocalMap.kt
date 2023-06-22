@@ -38,6 +38,17 @@ internal class PersistentCompositionLocalHashMap(
 
     override fun <T> get(key: CompositionLocal<T>): T = read(key)
 
+    override fun putValue(
+        key: CompositionLocal<Any?>,
+        value: State<Any?>
+    ): PersistentCompositionLocalMap {
+        val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
+        return PersistentCompositionLocalHashMap(
+            newNodeResult.node,
+            size + newNodeResult.sizeDelta
+        )
+    }
+
     override fun builder(): Builder {
         return Builder(this)
     }

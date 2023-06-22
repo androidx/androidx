@@ -230,6 +230,26 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
 }
 
 /**
+ * [CompositionLocalProvider] binds value to [ProvidableCompositionLocal] key. Reading the
+ * [CompositionLocal] using [CompositionLocal.current] will return the value provided in
+ * [CompositionLocalProvider]'s [values] parameter for all composable functions called directly
+ * or indirectly in the [content] lambda.
+ *
+ * @sample androidx.compose.runtime.samples.compositionLocalProvider
+ *
+ * @see CompositionLocal
+ * @see compositionLocalOf
+ * @see staticCompositionLocalOf
+ */
+@Composable
+@OptIn(InternalComposeApi::class)
+fun CompositionLocalProvider(value: ProvidedValue<*>, content: @Composable () -> Unit) {
+    currentComposer.startProvider(value)
+    content()
+    currentComposer.endProvider()
+}
+
+/**
  * [CompositionLocalProvider] binds values to [CompositionLocal]'s, provided by [context].
  * Reading the [CompositionLocal] using [CompositionLocal.current] will return the value provided in
  * values stored inside [context] for all composable functions called directly
@@ -241,7 +261,6 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
  * @see compositionLocalOf
  * @see staticCompositionLocalOf
  */
-@Suppress("UNCHECKED_CAST")
 @Composable
 @OptIn(InternalComposeApi::class)
 fun CompositionLocalProvider(context: CompositionLocalContext, content: @Composable () -> Unit) {
