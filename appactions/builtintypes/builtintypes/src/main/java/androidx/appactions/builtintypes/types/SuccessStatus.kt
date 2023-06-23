@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -32,12 +33,13 @@ import kotlin.jvm.JvmStatic
 /**
  * Status indicating that the task was executed successfully.
  *
- * See http://schema.googleapis.com/SuccessStatus for context.
+ * See https://schema.googleapis.com/SuccessStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractSuccessStatus] if you need to extend this type.
  */
-public interface SuccessStatus : ExecutionStatus {
+@Document(name = "bit:SuccessStatus")
+public interface SuccessStatus : CommonExecutionStatus {
   /** Converts this [SuccessStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
@@ -52,7 +54,7 @@ public interface SuccessStatus : ExecutionStatus {
    * Should not be directly implemented. More methods may be added over time. See
    * [AbstractSuccessStatus.Builder] if you need to extend this builder.
    */
-  public interface Builder<Self : Builder<Self>> : ExecutionStatus.Builder<Self> {
+  public interface Builder<Self : Builder<Self>> : CommonExecutionStatus.Builder<Self> {
     /** Returns a built [SuccessStatus]. */
     public override fun build(): SuccessStatus
   }
@@ -143,16 +145,16 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (namespace != other.namespace) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
+    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
@@ -294,17 +296,17 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (namespace != other.namespace) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
+      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {

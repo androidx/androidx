@@ -25,6 +25,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api(project(":appsearch:appsearch"))
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

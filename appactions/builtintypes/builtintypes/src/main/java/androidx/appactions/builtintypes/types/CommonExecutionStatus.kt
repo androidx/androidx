@@ -31,51 +31,55 @@ import kotlin.collections.plusAssign
 import kotlin.jvm.JvmStatic
 
 /**
- * Status indicating that the task was not executed successfully.
+ * A parent type that serves as the umbrella for a number of canonical execution statuses that apply
+ * to the vast majority of tasks.
  *
- * See https://schema.googleapis.com/GenericErrorStatus for context.
+ * Prefer one of the subtypes in most contexts to represent a specific type of common status e.g.
+ * `SuccessStatus`.
+ *
+ * See https://schema.googleapis.com/CommonExecutionStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
- * using [Companion.Builder] or see [AbstractGenericErrorStatus] if you need to extend this type.
+ * using [Companion.Builder] or see [AbstractCommonExecutionStatus] if you need to extend this type.
  */
-@Document(name = "bit:GenericErrorStatus")
-public interface GenericErrorStatus : CommonExecutionStatus {
-  /** Converts this [GenericErrorStatus] to its builder with all the properties copied over. */
+@Document(name = "bit:CommonExecutionStatus")
+public interface CommonExecutionStatus : ExecutionStatus {
+  /** Converts this [CommonExecutionStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = GenericErrorStatusImpl.Builder()
+    @JvmStatic public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**
-   * Builder for [GenericErrorStatus].
+   * Builder for [CommonExecutionStatus].
    *
    * Should not be directly implemented. More methods may be added over time. See
-   * [AbstractGenericErrorStatus.Builder] if you need to extend this builder.
+   * [AbstractCommonExecutionStatus.Builder] if you need to extend this builder.
    */
-  public interface Builder<Self : Builder<Self>> : CommonExecutionStatus.Builder<Self> {
-    /** Returns a built [GenericErrorStatus]. */
-    public override fun build(): GenericErrorStatus
+  public interface Builder<Self : Builder<Self>> : ExecutionStatus.Builder<Self> {
+    /** Returns a built [CommonExecutionStatus]. */
+    public override fun build(): CommonExecutionStatus
   }
 }
 
 /**
- * An abstract implementation of [GenericErrorStatus].
+ * An abstract implementation of [CommonExecutionStatus].
  *
  * Allows for extension like:
  * ```kt
- * class MyGenericErrorStatus internal constructor(
- *   genericErrorStatus: GenericErrorStatus,
+ * class MyCommonExecutionStatus internal constructor(
+ *   commonExecutionStatus: CommonExecutionStatus,
  *   val foo: String,
  *   val bars: List<Int>,
- * ) : AbstractGenericErrorStatus<
- *   MyGenericErrorStatus,
- *   MyGenericErrorStatus.Builder
- * >(genericErrorStatus) {
+ * ) : AbstractCommonExecutionStatus<
+ *   MyCommonExecutionStatus,
+ *   MyCommonExecutionStatus.Builder
+ * >(commonExecutionStatus) {
  *
  *   override val selfTypeName =
- *     "MyGenericErrorStatus"
+ *     "MyCommonExecutionStatus"
  *
  *   override val additionalProperties: Map<String, Any?>
  *     get() = mapOf("foo" to foo, "bars" to bars)
@@ -87,24 +91,24 @@ public interface GenericErrorStatus : CommonExecutionStatus {
  *   }
  *
  *   class Builder :
- *     AbstractGenericErrorStatus.Builder<
+ *     AbstractCommonExecutionStatus.Builder<
  *       Builder,
- *       MyGenericErrorStatus> {...}
+ *       MyCommonExecutionStatus> {...}
  * }
  * ```
  *
- * Also see [AbstractGenericErrorStatus.Builder].
+ * Also see [AbstractCommonExecutionStatus.Builder].
  */
 @Suppress("UNCHECKED_CAST")
-public abstract class AbstractGenericErrorStatus<
-  Self : AbstractGenericErrorStatus<Self, Builder>,
-  Builder : AbstractGenericErrorStatus.Builder<Builder, Self>>
+public abstract class AbstractCommonExecutionStatus<
+  Self : AbstractCommonExecutionStatus<Self, Builder>,
+  Builder : AbstractCommonExecutionStatus.Builder<Builder, Self>>
 internal constructor(
   public final override val namespace: String?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
-) : GenericErrorStatus {
+) : CommonExecutionStatus {
   /**
    * Human readable name for the concrete [Self] class.
    *
@@ -119,18 +123,20 @@ internal constructor(
    */
   protected abstract val additionalProperties: Map<String, Any?>
 
-  /** A copy-constructor that copies over properties from another [GenericErrorStatus] instance. */
+  /**
+   * A copy-constructor that copies over properties from another [CommonExecutionStatus] instance.
+   */
   public constructor(
-    genericErrorStatus: GenericErrorStatus
+    commonExecutionStatus: CommonExecutionStatus
   ) : this(
-    genericErrorStatus.namespace,
-    genericErrorStatus.disambiguatingDescription,
-    genericErrorStatus.identifier,
-    genericErrorStatus.name
+    commonExecutionStatus.namespace,
+    commonExecutionStatus.disambiguatingDescription,
+    commonExecutionStatus.identifier,
+    commonExecutionStatus.name
   )
 
   /**
-   * Returns a concrete [Builder] with the additional, non-[GenericErrorStatus] properties copied
+   * Returns a concrete [Builder] with the additional, non-[CommonExecutionStatus] properties copied
    * over.
    */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
@@ -178,34 +184,34 @@ internal constructor(
   }
 
   /**
-   * An abstract implementation of [GenericErrorStatus.Builder].
+   * An abstract implementation of [CommonExecutionStatus.Builder].
    *
    * Allows for extension like:
    * ```kt
-   * class MyGenericErrorStatus :
-   *   : AbstractGenericErrorStatus<
-   *     MyGenericErrorStatus,
-   *     MyGenericErrorStatus.Builder>(...) {
+   * class MyCommonExecutionStatus :
+   *   : AbstractCommonExecutionStatus<
+   *     MyCommonExecutionStatus,
+   *     MyCommonExecutionStatus.Builder>(...) {
    *
    *   class Builder
    *   : Builder<
    *       Builder,
-   *       MyGenericErrorStatus
+   *       MyCommonExecutionStatus
    *   >() {
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
    *     override val selfTypeName =
-   *       "MyGenericErrorStatus.Builder"
+   *       "MyCommonExecutionStatus.Builder"
    *
    *     override val additionalProperties: Map<String, Any?>
    *       get() = mapOf("foo" to foo, "bars" to bars)
    *
-   *     override fun buildFromGenericErrorStatus(
-   *       genericErrorStatus: GenericErrorStatus
-   *     ): MyGenericErrorStatus {
-   *       return MyGenericErrorStatus(
-   *         genericErrorStatus,
+   *     override fun buildFromCommonExecutionStatus(
+   *       commonExecutionStatus: CommonExecutionStatus
+   *     ): MyCommonExecutionStatus {
+   *       return MyCommonExecutionStatus(
+   *         commonExecutionStatus,
    *         foo,
    *         bars.toList()
    *       )
@@ -226,12 +232,12 @@ internal constructor(
    * }
    * ```
    *
-   * Also see [AbstractGenericErrorStatus].
+   * Also see [AbstractCommonExecutionStatus].
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-    Self : Builder<Self, Built>, Built : AbstractGenericErrorStatus<Built, Self>> :
-    GenericErrorStatus.Builder<Self> {
+    Self : Builder<Self, Built>, Built : AbstractCommonExecutionStatus<Built, Self>> :
+    CommonExecutionStatus.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -255,22 +261,22 @@ internal constructor(
     private var name: Name? = null
 
     /**
-     * Builds a concrete [Built] instance, given a built [GenericErrorStatus].
+     * Builds a concrete [Built] instance, given a built [CommonExecutionStatus].
      *
      * Subclasses should override this method to build a concrete [Built] instance that holds both
-     * the [GenericErrorStatus]-specific properties and the subclass specific
+     * the [CommonExecutionStatus]-specific properties and the subclass specific
      * [additionalProperties].
      *
      * See the sample code in the documentation of this class for more context.
      */
     @Suppress("BuilderSetStyle")
-    protected abstract fun buildFromGenericErrorStatus(
-      genericErrorStatus: GenericErrorStatus
+    protected abstract fun buildFromCommonExecutionStatus(
+      commonExecutionStatus: CommonExecutionStatus
     ): Built
 
     public final override fun build(): Built =
-      buildFromGenericErrorStatus(
-        GenericErrorStatusImpl(namespace, disambiguatingDescription, identifier, name)
+      buildFromCommonExecutionStatus(
+        CommonExecutionStatusImpl(namespace, disambiguatingDescription, identifier, name)
       )
 
     public final override fun setNamespace(namespace: String?): Self {
@@ -336,10 +342,10 @@ internal constructor(
   }
 }
 
-private class GenericErrorStatusImpl :
-  AbstractGenericErrorStatus<GenericErrorStatusImpl, GenericErrorStatusImpl.Builder> {
+private class CommonExecutionStatusImpl :
+  AbstractCommonExecutionStatus<CommonExecutionStatusImpl, CommonExecutionStatusImpl.Builder> {
   protected override val selfTypeName: String
-    get() = "GenericErrorStatus"
+    get() = "CommonExecutionStatus"
 
   protected override val additionalProperties: Map<String, Any?>
     get() = emptyMap()
@@ -351,20 +357,22 @@ private class GenericErrorStatusImpl :
     name: Name?,
   ) : super(namespace, disambiguatingDescription, identifier, name)
 
-  public constructor(genericErrorStatus: GenericErrorStatus) : super(genericErrorStatus)
+  public constructor(commonExecutionStatus: CommonExecutionStatus) : super(commonExecutionStatus)
 
   protected override fun toBuilderWithAdditionalPropertiesOnly(): Builder = Builder()
 
-  public class Builder : AbstractGenericErrorStatus.Builder<Builder, GenericErrorStatusImpl>() {
+  public class Builder :
+    AbstractCommonExecutionStatus.Builder<Builder, CommonExecutionStatusImpl>() {
     protected override val selfTypeName: String
-      get() = "GenericErrorStatus.Builder"
+      get() = "CommonExecutionStatus.Builder"
 
     protected override val additionalProperties: Map<String, Any?>
       get() = emptyMap()
 
-    protected override fun buildFromGenericErrorStatus(
-      genericErrorStatus: GenericErrorStatus
-    ): GenericErrorStatusImpl =
-      genericErrorStatus as? GenericErrorStatusImpl ?: GenericErrorStatusImpl(genericErrorStatus)
+    protected override fun buildFromCommonExecutionStatus(
+      commonExecutionStatus: CommonExecutionStatus
+    ): CommonExecutionStatusImpl =
+      commonExecutionStatus as? CommonExecutionStatusImpl
+        ?: CommonExecutionStatusImpl(commonExecutionStatus)
   }
 }
