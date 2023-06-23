@@ -16,6 +16,8 @@
 
 package androidx.build.testConfiguration
 
+import java.io.StringReader
+import javax.xml.parsers.SAXParserFactory
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Before
@@ -24,8 +26,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.xml.sax.InputSource
 import org.xml.sax.helpers.DefaultHandler
-import java.io.StringReader
-import javax.xml.parsers.SAXParserFactory
 
 /**
  * Simple check that the test config templates are able to be parsed as valid xml.
@@ -251,7 +251,6 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testValidTestConfigXml_runAllTests() {
-        builder.runAllTests(false)
         validate(builder.buildXml())
     }
 

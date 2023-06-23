@@ -65,7 +65,6 @@ val ALLOW_RERUNNING_TASKS = setOf(
     "relocateShadowJar",
     "testDebugUnitTest",
     "verifyDependencyVersions",
-    "zipConstrainedTestConfigsWithApks",
     "zipTestConfigsWithApks",
     "zipHtmlResultsOfTestDebugUnitTest",
     "zipXmlResultsOfTestDebugUnitTest",
