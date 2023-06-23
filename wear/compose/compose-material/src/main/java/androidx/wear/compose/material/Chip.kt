@@ -1077,8 +1077,8 @@ public object ChipDefaults {
         )
     }
 
-    private val ChipHorizontalPadding = 14.dp
-    private val ChipVerticalPadding = 6.dp
+    public val ChipHorizontalPadding = 14.dp
+    public val ChipVerticalPadding = 6.dp
 
     /**
      * The default content padding used by [Chip]
@@ -1090,8 +1090,8 @@ public object ChipDefaults {
         bottom = ChipVerticalPadding
     )
 
-    private val CompactChipHorizontalPadding = 12.dp
-    private val CompactChipVerticalPadding = 0.dp
+    public val CompactChipHorizontalPadding = 12.dp
+    public val CompactChipVerticalPadding = 0.dp
 
     /**
      * The default content padding used by [CompactChip]

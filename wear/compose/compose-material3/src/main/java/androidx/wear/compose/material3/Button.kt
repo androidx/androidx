@@ -837,8 +837,8 @@ object ButtonDefaults {
         }
     }
 
-    private val ButtonHorizontalPadding = 14.dp
-    private val ButtonVerticalPadding = 6.dp
+    val ButtonHorizontalPadding = 14.dp
+    val ButtonVerticalPadding = 6.dp
 
     /**
      * The default content padding used by [Button]
