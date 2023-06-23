@@ -21,7 +21,6 @@ package androidx.compose.foundation.text2.input.internal
 import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
@@ -43,11 +42,6 @@ internal interface TextInputSession {
      * from memory.
      */
     val isOpen: Boolean
-
-    /**
-     * Sets an optional [TextEditFilter] to be used when processing input.
-     */
-    fun setFilter(filter: TextEditFilter?)
 
     /**
      * Request this session to show the software keyboard.
