@@ -53,9 +53,8 @@ public class PrepareGetCredentialResponseJavaTest {
         }
 
         // Construct the test class.
-        PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.Builder()
-                .setIsNullHandlesForTest(true)
-                .setCredentialTypeHandler((val) ->
+        PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.TestBuilder()
+                .setCredentialTypeDelegate((val) ->
                     val.equals("password") || val.equals("otherValid"))
                 .build();
 
@@ -74,9 +73,8 @@ public class PrepareGetCredentialResponseJavaTest {
         }
 
         // Construct the test class.
-        PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.Builder()
-                .setIsNullHandlesForTest(true)
-                .setHasAuthenticationResultsHandler(() -> true)
+        PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.TestBuilder()
+                .setHasAuthResultsDelegate(() -> true)
                 .build();
 
         // Verify the response.
@@ -94,9 +92,8 @@ public class PrepareGetCredentialResponseJavaTest {
         }
 
         // Construct the test class.
-        PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.Builder()
-                .setIsNullHandlesForTest(true)
-                .setHasRemoteResultsHandler(() -> true)
+        PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.TestBuilder()
+                .setHasRemoteResultsDelegate(() -> true)
                 .build();
 
         // Verify the response.
