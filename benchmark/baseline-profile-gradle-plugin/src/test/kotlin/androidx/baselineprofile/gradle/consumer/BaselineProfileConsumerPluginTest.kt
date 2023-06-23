@@ -96,9 +96,13 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             )
         )
 
-        gradleRunner
-            .withArguments("generateBaselineProfile", "--stacktrace")
-            .build()
+        gradleRunner.build("generateBaselineProfile") {
+            val notFound = it.lines().requireInOrder(
+                "A baseline profile was generated for the variant `release`:",
+                baselineProfileFile("main").absolutePath
+            )
+            assertThat(notFound).isEmpty()
+        }
 
         assertThat(readBaselineProfileFileContent("main"))
             .containsExactly(
@@ -131,9 +135,15 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             )
         )
 
-        gradleRunner
-            .withArguments("generateBaselineProfile", "--stacktrace")
-            .build()
+        gradleRunner.build("generateBaselineProfile") {
+            val notFound = it.lines().requireInOrder(
+                "A baseline profile was generated for the variant `release`:",
+                baselineProfileFile("release").absolutePath,
+                "A startup profile was generated for the variant `release`:",
+                startupProfileFile("release").absolutePath
+            )
+            assertThat(notFound).isEmpty()
+        }
 
         assertThat(readBaselineProfileFileContent("release"))
             .containsExactly(
@@ -197,9 +207,18 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             contains("generatePaidReleaseBaselineProfile - ")
         }
 
-        gradleRunner
-            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
-            .build()
+        gradleRunner.build("generateReleaseBaselineProfile") {
+            val expected = arrayOf("freeRelease", "paidRelease").flatMap { variantName ->
+                listOf(
+                    "A baseline profile was generated for the variant `$variantName`:",
+                    baselineProfileFile(variantName).absolutePath,
+                    "A startup profile was generated for the variant `$variantName`:",
+                    startupProfileFile(variantName).absolutePath
+                )
+            }
+            val notFound = it.lines().requireInOrder(*expected.toTypedArray())
+            assertThat(notFound).isEmpty()
+        }
 
         assertThat(readBaselineProfileFileContent("freeRelease"))
             .containsExactly(
@@ -604,10 +623,18 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
         }
 
         // Asserts that the profile is not generated in the src folder
-        gradleRunner.build("generateFreeReleaseBaselineProfile") {}
+        gradleRunner.build("generateFreeReleaseBaselineProfile") {
 
-        val profileFile = baselineProfileFile("freeRelease")
-        assertThat(profileFile.exists()).isFalse()
+            // Note that here the profiles are generated in the intermediates so the output does
+            // not matter.
+            val notFound = it.lines().requireInOrder(
+                "A baseline profile was generated for the variant `freeRelease`:",
+                "A startup profile was generated for the variant `freeRelease`:",
+            )
+            assertThat(notFound).isEmpty()
+        }
+
+        assertThat(baselineProfileFile("freeRelease").exists()).isFalse()
     }
 
     @Test

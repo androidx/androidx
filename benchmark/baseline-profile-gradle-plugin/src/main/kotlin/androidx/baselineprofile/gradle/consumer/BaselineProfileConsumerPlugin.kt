@@ -233,8 +233,11 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // calling `generateReleaseBaselineProfiles`. On Agp 8.1 instead, it works as intended and
         // we can merge all the variants with `mergeIntoMain` true, independently from the build
         // type.
-        data class TaskAndFolderName(val taskVariantName: String, val folderVariantName: String)
-        val (mergeAwareVariantName, mergeAwareVariantOutput) = if (mergeIntoMain) {
+        data class TaskAndFolderName(
+            val taskVariantName: String,
+            val folderVariantName: String
+        )
+        val (mergeAwareTaskName, mergeAwareVariantOutput) = if (mergeIntoMain) {
             if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
                 TaskAndFolderName(
                     taskVariantName = "",
@@ -265,12 +268,18 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
 
         val mergeTaskProvider = MergeBaselineProfileTask.maybeRegisterForMerge(
             project = project,
-            variantName = mergeAwareVariantName,
+            variantName = variant.name,
+            mergeAwareTaskName = mergeAwareTaskName,
             hasDependencies = baselineProfileConfiguration.allDependencies.isNotEmpty(),
             sourceProfilesFileCollection = baselineProfileConfiguration,
             outputDir = mergedTaskOutputDir,
             filterRules = variantConfiguration.filterRules,
-            library = isLibraryModule()
+            library = isLibraryModule(),
+
+            // Note that the merge task is the last task only if saveInSrc is disabled. When
+            // saveInSrc is enabled an additional task is created to copy the profile in the sources
+            // folder.
+            isLastTask = !variantConfiguration.saveInSrc
         )
 
         // If `saveInSrc` is true, we create an additional task to copy the output
@@ -292,10 +301,12 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             // already handled in the MergeBaselineProfileTask.
             val copyTaskProvider = MergeBaselineProfileTask.maybeRegisterForCopy(
                 project = project,
-                variantName = mergeAwareVariantName,
+                variantName = variant.name,
+                mergeAwareTaskName = mergeAwareTaskName,
                 library = isLibraryModule(),
                 sourceDir = mergeTaskProvider.flatMap { it.baselineProfileDir },
                 outputDir = project.provider { srcOutputDir },
+                isLastTask = true
             )
 
             // Applies the source path for this variant
@@ -425,7 +436,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // depending on the configuration.
         maybeCreateGenerateTask<Task>(
             project = project,
-            variantName = mergeAwareVariantName,
+            variantName = mergeAwareTaskName,
             lastTaskProvider = lastTaskProvider
         )
 
