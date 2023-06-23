@@ -358,7 +358,7 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Carregamento ativado"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Carregamento desativado"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Tela de carregamento"</string>
-    <string name="vector_toggle_details" msgid="1301305340033556819">"Alternar para adicionar/remover cor"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Mudar para adicionar/remover cor"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modelo de mapa com botões"</string>
     <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Evitar pedágios"</string>
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opções de trajeto"</string>
