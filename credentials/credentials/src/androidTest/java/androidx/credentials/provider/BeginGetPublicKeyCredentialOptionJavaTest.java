@@ -24,7 +24,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.GetPublicKeyCredentialOption;
 import androidx.credentials.PublicKeyCredential;
 import androidx.credentials.TestUtilsKt;
@@ -40,108 +39,93 @@ public class BeginGetPublicKeyCredentialOptionJavaTest {
     private static final String BUNDLE_ID_KEY =
             "android.service.credentials.BeginGetCredentialOption.BUNDLE_ID_KEY";
     private static final String BUNDLE_ID = "id";
+
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
-        if (BuildCompat.isAtLeastU()) {
-            assertThrows("Expected empty Json to throw error",
-                    IllegalArgumentException.class,
-                    () -> new BeginGetPublicKeyCredentialOption(
-                            new Bundle(), "", "")
-            );
-        }
+        assertThrows("Expected empty Json to throw error",
+                IllegalArgumentException.class,
+                () -> new BeginGetPublicKeyCredentialOption(
+                        new Bundle(), "", "")
+        );
     }
 
     @Test
     public void constructor_invalidJson_throwsIllegalArgumentException() {
-        if (BuildCompat.isAtLeastU()) {
-            assertThrows("Expected invalid Json to throw error",
-                    IllegalArgumentException.class,
-                    () -> new BeginGetPublicKeyCredentialOption(
-                            new Bundle(), "", "invalid")
-            );
-        }
+        assertThrows("Expected invalid Json to throw error",
+                IllegalArgumentException.class,
+                () -> new BeginGetPublicKeyCredentialOption(
+                        new Bundle(), "", "invalid")
+        );
     }
 
     @Test
     public void constructor_nullJson_throwsNullPointerException() {
-        if (BuildCompat.isAtLeastU()) {
-            assertThrows("Expected null Json to throw NPE",
-                    NullPointerException.class,
-                    () -> new BeginGetPublicKeyCredentialOption(
-                            new Bundle(), BUNDLE_ID, null)
-            );
-        }
+        assertThrows("Expected null Json to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetPublicKeyCredentialOption(
+                        new Bundle(), BUNDLE_ID, null)
+        );
     }
 
     @Test
     public void constructor_success() {
-        if (BuildCompat.isAtLeastU()) {
-            new BeginGetPublicKeyCredentialOption(
-                    new Bundle(), BUNDLE_ID,
-                    "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
-        }
+        new BeginGetPublicKeyCredentialOption(
+                new Bundle(), BUNDLE_ID,
+                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
     }
 
     @Test
     public void constructorWithClientDataHash_success() {
-        if (BuildCompat.isAtLeastU()) {
-            new BeginGetPublicKeyCredentialOption(
-                    new Bundle(), BUNDLE_ID,
-                    "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                    "client_data_hash".getBytes());
-        }
+        new BeginGetPublicKeyCredentialOption(
+                new Bundle(), BUNDLE_ID,
+                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
+                "client_data_hash".getBytes());
     }
 
     @Test
     public void getter_requestJson_success() {
-        if (BuildCompat.isAtLeastU()) {
-            String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+        String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
 
-            BeginGetPublicKeyCredentialOption getPublicKeyCredentialOpt =
-                    new BeginGetPublicKeyCredentialOption(
-                            new Bundle(), BUNDLE_ID, testJsonExpected);
+        BeginGetPublicKeyCredentialOption getPublicKeyCredentialOpt =
+                new BeginGetPublicKeyCredentialOption(
+                        new Bundle(), BUNDLE_ID, testJsonExpected);
 
-            String testJsonActual = getPublicKeyCredentialOpt.getRequestJson();
-            assertThat(testJsonActual).isEqualTo(testJsonExpected);
-        }
+        String testJsonActual = getPublicKeyCredentialOpt.getRequestJson();
+        assertThat(testJsonActual).isEqualTo(testJsonExpected);
     }
 
     @Test
     public void getter_clientDataHash_success() {
-        if (BuildCompat.isAtLeastU()) {
-            byte[] testClientDataHashExpected = "client_data_hash".getBytes();
+        byte[] testClientDataHashExpected = "client_data_hash".getBytes();
 
-            BeginGetPublicKeyCredentialOption beginGetPublicKeyCredentialOpt =
-                    new BeginGetPublicKeyCredentialOption(
-                            new Bundle(), BUNDLE_ID,
-                            "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                            testClientDataHashExpected);
+        BeginGetPublicKeyCredentialOption beginGetPublicKeyCredentialOpt =
+                new BeginGetPublicKeyCredentialOption(
+                        new Bundle(), BUNDLE_ID,
+                        "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
+                        testClientDataHashExpected);
 
-            byte[] testClientDataHashActual = beginGetPublicKeyCredentialOpt.getClientDataHash();
-            assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected);
-        }
+        byte[] testClientDataHashActual = beginGetPublicKeyCredentialOpt.getClientDataHash();
+        assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected);
     }
 
     @Test
     public void getter_frameworkProperties_success() {
-        if (BuildCompat.isAtLeastU()) {
-            String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-            byte[] clientDataHash = "client_data_hash".getBytes();
-            Bundle expectedData = new Bundle();
-            expectedData.putString(
-                    PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-                    GetPublicKeyCredentialOption
-                            .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
-            expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-            expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-                    clientDataHash);
+        String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+        byte[] clientDataHash = "client_data_hash".getBytes();
+        Bundle expectedData = new Bundle();
+        expectedData.putString(
+                PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
+                GetPublicKeyCredentialOption
+                        .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
+        expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
+        expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+                clientDataHash);
 
-            BeginGetPublicKeyCredentialOption option = new BeginGetPublicKeyCredentialOption(
-                    expectedData, BUNDLE_ID, requestJsonExpected, clientDataHash);
+        BeginGetPublicKeyCredentialOption option = new BeginGetPublicKeyCredentialOption(
+                expectedData, BUNDLE_ID, requestJsonExpected, clientDataHash);
 
-            expectedData.putString(BUNDLE_ID_KEY, BUNDLE_ID);
-            assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-            assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
-        }
+        expectedData.putString(BUNDLE_ID_KEY, BUNDLE_ID);
+        assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
     }
 }

@@ -23,6 +23,7 @@ import android.app.slice.SliceSpec
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -30,6 +31,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
+import androidx.credentials.provider.PasswordCredentialEntry.Companion.toSlice
 import java.time.Instant
 import java.util.Collections
 
@@ -64,7 +66,7 @@ import java.util.Collections
  *
  * @see CustomCredentialEntry
  */
-@RequiresApi(28)
+@RequiresApi(26)
 class PasswordCredentialEntry internal constructor(
     val username: CharSequence,
     val displayName: CharSequence?,
@@ -78,18 +80,7 @@ class PasswordCredentialEntry internal constructor(
     private val isDefaultIcon: Boolean = false
 ) : CredentialEntry(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    beginGetPasswordOption,
-    toSlice(
-        PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-        username,
-        displayName,
-        pendingIntent,
-        typeDisplayName,
-        lastUsedTime,
-        icon,
-        isAutoSelectAllowed,
-        beginGetPasswordOption
-    )
+    beginGetPasswordOption
 ) {
     init {
         require(username.isNotEmpty()) { "username must not be empty" }
@@ -142,57 +133,23 @@ class PasswordCredentialEntry internal constructor(
         beginGetPasswordOption,
     )
 
-    internal companion object {
-        private const val TAG = "PasswordCredentialEntry"
-
-        private const val SLICE_HINT_TYPE_DISPLAY_NAME =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
-
-        private const val SLICE_HINT_TITLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
-
-        private const val SLICE_HINT_SUBTITLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
-
-        private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
-
-        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
-
-        private const val SLICE_HINT_ICON =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
-
-        private const val SLICE_HINT_PENDING_INTENT =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
-
-        private const val SLICE_HINT_OPTION_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
-
-        private const val SLICE_HINT_AUTO_ALLOWED =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
-
-        private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
-
-        private const val REVISION_ID = 1
-
-        private const val AUTO_SELECT_TRUE_STRING = "true"
-
-        private const val AUTO_SELECT_FALSE_STRING = "false"
-
+    @RequiresApi(28)
+    private object Api28Impl {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        internal fun toSlice(
-            type: String,
-            title: CharSequence,
-            subTitle: CharSequence?,
-            pendingIntent: PendingIntent,
-            typeDisplayName: CharSequence?,
-            lastUsedTime: Instant?,
-            icon: Icon,
-            isAutoSelectAllowed: Boolean,
-            beginGetPasswordCredentialOption: BeginGetPasswordOption
+        fun toSlice(
+            entry: PasswordCredentialEntry
         ): Slice {
+            val type = entry.type
+            val title = entry.username
+            val subtitle = entry.displayName
+            val pendingIntent = entry.pendingIntent
+            val typeDisplayName = entry.typeDisplayName
+            val lastUsedTime = entry.lastUsedTime
+            val icon = entry.icon
+            val isAutoSelectAllowed = entry.isAutoSelectAllowed
+            val beginGetPasswordCredentialOption = entry.beginGetCredentialOption
+
             val autoSelectAllowed = if (isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
             } else {
@@ -212,7 +169,7 @@ class PasswordCredentialEntry internal constructor(
                     listOf(SLICE_HINT_TITLE)
                 )
                 .addText(
-                    subTitle, /*subType=*/null,
+                    subtitle, /*subType=*/null,
                     listOf(SLICE_HINT_SUBTITLE)
                 )
                 .addText(
@@ -337,6 +294,68 @@ class PasswordCredentialEntry internal constructor(
         }
     }
 
+    internal companion object {
+        private const val TAG = "PasswordCredentialEntry"
+
+        private const val SLICE_HINT_TYPE_DISPLAY_NAME =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+
+        private const val SLICE_HINT_TITLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
+
+        private const val SLICE_HINT_SUBTITLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
+
+        private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+
+        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+
+        private const val SLICE_HINT_ICON =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
+
+        private const val SLICE_HINT_PENDING_INTENT =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
+
+        private const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+
+        private const val SLICE_HINT_AUTO_ALLOWED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
+
+        private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+
+        private const val AUTO_SELECT_TRUE_STRING = "true"
+
+        private const val AUTO_SELECT_FALSE_STRING = "false"
+
+        private const val REVISION_ID = 1
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun toSlice(
+            entry: PasswordCredentialEntry
+        ): Slice? {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.toSlice(entry)
+            }
+            return null
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun fromSlice(
+            slice: Slice
+        ): PasswordCredentialEntry? {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.fromSlice(slice)
+            }
+            return null
+        }
+    }
+
     /**
      * Builder for [PasswordCredentialEntry]
      *
@@ -398,7 +417,7 @@ class PasswordCredentialEntry internal constructor(
 
         /** Builds an instance of [PasswordCredentialEntry] */
         fun build(): PasswordCredentialEntry {
-            if (icon == null) {
+            if (icon == null && Build.VERSION.SDK_INT >= 23) {
                 icon = Icon.createWithResource(context, R.drawable.ic_password)
             }
             val typeDisplayName = context.getString(

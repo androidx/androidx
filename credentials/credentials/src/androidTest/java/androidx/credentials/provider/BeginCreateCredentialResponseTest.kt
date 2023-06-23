@@ -16,7 +16,6 @@
 
 package androidx.credentials.provider
 
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.ui.UiUtils.Companion.constructCreateEntryWithSimpleParams
 import androidx.credentials.provider.ui.UiUtils.Companion.constructRemoteEntryDefault
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -26,17 +25,13 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class BeginCreateCredentialResponseTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         BeginCreateCredentialResponse(
             createEntries = listOf(
                 constructCreateEntryWithSimpleParams(
@@ -50,10 +45,6 @@ class BeginCreateCredentialResponseTest {
 
     @Test
     fun constructor_createEntriesOnly() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         BeginCreateCredentialResponse(
             createEntries = listOf(
                 constructCreateEntryWithSimpleParams(
@@ -66,10 +57,6 @@ class BeginCreateCredentialResponseTest {
 
     @Test
     fun constructor_remoteEntryOnly() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         BeginCreateCredentialResponse(
             remoteEntry = constructRemoteEntryDefault()
         )
@@ -77,9 +64,6 @@ class BeginCreateCredentialResponseTest {
 
     @Test
     fun getter_createEntry() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedAccountName = "AccountName"
         val expectedDescription = "Desc"
         val expectedSize = 1
@@ -102,10 +86,6 @@ class BeginCreateCredentialResponseTest {
 
     @Test
     fun getter_remoteEntry_null() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         val expectedRemoteEntry: RemoteEntry? = null
         val beginCreateCredentialResponse = BeginCreateCredentialResponse(
             listOf(
@@ -123,9 +103,6 @@ class BeginCreateCredentialResponseTest {
 
     @Test
     fun getter_remoteEntry_nonNull() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedRemoteEntry: RemoteEntry = constructRemoteEntryDefault()
 
         val beginCreateCredentialResponse = BeginCreateCredentialResponse(

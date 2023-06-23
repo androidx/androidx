@@ -16,9 +16,9 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import androidx.core.os.BuildCompat
 import androidx.credentials.equals
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Assert.assertThrows
@@ -26,53 +26,48 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 class BeginGetCustomCredentialOptionTest {
     @Test
     fun constructor_success() {
-        if (BuildCompat.isAtLeastU()) {
-            val expectedBundle = Bundle()
-            expectedBundle.putString("random", "random_value")
-            val expectedType = "type"
-            val expectedId = "id"
-            val option = BeginGetCustomCredentialOption(
-                expectedId, expectedType, expectedBundle
-            )
-            Truth.assertThat(option.type).isEqualTo(expectedType)
-            Truth.assertThat(option.id).isEqualTo(expectedId)
-            Truth.assertThat(equals(option.candidateQueryData, expectedBundle)).isTrue()
-        }
+        val expectedBundle = Bundle()
+        expectedBundle.putString("random", "random_value")
+        val expectedType = "type"
+        val expectedId = "id"
+        val option = BeginGetCustomCredentialOption(
+            expectedId, expectedType, expectedBundle
+        )
+        Truth.assertThat(option.type).isEqualTo(expectedType)
+        Truth.assertThat(option.id).isEqualTo(expectedId)
+        Truth.assertThat(equals(option.candidateQueryData, expectedBundle)).isTrue()
     }
 
     @Test
     fun constructor_emptyType_throwsIAE() {
-        if (BuildCompat.isAtLeastU()) {
-            assertThrows(
-                "Expected empty Json to throw error",
-                IllegalArgumentException::class.java
-            ) {
-                BeginGetCustomCredentialOption(
-                    "id",
-                    "",
-                    Bundle()
-                )
-            }
+        assertThrows(
+            "Expected empty Json to throw error",
+            IllegalArgumentException::class.java
+        ) {
+            BeginGetCustomCredentialOption(
+                "id",
+                "",
+                Bundle()
+            )
         }
     }
 
     @Test
     fun constructor_emptyId_throwsIAE() {
-        if (BuildCompat.isAtLeastU()) {
-            assertThrows(
-                "Expected empty Json to throw error",
-                IllegalArgumentException::class.java
-            ) {
-                BeginGetCustomCredentialOption(
-                    "",
-                    "type",
-                    Bundle()
-                )
-            }
+        assertThrows(
+            "Expected empty Json to throw error",
+            IllegalArgumentException::class.java
+        ) {
+            BeginGetCustomCredentialOption(
+                "",
+                "type",
+                Bundle()
+            )
         }
     }
 }

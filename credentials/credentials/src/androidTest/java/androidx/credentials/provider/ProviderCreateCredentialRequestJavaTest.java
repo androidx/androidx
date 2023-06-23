@@ -21,7 +21,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.content.pm.SigningInfo;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.CreatePasswordRequest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -30,17 +29,13 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ProviderCreateCredentialRequestJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         CreatePasswordRequest request = new CreatePasswordRequest("id", "password");
 
         new ProviderCreateCredentialRequest(request, new CallingAppInfo("name", new SigningInfo()));
@@ -48,10 +43,6 @@ public class ProviderCreateCredentialRequestJavaTest {
 
     @Test
     public void constructor_nullInputs_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows(
                 "Expected null list to throw NPE",
                 NullPointerException.class,

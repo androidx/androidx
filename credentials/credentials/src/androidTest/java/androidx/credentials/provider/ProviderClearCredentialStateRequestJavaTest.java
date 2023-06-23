@@ -30,7 +30,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ProviderClearCredentialStateRequestJavaTest {

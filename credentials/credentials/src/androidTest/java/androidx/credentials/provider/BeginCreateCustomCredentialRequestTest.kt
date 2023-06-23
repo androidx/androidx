@@ -18,7 +18,6 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -27,24 +26,18 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class BeginCreateCustomCredentialRequestTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginCreateCustomCredentialRequest("type", Bundle.EMPTY, null)
     }
 
     @Test
     fun constructor_emptyType_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty type to throw IAE",
             IllegalArgumentException::class.java
@@ -60,9 +53,6 @@ class BeginCreateCustomCredentialRequestTest {
 
     @Test
     fun getter_type() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedType = "ironman"
         val beginCreateCustomCredentialRequest =
             BeginCreateCustomCredentialRequest(expectedType, Bundle.EMPTY, null)
@@ -72,9 +62,6 @@ class BeginCreateCustomCredentialRequestTest {
 
     @Test
     fun getter_bundle() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedKey = "query"
         val expectedValue = "data"
         val expectedBundle = Bundle()
