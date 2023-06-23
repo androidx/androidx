@@ -2453,6 +2453,38 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(extras.getBoolean(NotificationCompat.EXTRA_CALL_IS_VIDEO));
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 24) // TODO: Should be 20. Adjust when b/288084025 is fixed.
+    public void testCallStyle_preservesCustomActions() {
+        PendingIntent hangupIntent = createIntent("hangup");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forOngoingCall(
+                person, hangupIntent);
+        NotificationCompat.Action customAction = new NotificationCompat.Action.Builder(
+                IconCompat.createWithResource(mContext, R.drawable.notification_bg),
+                "Custom!", null).build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .addAction(customAction)
+                .setStyle(callStyle)
+                .build();
+
+        Notification.Action[] resultActions = notification.actions;
+        assertThat(resultActions).hasLength(2); // Hang up + custom (fits on all Android versions).
+        // But ordering is different per version.
+        if (Build.VERSION.SDK_INT <= 30 || Build.VERSION.SDK_INT >= 34) {
+            assertThat(resultActions[0].title.toString()).isEqualTo(
+                    mContext.getString(R.string.call_notification_hang_up_action));
+            assertThat(resultActions[1].title.toString()).isEqualTo(customAction.title.toString());
+        } else {
+            assertThat(resultActions[0].title.toString()).isEqualTo(customAction.title.toString());
+            assertThat(resultActions[1].title.toString()).isEqualTo(
+                    mContext.getString(R.string.call_notification_hang_up_action));
+        }
+    }
+
     @SdkSuppress(minSdkVersion = 20)
     @Test
     public void testCallStyle_getActionsListWithSystemAndContextualActionsForIncoming() {

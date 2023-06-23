@@ -5004,9 +5004,18 @@ public class NotificationCompat {
                         }
                 }
                 if (style != null) {
-                    // Before applying the style, we clear the actions.
+                    // Before applying the style, we clear any previous style-provided actions.
+                    ArrayList<Action> customActions = new ArrayList<>();
+                    for (Action action : mBuilder.mActions) {
+                        if (!isActionAddedByCallStyle(action)) {
+                            customActions.add(action);
+                        }
+                    }
                     Api24Impl.clearActions(builderAccessor.getBuilder());
-
+                    for (Action action : customActions) {
+                        Api20Impl.addAction(builderAccessor.getBuilder(),
+                                getActionFromActionCompat(action));
+                    }
                     Api16Impl.setBuilder(style, builderAccessor.getBuilder());
                     if (mAnswerButtonColor != null) {
                         Api31Impl.setAnswerButtonColorHint(style, mAnswerButtonColor);
@@ -6196,6 +6205,9 @@ public class NotificationCompat {
                 if (Build.VERSION.SDK_INT >= 31) {
                     builder.setAuthenticationRequired(Api31Impl.isAuthenticationRequired(action));
                 }
+                if (Build.VERSION.SDK_INT >= 20) {
+                    builder.addExtras(Api20Impl.getExtras(action));
+                }
                 return builder;
             }
 
@@ -6433,6 +6445,10 @@ public class NotificationCompat {
                     return action.getRemoteInputs();
                 }
 
+                @DoNotInline
+                static Bundle getExtras(Notification.Action action) {
+                    return action.getExtras();
+                }
             }
 
             /**
