@@ -2237,7 +2237,6 @@ public final class MediaRouter {
             this(provider, /* treatRouteDescriptorIdsAsUnique= */ false);
         }
 
-        /** @hide */
         ProviderInfo(MediaRouteProvider provider, boolean treatRouteDescriptorIdsAsUnique) {
             mProviderInstance = provider;
             mMetadata = provider.getMetadata();
