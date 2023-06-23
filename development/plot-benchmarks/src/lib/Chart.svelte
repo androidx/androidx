@@ -109,11 +109,12 @@
       </label>
     </div>
     <div class="legend">
-      {#each $legendLabels as label}
+      {#each $legendLabels as label, index}
         <div
           class="item"
-          on:click={onItemClick(label)}
-          on:keyup={onItemClick(label)}
+          on:dblclick={onItemClick(label)}
+          aria-label="legend"
+          role="listitem"
         >
           <span
             class="box"

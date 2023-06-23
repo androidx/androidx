@@ -91,7 +91,7 @@ function labelsFor(collection: MetricsCollection): Array<string> {
   return labels;
 }
 
-function histogramPoints(runs: Array<number[]>, buckets: number = 15): Array<Point> {
+function histogramPoints(runs: Array<number[]>, buckets: number = 10): Array<Point> {
   const flattened = runs.flat();
   // Default comparator coerces types to string !
   flattened.sort((a, b) => a - b); // in-place
