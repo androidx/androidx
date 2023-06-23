@@ -24,8 +24,8 @@ import androidx.versionedparcelable.ParcelImpl;
  * <p>
  * Keep this interface oneway. Otherwise a malicious app may implement fake version of this,
  * and holds calls from session to make session owner(s) frozen.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IMediaSessionService {
     void connect(IMediaController caller, in ParcelImpl connectionRequest) = 0;
     // Next Id : 1

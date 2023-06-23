@@ -31,7 +31,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.v4.media.session;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMediaSession {
   void sendCommand(String command, in android.os.Bundle args, in android.support.v4.media.session.MediaSessionCompat.ResultReceiverWrapper cb) = 0;
   boolean sendMediaButton(in android.view.KeyEvent mediaButton) = 1;
