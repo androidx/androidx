@@ -26,8 +26,6 @@ class ConfigBuilder {
     var isBenchmark: Boolean = false
     var isPostsubmit: Boolean = true
     lateinit var minSdk: String
-    var runAllTests: Boolean = true
-    var cleanupApks: Boolean = true
     val tags = mutableListOf<String>()
     lateinit var testApkName: String
     lateinit var testApkSha256: String
@@ -41,8 +39,6 @@ class ConfigBuilder {
     fun isBenchmark(isBenchmark: Boolean) = apply { this.isBenchmark = isBenchmark }
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
     fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
-    fun runAllTests(runAllTests: Boolean) = apply { this.runAllTests = runAllTests }
-    fun cleanupApks(cleanupApks: Boolean) = apply { this.cleanupApks = cleanupApks }
     fun tag(tag: String) = apply { this.tags.add(tag) }
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
@@ -94,7 +90,7 @@ class ConfigBuilder {
             }
         }
         sb.append(SETUP_INCLUDE)
-            .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", cleanupApks.toString()))
+            .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
             .append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         if (!appApkName.isNullOrEmpty())
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
@@ -102,17 +98,7 @@ class ConfigBuilder {
             .append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
-        if (runAllTests) {
-            sb.append(TEST_BLOCK_CLOSE)
-        } else {
-            sb.append(SMALL_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-                .append(TEST_BLOCK_OPEN)
-            sb.append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-                .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
-                .append(MEDIUM_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-        }
+            .append(TEST_BLOCK_CLOSE)
         sb.append(CONFIGURATION_CLOSE)
         return sb.toString()
     }
@@ -289,15 +275,5 @@ private val BENCHMARK_POSTSUBMIT_OPTIONS = """
 
 private val FLAKY_TEST_OPTION = """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
-
-""".trimIndent()
-
-private val SMALL_TEST_OPTIONS = """
-    <option name="size" value="small" />
-
-""".trimIndent()
-
-private val MEDIUM_TEST_OPTIONS = """
-    <option name="size" value="medium" />
 
 """.trimIndent()

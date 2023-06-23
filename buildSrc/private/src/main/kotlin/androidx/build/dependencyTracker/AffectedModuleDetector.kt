@@ -100,11 +100,6 @@ abstract class AffectedModuleDetector(
      */
     abstract fun getSubset(projectPath: String): ProjectSubset
 
-    fun getSubset(task: Task): ProjectSubset {
-        val projectPath = getProjectPathFromTaskPath(task.path)
-        return getSubset(projectPath)
-    }
-
     fun getProjectPathFromTaskPath(taskPath: String): String {
         val lastColonIndex = taskPath.lastIndexOf(":")
         val projectPath = taskPath.substring(0, lastColonIndex)

@@ -16,7 +16,6 @@
 
 package androidx.build.testConfiguration
 
-import androidx.build.dependencyTracker.ProjectSubset
 import com.android.build.api.variant.BuiltArtifacts
 import com.android.build.api.variant.BuiltArtifactsLoader
 import java.io.File
@@ -72,9 +71,6 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
 
     @get:Internal
     abstract val servicePreviousLoader: Property<BuiltArtifactsLoader>
-
-    @get:Input
-    abstract val affectedModuleDetectorSubset: Property<ProjectSubset>
 
     @get:Input
     abstract val minSdk: Property<Int>
