@@ -52,6 +52,8 @@ final class HeifEncoder extends EncoderBase {
 
     protected static final int GRID_WIDTH = 512;
     protected static final int GRID_HEIGHT = 512;
+    // Block size for HEVC encoder
+    protected static final int ENCODING_BLOCK_SIZE = 32;
     protected static final double MAX_COMPRESS_RATIO = 0.25f;
 
     private static final MediaCodecList sMCL =
