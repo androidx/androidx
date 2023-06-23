@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.window.layout
+package androidx.window.layout.util
 
 import android.app.Activity
 import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.window.layout.util.ContextUtils
-import androidx.window.layout.util.ContextUtils.unwrapUiContext
+import androidx.window.layout.util.ContextCompatHelper.unwrapUiContext
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 
 /**
- * Instrumentation tests for [ContextUtils].
+ * Instrumentation tests for [ContextCompatHelper].
  */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class ContextUtilsTest {
+class ContextCompatHelperTest {
 
     @Test
     fun testUnwrapUiContext_noContextWrapper_activity() {
