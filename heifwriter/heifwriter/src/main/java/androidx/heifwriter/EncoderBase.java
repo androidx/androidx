@@ -76,6 +76,7 @@ public class EncoderBase implements AutoCloseable,
     private String MIME;
     private int GRID_WIDTH;
     private int GRID_HEIGHT;
+    private int ENCODING_BLOCK_SIZE;
     private double MAX_COMPRESS_RATIO;
     private int INPUT_BUFFER_POOL_SIZE = 2;
 
@@ -214,12 +215,14 @@ public class EncoderBase implements AutoCloseable,
                 MIME = mimeType;
                 GRID_WIDTH = HeifEncoder.GRID_WIDTH;
                 GRID_HEIGHT = HeifEncoder.GRID_HEIGHT;
+                ENCODING_BLOCK_SIZE = HeifEncoder.ENCODING_BLOCK_SIZE;
                 MAX_COMPRESS_RATIO = HeifEncoder.MAX_COMPRESS_RATIO;
                 break;
             case "AVIF":
                 MIME = mimeType;
                 GRID_WIDTH = AvifEncoder.GRID_WIDTH;
                 GRID_HEIGHT = AvifEncoder.GRID_HEIGHT;
+                ENCODING_BLOCK_SIZE = AvifEncoder.ENCODING_BLOCK_SIZE;
                 MAX_COMPRESS_RATIO = AvifEncoder.MAX_COMPRESS_RATIO;
                 break;
             default:
@@ -298,7 +301,8 @@ public class EncoderBase implements AutoCloseable,
             gridRows = (height + GRID_HEIGHT - 1) / GRID_HEIGHT;
             gridCols = (width + GRID_WIDTH - 1) / GRID_WIDTH;
         } else {
-            gridWidth = mWidth;
+            gridWidth = (mWidth + ENCODING_BLOCK_SIZE - 1)
+                    / ENCODING_BLOCK_SIZE * ENCODING_BLOCK_SIZE;
             gridHeight = mHeight;
             gridRows = 1;
             gridCols = 1;
