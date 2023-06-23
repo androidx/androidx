@@ -767,6 +767,7 @@ public class ViewCompat {
                 && (getAccessibilityDelegateInternal(v) instanceof AccessibilityDelegateAdapter)) {
             delegate = new AccessibilityDelegateCompat();
         }
+        setImportantForAccessibilityIfNeeded(v);
         v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
     }
 
@@ -4821,7 +4822,7 @@ public class ViewCompat {
             Api19Impl.setContentChangeTypes(event, changeType);
             if (isVisibleAccessibilityPane) {
                 event.getText().add(getAccessibilityPaneTitle(view));
-                setViewImportanceForAccessibilityIfNeeded(view);
+                setImportantForAccessibilityIfNeeded(view);
             }
             view.sendAccessibilityEventUnchecked(event);
         } else if (changeType == AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED) {
@@ -4844,22 +4845,11 @@ public class ViewCompat {
         }
     }
 
-    private static void setViewImportanceForAccessibilityIfNeeded(View view) {
+    private static void setImportantForAccessibilityIfNeeded(View view) {
         if (ViewCompat.getImportantForAccessibility(view)
                 == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
             ViewCompat.setImportantForAccessibility(view,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
-        }
-        // Check parent mode to ensure we're not hidden.
-        ViewParent parent = view.getParent();
-        while (parent instanceof View) {
-            if (ViewCompat.getImportantForAccessibility((View) parent)
-                    == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
-                ViewCompat.setImportantForAccessibility(view,
-                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
-                break;
-            }
-            parent = parent.getParent();
         }
     }
 
