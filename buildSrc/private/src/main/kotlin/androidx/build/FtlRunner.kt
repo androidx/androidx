@@ -109,7 +109,7 @@ abstract class FtlRunner : DefaultTask() {
             appApk.elements.single().outputFile
         } else {
             "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                "aadb5e0219ce132e73236ef1e06bb50dd60217e20e803ea00d57a1cf1cea902c.apk"
+                "37728671722adb4f49b23ed2f0edb0b4def51c841b0735fdd1648942ff1e9090.apk"
         }
         try {
             execOperations.exec {
