@@ -653,6 +653,9 @@ class AndroidXImplPlugin @Inject constructor(
         defaultConfig.targetSdk = TARGET_SDK_VERSION
         ndkVersion = SupportConfig.NDK_VERSION
 
+        // Suppress output of android:compileSdkVersion and related attributes (b/277836549).
+        aaptOptions.additionalParameters += "--no-compile-sdk-metadata"
+
         defaultConfig.testInstrumentationRunner = INSTRUMENTATION_RUNNER
 
         testOptions.animationsDisabled = true
