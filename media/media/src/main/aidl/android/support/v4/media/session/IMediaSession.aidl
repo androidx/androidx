@@ -32,8 +32,8 @@ import java.util.List;
 
 /**
  * Interface to a MediaSessionCompat.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMediaSession {
     // Next ID: 50
     void sendCommand(String command, in Bundle args, in MediaSessionCompat.ResultReceiverWrapper cb) = 0;
