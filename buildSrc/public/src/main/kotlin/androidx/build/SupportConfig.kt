@@ -24,8 +24,6 @@ import org.gradle.api.file.FileCollection
 object SupportConfig {
     const val DEFAULT_MIN_SDK_VERSION = 14
     const val INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
-    private const val INTERNAL_BUILD_TOOLS_VERSION = "34.0.0-rc3"
-    private const val PUBLIC_BUILD_TOOLS_VERSION = "34.0.0"
     const val NDK_VERSION = "23.1.7779620"
 
     /**
@@ -55,13 +53,7 @@ object SupportConfig {
      * Note that the value might be different between the internal and external (github) builds.
      */
     @JvmStatic
-    fun buildToolsVersion(project: Project): String {
-        return if (ProjectLayoutType.isPlayground(project)) {
-            PUBLIC_BUILD_TOOLS_VERSION
-        } else {
-            INTERNAL_BUILD_TOOLS_VERSION
-        }
-    }
+    fun buildToolsVersion(@Suppress("UNUSED_PARAMETER") project: Project): String = "34.0.0"
 }
 
 fun Project.getExternalProjectPath(): File {
