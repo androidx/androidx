@@ -657,7 +657,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mUiContext = config.getUiContext();
         this.mRendererResources = config.getRendererResources();
         this.mResourceResolversProvider = config.getResourceResolversProvider();
-        this.mProtoLayoutTheme = ProtoLayoutThemeImpl.defaultTheme(mUiContext);
+        this.mProtoLayoutTheme = config.getProtoLayoutTheme();
         this.mLoadActionListener = config.getLoadActionListener();
         this.mUiExecutorService = config.getUiExecutorService();
         this.mBgExecutorService = config.getBgExecutorService();
