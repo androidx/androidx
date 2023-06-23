@@ -27,7 +27,7 @@ public final class $$__AppSearch__AutoValue_Gift_A implements DocumentClassFacto
   }
 
   @Override
-  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
     return Collections.emptyList();
   }
 

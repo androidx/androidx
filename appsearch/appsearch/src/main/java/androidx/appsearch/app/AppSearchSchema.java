@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.appsearch.util.IndentingStringBuilder;
@@ -51,6 +52,7 @@ import java.util.Set;
 public final class AppSearchSchema {
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
     private static final String PROPERTIES_FIELD = "properties";
+    private static final String PARENT_TYPES_FIELD = "parentTypes";
 
     private final Bundle mBundle;
 
@@ -139,6 +141,18 @@ public final class AppSearchSchema {
         return ret;
     }
 
+    /**
+     * Returns the list of parent types of this schema for polymorphism.
+     */
+    @NonNull
+    public List<String> getParentTypes() {
+        List<String> parentTypes = mBundle.getStringArrayList(AppSearchSchema.PARENT_TYPES_FIELD);
+        if (parentTypes == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(parentTypes);
+    }
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -151,18 +165,22 @@ public final class AppSearchSchema {
         if (!getSchemaType().equals(otherSchema.getSchemaType())) {
             return false;
         }
+        if (!getParentTypes().equals(otherSchema.getParentTypes())) {
+            return false;
+        }
         return getProperties().equals(otherSchema.getProperties());
     }
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(getSchemaType(), getProperties());
+        return ObjectsCompat.hash(getSchemaType(), getProperties(), getParentTypes());
     }
 
     /** Builder for {@link AppSearchSchema objects}. */
     public static final class Builder {
         private final String mSchemaType;
         private ArrayList<Bundle> mPropertyBundles = new ArrayList<>();
+        private ArraySet<String> mParentTypes = new ArraySet<>();
         private final Set<String> mPropertyNames = new ArraySet<>();
         private boolean mBuilt = false;
 
@@ -186,12 +204,88 @@ public final class AppSearchSchema {
             return this;
         }
 
+        /**
+         * Adds a parent type to the given type for polymorphism, so that the given type will be
+         * considered as a subtype of {@code parentSchemaType}.
+         *
+         * <p>Subtype relations are automatically considered transitive, so callers are only
+         * required to provide direct parents. Specifically, if T1 &lt;: T2 and T2 &lt;: T3 are
+         * known, then T1 &lt;: T3 will be inferred automatically, where &lt;: is the subtype
+         * symbol.
+         *
+         * <p>Polymorphism is currently supported in the following ways:
+         * <ul>
+         *     <li>Search filters on a parent type will automatically be extended to the child
+         *     types as well. For example, if Artist &lt;: Person, then a search with a filter on
+         *     type Person (by calling {@link SearchSpec.Builder#addFilterSchemas}) will also
+         *     include documents of type Artist in the search result.
+         *     <li>In the projection API, the property paths to project specified for a
+         *     parent type will automatically be extended to the child types as well. If both a
+         *     parent type and one of its child type are specified in the projection API, the
+         *     parent type's paths will be merged into the child's. For more details on
+         *     projection, see {@link SearchSpec.Builder#addProjection}.
+         *     <li>A document property defined as type U is allowed to be set with a document of
+         *     type T, as long as T &lt;: U, but note that index will only be based on the defined
+         *     type, which is U. For example, consider a document of type "Company" with a
+         *     repeated "employees" field of type "Person". We can add employees of either
+         *     type "Person" or type "Artist" or both to this property, as long as "Artist" is a
+         *     subtype of "Person". However, the index of the "employees" property will be based
+         *     on what's defined in "Person", even for an added document of type "Artist".
+         * </ul>
+         *
+         * <p>Subtypes must meet the following requirements. A violation of the requirements will
+         * cause {@link AppSearchSession#setSchemaAsync} to throw an {@link AppSearchException}
+         * with the result code of {@link AppSearchResult#RESULT_INVALID_ARGUMENT}. Consider a
+         * type Artist and a type Person, and Artist claims to be a subtype of Person, then:
+         * <ul>
+         *     <li>Every property in Person must have a corresponding property in Artist with the
+         *     same name.
+         *     <li>Every non-document property in Person must have the same type as the type of
+         *     the corresponding property in Artist. For example, if "age" is an integer property
+         *     in Person, then "age" must also be an integer property in Artist, instead of a
+         *     string.
+         *     <li>The schema type of every document property in Artist must be a subtype of the
+         *     schema type of the corresponding document property in Person, if such a property
+         *     exists in Person. For example, if "awards" is a document property of type Award in
+         *     Person, then the type of the "awards" property in Artist must be a subtype of
+         *     Award, say ArtAward. Note that every type is a subtype of itself.
+         *     <li>Every property in Artist must have a cardinality stricter than or equal to the
+         *     cardinality of the corresponding property in Person, if such a property exists in
+         *     Person. For example, if "awards" is a property in Person of cardinality OPTIONAL,
+         *     then the cardinality of the "awards" property in Artist can only be REQUIRED or
+         *     OPTIONAL. Rule: REQUIRED &lt; OPTIONAL &lt; REPEATED.
+         *     <li>There are no other enforcements on the corresponding properties in Artist,
+         *     such as index type, tokenizer type, etc. These settings can be safely overridden.
+         * </ul>
+         *
+         * <p>A type can be defined to have multiple parents, but it must be compatible with each
+         * of its parents based on the above rules. For example, if LocalBusiness is defined as a
+         * subtype of both Place and Organization, then the compatibility of LocalBusiness with
+         * Place and the compatibility of LocalBusiness with Organization will both be checked.
+         */
+        // TODO(b/280698873): Disallow polymorphism in AppSearch framework for Android T.
+        @CanIgnoreReturnValue
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SCHEMA_ADD_PARENT_TYPE)
+        // @exportToFramework:endStrip()
+        public AppSearchSchema.Builder addParentType(@NonNull String parentSchemaType) {
+            Preconditions.checkNotNull(parentSchemaType);
+            resetIfBuilt();
+            mParentTypes.add(parentSchemaType);
+            return this;
+        }
+
         /** Constructs a new {@link AppSearchSchema} from the contents of this builder. */
         @NonNull
         public AppSearchSchema build() {
             Bundle bundle = new Bundle();
             bundle.putString(AppSearchSchema.SCHEMA_TYPE_FIELD, mSchemaType);
             bundle.putParcelableArrayList(AppSearchSchema.PROPERTIES_FIELD, mPropertyBundles);
+            bundle.putStringArrayList(AppSearchSchema.PARENT_TYPES_FIELD,
+                    new ArrayList<>(mParentTypes));
             mBuilt = true;
             return new AppSearchSchema(bundle);
         }
@@ -199,6 +293,7 @@ public final class AppSearchSchema {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mPropertyBundles = new ArrayList<>(mPropertyBundles);
+                mParentTypes = new ArraySet<>(mParentTypes);
                 mBuilt = false;
             }
         }

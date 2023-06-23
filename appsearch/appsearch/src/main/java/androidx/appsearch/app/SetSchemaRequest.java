@@ -389,7 +389,7 @@ public final class SetSchemaRequest {
             for (Class<?> documentClass : documentClasses) {
                 DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
                 schemas.add(factory.getSchema());
-                addDocumentClasses(factory.getNestedDocumentClasses());
+                addDocumentClasses(factory.getDependencyDocumentClasses());
             }
             return addSchemas(schemas);
         }

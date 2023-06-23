@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.Features;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
@@ -58,6 +59,11 @@ public final class SchemaToPlatformConverter {
                     toPlatformProperty(properties.get(i));
             platformBuilder.addProperty(platformProperty);
         }
+        if (!jetpackSchema.getParentTypes().isEmpty()) {
+            // TODO(b/269295094): Remove this once polymorphism becomes available.
+            throw new UnsupportedOperationException(Features.SCHEMA_ADD_PARENT_TYPE
+                    + " is not available on this AppSearch implementation.");
+        }
         return platformBuilder.build();
     }
 
@@ -80,6 +86,8 @@ public final class SchemaToPlatformConverter {
             AppSearchSchema.PropertyConfig jetpackProperty = toJetpackProperty(properties.get(i));
             jetpackBuilder.addProperty(jetpackProperty);
         }
+        // TODO(b/269295094): Call jetpackBuilder.addParentType() to add parent types once
+        //  polymorphism becomes available in platform.
         return jetpackBuilder.build();
     }
 

@@ -13,7 +13,7 @@ import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
 public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
-  public static final String SCHEMA_NAME = "DifferentType";
+  public static final String SCHEMA_NAME = "Gift";
 
   @Override
   public String getSchemaName() {
@@ -23,6 +23,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
+            .build())
           .build();
   }
 
@@ -34,17 +38,18 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
+        new GenericDocument.Builder<>(document.getNamespace(), document.getId(), SCHEMA_NAME);
+    builder.setPropertyLong("price", document.getPrice());
     return builder.build();
   }
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
-    String namespaceConv = genericDoc.getNamespace();
-    Gift document = new Gift();
-    document.namespace = namespaceConv;
-    document.id = idConv;
+    String getIdConv = genericDoc.getId();
+    String getNamespaceConv = genericDoc.getNamespace();
+    int getPriceConv = (int) genericDoc.getPropertyLong("price");
+    Gift document = Gift.create(getIdConv, getNamespaceConv);
+    document.setPrice(getPriceConv);
     return document;
   }
 }

@@ -23,7 +23,18 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("mPrice")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
+            .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("sold")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .build())
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("mx")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
@@ -39,10 +50,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
-    builder.setCreationTimestampMillis(document.creationTs);
-    builder.setTtlMillis(document.ttlMs);
-    builder.setScore(document.score);
-    builder.setPropertyLong("price", document.price);
+    builder.setPropertyLong("mPrice", document.getMPrice());
+    builder.setPropertyLong("price", document.mPrice);
+    builder.setPropertyBoolean("sold", document.isSold());
+    builder.setPropertyLong("mx", document.mx());
     return builder.build();
   }
 
@@ -50,17 +61,17 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
-    long creationTsConv = genericDoc.getCreationTimestampMillis();
-    long ttlMsConv = genericDoc.getTtlMillis();
-    int scoreConv = genericDoc.getScore();
-    int priceConv = (int) genericDoc.getPropertyLong("price");
+    int getMPriceConv = (int) genericDoc.getPropertyLong("mPrice");
+    int mPriceConv = (int) genericDoc.getPropertyLong("price");
+    boolean isSoldConv = genericDoc.getPropertyBoolean("sold");
+    int mxConv = (int) genericDoc.getPropertyLong("mx");
     Gift document = new Gift();
     document.namespace = namespaceConv;
     document.id = idConv;
-    document.creationTs = creationTsConv;
-    document.ttlMs = ttlMsConv;
-    document.price = priceConv;
-    document.score = scoreConv;
+    document.setMPrice(getMPriceConv);
+    document.mPrice = mPriceConv;
+    document.setSold(isSoldConv);
+    document.setMx(mxConv);
     return document;
   }
 }
