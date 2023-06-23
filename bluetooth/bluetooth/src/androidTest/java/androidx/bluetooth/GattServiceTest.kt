@@ -21,12 +21,13 @@ import android.bluetooth.BluetoothGattService as FwkBluetoothGattService
 import android.bluetooth.BluetoothGattService.SERVICE_TYPE_PRIMARY
 import java.util.UUID
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BluetoothGattServiceTest {
+class GattServiceTest {
 
     @Test
     fun constructorWithFwkInstance() {
@@ -41,11 +42,38 @@ class BluetoothGattServiceTest {
         val fwkCharacteristic2 = FwkBluetoothGattCharacteristic(charUuid2, 0, 0)
         fwkBluetoothGattService.addCharacteristic(fwkCharacteristic2)
 
-        val gattService = BluetoothGattService(fwkBluetoothGattService)
+        val gattService = GattService(fwkBluetoothGattService)
 
         assertEquals(fwkBluetoothGattService.uuid, gattService.uuid)
         assertEquals(2, gattService.characteristics.size)
         assertEquals(charUuid1, gattService.characteristics[0].uuid)
         assertEquals(charUuid2, gattService.characteristics[1].uuid)
+    }
+
+    @Test
+    fun constructorWithUuid() {
+        val serviceUuid = UUID.randomUUID()
+
+        val charUuid1 = UUID.randomUUID()
+        val charUuid2 = UUID.randomUUID()
+        val charUuid3 = UUID.randomUUID()
+
+        val char1 = GattCharacteristic(charUuid1, /*properties=*/0, /*permissions=*/0)
+        val char2 = GattCharacteristic(charUuid2, /*properties=*/0, /*permissions=*/0)
+        val char3 = GattCharacteristic(charUuid3, /*properties=*/0, /*permissions=*/0)
+
+        val characteristics = mutableListOf(char1, char2)
+
+        val gattService = GattService(serviceUuid, characteristics)
+
+        assertEquals(serviceUuid, gattService.uuid)
+        assertEquals(2, gattService.characteristics.size)
+
+        assertSame(char1, gattService.characteristics[0])
+        assertSame(char2, gattService.characteristics[1])
+
+        // The characteristics list should be immutable
+        characteristics.add(char3)
+        assertEquals(2, gattService.characteristics.size)
     }
 }
