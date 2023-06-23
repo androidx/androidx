@@ -27,6 +27,7 @@ import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
@@ -217,6 +218,7 @@ private fun macrobenchmark(
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
     val tracePaths = mutableListOf<String>()
+    val resultFiles = mutableListOf<Profiler.ResultFile>()
     try {
         metrics.forEach {
             it.configure(packageName)
@@ -273,7 +275,12 @@ private fun macrobenchmark(
                                 it.stop()
                             }
                             if (launchWithMethodTracing) {
-                                scope.stopMethodTracing()
+                                val (label, tracePath) = scope.stopMethodTracing()
+                                val resultFile = Profiler.ResultFile(
+                                    label = label,
+                                    absolutePath = tracePath
+                                )
+                                resultFiles += resultFile
                             }
                         }
                     }
@@ -333,7 +340,7 @@ private fun macrobenchmark(
                 testName = uniqueName,
                 measurements = measurements,
                 iterationTracePaths = tracePaths,
-                profilerResults = emptyList() // TODO: use this for method tracing
+                profilerResults = resultFiles
             )
 
             warningMessage = "" // warning only printed once

@@ -287,9 +287,11 @@ public class MacrobenchmarkScope(
     /**
      * Stops method tracing for the given [packageName] and copies the output to the
      * `additionalTestOutputDir`.
+     *
+     * @return a [Pair] representing the label, and the absolute path of the method trace.
      */
     @SuppressLint("BanThreadSleep") // Need to sleep to wait for the traces to be flushed.
-    internal fun stopMethodTracing() {
+    internal fun stopMethodTracing(): Pair<String, String> {
         Shell.executeScriptSilent("am profile stop $packageName")
         // Wait for the profiles to get dumped :(
         // ART Method tracing has a buffer size of 8M, so 1 second should be enough
@@ -309,14 +311,15 @@ public class MacrobenchmarkScope(
         val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
         // Staging location before we write it again using Outputs.writeFile(...)
         Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
-        // Report
-        Outputs.writeFile(fileName, fileName) {
+        // Report(
+        val outputPath = Outputs.writeFile(fileName, fileName) {
             Log.d(TAG, "Writing method traces to ${it.absolutePath}")
             stagingFile.copyTo(it, overwrite = true)
             // Cleanup
             stagingFile.delete()
             Shell.executeScriptSilent("rm \"$tracePath\"")
         }
+        return fileName to outputPath
     }
 
     /**
