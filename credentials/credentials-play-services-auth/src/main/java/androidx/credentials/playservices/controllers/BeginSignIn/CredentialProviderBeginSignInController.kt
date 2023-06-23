@@ -238,7 +238,6 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
     companion object {
         private const val TAG = "BeginSignIn"
         private var controller: CredentialProviderBeginSignInController? = null
-        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,
