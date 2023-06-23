@@ -42,9 +42,9 @@ import androidx.annotation.VisibleForTesting
  * operation; pass this handle to [CredentialManager.getCredential] (Kotlin) /
  * [CredentialManager.getCredentialAsync] (Java) to perform the remaining flows to officially
  * retrieve a credential.
- * @property hasRemoteResultsHandler whether the response has remote results
- * @property hasAuthenticationResultsHandler whether the response has auth results
- * @property credentialTypeHandler whether the response has a credential result handler
+ * @property hasRemoteResultsDelegate whether the response has remote results
+ * @property hasAuthResultsDelegate whether the response has auth results
+ * @property credentialTypeDelegate whether the response has a credential result handler
  * @property isNullHandlesForTest whether to support null handles for test
  * @throws NullPointerException If [pendingGetCredentialHandle] is null at API level >= 34.
  */
@@ -52,9 +52,9 @@ import androidx.annotation.VisibleForTesting
 @SuppressLint("MissingGetterMatchingBuilder")
 class PrepareGetCredentialResponse private constructor(
     val pendingGetCredentialHandle: PendingGetCredentialHandle?,
-    val hasRemoteResultsHandler: HasRemoteResultsHandler?,
-    val hasAuthenticationResultsHandler: HasAuthenticationResultsHandler?,
-    val credentialTypeHandler: HasCredentialResultsHandler?,
+    val hasRemoteResultsDelegate: HasRemoteResultsDelegate?,
+    val hasAuthResultsDelegate: HasAuthenticationResultsDelegate?,
+    val credentialTypeDelegate: HasCredentialResultsDelegate?,
     val isNullHandlesForTest: Boolean,
 ) {
 
@@ -75,8 +75,8 @@ class PrepareGetCredentialResponse private constructor(
      */
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasCredentialResults(credentialType: String): Boolean {
-        if (credentialTypeHandler != null) {
-            return credentialTypeHandler.invoke(credentialType)
+        if (credentialTypeDelegate != null) {
+            return credentialTypeDelegate.invoke(credentialType)
         }
         return false
     }
@@ -89,8 +89,8 @@ class PrepareGetCredentialResponse private constructor(
      */
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasAuthenticationResults(): Boolean {
-        if (hasAuthenticationResultsHandler != null) {
-            return hasAuthenticationResultsHandler.invoke()
+        if (hasAuthResultsDelegate != null) {
+            return hasAuthResultsDelegate.invoke()
         }
         return false
     }
@@ -102,8 +102,8 @@ class PrepareGetCredentialResponse private constructor(
      */
     @RequiresPermission(CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS)
     fun hasRemoteResults(): Boolean {
-        if (hasRemoteResultsHandler != null) {
-            return hasRemoteResultsHandler.invoke()
+        if (hasRemoteResultsDelegate != null) {
+            return hasRemoteResultsDelegate.invoke()
         }
         return false
     }
@@ -131,46 +131,21 @@ class PrepareGetCredentialResponse private constructor(
     }
 
     /** A builder for [PrepareGetCredentialResponse]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     class Builder {
         private var pendingGetCredentialHandle: PendingGetCredentialHandle? = null
-        private var hasRemoteResultsHandler: HasRemoteResultsHandler? = null
-        private var hasAuthenticationResultsHandler: HasAuthenticationResultsHandler? = null
-        private var hasCredentialResultsHandler: HasCredentialResultsHandler? = null
+        private var hasRemoteResultsDelegate: HasRemoteResultsDelegate? = null
+        private var hasAuthResultsDelegate: HasAuthenticationResultsDelegate? = null
+        private var hasCredentialResultsDelegate: HasCredentialResultsDelegate? = null
         private var frameworkResponse: PrepareGetCredentialResponse? = null
-        private var isNullHandlesForTest = false
-
-        /** Sets the credential type handler. */
-        fun setCredentialTypeHandler(handler: HasCredentialResultsHandler): Builder {
-            this.hasCredentialResultsHandler = handler
-            return this
-        }
-
-        /** Sets the has authentication results bit. */
-        fun setHasAuthenticationResultsHandler(handler: HasAuthenticationResultsHandler): Builder {
-            this.hasAuthenticationResultsHandler = handler
-            return this
-        }
-
-        /** Sets the has remote results bit. */
-        fun setHasRemoteResultsHandler(handler: HasRemoteResultsHandler): Builder {
-            this.hasRemoteResultsHandler = handler
-            return this
-        }
-
-        /** Sets enabling null handles for test. */
-        @VisibleForTesting
-        fun setIsNullHandlesForTest(setValue: Boolean): Builder {
-            this.isNullHandlesForTest = setValue
-            return this
-        }
 
         /** Sets the framework response. */
         fun setFrameworkResponse(resp: PrepareGetCredentialResponse?): Builder {
             this.frameworkResponse = resp
             if (resp != null) {
-                this.setCredentialTypeHandler(this::hasCredentialType)
-                this.setHasAuthenticationResultsHandler(this::hasAuthenticationResults)
-                this.setHasRemoteResultsHandler(this::hasRemoteResults)
+                this.hasCredentialResultsDelegate = this::hasCredentialType
+                this.hasAuthResultsDelegate = this::hasAuthenticationResults
+                this.hasRemoteResultsDelegate = this::hasRemoteResults
             }
             return this
         }
@@ -203,17 +178,57 @@ class PrepareGetCredentialResponse private constructor(
         fun build(): androidx.credentials.PrepareGetCredentialResponse {
             return androidx.credentials.PrepareGetCredentialResponse(
                 pendingGetCredentialHandle,
-                hasRemoteResultsHandler,
-                hasAuthenticationResultsHandler,
-                hasCredentialResultsHandler,
-                isNullHandlesForTest
+                hasRemoteResultsDelegate,
+                hasAuthResultsDelegate,
+                hasCredentialResultsDelegate,
+                false
+            )
+        }
+    }
+
+    /** A builder for [PrepareGetCredentialResponse] for test use only. */
+    @VisibleForTesting
+    class TestBuilder {
+        private var hasRemoteResultsDelegate: HasRemoteResultsDelegate? = null
+        private var hasAuthResultsDelegate: HasAuthenticationResultsDelegate? = null
+        private var hasCredentialResultsDelegate: HasCredentialResultsDelegate? = null
+
+        /** Sets the credential type handler. */
+        fun setCredentialTypeDelegate(handler: HasCredentialResultsDelegate): TestBuilder {
+            this.hasCredentialResultsDelegate = handler
+            return this
+        }
+
+        /** Sets the has authentication results bit. */
+        fun setHasAuthResultsDelegate(handler: HasAuthenticationResultsDelegate): TestBuilder {
+            this.hasAuthResultsDelegate = handler
+            return this
+        }
+
+        /** Sets the has remote results bit. */
+        fun setHasRemoteResultsDelegate(handler: HasRemoteResultsDelegate): TestBuilder {
+            this.hasRemoteResultsDelegate = handler
+            return this
+        }
+
+        /**
+         * Builds a [PrepareGetCredentialResponse].
+         */
+        @SuppressLint("SyntheticAccessor")
+        fun build(): androidx.credentials.PrepareGetCredentialResponse {
+            return androidx.credentials.PrepareGetCredentialResponse(
+                null,
+                hasRemoteResultsDelegate,
+                hasAuthResultsDelegate,
+                hasCredentialResultsDelegate,
+                true
             )
         }
     }
 }
 
-typealias HasCredentialResultsHandler = (String) -> Boolean
+typealias HasCredentialResultsDelegate = (String) -> Boolean
 
-typealias HasAuthenticationResultsHandler = () -> Boolean
+typealias HasAuthenticationResultsDelegate = () -> Boolean
 
-typealias HasRemoteResultsHandler = () -> Boolean
+typealias HasRemoteResultsDelegate = () -> Boolean
