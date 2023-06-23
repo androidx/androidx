@@ -245,8 +245,8 @@
     <string name="email_hint" msgid="7205549445477319606">"ଇମେଲ"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"ସାଇନ ଇନ କରନ୍ତୁ"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"ଆପଣଙ୍କ କ୍ରେଡେନ୍ସିଆଲ ଲେଖନ୍ତୁ"</string>
-    <string name="invalid_email_error_msg" msgid="5261362663718987167">"ଉପଯୋଗକର୍ତ୍ତା ନାମ ଏକ ବୈଧ ଇମେଲ ଠିକଣା ହୋଇଥିବା ଆବଶ୍ୟକ"</string>
-    <string name="invalid_length_error_msg" msgid="8238905276326976425">"ଉପଯୋଗକର୍ତ୍ତା ନାମରେ ଅତି କମରେ %sଟି କେରେକ୍ଟର ରହିବା ଆବଶ୍ୟକ"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"ୟୁଜର ନେମ ଏକ ବୈଧ ଇମେଲ ଠିକଣା ହୋଇଥିବା ଆବଶ୍ୟକ"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"ୟୁଜର ନେମରେ ଅତି କମରେ %sଟି କେରେକ୍ଟର ରହିବା ଆବଶ୍ୟକ"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"ଅବୈଧ ପାସୱାର୍ଡ"</string>
     <string name="password_hint" msgid="2869107073860012864">"ପାସୱାର୍ଡ"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"ଉପଯୋଗକର୍ତ୍ତାନାମ"</string>
