@@ -67,4 +67,17 @@ class CredentialProviderCreatePasswordControllerTest {
             assertThat(actualRequest.id).isEqualTo(expectedId)
         }
     }
+
+    @Test
+    fun duplicateGetInstance_shouldBeEqual() {
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+
+            val firstInstance = getInstance(activity!!)
+            val secondInstance = getInstance(activity)
+            assertThat(firstInstance).isEqualTo(secondInstance)
+        }
+    }
 }
