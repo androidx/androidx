@@ -459,6 +459,7 @@ package androidx.mediarouter.media {
     field public static final int DEVICE_TYPE_COMPUTER = 7; // 0x7
     field public static final int DEVICE_TYPE_GAME_CONSOLE = 8; // 0x8
     field public static final int DEVICE_TYPE_GROUP = 1000; // 0x3e8
+    field public static final int DEVICE_TYPE_SMARTPHONE = 11; // 0xb
     field public static final int DEVICE_TYPE_SMARTWATCH = 10; // 0xa
     field public static final int DEVICE_TYPE_SPEAKER = 2; // 0x2
     field public static final int DEVICE_TYPE_TABLET = 5; // 0x5

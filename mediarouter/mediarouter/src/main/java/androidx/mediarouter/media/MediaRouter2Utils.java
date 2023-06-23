@@ -32,6 +32,7 @@ import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_CAR;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_COMPUTER;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_GAME_CONSOLE;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_GROUP;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTPHONE;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTWATCH;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET;
@@ -88,6 +89,7 @@ class MediaRouter2Utils {
     private static final int TYPE_REMOTE_GAME_CONSOLE = 1007;
     private static final int TYPE_REMOTE_CAR = 1008;
     private static final int TYPE_REMOTE_SMARTWATCH = 1009;
+    private static final int TYPE_REMOTE_SMARTPHONE = 1010;
     private static final int TYPE_GROUP = 2000;
 
     private MediaRouter2Utils() {}
@@ -343,6 +345,8 @@ class MediaRouter2Utils {
                 return DEVICE_TYPE_CAR;
             case TYPE_REMOTE_SMARTWATCH:
                 return DEVICE_TYPE_SMARTWATCH;
+            case TYPE_REMOTE_SMARTPHONE:
+                return DEVICE_TYPE_SMARTPHONE;
             case TYPE_GROUP:
                 return DEVICE_TYPE_GROUP;
             default:
@@ -371,6 +375,8 @@ class MediaRouter2Utils {
                 return TYPE_REMOTE_CAR;
             case DEVICE_TYPE_SMARTWATCH:
                 return TYPE_REMOTE_SMARTWATCH;
+            case DEVICE_TYPE_SMARTPHONE:
+                return TYPE_REMOTE_SMARTPHONE;
             case DEVICE_TYPE_GROUP:
                 return TYPE_GROUP;
             default:

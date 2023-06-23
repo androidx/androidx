@@ -1195,6 +1195,7 @@ public final class MediaRouter {
             DEVICE_TYPE_GAME_CONSOLE,
             DEVICE_TYPE_CAR,
             DEVICE_TYPE_SMARTWATCH,
+            DEVICE_TYPE_SMARTPHONE,
             DEVICE_TYPE_GROUP
         })
         @Retention(RetentionPolicy.SOURCE)
@@ -1282,6 +1283,13 @@ public final class MediaRouter {
          * @see #getDeviceType
          */
         public static final int DEVICE_TYPE_SMARTWATCH = 10;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
+         * smartphone.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_SMARTPHONE = 11;
         /**
          * A receiver device type indicating that the presentation of the media is happening on a
          * group of devices.
