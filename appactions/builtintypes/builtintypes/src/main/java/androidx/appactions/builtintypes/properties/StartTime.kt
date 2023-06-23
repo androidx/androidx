@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.appsearch.`annotation`.Document
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -32,7 +33,7 @@ import kotlin.jvm.JvmName
  * John wrote a book from *January* to December. For media, including audio and video, it's the time
  * offset of the start of a clip within a larger file.
  *
- * See http://schema.org/startTime for context.
+ * See https://schema.org/startTime for context.
  *
  * Holds one of:
  * * Time i.e. [LocalTime]
@@ -41,6 +42,7 @@ import kotlin.jvm.JvmName
  *
  * May hold more types over time.
  */
+@Document(name = "bitprop:StartTime")
 public class StartTime
 internal constructor(
   /** The [LocalTime] variant, or null if constructed using a different variant. */
@@ -55,7 +57,7 @@ internal constructor(
    * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
    * at nested levels, this is internal and will always be an empty string.
    */
-  internal val identifier: String = "",
+  @Document.Id internal val identifier: String = "",
 ) {
   /** Constructor for the [LocalTime] variant. */
   public constructor(time: LocalTime) : this(asTime = time)

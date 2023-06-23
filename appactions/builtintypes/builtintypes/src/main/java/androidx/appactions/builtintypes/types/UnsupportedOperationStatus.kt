@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -32,12 +33,13 @@ import kotlin.jvm.JvmStatic
 /**
  * Status indicating that the operation is not supported, e.g. updating an unsupported field.
  *
- * See http://schema.googleapis.com/UnsupportedOperationStatus for context.
+ * See https://schema.googleapis.com/UnsupportedOperationStatus for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractUnsupportedOperationStatus] if you need to extend this
  * type.
  */
+@Document(name = "bit:UnsupportedOperationStatus")
 public interface UnsupportedOperationStatus : ExecutionStatus {
   /**
    * Converts this [UnsupportedOperationStatus] to its builder with all the properties copied over.
@@ -150,16 +152,16 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (namespace != other.namespace) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
+    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
@@ -304,17 +306,17 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (namespace != other.namespace) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(disambiguatingDescription, identifier, name, namespace, additionalProperties)
+      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
