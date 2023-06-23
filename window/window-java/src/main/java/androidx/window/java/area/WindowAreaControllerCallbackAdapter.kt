@@ -19,26 +19,20 @@ package androidx.window.java.area
 import androidx.core.util.Consumer
 import androidx.window.area.WindowAreaController
 import androidx.window.area.WindowAreaInfo
+import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
 
 /**
  * An adapter for [WindowAreaController] to provide callback APIs.
  */
-class WindowAreaControllerCallbackAdapter(
-    private val controller: WindowAreaController
+class WindowAreaControllerCallbackAdapter private constructor(
+    private val controller: WindowAreaController,
+    private val callbackToFlowAdapter: CallbackToFlowAdapter
 ) : WindowAreaController by controller {
 
-    /**
-     * A [ReentrantLock] to protect against concurrent access to [consumerToJobMap].
-     */
-    private val lock = ReentrantLock()
-    private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
+    constructor(
+        controller: WindowAreaController
+    ) : this(controller, CallbackToFlowAdapter())
 
     /**
      * Registers a listener that is interested in the current list of [WindowAreaInfo] available to
@@ -56,16 +50,7 @@ class WindowAreaControllerCallbackAdapter(
         executor: Executor,
         listener: Consumer<List<WindowAreaInfo>>
     ) {
-        // TODO(274013517): Extract adapter pattern out of each class
-        val statusFlow = controller.windowAreaInfos
-        lock.withLock {
-            if (consumerToJobMap[listener] == null) {
-                val scope = CoroutineScope(executor.asCoroutineDispatcher())
-                consumerToJobMap[listener] = scope.launch {
-                    statusFlow.collect { listener.accept(it) }
-                }
-            }
-        }
+        callbackToFlowAdapter.connect(executor, listener, controller.windowAreaInfos)
     }
 
     /**
@@ -77,9 +62,6 @@ class WindowAreaControllerCallbackAdapter(
      * @see WindowAreaController.presentContentOnWindowArea
      */
     fun removeWindowAreaInfoListListener(listener: Consumer<List<WindowAreaInfo>>) {
-        lock.withLock {
-            consumerToJobMap[listener]?.cancel()
-            consumerToJobMap.remove(listener)
-        }
+        callbackToFlowAdapter.disconnect(listener)
     }
- }
+}
