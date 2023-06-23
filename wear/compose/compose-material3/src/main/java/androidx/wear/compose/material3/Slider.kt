@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -325,11 +326,15 @@ object InlineSliderDefaults {
         selectedBarColor: Color = MaterialTheme.colorScheme.primary,
         unselectedBarColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.3f),
         barSeparatorColor: Color = MaterialTheme.colorScheme.primaryDim,
-        disabledContainerColor: Color = containerColor.toDisabledColor(),
+        disabledContainerColor: Color = containerColor.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
+        ),
         disabledButtonIconColor: Color = buttonIconColor.toDisabledColor(),
         disabledSelectedBarColor: Color = selectedBarColor.toDisabledColor(),
         disabledUnselectedBarColor: Color = unselectedBarColor.toDisabledColor(),
-        disabledBarSeparatorColor: Color = barSeparatorColor.toDisabledColor()
+        disabledBarSeparatorColor: Color = barSeparatorColor.toDisabledColor(
+            disabledAlpha = DisabledBorderAndContainerAlpha
+        )
     ): InlineSliderColors = InlineSliderColors(
         containerColor = containerColor,
         buttonIconColor = buttonIconColor,
@@ -465,7 +470,10 @@ internal fun DrawScope.drawUnselectedProgressBar(
 
 internal fun DrawScope.drawProgressBarSeparator(color: Color, position: Float) {
     drawCircle(
-        color, InlineSliderDefaults.BarSeparatorRadius.toPx(), Offset(position, size.height / 2)
+        color = color,
+        radius = InlineSliderDefaults.BarSeparatorRadius.toPx(),
+        center = Offset(position, size.height / 2),
+        blendMode = BlendMode.Src
     )
 }
 
