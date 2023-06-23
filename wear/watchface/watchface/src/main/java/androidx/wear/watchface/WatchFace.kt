@@ -1136,19 +1136,22 @@ constructor(
                     RenderParameters(params.renderParametersWireFormat)
                 )
 
-            // Restore previous style & complicationSlots if required.
-            if (params.userStyle != null) {
-                currentUserStyleRepository.updateUserStyle(oldStyle)
-            }
+            // No point in restoring the old style and complication if this is headless.
+            if (!watchState.isHeadless) {
+                // Restore previous style & complicationSlots if required.
+                if (params.userStyle != null) {
+                    currentUserStyleRepository.updateUserStyle(oldStyle)
+                }
 
-            if (params.idAndComplicationDatumWireFormats != null) {
-                val now = getNow()
-                for ((id, complicationData) in oldComplicationData) {
-                    complicationSlotsManager.setComplicationDataUpdateSync(
-                        id,
-                        complicationData,
-                        now
-                    )
+                if (params.idAndComplicationDatumWireFormats != null) {
+                    val now = getNow()
+                    for ((id, complicationData) in oldComplicationData) {
+                        complicationSlotsManager.setComplicationDataUpdateSync(
+                            id,
+                            complicationData,
+                            now
+                        )
+                    }
                 }
             }
 
@@ -1218,18 +1221,21 @@ constructor(
                     params.complicationSlotId
                 )
 
-                // Restore previous ComplicationData & style if required.
-                if (prevData != null) {
-                    val now = getNow()
-                    complicationSlotsManager.setComplicationDataUpdateSync(
-                        params.complicationSlotId,
-                        prevData,
-                        now
-                    )
-                }
+                // No point in restoring the old style and complication if this is headless.
+                if (!watchState.isHeadless) {
+                    // Restore previous ComplicationData & style if required.
+                    if (prevData != null) {
+                        val now = getNow()
+                        complicationSlotsManager.setComplicationDataUpdateSync(
+                            params.complicationSlotId,
+                            prevData,
+                            now
+                        )
+                    }
 
-                if (newStyle != null) {
-                    currentUserStyleRepository.updateUserStyle(oldStyle)
+                    if (newStyle != null) {
+                        currentUserStyleRepository.updateUserStyle(oldStyle)
+                    }
                 }
 
                 SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
