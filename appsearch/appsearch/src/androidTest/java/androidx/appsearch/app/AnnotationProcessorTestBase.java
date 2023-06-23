@@ -686,4 +686,497 @@ public abstract class AnnotationProcessorTestBase {
         mSession.setSchemaAsync(request).get();
         assertThat(mSession.getSchemaAsync().get().getSchemas()).hasSize(3);
     }
+
+    @Document
+    static class Root {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+    }
+
+    @Document(name = "Email", parent = Root.class)
+    static class Email extends Root {
+        @Document.StringProperty String mSender;
+    }
+
+    @Document(name = "Message", parent = Root.class)
+    static class Message extends Root {
+        @Document.StringProperty String mContent;
+    }
+
+    // EmailMessage can choose any class to "extends" from, since Java's type relationship is
+    // independent on AppSearch's. In this case, EmailMessage extends Root to avoid redefining
+    // mId and mNamespace, but it still needs to specify mSender and mContent coming from
+    // Email and Message.
+    @Document(name = "EmailMessage", parent = {Email.class, Message.class})
+    static class EmailMessage extends Root {
+        @Document.StringProperty String mSender;
+        @Document.StringProperty String mContent;
+    }
+
+    @Test
+    public void testPolymorphism() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                // EmailMessage's dependencies should be automatically added.
+                .addDocumentClasses(EmailMessage.class)
+                // Add some other class
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+        // Create documents
+        Root root = new Root();
+        root.mNamespace = "namespace";
+        root.mId = "id1";
+
+        Email email = new Email();
+        email.mNamespace = "namespace";
+        email.mId = "id2";
+        email.mSender = "test@test.com";
+
+        Message message = new Message();
+        message.mNamespace = "namespace";
+        message.mId = "id3";
+        message.mContent = "hello";
+
+        EmailMessage emailMessage = new EmailMessage();
+        emailMessage.mNamespace = "namespace";
+        emailMessage.mId = "id4";
+        emailMessage.mSender = "test@test.com";
+        emailMessage.mContent = "hello";
+
+        Gift gift = new Gift();
+        gift.mNamespace = "namespace";
+        gift.mId = "id5";
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(root, email, message, emailMessage, gift)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(5);
+
+        // A query with a filter for the "Root" type should also include "Email", "Message" and
+        // "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Root.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(4);
+
+        // A query with a filter for the "Email" type should also include "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Email.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // A query with a filter for the "Message" type should also include "EmailMessage".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Message.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // Query with a filter for the "EmailMessage" type.
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(EmailMessage.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+    }
+
+    // A class that some properties are annotated via getters without backing fields.
+    @Document
+    static class FakeMessage {
+        public int mSenderSetCount = 0;
+        public String mContent;
+
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+
+        @Document.StringProperty
+        String getSender() {
+            return "fake sender";
+        }
+
+        @Document.StringProperty
+        String getContent() {
+            return mContent;
+        }
+
+        @Document.StringProperty String mNote;
+
+        void setSender(String sender) {
+            if (sender.equals("fake sender")) {
+                mSenderSetCount += 1;
+            }
+        }
+
+        FakeMessage(String id, String namespace, String content) {
+            mId = id;
+            mNamespace = namespace;
+            mContent = content;
+        }
+    }
+
+    @Test
+    public void testGenericDocumentConversion_AnnotatedGetter() throws Exception {
+        // Create a document
+        FakeMessage fakeMessage = new FakeMessage("id", "namespace", "fake content");
+        fakeMessage.setSender("fake sender");
+        fakeMessage.mNote = "fake note";
+
+        // Test the conversion from FakeMessage to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(fakeMessage);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getSchemaType()).isEqualTo("FakeMessage");
+        assertThat(genericDocument.getPropertyString("sender")).isEqualTo("fake sender");
+        assertThat(genericDocument.getPropertyString("content")).isEqualTo("fake content");
+        assertThat(genericDocument.getPropertyString("note")).isEqualTo("fake note");
+
+
+        // Test the conversion from GenericDocument to FakeMessage
+        FakeMessage newFakeMessage = genericDocument.toDocumentClass(FakeMessage.class);
+        assertThat(newFakeMessage.mId).isEqualTo("id");
+        assertThat(newFakeMessage.mNamespace).isEqualTo("namespace");
+        assertThat(newFakeMessage.mSenderSetCount).isEqualTo(1);
+        assertThat(newFakeMessage.getContent()).isEqualTo("fake content");
+        assertThat(newFakeMessage.mNote).isEqualTo("fake note");
+    }
+
+    @Document
+    interface InterfaceRoot {
+        @Document.Id
+        String getId();
+
+        @Document.Namespace
+        String getNamespace();
+
+        @Document.CreationTimestampMillis
+        long getCreationTimestamp();
+
+        static InterfaceRoot create(String id, String namespace, long creationTimestamp) {
+            return new InterfaceRootImpl(id, namespace, creationTimestamp);
+        }
+    }
+
+    static class InterfaceRootImpl implements InterfaceRoot {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+
+        InterfaceRootImpl(String id, String namespace, long creationTimestamp) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+    }
+
+    @Document(name = "Place", parent = InterfaceRoot.class)
+    interface Place extends InterfaceRoot {
+        @Document.StringProperty
+        String getLocation();
+
+        static Place createPlace(String id, String namespace, long creationTimestamp,
+                String location) {
+            return new PlaceImpl(id, namespace, creationTimestamp, location);
+        }
+    }
+
+    static class PlaceImpl implements Place {
+        String mId;
+        String mNamespace;
+        String mLocation;
+        long mCreationTimestamp;
+
+        PlaceImpl(String id, String namespace, long creationTimestamp, String location) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mLocation = location;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getLocation() {
+            return mLocation;
+        }
+    }
+
+    @Document(name = "Organization", parent = InterfaceRoot.class)
+    interface Organization extends InterfaceRoot {
+        @Document.StringProperty
+        String getOrganizationDescription();
+
+        static Organization createOrganization(String id, String namespace, long creationTimestamp,
+                String organizationDescription) {
+            return new OrganizationImpl(id, namespace, creationTimestamp, organizationDescription);
+        }
+    }
+
+    static class OrganizationImpl implements Organization {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mOrganizationDescription;
+
+        OrganizationImpl(String id, String namespace, long creationTimestamp,
+                String organizationDescription) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mOrganizationDescription = organizationDescription;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getOrganizationDescription() {
+            return mOrganizationDescription;
+        }
+    }
+
+    @Document(name = "Business", parent = {Place.class, Organization.class})
+    interface Business extends Place, Organization {
+        @Document.StringProperty
+        String getBusinessName();
+
+        static Business createBusiness(String id, String namespace, long creationTimestamp,
+                String location, String organizationDescription, String businessName) {
+            return new BusinessImpl(id, namespace, creationTimestamp, location,
+                    organizationDescription, businessName);
+        }
+    }
+
+    // We have to annotate this class with @Document to generate a factory for it. Otherwise there
+    // will be an ambiguity on finding the factory class.
+    @Document(name = "BusinessImpl", parent = Business.class)
+    static class BusinessImpl extends PlaceImpl implements Business {
+        String mOrganizationDescription;
+        String mBusinessName;
+
+        BusinessImpl(String id, String namespace, long creationTimestamp, String location,
+                String organizationDescription, String businessName) {
+            super(id, namespace, creationTimestamp, location);
+            mOrganizationDescription = organizationDescription;
+            mBusinessName = businessName;
+        }
+
+        public String getOrganizationDescription() {
+            return mOrganizationDescription;
+        }
+
+        public String getBusinessName() {
+            return mBusinessName;
+        }
+    }
+
+    @Test
+    public void testGenericDocumentConversion_AnnotatedInterface() throws Exception {
+        // Create Place document
+        Place place = Place.createPlace("id", "namespace", 1000, "loc");
+
+        // Test the conversion from Place to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(place);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(1000);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Place");
+        assertThat(genericDocument.getPropertyString("location")).isEqualTo("loc");
+
+        // Test the conversion from GenericDocument to Place
+        Place newPlace = genericDocument.toDocumentClass(Place.class);
+        assertThat(newPlace.getId()).isEqualTo("id");
+        assertThat(newPlace.getNamespace()).isEqualTo("namespace");
+        assertThat(newPlace.getCreationTimestamp()).isEqualTo(1000);
+        assertThat(newPlace.getLocation()).isEqualTo("loc");
+
+
+        // Create Business document
+        Business business = Business.createBusiness("id", "namespace", 2000, "business_loc",
+                "business_dec", "business_name");
+
+        // Test the conversion from Business to GenericDocument
+        genericDocument = GenericDocument.fromDocumentClass(business);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(2000);
+        // The schema type of business has to be "BusinessImpl" because
+        // GenericDocument.fromDocumentClass is looking up factory classes by runtime types. It will
+        // start finding a factory class for "BusinessImpl" first. If the class is not found, it
+        // will continue to search the unique parent type (class and interface in Java). In this
+        // case, BusinessImpl has more than one parent, so BusinessImpl must also be @Document
+        // annotated. Otherwise, no factor class will be found.
+        assertThat(genericDocument.getSchemaType()).isEqualTo("BusinessImpl");
+        assertThat(genericDocument.getPropertyString("location")).isEqualTo("business_loc");
+        assertThat(genericDocument.getPropertyString("organizationDescription")).isEqualTo(
+                "business_dec");
+        assertThat(genericDocument.getPropertyString("businessName")).isEqualTo("business_name");
+
+
+        // Test the conversion from GenericDocument to Business
+        Business newBusiness = genericDocument.toDocumentClass(Business.class);
+        assertThat(newBusiness.getId()).isEqualTo("id");
+        assertThat(newBusiness.getNamespace()).isEqualTo("namespace");
+        assertThat(newBusiness.getCreationTimestamp()).isEqualTo(2000);
+        assertThat(newBusiness.getLocation()).isEqualTo("business_loc");
+        assertThat(newBusiness.getOrganizationDescription()).isEqualTo("business_dec");
+        assertThat(newBusiness.getBusinessName()).isEqualTo("business_name");
+    }
+
+    @Test
+    public void testPolymorphismForInterface() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                // Adding BusinessImpl should be enough to add all the dependency classes.
+                .addDocumentClasses(BusinessImpl.class)
+                // Add some other class
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+        // Create documents
+        InterfaceRoot root = InterfaceRoot.create("id0", "namespace", 1000);
+        GenericDocument rootGeneric = GenericDocument.fromDocumentClass(root);
+        assertThat(rootGeneric.getId()).isEqualTo("id0");
+        assertThat(rootGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(rootGeneric.getCreationTimestampMillis()).isEqualTo(1000);
+        assertThat(rootGeneric.getSchemaType()).isEqualTo("InterfaceRoot");
+
+        Place place = Place.createPlace("id1", "namespace", 2000, "place_loc");
+        GenericDocument placeGeneric = GenericDocument.fromDocumentClass(place);
+        assertThat(placeGeneric.getId()).isEqualTo("id1");
+        assertThat(placeGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(placeGeneric.getCreationTimestampMillis()).isEqualTo(2000);
+        assertThat(placeGeneric.getSchemaType()).isEqualTo("Place");
+        assertThat(placeGeneric.getPropertyString("location")).isEqualTo("place_loc");
+
+        Organization organization = Organization.createOrganization("id2", "namespace", 3000,
+                "organization_dec");
+        GenericDocument organizationGeneric = GenericDocument.fromDocumentClass(organization);
+        assertThat(organizationGeneric.getId()).isEqualTo("id2");
+        assertThat(organizationGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(organizationGeneric.getCreationTimestampMillis()).isEqualTo(3000);
+        assertThat(organizationGeneric.getSchemaType()).isEqualTo("Organization");
+        assertThat(organizationGeneric.getPropertyString("organizationDescription")).isEqualTo(
+                "organization_dec");
+
+        Business business = Business.createBusiness("id3", "namespace", 4000, "business_loc",
+                "business_dec", "business_name");
+        GenericDocument businessGeneric = GenericDocument.fromDocumentClass(business);
+        assertThat(businessGeneric.getId()).isEqualTo("id3");
+        assertThat(businessGeneric.getNamespace()).isEqualTo("namespace");
+        assertThat(businessGeneric.getCreationTimestampMillis()).isEqualTo(4000);
+        // The type of business should be BusinessImpl because it's annotated with @Document.
+        assertThat(businessGeneric.getSchemaType()).isEqualTo("BusinessImpl");
+        assertThat(businessGeneric.getPropertyString("location")).isEqualTo(
+                "business_loc");
+        assertThat(businessGeneric.getPropertyString("organizationDescription")).isEqualTo(
+                "business_dec");
+
+        Gift gift = new Gift();
+        gift.mNamespace = "namespace";
+        gift.mId = "id4";
+        gift.mCreationTimestampMillis = 5000;
+        GenericDocument giftGeneric = GenericDocument.fromDocumentClass(gift);
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(root, place, organization, business, gift)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(rootGeneric, placeGeneric, organizationGeneric,
+                businessGeneric, giftGeneric);
+
+        // A query with a filter for the "InterfaceRoot" type should also include "Place",
+        // "Organization" and "Business".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(InterfaceRoot.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(rootGeneric, placeGeneric, organizationGeneric,
+                businessGeneric);
+
+        // A query with a filter for the "Place" type should also include "Business".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Place.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(placeGeneric, businessGeneric);
+
+        // A query with a filter for the "Organization" type should also include "Business".
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Organization.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(organizationGeneric, businessGeneric);
+
+        // Query with a filter for the "Business" type.
+        searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterDocumentClasses(Business.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(businessGeneric);
+    }
 }

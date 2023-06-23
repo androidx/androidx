@@ -265,6 +265,25 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    public void testParentTypes() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("EmailMessage")
+                .addParentType("Email")
+                .addParentType("Message")
+                .build();
+        assertThat(schema.getParentTypes()).containsExactly("Email", "Message");
+    }
+
+    @Test
+    public void testDuplicateParentTypes() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("EmailMessage")
+                .addParentType("Email")
+                .addParentType("Message")
+                .addParentType("Email")
+                .build();
+        assertThat(schema.getParentTypes()).containsExactly("Email", "Message");
+    }
+
+    @Test
     public void testInvalidStringPropertyConfigsTokenizerNone() {
         // Everything should work fine with the defaults.
         final StringPropertyConfig.Builder builder =
