@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.ui.integration.testapp
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
@@ -71,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         mSdkLoaded = true
         val sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
 
-        mSandboxedSdkView1 = findViewById<SandboxedSdkView>(R.id.rendered_view)
+        mSandboxedSdkView1 = findViewById(R.id.rendered_view)
         mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
         mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadAd(/*isWebView=*/ true)
@@ -80,16 +79,12 @@ class MainActivity : AppCompatActivity() {
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
         mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
         mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(200, 200)
-        runOnUiThread(Runnable {
+        runOnUiThread {
             findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
-        })
+        }
         mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadAd(/*isWebView=*/ false)
         ))
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
@@ -101,12 +96,12 @@ class MainActivity : AppCompatActivity() {
                 val parent = view.parent as ViewGroup
                 val index = parent.indexOfChild(view)
                 val textView = TextView(this@MainActivity)
-                textView.setText(state.throwable.message)
+                textView.text = state.throwable.message
 
-                runOnUiThread(Runnable {
+                runOnUiThread {
                     parent.removeView(view)
                     parent.addView(textView, index)
-                })
+                }
             }
         }
     }
