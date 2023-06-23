@@ -43,6 +43,18 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"I-play sa isang pangkat"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Walang available na impormasyon"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Walang available na device"</string>
+    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
+    <skip />
+    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
+    <skip />
+    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
+    <skip />
+    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
+    <skip />
+    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
+    <skip />
+    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
+    <skip />
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Matuto pa"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Matutunan kung paano mag-cast"</string>
 </resources>
