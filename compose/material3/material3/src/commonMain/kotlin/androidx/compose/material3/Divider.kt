@@ -18,8 +18,10 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.DividerTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
  * ![Divider image](https://developer.android.com/images/reference/androidx/compose/material3/divider.png)
  *
  * @param modifier the [Modifier] to be applied to this divider line.
+ * @param horizontal orientation of this divider line, `true` for horizontal, `false` for vertical
  * @param thickness thickness of this divider line. Using [Dp.Hairline] will produce a single pixel
  * divider regardless of screen density.
  * @param color color of this divider line.
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Divider(
     modifier: Modifier = Modifier,
+    horizontal: Boolean = true,
     thickness: Dp = DividerDefaults.Thickness,
     color: Color = DividerDefaults.color,
 ) {
@@ -53,11 +57,27 @@ fun Divider(
     }
     Box(
         modifier
-            .fillMaxWidth()
-            .height(targetThickness)
+            .then(if (horizontal) {
+                Modifier.fillMaxWidth().height(targetThickness)
+            } else {
+                Modifier.fillMaxHeight().width(targetThickness)
+            })
             .background(color = color)
     )
 }
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun Divider(
+    modifier: Modifier = Modifier,
+    thickness: Dp = DividerDefaults.Thickness,
+    color: Color = DividerDefaults.color,
+) = Divider(
+    modifier = modifier,
+    horizontal = true,
+    thickness = thickness,
+    color = color,
+)
 
 /** Default values for [Divider] */
 object DividerDefaults {
