@@ -162,6 +162,7 @@ public final class RouteItem {
         GAME_CONSOLE(MediaRouter.RouteInfo.DEVICE_TYPE_GAME_CONSOLE),
         CAR(MediaRouter.RouteInfo.DEVICE_TYPE_CAR),
         SMARTWATCH(MediaRouter.RouteInfo.DEVICE_TYPE_SMARTWATCH),
+        SMARTPHONE(MediaRouter.RouteInfo.DEVICE_TYPE_SMARTPHONE),
         GROUP(MediaRouter.RouteInfo.DEVICE_TYPE_GROUP),
         UNKNOWN(MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);
 
