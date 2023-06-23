@@ -120,7 +120,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * Requests lookahead remeasure for this [layoutNode] and nodes affected by its measure result
      *
      * Note: This should only be called on a [LayoutNode] in the subtree defined in a
-     * LookaheadLayout. The caller is responsible for checking with [LayoutNode.lookaheadRoot]
+     * LookaheadScope. The caller is responsible for checking with [LayoutNode.lookaheadRoot]
      * is valid (i.e. non-null) before calling this method.
      *
      * @return true if the [measureAndLayout] execution should be scheduled as a result
@@ -129,7 +129,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     fun requestLookaheadRemeasure(layoutNode: LayoutNode, forced: Boolean = false): Boolean {
         check(layoutNode.lookaheadRoot != null) {
             "Error: requestLookaheadRemeasure cannot be called on a node outside" +
-                " LookaheadLayout"
+                " LookaheadScope"
         }
         return when (layoutNode.layoutState) {
             LookaheadMeasuring -> {

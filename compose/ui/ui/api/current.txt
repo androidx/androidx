@@ -2175,20 +2175,13 @@ package androidx.compose.ui.layout {
   @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface LookaheadLayoutCoordinates extends androidx.compose.ui.layout.LayoutCoordinates {
   }
 
-  @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public interface LookaheadLayoutScope {
-    method @Deprecated public androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,kotlin.Unit> onPlaced);
-  }
-
   @androidx.compose.ui.ExperimentalComposeUiApi public interface LookaheadScope {
     method public androidx.compose.ui.layout.LayoutCoordinates getLookaheadScopeCoordinates(androidx.compose.ui.layout.Placeable.PlacementScope);
-    method @Deprecated public default androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.IntSize,? extends androidx.compose.ui.layout.MeasureResult> measure);
     method public default long localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates coordinates);
-    method @Deprecated public androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,kotlin.Unit> onPlaced);
     method public androidx.compose.ui.layout.LayoutCoordinates toLookaheadCoordinates(androidx.compose.ui.layout.LayoutCoordinates);
   }
 
   public final class LookaheadScopeKt {
-    method @Deprecated @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void LookaheadLayout(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LookaheadScope,kotlin.Unit> content, optional androidx.compose.ui.Modifier modifier, androidx.compose.ui.layout.MeasurePolicy measurePolicy);
     method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void LookaheadScope(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LookaheadScope,kotlin.Unit> content);
     method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntermediateMeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measure);
   }

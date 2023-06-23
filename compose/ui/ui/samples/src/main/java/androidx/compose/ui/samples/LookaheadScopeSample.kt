@@ -198,7 +198,7 @@ fun LookaheadLayoutCoordinatesSample() {
                 .fillMaxSize()
                 .clickable { isInColumn = !isInColumn }
         ) {
-            // As the items get moved between Column and Row, their positions in LookaheadLayout
+            // As the items get moved between Column and Row, their positions in LookaheadScope
             // will change. The `animatePlacementInScope` modifier created above will
             // observe that final position change via `localLookaheadPositionOf`, and create
             // a position animation.
