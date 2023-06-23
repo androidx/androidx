@@ -19,7 +19,6 @@ package androidx.credentials.provider
 import android.content.ComponentName
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import androidx.core.os.BuildCompat
 import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -28,17 +27,13 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ProviderGetCredentialRequestTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         ProviderGetCredentialRequest(
             listOf(
                 createFrom(
@@ -57,9 +52,6 @@ class ProviderGetCredentialRequestTest {
 
     @Test
     fun getter_credentialOptions() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedType = "BoeingCred"
         val expectedQueryKey = "PilotName"
         val expectedQueryValue = "PilotPassword"
@@ -109,9 +101,6 @@ class ProviderGetCredentialRequestTest {
 
     @Test
     fun getter_signingInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val expectedPackageName = "cool.security.package"
 
         val providerGetCredentialRequest = ProviderGetCredentialRequest(

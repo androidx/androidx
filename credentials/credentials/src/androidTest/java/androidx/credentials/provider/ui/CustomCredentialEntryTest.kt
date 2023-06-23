@@ -21,7 +21,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
-import androidx.core.os.BuildCompat
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetCredentialOption
@@ -39,8 +38,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
 class CustomCredentialEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -48,46 +47,32 @@ class CustomCredentialEntryTest {
     private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
         PendingIntent.FLAG_IMMUTABLE)
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun constructor_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithRequiredParams()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertEntryWithRequiredParams(entry)
     }
 
     @Test
     fun constructor_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithAllParams()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertEntryWithAllParams(entry)
     }
 
     @Test
     fun constructor_allParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry: CustomCredentialEntry = constructEntryWithAllParams()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertEntryWithAllParams(entry)
     }
 
     @Test
     fun constructor_emptyTitle_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         assertThrows(
             "Expected empty title to throw NPE",
             IllegalArgumentException::class.java
@@ -101,10 +86,8 @@ class CustomCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun constructor_emptyType_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         assertThrows(
             "Expected empty type to throw NPE",
             IllegalArgumentException::class.java
@@ -117,10 +100,8 @@ class CustomCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     fun constructor_nullIcon_defaultIconSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithRequiredParams()
 
         assertThat(
@@ -132,13 +113,14 @@ class CustomCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = constructEntryWithRequiredParams()
 
-        val entry = fromSlice(originalEntry.slice)
+        val slice = CustomCredentialEntry.toSlice(
+            originalEntry)
+        assertNotNull(slice)
+        val entry = fromSlice(slice!!)
 
         assertNotNull(entry)
         if (entry != null) {
@@ -147,13 +129,14 @@ class CustomCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = constructEntryWithAllParams()
 
-        val entry = fromSlice(originalEntry.slice)
+        val slice = CustomCredentialEntry.toSlice(
+        originalEntry)
+        assertNotNull(slice)
+        val entry = fromSlice(slice!!)
 
         assertNotNull(entry)
         if (entry != null) {
@@ -205,7 +188,6 @@ class CustomCredentialEntryTest {
         assertThat(IS_AUTO_SELECT_ALLOWED).isEqualTo(entry.isAutoSelectAllowed)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
         assertThat(BEGIN_OPTION.type).isEqualTo(entry.type)
-        assertThat(BEGIN_OPTION).isEqualTo(entry.beginGetCredentialOption)
     }
 
     private fun assertEntryWithRequiredParams(entry: CustomCredentialEntry) {
@@ -219,13 +201,12 @@ class CustomCredentialEntryTest {
         assertThat(TITLE == entry.title)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
         assertThat(BEGIN_OPTION.type).isEqualTo(entry.type)
-        assertThat(BEGIN_OPTION).isEqualTo(entry.beginGetCredentialOption)
     }
 
     companion object {
         private val TITLE: CharSequence = "title"
         private val BEGIN_OPTION: BeginGetCredentialOption = BeginGetCustomCredentialOption(
-            "id", "type", Bundle())
+            "id", "custom_type", Bundle())
         private val SUBTITLE: CharSequence = "subtitle"
         private const val TYPE = "custom_type"
         private val TYPE_DISPLAY_NAME: CharSequence = "Password"

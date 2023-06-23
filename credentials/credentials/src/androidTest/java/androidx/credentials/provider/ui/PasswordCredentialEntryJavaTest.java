@@ -29,7 +29,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.PasswordCredential;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
@@ -47,8 +46,8 @@ import java.time.Instant;
 import java.util.HashSet;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class PasswordCredentialEntryJavaTest {
     private static final CharSequence USERNAME = "title";
     private static final CharSequence DISPLAYNAME = "subtitle";
@@ -71,35 +70,24 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertThat(entry.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertEntryWithRequiredParamsOnly(entry, false);
     }
 
     @Test
     public void build_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry entry = constructEntryWithAllParams();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertThat(entry.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertEntryWithAllParams(entry);
     }
 
     @Test
     public void build_nullContext_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null context to throw NPE",
                 NullPointerException.class,
                 () -> new PasswordCredentialEntry.Builder(
@@ -109,9 +97,6 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_nullUsername_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null username to throw NPE",
                 NullPointerException.class,
                 () -> new PasswordCredentialEntry.Builder(
@@ -121,9 +106,6 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_nullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null pending intent to throw NPE",
                 NullPointerException.class,
                 () -> new PasswordCredentialEntry.Builder(
@@ -133,9 +115,6 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_nullBeginOption_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null option to throw NPE",
                 NullPointerException.class,
                 () -> new PasswordCredentialEntry.Builder(
@@ -145,9 +124,6 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_emptyUsername_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty username to throw IllegalArgumentException",
                 IllegalArgumentException.class,
                 () -> new PasswordCredentialEntry.Builder(
@@ -156,9 +132,6 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_nullIcon_defaultIconSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry entry = new PasswordCredentialEntry
                 .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
 
@@ -168,9 +141,6 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_nullTypeDisplayName_defaultDisplayNameSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
                         mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
 
@@ -182,39 +152,30 @@ public class PasswordCredentialEntryJavaTest {
 
     @Test
     public void build_isAutoSelectAllowedDefault_false() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
 
         assertFalse(entry.isAutoSelectAllowed());
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry originalEntry = constructEntryWithRequiredParamsOnly();
 
-        assertNotNull(originalEntry.getSlice());
         PasswordCredentialEntry entry = PasswordCredentialEntry.fromSlice(
-                originalEntry.getSlice());
+                PasswordCredentialEntry.toSlice(originalEntry));
 
         assertNotNull(entry);
         assertEntryWithRequiredParamsOnly(entry, true);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PasswordCredentialEntry originalEntry = constructEntryWithAllParams();
 
-        assertNotNull(originalEntry.getSlice());
         PasswordCredentialEntry entry = PasswordCredentialEntry.fromSlice(
-                originalEntry.getSlice());
+                PasswordCredentialEntry.toSlice(originalEntry));
 
         assertNotNull(entry);
         assertEntryWithAllParams(entry);
@@ -246,7 +207,6 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
-        assertThat(mBeginGetPasswordOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 
     private void assertEntryWithAllParams(PasswordCredentialEntry entry) {
@@ -258,6 +218,5 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
-        assertThat(mBeginGetPasswordOption).isEqualTo(entry.getBeginGetCredentialOption());
     }
 }

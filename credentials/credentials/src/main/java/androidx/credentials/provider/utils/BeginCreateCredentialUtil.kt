@@ -44,8 +44,10 @@ internal class BeginCreateCredentialUtil {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
                         BeginCreatePasswordCredentialRequest.createFrom(
                             request.data, request.callingAppInfo?.let {
-                                CallingAppInfo(it.packageName,
-                                    it.signingInfo, it.origin)
+                                CallingAppInfo(
+                                    it.packageName,
+                                    it.signingInfo, it.origin
+                                )
                             }
                         )
                     }
@@ -54,8 +56,10 @@ internal class BeginCreateCredentialUtil {
                         BeginCreatePublicKeyCredentialRequest.createFrom(
                             request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(it.packageName,
-                                    it.signingInfo, it.origin)
+                                CallingAppInfo(
+                                    it.packageName,
+                                    it.signingInfo, it.origin
+                                )
                             }
                         )
                     }
@@ -64,8 +68,10 @@ internal class BeginCreateCredentialUtil {
                         BeginCreateCustomCredentialRequest(
                             request.type, request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(it.packageName,
-                                    it.signingInfo, it.origin)
+                                CallingAppInfo(
+                                    it.packageName,
+                                    it.signingInfo, it.origin
+                                )
                             }
                         )
                     }
@@ -75,8 +81,10 @@ internal class BeginCreateCredentialUtil {
                     request.type,
                     request.data,
                     request.callingAppInfo?.let {
-                        CallingAppInfo(it.packageName,
-                            it.signingInfo, it.origin)
+                        CallingAppInfo(
+                            it.packageName,
+                            it.signingInfo, it.origin
+                        )
                     }
                 )
             }
@@ -113,11 +121,14 @@ internal class BeginCreateCredentialUtil {
             createEntries: List<CreateEntry>
         ) {
             createEntries.forEach {
-                frameworkBuilder.addCreateEntry(
-                    android.service.credentials.CreateEntry(
-                        CreateEntry.toSlice(it)
+                val entrySlice = CreateEntry.toSlice(it)
+                if (entrySlice != null) {
+                    frameworkBuilder.addCreateEntry(
+                        android.service.credentials.CreateEntry(
+                            entrySlice
+                        )
                     )
-                )
+                }
             }
         }
 
@@ -132,7 +143,8 @@ internal class BeginCreateCredentialUtil {
                 )
             }
             return android.service.credentials.BeginCreateCredentialRequest(
-                request.type, request.candidateQueryData, callingAppInfo)
+                request.type, request.candidateQueryData, callingAppInfo
+            )
         }
 
         fun convertToJetpackResponse(

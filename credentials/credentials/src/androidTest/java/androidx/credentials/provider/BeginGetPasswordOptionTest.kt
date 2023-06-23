@@ -16,8 +16,6 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.equals
@@ -29,7 +27,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
 class BeginGetPasswordOptionTest {
     companion object {
         private const val BUNDLE_ID_KEY =
@@ -38,10 +35,7 @@ class BeginGetPasswordOptionTest {
     }
 
     @Test
-    fun getter_frameworkProperties() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
+    fun constructor_success() {
         val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
         val bundle = Bundle()
         bundle.putStringArrayList(
@@ -58,11 +52,7 @@ class BeginGetPasswordOptionTest {
     }
 
     @Test
-    fun getter_frameworkCreateFrom() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
+    fun createFrom_success() {
         val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
         val bundle = Bundle()
         bundle.putStringArrayList(
@@ -75,11 +65,7 @@ class BeginGetPasswordOptionTest {
     }
 
     @Test
-    fun getter_frameworkCreateFromEntrySlice() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
+    fun createFromEntrySlice_success() {
         val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
         val bundle = Bundle()
         bundle.putStringArrayList(
@@ -87,7 +73,7 @@ class BeginGetPasswordOptionTest {
             ArrayList(expectedAllowedUserIds)
         )
 
-        var option = BeginGetPasswordOption.createFrom(bundle, "id")
+        var option = BeginGetPasswordOption.createFromEntrySlice(bundle, "id")
         assertThat(option.id).isEqualTo("id")
     }
 }

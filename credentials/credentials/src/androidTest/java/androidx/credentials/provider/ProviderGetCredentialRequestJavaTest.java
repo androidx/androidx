@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.CredentialOption;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -39,17 +38,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ProviderGetCredentialRequestJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new ProviderGetCredentialRequest(
                 Collections.singletonList(CredentialOption.createFrom("type", new Bundle(),
                         new Bundle(), true, ImmutableSet.of())),
@@ -59,10 +54,6 @@ public class ProviderGetCredentialRequestJavaTest {
 
     @Test
     public void constructor_nullInputs_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new ProviderGetCredentialRequest(null, null)
@@ -71,9 +62,6 @@ public class ProviderGetCredentialRequestJavaTest {
 
     @Test
     public void getter_credentialOptions() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedType = "BoeingCred";
         String expectedQueryKey = "PilotName";
         String expectedQueryValue = "PilotPassword";
@@ -120,9 +108,6 @@ public class ProviderGetCredentialRequestJavaTest {
 
     @Test
     public void getter_signingInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedPackageName = "cool.security.package";
 
         ProviderGetCredentialRequest providerGetCredentialRequest =

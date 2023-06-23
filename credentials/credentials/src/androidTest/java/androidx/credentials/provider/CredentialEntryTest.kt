@@ -16,62 +16,91 @@
 
 package androidx.credentials.provider
 
-import android.app.slice.Slice
-import android.app.slice.SliceSpec
-import android.net.Uri
-import androidx.core.os.BuildCompat
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import androidx.credentials.PasswordCredential.Companion.TYPE_PASSWORD_CREDENTIAL
 import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDENTIAL
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 class CredentialEntryTest {
+    private val mContext = ApplicationProvider.getApplicationContext<Context>()
+    private val mIntent = Intent()
+    private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
+        PendingIntent.FLAG_IMMUTABLE)
+
+    companion object {
+        private val BEGIN_OPTION_CUSTOM: BeginGetCredentialOption = BeginGetCustomCredentialOption(
+            "id", "custom", Bundle()
+        )
+        private val BEGIN_OPTION_PASSWORD: BeginGetPasswordOption = BeginGetPasswordOption(
+            emptySet(), Bundle.EMPTY, "id"
+        )
+        private val BEGIN_OPTION_PUBLIC_KEY: BeginGetPublicKeyCredentialOption =
+            BeginGetPublicKeyCredentialOption(
+                Bundle.EMPTY, "id", "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}"
+        )
+    }
 
     @Test
     fun createFrom_passwordCredential() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
+        val entry = PasswordCredentialEntry(
+            mContext,
+            "username",
+            mPendingIntent,
+            BEGIN_OPTION_PASSWORD
+        )
+        assertNotNull(entry)
 
-        var sliceSpec = SliceSpec(TYPE_PASSWORD_CREDENTIAL, 1)
-        var slice = Slice.Builder(Uri.EMPTY, sliceSpec).build()
+        val slice = PasswordCredentialEntry.toSlice(entry)
+        assertNotNull(slice)
 
-        var result = CredentialEntry.createFrom(slice)
+        val result = CredentialEntry.createFrom(slice!!)
         assertThat(result).isNotNull()
         assertThat(result!!.type).isEqualTo(TYPE_PASSWORD_CREDENTIAL)
     }
 
     @Test
     fun createFrom_publicKeyCredential() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
+        val entry = PublicKeyCredentialEntry(
+            mContext,
+            "username",
+            mPendingIntent,
+            BEGIN_OPTION_PUBLIC_KEY
+        )
+        assertNotNull(entry)
 
-        var sliceSpec = SliceSpec(TYPE_PUBLIC_KEY_CREDENTIAL, 1)
-        var slice = Slice.Builder(Uri.EMPTY, sliceSpec).build()
+        val slice = PublicKeyCredentialEntry.toSlice(entry)
+        assertNotNull(slice)
 
-        var result = CredentialEntry.createFrom(slice)
-        assertThat(result).isNotNull()
+        val result = CredentialEntry.createFrom(slice!!)
+        assertNotNull(result)
         assertThat(result!!.type).isEqualTo(TYPE_PUBLIC_KEY_CREDENTIAL)
     }
 
     @Test
     fun createFrom_customCredential() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
+        val entry = CustomCredentialEntry(
+            mContext,
+            "title",
+            mPendingIntent,
+            BEGIN_OPTION_CUSTOM
+        )
+        val slice = CustomCredentialEntry.toSlice(entry)
+        assertNotNull(slice)
 
-        var sliceSpec = SliceSpec("custom", 1)
-        var slice = Slice.Builder(Uri.EMPTY, sliceSpec).build()
-
-        var result = CredentialEntry.createFrom(slice)
+        val result = CredentialEntry.createFrom(slice!!)
         assertThat(result).isNotNull()
         assertThat(result!!.type).isEqualTo("custom")
     }

@@ -17,24 +17,20 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.equals
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
-@RequiresApi(34)
 class BeginCreatePasswordRequestTest {
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginCreatePasswordCredentialRequest(
             CallingAppInfo(
                 "sample_package_name",
@@ -46,10 +42,6 @@ class BeginCreatePasswordRequestTest {
 
     @Test
     fun getter_callingAppInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         val expectedCandidateQueryBundle = Bundle()
         expectedCandidateQueryBundle.putString("key", "value")
         val expectedPackageName = "sample_package_name"

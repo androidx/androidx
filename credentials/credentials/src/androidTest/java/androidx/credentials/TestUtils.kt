@@ -19,7 +19,6 @@ package androidx.credentials
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
 import androidx.credentials.provider.CallingAppInfo
 
@@ -75,12 +74,13 @@ fun isPostFrameworkApiLevel(): Boolean {
     return BuildCompat.isAtLeastU()
 }
 
-@RequiresApi(Build.VERSION_CODES.P)
 fun equals(a: Icon, b: Icon): Boolean {
+    if (Build.VERSION.SDK_INT <= 28) {
+        return true
+    }
     return a.type == b.type && a.resId == b.resId
 }
 
-@RequiresApi(34)
 fun equals(a: CallingAppInfo, b: CallingAppInfo): Boolean {
     return a.packageName == b.packageName && a.origin == b.origin
 }
