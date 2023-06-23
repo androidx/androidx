@@ -404,7 +404,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "ActivitySession" ->
+            "ActivitySession" -> {
                 ExerciseSessionRecord(
                     exerciseType =
                         mapEnum(
@@ -421,12 +421,15 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata,
                     segments = subTypeDataListsMap["segments"]?.toSegmentList() ?: emptyList(),
                     laps = subTypeDataListsMap["laps"]?.toLapList() ?: emptyList(),
-                    route =
+                    exerciseRoute =
                         subTypeDataListsMap["route"]?.let {
-                            ExerciseRoute(route = it.toLocationList())
-                        },
-                    hasRoute = valuesMap["hasRoute"]?.booleanVal ?: false,
+                            ExerciseRoute.Data(route = it.toLocationList())
+                        }
+                            ?: if (valuesMap["hasRoute"]?.booleanVal == true)
+                                ExerciseRoute.ConsentRequired()
+                            else ExerciseRoute.NoData(),
                 )
+            }
             "Distance" ->
                 DistanceRecord(
                     distance = getDouble("distance").meters,
@@ -582,10 +585,10 @@ fun toRecord(proto: DataProto.DataPoint): Record =
         }
     }
 
-fun toExerciseRoute(
+fun toExerciseRouteData(
     protoWrapper: androidx.health.platform.client.exerciseroute.ExerciseRoute
-): ExerciseRoute {
-    return ExerciseRoute(
+): ExerciseRoute.Data {
+    return ExerciseRoute.Data(
         protoWrapper.proto.valuesList.map { value ->
             ExerciseRoute.Location(
                 time = Instant.ofEpochMilli(value.startTimeMillis),

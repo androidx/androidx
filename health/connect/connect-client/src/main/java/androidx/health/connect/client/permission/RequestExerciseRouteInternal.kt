@@ -21,7 +21,7 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.impl.converters.records.toExerciseRoute
+import androidx.health.connect.client.impl.converters.records.toExerciseRouteData
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.service.HealthDataServiceConstants
@@ -32,16 +32,17 @@ import androidx.health.platform.client.service.HealthDataServiceConstants
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class RequestExerciseRouteInternal : ActivityResultContract<String?, ExerciseRoute?>() {
-    override fun createIntent(context: Context, input: String?): Intent {
-        require(!input.isNullOrEmpty()) { "Session identifier is required" }
+internal class RequestExerciseRouteInternal :
+    ActivityResultContract<String, ExerciseRoute.Data?>() {
+    override fun createIntent(context: Context, input: String): Intent {
+        require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return Intent(HealthDataServiceConstants.ACTION_REQUEST_ROUTE).apply {
             putExtra(HealthDataServiceConstants.EXTRA_SESSION_ID, input)
         }
     }
 
     @Suppress("DEPRECATION") // getParcelableExtra
-    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute? {
+    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute.Data? {
         val route =
             intent?.getParcelableExtra<androidx.health.platform.client.exerciseroute.ExerciseRoute>(
                 HealthDataServiceConstants.EXTRA_EXERCISE_ROUTE
@@ -51,6 +52,6 @@ internal class RequestExerciseRouteInternal : ActivityResultContract<String?, Ex
             return null
         }
         Logger.debug(HealthConnectClient.HEALTH_CONNECT_CLIENT_TAG, "Returned a route.")
-        return toExerciseRoute(route)
+        return toExerciseRouteData(route)
     }
 }
