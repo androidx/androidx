@@ -40,7 +40,7 @@
     <string name="m3c_date_input_headline_description" msgid="229313757840775812">"‏התאריך שהוזן: %1$s"</string>
     <string name="m3c_date_input_no_input_description" msgid="1237013946323089826">"ללא"</string>
     <string name="m3c_date_input_invalid_not_allowed" msgid="2521768508935305279">"‏תאריך לא מורשה: %1$s"</string>
-    <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"‏התאריך לא תואם לקו ביטול הנעילה הצפוי: %1$s"</string>
+    <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"‏התאריך לא תואם למבנה הצפוי: %1$s"</string>
     <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"‏התאריך נמצא מחוץ לטווח השנים הצפוי %1$s - %2$s"</string>
     <string name="m3c_date_picker_switch_to_calendar_mode" msgid="1804346892470238807">"מעבר לשיטת קלט של יומן"</string>
     <string name="m3c_date_picker_switch_to_input_mode" msgid="2219746470065162704">"מעבר לשיטת קלט של טקסט"</string>
