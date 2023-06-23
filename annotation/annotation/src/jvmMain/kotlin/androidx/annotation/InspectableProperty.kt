@@ -25,7 +25,7 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.SOURCE)
-@Deprecated("Replaced by the {@code androidx.resourceinpsection} package.")
+@Deprecated("Replaced by the androidx.resourceinpsection package.")
 public annotation class InspectableProperty(
     /**
      * The name of the property.
