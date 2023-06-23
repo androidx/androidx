@@ -20,8 +20,10 @@ package androidx.compose.foundation.demos.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
@@ -36,8 +38,13 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.allCaps
 import androidx.compose.foundation.text2.input.maxLengthInChars
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Switch
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
@@ -57,7 +64,10 @@ fun BasicTextField2FilterDemos() {
         FilterDemo(filter = TextEditFilter.maxLengthInChars(5))
 
         TagLine(tag = "Digits Only BasicTextField2")
-        DigitsOnlyBasicTextField2()
+        DigitsOnlyDemo()
+
+        TagLine(tag = "Change filter")
+        ChangeFilterDemo()
 
         TagLine(tag = "Custom (type backwards with prompt)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
@@ -78,7 +88,7 @@ fun BasicTextField2FilterDemos() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DigitsOnlyBasicTextField2() {
+private fun DigitsOnlyDemo() {
     FilterDemo(filter = object : TextEditFilter {
         override val keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
@@ -103,4 +113,24 @@ private fun FilterDemo(filter: TextEditFilter) {
         filter = filter,
         modifier = demoTextFieldModifiers
     )
+}
+
+@Composable
+private fun ChangeFilterDemo() {
+    var filter: TextEditFilter? by remember { mutableStateOf(null) }
+    val state = remember { TextFieldState() }
+
+    Column {
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Filter enabled?")
+            Switch(checked = filter != null, onCheckedChange = {
+                filter = if (filter == null) TextEditFilter.allCaps(Locale.current) else null
+            })
+        }
+        BasicTextField2(
+            state = state,
+            filter = filter,
+            modifier = demoTextFieldModifiers
+        )
+    }
 }

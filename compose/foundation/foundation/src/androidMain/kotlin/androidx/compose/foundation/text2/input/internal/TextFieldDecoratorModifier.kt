@@ -242,6 +242,7 @@ internal class TextFieldDecoratorModifierNode(
         val previousTextFieldState = this.textFieldState
         val previousKeyboardOptions = this.keyboardOptions
         val previousTextFieldSelectionState = this.textFieldSelectionState
+        val previousFilter = this.filter
 
         // Apply the diff.
         this.textFieldState = textFieldState
@@ -256,11 +257,11 @@ internal class TextFieldDecoratorModifierNode(
         this.singleLine = singleLine
 
         // React to diff.
-        // If made writable while focused, or we got a completely new state instance,
-        // start a new input session.
+        // Something about the session changed, restart the session.
         if (writeable != previousWriteable ||
             textFieldState != previousTextFieldState ||
-            keyboardOptions != previousKeyboardOptions
+            keyboardOptions != previousKeyboardOptions ||
+            filter != previousFilter
         ) {
             if (writeable && isFocused) {
                 // The old session will be implicitly disposed.
@@ -271,7 +272,6 @@ internal class TextFieldDecoratorModifierNode(
             }
         }
 
-        textInputSession?.setFilter(filter)
         textFieldKeyEventHandler.setFilter(filter)
 
         if (textFieldSelectionState != previousTextFieldSelectionState) {

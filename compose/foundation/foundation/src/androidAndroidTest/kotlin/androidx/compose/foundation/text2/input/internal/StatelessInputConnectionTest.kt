@@ -19,7 +19,6 @@ package androidx.compose.foundation.text2.input.internal
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
@@ -67,10 +66,6 @@ class StatelessInputConnectionTest {
 
             override val imeOptions: ImeOptions
                 get() = this@StatelessInputConnectionTest.imeOptions
-
-            override fun setFilter(filter: TextEditFilter?) {
-                // Noop.
-            }
 
             override fun showSoftwareKeyboard() {
                 // noop
