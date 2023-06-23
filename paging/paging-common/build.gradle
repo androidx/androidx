@@ -14,14 +14,93 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
 
+def enableNative = KmpPlatformsKt.enableNative(project)
+
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.3.0")
+                api("androidx.arch.core:core-common:2.2.0")
+
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
+                implementation(project(":internal-testutils-common"))
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-ktx"))
+                implementation(project(":internal-testutils-paging"))
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        if (enableNative) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+
+        // use new memory model
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
+    }
+}
+
+// top level declaration because the KGP sourceSets declaration used by androidXMultiplatform
+// does not support constraints or samples configurations yet
 dependencies {
     // Atomic Group
     constraints {
@@ -31,21 +110,6 @@ dependencies {
         // update syntax when b/239979823 is fixed
         implementation("androidx.paging:paging-compose:${androidx.LibraryVersions.PAGING}")
     }
-
-    api("androidx.annotation:annotation:1.3.0")
-    api("androidx.arch.core:core-common:2.2.0")
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin4)
-    testImplementation(project(":internal-testutils-common"))
-    testImplementation(project(":internal-testutils-kmp"))
-    testImplementation(project(":internal-testutils-ktx"))
-    testImplementation(project(":internal-testutils-paging"))
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.kotlinCoroutinesTest)
 
     samples(project(":paging:paging-samples"))
 }

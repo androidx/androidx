@@ -122,7 +122,7 @@ public abstract class PagedList<T : Any> internal constructor(
      *
      * @suppress
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val pagingSource: PagingSource<*, T>,
     internal val coroutineScope: CoroutineScope,
     internal val notifyDispatcher: CoroutineDispatcher,
