@@ -139,6 +139,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.AndroidTextInputServicePlugin
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl
+import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -164,6 +165,12 @@ import java.lang.reflect.Method
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
+
+/**
+ * Allows tests to inject a custom [PlatformTextInputService].
+ */
+internal var platformTextInputServiceInterceptor:
+        (PlatformTextInputService) -> PlatformTextInputService = { it }
 
 @SuppressLint("ViewConstructor", "VisibleForTests")
 @OptIn(ExperimentalComposeUiApi::class, InternalTextApi::class, ExperimentalTextApi::class)

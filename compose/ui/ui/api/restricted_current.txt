@@ -2755,6 +2755,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> getLocalInputModeManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> getLocalLayoutDirection();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.PlatformTextInputPluginRegistry> getLocalPlatformTextInputPluginRegistry();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController> getLocalSoftwareKeyboardController();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> getLocalTextInputService();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> getLocalTextToolbar();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> getLocalUriHandler();
@@ -2771,6 +2772,7 @@ package androidx.compose.ui.platform {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> LocalInputModeManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> LocalLayoutDirection;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.PlatformTextInputPluginRegistry> LocalPlatformTextInputPluginRegistry;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController> LocalSoftwareKeyboardController;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> LocalTextInputService;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> LocalTextToolbar;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
@@ -2842,22 +2844,13 @@ package androidx.compose.ui.platform {
     property public Object? valueOverride;
   }
 
-  @androidx.compose.ui.ExperimentalComposeUiApi public final class LocalSoftwareKeyboardController {
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.platform.SoftwareKeyboardController? getCurrent();
-    method public infix androidx.compose.runtime.ProvidedValue<androidx.compose.ui.platform.SoftwareKeyboardController> provides(androidx.compose.ui.platform.SoftwareKeyboardController softwareKeyboardController);
-    property @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi public final androidx.compose.ui.platform.SoftwareKeyboardController? current;
-    field public static final androidx.compose.ui.platform.LocalSoftwareKeyboardController INSTANCE;
-  }
-
   public final class NestedScrollInteropConnectionKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.input.nestedscroll.NestedScrollConnection rememberNestedScrollInteropConnection(optional android.view.View hostView);
   }
 
-  @androidx.compose.runtime.Stable @androidx.compose.ui.ExperimentalComposeUiApi public interface SoftwareKeyboardController {
+  @androidx.compose.runtime.Stable public interface SoftwareKeyboardController {
     method public void hide();
-    method @Deprecated public default void hideSoftwareKeyboard();
     method public void show();
-    method @Deprecated public default void showSoftwareKeyboard();
   }
 
   public final class TestTagKt {

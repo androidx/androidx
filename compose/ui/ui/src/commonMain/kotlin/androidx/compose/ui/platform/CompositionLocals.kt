@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -137,6 +138,14 @@ val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> {
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
 
 /**
+ * The [CompositionLocal] to provide a [SoftwareKeyboardController] that can control the current
+ * software keyboard.
+ *
+ * Will be null if the software keyboard cannot be controlled.
+ */
+val LocalSoftwareKeyboardController = staticCompositionLocalOf<SoftwareKeyboardController?> { null }
+
+/**
  * The CompositionLocal to provide platform text input services.
  *
  * This is a low-level API for code that talks directly to the platform input method framework.
@@ -201,6 +210,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalInputModeManager provides owner.inputModeManager,
         LocalLayoutDirection provides owner.layoutDirection,
         LocalTextInputService provides owner.textInputService,
+        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
         LocalPlatformTextInputPluginRegistry provides owner.platformTextInputPluginRegistry,
         LocalTextToolbar provides owner.textToolbar,
         LocalUriHandler provides uriHandler,
