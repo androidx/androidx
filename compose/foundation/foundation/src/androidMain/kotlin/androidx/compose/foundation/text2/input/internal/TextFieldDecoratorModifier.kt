@@ -48,6 +48,8 @@ import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
@@ -157,7 +159,7 @@ internal class TextFieldDecoratorModifierNode(
                     }
 
                     if (enabled && !readOnly && isFocused) {
-                        textInputSession?.showSoftwareKeyboard()
+                        requireKeyboardController().show()
                         textFieldSelectionState.onTapTextField(offset)
                     }
                 })
@@ -192,7 +194,7 @@ internal class TextFieldDecoratorModifierNode(
                     focusManager.moveFocus(FocusDirection.Previous)
                 }
                 ImeAction.Done -> {
-                    textInputSession?.hideSoftwareKeyboard()
+                    requireKeyboardController().hide()
                 }
                 ImeAction.Go, ImeAction.Search, ImeAction.Send,
                 ImeAction.Default, ImeAction.None -> Unit
@@ -431,6 +433,10 @@ internal class TextFieldDecoratorModifierNode(
         textInputSession?.dispose()
         textInputSession = null
     }
+
+    private fun requireKeyboardController(): SoftwareKeyboardController =
+        currentValueOf(LocalSoftwareKeyboardController)
+            ?: error("No software keyboard controller")
 }
 
 /**

@@ -38,7 +38,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
@@ -278,38 +277,6 @@ class AndroidTextInputAdapterTest {
             assertThat(noActiveSessionEI.inputType).isEqualTo(disposedSessionEI.inputType)
             assertThat(noActiveSessionEI.imeOptions).isEqualTo(disposedSessionEI.imeOptions)
         }
-    }
-
-    @Test
-    fun showSoftwareKeyboard_fromActiveInputSession_showsTheKeyboard() {
-        var session: TextInputSession? = null
-
-        rule.runOnUiThread {
-            session = adapter.startInputSessionWithDefaultsForTest()
-        }
-
-        keyboardHelper.hideKeyboardIfShown()
-        keyboardHelper.waitForKeyboardVisibility(false)
-
-        session?.showSoftwareKeyboard()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
-    }
-
-    @SdkSuppress(minSdkVersion = 23)
-    @Test
-    fun hideSoftwareKeyboard_fromActiveInputSession_hidesTheKeyboard() {
-        var session: TextInputSession? = null
-
-        rule.runOnUiThread {
-            session = adapter.startInputSessionWithDefaultsForTest()
-        }
-
-        keyboardHelper.waitForKeyboardVisibility(true)
-
-        session?.hideSoftwareKeyboard()
-        keyboardHelper.waitForKeyboardVisibility(false)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
     }
 
     @Test

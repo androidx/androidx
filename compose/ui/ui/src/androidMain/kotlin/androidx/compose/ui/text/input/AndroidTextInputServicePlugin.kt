@@ -21,6 +21,7 @@ package androidx.compose.ui.text.input
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.ui.platform.platformTextInputServiceInterceptor
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.AndroidTextInputServicePlugin.Adapter
 
@@ -42,7 +43,8 @@ internal object AndroidTextInputServicePlugin : PlatformTextInputPlugin<Adapter>
 
     override fun createAdapter(platformTextInput: PlatformTextInput, view: View): Adapter {
         val platformService = TextInputServiceAndroid(view, platformTextInput)
-        return Adapter(TextInputService(platformService), platformService)
+        val interceptedService = platformTextInputServiceInterceptor(platformService)
+        return Adapter(TextInputService(interceptedService), platformService)
     }
 
     class Adapter(

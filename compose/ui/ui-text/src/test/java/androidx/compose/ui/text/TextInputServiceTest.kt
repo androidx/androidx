@@ -180,7 +180,7 @@ class TextInputServiceTest {
         ).dispose()
 
         textInputService.showSoftwareKeyboard()
-        verify(platformService, never()).showSoftwareKeyboard()
+        verify(platformService).showSoftwareKeyboard()
     }
 
     @Test
@@ -190,7 +190,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         textInputService.showSoftwareKeyboard()
-        verify(platformService, never()).showSoftwareKeyboard()
+        verify(platformService).showSoftwareKeyboard()
     }
 
     @Test

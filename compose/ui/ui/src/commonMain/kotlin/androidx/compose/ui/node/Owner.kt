@@ -30,6 +30,8 @@ import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -110,6 +112,9 @@ internal interface Owner {
     val density: Density
 
     val textInputService: TextInputService
+
+    val softwareKeyboardController: SoftwareKeyboardController
+        get() = DelegatingSoftwareKeyboardController(textInputService)
 
     val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
 

@@ -162,18 +162,6 @@ internal class AndroidTextInputAdapter constructor(
         override val isOpen: Boolean
             get() = currentTextInputSession == this
 
-        override fun showSoftwareKeyboard() {
-            if (isOpen) {
-                textInputCommandExecutor.send(TextInputCommand.ShowKeyboard)
-            }
-        }
-
-        override fun hideSoftwareKeyboard() {
-            if (isOpen) {
-                textInputCommandExecutor.send(TextInputCommand.HideKeyboard)
-            }
-        }
-
         override fun dispose() {
             state.editProcessor.removeResetListener(resetListener)
             stopInputSession(this)
