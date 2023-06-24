@@ -124,7 +124,13 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent,
             CREATE_PUBLIC_KEY_CREDENTIAL_TAG)
-        context.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
