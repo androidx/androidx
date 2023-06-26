@@ -15,12 +15,10 @@
  */
 package androidx.appsearch.platformstorage;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
-import androidx.core.os.BuildCompat;
 
 /**
  * An implementation of {@link Features}. Feature availability is dependent on Android API
@@ -29,9 +27,6 @@ import androidx.core.os.BuildCompat;
 final class FeaturesImpl implements Features {
 
     @Override
-    // TODO(b/265311462): Remove these two lines once BuildCompat.isAtLeastU() is removed
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
             // Android T Features
@@ -64,7 +59,7 @@ final class FeaturesImpl implements Features {
             case Features.VERBATIM_SEARCH:
                 // fall through
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
-                return BuildCompat.isAtLeastU();
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
             // Beyond Android U features
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:

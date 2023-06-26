@@ -15,7 +15,6 @@
  */
 package androidx.appsearch.platformstorage;
 
-import android.annotation.SuppressLint;
 import android.app.appsearch.AppSearchResult;
 import android.os.Build;
 
@@ -51,7 +50,6 @@ import androidx.appsearch.platformstorage.converter.SearchSuggestionSpecToPlatfo
 import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -82,9 +80,6 @@ class SearchSessionImpl implements AppSearchSession {
         mFeatures = Preconditions.checkNotNull(features);
     }
 
-    // TODO(b/265311462): Remove these two lines once BuildCompat.isAtLeastU() is removed
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
@@ -101,9 +96,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
@@ -156,9 +148,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public SearchResults search(
@@ -173,9 +162,6 @@ class SearchSessionImpl implements AppSearchSession {
         return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor);
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
@@ -183,7 +169,7 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull SearchSuggestionSpec searchSuggestionSpec) {
         Preconditions.checkNotNull(suggestionQueryExpression);
         Preconditions.checkNotNull(searchSuggestionSpec);
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ResolvableFuture<List<SearchSuggestionResult>> future = ResolvableFuture.create();
             ApiHelperForU.searchSuggestion(
                     mPlatformSession,
@@ -229,9 +215,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public ListenableFuture<Void> removeAsync(
@@ -245,7 +228,8 @@ class SearchSessionImpl implements AppSearchSession {
                     + "JoinSpec was provided.");
         }
 
-        if (Build.VERSION.SDK_INT < 33 && !searchSpec.getFilterNamespaces().isEmpty()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                && !searchSpec.getFilterNamespaces().isEmpty()) {
             // This is a patch for b/197361770, framework-appsearch in Android S will
             // disable the given namespace filter if it is not empty and none of given namespaces
             // exist.
@@ -332,7 +316,7 @@ class SearchSessionImpl implements AppSearchSession {
         mPlatformSession.close();
     }
 
-    @RequiresApi(34)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     static class ApiHelperForU {
         private ApiHelperForU() {
             // This class is not instantiable.
