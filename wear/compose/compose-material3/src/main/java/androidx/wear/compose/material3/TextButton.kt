@@ -234,13 +234,18 @@ object TextButtonDefaults {
  * [TextButtonDefaults.filledTonalTextButtonColors], [TextButtonDefaults.textButtonColors] and
  * [TextButtonDefaults.outlinedTextButtonColors] for [TextButtonColors] with different levels
  * of emphasis.
+ *
+ * @param containerColor the background color of this text button when enabled.
+ * @param contentColor the content color of this text button when enabled.
+ * @param disabledContainerColor the background color of this text button when not enabled.
+ * @param disabledContentColor the content color of this text button when not enabled.
  */
 @Immutable
 class TextButtonColors constructor(
-    private val containerColor: Color,
-    private val contentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledContentColor: Color,
+    val containerColor: Color,
+    val contentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this text button, depending on [enabled].
