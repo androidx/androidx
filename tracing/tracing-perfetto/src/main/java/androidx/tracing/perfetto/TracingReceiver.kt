@@ -24,13 +24,13 @@ import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.tracing.perfetto.StartupTracingConfigStore.store
-import androidx.tracing.perfetto.Trace.EnableTracingResponse
-import androidx.tracing.perfetto.internal.handshake.protocol.EnableTracingResponse
+import androidx.tracing.perfetto.Trace.Response
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_DISABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PATH
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PERSISTENT
+import androidx.tracing.perfetto.internal.handshake.protocol.Response
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseKeys
@@ -90,11 +90,11 @@ class TracingReceiver : BroadcastReceiver() {
     /**
      * Enables Perfetto SDK tracing in the app
      */
-    private fun enableTracingImmediate(srcPath: String?, context: Context?): EnableTracingResponse =
+    private fun enableTracingImmediate(srcPath: String?, context: Context?): Response =
         when {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
                 // TODO(234351579): Support API < 30
-                EnableTracingResponse(
+                Response(
                     RESULT_CODE_ERROR_OTHER,
                     "SDK version not supported. Current minimum SDK = ${Build.VERSION_CODES.R}"
                 )
@@ -103,11 +103,11 @@ class TracingReceiver : BroadcastReceiver() {
                 try {
                     Trace.enable(File(srcPath), context)
                 } catch (e: Exception) {
-                    EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
+                    Response(RESULT_CODE_ERROR_OTHER, e)
                 }
             }
             srcPath != null && context == null -> {
-                EnableTracingResponse(
+                Response(
                     RESULT_CODE_ERROR_OTHER,
                     "Cannot copy source file: $srcPath without access to a Context instance."
                 )
@@ -127,10 +127,10 @@ class TracingReceiver : BroadcastReceiver() {
         context: Context?,
         srcPath: String?,
         isPersistent: Boolean
-    ): EnableTracingResponse = enableTracingImmediate(srcPath, context).also {
+    ): Response = enableTracingImmediate(srcPath, context).also {
         if (it.exitCode == RESULT_CODE_SUCCESS) {
             val config = StartupTracingConfig(libFilePath = srcPath, isPersistent = isPersistent)
-            if (context == null) return EnableTracingResponse(
+            if (context == null) return Response(
                 RESULT_CODE_ERROR_OTHER,
                 "Cannot set up cold start tracing without a Context instance."
             )
@@ -138,22 +138,20 @@ class TracingReceiver : BroadcastReceiver() {
         }
     }
 
-    // Note: The class name of [EnableTracingResponse] no longer matches its purpose here, so we
-    // need to rename it e.g. to [Response] in a follow-up TODO(288257855)
-    private fun disableTracingColdStart(context: Context?): EnableTracingResponse = when {
+    private fun disableTracingColdStart(context: Context?): Response = when {
         context != null -> {
             StartupTracingConfigStore.clear(context.applicationInfo.packageName)
-            EnableTracingResponse(RESULT_CODE_SUCCESS)
+            Response(RESULT_CODE_SUCCESS)
         }
         else ->
-            EnableTracingResponse(
+            Response(
                 RESULT_CODE_ERROR_OTHER,
                 "Cannot ensure we can disable cold start tracing without access to an app Context" +
                     " instance"
             )
     }
 
-    private fun EnableTracingResponse.toJsonString(): String {
+    private fun Response.toJsonString(): String {
         val output = StringWriter()
 
         JsonWriter(output).use {
