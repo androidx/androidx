@@ -55,13 +55,13 @@ abstract class SdkResourceGenerator : DefaultTask() {
     abstract val debugKeystore: RegularFileProperty
 
     @get:Input
-    val compileSdkVersion: String = SupportConfig.COMPILE_SDK_VERSION
+    abstract val compileSdkVersion: Property<String>
 
     @get:Input
     abstract val buildToolsVersion: Property<String>
 
     @get:Input
-    val minSdkVersion: Int = SupportConfig.DEFAULT_MIN_SDK_VERSION
+    abstract val minSdkVersion: Property<Int>
 
     @get:Input
     val agpDependency: String = AGP_LATEST
@@ -109,9 +109,9 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("agpDependency=$agpDependency\n")
             writer.write("navigationRuntime=$navigationRuntime\n")
             writer.write("kotlinStdlib=$kotlinStdlib\n")
-            writer.write("compileSdkVersion=$compileSdkVersion\n")
+            writer.write("compileSdkVersion=${compileSdkVersion.get()}\n")
             writer.write("buildToolsVersion=${buildToolsVersion.get()}\n")
-            writer.write("minSdkVersion=$minSdkVersion\n")
+            writer.write("minSdkVersion=${minSdkVersion.get()}\n")
             writer.write("kotlinVersion=$kotlinVersion\n")
             writer.write("kspVersion=$kspVersion\n")
             writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
@@ -139,9 +139,11 @@ abstract class SdkResourceGenerator : DefaultTask() {
                 it.outputDir.set(generatedDirectory)
                 it.buildToolsVersion.set(
                     project.provider {
-                        SupportConfig.buildToolsVersion(project)
+                        project.defaultAndroidConfig.buildToolsVersion
                     }
                 )
+                it.minSdkVersion.set(project.defaultAndroidConfig.minSdk)
+                it.compileSdkVersion.set(project.defaultAndroidConfig.compileSdk)
                 it.buildSrcOutRelativePath =
                     (project.properties["buildSrcOut"] as File).toRelativeString(project.projectDir)
                 // Copy repositories used for the library project so that it can replicate the same

@@ -18,7 +18,6 @@
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import java.util.zip.ZipEntry
@@ -115,10 +114,7 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.antlr4)
     testImplementation(libs.kotlinCompilerEmbeddable)
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"
-    ))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room:room-runtime"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
