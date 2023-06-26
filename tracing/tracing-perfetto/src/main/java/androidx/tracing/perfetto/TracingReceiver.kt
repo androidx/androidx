@@ -74,7 +74,7 @@ class TracingReceiver : BroadcastReceiver() {
                         enableTracingColdStart(
                             context,
                             srcPath,
-                            isPersistent = intent.extras?.getBoolean(KEY_PERSISTENT) ?: false
+                            intent.extras?.getString(KEY_PERSISTENT).toBoolean()
                         )
                     ACTION_DISABLE_TRACING_COLD_START -> disableTracingColdStart(context)
                     else -> throw IllegalStateException() // supported actions checked earlier

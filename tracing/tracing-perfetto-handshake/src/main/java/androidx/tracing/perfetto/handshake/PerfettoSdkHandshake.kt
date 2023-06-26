@@ -84,7 +84,7 @@ public class PerfettoSdkHandshake(
     @JvmOverloads
     public fun enableTracingColdStart(
         librarySource: LibrarySource?,
-        persistent: Boolean = false // TODO(245426369): add test for `persistent == true`
+        persistent: Boolean = false
     ): EnableTracingResponse = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath = librarySource?.run {
@@ -221,9 +221,9 @@ public class PerfettoSdkHandshake(
             true -> executeShellCommand("killall $targetPackage")
             else -> executeShellCommand("am force-stop $targetPackage")
         }
-        if (result.isNotBlank()) throw PerfettoSdkHandshakeException(
-            "Issue while trying to kill app process: $result"
-        )
+        if (result.isNotBlank() && !result.contains("No such process")) {
+            throw PerfettoSdkHandshakeException("Issue while trying to kill app process: $result")
+        }
     }
 
     /**
