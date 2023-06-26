@@ -27,6 +27,7 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -79,13 +80,52 @@ public interface WatchFaceControlClient : AutoCloseable {
                 context,
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
                     setPackage(watchFacePackageName)
-                }
+                },
+                null
+            )
+
+        /**
+         * Similar [createWatchFaceControlClient] this constructs a [WatchFaceControlClient] which
+         * attempts to connect to the watch face runtime in the android package
+         * [runtimePackageName].
+         *
+         * A watch face runtime is a special type of watch face, which renders a watch face
+         * described by resources in another package [resourceOnlyWatchFacePackageName].
+         *
+         * Currently Wear OS only supports the runtime for the Android Watch Face Format (see
+         * https://developer.android.com/training/wearables/wff for more details).
+         *
+         * @param context Calling application's [Context].
+         * @param runtimePackageName The name of the package containing the watch face runtime's
+         *   control service to bind to.
+         * @param resourceOnlyWatchFacePackageName The name of the package from which to load the
+         *   resource only watch face. This is exposed to the runtime via
+         *   [WatchFaceService.resourceOnlyWatchFacePackageName].  Note only one watch face
+         *   definition per resource only watch face package is supported.
+         * @return The [WatchFaceControlClient] if there is one.
+         * @throws [ServiceNotBoundException] if the watch face control service can not be bound or
+         *   a [ServiceStartFailureException] if the watch face dies during startup.
+         */
+        @JvmStatic
+        @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
+        public suspend fun createWatchFaceRuntimeControlClient(
+            context: Context,
+            runtimePackageName: String,
+            resourceOnlyWatchFacePackageName: String
+        ): WatchFaceControlClient =
+            createWatchFaceControlClientImpl(
+                context,
+                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                    setPackage(runtimePackageName)
+                },
+                resourceOnlyWatchFacePackageName
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public suspend fun createWatchFaceControlClientImpl(
             context: Context,
-            intent: Intent
+            intent: Intent,
+            resourceOnlyWatchFacePackageName: String?
         ): WatchFaceControlClient {
             val deferredService = CompletableDeferred<IWatchFaceControlService>()
             val traceEvent = AsyncTraceEvent("WatchFaceControlClientImpl.bindService")
@@ -107,7 +147,12 @@ public interface WatchFaceControlClient : AutoCloseable {
                 traceEvent.close()
                 throw ServiceNotBoundException()
             }
-            return WatchFaceControlClientImpl(context, deferredService.await(), serviceConnection)
+            return WatchFaceControlClientImpl(
+                context,
+                deferredService.await(),
+                serviceConnection,
+                resourceOnlyWatchFacePackageName
+            )
         }
     }
 
@@ -342,7 +387,8 @@ internal class WatchFaceControlClientImpl
 internal constructor(
     private val context: Context,
     private val service: IWatchFaceControlService,
-    private val serviceConnection: ServiceConnection
+    private val serviceConnection: ServiceConnection,
+    private val resourceOnlyWatchFacePackageName: String?
 ) : WatchFaceControlClient {
     private var closed = false
 
@@ -499,8 +545,8 @@ internal constructor(
                                 it.value.asWireComplicationData()
                             )
                         },
-                        null,
-                        null
+                        /* auxiliaryComponentPackageName = */ resourceOnlyWatchFacePackageName,
+                        /* auxiliaryComponentClassName = */ null
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =

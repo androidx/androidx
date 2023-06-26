@@ -3319,12 +3319,14 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -3886,7 +3888,9 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
-        testWatchFaceService.createHeadlessEngine()
+        testWatchFaceService.createHeadlessEngine(
+            ComponentName("test.watchface.app", "test.watchface.class")
+        )
 
         runPostedTasksFor(0)
 
@@ -4550,12 +4554,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4691,12 +4697,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4823,12 +4831,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -5119,12 +5129,14 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -5187,12 +5199,14 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -6381,12 +6395,14 @@ public class WatchFaceServiceTest {
                 forceIsVisible = true
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,

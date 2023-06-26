@@ -43,6 +43,12 @@ package androidx.wear.watchface {
     method @UiThread public final void runUiThreadGlCommands(Runnable runnable);
   }
 
+  public abstract class ListenableWatchFaceRuntimeService extends androidx.wear.watchface.WatchFaceRuntimeService {
+    ctor public ListenableWatchFaceRuntimeService();
+    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFutureAsync(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName);
+  }
+
   public abstract class ListenableWatchFaceService extends androidx.wear.watchface.WatchFaceService {
     ctor public ListenableWatchFaceService();
     method protected suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);

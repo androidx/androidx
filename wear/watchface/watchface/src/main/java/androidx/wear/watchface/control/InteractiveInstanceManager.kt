@@ -17,6 +17,7 @@
 package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.IndentingPrintWriter
@@ -49,6 +50,8 @@ internal class InteractiveInstanceManager {
     )
 
     companion object {
+        private const val TAG = "InteractiveInstanceManager"
+
         private val instances = HashMap<String, RefCountedInteractiveWatchFaceInstance>()
         private val pendingWallpaperInteractiveWatchFaceInstanceLock = Any()
         private var pendingWallpaperInteractiveWatchFaceInstance:
@@ -204,6 +207,18 @@ internal class InteractiveInstanceManager {
             // system thinks we should have. Note runBlocking is safe here because we never await.
             val engine = impl.engine!!
             engine.setUserStyle(value.params.userStyle)
+
+            if (engine.resourceOnlyWatchFacePackageName !=
+                    value.params.auxiliaryComponentPackageName
+            ) {
+                val message =
+                    "Existing instance has the resourceOnlyWatchFacePackageName of " +
+                        "${engine.resourceOnlyWatchFacePackageName}, which is different from the " +
+                        "argument watchFaceId of ${value.params.auxiliaryComponentPackageName}."
+                Log.e(TAG, message)
+                throw IllegalStateException(message)
+            }
+
             return impl
         }
 
