@@ -103,6 +103,8 @@ interface CredentialManager {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
+     * @sample androidx.credentials.samples.callGetCredential
+     *
      * @param context the context used to launch any UI needed; use an activity context to make
      * sure the UI will be launched within the same task stack
      * @param request the request for getting the credential
