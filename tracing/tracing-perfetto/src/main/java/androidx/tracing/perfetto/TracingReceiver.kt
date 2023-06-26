@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.tracing.perfetto.StartupTracingConfigStore.store
 import androidx.tracing.perfetto.Trace.EnableTracingResponse
 import androidx.tracing.perfetto.internal.handshake.protocol.EnableTracingResponse
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_DISABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PATH
@@ -56,7 +57,7 @@ class TracingReceiver : BroadcastReceiver() {
         if (intent == null || intent.action !in listOf(
                 ACTION_ENABLE_TRACING,
                 ACTION_ENABLE_TRACING_COLD_START,
-                // ACTION_DISABLE_TRACING_COLD_START // TODO(282733308): implement
+                ACTION_DISABLE_TRACING_COLD_START
             )
         ) return
 
@@ -75,6 +76,7 @@ class TracingReceiver : BroadcastReceiver() {
                             srcPath,
                             isPersistent = intent.extras?.getBoolean(KEY_PERSISTENT) ?: false
                         )
+                    ACTION_DISABLE_TRACING_COLD_START -> disableTracingColdStart(context)
                     else -> throw IllegalStateException() // supported actions checked earlier
                 }
 
@@ -134,6 +136,21 @@ class TracingReceiver : BroadcastReceiver() {
             )
             config.store(context.applicationInfo.packageName)
         }
+    }
+
+    // Note: The class name of [EnableTracingResponse] no longer matches its purpose here, so we
+    // need to rename it e.g. to [Response] in a follow-up TODO(288257855)
+    private fun disableTracingColdStart(context: Context?): EnableTracingResponse = when {
+        context != null -> {
+            StartupTracingConfigStore.clear(context.applicationInfo.packageName)
+            EnableTracingResponse(RESULT_CODE_SUCCESS)
+        }
+        else ->
+            EnableTracingResponse(
+                RESULT_CODE_ERROR_OTHER,
+                "Cannot ensure we can disable cold start tracing without access to an app Context" +
+                    " instance"
+            )
     }
 
     private fun EnableTracingResponse.toJsonString(): String {

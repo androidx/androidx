@@ -228,9 +228,6 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         }
         val enableColdTracingResponse = handshake.enableTracingColdStart(librarySource)
         assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
-
-        // kill the app to allow tracing to be enabled at app startup
-        scope.killProcess()
         assertPackageAlive(false)
 
         // start the app
@@ -239,6 +236,45 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         // verify that tracing was enabled at app startup
         val enableWarmTracingResponse = handshake.enableTracingImmediate()
         assertThat(enableWarmTracingResponse.exitCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
+    }
+
+    // TODO(283953019): enable alongside StartupTracingInitializer (pending performance testing)
+    @Ignore
+    @Test
+    fun test_handshake_framework_cold_start_disable() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+        assumeTrue(testConfig.sdkDelivery == PROVIDED_BY_BENCHMARK)
+
+        for (persistent in listOf(false, true)) {
+            // perform a handshake setting up cold start tracing
+            scope.killProcess()
+            assertPackageAlive(false)
+            val handshake = constructPerfettoHandshake()
+            val libraryZip = resolvePerfettoAar()
+            val tmpDir = Outputs.dirUsableByAppAndShell
+            val mvTmpDst = createShellFileMover()
+            val librarySource = libraryZip?.let {
+                PerfettoSdkHandshake.LibrarySource(libraryZip, tmpDir, mvTmpDst)
+            }
+            val enableColdTracingResponse =
+                handshake.enableTracingColdStart(librarySource, persistent)
+            assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+
+            // disable cold start tracing
+            handshake.disableTracingColdStart()
+            assertPackageAlive(false)
+
+            // start the app
+            enablePackage()
+
+            /**
+             * Verify that tracing was not enabled at app startup.
+             * Note: if cold start tracing was enabled, we'd receive [RESULT_CODE_ALREADY_ENABLED]
+             */
+            val enableWarmTracingResponse = handshake.enableTracingImmediate(librarySource)
+            assertThat(enableWarmTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+        }
     }
 
     @Test
