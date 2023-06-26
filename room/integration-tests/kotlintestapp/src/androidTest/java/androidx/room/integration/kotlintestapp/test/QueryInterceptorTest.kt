@@ -167,6 +167,20 @@ class QueryInterceptorTest {
     }
 
     @Test
+    fun testExecSQLWithBindArgs() {
+        mDatabase.openHelper.writableDatabase.execSQL(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)",
+            arrayOf("3", "Description")
+        )
+        assertQueryLogged(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)",
+            listOf("3", "Description")
+        )
+    }
+
+    @Test
     fun testNullBindArgument() {
         mDatabase.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
