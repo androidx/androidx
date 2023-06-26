@@ -226,8 +226,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         val librarySource = libraryZip?.let {
             PerfettoSdkHandshake.LibrarySource(libraryZip, tmpDir, mvTmpDst)
         }
-        val enableColdTracingResponse =
-            handshake.enableTracingColdStart({ scope.killProcess() }, librarySource)
+        val enableColdTracingResponse = handshake.enableTracingColdStart(librarySource)
         assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
 
         // kill the app to allow tracing to be enabled at app startup
