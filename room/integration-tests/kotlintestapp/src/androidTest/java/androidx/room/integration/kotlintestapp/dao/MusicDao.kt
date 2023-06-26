@@ -298,4 +298,61 @@ interface MusicDao {
     @MapInfo(keyColumn = "mImageYear")
     @RewriteQueriesToDropUnusedColumns
     fun allAlbumCoverYearToArtistsWithIntSparseArray(): SparseArrayCompat<Artist>
+
+    @Query(
+        """
+        SELECT * FROM Artist
+        JOIN Album ON (Artist.mArtistName = Album.mAlbumArtist)
+        JOIN Song ON (Album.mAlbumName = Song.mAlbum)
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    fun getArtistToAlbumsMappedToSongs(): Map<Artist, Map<Album, List<Song>>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageToArtistToAlbumsMappedToSongs():
+        Map<Image, Map<Artist, Map<Album, List<Song>>>>
+
+    @Query(
+        """
+        SELECT * FROM Artist
+        LEFT JOIN Album ON (Artist.mArtistName = Album.mAlbumArtist)
+        LEFT JOIN Song ON (Album.mAlbumName = Song.mAlbum)
+        """
+    )
+    @MapInfo(valueColumn = "mTitle")
+    @RewriteQueriesToDropUnusedColumns
+    fun getArtistToAlbumsMappedToSongNamesMapInfoLeftJoin(): Map<Artist, Map<Album, String>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @MapInfo(keyColumn = "mImageYear")
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageYearToArtistToAlbumsMappedToSongs(): Map<Long, Map<Artist, Map<Album, List<Song>>>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @MapInfo(keyColumn = "mImageYear", valueColumn = "mTitle")
+    @RewriteQueriesToDropUnusedColumns
+    fun getNestedMapWithMapInfoKeyAndValue(): Map<Long, Map<Artist, Map<Album, List<String>>>>
 }
