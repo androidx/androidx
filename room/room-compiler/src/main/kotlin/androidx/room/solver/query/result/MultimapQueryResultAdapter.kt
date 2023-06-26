@@ -42,14 +42,14 @@ abstract class MultimapQueryResultAdapter(
     parsedQuery: ParsedQuery,
     rowAdapters: List<RowAdapter>,
 ) : QueryResultAdapter(rowAdapters) {
-    abstract val keyTypeArg: XType
-    abstract val valueTypeArg: XType
 
     // List of duplicate columns in the query result. Note that if the query result info is not
     // available then we use the adapter mappings to determine if there are duplicate columns.
     // The latter approach might yield false positive (i.e. two POJOs that want the same column)
     // but the resolver will still produce correct results based on the result columns at runtime.
     val duplicateColumns: Set<String>
+
+    val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
 
     init {
         val resultColumns =
@@ -62,6 +62,11 @@ abstract class MultimapQueryResultAdapter(
                     add(it)
                 }
             }
+        }
+        dupeColumnsIndexAdapter = if (duplicateColumns.isNotEmpty()) {
+            AmbiguousColumnIndexAdapter(mappings, parsedQuery)
+        } else {
+            null
         }
 
         if (parsedQuery.resultInfo != null && duplicateColumns.isNotEmpty()) {
@@ -113,18 +118,15 @@ abstract class MultimapQueryResultAdapter(
     companion object {
 
         /**
-         * Checks if the @MapInfo annotation is needed for clarification regarding the return type
-         * of a Dao method.
+         * Checks if the @MapInfo annotation is needed for clarification regarding the key type
+         * arg of a Map return type.
          */
-        fun validateMapTypeArgs(
+        fun validateMapKeyTypeArg(
             context: Context,
             keyTypeArg: XType,
-            valueTypeArg: XType,
             keyReader: CursorValueReader?,
-            valueReader: CursorValueReader?,
             mapInfo: MapInfo?,
         ) {
-
             if (!keyTypeArg.implementsEqualsAndHashcode()) {
                 context.logger.w(
                     Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
@@ -142,7 +144,18 @@ abstract class MultimapQueryResultAdapter(
                     )
                 )
             }
+        }
 
+        /**
+         * Checks if the @MapInfo annotation is needed for clarification regarding the value type
+         * arg of a Map return type.
+         */
+        fun validateMapValueTypeArg(
+            context: Context,
+            valueTypeArg: XType,
+            valueReader: CursorValueReader?,
+            mapInfo: MapInfo?,
+        ) {
             val hasValueColumnName = mapInfo?.valueColumnName?.isNotEmpty() ?: false
             if (!hasValueColumnName && valueReader != null) {
                 context.logger.e(

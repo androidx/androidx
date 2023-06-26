@@ -228,6 +228,12 @@ class AmbiguousColumnResolverTest {
         @Query("SELECT * FROM User LEFT JOIN Comment ON User.id = Comment.userId")
         fun getLeftJoinUserCommentMap(): Map<User, List<Comment>>
 
+        @Query(
+            "SELECT * FROM User JOIN Avatar ON User.id = Avatar.userId JOIN " +
+                "Comment ON Avatar.userId = Comment.userId"
+        )
+        fun getLeftJoinUserNestedMap(): Map<User, Map<Avatar, List<Comment>>>
+
         @Transaction
         @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
         fun getUserAndAvatarCommentMap(): Map<UserAndAvatar, List<Comment>>

@@ -21,7 +21,7 @@ import java.util.Date
 
 @Entity
 class Image(
-    @field:PrimaryKey val mImageId: Int,
+    @PrimaryKey val mImageId: Int,
     val mImageYear: Long,
     val mArtistInImage: String,
     val mAlbumCover: ByteArray,
@@ -32,5 +32,20 @@ class Image(
 
     init {
         mFormat = format
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val image = other as Image
+        if (mImageId != image.mImageId) return false
+        return mArtistInImage == image.mArtistInImage
+    }
+
+    override fun hashCode(): Int {
+        var result = mImageId
+        result = (31 * result + mImageYear).toInt()
+        result = 31 * result + mArtistInImage.hashCode()
+        return result
     }
 }
