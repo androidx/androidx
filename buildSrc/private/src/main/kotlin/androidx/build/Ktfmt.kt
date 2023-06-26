@@ -29,6 +29,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -37,7 +38,6 @@ import org.gradle.process.ExecOperations
 fun Project.configureKtfmt() {
     tasks.register("ktFormat", KtfmtFormatTask::class.java) { task ->
         task.ktfmtClasspath.from(getKtfmtConfiguration())
-        task.cacheEvenIfNoOutputs()
     }
     tasks.register("ktCheck", KtfmtCheckTask::class.java) { task ->
         task.ktfmtClasspath.from(getKtfmtConfiguration())
@@ -122,6 +122,10 @@ abstract class KtfmtFormatTask : BaseKtfmtTask() {
         description = "Fix Kotlin code style deviations."
         group = "formatting"
     }
+
+    // Format task rewrites inputs, so the outputs are the same as inputs.
+    @OutputFiles
+    fun getRewrittenFiles(): FileTree = getInputFiles()
 
     @TaskAction
     fun runFormat() {
