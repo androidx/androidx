@@ -821,13 +821,6 @@ class TypeAdapterStore private constructor(
             )
         } else if (mapValueTypeArg.isTypeOf(java.util.Map::class)) {
             val keyTypeArg = mapValueTypeArg.typeArguments[0].extendsBoundOrSelf()
-            validateMapKeyTypeArg(
-                context = context,
-                keyTypeArg = keyTypeArg,
-                keyReader = findCursorValueReader(keyTypeArg, null),
-                mapInfo = mapInfo
-            )
-
             val keyRowAdapter = findRowAdapter(
                 typeMirror = keyTypeArg,
                 query = query,
