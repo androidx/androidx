@@ -56,7 +56,7 @@ public class PerfettoSdkHandshake(
      */
     public fun enableTracingImmediate(
         librarySource: LibrarySource? = null
-    ): EnableTracingResponse {
+    ): EnableTracingResponse = safeExecute {
         val libPath = librarySource?.run {
             PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
                 libraryZip,
@@ -65,20 +65,17 @@ public class PerfettoSdkHandshake(
                 moveLibFileFromTmpDirToAppDir
             )
         }
-        return sendEnableTracingBroadcast(libPath, coldStart = false)
+        sendEnableTracingBroadcast(libPath, coldStart = false)
     }
 
     /**
      * Attempts to prepare cold startup tracing in an app.
      *
-     * @param killAppProcess function responsible for terminating the app process (no-op if the
-     * process is already terminated)
      * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
      */
     public fun enableTracingColdStart(
-        killAppProcess: () -> Unit,
         librarySource: LibrarySource?
-    ): EnableTracingResponse {
+    ): EnableTracingResponse = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath = librarySource?.run {
             PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
@@ -99,7 +96,7 @@ public class PerfettoSdkHandshake(
             killAppProcess()
         }
 
-        return response
+        response
     }
 
     private fun sendEnableTracingBroadcast(
@@ -114,22 +111,21 @@ public class PerfettoSdkHandshake(
         commandBuilder.append(" $targetPackage/$RECEIVER_CLASS_NAME")
 
         val rawResponse = executeShellCommand(commandBuilder.toString())
-
-        val response = try {
+        return try {
             parseResponse(rawResponse)
-        } catch (e: IllegalArgumentException) {
-            val message = "Exception occurred while trying to parse a response." +
-                " Error: ${e.message}. Raw response: $rawResponse."
-            EnableTracingResponse(ResponseExitCodes.RESULT_CODE_ERROR_OTHER, null, message)
+        } catch (e: Exception) {
+            throw PerfettoSdkHandshakeException(
+                "Exception occurred while trying to parse a response." +
+                    " Error: ${e.message}. Raw response: $rawResponse."
+            )
         }
-        return response
     }
 
     private fun parseResponse(rawResponse: String): EnableTracingResponse {
         val line = rawResponse
             .split(Regex("\r?\n"))
             .firstOrNull { it.contains("Broadcast completed: result=") }
-            ?: throw IllegalArgumentException("Cannot parse: $rawResponse")
+            ?: throw PerfettoSdkHandshakeException("Cannot parse: $rawResponse")
 
         if (line == "Broadcast completed: result=0") return EnableTracingResponse(
             ResponseExitCodes.RESULT_CODE_CANCELLED, null, null
@@ -138,7 +134,7 @@ public class PerfettoSdkHandshake(
         val matchResult =
             Regex("Broadcast completed: (result=.*?)(, data=\".*?\")?(, extras: .*)?")
                 .matchEntire(line)
-                ?: throw IllegalArgumentException("Cannot parse: $rawResponse")
+                ?: throw PerfettoSdkHandshakeException("Cannot parse: $rawResponse")
 
         val broadcastResponseCode = matchResult
             .groups[1]
@@ -152,36 +148,59 @@ public class PerfettoSdkHandshake(
             ?.value
             ?.substringAfter(", data=\"")
             ?.dropLast(1)
-            ?: throw IllegalArgumentException("Cannot parse: $rawResponse. " +
-                "Unable to detect 'data=' section."
+            ?: throw PerfettoSdkHandshakeException(
+                "Cannot parse: $rawResponse. " +
+                    "Unable to detect 'data=' section."
             )
 
         val dataMap = parseJsonMap(dataString)
         val response = EnableTracingResponse(
             dataMap[KEY_EXIT_CODE]?.toInt()
-                ?: throw IllegalArgumentException("Response missing $KEY_EXIT_CODE value"),
+                ?: throw PerfettoSdkHandshakeException("Response missing $KEY_EXIT_CODE value"),
             dataMap[KEY_REQUIRED_VERSION]
-                ?: throw IllegalArgumentException("Response missing $KEY_REQUIRED_VERSION value"),
+                ?: throw PerfettoSdkHandshakeException(
+                    "Response missing $KEY_REQUIRED_VERSION" +
+                        " value"
+                ),
             dataMap[KEY_MESSAGE]
         )
 
         if (broadcastResponseCode != response.exitCode) {
-            throw IllegalStateException(
-                "Cannot parse: $rawResponse. Exit code " +
-                    "not matching broadcast exit code."
+            throw PerfettoSdkHandshakeException(
+                "Cannot parse: $rawResponse. Exit code not matching broadcast exit code."
             )
         }
 
         return response
     }
 
+    /** Executes provided [block] and wraps exceptions in an appropriate [EnableTracingResponse] */
+    private fun safeExecute(block: () -> EnableTracingResponse): EnableTracingResponse = try {
+        block()
+    } catch (exception: Exception) {
+        EnableTracingResponse(ResponseExitCodes.RESULT_CODE_ERROR_OTHER, null, exception.message)
+    }
+
+    private fun killAppProcess() {
+        // on a root session we can use `killall` which works on both system and user apps
+        // `am force-stop` only works on user apps
+        val isRootSession = executeShellCommand("id").contains("uid=0(root)")
+        val result = when (isRootSession) {
+            true -> executeShellCommand("killall $targetPackage")
+            else -> executeShellCommand("am force-stop $targetPackage")
+        }
+        if (result.isNotBlank()) throw PerfettoSdkHandshakeException(
+            "Issue while trying to kill app process: $result"
+        )
+    }
+
     /**
-    * @param libraryZip either an AAR or an APK containing `libtracing_perfetto.so`
-    * @param tempDirectory a directory directly accessible to the caller process (used for
+     * @param libraryZip either an AAR or an APK containing `libtracing_perfetto.so`
+     * @param tempDirectory a directory directly accessible to the caller process (used for
      * extraction of the binaries from the zip)
-    * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from
-    * the [tempDirectory] to an app accessible folder
-    */
+     * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from
+     * the [tempDirectory] to an app accessible folder
+     */
     // TODO(245426369): consider moving to a factory pattern for constructing these and refer to
     //  this one as `aarLibrarySource` and `apkLibrarySource`
     public class LibrarySource @Suppress("StreamFiles") constructor(
@@ -190,3 +209,6 @@ public class PerfettoSdkHandshake(
         internal val moveLibFileFromTmpDirToAppDir: FileMover
     )
 }
+
+/** Internal exception class for issues specific to [PerfettoSdkHandshake] */
+private class PerfettoSdkHandshakeException(message: String) : Exception(message)
