@@ -30,6 +30,7 @@ import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
@@ -102,7 +103,13 @@ internal class CredentialProviderCreatePasswordController(private val context: C
         val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent, CREATE_PASSWORD_TAG)
-        context.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int) {
