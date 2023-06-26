@@ -25,7 +25,7 @@ import android.util.TypedValue
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypes
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchState
@@ -139,7 +139,7 @@ constructor(
         zonedDateTime: ZonedDateTime,
         @ColorInt color: Int
     ) {
-        if (boundsType == ComplicationSlotBoundsType.ROUND_RECT) {
+        if (boundsType == ComplicationSlotBoundsTypes.ROUND_RECT) {
             complicationHighlightRenderer.drawComplicationHighlight(canvas, bounds, color)
         }
     }

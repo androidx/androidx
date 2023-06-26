@@ -30,7 +30,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.CanvasComplicationFactory
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasTypes
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
@@ -39,7 +39,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -341,7 +341,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-                WatchFaceType.ANALOG,
+                WatchFaceTypes.ANALOG,
                 ExampleAnalogWatchCanvasRenderer(
                     surfaceHolder,
                     this,
@@ -379,7 +379,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
-            CanvasType.HARDWARE,
+            CanvasTypes.HARDWARE,
             FRAME_PERIOD_MS,
             clearWithBackgroundTintBeforeRenderingHighlightLayer = true
         ) {

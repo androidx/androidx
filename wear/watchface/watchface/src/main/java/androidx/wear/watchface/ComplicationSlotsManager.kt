@@ -95,7 +95,7 @@ public class ComplicationSlotsManager(
         complicationSlotCollection.associateBy(ComplicationSlot::id)
 
     /**
-     * Map of [ComplicationSlot] id to the latest [TapType.DOWN] [TapEvent] that the
+     * Map of [ComplicationSlot] id to the latest [TapTypes.DOWN] [TapEvent] that the
      * ComplicationSlot received, if any.
      */
     public val lastComplicationTapDownEvents: Map<Int, TapEvent> = HashMap()
@@ -428,7 +428,7 @@ public class ComplicationSlotsManager(
      */
     public fun getBackgroundComplicationSlot(): ComplicationSlot? =
         complicationSlots.entries
-            .firstOrNull { it.value.boundsType == ComplicationSlotBoundsType.BACKGROUND }
+            .firstOrNull { it.value.boundsType == ComplicationSlotBoundsTypes.BACKGROUND }
             ?.value
 
     /**

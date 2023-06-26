@@ -159,9 +159,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 }
                 val boundsType =
                     when (parser.getAttributeIntValue(NAMESPACE_APP, "boundsType", 0)) {
-                        0 -> ComplicationSlotBoundsType.ROUND_RECT
-                        1 -> ComplicationSlotBoundsType.BACKGROUND
-                        2 -> ComplicationSlotBoundsType.EDGE
+                        0 -> ComplicationSlotBoundsTypes.ROUND_RECT
+                        1 -> ComplicationSlotBoundsTypes.BACKGROUND
+                        2 -> ComplicationSlotBoundsTypes.EDGE
                         else -> throw IllegalArgumentException("Unknown boundsType")
                     }
 
@@ -265,9 +265,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     Bundle(),
                     it.fixedComplicationDataSource,
                     when (it.boundsType) {
-                        ComplicationSlotBoundsType.ROUND_RECT -> RoundRectComplicationTapFilter()
-                        ComplicationSlotBoundsType.BACKGROUND -> BackgroundComplicationTapFilter()
-                        ComplicationSlotBoundsType.EDGE ->
+                        ComplicationSlotBoundsTypes.ROUND_RECT -> RoundRectComplicationTapFilter()
+                        ComplicationSlotBoundsTypes.BACKGROUND -> BackgroundComplicationTapFilter()
+                        ComplicationSlotBoundsTypes.EDGE ->
                             complicationSlotInflationFactory.getEdgeComplicationTapFilter(it.slotId)
                         else ->
                             throw UnsupportedOperationException(

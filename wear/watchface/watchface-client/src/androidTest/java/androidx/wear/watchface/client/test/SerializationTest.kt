@@ -25,7 +25,7 @@ import android.os.Parcel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypes
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.ComplicationSlotState
@@ -221,7 +221,7 @@ public class SerializationTest {
             }
 
         assertThat(deserialized.bounds).isEqualTo(Rect(1, 2, 3, 4))
-        assertThat(deserialized.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+        assertThat(deserialized.boundsType).isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
         assertThat(deserialized.supportedTypes)
             .containsExactly(ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT)
         assertThat(deserialized.defaultDataSourcePolicy.systemDataSourceFallback)
