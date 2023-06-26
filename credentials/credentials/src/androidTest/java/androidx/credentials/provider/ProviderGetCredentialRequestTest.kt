@@ -48,7 +48,21 @@ class ProviderGetCredentialRequestTest {
         )
     }
 
-    // TODO(b/275416815) - Test createFrom()
+    @Test
+    fun constructor_createFrom_success() {
+        ProviderGetCredentialRequest.createFrom(
+            listOf(
+                createFrom(
+                    "type", Bundle(),
+                    Bundle(), true,
+                    emptySet()
+                )
+            ), CallingAppInfo(
+                "name",
+                SigningInfo()
+            )
+        )
+    }
 
     @Test
     fun getter_credentialOptions() {
