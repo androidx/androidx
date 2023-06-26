@@ -100,6 +100,10 @@ val WearMaterial3Demos = DemoCategory(
                 )
             )
         ),
+        DemoCategory(
+            "Slider",
+            SliderDemos
+        ),
         ComposableDemo(
             title = "Fixed Font Size"
         ) {
