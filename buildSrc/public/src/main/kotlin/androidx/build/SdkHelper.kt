@@ -20,6 +20,7 @@ import java.io.File
 import java.util.Properties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.ExtraPropertiesExtension
 
 /**
@@ -48,6 +49,15 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
                 "go/androidx-onboarding."
         )
     }
+}
+
+/**
+ * Returns a file tree representing the platform SDK suitable for use as a dependency.
+ */
+fun Project.getSdkDependency(): FileTree = fileTree(
+    "${getSdkPath()}/platforms/${project.defaultAndroidConfig.compileSdk}/"
+) {
+    it.include("android.jar")
 }
 
 /**

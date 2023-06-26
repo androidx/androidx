@@ -1,4 +1,4 @@
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -29,7 +29,7 @@ android {
     }
     sourceSets {
         main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
     }

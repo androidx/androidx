@@ -16,7 +16,9 @@
 
 package androidx.build
 
+import com.google.common.truth.Truth.assertThat
 import java.io.File
+import java.util.Properties
 import net.saff.checkmark.Checkmark.Companion.check
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
@@ -24,7 +26,7 @@ import org.junit.Test
 
 class SdkResourceGeneratorTest {
     @Test
-    fun buildSrcOutPathIsRelative() {
+    fun `All SDK properties are resolved`() {
         androidx.build.dependencies.agpVersion = "1.2.3"
         androidx.build.dependencies.kotlinVersion = "2.3.4"
         androidx.build.dependencies.kspVersion = "3.4.5"
@@ -35,10 +37,24 @@ class SdkResourceGeneratorTest {
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
         extension.set("buildSrcOut", project.projectDir.resolve("relative/path"))
 
-        SdkResourceGenerator.registerSdkResourceGeneratorTask(project)
-
+        val taskProvider = SdkResourceGenerator.registerSdkResourceGeneratorTask(project)
         val tasks = project.getTasksByName(SdkResourceGenerator.TASK_NAME, false)
         val generator = tasks.first() as SdkResourceGenerator
         generator.buildSrcOutRelativePath.check { it == "relative/path" }
+
+        val task = taskProvider.get()
+        val propsFile = task.outputDir.file("sdk.prop").get().asFile
+        propsFile.parentFile.mkdirs()
+        propsFile.createNewFile()
+        task.generateFile()
+
+        val stream = propsFile.inputStream()
+        val properties = Properties()
+        properties.load(stream)
+
+        // All properties must be resolved.
+        properties.values.forEach { propertyValue ->
+            assertThat(propertyValue.toString()).doesNotMatch("task '.+?' property '.+?'")
+        }
     }
 }

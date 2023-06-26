@@ -17,8 +17,7 @@
 package androidx.build.paparazzi
 
 import androidx.build.OperatingSystem
-import androidx.build.SupportConfig.COMPILE_SDK_VERSION
-import androidx.build.SupportConfig.TARGET_SDK_VERSION
+import androidx.build.defaultAndroidConfig
 import androidx.build.getLibraryByName
 import androidx.build.getOperatingSystem
 import androidx.build.getSdkPath
@@ -63,7 +62,8 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
      * and set system properties for the test library to consume at runtime.
      */
     private fun Test.configureTestTask(paparazziNative: FileCollection) {
-        val platformDirectory = project.getSdkPath().resolve("platforms/$COMPILE_SDK_VERSION")
+        val compileSdkVersion = project.defaultAndroidConfig.compileSdk
+        val platformDirectory = project.getSdkPath().resolve("platforms/$compileSdkVersion")
         val cachedGoldenRootDirectory = project.goldenRootDirectory
         val cachedReportDirectory = reportDirectory
         val android = project.the<BaseExtension>()
@@ -91,7 +91,7 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
         // Set non-path system properties at configuration time, so that changes invalidate caching
         prefixedSystemProperties(
             "gradlePluginApplied" to "true",
-            "compileSdkVersion" to TARGET_SDK_VERSION,
+            "compileSdkVersion" to project.defaultAndroidConfig.targetSdk,
             "resourcePackageNames" to packageName, // TODO: Transitive resource packages?
             "modulePath" to project.modulePath,
             "updateGoldenTask" to "${project.path}:${updateGoldenTaskName()}"

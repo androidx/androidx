@@ -16,7 +16,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -41,9 +40,7 @@ dependencies {
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
 }
 
 tasks.withType(Test).configureEach {
