@@ -168,6 +168,15 @@ internal class EditProcessor(
             value = proposedValue
         } else {
             val oldValue = value
+
+            // Don't run filter if nothing changed.
+            if (proposedValue.contentEquals(oldValue) &&
+                proposedValue.selectionInChars == oldValue.selectionInChars
+            ) {
+                value = proposedValue
+                return
+            }
+
             val mutableValue = TextFieldBufferWithSelection(
                 value = proposedValue,
                 sourceValue = oldValue,
