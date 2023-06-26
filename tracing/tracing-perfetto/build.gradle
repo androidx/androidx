@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +34,7 @@ android {
             // `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` for more information.
             // TODO(239041710): create a test that verifies that `tracing:tracing-perfetto-binary`
             // matches its source code.
-            srcDirs += SupportConfigKt
+            srcDirs += AndroidXConfig
                     .getPrebuiltsRoot(project).toPath()
                     .resolve(
                             "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +

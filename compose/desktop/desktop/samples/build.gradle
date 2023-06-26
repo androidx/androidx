@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
 import androidx.build.KmpPlatformsKt
-import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
@@ -33,7 +33,8 @@ if (desktopEnabled) {
 
         sourceSets {
             jvmMain {
-                resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
+                resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
+                        "noto-fonts/other/")
                 resources.srcDirs += "src/jvmMain/res"
             }
 

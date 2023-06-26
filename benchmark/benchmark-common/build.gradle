@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -28,11 +28,11 @@ plugins {
 android {
     sourceSets {
         main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/tracebox"
         )
         androidTest.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
     }

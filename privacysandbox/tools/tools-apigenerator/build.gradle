@@ -16,7 +16,7 @@
 
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -24,6 +24,9 @@ plugins {
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")
+
+def buildToolsVersion = AndroidXConfig.getDefaultAndroidConfig(project).getBuildToolsVersion()
+def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
 
 dependencies {
     api(libs.kotlinStdlib)
@@ -47,15 +50,12 @@ dependencies {
     testImplementation(libs.truth)
 
     // Include android jar for compilation of generated sources.
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include: "android.jar"
-    ))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
 }
 
 // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
-def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.buildToolsVersion(project)}/aidl"
-def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/${SupportConfig.COMPILE_SDK_VERSION}/framework.aidl"
+def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/$buildToolsVersion/aidl"
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/$compileSdk/framework.aidl"
 def testGeneratedSourcesPath = "${project.buildDir}/testGeneratedSources"
 test {
     inputs.files(aidlCompilerPath)

@@ -17,9 +17,9 @@
 package androidx.build.docs
 
 import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
-import androidx.build.SupportConfig
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
+import androidx.build.defaultAndroidConfig
 import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.enforceKtlintVersion
 import androidx.build.getAndroidJar
@@ -97,8 +97,10 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             when (plugin) {
                 is LibraryPlugin -> {
                     val libraryExtension = project.extensions.getByType<LibraryExtension>()
-                    libraryExtension.compileSdkVersion = SupportConfig.COMPILE_SDK_VERSION
-                    libraryExtension.buildToolsVersion = SupportConfig.buildToolsVersion(project)
+                    libraryExtension.compileSdkVersion =
+                        project.defaultAndroidConfig.compileSdk
+                    libraryExtension.buildToolsVersion =
+                        project.defaultAndroidConfig.buildToolsVersion
 
                     // Use a local debug keystore to avoid build server issues.
                     val debugSigningConfig = libraryExtension.signingConfigs.getByName("debug")

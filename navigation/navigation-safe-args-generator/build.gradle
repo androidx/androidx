@@ -16,7 +16,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -38,10 +37,7 @@ dependencies {
     testImplementation(projectOrArtifact(":room:room-compiler-processing-testing"), {
         exclude group: "androidx.room", module: "room-compiler-processing"
     })
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"
-    ))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":navigation:navigation-common"))
     testImplementationAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 }

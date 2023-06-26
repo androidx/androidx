@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -31,11 +31,11 @@ android {
     }
     sourceSets {
         main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/trace_processor_shell"
         )
         androidTest.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
         // PerfettoHandshake supports both AAR and APK as libtracing_perfetto.so sources:
@@ -44,7 +44,7 @@ android {
         //
         // Adding the AAR as a test asset below allows us to test the AAR scenario
         androidTest.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
                         "${androidx.LibraryVersions.TRACING_PERFETTO}"
         )

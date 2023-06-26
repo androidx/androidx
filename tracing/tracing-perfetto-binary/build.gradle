@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -47,7 +47,7 @@ def unzippedPrebuiltsAarDir = "$buildDir/unzipped-aar"
 
 if (reusePrebuiltsAar) {
     def unzipTask = tasks.register("unzipPrebuiltsAarDir", Copy) {
-        def zipFile = SupportConfigKt.getPrebuiltsRoot(project).toPath().resolve(
+        def zipFile = AndroidXConfig.getPrebuiltsRoot(project).toPath().resolve(
                 "androidx/internal/androidx/tracing/tracing-perfetto-binary/$prebuiltsAarVersion/" +
                         "tracing-perfetto-binary-${prebuiltsAarVersion}.aar"
         )
