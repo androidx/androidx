@@ -516,27 +516,18 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method RangeSlider has parameter &apos;onValueChange&apos; with type Function1&lt;? super FloatRange, Unit>."
+        errorLine1="    onValueChange: (FloatRange) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;postPointerSlop&apos; with type Function2&lt;? super PointerInputChange, ? super Float, ? extends Unit>."
         errorLine1="    val postPointerSlop = { pointerInput: PointerInputChange, offset: Float ->"
         errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method sliderSemantics has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    onValueChange: (Float) -> Unit,"
-        errorLine2="                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type State&lt;Function2&lt;Boolean, Float, Unit>> of &apos;getOnDrag&apos;."
-        errorLine1="    val onDrag: State&lt;(Boolean, Float) -> Unit>,"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
     </issue>
@@ -582,6 +573,42 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Unit> of &apos;getOnValueChange$lint_module&apos;."
         errorLine1="    internal var onValueChange: (Float) -> Unit = {"
         errorLine2="                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor RangeSliderState has parameter &apos;initialOnValueChange&apos; with type Function1&lt;? super FloatRange, Unit>."
+        errorLine1="    initialOnValueChange: ((FloatRange) -> Unit)? = null,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnValueChange$lint_module has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super FloatRange, Unit>."
+        errorLine1="    internal var onValueChange: (FloatRange) -> Unit = {"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;FloatRange, Unit> of &apos;getOnValueChange$lint_module&apos;."
+        errorLine1="    internal var onValueChange: (FloatRange) -> Unit = {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Boolean, Float, Unit> of &apos;getOnDrag$lint_module&apos;."
+        errorLine1="    internal val onDrag: (Boolean, Float) -> Unit = { isStart, offset ->"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
     </issue>
