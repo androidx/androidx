@@ -17,6 +17,7 @@
 package androidx.tracing.perfetto.handshake
 
 import androidx.tracing.perfetto.handshake.protocol.EnableTracingResponse
+import androidx.tracing.perfetto.handshake.protocol.RequestKeys.ACTION_DISABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.KEY_PATH
@@ -46,7 +47,7 @@ public class PerfettoSdkHandshake(
     private val executeShellCommand: ShellCommandExecutor
 ) {
     /**
-     * Attempts to enable tracing in an app. It will wake up (or start) the app process, so it will
+     * Attempts to enable tracing in the app. It will wake up (or start) the app process, so it will
      * act as warm/hot tracing. For cold tracing see [enableTracingColdStart]
      *
      * Note: if the app process is not running, it will be launched making the method a bad choice
@@ -65,16 +66,25 @@ public class PerfettoSdkHandshake(
                 moveLibFileFromTmpDirToAppDir
             )
         }
-        sendEnableTracingBroadcast(libPath, coldStart = false)
+        sendTracingBroadcast(ACTION_ENABLE_TRACING, libPath)
     }
 
     /**
-     * Attempts to prepare cold startup tracing in an app.
+     * Attempts to prepare cold startup tracing in the app.
+     *
+     * @param persistent if set to true, cold start tracing mode is persisted between app runs and
+     * must be cleared using [disableTracingColdStart]. Otherwise, cold start tracing is enabled
+     * only for the first app start since enabling.
+     * While persistent mode reduces some overhead of setting up tracing, it recommended to use
+     * non-persistent mode as it does not pose the risk of leaving cold start tracing persistently
+     * enabled in case of a failure to clean-up with [disableTracingColdStart].
      *
      * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
      */
+    @JvmOverloads
     public fun enableTracingColdStart(
-        librarySource: LibrarySource?
+        librarySource: LibrarySource?,
+        persistent: Boolean = false // TODO(245426369): add test for `persistent == true`
     ): EnableTracingResponse = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath = librarySource?.run {
@@ -90,7 +100,11 @@ public class PerfettoSdkHandshake(
         killAppProcess()
 
         // verify (by performing a regular handshake) that we can enable tracing at app startup
-        val response = sendEnableTracingBroadcast(libPath, coldStart = true, persistent = false)
+        val response = sendTracingBroadcast(
+            ACTION_ENABLE_TRACING_COLD_START,
+            libPath,
+            persistent = persistent
+        )
         if (response.exitCode == ResponseExitCodes.RESULT_CODE_SUCCESS) {
             // terminate the app process (that we woke up by issuing a broadcast earlier)
             killAppProcess()
@@ -99,12 +113,30 @@ public class PerfettoSdkHandshake(
         response
     }
 
-    private fun sendEnableTracingBroadcast(
+    /**
+     * Disables cold start tracing in the app if previously enabled by [enableTracingColdStart].
+     *
+     * No-op if cold start tracing was not enabled in the app, or if it was enabled in
+     * the non-`persistent` mode and the app has already been started at least once.
+     *
+     * The function initially enables the app process (if not already enabled), but leaves it in
+     * a terminated state after executing.
+     *
+     * @see [enableTracingColdStart]
+     */
+    // Note: The class name of [EnableTracingResponse] no longer matches its purpose here, so we
+    // need to rename it e.g. to [Response] in a follow-up TODO(288257855)
+    public fun disableTracingColdStart(): EnableTracingResponse = safeExecute {
+        sendTracingBroadcast(ACTION_DISABLE_TRACING_COLD_START).also {
+            killAppProcess()
+        }
+    }
+
+    private fun sendTracingBroadcast(
+        action: String,
         libPath: File? = null,
-        coldStart: Boolean,
         persistent: Boolean? = null
     ): EnableTracingResponse {
-        val action = if (coldStart) ACTION_ENABLE_TRACING_COLD_START else ACTION_ENABLE_TRACING
         val commandBuilder = StringBuilder("am broadcast -a $action")
         if (persistent != null) commandBuilder.append(" --es $KEY_PERSISTENT $persistent")
         if (libPath != null) commandBuilder.append(" --es $KEY_PATH $libPath")
