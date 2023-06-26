@@ -303,6 +303,55 @@ internal class SplitPairRuleTest {
         assertTrue(rule.checkParentBounds(density, bounds))
     }
 
+    @Test
+    fun testToString() {
+        val filters = HashSet<SplitPairFilter>()
+        val minWidthDp = 123
+        val minHeightDp = 456
+        val minSmallestMinWidthDp = 789
+        val maxAspectRatioInPortrait = EmbeddingAspectRatio.ratio(1.23f)
+        val maxAspectRatioInLandscape = EmbeddingAspectRatio.ratio(4.56f)
+        val finishPrimaryWithSecondary = SplitRule.FinishBehavior.ADJACENT
+        val finishSecondaryWithPrimary = SplitRule.FinishBehavior.ADJACENT
+        val clearTop = true
+        val expectedSplitAttributes = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
+            .setLayoutDirection(SplitAttributes.LayoutDirection.LEFT_TO_RIGHT)
+            .build()
+        filters.add(
+            SplitPairFilter(
+                ActivityComponentInfo("a", "b"),
+                ActivityComponentInfo("c", "d"),
+                "ACTION"
+            )
+        )
+        val ruleString = SplitPairRule.Builder(filters)
+            .setMinWidthDp(minWidthDp)
+            .setMinHeightDp(minHeightDp)
+            .setMinSmallestWidthDp(minSmallestMinWidthDp)
+            .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
+            .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
+            .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
+            .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
+            .setClearTop(clearTop)
+            .setDefaultSplitAttributes(expectedSplitAttributes)
+            .setTag(TEST_TAG)
+            .build()
+            .toString()
+
+        assertTrue(ruleString.contains(filters.toString()))
+        assertTrue(ruleString.contains(minHeightDp.toString()))
+        assertTrue(ruleString.contains(minWidthDp.toString()))
+        assertTrue(ruleString.contains(minSmallestMinWidthDp.toString()))
+        assertTrue(ruleString.contains(maxAspectRatioInPortrait.toString()))
+        assertTrue(ruleString.contains(maxAspectRatioInLandscape.toString()))
+        assertTrue(ruleString.contains(finishPrimaryWithSecondary.toString()))
+        assertTrue(ruleString.contains(finishSecondaryWithPrimary.toString()))
+        assertTrue(ruleString.contains(clearTop.toString()))
+        assertTrue(ruleString.contains(expectedSplitAttributes.toString()))
+        assertTrue(ruleString.contains(TEST_TAG))
+    }
+
     companion object {
 
         private const val density = 2f
