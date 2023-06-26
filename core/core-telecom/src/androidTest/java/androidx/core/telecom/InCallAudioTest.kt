@@ -51,8 +51,9 @@ import org.junit.runner.RunWith
  *      }
  * }
  */
-@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
+@RunWith(AndroidJUnit4::class)
 class InCallAudioTest : BaseTelecomTest() {
     @Before
     fun setUp() {
