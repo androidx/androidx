@@ -175,6 +175,18 @@ public class UiDevice implements Searchable {
     /**
      * Waits for given the {@code condition} to be met.
      *
+     * @param condition The {@link SearchCondition} to evaluate.
+     * @param timeout Maximum amount of time to wait in milliseconds.
+     * @return The final result returned by the {@code condition}, or null if the {@code condition}
+     * was not met before the {@code timeout}.
+     */
+    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
+        return wait((Condition<? super UiDevice, U>) condition, timeout);
+    }
+
+    /**
+     * Waits for given the {@code condition} to be met.
+     *
      * @param condition The {@link Condition} to evaluate.
      * @param timeout Maximum amount of time to wait in milliseconds.
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
