@@ -20,10 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,114 +52,133 @@ class SliderScreenshotTest {
 
     private val wrapperTestTag = "sliderWrapper"
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_origin() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0f) }
-                Slider(position, { position = it })
+                Slider(
+                    remember { SliderState(0f) }
+                )
             }
         }
         assertSliderAgainstGolden("slider_origin")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_origin_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0f) }
-                Slider(position, { position = it }, enabled = false)
+                Slider(
+                    remember { SliderState(0f) },
+                    enabled = false
+                )
             }
         }
         assertSliderAgainstGolden("slider_origin_disabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_middle() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
-                Slider(position, { position = it })
+                Slider(
+                    remember { SliderState(0.5f) }
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_middle_dark() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
-                Slider(position, { position = it })
+                Slider(
+                    remember { SliderState(0.5f) }
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle_dark")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_middle_dark_disabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
-                Slider(position, enabled = false, onValueChange = { position = it })
+                Slider(
+                    remember { SliderState(0.5f) },
+                    enabled = false
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle_dark_disabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_end() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(1f) }
-                Slider(position, { position = it })
+                Slider(
+                    remember { SliderState(1f) }
+                )
             }
         }
         assertSliderAgainstGolden("slider_end")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_middle_steps() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
-                Slider(position, { position = it }, steps = 5)
+                Slider(
+                    remember { SliderState(0.5f, steps = 5) }
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle_steps")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_middle_steps_dark() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
-                Slider(position, { position = it }, steps = 5)
+                Slider(
+                    remember { SliderState(0.5f, steps = 5) }
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle_steps_dark")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_middle_steps_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
-                Slider(position, { position = it }, steps = 5, enabled = false)
+                Slider(
+                    remember { SliderState(0.5f, steps = 5) },
+                    enabled = false
+                )
             }
         }
         assertSliderAgainstGolden("slider_middle_steps_disabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
                 Slider(
-                    value = position,
-                    onValueChange = { position = it },
-                    steps = 5,
+                    remember { SliderState(0.5f, steps = 5) },
                     colors = SliderDefaults.colors(
                         thumbColor = Color.Red,
                         activeTrackColor = Color.Blue,
@@ -176,15 +192,13 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("slider_customColors")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun sliderTest_customColors_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f) }
                 Slider(
-                    value = position,
-                    onValueChange = { position = it },
-                    steps = 5,
+                    remember { SliderState(0.5f, steps = 5) },
                     enabled = false,
                     // this is intentionally made to appear as enabled in disabled state for a
                     // brighter test
@@ -207,11 +221,10 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f..1f) }
                 RangeSlider(
-                    position,
-                    { position = it },
-                    steps = 5,
+                    remember {
+                        RangeSliderState(0.5f, 1f, steps = 5)
+                    },
                     enabled = false
                 )
             }
@@ -224,8 +237,15 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_enabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f..1f) }
-                RangeSlider(position, { position = it }, steps = 5)
+                RangeSlider(
+                    remember {
+                        RangeSliderState(
+                            0.5f,
+                            1f,
+                            steps = 5
+                        )
+                    }
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_enabled")
@@ -236,8 +256,15 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_dark_enabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f..1f) }
-                RangeSlider(position, { position = it }, steps = 5)
+                RangeSlider(
+                    remember {
+                        RangeSliderState(
+                            0.5f,
+                            1f,
+                            steps = 5
+                        )
+                    }
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_dark_enabled")
@@ -248,12 +275,12 @@ class SliderScreenshotTest {
     fun rangeSliderTest_middle_steps_dark_disabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f..1f) }
                 RangeSlider(
-                    position,
-                    enabled = false,
-                    onValueChange = { position = it },
-                    steps = 5)
+                    remember {
+                        RangeSliderState(0.5f, 1f, steps = 5)
+                    },
+                    enabled = false
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_dark_disabled")
@@ -264,8 +291,11 @@ class SliderScreenshotTest {
     fun rangeSliderTest_overlapingThumbs() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0.5f..0.51f) }
-                RangeSlider(position, { position = it })
+                RangeSlider(
+                    remember {
+                        RangeSliderState(0.5f, 0.51f)
+                    }
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_overlapingThumbs")
@@ -276,8 +306,11 @@ class SliderScreenshotTest {
     fun rangeSliderTest_fullRange() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(0f..1f) }
-                RangeSlider(position, { position = it })
+                RangeSlider(
+                    remember {
+                        RangeSliderState(0f, 1f)
+                    }
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_fullRange")
@@ -288,11 +321,16 @@ class SliderScreenshotTest {
     fun rangeSliderTest_steps_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                var position by remember { mutableStateOf(30f..70f) }
+                val state = remember {
+                    RangeSliderState(
+                        30f,
+                        70f,
+                        steps = 9,
+                        valueRange = 0f..100f
+                    )
+                }
                 RangeSlider(
-                    value = position,
-                    valueRange = 0f..100f,
-                    onValueChange = { position = it }, steps = 9,
+                    state = state,
                     colors = SliderDefaults.colors(
                         thumbColor = Color.Blue,
                         activeTrackColor = Color.Red,
