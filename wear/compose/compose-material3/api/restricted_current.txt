@@ -4,6 +4,22 @@ package androidx.wear.compose.material3 {
   @androidx.compose.runtime.Immutable public final class ButtonColors {
     ctor public ButtonColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long secondaryContentColor, long iconColor, androidx.compose.ui.graphics.painter.Painter disabledContainerPainter, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
     ctor public ButtonColors(long containerColor, long contentColor, long secondaryContentColor, long iconColor, long disabledContainerColor, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
+    method public androidx.compose.ui.graphics.painter.Painter getContainerPainter();
+    method public long getContentColor();
+    method public androidx.compose.ui.graphics.painter.Painter getDisabledContainerPainter();
+    method public long getDisabledContentColor();
+    method public long getDisabledIconColor();
+    method public long getDisabledSecondaryContentColor();
+    method public long getIconColor();
+    method public long getSecondaryContentColor();
+    property public final androidx.compose.ui.graphics.painter.Painter containerPainter;
+    property public final long contentColor;
+    property public final androidx.compose.ui.graphics.painter.Painter disabledContainerPainter;
+    property public final long disabledContentColor;
+    property public final long disabledIconColor;
+    property public final long disabledSecondaryContentColor;
+    property public final long iconColor;
+    property public final long secondaryContentColor;
   }
 
   public final class ButtonDefaults {
@@ -40,6 +56,16 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class CardColors {
     ctor public CardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long appNameColor, long timeColor, long titleColor);
+    method public long getAppNameColor();
+    method public androidx.compose.ui.graphics.painter.Painter getContainerPainter();
+    method public long getContentColor();
+    method public long getTimeColor();
+    method public long getTitleColor();
+    property public final long appNameColor;
+    property public final androidx.compose.ui.graphics.painter.Painter containerPainter;
+    property public final long contentColor;
+    property public final long timeColor;
+    property public final long titleColor;
   }
 
   public final class CardDefaults {
@@ -154,6 +180,14 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
     ctor public IconButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
   }
 
   public final class IconButtonDefaults {
@@ -289,6 +323,14 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class TextButtonColors {
     ctor public TextButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
   }
 
   public final class TextButtonDefaults {

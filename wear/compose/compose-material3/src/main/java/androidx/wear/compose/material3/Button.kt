@@ -911,17 +911,26 @@ object ButtonDefaults {
 /**
  * Represents the container and content colors used in buttons
  * in different states.
+ *
+ * @param containerPainter [Painter] to use to draw the background of the [Button] when enabled.
+ * @param contentColor The content color of this [Button] when enabled.
+ * @param secondaryContentColor The content color of this [Button] when enabled.
+ * @param iconColor The content color of this [Button] when enabled.
+ * @param disabledContainerPainter [Painter] to use to draw the background of the [Button] when not enabled.
+ * @param disabledContentColor The content color of this [Button] when not enabled.
+ * @param disabledSecondaryContentColor The content color of this [Button] when not enabled.
+ * @param disabledIconColor The content color of this [Button] when not enabled.
  */
 @Immutable
 class ButtonColors constructor(
-    private val containerPainter: Painter,
-    private val contentColor: Color,
-    private val secondaryContentColor: Color,
-    private val iconColor: Color,
-    private val disabledContainerPainter: Painter,
-    private val disabledContentColor: Color,
-    private val disabledSecondaryContentColor: Color,
-    private val disabledIconColor: Color,
+    val containerPainter: Painter,
+    val contentColor: Color,
+    val secondaryContentColor: Color,
+    val iconColor: Color,
+    val disabledContainerPainter: Painter,
+    val disabledContentColor: Color,
+    val disabledSecondaryContentColor: Color,
+    val disabledIconColor: Color,
 ) {
     /**
      * Creates a [ButtonColors] where all of the values are explicitly defined.

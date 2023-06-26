@@ -542,15 +542,21 @@ public object CardDefaults {
 /**
  * Represents Colors used in [Card].
  * Unlike other Material 3 components, Cards do not change their color appearance when
- * they are disabled. All colors remain the same in enabled and disabled states
+ * they are disabled. All colors remain the same in enabled and disabled states.
+ *
+ * @param containerPainter [Painter] which is used to draw the background of this [Card].
+ * @param contentColor the content color of this [Card].
+ * @param appNameColor the color used for appName, only applies to [AppCard].
+ * @param timeColor the color used for time, applies to [AppCard] and [TitleCard].
+ * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
  */
 @Immutable
 public class CardColors(
-    internal val containerPainter: Painter,
-    internal val contentColor: Color,
-    internal val appNameColor: Color,
-    internal val timeColor: Color,
-    internal val titleColor: Color,
+    val containerPainter: Painter,
+    val contentColor: Color,
+    val appNameColor: Color,
+    val timeColor: Color,
+    val titleColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
