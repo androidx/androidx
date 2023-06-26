@@ -666,6 +666,16 @@ public class Transition implements TypedValues {
         mState.clear();
     }
 
+    /**
+     * Reset animation properties of the Transition.
+     * <p>
+     * This will not affect the internal model of the widgets (a.k.a. {@link #mState}).
+     */
+    void resetProperties() {
+        mOnSwipe = null;
+        mBundle.clear();
+    }
+
     // @TODO: add description
     public boolean contains(String key) {
         return mState.containsKey(key);

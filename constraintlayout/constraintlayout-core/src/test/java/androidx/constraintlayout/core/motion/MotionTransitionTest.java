@@ -16,6 +16,7 @@
 package androidx.constraintlayout.core.motion;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -605,6 +606,90 @@ public class MotionTransitionTest {
                         + "0.0                                                                   "
                         + "        0.99\n";
         assertEquals(expect, result);
+    }
+
+    @Test
+    public void testTransitionOnSwipeRemoved() {
+        // Base setup
+        Transition transition = new Transition(dp -> dp);
+        ConstraintWidgetContainer cwc1 = makeLayout1();
+        ConstraintWidgetContainer cwc2 = makeLayout2();
+
+        for (ConstraintWidget child : cwc1.getChildren()) {
+            WidgetFrame wf = transition.getStart(child);
+            wf.widget = child;
+        }
+        transition.updateFrom(cwc1, Transition.START);
+
+        for (ConstraintWidget child : cwc2.getChildren()) {
+            WidgetFrame wf = transition.getEnd(child);
+            wf.widget = child;
+        }
+
+        transition.updateFrom(cwc2, Transition.END);
+
+        // Load the Transition with the given Json
+        String jsonString0 =
+                "                  default: {\n"
+                        + "                    from: 'start',   to: 'end',\n"
+                        + "                    pathMotionArc: 'startHorizontal',\n"
+                        + "                    onSwipe: { \n"
+                        + "                        anchor :'button1',\n"
+                        + "                        side: 'top',\n"
+                        + "                        direction: 'up',\n"
+                        + "                        scale: 1,\n"
+                        + "                        threshold: 10,\n"
+                        + "                        mode:  'velocity',\n"
+                        + "                        maxVelocity: 4.0,\n"
+                        + "                        maxAccel: 4.0,\n"
+                        + "                   },      "
+                        + "                    KeyFrames: {\n"
+                        + "                     KeyPositions: [\n"
+                        + "                     {\n"
+                        + "                      target: ['button1'],\n"
+                        + "                      type: 'pathRelative'\n"
+                        + "                      frames: [25, 50, 75],\n"
+                        + "                      percentX: [0.25, 0.5, 0.75],\n"
+                        + "                      percentY: [0.0, 0.1, 0.0]\n"
+                        + "                     }\n"
+                        + "                     ]\n"
+                        + "                  },\n"
+                        + "                  }\n";
+        try {
+            CLObject json = CLParser.parse(jsonString0);
+            TransitionParser.parse(json, transition);
+        } catch (CLParsingException e) {
+            e.printStackTrace();
+        }
+        assertTrue(transition.hasOnSwipe());
+
+        // Load the Transition with a new Json (removing onSwipe)
+        String jsonString1 =
+                "                  default: {\n"
+                        + "                    from: 'start',   to: 'end',\n"
+                        + "                    pathMotionArc: 'startHorizontal',\n"
+                        + "                    KeyFrames: {\n"
+                        + "                     KeyPositions: [\n"
+                        + "                     {\n"
+                        + "                      target: ['button1'],\n"
+                        + "                      type: 'pathRelative'\n"
+                        + "                      frames: [25, 50, 75],\n"
+                        + "                      percentX: [0.25, 0.5, 0.75],\n"
+                        + "                      percentY: [0.0, 0.1, 0.0]\n"
+                        + "                     }\n"
+                        + "                     ]\n"
+                        + "                  },\n"
+                        + "                  }\n";
+
+        try {
+            CLObject json = CLParser.parse(jsonString1);
+            TransitionParser.parse(json, transition);
+        } catch (CLParsingException e) {
+            e.printStackTrace();
+        }
+
+        // Verify that onSwipe functionality is lost
+        assertFalse(transition.hasOnSwipe());
     }
 
 
