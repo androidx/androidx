@@ -49,6 +49,10 @@ internal abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : An
 
     companion object {
 
+        internal const val ERROR_MESSAGE_START_ACTIVITY_FAILED =
+            "Failed to launch the selector UI. Hint: ensure the `context` parameter is an" +
+                " Activity-based context."
+
         /**
          * This handles result code exception reporting across all create flows.
          *

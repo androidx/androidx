@@ -120,7 +120,13 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent, BEGIN_SIGN_IN_TAG)
-        context.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    GetCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
