@@ -224,6 +224,7 @@ package androidx.test.uiautomator {
     method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
     method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
     method public boolean waitForWindowUpdate(String?, long);
@@ -337,6 +338,8 @@ package androidx.test.uiautomator {
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
     method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
   }
 
   public abstract class UiObject2Condition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.UiObject2,U> {

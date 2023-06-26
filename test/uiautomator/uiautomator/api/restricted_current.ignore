@@ -3,11 +3,5 @@ AddedAbstractMethod: androidx.test.uiautomator.EventCondition#getResult():
     Added method androidx.test.uiautomator.EventCondition.getResult()
 
 
-RemovedMethod: androidx.test.uiautomator.UiDevice#wait(androidx.test.uiautomator.SearchCondition<R>, long):
-    Removed method androidx.test.uiautomator.UiDevice.wait(androidx.test.uiautomator.SearchCondition<R>,long)
-RemovedMethod: androidx.test.uiautomator.UiObject2#wait(androidx.test.uiautomator.SearchCondition<R>, long):
-    Removed method androidx.test.uiautomator.UiObject2.wait(androidx.test.uiautomator.SearchCondition<R>,long)
-RemovedMethod: androidx.test.uiautomator.UiObject2#wait(androidx.test.uiautomator.UiObject2Condition<R>, long):
-    Removed method androidx.test.uiautomator.UiObject2.wait(androidx.test.uiautomator.UiObject2Condition<R>,long)
 RemovedMethod: androidx.test.uiautomator.Until#Until():
     Removed constructor androidx.test.uiautomator.Until()
