@@ -21,32 +21,21 @@ import android.content.Context
 import android.inputmethodservice.InputMethodService
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.java.core.CallbackToFlowAdapter
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 /**
  * An adapted interface for [WindowInfoTracker] that allows listening for events via a callback
  * shaped API.
  */
-class WindowInfoTrackerCallbackAdapter(
-    private val tracker: WindowInfoTracker
+class WindowInfoTrackerCallbackAdapter private constructor(
+    private val tracker: WindowInfoTracker,
+    private val callbackToFlowAdapter: CallbackToFlowAdapter
 ) : WindowInfoTracker by tracker {
 
-    /**
-     * A [ReentrantLock] to protect against concurrent access to [consumerToJobMap].
-     */
-    private val lock = ReentrantLock()
-    private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
+    constructor(tracker: WindowInfoTracker) : this(tracker, CallbackToFlowAdapter())
 
     /**
      * Registers a listener to consume [WindowLayoutInfo] values of the [Activity] window. If the
@@ -61,7 +50,7 @@ class WindowInfoTrackerCallbackAdapter(
         executor: Executor,
         consumer: Consumer<WindowLayoutInfo>
     ) {
-        addListener(executor, consumer, tracker.windowLayoutInfo(activity))
+        callbackToFlowAdapter.connect(executor, consumer, tracker.windowLayoutInfo(activity))
     }
 
     /**
@@ -73,13 +62,12 @@ class WindowInfoTrackerCallbackAdapter(
      * @param consumer for [WindowLayoutInfo] values.
      * @see WindowInfoTracker.windowLayoutInfo
      */
-    @OptIn(ExperimentalWindowApi::class)
     fun addWindowLayoutInfoListener(
         @UiContext context: Context,
         executor: Executor,
         consumer: Consumer<WindowLayoutInfo>
     ) {
-        addListener(executor, consumer, tracker.windowLayoutInfo(context))
+        callbackToFlowAdapter.connect(executor, consumer, tracker.windowLayoutInfo(context))
     }
 
     /**
@@ -88,32 +76,6 @@ class WindowInfoTrackerCallbackAdapter(
      * @see WindowInfoTracker.windowLayoutInfo
      */
     fun removeWindowLayoutInfoListener(consumer: Consumer<WindowLayoutInfo>) {
-        removeListener(consumer)
-    }
-
-    /**
-     * Generic method for registering a [Consumer] to collect the values from a [Flow].
-     * Registering the same [Consumer] is a no-op.
-     */
-    private fun <T> addListener(executor: Executor, consumer: Consumer<T>, flow: Flow<T>) {
-        lock.withLock {
-            if (consumerToJobMap[consumer] == null) {
-                val scope = CoroutineScope(executor.asCoroutineDispatcher())
-                consumerToJobMap[consumer] = scope.launch {
-                    flow.collect { consumer.accept(it) }
-                }
-            }
-        }
-    }
-
-    /**
-     * Generic method for canceling a [Job] related to a consumer. Canceling twice in a row is a
-     * no-op.
-     */
-    private fun removeListener(consumer: Consumer<*>) {
-        lock.withLock {
-            consumerToJobMap[consumer]?.cancel()
-            consumerToJobMap.remove(consumer)
-        }
+        callbackToFlowAdapter.disconnect(consumer)
     }
 }
