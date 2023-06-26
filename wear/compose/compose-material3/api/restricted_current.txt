@@ -229,6 +229,27 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class InlineSliderColors {
+    ctor public InlineSliderColors(long containerColor, long buttonIconColor, long selectedBarColor, long unselectedBarColor, long barSeparatorColor, long disabledContainerColor, long disabledButtonIconColor, long disabledSelectedBarColor, long disabledUnselectedBarColor, long disabledBarSeparatorColor);
+    method public long getBarSeparatorColor();
+    method public long getButtonIconColor();
+    method public long getContainerColor();
+    method public long getDisabledBarSeparatorColor();
+    method public long getDisabledButtonIconColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledSelectedBarColor();
+    method public long getDisabledUnselectedBarColor();
+    method public long getSelectedBarColor();
+    method public long getUnselectedBarColor();
+    property public final long barSeparatorColor;
+    property public final long buttonIconColor;
+    property public final long containerColor;
+    property public final long disabledBarSeparatorColor;
+    property public final long disabledButtonIconColor;
+    property public final long disabledContainerColor;
+    property public final long disabledSelectedBarColor;
+    property public final long disabledUnselectedBarColor;
+    property public final long selectedBarColor;
+    property public final long unselectedBarColor;
   }
 
   public final class InlineSliderDefaults {
