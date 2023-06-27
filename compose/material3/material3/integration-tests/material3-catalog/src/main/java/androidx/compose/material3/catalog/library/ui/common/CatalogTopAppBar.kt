@@ -21,10 +21,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -157,12 +157,12 @@ private fun MoreMenu(
             text = { Text(stringResource(id = R.string.view_source_code)) },
             onClick = onSourceClick
         )
-        Divider()
+        HorizontalDivider()
         DropdownMenuItem(
             text = { Text(stringResource(id = R.string.report_an_issue)) },
             onClick = onIssueClick
         )
-        Divider()
+        HorizontalDivider()
         DropdownMenuItem(
             text = { Text(stringResource(id = R.string.terms_of_service)) },
             onClick = onTermsClick

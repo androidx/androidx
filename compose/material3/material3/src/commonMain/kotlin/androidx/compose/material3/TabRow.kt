@@ -141,7 +141,7 @@ fun TabRow(
         }
     },
     divider: @Composable () -> Unit = @Composable {
-        Divider()
+        HorizontalDivider()
     },
     tabs: @Composable () -> Unit
 ) {
@@ -260,7 +260,7 @@ fun ScrollableTabRow(
         )
     },
     divider: @Composable () -> Unit = @Composable {
-        Divider()
+        HorizontalDivider()
     },
     tabs: @Composable () -> Unit
 ) {
