@@ -32,6 +32,8 @@ import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.Compact
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Expanded
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collection.MutableVector
@@ -50,8 +52,9 @@ import androidx.compose.ui.layout.layoutId
  * The Navigation Suite wraps the provided content and places the adequate provided navigation
  * component on the screen according to the current [NavigationLayoutType].
  *
- * @param navigationLayoutType the current [NavigationLayoutType]
+ * @param adaptiveInfo the current [WindowAdaptiveInfo]
  * @param modifier the [Modifier] to be applied to the navigation suite
+ * @param layoutTypeProvider the current [NavigationLayoutTypeProvider]
  * @param navigationComponent the navigation component to be displayed, typically
  * [NavigationSuiteComponent]
  * @param containerColor the color used for the background of the navigation suite. Use
@@ -66,8 +69,9 @@ import androidx.compose.ui.layout.layoutId
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 internal fun NavigationSuite(
-    navigationLayoutType: NavigationLayoutType,
+    adaptiveInfo: WindowAdaptiveInfo,
     modifier: Modifier = Modifier,
+    layoutTypeProvider: NavigationLayoutTypeProvider = NavigationSuiteDefaults.layoutTypeProvider,
     navigationComponent: @Composable () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
@@ -75,7 +79,7 @@ internal fun NavigationSuite(
 ) {
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
         NavigationSuiteLayout(
-            navigationLayoutType = navigationLayoutType,
+            navigationLayoutType = layoutTypeProvider.calculateFromAdaptiveInfo(adaptiveInfo),
             navigationComponent = navigationComponent,
             content = content
         )
@@ -170,24 +174,26 @@ private fun NavigationSuiteLayout(
  * For specifics about each navigation component, see [NavigationBar], [NavigationRail], and
  * [PermanentDrawerSheet].
  *
- * @param navigationLayoutType the current [NavigationLayoutType] of the [NavigationSuite]
+ * @param adaptiveInfo the current [WindowAdaptiveInfo] of the [NavigationSuite]
  * @param modifier the [Modifier] to be applied to the navigation component
+ * @param layoutTypeProvider the current [NavigationLayoutTypeProvider] of the [NavigationSuite]
  * @param content the content inside the current navigation component, typically
  * [navigationSuiteItem]s
  *
  * TODO: Remove "internal".
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun NavigationSuiteComponent(
-    navigationLayoutType: NavigationLayoutType,
+    adaptiveInfo: WindowAdaptiveInfo,
     modifier: Modifier = Modifier,
+    layoutTypeProvider: NavigationLayoutTypeProvider = NavigationSuiteDefaults.layoutTypeProvider,
     // TODO: Add container and content color params.
     content: NavigationSuiteComponentScope.() -> Unit
 ) {
     val scope by rememberStateOfItems(content)
 
-    when (navigationLayoutType) {
+    when (layoutTypeProvider.calculateFromAdaptiveInfo(adaptiveInfo)) {
         NavigationLayoutType.NavigationBar -> {
             NavigationBar(modifier = modifier) {
                 scope.itemList.forEach {
@@ -411,6 +417,46 @@ internal fun NavigationSuiteComponentScope.navigationSuiteItem(
         alwaysShowLabel = alwaysShowLabel,
         interactionSource = interactionSource
     )
+}
+
+/**
+ * A [NavigationLayoutType] provider associated with the [NavigationSuite] and the
+ * [NavigationSuiteComponent].
+ *
+ * TODO: Remove "internal".
+ */
+internal fun interface NavigationLayoutTypeProvider {
+
+    /**
+     * Returns the expected [NavigationLayoutType] according to the provided
+     * [WindowAdaptiveInfo].
+     *
+     * @param adaptiveInfo the provided [WindowAdaptiveInfo]
+     */
+    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
+    fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationLayoutType
+}
+
+/**
+ * Contains the default values used by the [NavigationSuite].
+ *
+ * TODO: Remove "internal".
+ */
+internal object NavigationSuiteDefaults {
+
+    /** The default implementation of the [NavigationLayoutTypeProvider]. */
+    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
+    val layoutTypeProvider = NavigationLayoutTypeProvider { adaptiveInfo ->
+        with(adaptiveInfo) {
+                if (posture.isTabletop || windowSizeClass.heightSizeClass == Compact) {
+                    NavigationLayoutType.NavigationBar
+                } else if (windowSizeClass.widthSizeClass == Expanded) {
+                    NavigationLayoutType.NavigationRail
+                } else {
+                    NavigationLayoutType.NavigationBar
+                }
+            }
+    }
 }
 
 private interface NavigationSuiteItemProvider {
