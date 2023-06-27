@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothDevice
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
+import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.DisconnectCause
 import android.util.Log
@@ -258,6 +259,39 @@ internal class CallSessionLegacy(
                 DisconnectCause(DisconnectCause.LOCAL)
             )
             setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
+        }
+    }
+
+    override fun onReject(rejectReason: Int) {
+        CoroutineScope(coroutineContext).launch {
+            if (state == Call.STATE_RINGING) {
+                mClientInterface!!.onDisconnect(
+                    DisconnectCause(DisconnectCause.REJECTED)
+                )
+                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+            }
+        }
+    }
+
+    override fun onReject(rejectMessage: String) {
+        CoroutineScope(coroutineContext).launch {
+            if (state == Call.STATE_RINGING) {
+                mClientInterface!!.onDisconnect(
+                    DisconnectCause(DisconnectCause.REJECTED)
+                )
+                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+            }
+        }
+    }
+
+    override fun onReject() {
+        CoroutineScope(coroutineContext).launch {
+            if (state == Call.STATE_RINGING) {
+                mClientInterface!!.onDisconnect(
+                    DisconnectCause(DisconnectCause.REJECTED)
+                )
+                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+            }
         }
     }
 
