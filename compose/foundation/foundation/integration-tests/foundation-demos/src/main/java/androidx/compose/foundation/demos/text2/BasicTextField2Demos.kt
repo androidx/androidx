@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.demos.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
@@ -27,15 +30,42 @@ import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun SwapFieldSameStateDemo() {
+    var swapped by remember { mutableStateOf(false) }
+    val state = remember { TextFieldState() }
+
+    Column {
+        Button(onClick = { swapped = !swapped }) {
+            Text("Swap")
+        }
+        if (swapped) {
+            BasicTextField2(
+                state,
+                Modifier.border(1.dp, Color.Magenta)
+            )
+        } else {
+            BasicTextField2(
+                state,
+                Modifier.border(1.dp, Color.Blue)
+            )
+        }
+    }
+}
 
 @Composable
 fun BasicTextField2Demos() {

@@ -41,7 +41,6 @@ import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.AndroidTextInputPlugin
 import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModifier
@@ -60,7 +59,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
@@ -149,10 +147,6 @@ fun BasicTextField2(
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
-    // only read from local and create an adapter if this text field is enabled and editable
-    val textInputAdapter = LocalPlatformTextInputPluginRegistry.takeIf { enabled && !readOnly }
-        ?.current?.rememberAdapter(AndroidTextInputPlugin)
-
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val singleLine = lineLimits == SingleLine
@@ -193,7 +187,6 @@ fun BasicTextField2(
                 textFieldState = state,
                 textLayoutState = textLayoutState,
                 textFieldSelectionState = textFieldSelectionState,
-                textInputAdapter = textInputAdapter,
                 filter = filter,
                 enabled = enabled,
                 readOnly = readOnly,

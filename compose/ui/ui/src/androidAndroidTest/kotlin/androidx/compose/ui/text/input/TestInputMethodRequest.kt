@@ -16,21 +16,15 @@
 
 package androidx.compose.ui.text.input
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.ExperimentalTextApi
+import android.view.View
+import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 
-// TODO(b/267235947) Flesh this out, document it, and wire it up when ready to integrate new text
-//  field with desktop.
-@ExperimentalTextApi
-@Immutable
-actual interface PlatformTextInputPlugin<T : PlatformTextInputAdapter>
+internal open class TestInputMethodRequest(view: View) : BaseInputConnection(view, false),
+    PlatformTextInputMethodRequest {
 
-// TODO(b/267235947) Flesh this out, document it, and wire it up when ready to integrate new text
-//  field with desktop.
-@ExperimentalTextApi
-actual interface PlatformTextInputAdapter
-
-@OptIn(ExperimentalTextApi::class)
-internal actual fun PlatformTextInputAdapter.dispose() {
-    // TODO(b/267235947)
+    override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
+        return this
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.PlatformTextInputService
+package androidx.compose.ui.text.input
 
-internal expect interface PlatformInputComponent {
-    /** @see SkiaBasedOwner.textInputSession */
-    suspend fun textInputSession(
-        session: suspend PlatformTextInputSessionScope.() -> Nothing
-    ): Nothing
-}
-
-internal expect class PlatformInput(component: PlatformComponent) :
-    PlatformTextInputService
+/**
+ * Represents a request to open a platform-specific text input session via
+ * `PlatformTextInputModifierNode.textInputSession`.
+ */
+expect interface PlatformTextInputMethodRequest

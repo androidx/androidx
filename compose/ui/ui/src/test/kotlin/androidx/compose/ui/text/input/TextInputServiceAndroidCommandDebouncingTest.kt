@@ -78,7 +78,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startInput_callsRestartInput() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(1)
@@ -86,7 +86,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startInput_callsShowKeyboard() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
@@ -110,7 +110,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startThenStopInput_onlyCallsRestartOnce() {
-        service.startInput()
+        service.startInputForTest()
         service.stopInput()
         scope.advanceUntilIdle()
 
@@ -124,7 +124,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
     @Test
     fun stopThenStartInput_onlyCallsRestartOnce() {
         service.stopInput()
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
 
         // Both startInput and stopInput restart the IMM. So calling those two methods back-to-back,
@@ -208,7 +208,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun startInput_isNotProcessedImmediately() {
-        service.startInput()
+        service.startInputForTest()
 
         assertThat(inputMethodManager.restartCalls).isEqualTo(0)
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
@@ -259,7 +259,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun commandsAreCleared_afterProcessing() {
-        service.startInput()
+        service.startInputForTest()
         scope.advanceUntilIdle()
         assertThat(inputMethodManager.restartCalls).isEqualTo(1)
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
@@ -270,7 +270,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(2)
     }
 
-    private fun TextInputServiceAndroid.startInput() {
+    private fun TextInputServiceAndroid.startInputForTest() {
         startInput(
             TextFieldValue(),
             ImeOptions.Default,
