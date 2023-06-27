@@ -23,7 +23,6 @@ import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -43,46 +42,31 @@ class StatelessInputConnectionTest {
     val rule = createComposeRule()
 
     private lateinit var ic: StatelessInputConnection
-    private var activeSession: EditableTextInputSession? = null
+    private val activeSession: TextInputSession = object : TextInputSession {
+        override val text: TextFieldCharSequence
+            get() = this@StatelessInputConnectionTest.value
 
-    private var isOpen: Boolean = true
+        override fun onImeAction(imeAction: ImeAction) {
+            this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
+        }
+
+        override fun requestEdits(editCommands: List<EditCommand>) {
+            onRequestEdits?.invoke(editCommands)
+        }
+
+        override fun sendKeyEvent(keyEvent: KeyEvent) {
+            onSendKeyEvent?.invoke(keyEvent)
+        }
+    }
+
     private var value: TextFieldCharSequence = TextFieldCharSequence()
-    private var imeOptions: ImeOptions = ImeOptions.Default
     private var onRequestEdits: ((List<EditCommand>) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
 
-    private val activeSessionProvider: () -> EditableTextInputSession? = { activeSession }
-
     @Before
     fun setup() {
-        ic = StatelessInputConnection(activeSessionProvider)
-        activeSession = object : EditableTextInputSession {
-            override val isOpen: Boolean
-                get() = this@StatelessInputConnectionTest.isOpen
-
-            override val value: TextFieldCharSequence
-                get() = this@StatelessInputConnectionTest.value
-
-            override val imeOptions: ImeOptions
-                get() = this@StatelessInputConnectionTest.imeOptions
-
-            override fun onImeAction(imeAction: ImeAction) {
-                this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
-            }
-
-            override fun requestEdits(editCommands: List<EditCommand>) {
-                onRequestEdits?.invoke(editCommands)
-            }
-
-            override fun sendKeyEvent(keyEvent: KeyEvent) {
-                onSendKeyEvent?.invoke(keyEvent)
-            }
-
-            override fun dispose() {
-                this@StatelessInputConnectionTest.isOpen = false
-            }
-        }
+        ic = StatelessInputConnection(activeSession)
     }
 
     @Test
@@ -566,22 +550,6 @@ class StatelessInputConnectionTest {
     }
 
     @Test
-    fun sendKeyEvent_noActiveSession() {
-        val keyEvents = mutableListOf<KeyEvent>()
-        onSendKeyEvent = {
-            keyEvents += it
-        }
-        val keyEvent1 = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_0)
-        val keyEvent2 = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_0)
-        activeSession = null
-
-        ic.sendKeyEvent(keyEvent1)
-        ic.sendKeyEvent(keyEvent2)
-
-        assertThat(keyEvents.size).isEqualTo(0)
-    }
-
-    @Test
     fun performImeAction_whenIMERequests() {
         val receivedImeActions = mutableListOf<ImeAction>()
         onImeAction = {
@@ -608,26 +576,6 @@ class StatelessInputConnectionTest {
             ImeAction.Default, // Unspecified is evaluated back to Default.
             ImeAction.Default // Unrecognized is evaluated back to Default.
         ))
-    }
-
-    @Test
-    fun performImeAction_noActiveSession() {
-        val receivedImeActions = mutableListOf<ImeAction>()
-        onImeAction = {
-            receivedImeActions += it
-        }
-        activeSession = null
-        ic.performEditorAction(EditorInfo.IME_ACTION_DONE)
-        ic.performEditorAction(EditorInfo.IME_ACTION_GO)
-        ic.performEditorAction(EditorInfo.IME_ACTION_NEXT)
-        ic.performEditorAction(EditorInfo.IME_ACTION_NONE)
-        ic.performEditorAction(EditorInfo.IME_ACTION_PREVIOUS)
-        ic.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
-        ic.performEditorAction(EditorInfo.IME_ACTION_SEND)
-        ic.performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
-        ic.performEditorAction(-1)
-
-        assertThat(receivedImeActions).isEqualTo(listOf<ImeAction>())
     }
 
     @Test

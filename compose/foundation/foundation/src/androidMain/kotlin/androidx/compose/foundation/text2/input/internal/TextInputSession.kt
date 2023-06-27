@@ -24,43 +24,19 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 
 /**
- * Represents a disposable text input session that starts when an editable BasicTextField2 gains
- * focus. [TextInputSession] is the main interface for BasicTextField2 to interact with
- * IME. A session is destroyed when text input is no longer active.
+ * The dependencies and actions required by a [StatelessInputConnection] connection. Decouples
+ * [StatelessInputConnection] from [TextFieldState] for testability.
  */
 internal interface TextInputSession {
-
-    /**
-     * Whether this session is still active.
-     *
-     * This value can only go through two phases. It starts as true and becomes false when session
-     * is destroyed. It can never become true again so a destroyed session should always be cleared
-     * from memory.
-     */
-    val isOpen: Boolean
-
-    /**
-     * Destroy this session and clear resources.
-     */
-    fun dispose()
-}
-
-/**
- * Extended [TextInputSession] that handles [EditCommand]s and keeps track of current
- * [TextFieldValue]. This interface meant to be completely internal to [AndroidTextInputAdapter].
- * Please use [TextInputSession] to manage focus and other details from the editor.
- */
-internal interface EditableTextInputSession : TextInputSession {
 
     /**
      * The current [TextFieldValue] in this input session. This value is typically supplied by a
      * backing [TextFieldState] that is used to initialize the session.
      */
-    val value: TextFieldCharSequence
+    val text: TextFieldCharSequence
 
     /**
      * Callback to execute for InputConnection to communicate the changes requested by the IME.
@@ -71,11 +47,6 @@ internal interface EditableTextInputSession : TextInputSession {
      * Delegates IME requested KeyEvents.
      */
     fun sendKeyEvent(keyEvent: KeyEvent)
-
-    /**
-     * IME configuration to use when creating new [InputConnection]s while this session is active.
-     */
-    val imeOptions: ImeOptions
 
     /**
      * Callback to run when IME sends an action via [InputConnection.performEditorAction]
