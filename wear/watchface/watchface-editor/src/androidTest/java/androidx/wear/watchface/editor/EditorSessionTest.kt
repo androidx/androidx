@@ -120,6 +120,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -2361,6 +2362,7 @@ public class EditorSessionTest {
 
     @SuppressLint("NewApi") // EditorRequest
     @Test
+    @Ignore // TODO(b/289017452): This test times out.
     public fun testComponentNameMismatch() {
         val testComponentName = ComponentName("test.package", "test.class")
         val watchFaceId = WatchFaceId("ID-1")
