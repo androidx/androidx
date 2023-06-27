@@ -39,14 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tv.foundation.lazy.list.TvLazyColumn
@@ -97,7 +96,7 @@ class ImmersiveListTest {
         }
 
         rule.waitForIdle()
-        rule.onNodeWithTag("card-0").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("card-0").requestFocus()
         rule.waitForIdle()
 
         rule.onNodeWithTag("card-0").assertIsFocused()

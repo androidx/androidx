@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
@@ -62,9 +61,9 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -633,7 +632,7 @@ class TextFieldCursorTest {
             .captureToImage()
             .assertCursor(cursorTopCenterInLtr)
 
-        rule.onNodeWithTag("box").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("box").requestFocus()
         rule.mainClock.advanceTimeByFrame()
 
         // cursor should hide immediately.
@@ -649,7 +648,7 @@ class TextFieldCursorTest {
     }
 
     private fun focusAndWait() {
-        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNode(hasSetTextAction()).requestFocus()
         rule.mainClock.advanceTimeUntil { isFocused }
     }
 

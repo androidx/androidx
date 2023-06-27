@@ -52,7 +52,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
@@ -64,7 +63,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
@@ -112,7 +111,7 @@ class CarouselTest {
 
         rule.onNodeWithText("Text 1")
             .onParent()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
@@ -268,9 +267,9 @@ class CarouselTest {
 
         rule.onNodeWithText("Text 1")
             .onParent()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
-        rule.onNodeWithText("Card").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Card").requestFocus()
         rule.onNodeWithText("Card").assertIsFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
@@ -319,7 +318,7 @@ class CarouselTest {
 
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // current item overlay render delay
         rule.mainClock.advanceTimeBy(animationTime, false)
@@ -347,7 +346,7 @@ class CarouselTest {
         // Request focus for Carousel on start
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // Trigger recomposition after requesting focus
         rule.mainClock.advanceTimeByFrame()
@@ -382,7 +381,7 @@ class CarouselTest {
         // Request focus for Carousel on start
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // Trigger recomposition after requesting focus and advance time to finish animations
         rule.mainClock.advanceTimeByFrame()
@@ -533,7 +532,7 @@ class CarouselTest {
 
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // trigger recomposition on requesting focus
         rule.mainClock.advanceTimeByFrame()
@@ -608,7 +607,7 @@ class CarouselTest {
         }
 
         rule.waitForIdle()
-        rule.onNodeWithText("Play 0").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Play 0").requestFocus()
         rule.waitForIdle()
 
         val itemProgression = listOf(6, 3, -4, 3, -6, 5, 3)
@@ -647,7 +646,7 @@ class CarouselTest {
         // Request focus for Carousel on start
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // Trigger recomposition after requesting focus
         rule.mainClock.advanceTimeByFrame()
@@ -691,7 +690,7 @@ class CarouselTest {
 
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // current item overlay render delay
         rule.mainClock.advanceTimeBy(animationTime, false)
@@ -741,7 +740,7 @@ class CarouselTest {
 
         rule.mainClock.autoAdvance = false
         rule.onNodeWithTag("pager")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         // current item overlay render delay
         rule.mainClock.advanceTimeBy(animationTime, false)
@@ -821,7 +820,7 @@ class CarouselTest {
             }
         }
 
-        rule.onNodeWithText("Left Button 1").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithText("Left Button 1").requestFocus()
         performKeyPress(KeyEvent.KEYCODE_DPAD_RIGHT)
         // focus should have moved from left to right button
         rule.onNodeWithText("Right Button 1").assertIsFocused()

@@ -33,10 +33,9 @@ import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.textInputSession
-import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -81,7 +80,7 @@ class AndroidTextInputSessionTest {
                     .focusable()
             )
         }
-        rule.onNodeWithTag("tag").performSemanticsAction(RequestFocus)
+        rule.onNodeWithTag("tag").requestFocus()
         rule.waitForIdle()
     }
 

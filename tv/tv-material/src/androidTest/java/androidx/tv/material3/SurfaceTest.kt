@@ -77,6 +77,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -217,7 +218,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertHasClickAction()
             .assertIsEnabled()
             // since we merge descendants we should have text on the same node
@@ -241,7 +242,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
@@ -266,7 +267,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertHasClickAction()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsEnabled()
@@ -290,7 +291,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
@@ -315,7 +316,7 @@ class SurfaceTest {
         }
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, 1)
         Truth.assertThat(count.value).isEqualTo(1)
 
@@ -341,7 +342,7 @@ class SurfaceTest {
         }
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performLongKeyPress(rule, Key.DirectionCenter, 1)
         Truth.assertThat(count1.value).isEqualTo(1)
@@ -354,7 +355,7 @@ class SurfaceTest {
         Truth.assertThat(count2.value).isEqualTo(1)
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, 1, 2)
         Truth.assertThat(count1.value).isEqualTo(3)
         Truth.assertThat(count2.value).isEqualTo(3)
@@ -376,7 +377,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
@@ -421,7 +422,7 @@ class SurfaceTest {
         }
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { keyDown(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -540,7 +541,7 @@ class SurfaceTest {
             .assertContainsColor(Color.Magenta)
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
 
         rule.onNodeWithTag("surface")
             .captureToImage()
@@ -568,7 +569,7 @@ class SurfaceTest {
         }
         rule.onRoot().captureToImage().assertContainsColor(Color.Blue)
 
-        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("surface").requestFocus()
 
         rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
     }
@@ -598,7 +599,7 @@ class SurfaceTest {
 
         surface.captureToImage().assertDoesNotContainColor(Color.Magenta)
 
-        surface.performSemanticsAction(SemanticsActions.RequestFocus)
+        surface.requestFocus()
 
         surface.captureToImage().assertContainsColor(Color.Magenta)
     }
@@ -618,7 +619,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .assertIsEnabled()
@@ -644,7 +645,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
@@ -670,7 +671,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertHasClickAction()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsEnabled()
@@ -695,7 +696,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(isChecked).isTrue()
 
@@ -720,7 +721,7 @@ class SurfaceTest {
         }
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, 1)
         Truth.assertThat(count.value).isEqualTo(1)
 
@@ -747,7 +748,7 @@ class SurfaceTest {
         }
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performLongKeyPress(rule, Key.DirectionCenter, 1)
         Truth.assertThat(count1.value).isEqualTo(1)
@@ -760,7 +761,7 @@ class SurfaceTest {
         Truth.assertThat(count2.value).isEqualTo(1)
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, 1, 2)
         Truth.assertThat(count1.value).isEqualTo(3)
         Truth.assertThat(count2.value).isEqualTo(3)
@@ -783,7 +784,7 @@ class SurfaceTest {
             }
         }
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
@@ -828,7 +829,7 @@ class SurfaceTest {
         }
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { keyDown(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -953,7 +954,7 @@ class SurfaceTest {
             .assertContainsColor(Color.Magenta)
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
@@ -990,7 +991,7 @@ class SurfaceTest {
         rule.onRoot().captureToImage().assertContainsColor(Color.Blue)
 
         rule.onNodeWithTag("surface")
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
@@ -1029,7 +1030,7 @@ class SurfaceTest {
         surface.captureToImage().assertDoesNotContainColor(Color.Magenta)
 
         surface
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
@@ -1138,7 +1139,7 @@ class SurfaceTest {
 
         rule
             .onNodeWithTag(clickableItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         // blue border shouldn't be visible

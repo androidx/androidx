@@ -17,6 +17,7 @@ package androidx.compose.ui.test {
     method public static <T extends kotlin.Function<? extends java.lang.Boolean>> androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
     method @Deprecated public static <T extends kotlin.Function<? extends java.lang.Boolean>> void performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performTouchInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TouchInjectionScope,kotlin.Unit> block);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction requestFocus(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
   public final class AndroidImageHelpers_androidKt {
