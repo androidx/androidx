@@ -121,4 +121,42 @@ const val POM_COLLECTION_JVM = """<?xml version="1.0" encoding="UTF-8"?>
   </dependencies>
 </project>"""
 
+/**
+ * POM for androidx.compose.ui:ui-geometry:1.6.0-alpha01.
+ */
+const val POM_COMPOSE_UI_GEOMETRY = """<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- This module was also published with a richer model, Gradle metadata,  -->
+  <!-- which should be used instead. Do not delete the following line which  -->
+  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
+  <!-- that they should prefer consuming it instead. -->
+  <!-- do_not_remove: published-with-gradle-metadata -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>androidx.compose.ui</groupId>
+  <artifactId>ui-geometry</artifactId>
+  <version>1.6.0-alpha01</version>
+  <packaging>pom</packaging>
+  <name>Compose Geometry</name>
+  <description>Compose classes related to dimensions without units</description>
+  <url>https://developer.android.com/jetpack/androidx/releases/compose-ui#1.6.0-alpha01</url>
+  <inceptionYear>2020</inceptionYear>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>The Android Open Source Project</name>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://android.googlesource.com/platform/frameworks/support</connection>
+    <url>https://cs.android.com/androidx/platform/frameworks/support</url>
+  </scm>
+</project>
+"""
+
 /* ktlint-enable max-line-length */
