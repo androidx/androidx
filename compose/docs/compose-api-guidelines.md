@@ -476,38 +476,6 @@ fun Modifier.myModifier(
 ): Modifier = then(MyModifierImpl(param1, ... paramN))
 ```
 
-### Composed modifiers
-
-Modifiers that must take part in composition (for example, to read `CompositionLocal` values, maintain element-specific instance state or manage object lifetimes) can use the `Modifier.composed {}` API to create a modifier that is a modifier instance factory:
-
-```kotlin
-fun Modifier.myModifier(): Modifier = composed {
-    val color = LocalTheme.current.specialColor
-    backgroundColor(color)
-}
-```
-
-Composed modifiers are composed at each point of application to an element; the same composed modifier may be provided to multiple elements and each will have its own composition state:
-
-```kotlin
-fun Modifier.modifierWithState(): Modifier = composed {
-    val elementSpecificState = remember { MyModifierState() }
-    MyModifier(elementSpecificState)
-}
-
-// ...
-val myModifier = someModifiers.modifierWithState()
-
-Text("Hello", modifier = myModifier)
-Text("World", modifier = myModifier)
-```
-
-As a result, **Jetpack Compose framework development and Library development** SHOULD use `Modifier.composed {}` to implement composition-aware modifiers, and SHOULD NOT declare modifier extension factory functions as `@Composable` functions themselves.
-
-#### Why
-
-Composed modifiers may be created outside of composition, shared across elements, and declared as top-level constants, making them more flexible than modifiers that can only be created via a `@Composable` function call, and easier to avoid accidentally sharing state across elements.
-
 ### Layout-scoped modifiers
 
 Android's View system has the concept of LayoutParams - a type of object stored opaquely with a ViewGroup's child view that provides layout instructions specific to the ViewGroup that will measure and position it.
@@ -699,52 +667,6 @@ fun VerticalScroller(
 ) {
     val realState = verticalScrollerState ?:
         remember { VerticalScrollerState() }
-```
-
-## Default hoisted state for modifiers
-
-The `Modifier.composed {}` API permits construction of a Modifier factory that will be invoked later. This permits the associated Modifier factory function to be a "regular" (non-`@Composable`) function that can be called outside of composition while still permitting the use of composition to construct a modifier implementation for each element it is applied to. This does not permit using `remember {}` as a default argument expression as the factory function itself is not `@Composable`.
-
-**Jetpack Compose framework and library development** SHOULD provide an overload of Modifier factory functions that accept hoisted state parameters that omits the hoisted state object as a means of requesting default behavior, SHOULD NOT use null as a default sentinel to request the implementation to `remember {}` an element-instanced default, and SHOULD NOT declare the Modifier factory function as `@Composable` in order to use `remember {}` in a default argument expression.
-
-### Do
-
-```kotlin
-fun Modifier.foo() = composed {
-    FooModifierImpl(remember { FooState() }, LocalBar.current)
-}
-
-fun Modifier.foo(fooState: FooState) = composed {
-    FooModifierImpl(fooState, LocalBar.current)
-}
-```
-
-### Don't
-
-```kotlin
-// Null as a default can cause unexpected behavior if the input parameter
-// changes between null and non-null.
-fun Modifier.foo(
-    fooState: FooState? = null
-) = composed {
-    FooModifierImpl(
-        fooState ?: remember { FooState() },
-        LocalBar.current
-    )
-}
-```
-
-### Don't
-
-```kotlin
-// @Composable modifier factory functions cannot be used
-// outside of composition.
-@Composable
-fun Modifier.foo(
-    fooState: FooState = remember { FooState() }
-) = composed {
-    FooModifierImpl(fooState, LocalBar.current)
-}
 ```
 
 ## Extensibility of hoisted state types
