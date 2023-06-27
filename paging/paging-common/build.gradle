@@ -102,15 +102,6 @@ androidXMultiplatform {
 // top level declaration because the KGP sourceSets declaration used by androidXMultiplatform
 // does not support constraints or samples configurations yet
 dependencies {
-    // Atomic Group
-    constraints {
-        implementation(project(":paging:paging-runtime"))
-        // syntax is temp workaround to allow project dependency on cross-project-set
-        // i.e. COMPOSE + MAIN project sets
-        // update syntax when b/239979823 is fixed
-        implementation("androidx.paging:paging-compose:${androidx.LibraryVersions.PAGING}")
-    }
-
     samples(project(":paging:paging-samples"))
 }
 
