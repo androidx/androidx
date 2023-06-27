@@ -673,10 +673,8 @@ class AndroidXImplPlugin @Inject constructor(
             task.maxHeapSize = "3g"
         }
 
-        // Include resources in Robolectric tests as a workaround for b/184641296 and
-        // ensure the build directory exists as a workaround for b/187970292.
+        // Include resources in Robolectric tests as a workaround for b/184641296
         testOptions.unitTests.isIncludeAndroidResources = true
-        if (!project.buildDir.exists()) project.buildDir.mkdirs()
 
         project.afterEvaluate {
             val minSdkVersion = defaultConfig.minSdk!!
