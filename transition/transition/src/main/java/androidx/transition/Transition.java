@@ -1850,6 +1850,15 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
+     * Used by seeking Transitions to determine if a canceled transition will cancel the entire
+     * set or not.
+     * @return {@code true} if there are any seeking animators that haven't been canceled.
+     */
+    boolean hasAnimators() {
+        return !mCurrentAnimators.isEmpty();
+    }
+
+    /**
      * Called by TransitionManager to play the transition. This calls
      * createAnimators() to set things up and create all of the animations and then
      * runAnimations() to actually start the animations.
