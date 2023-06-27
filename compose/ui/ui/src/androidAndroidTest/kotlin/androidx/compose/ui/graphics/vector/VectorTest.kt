@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -187,6 +189,26 @@ class VectorTest {
         takeScreenShot(size).apply {
             assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
             assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorRendersOnceOnFirstFrame() {
+        var drawCount = 0
+        val testTag = "TestTag"
+        rule.setContent {
+            Box(modifier = Modifier
+                .wrapContentSize()
+                .drawBehind {
+                    drawCount++
+                }
+                .paint(painterResource(R.drawable.ic_triangle2))
+                .testTag(testTag))
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertEquals(1, drawCount)
         }
     }
 
