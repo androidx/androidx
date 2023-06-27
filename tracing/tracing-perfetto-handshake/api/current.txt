@@ -18,16 +18,16 @@ package androidx.tracing.perfetto.handshake {
 package androidx.tracing.perfetto.handshake.protocol {
 
   public final class Response {
-    method public int getExitCode();
     method public String? getMessage();
     method public String? getRequiredVersion();
-    property public final int exitCode;
+    method public int getResultCode();
     property public final String? message;
     property public final String? requiredVersion;
+    property public final int resultCode;
   }
 
-  public final class ResponseExitCodes {
-    field public static final androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes INSTANCE;
+  public final class ResponseResultCodes {
+    field public static final androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes INSTANCE;
     field public static final int RESULT_CODE_ALREADY_ENABLED = 2; // 0x2
     field public static final int RESULT_CODE_CANCELLED = 0; // 0x0
     field public static final int RESULT_CODE_ERROR_BINARY_MISSING = 11; // 0xb

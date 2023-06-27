@@ -26,12 +26,12 @@ import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.perfetto.handshake.PerfettoSdkHandshake
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
 import java.io.File
 import java.io.StringReader
 
@@ -119,7 +119,7 @@ public class PerfettoCapture(
 
         // negotiate enabling tracing in the app
         val response = handshake.enableTracingImmediate().let {
-            if (it.exitCode == RESULT_CODE_ERROR_BINARY_MISSING && provideBinariesIfMissing) {
+            if (it.resultCode == RESULT_CODE_ERROR_BINARY_MISSING && provideBinariesIfMissing) {
                 val baseApk = File(
                     InstrumentationRegistry.getInstrumentation()
                         .context.applicationInfo.publicSourceDir!!
@@ -138,7 +138,7 @@ public class PerfettoCapture(
         }
 
         // process the response
-        return when (response.exitCode) {
+        return when (response.resultCode) {
             0 -> "The broadcast to enable tracing was not received. This most likely means " +
                 "that the app does not contain the `androidx.tracing.tracing-perfetto` " +
                 "library as its dependency."
@@ -163,7 +163,7 @@ public class PerfettoCapture(
                     "If working with an unreleased snapshot, ensure all modules are built " +
                     "against the same snapshot (e.g. clear caches and rebuild)."
             RESULT_CODE_ERROR_OTHER -> "Error: ${response.message}."
-            else -> throw RuntimeException("Unrecognized exit code: ${response.exitCode}.")
+            else -> throw RuntimeException("Unrecognized result code: ${response.resultCode}.")
         }
     }
 }

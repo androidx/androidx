@@ -29,11 +29,11 @@ import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.perfetto.handshake.PerfettoSdkHandshake
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_CANCELLED
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_CANCELLED
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.StringReader
@@ -185,11 +185,11 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             PROVIDED_BY_BENCHMARK -> {
                 checkNotNull(libraryZip)
                 handshake.enableTracingImmediate(librarySource).let { response ->
-                    assertThat(response.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+                    assertThat(response.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
                     assertThat(response.requiredVersion).matches(versionRx)
                 }
                 handshake.enableTracingImmediate(librarySource).let { response ->
-                    assertThat(response.exitCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
+                    assertThat(response.resultCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
                     assertThat(response.requiredVersion).matches(versionRx)
                 }
             }
@@ -197,11 +197,11 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             MISSING -> {
                 check(libraryZip == null)
                 handshake.enableTracingImmediate().let { response ->
-                    assertThat(response.exitCode).isEqualTo(RESULT_CODE_ERROR_BINARY_MISSING)
+                    assertThat(response.resultCode).isEqualTo(RESULT_CODE_ERROR_BINARY_MISSING)
                     assertThat(response.requiredVersion).matches(versionRx)
                 }
                 handshake.enableTracingImmediate().let { response ->
-                    assertThat(response.exitCode).isEqualTo(RESULT_CODE_ERROR_BINARY_MISSING)
+                    assertThat(response.resultCode).isEqualTo(RESULT_CODE_ERROR_BINARY_MISSING)
                     assertThat(response.requiredVersion).matches(versionRx)
                 }
             }
@@ -239,21 +239,21 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         try {
             val enableColdTracingResponse =
                 handshake.enableTracingColdStart(librarySource, persistent)
-            assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+            assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
             assertPackageAlive(false)
 
             // start the app
             // verify that tracing was enabled at app startup (once)
             enablePackage()
             handshake.enableTracingImmediate().let {
-                assertThat(it.exitCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
+                assertThat(it.resultCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
             }
 
             // verify that tracing was enabled at app startup (more than once)
             killProcess()
             enablePackage()
             handshake.enableTracingImmediate(librarySource).let {
-                assertThat(it.exitCode).isEqualTo(
+                assertThat(it.resultCode).isEqualTo(
                     // in non-persistent mode, cold startup tracing should expire after one run
                     when (persistent) {
                         true -> RESULT_CODE_ALREADY_ENABLED
@@ -264,7 +264,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         } finally {
             // clean up
             handshake.disableTracingColdStart().let {
-                assertThat(it.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+                assertThat(it.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
             }
         }
     }
@@ -297,7 +297,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         }
         val enableColdTracingResponse =
             handshake.enableTracingColdStart(librarySource, persistent)
-        assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+        assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
 
         // disable cold start tracing
         handshake.disableTracingColdStart()
@@ -311,7 +311,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
          * Note: if cold start tracing was enabled, we'd receive [RESULT_CODE_ALREADY_ENABLED]
          */
         val enableWarmTracingResponse = handshake.enableTracingImmediate(librarySource)
-        assertThat(enableWarmTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+        assertThat(enableWarmTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
     }
 
     private fun killProcess() {
@@ -350,13 +350,13 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
 
         // try
         handshake.enableTracingImmediate().also { response ->
-            assertThat(response.exitCode).isEqualTo(RESULT_CODE_CANCELLED)
+            assertThat(response.resultCode).isEqualTo(RESULT_CODE_CANCELLED)
             assertThat(response.requiredVersion).isNull()
         }
 
         // try again
         handshake.enableTracingImmediate().also { response ->
-            assertThat(response.exitCode).isEqualTo(RESULT_CODE_CANCELLED)
+            assertThat(response.resultCode).isEqualTo(RESULT_CODE_CANCELLED)
             assertThat(response.requiredVersion).isNull()
         }
     }
@@ -374,7 +374,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         )
 
         handshake.enableTracingImmediate().also { response ->
-            assertThat(response.exitCode).isEqualTo(RESULT_CODE_ERROR_OTHER)
+            assertThat(response.resultCode).isEqualTo(RESULT_CODE_ERROR_OTHER)
             assertThat(response.requiredVersion).isNull()
             assertThat(response.message).containsMatch(
                 "Exception occurred while trying to parse a response.*Error.*$parsingException"

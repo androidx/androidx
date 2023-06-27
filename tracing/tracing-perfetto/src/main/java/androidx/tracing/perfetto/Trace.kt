@@ -19,12 +19,12 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.tracing.perfetto.internal.handshake.protocol.Response
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.jni.PerfettoNative
 import androidx.tracing.perfetto.security.IncorrectChecksumException
 import androidx.tracing.perfetto.security.SafeLibLoader
@@ -150,9 +150,9 @@ object Trace {
         javaClass.name + if (message != null) ": $message" else ""
     }
 
-    internal fun Response(exitCode: Int, message: String? = null) =
-        Response(exitCode, PerfettoNative.Metadata.version, message)
+    internal fun Response(resultCode: Int, message: String? = null) =
+        Response(resultCode, PerfettoNative.Metadata.version, message)
 
-    internal fun Response(exitCode: Int, exception: Throwable) =
-        Response(exitCode, errorMessage(exception))
+    internal fun Response(resultCode: Int, exception: Throwable) =
+        Response(resultCode, errorMessage(exception))
 }

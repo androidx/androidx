@@ -49,7 +49,7 @@ class StartupTracingInitializer : Initializer<Unit> {
 
         // log the result for debuggability
         Log.d(TAG, "${Response::class.java.name}: { " +
-            "exitCode: ${enableTracingResponse.exitCode}, " +
+            "resultCode: ${enableTracingResponse.resultCode}, " +
             "message: ${enableTracingResponse.message}, " +
             "requiredVersion: ${enableTracingResponse.requiredVersion} " +
             "}")
