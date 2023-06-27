@@ -57,11 +57,9 @@ package androidx.compose.runtime
  */
 @Stable
 sealed class CompositionLocal<T> constructor(defaultFactory: () -> T) {
-    @Suppress("UNCHECKED_CAST")
     internal val defaultValueHolder = LazyValueHolder(defaultFactory)
 
-    @Composable
-    internal abstract fun provided(value: T): State<T>
+    internal abstract fun updatedStateOf(value: T, previous: State<T>?): State<T>
 
     /**
      * Return the value provided by the nearest [CompositionLocalProvider] component that invokes, directly or
@@ -94,7 +92,6 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
      * @see CompositionLocal
      * @see ProvidableCompositionLocal
      */
-    @Suppress("UNCHECKED_CAST")
     infix fun provides(value: T) = ProvidedValue(this, value, true)
 
     /**
@@ -104,7 +101,6 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
      * @see CompositionLocal
      * @see ProvidableCompositionLocal
      */
-    @Suppress("UNCHECKED_CAST")
     infix fun providesDefault(value: T) = ProvidedValue(this, value, false)
 }
 
@@ -122,10 +118,13 @@ internal class DynamicProvidableCompositionLocal<T> constructor(
     defaultFactory: () -> T
 ) : ProvidableCompositionLocal<T>(defaultFactory) {
 
-    @Composable
-    override fun provided(value: T): State<T> = remember { mutableStateOf(value, policy) }.apply {
-        this.value = value
-    }
+    override fun updatedStateOf(value: T, previous: State<T>?): State<T> =
+        if (previous != null && previous is MutableState<T>) {
+            previous.value = value
+            previous
+        } else {
+            mutableStateOf(value, policy)
+        }
 }
 
 /**
@@ -136,8 +135,9 @@ internal class DynamicProvidableCompositionLocal<T> constructor(
 internal class StaticProvidableCompositionLocal<T>(defaultFactory: () -> T) :
     ProvidableCompositionLocal<T>(defaultFactory) {
 
-    @Composable
-    override fun provided(value: T): State<T> = StaticValueHolder(value)
+    override fun updatedStateOf(value: T, previous: State<T>?): State<T> =
+        if (previous != null && previous.value == value) previous
+        else StaticValueHolder(value)
 }
 
 /**
@@ -232,7 +232,7 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
 /**
  * [CompositionLocalProvider] binds value to [ProvidableCompositionLocal] key. Reading the
  * [CompositionLocal] using [CompositionLocal.current] will return the value provided in
- * [CompositionLocalProvider]'s [values] parameter for all composable functions called directly
+ * [CompositionLocalProvider]'s [value] parameter for all composable functions called directly
  * or indirectly in the [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
@@ -262,7 +262,6 @@ fun CompositionLocalProvider(value: ProvidedValue<*>, content: @Composable () ->
  * @see staticCompositionLocalOf
  */
 @Composable
-@OptIn(InternalComposeApi::class)
 fun CompositionLocalProvider(context: CompositionLocalContext, content: @Composable () -> Unit) {
     CompositionLocalProvider(
         *context.compositionLocals
