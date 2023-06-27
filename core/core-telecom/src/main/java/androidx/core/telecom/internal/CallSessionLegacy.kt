@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallAudioState
+import android.telecom.Connection
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.DoNotInline
@@ -130,8 +131,14 @@ internal class CallSessionLegacy(
     }
 
     fun setConnectionInactive(): Boolean {
-        setOnHold()
-        return true
+        return if (this.connectionCapabilities.and(CAPABILITY_SUPPORT_HOLD)
+            == CAPABILITY_SUPPORT_HOLD
+        ) {
+            setOnHold()
+            true
+        } else {
+            false
+        }
     }
 
     fun setConnectionDisconnect(cause: DisconnectCause): Boolean {

@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -101,7 +102,22 @@ class BasicCallControlsTest : BaseTelecomTest() {
     @Test
     fun testTogglingHoldOnActiveCall() {
         setUpV2Test()
-        runBlocking_ToggleCallAsserts()
+        runBlocking_ToggleCallAsserts(TestUtils.OUTGOING_CALL_ATTRIBUTES)
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add a call that does NOT support setting the
+     * call inactive and when the setInactive is called, the transaction fails.
+     * The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testTogglingHoldOnActiveCall_NoHoldCapabilities() {
+        setUpV2Test()
+        assertFalse(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
+            .hasSupportsSetInactiveCapability())
+        runBlocking_ShouldFailHold(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES)
     }
 
     /**
@@ -157,7 +173,23 @@ class BasicCallControlsTest : BaseTelecomTest() {
     @Test
     fun testTogglingHoldOnActiveCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
-        runBlocking_ToggleCallAsserts()
+        runBlocking_ToggleCallAsserts(TestUtils.OUTGOING_CALL_ATTRIBUTES)
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add a call that does NOT support setting the
+     * call inactive and when the setInactive is called, the transaction fails.
+     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testTogglingHoldOnActiveCall_NoHoldCapabilities_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        assertFalse(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
+            .hasSupportsSetInactiveCapability())
+        runBlocking_ShouldFailHold(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES)
     }
 
     /**
@@ -207,15 +239,29 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     // similar to runBlocking_addCallAndSetActive except for toggling
-    private fun runBlocking_ToggleCallAsserts() {
+    private fun runBlocking_ToggleCallAsserts(callAttributesCompat: CallAttributesCompat) {
         runBlocking {
             val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+            assertWithinTimeout_addCall(deferred, callAttributesCompat) {
                 launch {
                     repeat(NUM_OF_TIMES_TO_TOGGLE) {
                         assertTrue(setActive())
                         assertTrue(setInactive())
                     }
+                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    deferred.complete(Unit) // completed all asserts. cancel timeout!
+                }
+            }
+        }
+    }
+
+    private fun runBlocking_ShouldFailHold(callAttributesCompat: CallAttributesCompat) {
+        runBlocking {
+            val deferred = CompletableDeferred<Unit>()
+            assertWithinTimeout_addCall(deferred, callAttributesCompat) {
+                launch {
+                    assertTrue(setActive())
+                    assertFalse(setInactive()) // API under test / expect failure
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                     deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
