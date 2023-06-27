@@ -29,18 +29,12 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 fun Project.writeSdkPathToLocalPropertiesFile() {
     val sdkPath = project.getSdkPath()
     if (sdkPath.exists()) {
-        // This must be the project's real root directory (ex. fw/support/ui) rather than the
-        // canonical root obtained via getSupportRootFolder().
         val props = File(project.rootDir, "local.properties")
         // Gradle always separates directories with '/' regardless of the OS, so convert here.
         val gradlePath = sdkPath.absolutePath.replace(File.separator, "/")
-        var expectedContents = "sdk.dir=$gradlePath"
-        expectedContents += "\ncmake.dir=$gradlePath/native-build-tools"
-        if (!props.exists() || props.readText(Charsets.UTF_8).trim() != expectedContents) {
-            props.printWriter().use { out ->
-                out.println(expectedContents)
-            }
-            println("updated local.properties")
+        val contents = "sdk.dir=$gradlePath\ncmake.dir=$gradlePath/native-build-tools"
+        props.printWriter().use { out ->
+            out.println(contents)
         }
     } else {
         throw Exception(
