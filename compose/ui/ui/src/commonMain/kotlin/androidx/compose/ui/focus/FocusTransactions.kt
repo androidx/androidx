@@ -40,10 +40,12 @@ import androidx.compose.ui.node.observeReads
  */
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetNode.requestFocus(): Boolean {
-    return when (performCustomRequestFocus(Enter)) {
-        None -> performRequestFocus()
-        Redirected -> true
-        Cancelled, RedirectCancelled -> false
+    return requireTransactionManager().withNewTransaction {
+        when (performCustomRequestFocus(Enter)) {
+            None -> performRequestFocus()
+            Redirected -> true
+            Cancelled, RedirectCancelled -> false
+        }
     }
 }
 
@@ -84,14 +86,16 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
  *
  * @return true if the focus was successfully captured. False otherwise.
  */
-internal fun FocusTargetNode.captureFocus() = when (focusState) {
-    Active -> {
-        focusState = Captured
-        refreshFocusEventNodes()
-        true
+internal fun FocusTargetNode.captureFocus() = requireTransactionManager().withNewTransaction {
+    when (focusState) {
+        Active -> {
+            focusState = Captured
+            refreshFocusEventNodes()
+            true
+        }
+        Captured -> true
+        ActiveParent, Inactive -> false
     }
-    Captured -> true
-    ActiveParent, Inactive -> false
 }
 
 /**
@@ -101,14 +105,16 @@ internal fun FocusTargetNode.captureFocus() = when (focusState) {
  *
  * @return true if the captured focus was released. False Otherwise.
  */
-internal fun FocusTargetNode.freeFocus() = when (focusState) {
-    Captured -> {
-        focusState = Active
-        refreshFocusEventNodes()
-        true
+internal fun FocusTargetNode.freeFocus() = requireTransactionManager().withNewTransaction {
+    when (focusState) {
+        Captured -> {
+            focusState = Active
+            refreshFocusEventNodes()
+            true
+        }
+        Active -> true
+        ActiveParent, Inactive -> false
     }
-    Active -> true
-    ActiveParent, Inactive -> false
 }
 
 /**
