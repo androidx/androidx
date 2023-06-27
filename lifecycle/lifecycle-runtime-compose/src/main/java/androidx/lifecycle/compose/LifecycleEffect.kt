@@ -136,10 +136,7 @@ fun LifecycleStartEffect(
     val lifecycleStartStopEffectScope = remember(key1) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onStart` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, currentEffects)
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
 }
 
 /**
@@ -200,10 +197,7 @@ fun LifecycleStartEffect(
     val lifecycleStartStopEffectScope = remember(key1, key2) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onStart` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, currentEffects)
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
 }
 
 /**
@@ -266,10 +260,7 @@ fun LifecycleStartEffect(
     val lifecycleStartStopEffectScope = remember(key1, key2, key3) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onStart` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, currentEffects)
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
 }
 
 /**
@@ -328,10 +319,7 @@ fun LifecycleStartEffect(
     val lifecycleStartStopEffectScope = remember(*keys) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onStart` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, currentEffects)
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
 }
 
 @Composable
@@ -452,10 +440,7 @@ fun LifecycleResumeEffect(
     val lifecycleResumePauseEffectScope = remember(key1) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onResume` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, currentEffects)
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
 }
 
 /**
@@ -516,10 +501,7 @@ fun LifecycleResumeEffect(
     val lifecycleResumePauseEffectScope = remember(key1, key2) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onResume` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, currentEffects)
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
 }
 
 /**
@@ -582,10 +564,7 @@ fun LifecycleResumeEffect(
     val lifecycleResumePauseEffectScope = remember(key1, key2, key3) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onResume` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, currentEffects)
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
 }
 
 /**
@@ -644,10 +623,7 @@ fun LifecycleResumeEffect(
     val lifecycleResumePauseEffectScope = remember(*keys) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
-
-    // Safely update the current `onResume` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, currentEffects)
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
 }
 
 @Composable
