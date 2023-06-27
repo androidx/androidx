@@ -16,7 +16,8 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import java.text.BreakIterator
+import androidx.compose.foundation.text.findFollowingBreak
+import androidx.compose.foundation.text.findPrecedingBreak
 
 /**
  * Applies a given [EditCommand] on this [EditingBuffer].
@@ -239,17 +240,3 @@ private fun EditingBuffer.applyCommitTextCommand(commitTextCommand: CommitTextCo
  */
 private fun isSurrogatePair(high: Char, low: Char): Boolean =
     high.isHighSurrogate() && low.isLowSurrogate()
-
-// TODO(halilibo): Remove when migrating back to foundation
-private fun String.findPrecedingBreak(index: Int): Int {
-    val it = BreakIterator.getCharacterInstance()
-    it.setText(this)
-    return it.preceding(index)
-}
-
-// TODO(halilibo): Remove when migrating back to foundation
-private fun String.findFollowingBreak(index: Int): Int {
-    val it = BreakIterator.getCharacterInstance()
-    it.setText(this)
-    return it.following(index)
-}

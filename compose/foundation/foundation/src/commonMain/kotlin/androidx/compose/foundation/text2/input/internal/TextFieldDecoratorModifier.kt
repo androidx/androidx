@@ -69,7 +69,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -436,8 +435,7 @@ internal class TextFieldDecoratorModifierNode(
 }
 
 /**
- * Creates a new platform-specific [PlatformTextInputMethodRequest] that will be passed to
- * [textInputSession].
+ * Runs platform-specific text input logic.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
