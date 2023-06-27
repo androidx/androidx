@@ -89,4 +89,21 @@ class ActivityEmbeddingControllerTest {
 
         verify(mockEmbeddingBackend).finishActivityStacks(activityStacks)
     }
+
+    @Test
+    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    fun testGetInstance() {
+        EmbeddingBackend.overrideDecorator(object : EmbeddingBackendDecorator {
+            override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =
+                mockEmbeddingBackend
+        })
+        val controller = ActivityEmbeddingController.getInstance(mockActivity)
+        val activityStacks: Set<ActivityStack> = mock()
+
+        controller.finishActivityStacks(activityStacks)
+
+        verify(mockEmbeddingBackend).finishActivityStacks(activityStacks)
+
+        EmbeddingBackend.reset()
+    }
 }
