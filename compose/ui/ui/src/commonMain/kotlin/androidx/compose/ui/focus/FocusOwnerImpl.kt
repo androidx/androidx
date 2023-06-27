@@ -57,6 +57,8 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
 
     private val focusInvalidationManager = FocusInvalidationManager(onRequestApplyChangesListener)
 
+    override val focusTransactionManager: FocusTransactionManager = FocusTransactionManager()
+
     /**
      * A [Modifier] that can be added to the [Owners][androidx.compose.ui.node.Owner] modifier
      * list that contains the modifiers required by the focus system. (Eg, a root focus modifier).
@@ -119,22 +121,24 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun clearFocus(force: Boolean, refreshFocusEvents: Boolean) {
-        // Don't clear focus if an item on the focused path has a custom exit specified.
-        if (!force) {
-            when (rootFocusNode.performCustomClearFocus(Exit)) {
-                Redirected, Cancelled, RedirectCancelled -> return
-                None -> { /* Do nothing. */ }
+        focusTransactionManager.withNewTransaction {
+            // Don't clear focus if an item on the focused path has a custom exit specified.
+            if (!force) {
+                when (rootFocusNode.performCustomClearFocus(Exit)) {
+                    Redirected, Cancelled, RedirectCancelled -> return
+                    None -> { /* Do nothing. */ }
+                }
             }
-        }
 
-        // If this hierarchy had focus before clearing it, it indicates that the host view has
-        // focus. So after clearing focus within the compose hierarchy, we should restore focus to
-        // the root focus modifier to maintain consistency with the host view.
-        val rootInitialState = rootFocusNode.focusState
-        if (rootFocusNode.clearFocus(force, refreshFocusEvents)) {
-            rootFocusNode.focusState = when (rootInitialState) {
-                Active, ActiveParent, Captured -> Active
-                Inactive -> Inactive
+            // If this hierarchy had focus before clearing it, it indicates that the host view has
+            // focus. So after clearing focus within the compose hierarchy, we should restore focus
+            // to the root focus modifier to maintain consistency with the host view.
+            val rootInitialState = rootFocusNode.focusState
+            if (rootFocusNode.clearFocus(force, refreshFocusEvents)) {
+                rootFocusNode.focusState = when (rootInitialState) {
+                    Active, ActiveParent, Captured -> Active
+                    Inactive -> Inactive
+                }
             }
         }
     }
@@ -166,10 +170,12 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
                 }
                 // If we found a potential next item, move focus to it.
                 // Returning true ends focus search.
-                when (destination.performCustomRequestFocus(focusDirection)) {
-                    Redirected -> true
-                    Cancelled, RedirectCancelled -> { isCancelled = true; true }
-                    None -> destination.performRequestFocus()
+                focusTransactionManager.withNewTransaction {
+                    when (destination.performCustomRequestFocus(focusDirection)) {
+                        Redirected -> true
+                        Cancelled, RedirectCancelled -> { isCancelled = true; true }
+                        None -> destination.performRequestFocus()
+                    }
                 }
             }
         // If we didn't find a potential next item, try to wrap around.

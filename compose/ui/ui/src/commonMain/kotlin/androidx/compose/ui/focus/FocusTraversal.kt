@@ -136,8 +136,8 @@ internal val FocusTargetNode.isEligibleForFocusSearch: Boolean
 internal val FocusTargetNode.activeChild: FocusTargetNode?
     get() {
         if (!node.isAttached) return null
-
         visitChildren(Nodes.FocusTarget) {
+            if (!it.node.isAttached) return@visitChildren
             when (it.focusState) {
                 Active, ActiveParent, Captured -> return it
                 Inactive -> return@visitChildren
