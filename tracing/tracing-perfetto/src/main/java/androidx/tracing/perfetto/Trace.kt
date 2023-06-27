@@ -18,7 +18,7 @@ package androidx.tracing.perfetto
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.tracing.perfetto.internal.handshake.protocol.EnableTracingResponse
+import androidx.tracing.perfetto.internal.handshake.protocol.Response
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
@@ -64,9 +64,9 @@ object Trace {
     internal fun enable(file: File, context: Context) = enable(file to context)
 
     @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
-    private fun enable(descriptor: Pair<File, Context>?): EnableTracingResponse {
+    private fun enable(descriptor: Pair<File, Context>?): Response {
         enableTracingLock.readLock().withLock {
-            if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
+            if (isEnabled) return Response(RESULT_CODE_ALREADY_ENABLED)
         }
 
         enableTracingLock.writeLock().withLock {
@@ -76,10 +76,10 @@ object Trace {
 
     /** Calling thread must obtain a write lock on [enableTracingLock] before calling this method */
     @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
-    private fun enableImpl(descriptor: Pair<File, Context>?): EnableTracingResponse {
+    private fun enableImpl(descriptor: Pair<File, Context>?): Response {
         if (!enableTracingLock.isWriteLockedByCurrentThread) throw RuntimeException()
 
-        if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
+        if (isEnabled) return Response(RESULT_CODE_ALREADY_ENABLED)
 
         // Load library
         try {
@@ -92,11 +92,11 @@ object Trace {
         } catch (t: Throwable) {
             return when (t) {
                 is IncorrectChecksumException ->
-                    EnableTracingResponse(RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR, t)
+                    Response(RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR, t)
                 is UnsatisfiedLinkError ->
-                    EnableTracingResponse(RESULT_CODE_ERROR_BINARY_MISSING, t)
+                    Response(RESULT_CODE_ERROR_BINARY_MISSING, t)
                 is Exception ->
-                    EnableTracingResponse(RESULT_CODE_ERROR_OTHER, t)
+                    Response(RESULT_CODE_ERROR_OTHER, t)
                 else -> throw t
             }
         }
@@ -105,7 +105,7 @@ object Trace {
         val nativeVersion = PerfettoNative.nativeVersion()
         val javaVersion = PerfettoNative.Metadata.version
         if (nativeVersion != javaVersion) {
-            return EnableTracingResponse(
+            return Response(
                 RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
                 "Binary and Java version mismatch. Binary: $nativeVersion. Java: $javaVersion"
             )
@@ -115,11 +115,11 @@ object Trace {
         try {
             PerfettoNative.nativeRegisterWithPerfetto()
         } catch (e: Exception) {
-            return EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
+            return Response(RESULT_CODE_ERROR_OTHER, e)
         }
 
         isEnabled = true
-        return EnableTracingResponse(RESULT_CODE_SUCCESS)
+        return Response(RESULT_CODE_SUCCESS)
     }
 
     /**
@@ -150,9 +150,9 @@ object Trace {
         javaClass.name + if (message != null) ": $message" else ""
     }
 
-    internal fun EnableTracingResponse(exitCode: Int, message: String? = null) =
-        EnableTracingResponse(exitCode, PerfettoNative.Metadata.version, message)
+    internal fun Response(exitCode: Int, message: String? = null) =
+        Response(exitCode, PerfettoNative.Metadata.version, message)
 
-    internal fun EnableTracingResponse(exitCode: Int, exception: Throwable) =
-        EnableTracingResponse(exitCode, errorMessage(exception))
+    internal fun Response(exitCode: Int, exception: Throwable) =
+        Response(exitCode, errorMessage(exception))
 }

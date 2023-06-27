@@ -91,8 +91,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
     @After
     fun tearDown() {
         // kill the process at the end of the test
-        scope.killProcess()
-        assertPackageAlive(false)
+        killProcess()
     }
 
     @Test
@@ -217,25 +216,50 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
         assumeTrue(testConfig.sdkDelivery == PROVIDED_BY_BENCHMARK)
 
-        // perform a handshake setting up cold start tracing
-        assertPackageAlive(false)
-        val handshake = constructPerfettoHandshake()
-        val libraryZip = resolvePerfettoAar()
-        val tmpDir = Outputs.dirUsableByAppAndShell
-        val mvTmpDst = createShellFileMover()
-        val librarySource = libraryZip?.let {
-            PerfettoSdkHandshake.LibrarySource(libraryZip, tmpDir, mvTmpDst)
+        for (persistent in listOf(false, true)) {
+            // perform a handshake setting up cold start tracing
+            killProcess()
+            assertPackageAlive(false)
+            val handshake = constructPerfettoHandshake()
+            val libraryZip = resolvePerfettoAar()
+            val tmpDir = Outputs.dirUsableByAppAndShell
+            val mvTmpDst = createShellFileMover()
+            val librarySource = libraryZip?.let {
+                PerfettoSdkHandshake.LibrarySource(libraryZip, tmpDir, mvTmpDst)
+            }
+
+            try {
+                val enableColdTracingResponse =
+                    handshake.enableTracingColdStart(librarySource, persistent)
+                assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+                assertPackageAlive(false)
+
+                // start the app
+                // verify that tracing was enabled at app startup (once)
+                enablePackage()
+                handshake.enableTracingImmediate().let {
+                    assertThat(it.exitCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
+                }
+
+                // verify that tracing was enabled at app startup (more than once)
+                killProcess()
+                enablePackage()
+                handshake.enableTracingImmediate(librarySource).let {
+                    assertThat(it.exitCode).isEqualTo(
+                        // in non-persistent mode, cold startup tracing should expire after one run
+                        when (persistent) {
+                            true -> RESULT_CODE_ALREADY_ENABLED
+                            else -> RESULT_CODE_SUCCESS
+                        }
+                    )
+                }
+            } finally {
+                // clean up
+                handshake.disableTracingColdStart().let {
+                    assertThat(it.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
+                }
+            }
         }
-        val enableColdTracingResponse = handshake.enableTracingColdStart(librarySource)
-        assertThat(enableColdTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
-        assertPackageAlive(false)
-
-        // start the app
-        enablePackage()
-
-        // verify that tracing was enabled at app startup
-        val enableWarmTracingResponse = handshake.enableTracingImmediate()
-        assertThat(enableWarmTracingResponse.exitCode).isEqualTo(RESULT_CODE_ALREADY_ENABLED)
     }
 
     // TODO(283953019): enable alongside StartupTracingInitializer (pending performance testing)
@@ -248,8 +272,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
 
         for (persistent in listOf(false, true)) {
             // perform a handshake setting up cold start tracing
-            scope.killProcess()
-            assertPackageAlive(false)
+            killProcess()
             val handshake = constructPerfettoHandshake()
             val libraryZip = resolvePerfettoAar()
             val tmpDir = Outputs.dirUsableByAppAndShell
@@ -275,6 +298,11 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             val enableWarmTracingResponse = handshake.enableTracingImmediate(librarySource)
             assertThat(enableWarmTracingResponse.exitCode).isEqualTo(RESULT_CODE_SUCCESS)
         }
+    }
+
+    private fun killProcess() {
+        scope.killProcess()
+        assertPackageAlive(false)
     }
 
     @Test
@@ -391,7 +419,12 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
                     }
                 }.toMap()
             },
-            executeShellCommand = Shell::executeScriptCaptureStdout
+            executeShellCommand = { cmd ->
+                val (stdout, stderr) = Shell.executeScriptCaptureStdoutStderr(cmd)
+                listOf(stdout, stderr).filter { it.isNotBlank() }.joinToString(
+                    separator = System.lineSeparator()
+                )
+            }
         )
 
     private fun resolvePerfettoAar(): File? = when (testConfig.sdkDelivery) {

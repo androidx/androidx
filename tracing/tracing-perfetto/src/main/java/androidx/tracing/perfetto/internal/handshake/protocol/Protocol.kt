@@ -136,23 +136,23 @@ internal object ResponseExitCodes {
     public const val RESULT_CODE_ALREADY_ENABLED: Int = 2
 
     /**
-     * Required version described in [EnableTracingResponse.requiredVersion].
+     * Required version described in [Response.requiredVersion].
      * A follow-up [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.enableTracingImmediate]
      * request expected with binaries to sideload specified.
      */
     public const val RESULT_CODE_ERROR_BINARY_MISSING: Int = 11
 
-    /** Required version described in [EnableTracingResponse.requiredVersion]. */
+    /** Required version described in [Response.requiredVersion]. */
     public const val RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH: Int = 12
 
     /**
      * Could be a result of a stale version of the binary cached locally.
      * Retrying with a freshly downloaded library likely to fix the issue.
-     * More specific information in [EnableTracingResponse.message]
+     * More specific information in [Response.message]
      */
     public const val RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR: Int = 13
 
-    /** More specific information in [EnableTracingResponse.message] */
+    /** More specific information in [Response.message] */
     public const val RESULT_CODE_ERROR_OTHER: Int = 99
 }
 
@@ -166,10 +166,10 @@ internal object ResponseExitCodes {
     ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
     ResponseExitCodes.RESULT_CODE_ERROR_OTHER
 )
-private annotation class EnableTracingResultCode
+private annotation class ResultCode
 
-internal class EnableTracingResponse @RestrictTo(LIBRARY_GROUP) constructor(
-    @EnableTracingResultCode public val exitCode: Int,
+internal class Response @RestrictTo(LIBRARY_GROUP) constructor(
+    @ResultCode public val exitCode: Int,
 
     /**
      * This can be `null` iff we cannot communicate with the broadcast receiver of the target
