@@ -19,10 +19,10 @@ package androidx.build
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
+import com.android.utils.forEach
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
-import groovy.util.Node
 import java.io.File
 import java.io.StringWriter
 import org.dom4j.Element
@@ -511,23 +511,42 @@ fun insertDefaultMultiplatformDependencies(
     xml: XmlProvider,
     platformId: String
 ) {
-    val groupId = xml.asElement().find { it.nodeName == "groupId" }?.textContent ?: return
-    val artifactId = xml.asElement().find { it.nodeName == "artifactId" }?.textContent ?: return
-    val version = xml.asElement().find { it.nodeName == "version" }?.textContent ?: return
+    val xmlElement = xml.asElement()
+    val groupId = xmlElement.find { it.nodeName == "groupId" }?.textContent
+        ?: throw IllegalArgumentException("Failed to locate groupId node")
+    val artifactId = xmlElement.find { it.nodeName == "artifactId" }?.textContent
+        ?: throw IllegalArgumentException("Failed to locate artifactId node")
+    val version = xmlElement.find { it.nodeName == "version" }?.textContent
+        ?: throw IllegalArgumentException("Failed to locate version node")
 
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node? ?: return
-
-    dependencies.appendNode("dependency").apply {
-        appendNode("groupId", groupId)
-        appendNode("artifactId", "$artifactId-$platformId")
-        appendNode("version", version)
-        appendNode("scope", "compile")
+    // Find the top-level <dependencies> element or add one if there are no other dependencies.
+    val dependencies = xmlElement.find {
+        it.nodeName == "dependencies"
+    } ?: xmlElement.appendElement("dependencies")
+    dependencies.appendElement("dependency").apply {
+        appendElement("groupId", groupId)
+        appendElement("artifactId", "$artifactId-$platformId")
+        appendElement("version", version)
+        appendElement("scope", "runtime")
     }
 }
 
-private fun org.w3c.dom.Element.find(predicate: (org.w3c.dom.Node) -> Boolean): org.w3c.dom.Node? {
+private fun org.w3c.dom.Node.appendElement(
+    tagName: String,
+    textValue: String? = null
+): org.w3c.dom.Element {
+    val element = ownerDocument.createElement(tagName)
+    appendChild(element)
+
+    if (textValue != null) {
+        val textNode = ownerDocument.createTextNode(textValue)
+        element.appendChild(textNode)
+    }
+
+    return element
+}
+
+private fun org.w3c.dom.Node.find(predicate: (org.w3c.dom.Node) -> Boolean): org.w3c.dom.Node? {
     val iterator = childrenIterator()
     while (iterator.hasNext()) {
         val node = iterator.next()
