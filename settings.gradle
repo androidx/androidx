@@ -324,6 +324,7 @@ filteredProjects.add(":lint-checks")
 @Field Pattern projectReferencePattern = Pattern.compile(
         "(project|projectOrArtifact)\\((path: )?[\"'](?<name>\\S*)[\"'](, configuration: .*)?\\)"
 )
+@Field Pattern testProjectTarget = Pattern.compile("targetProjectPath = \"(.*)\"")
 @Field Pattern multilineProjectReference = Pattern.compile("project\\(\$")
 @Field Pattern inspection = Pattern.compile("packageInspector\\(project, \"(.*)\"\\)")
 @Field Pattern composePlugin = Pattern.compile("id\\(\"AndroidXComposePlugin\"\\)")
@@ -371,6 +372,10 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
                 throw new IllegalStateException(
                         "Multi-line project() references are not supported. Please fix $file.absolutePath"
                 )
+            }
+            Matcher targetProject = testProjectTarget.matcher(line)
+            if (targetProject.find()) {
+                links.add(targetProject.group(1))
             }
             Matcher matcherInspection = inspection.matcher(line)
             if (matcherInspection) {
