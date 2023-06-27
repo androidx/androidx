@@ -19,6 +19,7 @@ package androidx.core.performance
 import android.os.Build.VERSION_CODES.R
 import androidx.core.performance.testing.FakeDevicePerformanceSupplier
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,5 +37,6 @@ class DevicePerformanceTest {
         val fake = FakeDevicePerformanceSupplier(30)
         val pc = DevicePerformance.create(fake)
         assertThat(pc.mediaPerformanceClass).isEqualTo(30)
+        assertThat(fake.mediaPerformanceClassFlow.toList()).containsExactly(30)
     }
 }
