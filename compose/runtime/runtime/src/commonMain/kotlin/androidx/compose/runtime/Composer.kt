@@ -1002,6 +1002,27 @@ sealed interface Composer {
     fun endProviders()
 
     /**
+     * A Compose internal function. DO NOT call directly.
+     *
+     * Provide the given value for the associated [CompositionLocal] key. This is the primitive
+     * function used to implement [CompositionLocalProvider].
+     *
+     * @param value a value to provider key pairs.
+     */
+    @InternalComposeApi
+    fun startProvider(value: ProvidedValue<*>)
+
+    /**
+     * A Compose internal function. DO NOT call directly.
+     *
+     * End the provider group.
+     *
+     * @see startProvider
+     */
+    @InternalComposeApi
+    fun endProvider()
+
+    /**
      * A tooling API function. DO NOT call directly.
      *
      * The data stored for the composition. This is used by Compose tools, such as the preview and
@@ -1961,6 +1982,54 @@ internal class ComposerImpl(
         updateSlot(currentProviders)
         endGroup()
         return providerScope
+    }
+
+    @InternalComposeApi
+    override fun startProvider(value: ProvidedValue<*>) {
+        val parentScope = currentCompositionLocalScope()
+        startGroup(providerKey, provider)
+        val state = invokeComposableForResult(this) {
+            @Suppress("UNCHECKED_CAST")
+            (value as ProvidedValue<Any?>).compositionLocal.provided(value.value)
+        }
+        startGroup(providerValuesKey)
+        val change = changed(state)
+        endGroup()
+        val providers: PersistentCompositionLocalMap
+        val invalid: Boolean
+        @Suppress("UNCHECKED_CAST")
+        val key = value.compositionLocal as CompositionLocal<Any?>
+        if (inserting) {
+            providers = parentScope.putValue(key, state)
+            invalid = false
+        } else {
+            val oldScope = reader.groupAux(reader.currentGroup) as PersistentCompositionLocalMap
+            providers =
+                if ((!skipping || change) && (value.canOverride || !parentScope.contains(key)))
+                    parentScope.putValue(key, state)
+                else oldScope
+            if (oldScope !== providers) {
+                invalid = true
+                writerHasAProvider = true
+            } else {
+                invalid = false
+            }
+        }
+        if (invalid && !inserting) {
+            providerUpdates[reader.currentGroup] = providers
+        }
+        providersInvalidStack.push(providersInvalid.asInt())
+        providersInvalid = invalid
+        providerCache = providers
+        start(compositionLocalMapKey, compositionLocalMap, GroupKind.Group, providers)
+    }
+
+    @InternalComposeApi
+    override fun endProvider() {
+        endGroup()
+        endGroup()
+        providersInvalid = providersInvalidStack.pop().asBool()
+        providerCache = null
     }
 
     @InternalComposeApi

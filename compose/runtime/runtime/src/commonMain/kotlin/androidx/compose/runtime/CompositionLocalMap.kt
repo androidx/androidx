@@ -57,6 +57,8 @@ internal interface PersistentCompositionLocalMap :
     PersistentMap<CompositionLocal<Any?>, State<Any?>>,
     CompositionLocalMap {
 
+    fun putValue(key: CompositionLocal<Any?>, value: State<Any?>): PersistentCompositionLocalMap
+
     // Override the builder APIs so that we can create new PersistentMaps that retain the type
     // information of PersistentCompositionLocalMap. If we use the built-in implementation, we'll
     // get back a PersistentMap<CompositionLocal<Any?>, State<Any?>> instead of a
