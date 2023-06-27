@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -296,6 +297,23 @@ class ChipSizeTest {
   @Test
   fun gives_base_chip_correct_height() =
     verifyHeight(ChipDefaults.Height)
+
+  @Test
+  fun chip_has_adjustable_height() {
+    val expectedMinHeight = ChipDefaults.Height + 1.dp
+    rule.setContentWithThemeForSizeAssertions {
+      Chip(
+        onClick = {},
+        colors = ChipDefaults.primaryChipColors(),
+        border = ChipDefaults.chipBorder()
+      ) {
+        Text(
+          text = "Chip text spanning over multiple lines of text " +
+              "to test height is adjustable. This should exceed the minimum height for the chip."
+        )
+      }
+    }.assertHeightIsAtLeast(expectedMinHeight)
+  }
 
   @Test
   fun has_icon_in_correct_location_when_only_single_line_of_text() {
