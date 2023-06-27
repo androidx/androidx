@@ -469,7 +469,7 @@ private fun tweakDependenciesMetadata(
         // For more context see:
         // https://android-review.googlesource.com/c/platform/frameworks/support/+/1144664/8/buildSrc/src/main/kotlin/androidx/build/MavenUploadHelper.kt#177
         assignSingleVersionDependenciesInGroupForPom(xml, mavenGroup)
-        assignAarTypes(xml, androidLibrariesSetProvider)
+        assignAarTypes(xml, androidLibrariesSetProvider.get())
         ensureConsistentJvmSuffix(xml)
 
         if (kmpAnchor && pomPlatform != null) {
@@ -480,29 +480,22 @@ private fun tweakDependenciesMetadata(
 
 // TODO(aurimas): remove this when Gradle bug is fixed.
 // https://github.com/gradle/gradle/issues/3170
-private fun assignAarTypes(
+fun assignAarTypes(
     xml: XmlProvider,
-    androidLibrariesSetProvider: Provider<Set<String>>
+    androidLibrariesSet: Set<String>
 ) {
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node?
+    val xmlElement = xml.asElement()
+    val dependencies = xmlElement.find {
+        it.nodeName == "dependencies"
+    } as? org.w3c.dom.Element
 
-    dependencies?.children()?.forEach { dep ->
-        if (dep !is Node) {
-            return@forEach
-        }
-        val groupId = dep.children().first {
-            it is Node && it.name().toString().endsWith("groupId")
-        } as Node
-        val artifactId = dep.children().first {
-            it is Node && it.name().toString().endsWith("artifactId")
-        } as Node
-        if (androidLibrariesSetProvider.get().contains(
-                "${groupId.children()[0] as String}:${artifactId.children()[0] as String}"
-            )
-        ) {
-            dep.appendNode("type", "aar")
+    dependencies?.getElementsByTagName("dependency")?.forEach { dependency ->
+        val groupId = dependency.find { it.nodeName == "groupId" }?.textContent
+            ?: throw IllegalArgumentException("Failed to locate groupId node")
+        val artifactId = dependency.find { it.nodeName == "artifactId" }?.textContent
+            ?: throw IllegalArgumentException("Failed to locate artifactId node")
+        if (androidLibrariesSet.contains("$groupId:$artifactId")) {
+            dependency.appendElement("type", "aar")
         }
     }
 }
@@ -546,7 +539,9 @@ private fun org.w3c.dom.Node.appendElement(
     return element
 }
 
-private fun org.w3c.dom.Node.find(predicate: (org.w3c.dom.Node) -> Boolean): org.w3c.dom.Node? {
+private fun org.w3c.dom.Node.find(
+    predicate: (org.w3c.dom.Node) -> Boolean
+): org.w3c.dom.Node? {
     val iterator = childrenIterator()
     while (iterator.hasNext()) {
         val node = iterator.next()
@@ -565,7 +560,7 @@ private fun org.w3c.dom.Node.find(predicate: (org.w3c.dom.Node) -> Boolean): org
  * Note: this is not enforced in Gradle nor in plain Maven (without the Enforcer plugin)
  * (https://github.com/gradle/gradle/issues/8297)
  */
-private fun assignSingleVersionDependenciesInGroupForPom(
+fun assignSingleVersionDependenciesInGroupForPom(
     xml: XmlProvider,
     mavenGroup: LibraryGroup
 ) {
@@ -573,29 +568,22 @@ private fun assignSingleVersionDependenciesInGroupForPom(
         return
     }
 
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node?
-    dependencies?.children()?.forEach { dep ->
-        if (dep !is Node) {
-            return@forEach
-        }
-        val groupId = dep.children().first {
-            it is Node && it.name().toString().endsWith("groupId")
-        } as Node
-        if (groupId.children()[0].toString() == mavenGroup.group) {
-            val versionNode = dep.children().first {
-                it is Node && it.name().toString().endsWith("version")
-            } as Node
-            val declaredVersion = versionNode.children()[0].toString()
-            if (isVersionRange(declaredVersion)) {
-                throw GradleException(
-                    "Unsupported version '$declaredVersion': " +
-                        "already is a version range"
-                )
+    val dependencies = xml.asElement().find {
+        it.nodeName == "dependencies"
+    } as? org.w3c.dom.Element ?: return
+
+    dependencies.getElementsByTagName("dependency").forEach { dependency ->
+        val groupId = dependency.find { it.nodeName == "groupId" }?.textContent
+            ?: throw IllegalArgumentException("Failed to locate groupId node")
+        if (groupId == mavenGroup.group) {
+            val versionNode = dependency.find { it.nodeName == "version" }
+                ?: throw IllegalArgumentException("Failed to locate version node")
+            val version = versionNode.textContent
+            if (isVersionRange(version)) {
+                throw GradleException("Unsupported version '$version': already is a version range")
             }
-            val pinnedVersion = "[$declaredVersion]"
-            versionNode.setValue(pinnedVersion)
+            val pinnedVersion = "[$version]"
+            versionNode.textContent = pinnedVersion
         }
     }
 }
@@ -612,27 +600,23 @@ private fun isVersionRange(text: String): Boolean {
  * Ensures that artifactIds are consistent when using configuration caching.
  * A workaround for https://github.com/gradle/gradle/issues/18369
  */
-private fun ensureConsistentJvmSuffix(
+fun ensureConsistentJvmSuffix(
     xml: XmlProvider
 ) {
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node?
-    dependencies?.children()?.forEach { dep ->
-        if (dep !is Node) {
-            return@forEach
-        }
-        val artifactIdNode = dep.children().first {
-            it is Node && it.name().toString().endsWith("artifactId")
-        } as Node
-        val artifactId = artifactIdNode.children()[0].toString()
+    val dependencies = xml.asElement().find {
+        it.nodeName == "dependencies"
+    } as? org.w3c.dom.Element ?: return
+
+    dependencies.getElementsByTagName("dependency").forEach { dependency ->
+        val artifactId = dependency.find { it.nodeName == "artifactId" }
+            ?: throw IllegalArgumentException("Failed to locate artifactId node")
         // kotlinx-coroutines-core is only a .pom and only depends on kotlinx-coroutines-core-jvm,
         // so the two artifacts should be approximately equivalent. However,
         // when loading from configuration cache, Gradle often returns a different resolution.
         // We replace it here to ensure consistency and predictability, and
         // to avoid having to rerun any zip tasks that include it
-        if (artifactId == "kotlinx-coroutines-core-jvm") {
-            artifactIdNode.setValue("kotlinx-coroutines-core")
+        if (artifactId.textContent == "kotlinx-coroutines-core-jvm") {
+            artifactId.textContent = "kotlinx-coroutines-core"
         }
     }
 }
