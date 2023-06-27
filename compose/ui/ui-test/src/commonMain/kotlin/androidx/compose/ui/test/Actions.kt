@@ -47,8 +47,9 @@ internal expect fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeIn
  *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
+@OptIn(ExperimentalTestApi::class)
 fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
-    return performClickImpl()
+    return this.invokeGlobalAssertions().performClickImpl()
 }
 
 /**
