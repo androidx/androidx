@@ -395,6 +395,7 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
         }
         projectReferences[name] = links
     }
+    // Remove file existence checking when https://github.com/gradle/gradle/issues/25531 is fixed.
     if (!file.exists()) {
         // This option is supported so that development/simplify_build_failure.sh can try
         // deleting entire projects at once to identify the cause of a build failure
