@@ -152,6 +152,7 @@ internal class TextFieldCoreModifierNode(
 
     // TODO: kdoc
     private var previousSelection: TextRange = TextRange.Zero
+    private var lastFollowing: Int = -1
     private var previousCursorRect: Rect = Rect.Zero
 
     /**
@@ -238,10 +239,12 @@ internal class TextFieldCoreModifierNode(
     ): MeasureResult {
         val currSelection = textFieldState.text.selectionInChars
         val offsetToFollow = when {
-            currSelection.start != previousSelection.start -> currSelection.start
             currSelection.end != previousSelection.end -> currSelection.end
+            currSelection.start != previousSelection.start -> currSelection.start
+            lastFollowing >= 0 -> lastFollowing
             else -> currSelection.min
         }
+        lastFollowing = offsetToFollow
         previousSelection = currSelection
 
         // remove any height constraints for TextField since it'll be able to scroll vertically.
@@ -272,13 +275,15 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val value = textFieldState.text
+        val currSelection = textFieldState.text.selectionInChars
         val offsetToFollow = when {
-            value.selectionInChars.start != previousSelection.start -> value.selectionInChars.start
-            value.selectionInChars.end != previousSelection.end -> value.selectionInChars.end
-            else -> value.selectionInChars.min
+            currSelection.end != previousSelection.end -> currSelection.end
+            currSelection.start != previousSelection.start -> currSelection.start
+            lastFollowing >= 0 -> lastFollowing
+            else -> currSelection.min
         }
-        previousSelection = value.selectionInChars
+        lastFollowing = offsetToFollow
+        previousSelection = currSelection
 
         // If the maxIntrinsicWidth of the children is already smaller than the constraint, pass
         // the original constraints so that the children has more information to determine its

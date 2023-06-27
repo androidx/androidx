@@ -19,6 +19,7 @@ package androidx.compose.foundation.demos.text2
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
+import androidx.compose.foundation.demos.text.loremIpsum
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -91,12 +92,13 @@ fun ScrollableDemos() {
 @Composable
 fun SingleLineHorizontalScrollableTextField() {
     val state = remember {
-        TextFieldState("When content gets long,this field should scroll horizontally")
+        TextFieldState(loremIpsum(wordCount = 100))
     }
     BasicTextField2(
         state = state,
         lineLimits = SingleLine,
-        textStyle = TextStyle(fontSize = 24.sp)
+        textStyle = TextStyle(fontSize = 24.sp),
+        modifier = Modifier.padding(horizontal = 32.dp)
     )
 }
 
@@ -118,12 +120,7 @@ fun SingleLineHorizontalScrollableTextFieldWithNewlines() {
 @Composable
 fun SingleLineVerticalScrollableTextField() {
     val state = remember {
-        TextFieldState(
-            buildString {
-                repeat(10) {
-                    appendLine("When content gets long, this field should scroll vertically")
-                }
-            })
+        TextFieldState("When content gets long, this field should scroll vertically\n".repeat(10))
     }
     BasicTextField2(
         state = state,
@@ -136,13 +133,7 @@ fun SingleLineVerticalScrollableTextField() {
 @Composable
 fun MultiLineVerticalScrollableTextField() {
     val state = remember {
-        TextFieldState(
-            buildString {
-                repeat(10) {
-                    appendLine("When content gets long, this field should scroll vertically")
-                }
-            }
-        )
+        TextFieldState(loremIpsum(wordCount = 200))
     }
     BasicTextField2(
         state = state,

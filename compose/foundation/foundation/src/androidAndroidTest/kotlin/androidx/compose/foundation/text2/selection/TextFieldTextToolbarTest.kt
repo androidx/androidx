@@ -91,9 +91,13 @@ class TextFieldTextToolbarTest {
         setupContent(state, textToolbar)
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
     }
 
     @Test
@@ -104,9 +108,13 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
     }
 
     @Test
@@ -117,7 +125,9 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
 
         state.edit {
             append(" World!")
@@ -137,7 +147,9 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
 
         rule.onNodeWithTag(TAG).performTextInput(" World!")
 
@@ -155,7 +167,10 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
 
         rule.onNodeWithTag(TAG).performKeyInput {
             pressKey(Key.W)
@@ -176,7 +191,9 @@ class TextFieldTextToolbarTest {
 
         with(rule.onNode(isSelectionHandle(Handle.Cursor))) {
             performClick()
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+            rule.runOnIdle {
+                assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+            }
             performTouchInput {
                 down(center)
                 moveBy(Offset(viewConfiguration.touchSlop, 0f))
@@ -380,10 +397,15 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
 
+        rule.mainClock.advanceTimeBy(1000) // to not cause double click
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -430,11 +452,12 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
 
         rule.runOnIdle {
-            focusRequester.requestFocus()
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
         }
+
+        focusRequester.requestFocus()
 
         rule.runOnIdle {
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
@@ -467,7 +490,10 @@ class TextFieldTextToolbarTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
 
         toggleState.value = false
 
