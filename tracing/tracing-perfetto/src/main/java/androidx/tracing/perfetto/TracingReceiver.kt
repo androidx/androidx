@@ -31,9 +31,9 @@ import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PATH
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PERSISTENT
 import androidx.tracing.perfetto.internal.handshake.protocol.Response
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseKeys
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
 import java.io.File
 import java.io.StringWriter
 import java.util.concurrent.LinkedBlockingQueue
@@ -80,7 +80,7 @@ class TracingReceiver : BroadcastReceiver() {
                     else -> throw IllegalStateException() // supported actions checked earlier
                 }
 
-                pendingResult.setResult(response.exitCode, response.toJsonString(), null)
+                pendingResult.setResult(response.resultCode, response.toJsonString(), null)
             } finally {
                 pendingResult.finish()
             }
@@ -128,7 +128,7 @@ class TracingReceiver : BroadcastReceiver() {
         srcPath: String?,
         isPersistent: Boolean
     ): Response = enableTracingImmediate(srcPath, context).also {
-        if (it.exitCode == RESULT_CODE_SUCCESS) {
+        if (it.resultCode == RESULT_CODE_SUCCESS) {
             val config = StartupTracingConfig(libFilePath = srcPath, isPersistent = isPersistent)
             if (context == null) return Response(
                 RESULT_CODE_ERROR_OTHER,
@@ -157,8 +157,8 @@ class TracingReceiver : BroadcastReceiver() {
         JsonWriter(output).use {
             it.beginObject()
 
-            it.name(ResponseKeys.KEY_EXIT_CODE)
-            it.value(exitCode)
+            it.name(ResponseKeys.KEY_RESULT_CODE)
+            it.value(resultCode)
 
             it.name(ResponseKeys.KEY_REQUIRED_VERSION)
             it.value(requiredVersion)

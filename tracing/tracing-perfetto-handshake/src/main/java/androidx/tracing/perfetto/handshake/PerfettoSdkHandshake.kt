@@ -23,10 +23,10 @@ import androidx.tracing.perfetto.handshake.protocol.RequestKeys.KEY_PATH
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.KEY_PERSISTENT
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.RECEIVER_CLASS_NAME
 import androidx.tracing.perfetto.handshake.protocol.Response
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes
-import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_EXIT_CODE
 import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_MESSAGE
 import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_REQUIRED_VERSION
+import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_RESULT_CODE
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes
 import java.io.File
 
 /**
@@ -105,7 +105,7 @@ public class PerfettoSdkHandshake(
             libPath,
             persistent = persistent
         )
-        if (response.exitCode == ResponseExitCodes.RESULT_CODE_SUCCESS) {
+        if (response.resultCode == ResponseResultCodes.RESULT_CODE_SUCCESS) {
             // terminate the app process (that we woke up by issuing a broadcast earlier)
             killAppProcess()
         }
@@ -158,7 +158,7 @@ public class PerfettoSdkHandshake(
             ?: throw PerfettoSdkHandshakeException("Cannot parse: $rawResponse")
 
         if (line == "Broadcast completed: result=0") return Response(
-            ResponseExitCodes.RESULT_CODE_CANCELLED, null, null
+            ResponseResultCodes.RESULT_CODE_CANCELLED, null, null
         )
 
         val matchResult =
@@ -185,8 +185,8 @@ public class PerfettoSdkHandshake(
 
         val dataMap = parseJsonMap(dataString)
         val response = Response(
-            dataMap[KEY_EXIT_CODE]?.toInt()
-                ?: throw PerfettoSdkHandshakeException("Response missing $KEY_EXIT_CODE value"),
+            dataMap[KEY_RESULT_CODE]?.toInt()
+                ?: throw PerfettoSdkHandshakeException("Response missing $KEY_RESULT_CODE value"),
             dataMap[KEY_REQUIRED_VERSION]
                 ?: throw PerfettoSdkHandshakeException(
                     "Response missing $KEY_REQUIRED_VERSION" +
@@ -195,9 +195,9 @@ public class PerfettoSdkHandshake(
             dataMap[KEY_MESSAGE]
         )
 
-        if (broadcastResponseCode != response.exitCode) {
+        if (broadcastResponseCode != response.resultCode) {
             throw PerfettoSdkHandshakeException(
-                "Cannot parse: $rawResponse. Exit code not matching broadcast exit code."
+                "Cannot parse: $rawResponse. Result code not matching broadcast result code."
             )
         }
 
@@ -208,7 +208,7 @@ public class PerfettoSdkHandshake(
     private fun safeExecute(block: () -> Response): Response = try {
         block()
     } catch (exception: Exception) {
-        Response(ResponseExitCodes.RESULT_CODE_ERROR_OTHER, null, exception.message)
+        Response(ResponseResultCodes.RESULT_CODE_ERROR_OTHER, null, exception.message)
     }
 
     private fun killAppProcess() {

@@ -40,7 +40,7 @@ internal object RequestKeys {
      * Request can include [KEY_PATH] as an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
-     * - [ResponseKeys.KEY_EXIT_CODE] (always)
+     * - [ResponseKeys.KEY_RESULT_CODE] (always)
      * - [ResponseKeys.KEY_REQUIRED_VERSION] (always)
      * - [ResponseKeys.KEY_MESSAGE] (optional)
      */
@@ -62,7 +62,7 @@ internal object RequestKeys {
      * Request can include [KEY_PERSISTENT] as an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
-     * - [ResponseKeys.KEY_EXIT_CODE] (always)
+     * - [ResponseKeys.KEY_RESULT_CODE] (always)
      * - [ResponseKeys.KEY_REQUIRED_VERSION] (always)
      * - [ResponseKeys.KEY_MESSAGE] (optional)
      */
@@ -86,7 +86,7 @@ internal object RequestKeys {
      * Request can include [KEY_PERSISTENT] as an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
-     * - [ResponseKeys.KEY_EXIT_CODE] (always)
+     * - [ResponseKeys.KEY_RESULT_CODE] (always)
      */
     public const val ACTION_DISABLE_TRACING_COLD_START: String =
         "androidx.tracing.perfetto.action.DISABLE_TRACING_COLD_START"
@@ -105,8 +105,13 @@ internal object RequestKeys {
 
 @RestrictTo(LIBRARY_GROUP)
 internal object ResponseKeys {
-    /** Exit code as listed in [ResponseExitCodes]. */
-    public const val KEY_EXIT_CODE: String = "exitCode"
+    /**
+     * Result code as listed in [ResponseResultCodes].
+     *
+     * Note: the value of the string ("exitCode") is kept unchanged to maintain backwards
+     * compatibility.
+     */
+    public const val KEY_RESULT_CODE: String = "exitCode"
 
     /**
      * Required version of the binaries. Java and binary library versions have to match to
@@ -121,7 +126,7 @@ internal object ResponseKeys {
     public const val KEY_MESSAGE: String = "message"
 }
 
-internal object ResponseExitCodes {
+internal object ResponseResultCodes {
     /**
      * Indicates that the broadcast resulted in `result=0`, which is an equivalent
      * of [android.app.Activity.RESULT_CANCELED].
@@ -158,24 +163,24 @@ internal object ResponseExitCodes {
 
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
-    ResponseExitCodes.RESULT_CODE_CANCELLED,
-    ResponseExitCodes.RESULT_CODE_SUCCESS,
-    ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED,
-    ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING,
-    ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
-    ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
-    ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+    ResponseResultCodes.RESULT_CODE_CANCELLED,
+    ResponseResultCodes.RESULT_CODE_SUCCESS,
+    ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED,
+    ResponseResultCodes.RESULT_CODE_ERROR_BINARY_MISSING,
+    ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
+    ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
+    ResponseResultCodes.RESULT_CODE_ERROR_OTHER
 )
 private annotation class ResultCode
 
 internal class Response @RestrictTo(LIBRARY_GROUP) constructor(
-    @ResultCode public val exitCode: Int,
+    @ResultCode public val resultCode: Int,
 
     /**
      * This can be `null` iff we cannot communicate with the broadcast receiver of the target
      * process (e.g. app does not offer Perfetto tracing) or if we cannot parse the response
      * from the receiver. In either case, tracing is unlikely to work under these circumstances,
-     * and more context on how to proceed can be found in [exitCode] or [message] properties.
+     * and more context on how to proceed can be found in [resultCode] or [message] properties.
      */
     public val requiredVersion: String?,
 
