@@ -1347,3 +1347,5 @@ Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl's kotlin\.Metadata: null
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
+WARN: Multiple sources exist for PlatformTextInputSession. Artifact ID metadata will not be displayed
+WARN: Multiple sources exist for PlatformTextInputMethodRequest. Artifact ID metadata will not be displayed

@@ -62,6 +62,7 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillCallback
@@ -137,9 +138,9 @@ import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.input.AndroidTextInputServicePlugin
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl
 import androidx.compose.ui.text.input.PlatformTextInputService
+import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -380,26 +381,33 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         _inputModeManager.inputMode = if (touchMode) Touch else Keyboard
     }
 
-    /**
-     * This is the root of the text input system's state. It currently holds the default
-     * [textInputService], but may be used to provide alternative text input systems. All text input
-     * methods this class implements from [View] should delegate to the active service.
-     */
-    override val platformTextInputPluginRegistry =
-        PlatformTextInputPluginRegistryImpl { factory, platformTextInput ->
-            factory.createAdapter(platformTextInput, view = this)
-        }
+    private val legacyTextInputServiceAndroid = TextInputServiceAndroid(view)
 
     /**
-     * The default text input service. The service is wired up through
-     * [platformTextInputPluginRegistry], this class only knows about it to support
-     * [LocalTextInputService].
+     * The legacy text input service. This is only used for new text input sessions if
+     * [textInputSessionMutex] is null.
      */
-    // We never call dispose() on the returned AdapterHandle because the adapter will live as long
-    // as this view, and this view also owns the registry, so they'll all be gc'd together.
-    override val textInputService = platformTextInputPluginRegistry.getOrCreateAdapter(
-        AndroidTextInputServicePlugin
-    ).adapter.service
+    override val textInputService
+        get() = TextInputService(
+            platformTextInputServiceInterceptor(
+                legacyTextInputServiceAndroid
+            )
+        )
+
+    private val textInputSessionMutex = SessionMutex<AndroidPlatformTextInputSession>()
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing = textInputSessionMutex.withSessionCancellingPrevious(
+        sessionInitializer = {
+            AndroidPlatformTextInputSession(
+                view = this,
+                textInputService = textInputService,
+                coroutineScope = it
+            )
+        },
+        session = session
+    )
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -1650,11 +1658,22 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         viewToWindowMatrix.invertTo(windowToViewMatrix)
     }
 
-    override fun onCheckIsTextEditor(): Boolean =
-        platformTextInputPluginRegistry.focusedAdapter != null
+    override fun onCheckIsTextEditor(): Boolean {
+        val parentSession = textInputSessionMutex.currentSession
+            ?: return legacyTextInputServiceAndroid.isEditorFocused()
+        // Don't bring this up before the ?: – textInputSession has been called, but
+        // startInputMethod has not, we're not a text editor until the session is cancelled or
+        // startInputMethod is called.
+        return parentSession.isReadyForConnection
+    }
 
-    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
-        platformTextInputPluginRegistry.focusedAdapter?.createInputConnection(outAttrs)
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
+        val parentSession = textInputSessionMutex.currentSession
+            ?: return legacyTextInputServiceAndroid.createInputConnection(outAttrs)
+        // Don't bring this up before the ?: - if this returns null, we SHOULD NOT fall back to
+        // the legacy input system.
+        return parentSession.createInputConnection(outAttrs)
+    }
 
     override fun calculateLocalPosition(positionInWindow: Offset): Offset {
         recalculateWindowPosition()

@@ -49,7 +49,10 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.PlatformTextInputModifierNode
+import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.textInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
@@ -63,12 +66,13 @@ import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -84,7 +88,6 @@ internal data class TextFieldDecoratorModifier(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textFieldSelectionState: TextFieldSelectionState,
-    private val textInputAdapter: AndroidTextInputAdapter?,
     private val filter: TextEditFilter?,
     private val enabled: Boolean,
     private val readOnly: Boolean,
@@ -96,7 +99,6 @@ internal data class TextFieldDecoratorModifier(
         textFieldState = textFieldState,
         textLayoutState = textLayoutState,
         textFieldSelectionState = textFieldSelectionState,
-        textInputAdapter = textInputAdapter,
         filter = filter,
         enabled = enabled,
         readOnly = readOnly,
@@ -110,7 +112,6 @@ internal data class TextFieldDecoratorModifier(
             textFieldState = textFieldState,
             textLayoutState = textLayoutState,
             textFieldSelectionState = textFieldSelectionState,
-            textInputAdapter = textInputAdapter,
             filter = filter,
             enabled = enabled,
             readOnly = readOnly,
@@ -131,7 +132,6 @@ internal class TextFieldDecoratorModifierNode(
     var textFieldState: TextFieldState,
     var textLayoutState: TextLayoutState,
     var textFieldSelectionState: TextFieldSelectionState,
-    var textInputAdapter: AndroidTextInputAdapter?,
     var filter: TextEditFilter?,
     var enabled: Boolean,
     var readOnly: Boolean,
@@ -139,6 +139,7 @@ internal class TextFieldDecoratorModifierNode(
     var keyboardActions: KeyboardActions,
     var singleLine: Boolean,
 ) : DelegatingNode(),
+    PlatformTextInputModifierNode,
     SemanticsModifierNode,
     FocusRequesterModifierNode,
     FocusEventModifierNode,
@@ -171,7 +172,6 @@ internal class TextFieldDecoratorModifierNode(
         private set
 
     private var isFocused: Boolean = false
-    private var textInputSession: TextInputSession? = null
 
     /**
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
@@ -230,7 +230,6 @@ internal class TextFieldDecoratorModifierNode(
         textFieldState: TextFieldState,
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
-        textInputAdapter: AndroidTextInputAdapter?,
         filter: TextEditFilter?,
         enabled: Boolean,
         readOnly: Boolean,
@@ -250,7 +249,6 @@ internal class TextFieldDecoratorModifierNode(
         this.textFieldState = textFieldState
         this.textLayoutState = textLayoutState
         this.textFieldSelectionState = textFieldSelectionState
-        this.textInputAdapter = textInputAdapter
         this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
@@ -372,9 +370,7 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onDetach() {
-        if (isFocused) {
-            disposeInputSession()
-        }
+        disposeInputSession()
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -410,19 +406,21 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     private fun startInputSession() {
-        textInputSession = textInputAdapter?.startInputSession(
-            textFieldState,
-            keyboardOptions.toImeOptions(singleLine),
-            filter,
-            onImeActionPerformed
-        )
+        inputSessionJob = coroutineScope.launch {
+            // This will automatically cancel the previous session, if any, so we don't need to
+            // cancel the inputSessionJob ourselves.
+            textInputSession {
+                // Re-start observing changes in case our TextFieldState instance changed.
+                launch(start = CoroutineStart.UNDISPATCHED) {
+                    textFieldSelectionState.observeChanges()
+                }
 
-        // Re-start observing changes in case our TextFieldState instance changed.
-        val previousInputSessionJob = inputSessionJob
-        inputSessionJob = coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            previousInputSessionJob?.cancelAndJoin()
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                textFieldSelectionState.observeChanges()
+                platformSpecificTextInputSession(
+                    textFieldState,
+                    keyboardOptions.toImeOptions(singleLine),
+                    filter = filter,
+                    onImeAction = onImeActionPerformed
+                )
             }
         }
     }
@@ -430,14 +428,24 @@ internal class TextFieldDecoratorModifierNode(
     private fun disposeInputSession() {
         inputSessionJob?.cancel()
         inputSessionJob = null
-        textInputSession?.dispose()
-        textInputSession = null
     }
 
     private fun requireKeyboardController(): SoftwareKeyboardController =
         currentValueOf(LocalSoftwareKeyboardController)
             ?: error("No software keyboard controller")
 }
+
+/**
+ * Creates a new platform-specific [PlatformTextInputMethodRequest] that will be passed to
+ * [textInputSession].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
+    state: TextFieldState,
+    imeOptions: ImeOptions,
+    filter: TextEditFilter?,
+    onImeAction: ((ImeAction) -> Unit)?
+): Nothing
 
 /**
  * Returns a [KeyboardOptions] that is merged with [defaults], with this object's values taking

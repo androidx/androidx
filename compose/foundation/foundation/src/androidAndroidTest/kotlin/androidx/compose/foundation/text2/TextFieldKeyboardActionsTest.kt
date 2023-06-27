@@ -30,7 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
+import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -91,7 +91,8 @@ class TextFieldKeyboardActionsTest {
     fun textField_performsImeAction_viaInputConnection() {
         var called = false
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {
@@ -116,7 +117,7 @@ class TextFieldKeyboardActionsTest {
     fun textField_performsUnexpectedImeAction_fromInputConnection() {
         var calledFor: ImeAction? = null
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {
@@ -272,7 +273,7 @@ class TextFieldKeyboardActionsTest {
     fun textField_performsGo_whenReceivedImeActionIsGo() {
         var called = false
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {
@@ -296,7 +297,7 @@ class TextFieldKeyboardActionsTest {
     fun textField_doesNotPerformGo_whenReceivedImeActionIsNotGo() {
         var called = false
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {

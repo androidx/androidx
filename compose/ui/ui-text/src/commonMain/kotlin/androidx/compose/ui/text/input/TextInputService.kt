@@ -19,6 +19,7 @@ package androidx.compose.ui.text.input
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AtomicReference
+import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 
 /**
@@ -67,6 +68,15 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     }
 
     /**
+    * Restart input and show the keyboard. This should only be called when starting a new
+    * `PlatformTextInputModifierNode.textInputSession`.
+    */
+    @InternalTextApi
+    fun startInput() {
+        platformTextInputService.startInput()
+    }
+
+    /**
      * Stop text input session.
      *
      * If the [session] is not the currently open session, no action will occur.
@@ -77,6 +87,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         if (_currentInputSession.compareAndSet(session, null)) {
             platformTextInputService.stopInput()
         }
+    }
+
+    @InternalTextApi
+    fun stopInput() {
+        platformTextInputService.stopInput()
     }
 
     /**
@@ -275,6 +290,14 @@ interface PlatformTextInputService {
         onEditCommand: (List<EditCommand>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
     )
+
+    /**
+     * Restart input and show the keyboard. This should only be called when starting a new
+     * `PlatformTextInputModifierNode.textInputSession`.
+     *
+     * @see TextInputService.startInput
+     */
+    fun startInput() {}
 
     /**
      * Stop text input session.

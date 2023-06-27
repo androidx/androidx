@@ -34,7 +34,7 @@ import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
+import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
@@ -99,7 +99,7 @@ internal class BasicTextField2Test {
 
     @After
     fun tearDown() {
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests(null)
+        setInputConnectionCreatedListenerForTests(null)
     }
 
     @Test
@@ -351,7 +351,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_passesKeyboardOptionsThrough() {
         var editorInfo: EditorInfo? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { info, _ ->
+        setInputConnectionCreatedListenerForTests { info, _ ->
             editorInfo = info
         }
         val state = TextFieldState()
@@ -382,7 +382,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toInputConnection() {
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         val state = TextFieldState()
@@ -448,7 +448,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toInputConnection_afterChanging() {
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
 
@@ -559,7 +559,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_changesAreTracked_whenInputConnectionCommits() {
         lateinit var inputConnection: InputConnection
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         val state = TextFieldState()
@@ -590,7 +590,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_changesAreTracked_whenInputConnectionComposes() {
         lateinit var inputConnection: InputConnection
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         val state = TextFieldState()
@@ -621,7 +621,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletes() {
         lateinit var inputConnection: InputConnection
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         val state = TextFieldState("hello")
@@ -658,7 +658,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletesViaComposition() {
         lateinit var inputConnection: InputConnection
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         val state = TextFieldState("hello")
@@ -771,7 +771,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_filterKeyboardOptions_sentToIme() {
         lateinit var editorInfo: EditorInfo
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+        setInputConnectionCreatedListenerForTests { ei, _ ->
             editorInfo = ei
         }
         val filter = KeyboardOptionsFilter(
@@ -799,7 +799,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_filterKeyboardOptions_mergedWithParams() {
         lateinit var editorInfo: EditorInfo
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+        setInputConnectionCreatedListenerForTests { ei, _ ->
             editorInfo = ei
         }
         val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
@@ -823,7 +823,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_filterKeyboardOptions_overriddenByParams() {
         lateinit var editorInfo: EditorInfo
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+        setInputConnectionCreatedListenerForTests { ei, _ ->
             editorInfo = ei
         }
         val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
@@ -845,7 +845,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_filterKeyboardOptions_applyWhenFilterChanged() {
         lateinit var editorInfo: EditorInfo
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+        setInputConnectionCreatedListenerForTests { ei, _ ->
             editorInfo = ei
         }
         var filter by mutableStateOf(
@@ -936,7 +936,10 @@ internal class BasicTextField2Test {
     fun swipingTextFieldInScrollableContainer_doesNotGainFocus() {
         val scrollState = ScrollState(0)
         rule.setContent {
-            Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+            Column(
+                Modifier
+                    .size(100.dp)
+                    .verticalScroll(scrollState)) {
                 BasicTextField2(
                     state = rememberTextFieldState(),
                     modifier = Modifier.testTag(Tag)
