@@ -16,8 +16,8 @@
 
 package androidx.build
 
-import androidx.build.dokka.kmpDocs.DokkaAnalysisPlatform
-import androidx.build.dokka.kmpDocs.docsPlatform
+import androidx.build.dackka.DokkaAnalysisPlatform
+import androidx.build.dackka.docsPlatform
 import com.android.build.gradle.LibraryExtension
 import com.google.gson.GsonBuilder
 import java.io.File

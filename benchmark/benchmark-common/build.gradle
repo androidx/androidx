@@ -99,5 +99,4 @@ tasks.withType(KotlinCompile).configureEach {
 afterEvaluate {
     tasks.named("compileReleaseKotlin").configure {it.dependsOn("generateDebugProtos")}
     tasks.named("compileDebugKotlin").configure {it.dependsOn("generateReleaseProtos")}
-    tasks.named("generateKmpDocs").configure {it.dependsOn("generateDebugProtos", "generateReleaseProtos")}
 }
