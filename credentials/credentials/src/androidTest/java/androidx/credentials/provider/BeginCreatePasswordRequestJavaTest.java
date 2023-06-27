@@ -58,6 +58,4 @@ public class BeginCreatePasswordRequestJavaTest {
         assertThat(request.getCallingAppInfo().getSigningInfo()).isEqualTo(expectedSigningInfo);
         TestUtilsKt.equals(request.getCandidateQueryData(), expectedCandidateQueryBundle);
     }
-
-    // TODO ("Add framework conversion, createFrom tests")
 }

@@ -59,5 +59,22 @@ class BeginCreatePasswordRequestTest {
         assertThat(request.callingAppInfo?.signingInfo).isEqualTo(expectedSigningInfo)
     }
 
-    // TODO ("Add framework conversion, createFrom tests")
+    @Test
+    fun constructor_createFrom_success() {
+        BeginCreatePasswordCredentialRequest.createFrom(
+            Bundle(),
+            CallingAppInfo(
+                "sample_package_name",
+                SigningInfo()
+            ),
+        )
+    }
+
+    @Test
+    fun constructor_createFrom_noCallingAppInfo_success() {
+        BeginCreatePasswordCredentialRequest.createFrom(
+            Bundle(),
+            null,
+        )
+    }
 }
