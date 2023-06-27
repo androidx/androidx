@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text2.input
 
-import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 
 /**
@@ -45,8 +44,8 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          * Default behavior on mobile devices. Reveals the last typed character for a short amount
          * of time.
          *
-         * Note; this feature also depends on a system setting called
-         * [Settings.System.TEXT_SHOW_PASSWORD]. If the system setting is disabled, this option
+         * Note; on Android this feature also depends on a system setting called
+         * `Settings.System.TEXT_SHOW_PASSWORD`. If the system setting is disabled, this option
          * behaves exactly as [Hidden].
          */
         val RevealLastTyped = TextObfuscationMode(1)
