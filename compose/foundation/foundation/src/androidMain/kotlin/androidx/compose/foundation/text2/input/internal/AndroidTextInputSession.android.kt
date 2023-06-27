@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class)
 
 package androidx.compose.foundation.text2.input.internal
 
@@ -87,8 +87,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
         startInputMethod { outAttrs ->
             logDebug { "createInputConnection(value=\"${state.text}\")" }
 
-            val textInputSession = object : EditableTextInputSession {
-                override val value: TextFieldCharSequence
+            val textInputSession = object : TextInputSession {
+                override val text: TextFieldCharSequence
                     get() = state.text
 
                 override fun requestEdits(editCommands: List<EditCommand>) {
@@ -99,23 +99,12 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                     composeImm.sendKeyEvent(keyEvent)
                 }
 
-                override val imeOptions: ImeOptions
-                    get() = imeOptions
-
                 override fun onImeAction(imeAction: ImeAction) {
                     onImeAction?.invoke(imeAction)
                 }
-
-                override val isOpen: Boolean
-                    get() = true
-
-                override fun dispose() {
-                    // noop
-                }
             }
-
-            outAttrs.update(state.text, textInputSession.imeOptions)
-            StatelessInputConnection { textInputSession }.also {
+            outAttrs.update(state.text, imeOptions)
+            StatelessInputConnection(textInputSession).also {
                 inputConnectionCreatedListener?.invoke(outAttrs, it)
             }
         }

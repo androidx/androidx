@@ -35,24 +35,19 @@ import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.getTextAfterSelection
 import androidx.compose.foundation.text2.input.getTextBeforeSelection
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 
 @VisibleForTesting
 internal const val SIC_DEBUG = false
 private const val TAG = "StatelessIC"
 private const val DEBUG_CLASS = "StatelessInputConnection"
 
-private val EmptyTextFieldValue = TextFieldValue()
-
 /**
- * An input connection that delegates its reads and writes to the active text input session in
- * [AndroidTextInputAdapter]. InputConnections are requested and used by framework to create bridge
- * from IME to an active editor.
+ * An input connection that delegates its reads and writes to the active text input session.
+ * InputConnections are requested and used by framework to create bridge from IME to an active
+ * editor.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class StatelessInputConnection(
-    private val activeSessionProvider: () -> EditableTextInputSession?
-) : InputConnection {
+internal class StatelessInputConnection(private val session: TextInputSession) : InputConnection {
     /**
      * The depth of the batch session. 0 means no session.
      *
@@ -64,18 +59,11 @@ internal class StatelessInputConnection(
     private var batchDepth: Int = 0
 
     /**
-     * The input state from the currently active [TextInputSession] in
-     * [AndroidTextInputAdapter]. Returns null if there is no active session.
+     * The input state from the currently active [TextInputSession].
+     * Returns empty TextFieldValue if there is no active session.
      */
-    private val valueOrNull: TextFieldCharSequence?
-        get() = activeSessionProvider()?.value
-
-    /**
-     * The input state from the currently active [TextInputSession] in
-     * [AndroidTextInputAdapter]. Returns empty TextFieldValue if there is no active session.
-     */
-    private val value: TextFieldCharSequence
-        get() = valueOrNull ?: TextFieldCharSequence()
+    private val text: TextFieldCharSequence
+        get() = session.text
 
     /**
      * Recording of editing operations for batch editing
@@ -93,7 +81,7 @@ internal class StatelessInputConnection(
      * it is active.
      */
     private inline fun ensureActive(block: () -> Unit): Boolean {
-        val combinedActive = isICActive && activeSessionProvider() != null
+        val combinedActive = isICActive
         return combinedActive.also {
             if (it) {
                 block()
@@ -137,7 +125,7 @@ internal class StatelessInputConnection(
         batchDepth--
         if (batchDepth == 0 && editCommands.isNotEmpty()) {
             // apply the changes to active input session.
-            activeSessionProvider()?.requestEdits(editCommands.toMutableList())
+            session.requestEdits(editCommands.toMutableList())
             editCommands.clear()
         }
         return batchDepth > 0
@@ -200,7 +188,7 @@ internal class StatelessInputConnection(
 
     override fun sendKeyEvent(event: KeyEvent): Boolean = ensureActive {
         logDebug("sendKeyEvent($event)")
-        activeSessionProvider()?.sendKeyEvent(event)
+        session.sendKeyEvent(event)
         return true
     }
 
@@ -210,25 +198,25 @@ internal class StatelessInputConnection(
 
     override fun getTextBeforeCursor(maxChars: Int, flags: Int): CharSequence {
         // TODO(b/135556699) should return styled text
-        val result = value.getTextBeforeSelection(maxChars).toString()
+        val result = text.getTextBeforeSelection(maxChars).toString()
         logDebug("getTextBeforeCursor($maxChars, $flags): $result")
         return result
     }
 
     override fun getTextAfterCursor(maxChars: Int, flags: Int): CharSequence {
         // TODO(b/135556699) should return styled text
-        val result = value.getTextAfterSelection(maxChars).toString()
+        val result = text.getTextAfterSelection(maxChars).toString()
         logDebug("getTextAfterCursor($maxChars, $flags): $result")
         return result
     }
 
     override fun getSelectedText(flags: Int): CharSequence? {
         // https://source.chromium.org/chromium/chromium/src/+/master:content/public/android/java/src/org/chromium/content/browser/input/TextInputState.java;l=56;drc=0e20d1eb38227949805a4c0e9d5cdeddc8d23637
-        val result: CharSequence? = if (value.selectionInChars.collapsed) {
+        val result: CharSequence? = if (text.selectionInChars.collapsed) {
             null
         } else {
             // TODO(b/135556699) should return styled text
-            value.getSelectedText().toString()
+            text.getSelectedText().toString()
         }
         logDebug("getSelectedText($flags): $result")
         return result
@@ -247,12 +235,12 @@ internal class StatelessInputConnection(
 //        }
         // TODO(halilibo): Implement extracted text monitor
         // TODO(b/135556699) should return styled text
-        return value.toExtractedText()
+        return text.toExtractedText()
     }
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         logDebug("getCursorCapsMode($reqModes)")
-        return TextUtils.getCapsMode(value, value.selectionInChars.min, reqModes)
+        return TextUtils.getCapsMode(text, text.selectionInChars.min, reqModes)
     }
 
     // endregion
@@ -263,7 +251,7 @@ internal class StatelessInputConnection(
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch(SetSelectionCommand(0, value.length))
+                addEditCommandWithBatch(SetSelectionCommand(0, text.length))
             }
             // TODO(siyamed): Need proper connection to cut/copy/paste
             android.R.id.cut -> sendSynthesizedKeyEvent(KeyEvent.KEYCODE_CUT)
@@ -302,7 +290,7 @@ internal class StatelessInputConnection(
             }
         }
 
-        activeSessionProvider()?.onImeAction(imeAction)
+        session.onImeAction(imeAction)
         return true
     }
 
@@ -367,7 +355,7 @@ internal class StatelessInputConnection(
 
     private fun logDebug(message: String) {
         if (SIC_DEBUG) {
-            Log.d(TAG, "$DEBUG_CLASS.$message, $isICActive, ${activeSessionProvider() != null}")
+            Log.d(TAG, "$DEBUG_CLASS.$message, $isICActive")
         }
     }
 }
