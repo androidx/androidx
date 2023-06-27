@@ -28,7 +28,7 @@ class BluetoothAddressTest {
     companion object {
         // TODO(kihongs) Change to actual public address if possible
         private const val TEST_ADDRESS_PUBLIC = "00:43:A8:23:10:F0"
-        private const val TEST_ADDRESS_RANDOM = "F0:43:A8:23:10:00"
+        private const val TEST_ADDRESS_RANDOM_STATIC = "F0:43:A8:23:10:11"
         private const val TEST_ADDRESS_UNKNOWN = "F0:43:A8:23:10:12"
     }
 
@@ -43,12 +43,12 @@ class BluetoothAddressTest {
     }
 
     @Test
-    fun constructorWithAddressTypeRandom() {
-        val addressType = AddressType.ADDRESS_TYPE_RANDOM
+    fun constructorWithAddressTypeRandomStatic() {
+        val addressType = AddressType.ADDRESS_TYPE_RANDOM_STATIC
 
-        val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_RANDOM, addressType)
+        val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_RANDOM_STATIC, addressType)
 
-        assertEquals(TEST_ADDRESS_RANDOM, bluetoothAddress.address)
+        assertEquals(TEST_ADDRESS_RANDOM_STATIC, bluetoothAddress.address)
         assertEquals(addressType, bluetoothAddress.addressType)
     }
 

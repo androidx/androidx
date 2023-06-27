@@ -27,18 +27,26 @@ import androidx.annotation.RestrictTo
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
     AddressType.ADDRESS_TYPE_PUBLIC,
-    AddressType.ADDRESS_TYPE_RANDOM,
+    AddressType.ADDRESS_TYPE_RANDOM_STATIC,
+    AddressType.ADDRESS_TYPE_RANDOM_RESOLVABLE,
+    AddressType.ADDRESS_TYPE_RANDOM_NON_RESOLVABLE,
     AddressType.ADDRESS_TYPE_UNKNOWN
 )
-public annotation class AddressType {
+annotation class AddressType {
     companion object {
-        /* Address type is public and registered with the IEEE. */
-        public const val ADDRESS_TYPE_PUBLIC: Int = BluetoothDevice.ADDRESS_TYPE_PUBLIC
+        /** Address type is public and registered with the IEEE. */
+        const val ADDRESS_TYPE_PUBLIC: Int = BluetoothDevice.ADDRESS_TYPE_PUBLIC
 
-        /* Address type is random. */
-        public const val ADDRESS_TYPE_RANDOM: Int = BluetoothDevice.ADDRESS_TYPE_RANDOM
+        /** Address type is random static. */
+        const val ADDRESS_TYPE_RANDOM_STATIC: Int = 1
 
-        /* Address type is unknown. */
-        public const val ADDRESS_TYPE_UNKNOWN: Int = BluetoothDevice.ADDRESS_TYPE_UNKNOWN
+        /** Address type is random resolvable. */
+        const val ADDRESS_TYPE_RANDOM_RESOLVABLE: Int = 2
+
+        /** Address type is random non resolvable. */
+        const val ADDRESS_TYPE_RANDOM_NON_RESOLVABLE: Int = 3
+
+        /** Address type is unknown. */
+        const val ADDRESS_TYPE_UNKNOWN: Int = BluetoothDevice.ADDRESS_TYPE_UNKNOWN
     }
 }

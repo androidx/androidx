@@ -31,8 +31,10 @@ class BluetoothAddress(val address: String, var addressType: Int) {
             throw IllegalArgumentException("$address is not a valid Bluetooth address")
         }
 
-        if (addressType != AddressType.ADDRESS_TYPE_PUBLIC && addressType !=
-            AddressType.ADDRESS_TYPE_RANDOM) {
+        if (addressType != AddressType.ADDRESS_TYPE_PUBLIC &&
+            addressType != AddressType.ADDRESS_TYPE_RANDOM_STATIC &&
+            addressType != AddressType.ADDRESS_TYPE_RANDOM_RESOLVABLE &&
+            addressType != AddressType.ADDRESS_TYPE_RANDOM_NON_RESOLVABLE) {
             addressType = AddressType.ADDRESS_TYPE_UNKNOWN
         }
     }
