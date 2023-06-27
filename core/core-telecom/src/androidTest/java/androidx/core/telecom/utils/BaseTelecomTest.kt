@@ -140,12 +140,15 @@ abstract class BaseTelecomTest {
     suspend fun assertWithinTimeout_addCall(
         deferred: CompletableDeferred<Unit>,
         attributes: CallAttributesCompat,
+        setCallback: Boolean = true,
         assertBlock: CallControlScope.() -> (Unit)
     ) {
         try {
             withTimeout(TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT) {
                 mCallsManager.addCall(attributes) {
-                    setCallback(TestUtils.mCallControlCallbacksImpl)
+                    if (setCallback) {
+                        setCallback(TestUtils.mCallControlCallbacksImpl)
+                    }
                     assertBlock()
                 }
                 Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: execution <PAUSED>")

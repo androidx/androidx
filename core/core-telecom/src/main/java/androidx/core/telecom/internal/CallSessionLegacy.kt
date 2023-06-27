@@ -361,6 +361,8 @@ internal class CallSessionLegacy(
 
         private fun verifySessionCallbacks() {
             if (!session.hasClientSetCallbacks()) {
+                // Always send disconnect signal so that we don't end up with stuck calls.
+                session.setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
                 throw CallException(CallException.ERROR_CALLBACKS_CODE)
             }
         }
