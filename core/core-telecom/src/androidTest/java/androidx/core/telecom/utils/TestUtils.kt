@@ -65,7 +65,17 @@ object TestUtils {
     val OUTGOING_CALL_ATTRIBUTES = CallAttributesCompat(
         OUTGOING_NAME,
         TEST_PHONE_NUMBER_8985,
-        CallAttributesCompat.DIRECTION_OUTGOING
+        CallAttributesCompat.DIRECTION_OUTGOING,
+        CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+        ALL_CALL_CAPABILITIES
+    )
+
+    val OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES = CallAttributesCompat(
+        OUTGOING_NAME,
+        TEST_PHONE_NUMBER_8985,
+        CallAttributesCompat.DIRECTION_OUTGOING,
+        CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+        CallAttributesCompat.SUPPORTS_STREAM
     )
 
     // Define all possible properties for CallAttributes
