@@ -18,6 +18,7 @@ package androidx.core.telecom
 
 import android.os.Build.VERSION_CODES
 import android.telecom.Call
+import android.telecom.CallAttributes
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.Utils
@@ -26,6 +27,7 @@ import androidx.core.telecom.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -86,6 +88,54 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     fun testRejectCallControlCallbackAnswerCall() {
         setUpV2Test()
         verifyRejectAnswerCall(Call.STATE_ACTIVE)
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onSetInactive, that we disregard the
+     * request to hold the call. The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackHoldCall() {
+        setUpV2Test()
+        verifyRejectHoldCall()
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onSetActive, that we disregard the
+     * request to unhold the call. The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackUnholdCall() {
+        setUpV2Test()
+        verifyRejectUnholdCall()
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onDisconnect, that the call is still
+     * disconnected. The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackDisconnectCall() {
+        setUpV2Test()
+        verifyRejectDisconnectCall(true)
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onDisconnect, that the call is still
+     * disconnected via Call.reject. The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackRejectCall() {
+        setUpV2Test()
+        verifyRejectDisconnectCall(false)
     }
 
     /**
@@ -158,6 +208,58 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     fun testRejectCallControlCallbackAnswerCall_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyRejectAnswerCall(Call.STATE_DISCONNECTED)
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onSetInactive, that we disregard the
+     * request to hold the call. The call should use the *[android.telecom.ConnectionService] and
+     * [android.telecom.Connection] APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackHoldCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyRejectHoldCall()
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onSetActive, that we disregard the
+     * request to unhold the call. The call should use the *[android.telecom.ConnectionService] and
+     * [android.telecom.Connection] APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackUnholdCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyRejectUnholdCall()
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onDisconnect, that we still
+     * disconnect the call. The call should use the *[android.telecom.ConnectionService] and
+     * [android.telecom.Connection] APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackDisconnectCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyRejectDisconnectCall(true)
+    }
+
+    /**
+     * assert that when a client rejects a CallControlCallback.onDisconnect via call.reject, that we
+     * still disconnect the call via Call.reject. The call should use the
+     * *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testRejectCallControlCallbackRejectCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyRejectDisconnectCall(false)
     }
 
     /**
@@ -238,6 +340,8 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     // Disconnect the call and ensure the disconnect callback is received:
                     call!!.disconnect()
                     TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                    // always send the disconnect signal if possible
+                    disconnect(DisconnectCause(DisconnectCause.LOCAL))
                 }
             }
         }
@@ -312,10 +416,94 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     TestUtils.waitOnCallState(call, callState)
                     // Ensure that call is automatically disconnected.
                     TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                    // always send the disconnect signal if possible
+                    disconnect(DisconnectCause(DisconnectCause.LOCAL))
                 }
             }
         }
         // Assert that the correct callback was invoked
         assertTrue(TestUtils.mOnAnswerCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyRejectHoldCall() {
+        assertFalse(TestUtils.mOnSetInactiveCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCallControlCallbacksImpl)
+                TestUtils.mCompleteOnSetInactive = false
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    answer(CallAttributes.AUDIO_CALL)
+                    TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                    call.hold()
+                    delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
+                    // Request to hold call should be disregarded
+                    assertTrue(call.state == Call.STATE_ACTIVE)
+                    // always send the disconnect signal if possible
+                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnSetInactiveCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyRejectUnholdCall() {
+        assertFalse(TestUtils.mOnSetActiveCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCallControlCallbacksImpl)
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    answer(CallAttributes.AUDIO_CALL) // API under test
+                    TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                    // Fail #onSetActive after call has successfully moved to the active state
+                    TestUtils.mCompleteOnSetActive = false
+                    setInactive()
+                    TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
+                    call.unhold()
+                    delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
+                    // Request to unhold call should be disregarded
+                    assertTrue(call.state == Call.STATE_HOLDING)
+                    // always send the disconnect signal if possible
+                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnSetActiveCallbackCalled)
+    }
+
+    @Suppress("deprecation")
+    private fun verifyRejectDisconnectCall(invokeDisconnect: Boolean) {
+        assertFalse(TestUtils.mOnDisconnectCallbackCalled)
+        runBlocking {
+            mCallsManager.addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCallControlCallbacksImpl)
+                TestUtils.mCompleteOnDisconnect = false
+                launch {
+                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                    assertNotNull("The returned Call object is <NULL>", call)
+                    if (invokeDisconnect) {
+                        answer(CallAttributes.AUDIO_CALL) // API under test
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                        call.disconnect()
+                    } else {
+                        call!!.reject(true, "REJECT_REASON_DECLINED")
+                    }
+                    delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
+                    // Rejecting the onDisconnect callback should still result in a disconnect.
+                    TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                    // always send the disconnect signal if possible
+                    disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                }
+            }
+        }
+        // Assert that the correct callback was invoked
+        assertTrue(TestUtils.mOnDisconnectCallbackCalled)
     }
 }
