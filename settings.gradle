@@ -1213,7 +1213,6 @@ if (isAllProjects()) {
     includeProject(":docs-public")
 }
 
-includeProject(":docs-kmp", [BuildType.KMP, BuildType.INFRAROGUE])
 // placeholder test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":placeholder-tests")

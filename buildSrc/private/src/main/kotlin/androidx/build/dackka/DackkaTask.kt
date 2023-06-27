@@ -17,9 +17,6 @@
 package androidx.build.dackka
 
 import androidx.build.docs.ProjectStructureMetadata
-import androidx.build.dokka.kmpDocs.DokkaAnalysisPlatform
-import androidx.build.dokka.kmpDocs.DokkaInputModels
-import androidx.build.dokka.kmpDocs.DokkaUtils
 import com.google.gson.GsonBuilder
 import java.io.File
 import javax.inject.Inject

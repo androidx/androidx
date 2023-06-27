@@ -25,7 +25,6 @@ import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
 import androidx.build.dependencies.KOTLIN_VERSION
-import androidx.build.docs.AndroidXKmpDocsImplPlugin
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.configurePublicResourcesStub
@@ -342,8 +341,6 @@ class AndroidXImplPlugin @Inject constructor(
                 }
             }
         }
-        // setup a partial docs artifact that can be used to generate offline docs, if requested.
-        AndroidXKmpDocsImplPlugin.setupPartialDocsArtifact(project)
         if (plugin is KotlinMultiplatformPluginWrapper) {
             project.configureKonanDirectory()
             project.extensions.findByType<LibraryExtension>()?.apply {
