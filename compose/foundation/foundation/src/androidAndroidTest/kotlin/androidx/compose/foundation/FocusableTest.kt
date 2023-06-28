@@ -53,7 +53,6 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
@@ -62,7 +61,7 @@ import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isNotFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -442,7 +441,7 @@ class FocusableTest {
             }
         }
         rule.runOnIdle { coroutineScope.launch { state.scrollToItem(19) } }
-        rule.onNodeWithTag("19").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("19").requestFocus()
 
         // Act.
         rule.runOnIdle { items = (1..11).toList() }
@@ -480,7 +479,7 @@ class FocusableTest {
                 }
             }
         }
-        rule.onNodeWithTag("0").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("0").requestFocus()
 
         // Act.
         rule.runOnIdle { itemVisible = false }

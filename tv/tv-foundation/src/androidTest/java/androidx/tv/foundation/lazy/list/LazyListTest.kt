@@ -69,6 +69,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -1502,7 +1503,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
-        rule.onNodeWithTag("2").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag("2").requestFocus()
         rule.keyPress(2)
 
         rule.onNodeWithTag("1").assertIsDisplayed()
