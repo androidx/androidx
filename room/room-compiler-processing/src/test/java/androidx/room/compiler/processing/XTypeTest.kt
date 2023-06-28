@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName.Companion.ANY_OBJECT
 import androidx.room.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
@@ -36,8 +38,6 @@ import androidx.room.compiler.processing.util.javaElementUtils
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName

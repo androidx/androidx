@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticKspProcessor
@@ -28,7 +29,7 @@ import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.compiler.steps.KaptCompilationStep
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
@@ -143,7 +144,8 @@ class TestRunnerTest {
             "c" to "d"
         )
         val handler: (XTestInvocation) -> Unit = {
-            assertThat(it.processingEnv.options).containsAtLeastEntriesIn(testOptions)
+            // Kruth MapSubject doesn't support containsAtLeastEntriesIn yet
+            Truth.assertThat(it.processingEnv.options).containsAtLeastEntriesIn(testOptions)
         }
         runJavaProcessorTest(
             sources = emptyList(),
@@ -423,7 +425,7 @@ class TestRunnerTest {
             "org.jetbrains.kotlin.kapt3",
             listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
         ).let { options ->
-            assertThat(options).containsExactly("correctErrorTypes", "true")
+            assertThat(options).containsExactly("correctErrorTypes" to "true")
         }
 
         // zero args
@@ -439,7 +441,7 @@ class TestRunnerTest {
             "org.jetbrains.kotlin.kapt3",
             listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true", "-verbose")
         ).let { options ->
-            assertThat(options).containsExactly("correctErrorTypes", "true")
+            assertThat(options).containsExactly("correctErrorTypes" to "true")
         }
 
         // illegal format (missing "=")
@@ -474,8 +476,8 @@ class TestRunnerTest {
             )
         ).let { options ->
             assertThat(options).containsExactly(
-                "correctErrorTypes", "true",
-                "sources", "build/kapt/sources"
+                "correctErrorTypes" to "true",
+                "sources" to "build/kapt/sources"
             )
         }
     }

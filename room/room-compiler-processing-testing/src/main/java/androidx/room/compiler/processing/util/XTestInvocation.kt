@@ -16,10 +16,10 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
-import com.google.common.truth.Truth
 import kotlin.reflect.KClass
 
 /**
@@ -100,7 +100,7 @@ class XTestInvocation(
     }
 
     private fun assertNotDisposed() {
-        Truth.assertWithMessage("Cannot use a test invocation after it is disposed.")
+        assertWithMessage("Cannot use a test invocation after it is disposed.")
             .that(disposed)
             .isFalse()
     }

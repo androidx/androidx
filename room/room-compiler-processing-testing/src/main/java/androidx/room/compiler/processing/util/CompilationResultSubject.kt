@@ -16,18 +16,16 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.FailureMetadata
+import androidx.kruth.StringSubject
+import androidx.kruth.Subject
+import androidx.kruth.assertAbout
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
-import com.google.common.truth.Fact.fact
-import com.google.common.truth.Fact.simpleFact
-import com.google.common.truth.FailureMetadata
-import com.google.common.truth.StringSubject
-import com.google.common.truth.Subject
-import com.google.common.truth.Subject.Factory
-import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
 import java.util.regex.Pattern
 import javax.tools.Diagnostic
@@ -126,8 +124,9 @@ abstract class CompilationResult internal constructor(
 class CompilationResultSubject internal constructor(
     failureMetadata: FailureMetadata,
     val compilationResult: CompilationResult,
-) : Subject<CompilationResultSubject, CompilationResult>(
-    failureMetadata, compilationResult
+) : Subject<CompilationResult>(
+    actual = compilationResult,
+    metadata = failureMetadata,
 ) {
     /**
      * set to true if any assertion on the subject requires it to fail (e.g. looking for errors)
@@ -150,9 +149,7 @@ class CompilationResultSubject internal constructor(
     fun hasRawOutputContaining(expected: String) = apply {
         val found = compilationResult.rawOutput().contains(expected)
         if (!found) {
-            failWithActual(
-                simpleFact("Did not find $expected in the output.")
-            )
+            failWithActual("Did not find $expected in the output.")
         }
     }
 
@@ -174,9 +171,7 @@ class CompilationResultSubject internal constructor(
     private fun hasDiagnosticCount(kind: Diagnostic.Kind, expected: Int) = apply {
         val actual = compilationResult.diagnosticsOfKind(kind).size
         if (actual != expected) {
-            failWithActual(
-                simpleFact("expected $expected $kind messages, found $actual")
-            )
+            failWithActual("expected $expected $kind messages, found $actual")
         }
     }
     /**
@@ -331,9 +326,7 @@ class CompilationResultSubject internal constructor(
     fun hasError() = apply {
         shouldSucceed = false
         if (compilationResult.diagnosticsOfKind(Diagnostic.Kind.ERROR).isEmpty()) {
-            failWithActual(
-                simpleFact("expected at least one failure message")
-            )
+            failWithActual("expected at least one failure message")
         }
     }
 
@@ -344,12 +337,9 @@ class CompilationResultSubject internal constructor(
      */
     fun generatedSourceFileWithPath(relativePath: String): StringSubject {
         val match = findGeneratedSource(relativePath)
-        if (match == null) {
-            failWithActual(
-                simpleFact("Didn't generate file with path: $relativePath")
-            )
-        }
-        return Truth.assertThat(match!!.contents)
+            ?: failWithActual("Didn't generate file with path: $relativePath")
+
+        return assertThat(match.contents)
     }
 
     private fun findGeneratedSource(relativePath: String) = compilationResult.generatedSources
@@ -368,20 +358,14 @@ class CompilationResultSubject internal constructor(
     fun generatedSource(source: Source) = apply {
         val match = compilationResult.generatedSources.firstOrNull {
             it.relativePath == source.relativePath
-        }
-        if (match == null) {
-            failWithActual(
-                simpleFact("Didn't generate $source")
-            )
-            return@apply
-        }
+        } ?: failWithActual("Didn't generate $source")
         val mismatch = source.findMismatch(match)
         if (mismatch != null) {
             failWithActual(
-                simpleFact("Generated code does not match expected"),
-                fact("mismatch", mismatch),
-                fact("expected", source.contents),
-                fact("actual", match.contents),
+                "Generated code does not match expected",
+                "mismatch: $mismatch",
+                "expected: ${source.contents}",
+                "actual: ${match.contents}",
             )
         }
     }
@@ -393,10 +377,8 @@ class CompilationResultSubject internal constructor(
     internal fun assertCompilationResult() {
         if (compilationResult.successfulCompilation != shouldSucceed) {
             failWithActual(
-                simpleFact(
-                    "expected compilation result to be: $shouldSucceed but was " +
-                        "${compilationResult.successfulCompilation}"
-                )
+                "expected compilation result to be: $shouldSucceed but was " +
+                    "${compilationResult.successfulCompilation}"
             )
         }
     }
@@ -407,9 +389,7 @@ class CompilationResultSubject internal constructor(
      */
     internal fun assertAllExpectedRoundsAreCompleted() {
         if (compilationResult.processor.expectsAnotherRound()) {
-            failWithActual(
-                simpleFact("Test runner requested another round but that didn't happen")
-            )
+            failWithActual("Test runner requested another round but that didn't happen")
         }
     }
 
@@ -447,7 +427,7 @@ class CompilationResultSubject internal constructor(
             }
         }
         if (matches.isEmpty()) {
-            failWithActual(simpleFact(buildErrorMessage()))
+            failWithActual(buildErrorMessage())
         }
         return DiagnosticMessagesSubject.assertThat(matches)
     }
@@ -469,7 +449,7 @@ class CompilationResultSubject internal constructor(
             }
         }
         if (matches.isEmpty()) {
-            failWithActual(simpleFact(buildErrorMessage()))
+            failWithActual(buildErrorMessage())
         }
         return DiagnosticMessagesSubject.assertThat(matches)
     }
@@ -490,18 +470,10 @@ class CompilationResultSubject internal constructor(
     }
 
     companion object {
-        private val FACTORY =
-            Factory<CompilationResultSubject, CompilationResult> { metadata, actual ->
-                CompilationResultSubject(metadata, actual)
-            }
-
         fun assertThat(
             compilationResult: CompilationResult
-        ): CompilationResultSubject {
-            return Truth.assertAbout(FACTORY).that(
-                compilationResult
-            )
-        }
+        ): CompilationResultSubject =
+            assertAbout(::CompilationResultSubject).that(compilationResult)
     }
 }
 

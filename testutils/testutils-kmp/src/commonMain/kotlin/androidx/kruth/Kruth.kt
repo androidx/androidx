@@ -57,3 +57,12 @@ fun assertWithMessage(messageToPrepend: String): StandardSubjectBuilder =
     StandardSubjectBuilder(
         metadata = FailureMetadata(messagesToPrepend = listOf(messageToPrepend)),
     )
+
+/**
+ * Given a factory for some [Subject] class, returns [SimpleSubjectBuilder] whose
+ * [that][SimpleSubjectBuilder.that] method creates instances of that class.
+ */
+fun <T, S : Subject<T>> assertAbout(
+    subjectFactory: Subject.Factory<T, S>,
+): SimpleSubjectBuilder<T, S> =
+    SimpleSubjectBuilder(subjectFactory = subjectFactory)
