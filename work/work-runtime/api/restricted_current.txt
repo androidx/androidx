@@ -377,6 +377,7 @@ package androidx.work {
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo, optional long nextScheduleTimeMillis);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo, optional long nextScheduleTimeMillis, optional int stopReason);
     method public androidx.work.Constraints getConstraints();
     method public int getGeneration();
     method public java.util.UUID getId();
@@ -387,6 +388,7 @@ package androidx.work {
     method public androidx.work.Data getProgress();
     method @IntRange(from=0L) public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
+    method @RequiresApi(31) public int getStopReason();
     method public java.util.Set<java.lang.String> getTags();
     property public final androidx.work.Constraints constraints;
     property public final int generation;
@@ -398,7 +400,14 @@ package androidx.work {
     property public final androidx.work.Data progress;
     property @IntRange(from=0L) public final int runAttemptCount;
     property public final androidx.work.WorkInfo.State state;
+    property @RequiresApi(31) public final int stopReason;
     property public final java.util.Set<java.lang.String> tags;
+    field public static final androidx.work.WorkInfo.Companion Companion;
+    field public static final int STOP_REASON_NOT_STOPPED = -256; // 0xffffff00
+    field public static final int STOP_REASON_UNKNOWN = -512; // 0xfffffe00
+  }
+
+  public static final class WorkInfo.Companion {
   }
 
   public static final class WorkInfo.PeriodicityInfo {

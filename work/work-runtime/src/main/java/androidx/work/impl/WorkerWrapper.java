@@ -107,7 +107,7 @@ public class WorkerWrapper implements Runnable {
     @NonNull
     final SettableFuture<ListenableWorker.Result> mWorkerResultFuture = SettableFuture.create();
 
-    private volatile boolean mInterrupted;
+    private volatile int mInterrupted = WorkInfo.STOP_REASON_NOT_STOPPED;
 
     // Package-private for synthetic accessor.
     WorkerWrapper(@NonNull Builder builder) {
@@ -357,6 +357,8 @@ public class WorkerWrapper implements Runnable {
                 } else if (state == RUNNING) {
                     handleResult(mResult);
                 } else if (!state.isFinished()) {
+                    // counting this is stopped with unknown reason
+                    mInterrupted = WorkInfo.STOP_REASON_UNKNOWN;
                     rescheduleAndResolve();
                 }
                 mWorkDatabase.setTransactionSuccessful();
@@ -372,7 +374,7 @@ public class WorkerWrapper implements Runnable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void interrupt(int stopReason) {
-        mInterrupted = true;
+        mInterrupted = stopReason;
         // Resolve WorkerWrapper's future so we do the right thing and setup a reschedule
         // if necessary. mInterrupted is always true here, we don't really care about the return
         // value.
@@ -408,7 +410,7 @@ public class WorkerWrapper implements Runnable {
         // A change in constraint, which causes WorkManager to stop the Worker.
         // Worker exceeding a 10 min execution window.
         // One scheduler completing a Worker, and telling other Schedulers to cleanup.
-        if (mInterrupted) {
+        if (mInterrupted != WorkInfo.STOP_REASON_NOT_STOPPED) {
             Logger.get().debug(TAG, "Work interrupted for " + mWorkDescription);
             WorkInfo.State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
@@ -443,6 +445,7 @@ public class WorkerWrapper implements Runnable {
                 // We want to preserve time when work was enqueued so just explicitly set enqueued
                 // instead using markEnqueuedState. Similarly, don't change any override time.
                 mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
+                mWorkSpecDao.setStopReason(mWorkSpecId, mInterrupted);
                 mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             }
             if (mWorkSpec != null && mWorker != null) {
@@ -491,6 +494,7 @@ public class WorkerWrapper implements Runnable {
             if (currentState == ENQUEUED) {
                 mWorkSpecDao.setState(RUNNING, mWorkSpecId);
                 mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
+                mWorkSpecDao.setStopReason(mWorkSpecId, WorkInfo.STOP_REASON_NOT_STOPPED);
                 setToRunning = true;
             }
             mWorkDatabase.setTransactionSuccessful();
