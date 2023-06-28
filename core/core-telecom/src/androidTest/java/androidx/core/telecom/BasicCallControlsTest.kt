@@ -21,11 +21,13 @@ import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.utils.BaseTelecomTest
+import androidx.core.telecom.utils.MockInCallService
 import androidx.core.telecom.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -135,6 +137,19 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
+     * assert [CallsManager.addCall] can successfully add a call and verifies that requests to
+     * mute/unmute the call are reflected in [CallControlScope.isMuted]. The call should use the
+     * *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testIsMuted() {
+        setUpV2Test()
+        verifyMuteStateChange()
+    }
+
+    /**
      * assert that an exception is thrown in the call flow when CallControlScope#setCallbacks isn't
      * the first function to be invoked. The call should use the *V2 platform APIs* under the hood.
      */
@@ -219,6 +234,19 @@ class BasicCallControlsTest : BaseTelecomTest() {
         runBlocking_RequestEndpointChangeAsserts()
         // TODO:: tracking bug: b/283324578. This test passes when the request is sent off and does
         // not actually verify the request was successful. Need to change the impl. details.
+    }
+
+    /**
+     * assert [CallsManager.addCall] can successfully add a call and verifies that requests to
+     * mute/unmute the call are reflected in [CallControlScope.isMuted]. The call should use the
+     * *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testIsMuted_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        verifyMuteStateChange()
     }
 
     /**
@@ -319,6 +347,50 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         // request an endpoint switch
                         assertTrue(requestEndpointChange(anotherEndpoint!!))
                     }
+                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    deferred.complete(Unit) // completed all asserts. cancel timeout!
+                }
+            }
+        }
+    }
+
+    /**
+     * This helper verifies that [CallControlScope.isMuted] properly collects updates to the mute
+     * state via [MockInCallService.setMuted].
+     *
+     * Note: Due to the possibility that the channel can receive stale updates, it's necessary to
+     * keep receiving those updates until the state does change. To prevent the test execution from
+     * blocking on additional updates, the coroutine scope needs to be cancelled.
+     */
+    @Suppress("deprecation")
+    private fun verifyMuteStateChange() {
+        runBlocking {
+            val deferred = CompletableDeferred<Unit>()
+            assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+                launch {
+                    assertTrue(setActive())
+                    // Grab initial mute state
+                    val initialMuteState = isMuted.first()
+                    // Toggle to other state
+                    val setMuteStateTo = !initialMuteState
+                    var muteStateChanged = false
+                    // Toggle mute via ICS
+                    MockInCallService.setMute(setMuteStateTo)
+                    runBlocking {
+                        launch {
+                            isMuted.collect {
+                                if (it != initialMuteState) {
+                                    muteStateChanged = true
+                                    // Cancel the coroutine to ensure we don't block on waiting for
+                                    // updates and force a timeout.
+                                    cancel()
+                                }
+                            }
+                        }
+                    }
+
+                    // Ensure that the updated mute state was collected
+                    assertTrue(muteStateChanged)
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                     deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
