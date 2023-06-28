@@ -19,6 +19,7 @@ package androidx.work.impl.utils;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent;
 import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 
@@ -59,7 +60,7 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
     @SuppressWarnings("WeakerAccess")
     final WorkSpecDao mWorkSpecDao;
 
-
+    @SuppressLint("LambdaLast")
     public WorkForegroundUpdater(
             @NonNull WorkDatabase workDatabase,
             @NonNull ForegroundProcessor foregroundProcessor,

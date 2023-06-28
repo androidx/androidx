@@ -448,9 +448,6 @@ public class WorkerWrapper implements Runnable {
                 mWorkSpecDao.setStopReason(mWorkSpecId, mInterrupted);
                 mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             }
-            if (mWorkSpec != null && mWorker != null) {
-                mForegroundProcessor.stopForeground(mWorkSpecId);
-            }
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
@@ -637,6 +634,7 @@ public class WorkerWrapper implements Runnable {
         @NonNull
         WorkerParameters.RuntimeExtras mRuntimeExtras = new WorkerParameters.RuntimeExtras();
 
+        @SuppressLint("LambdaLast")
         public Builder(@NonNull Context context,
                 @NonNull Configuration configuration,
                 @NonNull TaskExecutor workTaskExecutor,
