@@ -1145,25 +1145,11 @@ internal class CompositionImpl(
         private var releasing: MutableList<ComposeNodeLifecycleCallback>? = null
 
         override fun remembering(instance: RememberObserver) {
-            forgetting.lastIndexOf(instance).let { index ->
-                if (index >= 0) {
-                    forgetting.removeAt(index)
-                    abandoning.remove(instance)
-                } else {
-                    remembering.add(instance)
-                }
-            }
+            remembering.add(instance)
         }
 
         override fun forgetting(instance: RememberObserver) {
-            remembering.lastIndexOf(instance).let { index ->
-                if (index >= 0) {
-                    remembering.removeAt(index)
-                    abandoning.remove(instance)
-                } else {
-                    forgetting.add(instance)
-                }
-            }
+            forgetting.add(instance)
         }
 
         override fun sideEffect(effect: () -> Unit) {
@@ -1192,7 +1178,6 @@ internal class CompositionImpl(
                         instance.onDeactivate()
                     }
                 }
-                deactivating.clear()
             }
 
             // Send forgets
@@ -1200,9 +1185,8 @@ internal class CompositionImpl(
                 trace("Compose:onForgotten") {
                     for (i in forgetting.size - 1 downTo 0) {
                         val instance = forgetting[i]
-                        if (instance !in abandoning) {
-                            instance.onForgotten()
-                        }
+                        abandoning.remove(instance)
+                        instance.onForgotten()
                     }
                 }
             }
@@ -1228,7 +1212,6 @@ internal class CompositionImpl(
                         instance.onRelease()
                     }
                 }
-                releasing.clear()
             }
         }
 
@@ -1247,6 +1230,8 @@ internal class CompositionImpl(
             if (abandoning.isNotEmpty()) {
                 trace("Compose:abandons") {
                     val iterator = abandoning.iterator()
+                    // remove elements one by one to ensure that abandons will not be dispatched
+                    // second time in case [onAbandoned] throws.
                     while (iterator.hasNext()) {
                         val instance = iterator.next()
                         iterator.remove()
