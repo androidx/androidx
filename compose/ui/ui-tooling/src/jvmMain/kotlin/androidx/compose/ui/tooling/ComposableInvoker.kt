@@ -30,29 +30,27 @@ import kotlin.math.ceil
 object ComposableInvoker {
 
     /**
-     * Returns true if the [methodTypes] and [actualTypes] are compatible. This means that every
-     * `actualTypes[n]` are assignable to `methodTypes[n]`.
+     * Returns true if the [declaredMethodTypes] and [actualTypes] are compatible. This means that every
+     * `actualTypes` are assignable to `methodTypes`.
      */
-    private fun compatibleTypes(
-        methodTypes: Array<Class<*>>,
+    private fun isCompatibleTypes(
+        declaredMethodTypes: Array<Class<*>>,
         actualTypes: Array<Class<*>>
-    ): Boolean =
-        methodTypes.size == actualTypes.size &&
-            methodTypes.mapIndexed { index, clazz ->
-                val actualType = actualTypes[index]
-                if (clazz.isPrimitive || actualType.isPrimitive) {
-                    // We can't use [isAssignableFrom] if we have java primitives.
-                    // Java primitives aren't equal to Java classes:
-                    // comparing int with kotlin.Int or java.lang.Integer will return false.
-                    // However, if we convert them both to a KClass they can be compared:
-                    // int and java.lang.Integer will be both converted to Int
-                    // see more: https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class)
-                    clazz.kotlin == actualType.kotlin
-                } else {
-                    clazz.isAssignableFrom(actualType)
-                }
+    ): Boolean = declaredMethodTypes.size == actualTypes.size &&
+        declaredMethodTypes.mapIndexed { index, clazz ->
+            val actualType = actualTypes[index]
+            if (clazz.isPrimitive || actualType.isPrimitive) {
+                // We can't use [isAssignableFrom] if we have java primitives.
+                // Java primitives aren't equal to Java classes:
+                // comparing int with kotlin.Int or java.lang.Integer will return false.
+                // However, if we convert them both to a KClass they can be compared:
+                // int and java.lang.Integer will be both converted to Int
+                // see more: https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class)
+                clazz.kotlin == actualType.kotlin
+            } else {
+                clazz.isAssignableFrom(actualType)
             }
-                .all { it }
+        }.all { it }
 
     /**
      * Same as [Class#getDeclaredMethod] but it accounts for compatible types so the signature does
@@ -62,18 +60,19 @@ object ComposableInvoker {
      * @return the compatible [Method] with the name [methodName]
      * @throws NoSuchMethodException if the method is not found
      */
-    private fun Class<*>.getDeclaredCompatibleMethod(
+    private fun Array<Method>.findCompatibleComposeMethod(
         methodName: String,
         vararg args: Class<*>
-    ): Method {
-        val actualTypes: Array<Class<*>> = arrayOf(*args)
-        return declaredMethods.firstOrNull {
+    ): Method = asSequence()
+        .filter {
+            methodName == it.name || it.name.startsWith("$methodName-")
+        }
+        .firstOrNull {
             // Methods with inlined classes as parameter will have the name mangled
             // so we need to check for methodName-xxxx as well
-            (methodName == it.name || it.name.startsWith("$methodName-")) &&
-                compatibleTypes(it.parameterTypes, actualTypes)
-        } ?: throw NoSuchMethodException("$methodName not found")
-    }
+            isCompatibleTypes(it.parameterTypes, arrayOf(*args))
+        }
+        ?: throw NoSuchMethodException("$methodName not found")
 
     private inline fun <reified T> T.dup(count: Int): Array<T> {
         return (0 until count).map { this }.toTypedArray()
@@ -85,15 +84,21 @@ object ComposableInvoker {
      *
      * @return null if the composable method is not found. Returns the [Method] otherwise.
      */
-    private fun Class<*>.findComposableMethod(methodName: String, vararg args: Any?): Method? {
+    private fun Class<*>.findComposableMethod(
+        methodName: String,
+        vararg previewParamArgs: Any?
+    ): Method? {
+        val argsArray: Array<Class<out Any>> =
+            previewParamArgs.filterNotNull().map { it::class.java }.toTypedArray()
         return try {
             // without defaults
-            val changedParams = changedParamCount(args.size, 0)
-            getDeclaredCompatibleMethod(
+            val changedParamsCount = changedParamCount(argsArray.size, 0)
+            val changedParams = Int::class.java.dup(changedParamsCount)
+            declaredMethods.findCompatibleComposeMethod(
                 methodName,
-                *args.mapNotNull { it?.javaClass }.toTypedArray(),
+                *argsArray,
                 Composer::class.java, // composer param
-                *kotlin.Int::class.java.dup(changedParams) // changed param
+                *changedParams // changed param
             )
         } catch (e: ReflectiveOperationException) {
             try {
