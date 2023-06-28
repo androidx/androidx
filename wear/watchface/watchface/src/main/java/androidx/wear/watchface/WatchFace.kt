@@ -85,16 +85,30 @@ private const val SYSTEM_DECIDES_FRAME_RATE = 0f
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
  * remote previews.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@IntDef(value = [WatchFaceType.DIGITAL, WatchFaceType.ANALOG])
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@IntDef(value = [WatchFaceTypes.DIGITAL, WatchFaceTypes.ANALOG])
 public annotation class WatchFaceType {
+    // This companion object is retained for backwards compatibility, but ideally it shouldn't
+    // exist.
     public companion object {
         /* The WatchFace has an analog time display. */
-        public const val ANALOG: Int = 0
+        public const val ANALOG: Int = WatchFaceTypes.ANALOG
 
         /* The WatchFace has a digital time display. */
-        public const val DIGITAL: Int = 1
+        public const val DIGITAL: Int = WatchFaceTypes.DIGITAL
     }
+}
+
+/**
+ * The type of watch face, whether it's digital or analog. This influences the time displayed in
+ * preview images.
+ */
+public object WatchFaceTypes {
+    /* The WatchFace has an analog time display. */
+    public const val ANALOG: Int = 0
+
+    /* The WatchFace has a digital time display. */
+    public const val DIGITAL: Int = 1
 }
 
 /**
@@ -306,9 +320,9 @@ public class WatchFace(
          * Called whenever the user taps on the watchface.
          *
          * The watch face receives three different types of touch events:
-         * - [TapType.DOWN] when the user puts the finger down on the touchscreen
-         * - [TapType.UP] when the user lifts the finger from the touchscreen
-         * - [TapType.CANCEL] when the system detects that the user is performing a gesture other
+         * - [TapTypes.DOWN] when the user puts the finger down on the touchscreen
+         * - [TapTypes.UP] when the user lifts the finger from the touchscreen
+         * - [TapTypes.CANCEL] when the system detects that the user is performing a gesture other
          *   than a tap
          *
          * Note that the watch face is only given tap events, i.e., events where the user puts the
@@ -316,11 +330,11 @@ public class WatchFace(
          * other type of gesture while their finger in on the touchscreen, the watch face will be
          * receive a cancel, as all other gestures are reserved by the system.
          *
-         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed to
+         * Therefore, a [TapTypes.DOWN] event and the successive [TapTypes.UP] event are guaranteed to
          * be close enough to be considered a tap according to the value returned by
          * [android.view.ViewConfiguration.getScaledTouchSlop].
          *
-         * If the watch face receives a [TapType.CANCEL] event, it should not trigger any action, as
+         * If the watch face receives a [TapTypes.CANCEL] event, it should not trigger any action, as
          * the system is already processing the gesture.
          *
          * @param tapType The type of touch event sent to the watch face
@@ -348,8 +362,8 @@ public class WatchFace(
      *   `[Gravity.LEFT] | [Gravity.BOTTOM]`. On circular screens, only the vertical gravity is
      *   respected.
      * @param tapEventsAccepted Controls whether this watch face accepts tap events. Watchfaces that
-     *   set this `true` are indicating they are prepared to receive [TapType.DOWN],
-     *   [TapType.CANCEL], and [TapType.UP] events.
+     *   set this `true` are indicating they are prepared to receive [TapTypes.DOWN],
+     *   [TapTypes.CANCEL], and [TapTypes.UP] events.
      * @param accentColor The accent color which will be used when drawing the unread notification
      *   indicator. Default color is white.
      * @throws IllegalArgumentException if [viewProtectionMode] has an unexpected value
@@ -692,8 +706,8 @@ constructor(
         watchface.overridePreviewReferenceInstant
             ?: Instant.ofEpochMilli(
                 when (watchface.watchFaceType) {
-                    WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
-                    WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
+                    WatchFaceTypes.ANALOG -> watchState.analogPreviewReferenceTimeMillis
+                    WatchFaceTypes.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
                     else -> throw InvalidParameterException("Unrecognized watchFaceType")
                 }
             )
@@ -1094,7 +1108,7 @@ constructor(
         }
 
         when (tapType) {
-            TapType.UP -> {
+            TapTypes.UP -> {
                 if (
                     tappedComplication.id != lastTappedComplicationId &&
                         lastTappedComplicationId != null
@@ -1108,7 +1122,7 @@ constructor(
                 watchFaceHostApi.invalidate()
                 lastTappedComplicationId = null
             }
-            TapType.DOWN -> {
+            TapTypes.DOWN -> {
                 complicationSlotsManager.onTapDown(tappedComplication.id, tapEvent)
                 lastTappedComplicationId = tappedComplication.id
             }

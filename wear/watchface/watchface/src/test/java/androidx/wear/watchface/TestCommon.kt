@@ -249,7 +249,7 @@ public open class TestRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
-        CanvasType.HARDWARE,
+        CanvasTypes.HARDWARE,
         interactiveFrameRateMs
     ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null

@@ -32,7 +32,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.wear.watchface.ComplicationSlot
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypes
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.RenderParameters
@@ -257,9 +257,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
             .firstOrNull {
                 it.value.isEnabled &&
                     when (it.value.boundsType) {
-                        ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
-                        ComplicationSlotBoundsType.BACKGROUND -> false
-                        ComplicationSlotBoundsType.EDGE -> false
+                        ComplicationSlotBoundsTypes.ROUND_RECT -> it.value.bounds.contains(x, y)
+                        ComplicationSlotBoundsTypes.BACKGROUND -> false
+                        ComplicationSlotBoundsTypes.EDGE -> false
                         else -> false
                     }
             }
@@ -773,10 +773,10 @@ internal constructor(
                     .firstOrNull {
                         it.value.isEnabled &&
                             when (it.value.boundsType) {
-                                ComplicationSlotBoundsType.ROUND_RECT ->
+                                ComplicationSlotBoundsTypes.ROUND_RECT ->
                                     it.value.bounds.contains(x, y)
-                                ComplicationSlotBoundsType.BACKGROUND -> false
-                                ComplicationSlotBoundsType.EDGE -> false
+                                ComplicationSlotBoundsTypes.BACKGROUND -> false
+                                ComplicationSlotBoundsTypes.EDGE -> false
                                 else -> false
                             }
                     }

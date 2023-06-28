@@ -55,17 +55,17 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] should
+ * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] can
  * request from a [SurfaceHolder].
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@IntDef(value = [CanvasType.SOFTWARE, CanvasType.HARDWARE])
+@IntDef(value = [CanvasTypes.SOFTWARE, CanvasTypes.HARDWARE])
 public annotation class CanvasType {
+    // This companion object is retained for backwards compatibility, but ideally it shouldn't
+    // exist.
     public companion object {
         /** A software canvas will be requested. */
-        public const val SOFTWARE: Int = 0
+        public const val SOFTWARE: Int = CanvasTypes.SOFTWARE
 
         /**
          * A hardware canvas will be requested. This is usually faster than software rendering,
@@ -78,8 +78,30 @@ public annotation class CanvasType {
          * taken using software rendering. This means [Bitmap]s with [Bitmap.Config.HARDWARE] must
          * be avoided.
          */
-        public const val HARDWARE: Int = 1
+        public const val HARDWARE: Int = CanvasTypes.HARDWARE
     }
+}
+
+/**
+ * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] can
+ * request from a [SurfaceHolder].
+ */
+public object CanvasTypes {
+    /** A software canvas will be requested. */
+    public const val SOFTWARE: Int = 0
+
+    /**
+     * A hardware canvas will be requested. This is usually faster than software rendering,
+     * however it can sometimes increase battery usage by rendering at a higher frame rate.
+     *
+     * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
+     * to a software canvas.
+     *
+     * NOTE the system takes screenshots for use in the watch face picker UI and these will be
+     * taken using software rendering. This means [Bitmap]s with [Bitmap.Config.HARDWARE] must
+     * be avoided.
+     */
+    public const val HARDWARE: Int = 1
 }
 
 internal val EGL_CONFIG_ATTRIB_LIST =
@@ -548,7 +570,7 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasType] to request. Note even if [CanvasType.HARDWARE] is used,
+     * @param canvasType The [CanvasType] to request. Note even if [CanvasTypes.HARDWARE] is used,
      *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
@@ -581,7 +603,7 @@ constructor(
         ) {
         internal override fun renderInternal(zonedDateTime: ZonedDateTime) {
             val canvas =
-                (if (canvasType == CanvasType.HARDWARE) {
+                (if (canvasType == CanvasTypes.HARDWARE) {
                     surfaceHolder.lockHardwareCanvas()
                 } else {
                     surfaceHolder.lockCanvas()
@@ -712,7 +734,7 @@ constructor(
 
         internal override fun renderBlackFrame() {
             val canvas =
-                if (canvasType == CanvasType.SOFTWARE) {
+                if (canvasType == CanvasTypes.SOFTWARE) {
                     surfaceHolder.lockCanvas()
                 } else {
                     surfaceHolder.lockHardwareCanvas()
@@ -788,7 +810,7 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasType] to request. Note even if [CanvasType.HARDWARE] is used,
+     * @param canvasType The [CanvasType] to request. Note even if [CanvasTypes.HARDWARE] is used,
      *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in

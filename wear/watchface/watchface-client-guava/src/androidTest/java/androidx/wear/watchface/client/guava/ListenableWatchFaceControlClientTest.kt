@@ -25,12 +25,12 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasTypes
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.ListenableWatchFaceControlClient
@@ -413,7 +413,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override suspend fun init() {
@@ -428,6 +428,6 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                     zonedDateTime: ZonedDateTime
                 ) {}
             }
-        return WatchFace(WatchFaceType.DIGITAL, renderer)
+        return WatchFace(WatchFaceTypes.DIGITAL, renderer)
     }
 }

@@ -46,14 +46,14 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
     ): ListenableFuture<WatchFace> {
         return Futures.immediateFuture(
             WatchFace(
-                    WatchFaceType.DIGITAL,
+                    WatchFaceTypes.DIGITAL,
                     @Suppress("deprecation")
                     object :
                         Renderer.CanvasRenderer(
                             surfaceHolder,
                             currentUserStyleRepository,
                             watchState,
-                            CanvasType.SOFTWARE,
+                            CanvasTypes.SOFTWARE,
                             16
                         ) {
                         override fun render(

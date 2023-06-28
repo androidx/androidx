@@ -33,6 +33,12 @@ package androidx.wear.watchface {
     method @WorkerThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
   }
 
+  public final class CanvasTypes {
+    field public static final int HARDWARE = 1; // 0x1
+    field public static final androidx.wear.watchface.CanvasTypes INSTANCE;
+    field public static final int SOFTWARE = 0; // 0x0
+  }
+
   public final class ComplicationSlot {
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen, optional boolean applyMargins);
@@ -99,6 +105,13 @@ package androidx.wear.watchface {
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
+  }
+
+  public final class ComplicationSlotBoundsTypes {
+    field public static final int BACKGROUND = 1; // 0x1
+    field public static final int EDGE = 2; // 0x2
+    field public static final androidx.wear.watchface.ComplicationSlotBoundsTypes INSTANCE;
+    field public static final int ROUND_RECT = 0; // 0x0
   }
 
   public abstract class ComplicationSlotInflationFactory {
@@ -308,6 +321,13 @@ package androidx.wear.watchface {
     property public final int yPos;
   }
 
+  public final class TapTypes {
+    field public static final int CANCEL = 1; // 0x1
+    field public static final int DOWN = 0; // 0x0
+    field public static final androidx.wear.watchface.TapTypes INSTANCE;
+    field public static final int UP = 2; // 0x2
+  }
+
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
@@ -390,6 +410,12 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFaceService.Companion {
+  }
+
+  public final class WatchFaceTypes {
+    field public static final int ANALOG = 0; // 0x0
+    field public static final int DIGITAL = 1; // 0x1
+    field public static final androidx.wear.watchface.WatchFaceTypes INSTANCE;
   }
 
   public final class WatchState {

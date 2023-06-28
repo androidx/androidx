@@ -24,7 +24,7 @@ import android.graphics.Rect;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
-import androidx.wear.watchface.CanvasType;
+import androidx.wear.watchface.CanvasTypes;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
@@ -54,7 +54,7 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
                 surfaceHolder,
                 currentUserStyleRepository,
                 watchState,
-                CanvasType.HARDWARE,
+                CanvasTypes.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mWatchState = watchState;
         mPaint = new Paint();

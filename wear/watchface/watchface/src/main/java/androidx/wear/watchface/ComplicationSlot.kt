@@ -100,7 +100,7 @@ public interface CanvasComplication {
     )
 
     /**
-     * Draws a highlight for a [ComplicationSlotBoundsType.ROUND_RECT] complication. The default
+     * Draws a highlight for a [ComplicationSlotBoundsTypes.ROUND_RECT] complication. The default
      * implementation does this by drawing a dashed line around the complication, other visual
      * effects may be used if desired.
      *
@@ -120,7 +120,7 @@ public interface CanvasComplication {
     )
 
     /**
-     * Draws a highlight for a [ComplicationSlotBoundsType.ROUND_RECT] complication. The default
+     * Draws a highlight for a [ComplicationSlotBoundsTypes.ROUND_RECT] complication. The default
      * implementation does this by drawing a dashed line around the complication, other visual
      * effects may be used if desired.
      *
@@ -201,7 +201,7 @@ public interface ComplicationTapFilter {
 }
 
 /**
- * Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.ROUND_RECT] complicationSlots.
+ * Default [ComplicationTapFilter] for [ComplicationSlotBoundsTypes.ROUND_RECT] complicationSlots.
  */
 public class RoundRectComplicationTapFilter : ComplicationTapFilter {
     override fun hitTest(
@@ -214,7 +214,7 @@ public class RoundRectComplicationTapFilter : ComplicationTapFilter {
 }
 
 /**
- * Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.BACKGROUND] complicationSlots.
+ * Default [ComplicationTapFilter] for [ComplicationSlotBoundsTypes.BACKGROUND] complicationSlots.
  */
 public class BackgroundComplicationTapFilter : ComplicationTapFilter {
     override fun hitTest(
@@ -229,26 +229,43 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
 @IntDef(
     value =
         [
-            ComplicationSlotBoundsType.ROUND_RECT,
-            ComplicationSlotBoundsType.BACKGROUND,
-            ComplicationSlotBoundsType.EDGE
+            ComplicationSlotBoundsTypes.ROUND_RECT,
+            ComplicationSlotBoundsTypes.BACKGROUND,
+            ComplicationSlotBoundsTypes.EDGE
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class ComplicationSlotBoundsType {
+    // This companion object is retained for backwards compatibility, but ideally it shouldn't
+    // exist.
     public companion object {
         /** The default, most complication slots are either circular or rounded rectangles. */
-        public const val ROUND_RECT: Int = 0
+        public const val ROUND_RECT: Int = ComplicationSlotBoundsTypes.ROUND_RECT
 
         /**
          * For a full screen image complication slot drawn behind the watch face. Note you can only
          * have a single background complication slot.
          */
-        public const val BACKGROUND: Int = 1
+        public const val BACKGROUND: Int = ComplicationSlotBoundsTypes.BACKGROUND
 
         /** For edge of screen complication slots. */
-        public const val EDGE: Int = 2
+        public const val EDGE: Int = ComplicationSlotBoundsTypes.EDGE
     }
+}
+
+/** The various types of [ComplicationSlot] bounds. */
+public object ComplicationSlotBoundsTypes {
+    /** The default, most complication slots are either circular or rounded rectangles. */
+    public const val ROUND_RECT: Int = 0
+
+    /**
+     * For a full screen image complication slot drawn behind the watch face. Note you can only
+     * have a single background complication slot.
+     */
+    public const val BACKGROUND: Int = 1
+
+    /** For edge of screen complication slots. */
+    public const val EDGE: Int = 2
 }
 
 /**
@@ -487,7 +504,7 @@ internal constructor(
 
         /**
          * Constructs a [Builder] for a complication with bounds type
-         * [ComplicationSlotBoundsType.ROUND_RECT]. This is the most common type of complication.
+         * [ComplicationSlotBoundsTypes.ROUND_RECT]. This is the most common type of complication.
          * These can be tapped by the user to trigger the associated intent.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
@@ -515,7 +532,7 @@ internal constructor(
                 canvasComplicationFactory,
                 supportedTypes,
                 defaultDataSourcePolicy,
-                ComplicationSlotBoundsType.ROUND_RECT,
+                ComplicationSlotBoundsTypes.ROUND_RECT,
                 bounds,
                 RoundRectComplicationTapFilter(),
                 null
@@ -523,7 +540,7 @@ internal constructor(
 
         /**
          * Constructs a [Builder] for a complication with bound type
-         * [ComplicationSlotBoundsType.BACKGROUND] whose bounds cover the entire screen. A
+         * [ComplicationSlotBoundsTypes.BACKGROUND] whose bounds cover the entire screen. A
          * background complication is for watch faces that wish to have a full screen user
          * selectable backdrop. This sort of complication isn't clickable and at most one may be
          * present in the list of complicationSlots.
@@ -551,7 +568,7 @@ internal constructor(
                 canvasComplicationFactory,
                 supportedTypes,
                 defaultDataSourcePolicy,
-                ComplicationSlotBoundsType.BACKGROUND,
+                ComplicationSlotBoundsTypes.BACKGROUND,
                 ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
                 BackgroundComplicationTapFilter(),
                 null
@@ -559,7 +576,7 @@ internal constructor(
 
         /**
          * Constructs a [Builder] for a complication with bounds type
-         * [ComplicationSlotBoundsType.EDGE].
+         * [ComplicationSlotBoundsTypes.EDGE].
          *
          * An edge complication is drawn around the border of the display and has custom hit test
          * logic (see [complicationTapFilter]). When tapped the associated intent is dispatched.
@@ -600,7 +617,7 @@ internal constructor(
                 canvasComplicationFactory,
                 supportedTypes,
                 defaultDataSourcePolicy,
-                ComplicationSlotBoundsType.EDGE,
+                ComplicationSlotBoundsTypes.EDGE,
                 bounds,
                 complicationTapFilter,
                 null
@@ -608,7 +625,7 @@ internal constructor(
 
         /**
          * Constructs a [Builder] for a complication with bounds type
-         * [ComplicationSlotBoundsType.EDGE], whose contents are contained within [boundingArc].
+         * [ComplicationSlotBoundsTypes.EDGE], whose contents are contained within [boundingArc].
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          *   unique within the watch face.
@@ -655,7 +672,7 @@ internal constructor(
                 canvasComplicationFactory,
                 supportedTypes,
                 defaultDataSourcePolicy,
-                ComplicationSlotBoundsType.EDGE,
+                ComplicationSlotBoundsTypes.EDGE,
                 bounds,
                 complicationTapFilter,
                 boundingArc
@@ -874,7 +891,7 @@ internal constructor(
         @UiThread get
         @UiThread
         internal set(value) {
-            require(boundsType != ComplicationSlotBoundsType.BACKGROUND)
+            require(boundsType != ComplicationSlotBoundsTypes.BACKGROUND)
             if (field == value) {
                 return
             }
