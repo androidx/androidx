@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode.Companion.NotInitialized
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -144,6 +145,7 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
             val maxOffset = maxMainAxisOffset
             var offset = getOffset(index)
             val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
+            val layerBlock: GraphicsLayerScope.() -> Unit
             if (animateNode != null) {
                 if (isLookingAhead) {
                     // Skip animation in lookahead pass
@@ -161,10 +163,13 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
                         (targetOffset.mainAxis >= maxOffset &&
                             animatedOffset.mainAxis >= maxOffset)
                     ) {
-                        animateNode.cancelAnimation()
+                        animateNode.cancelPlacementAnimation()
                     }
                     offset = animatedOffset
                 }
+                layerBlock = animateNode
+            } else {
+                layerBlock = DefaultLayerBlock
             }
             if (reverseLayout) {
                 offset = offset.copy { mainAxisOffset ->
@@ -173,9 +178,9 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
             }
             offset += visualOffset
             if (isVertical) {
-                placeable.placeWithLayer(offset)
+                placeable.placeWithLayer(offset, layerBlock = layerBlock)
             } else {
-                placeable.placeRelativeWithLayer(offset)
+                placeable.placeRelativeWithLayer(offset, layerBlock = layerBlock)
             }
         }
     }
@@ -187,3 +192,8 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
 }
 
 private const val Unset = Int.MIN_VALUE
+
+/**
+ * Block on [GraphicsLayerScope] which applies the default layer parameters.
+ */
+private val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}
