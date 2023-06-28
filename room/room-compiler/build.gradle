@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.apacheCommonsCodec)
     implementation(libs.intellijAnnotations)
     testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-kmp"))
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.autoValue) // to access the processor in tests
     testImplementation(libs.autoServiceAnnotations)

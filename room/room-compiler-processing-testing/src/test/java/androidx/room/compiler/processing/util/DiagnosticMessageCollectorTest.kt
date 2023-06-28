@@ -16,10 +16,10 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.compiler.DiagnosticsMessageCollector
 import androidx.room.compiler.processing.util.compiler.steps.RawDiagnosticMessage
 import androidx.room.compiler.processing.util.compiler.steps.RawDiagnosticMessage.Location
-import com.google.common.truth.Truth.assertThat
 import javax.tools.Diagnostic
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.junit.Test

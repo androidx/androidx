@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.ExperimentalProcessingApi
-import com.google.common.truth.Truth.assertThat
 import javax.tools.Diagnostic
 import org.junit.Test
 import org.junit.runner.RunWith

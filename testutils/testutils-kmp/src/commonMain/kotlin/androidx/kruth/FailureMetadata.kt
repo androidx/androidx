@@ -16,13 +16,13 @@
 
 package androidx.kruth
 
-internal data class FailureMetadata(
+data class FailureMetadata internal constructor(
     val messagesToPrepend: List<String> = emptyList(),
 ) {
 
-    fun withMessage(messageToPrepend: String): FailureMetadata =
+    internal fun withMessage(messageToPrepend: String): FailureMetadata =
         copy(messagesToPrepend = messagesToPrepend + messageToPrepend)
 
-    fun formatMessage(vararg messages: String?): String =
+    internal fun formatMessage(vararg messages: String?): String =
         (messagesToPrepend + messages.filterNotNull()).joinToString(separator = "\n")
 }

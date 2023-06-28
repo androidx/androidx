@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.CompilationTestCapabilities.Config
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class TestConfigTest {

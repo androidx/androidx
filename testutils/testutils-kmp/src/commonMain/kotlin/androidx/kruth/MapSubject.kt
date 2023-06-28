@@ -16,7 +16,10 @@
 
 package androidx.kruth
 
-class MapSubject<K, V> internal constructor(actual: Map<K, V>?) : Subject<Map<K, V>>(actual) {
+class MapSubject<K, V> internal constructor(
+    actual: Map<K, V>?,
+    metadata: FailureMetadata = FailureMetadata(),
+) : Subject<Map<K, V>>(actual = actual, metadata = metadata) {
 
     /** Fails if the map is not empty. */
     fun isEmpty() {

@@ -56,6 +56,19 @@ class StandardSubjectBuilder internal constructor(
     fun <T> that(actual: Iterable<T>?): IterableSubject<T> =
         IterableSubject(actual = actual, metadata = metadata)
 
+    fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V> =
+        MapSubject(actual = actual, metadata = metadata)
+
+    /**
+     * Given a factory for some [Subject] class, returns [SimpleSubjectBuilder] whose
+     * [that][SimpleSubjectBuilder.that] method creates instances of that class. Created subjects
+     * use the previously set failure strategy and any previously set failure message.
+     */
+    fun <T, S : Subject<T>> about(
+        subjectFactory: Subject.Factory<T, S>,
+    ): SimpleSubjectBuilder<T, S> =
+        SimpleSubjectBuilder(metadata = metadata, subjectFactory = subjectFactory)
+
     /**
      * Reports a failure.
      *
