@@ -134,6 +134,18 @@ class BasicCallControlsTest : BaseTelecomTest() {
         runBlocking_RequestEndpointChangeAsserts()
     }
 
+    /**
+     * assert that an exception is thrown in the call flow when CallControlScope#setCallbacks isn't
+     * the first function to be invoked. The call should use the *V2 platform APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackOperations_CallbackNotSet() {
+        setUpV2Test()
+        verifyAnswerCallFails_CallbackNotSet()
+    }
+
     /***********************************************************************************************
      *                           Backwards Compatibility Layer tests
      *********************************************************************************************/
@@ -207,6 +219,19 @@ class BasicCallControlsTest : BaseTelecomTest() {
         runBlocking_RequestEndpointChangeAsserts()
         // TODO:: tracking bug: b/283324578. This test passes when the request is sent off and does
         // not actually verify the request was successful. Need to change the impl. details.
+    }
+
+    /**
+     * assert that an exception is thrown in the call flow when CallControlScope#setCallbacks isn't
+     * the first function to be invoked. The call should use the
+     * *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testBasicCallControlCallbackOperations_BackwardsCompat_CallbackNotSet() {
+        setUpBackwardsCompatTest()
+        verifyAnswerCallFails_CallbackNotSet()
     }
 
     /***********************************************************************************************
@@ -298,6 +323,34 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
+        }
+    }
+
+    @Suppress("deprecation")
+    private fun verifyAnswerCallFails_CallbackNotSet() {
+        try {
+            runBlocking {
+                val deferred = CompletableDeferred<Unit>()
+                // Skip setting callback
+                assertWithinTimeout_addCall(deferred, TestUtils.INCOMING_CALL_ATTRIBUTES, false) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        // Send answer request
+                        answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+                        // Always send the disconnect signal if possible:
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        // CallException should be thrown at this point. Add failing assertion to
+                        // ensure that the exception is always thrown.
+                        assertTrue("Call was set to active without setting callbacks", false)
+                    }
+                }
+            }
+        } catch (e: CallException) {
+            // Exception should be thrown from not setting the callback.
+            assertTrue(e.code == CallException.ERROR_CALLBACKS_CODE)
+            // Assert that the callback wasn't invoked
+            assertFalse(TestUtils.mOnAnswerCallbackCalled)
         }
     }
 

@@ -230,7 +230,9 @@ internal class CallSession(coroutineContext: CoroutineContext) {
         // handle requests that originate from the client and propagate into platform
         //  return the platforms response which indicates success of the request.
         override fun getCallId(): ParcelUuid {
-            verifySessionCallbacks()
+            CoroutineScope(session.mCoroutineContext).launch {
+                verifySessionCallbacks()
+            }
             return session.getCallId()
         }
 
@@ -272,10 +274,15 @@ internal class CallSession(coroutineContext: CoroutineContext) {
         override val isMuted: Flow<Boolean> =
             callChannels.isMutedChannel.receiveAsFlow()
 
-        private fun verifySessionCallbacks() {
-            if (!session.hasClientSetCallbacks()) {
-                throw androidx.core.telecom.CallException(
-                    androidx.core.telecom.CallException.ERROR_CALLBACKS_CODE)
+        private suspend fun verifySessionCallbacks() {
+            CoroutineScope(session.mCoroutineContext).launch {
+                if (!session.hasClientSetCallbacks()) {
+                    // Always send disconnect signal so that we don't end up with stuck calls.
+                    session.disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    throw androidx.core.telecom.CallException(
+                        androidx.core.telecom.CallException.ERROR_CALLBACKS_CODE
+                    )
+                }
             }
         }
     }
