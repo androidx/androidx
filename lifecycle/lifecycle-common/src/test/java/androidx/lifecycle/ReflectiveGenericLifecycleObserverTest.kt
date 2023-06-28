@@ -13,413 +13,339 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.Is.`is`
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-import static androidx.lifecycle.Lifecycle.Event.ON_ANY;
-import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
-import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
-import static androidx.lifecycle.Lifecycle.Event.ON_PAUSE;
-import static androidx.lifecycle.Lifecycle.Event.ON_RESUME;
-import static androidx.lifecycle.Lifecycle.Event.ON_START;
-import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
-import static androidx.lifecycle.Lifecycle.State.CREATED;
-import static androidx.lifecycle.Lifecycle.State.INITIALIZED;
-import static androidx.lifecycle.Lifecycle.State.RESUMED;
-import static androidx.lifecycle.Lifecycle.State.STARTED;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import androidx.annotation.NonNull;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.ArgumentMatchers;
-
-@SuppressWarnings("deprecation")
-@RunWith(JUnit4.class)
-public class ReflectiveGenericLifecycleObserverTest {
-    private LifecycleOwner mOwner;
-    private Lifecycle mLifecycle;
+@Suppress("deprecation", "unused_parameter")
+@RunWith(JUnit4::class)
+class ReflectiveGenericLifecycleObserverTest {
+    private lateinit var owner: LifecycleOwner
+    private lateinit var lifecycle: Lifecycle
 
     @Before
-    public void initMocks() {
-        mOwner = mock(LifecycleOwner.class);
-        mLifecycle = mock(Lifecycle.class);
-        when(mOwner.getLifecycle()).thenReturn(mLifecycle);
+    fun initMocks() {
+        owner = mock(LifecycleOwner::class.java)
+        lifecycle = mock(Lifecycle::class.java)
+        `when`(owner.lifecycle).thenReturn(lifecycle)
     }
 
     @Test
-    public void anyState() {
-        AnyStateListener obj = mock(AnyStateListener.class);
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(mLifecycle.getCurrentState()).thenReturn(STARTED);
-        observer.onStateChanged(mOwner, ON_CREATE);
-        verify(obj).onAnyState(mOwner, ON_CREATE);
-        reset(obj);
-
-        observer.onStateChanged(mOwner, ON_START);
-        verify(obj).onAnyState(mOwner, ON_START);
-        reset(obj);
-
-        observer.onStateChanged(mOwner, ON_RESUME);
-        verify(obj).onAnyState(mOwner, ON_RESUME);
-        reset(obj);
-
-        observer.onStateChanged(mOwner, ON_PAUSE);
-        verify(obj).onAnyState(mOwner, ON_PAUSE);
-        reset(obj);
-
-        observer.onStateChanged(mOwner, ON_STOP);
-        verify(obj).onAnyState(mOwner, ON_STOP);
-        reset(obj);
-
-        observer.onStateChanged(mOwner, ON_DESTROY);
-        verify(obj).onAnyState(mOwner, ON_DESTROY);
-        reset(obj);
+    fun anyState() {
+        val obj = mock(AnyStateListener::class.java)
+        val observer = ReflectiveGenericLifecycleObserver(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.STARTED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_CREATE)
+        verify(obj).onAnyState(owner, Lifecycle.Event.ON_CREATE)
+        reset(obj)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_START)
+        verify(obj).onAnyState(owner, Lifecycle.Event.ON_START)
+        reset(obj)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_RESUME)
+        verify(obj).onAnyState(owner, Lifecycle.Event.ON_RESUME)
+        reset(obj)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_PAUSE)
+        verify(obj).onAnyState(owner, Lifecycle.Event.ON_PAUSE)
+        reset(obj)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_STOP)
+        verify(obj).onAnyState(owner, Lifecycle.Event.ON_STOP)
+        reset(obj)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_DESTROY)
+        verify(obj).onAnyState(owner, Lifecycle.Event.ON_DESTROY)
+        reset(obj)
     }
 
-    private static class AnyStateListener implements LifecycleObserver {
-        @SuppressWarnings("deprecation")
-        @OnLifecycleEvent(ON_ANY)
-        void onAnyState(LifecycleOwner owner, Lifecycle.Event event) {
-
-        }
+    private open class AnyStateListener : LifecycleObserver {
+        @Suppress("deprecation")
+        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+        open fun onAnyState(owner: LifecycleOwner?, event: Lifecycle.Event?) {}
     }
 
     @Test
-    public void singleMethod() {
-        CreatedStateListener obj = mock(CreatedStateListener.class);
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(mLifecycle.getCurrentState()).thenReturn(CREATED);
-        observer.onStateChanged(mOwner, ON_CREATE);
-        verify(obj).onCreated();
-        verify(obj).onCreated(mOwner);
+    fun singleMethod() {
+        val obj = mock(CreatedStateListener::class.java)
+        val observer = ReflectiveGenericLifecycleObserver(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.CREATED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_CREATE)
+        verify(obj).onCreated()
+        verify(obj).onCreated(owner)
     }
 
-    @SuppressWarnings("deprecation")
-    private static class CreatedStateListener implements LifecycleObserver {
-        @OnLifecycleEvent(ON_CREATE)
-        void onCreated() {
+    @Suppress("deprecation")
+    private open class CreatedStateListener : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        open fun onCreated() {}
 
-        }
-        @SuppressWarnings("UnusedParameters")
-        @OnLifecycleEvent(ON_CREATE)
-        void onCreated(LifecycleOwner provider) {
-
-        }
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        open fun onCreated(provider: LifecycleOwner?) {}
     }
 
-    @SuppressWarnings("deprecation")
+    @Suppress("deprecation")
     @Test
-    public void eachEvent() {
-        AllMethodsListener obj = mock(AllMethodsListener.class);
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(mLifecycle.getCurrentState()).thenReturn(CREATED);
-
-        observer.onStateChanged(mOwner, ON_CREATE);
-        verify(obj).created();
-        reset(obj);
-
-        when(mLifecycle.getCurrentState()).thenReturn(STARTED);
-        observer.onStateChanged(mOwner, ON_START);
-        verify(obj).started();
-        reset(obj);
-
-        when(mLifecycle.getCurrentState()).thenReturn(RESUMED);
-        observer.onStateChanged(mOwner, ON_RESUME);
-        verify(obj).resumed();
-        reset(obj);
-
-        when(mLifecycle.getCurrentState()).thenReturn(STARTED);
-        observer.onStateChanged(mOwner, ON_PAUSE);
-        verify(obj).paused();
-        reset(obj);
-
-        when(mLifecycle.getCurrentState()).thenReturn(CREATED);
-        observer.onStateChanged(mOwner, ON_STOP);
-        verify(obj).stopped();
-        reset(obj);
-
-        when(mLifecycle.getCurrentState()).thenReturn(INITIALIZED);
-        observer.onStateChanged(mOwner, ON_DESTROY);
-        verify(obj).destroyed();
-        reset(obj);
+    fun eachEvent() {
+        val obj = mock(AllMethodsListener::class.java)
+        val observer = ReflectiveGenericLifecycleObserver(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.CREATED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_CREATE)
+        verify(obj).created()
+        reset(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.STARTED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_START)
+        verify(obj).started()
+        reset(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.RESUMED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_RESUME)
+        verify(obj).resumed()
+        reset(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.STARTED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_PAUSE)
+        verify(obj).paused()
+        reset(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.CREATED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_STOP)
+        verify(obj).stopped()
+        reset(obj)
+        `when`(lifecycle.currentState).thenReturn(Lifecycle.State.INITIALIZED)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_DESTROY)
+        verify(obj).destroyed()
+        reset(obj)
     }
 
-
-    @SuppressWarnings("deprecation")
-    private static class AllMethodsListener implements LifecycleObserver {
-        @OnLifecycleEvent(ON_CREATE)
-        void created() {}
-
-        @OnLifecycleEvent(ON_START)
-        void started() {}
-
-        @OnLifecycleEvent(ON_RESUME)
-        void resumed() {}
-
-        @OnLifecycleEvent(ON_PAUSE)
-        void paused() {}
-
-        @OnLifecycleEvent(ON_STOP)
-        void stopped() {}
-
-        @OnLifecycleEvent(ON_DESTROY)
-        void destroyed() {
-        }
+    @Suppress("deprecation")
+    private open class AllMethodsListener : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        open fun created() {}
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        open fun started() {}
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        open fun resumed() {}
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        open fun paused() {}
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        open fun stopped() {}
+        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        open fun destroyed() {}
     }
 
-    @SuppressWarnings("deprecation")
+    @Suppress("deprecation")
     @Test
-    public void testFailingObserver() {
-        class UnprecedentedError extends Error {
-        }
+    fun testFailingObserver() {
+        class UnprecedentedError : Error()
 
-        LifecycleObserver obj = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_START)
-            void started() {
-                throw new UnprecedentedError();
+        val obj: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun started() {
+                throw UnprecedentedError()
             }
-        };
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
+        }
+        val observer = ReflectiveGenericLifecycleObserver(obj)
         try {
-            observer.onStateChanged(mOwner, ON_START);
-            fail();
-        } catch (Exception e) {
-            assertThat("exception cause is wrong",
-                    e.getCause() instanceof UnprecedentedError);
+            observer.onStateChanged(owner, Lifecycle.Event.ON_START)
+            fail()
+        } catch (e: Exception) {
+            assertThat(
+                "exception cause is wrong",
+                e.cause is UnprecedentedError
+            )
         }
     }
 
     @Test
-    public void testPrivateObserverMethods() {
-        class ObserverWithPrivateMethod implements LifecycleObserver {
-            boolean mCalled = false;
-            @OnLifecycleEvent(ON_START)
-            private void started() {
-                mCalled = true;
+    fun testPrivateObserverMethods() {
+        open class ObserverWithPrivateMethod : LifecycleObserver {
+            var called = false
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private fun started() {
+                called = true
             }
         }
 
-        ObserverWithPrivateMethod obj = mock(ObserverWithPrivateMethod.class);
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        observer.onStateChanged(mOwner, ON_START);
-        assertThat(obj.mCalled, is(true));
+        val obj = mock(ObserverWithPrivateMethod::class.java)
+        val observer = ReflectiveGenericLifecycleObserver(obj)
+        observer.onStateChanged(owner, Lifecycle.Event.ON_START)
+        assertThat(obj.called, `is`(true))
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongFirstParam1() {
-        LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_START)
-            private void started(Lifecycle.Event e) {
-            }
-        };
-        new ReflectiveGenericLifecycleObserver(observer);
+    @Test(expected = IllegalArgumentException::class)
+    fun testWrongFirstParam1() {
+        val observer: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private fun started(e: Lifecycle.Event) {}
+        }
+        ReflectiveGenericLifecycleObserver(observer)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongFirstParam2() {
-        LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_ANY)
-            private void started(Lifecycle l, Lifecycle.Event e) {
-            }
-        };
-        new ReflectiveGenericLifecycleObserver(observer);
-    }
-
-    @Test
-    public void testLifecycleOwnerSubclassFirstParam() {
-        LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_ANY)
-            private void started(DerivedLifecycleOwner dOwner, Lifecycle.Event e) {
-            }
-        };
-        new ReflectiveGenericLifecycleObserver(observer);
+    @Test(expected = IllegalArgumentException::class)
+    fun testWrongFirstParam2() {
+        val observer: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            private fun started(l: Lifecycle, e: Lifecycle.Event) {}
+        }
+        ReflectiveGenericLifecycleObserver(observer)
     }
 
     @Test
-    public void testLifecycleEventSecondParam() {
-        LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_ANY)
-            private void started(LifecycleOwner owner, Lifecycle l) {
-            }
-        };
-        IllegalArgumentException expectedException = assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    new ReflectiveGenericLifecycleObserver(observer);
-                }
-        );
+    fun testLifecycleOwnerSubclassFirstParam() {
+        val observer: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            private fun started() {}
+        }
+        ReflectiveGenericLifecycleObserver(observer)
+    }
+
+    @Test
+    fun testLifecycleEventSecondParam() {
+        val observer: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            private fun started(owner: LifecycleOwner, l: Lifecycle) {}
+        }
+        val expectedException = assertThrows(
+            IllegalArgumentException::class.java
+        ) { ReflectiveGenericLifecycleObserver(observer) }
         assertEquals(
-                "invalid parameter type. second arg must be an event",
-                expectedException.getMessage()
-        );
+            "invalid parameter type. second arg must be an event",
+            expectedException.message
+        )
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testThreeParams() {
-        LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_ANY)
-            private void started(LifecycleOwner owner, Lifecycle.Event e, int i) {
-            }
-        };
-        new ReflectiveGenericLifecycleObserver(observer);
+    @Test(expected = IllegalArgumentException::class)
+    fun testThreeParams() {
+        val observer: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            private fun started(owner: LifecycleOwner, e: Lifecycle.Event, i: Int) {}
+        }
+        ReflectiveGenericLifecycleObserver(observer)
     }
 
     @Test
-    public void testOwnerMethodWithSecondParam_eventMustBeOnAny() {
-        LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_START)
-            private void started(LifecycleOwner owner, Lifecycle.Event e) {
-            }
-        };
-
-        IllegalArgumentException expectedException = assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    new ReflectiveGenericLifecycleObserver(observer);
-                }
-        );
+    fun testOwnerMethodWithSecondParam_eventMustBeOnAny() {
+        val observer: LifecycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            private fun started(owner: LifecycleOwner, e: Lifecycle.Event) {}
+        }
+        val expectedException = assertThrows(
+            IllegalArgumentException::class.java
+        ) { ReflectiveGenericLifecycleObserver(observer) }
         assertEquals(
-                "Second arg is supported only for ON_ANY value",
-                expectedException.getMessage()
-        );
+            "Second arg is supported only for ON_ANY value",
+            expectedException.message
+        )
     }
 
-    static class BaseClass1 implements LifecycleObserver {
-        @OnLifecycleEvent(ON_START)
-        void foo(LifecycleOwner owner) {
-        }
+    internal open class BaseClass1 : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        open fun foo(owner: LifecycleOwner?) {}
     }
 
-    static class DerivedClass1 extends BaseClass1 {
-        @Override
-        @OnLifecycleEvent(ON_STOP)
-        void foo(LifecycleOwner owner) {
-        }
+    internal class DerivedClass1 : BaseClass1() {
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        override fun foo(owner: LifecycleOwner?) {}
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidSuper1() {
-        new ReflectiveGenericLifecycleObserver(new DerivedClass1());
+    @Test(expected = IllegalArgumentException::class)
+    fun testInvalidSuper1() {
+        ReflectiveGenericLifecycleObserver(DerivedClass1())
     }
 
-    static class BaseClass2 implements LifecycleObserver {
-        @OnLifecycleEvent(ON_START)
-        void foo(LifecycleOwner owner) {
-        }
+    internal class BaseClass2 : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        fun foo() {}
     }
 
-    static class DerivedClass2 extends BaseClass1 {
-        @OnLifecycleEvent(ON_STOP)
-        void foo() {
-        }
+    internal open class DerivedClass2 : BaseClass1() {
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        open fun foo() {}
     }
 
     @Test
-    public void testValidSuper1() {
-        DerivedClass2 obj = mock(DerivedClass2.class);
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        observer.onStateChanged(mock(LifecycleOwner.class), ON_START);
-        verify(obj).foo(ArgumentMatchers.<LifecycleOwner>any());
-        verify(obj, never()).foo();
-        reset(obj);
-        observer.onStateChanged(mock(LifecycleOwner.class), ON_STOP);
-        verify(obj).foo();
-        verify(obj, never()).foo(ArgumentMatchers.<LifecycleOwner>any());
+    fun testValidSuper1() {
+        val obj = mock(DerivedClass2::class.java)
+        val observer = ReflectiveGenericLifecycleObserver(obj)
+        observer.onStateChanged(mock(LifecycleOwner::class.java), Lifecycle.Event.ON_START)
+        verify(obj).foo(any())
+        verify(obj, never()).foo()
+        reset(obj)
+        observer.onStateChanged(mock(LifecycleOwner::class.java), Lifecycle.Event.ON_STOP)
+        verify(obj).foo()
+        verify(obj, never()).foo(any())
     }
 
-    static class BaseClass3 implements LifecycleObserver {
-        @OnLifecycleEvent(ON_START)
-        void foo(LifecycleOwner owner) {
-        }
+    internal open class BaseClass3 : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        open fun foo(owner: LifecycleOwner?) {}
     }
 
-    interface Interface3 extends LifecycleObserver {
-        @OnLifecycleEvent(ON_STOP)
-        void foo(LifecycleOwner owner);
+    internal interface Interface3 : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        fun foo(owner: LifecycleOwner?)
     }
 
-    static class DerivedClass3 extends BaseClass3 implements Interface3 {
-        @Override
-        public void foo(LifecycleOwner owner) {
-        }
+    internal class DerivedClass3 : BaseClass3(), Interface3 {
+        override fun foo(owner: LifecycleOwner?) {}
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidSuper2() {
-        new ReflectiveGenericLifecycleObserver(new DerivedClass3());
+    @Test(expected = IllegalArgumentException::class)
+    fun testInvalidSuper2() {
+        ReflectiveGenericLifecycleObserver(DerivedClass3())
     }
 
-    static class BaseClass4 implements LifecycleObserver {
-        @OnLifecycleEvent(ON_START)
-        void foo(LifecycleOwner owner) {
-        }
+    internal open class BaseClass4 : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        open fun foo(owner: LifecycleOwner?) {}
     }
 
-    interface Interface4 extends LifecycleObserver {
-        @OnLifecycleEvent(ON_START)
-        void foo(LifecycleOwner owner);
+    internal interface Interface4 : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        fun foo(owner: LifecycleOwner?)
     }
 
-    static class DerivedClass4 extends BaseClass4 implements Interface4 {
-        @Override
-        @OnLifecycleEvent(ON_START)
-        public void foo(LifecycleOwner owner) {
-        }
+    internal open class DerivedClass4 : BaseClass4(), Interface4 {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        override fun foo(owner: LifecycleOwner?) {}
 
-        @OnLifecycleEvent(ON_START)
-        public void foo() {
-        }
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        fun foo() {}
     }
 
     @Test
-    public void testValidSuper2() {
-        DerivedClass4 obj = mock(DerivedClass4.class);
-        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        observer.onStateChanged(mock(LifecycleOwner.class), ON_START);
-        verify(obj).foo(ArgumentMatchers.<LifecycleOwner>any());
-        verify(obj).foo();
+    fun testValidSuper2() {
+        val obj = mock(DerivedClass4::class.java)
+        val observer = ReflectiveGenericLifecycleObserver(obj)
+        observer.onStateChanged(mock(LifecycleOwner::class.java), Lifecycle.Event.ON_START)
+        verify(obj).foo(any())
+        verify(obj).foo()
     }
 
-    interface InterfaceStart extends LifecycleObserver {
-        @OnLifecycleEvent(ON_START)
-        void foo(LifecycleOwner owner);
+    internal interface InterfaceStart : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        fun foo(owner: LifecycleOwner?)
     }
 
-    interface InterfaceStop extends LifecycleObserver {
-        @OnLifecycleEvent(ON_STOP)
-        void foo(LifecycleOwner owner);
+    internal interface InterfaceStop : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        fun foo(owner: LifecycleOwner?)
     }
 
-    static class DerivedClass5 implements InterfaceStart, InterfaceStop {
-        @Override
-        public void foo(LifecycleOwner owner) {
-        }
+    internal class DerivedClass5 : InterfaceStart, InterfaceStop {
+        override fun foo(owner: LifecycleOwner?) {}
     }
 
-    static class DerivedLifecycleOwner implements LifecycleOwner {
-        @NonNull
-        @Override
-        public Lifecycle getLifecycle() {
-            return null;
-        }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidSuper3() {
-        new ReflectiveGenericLifecycleObserver(new DerivedClass5());
+    @Test(expected = IllegalArgumentException::class)
+    fun testInvalidSuper3() {
+        ReflectiveGenericLifecycleObserver(DerivedClass5())
     }
 }
