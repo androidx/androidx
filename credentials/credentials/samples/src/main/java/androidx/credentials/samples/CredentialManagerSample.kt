@@ -21,6 +21,10 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.Sampled
+import androidx.credentials.CreateCredentialResponse
+import androidx.credentials.CreateCustomCredentialResponse
+import androidx.credentials.CreatePasswordResponse
+import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -83,9 +87,55 @@ fun generateGetPasskeyRequestJsonFromServer(): String {
 
 const val TAG: String = "TAG"
 
+/**
+ * Sample showing how to use a [CreateCredentialResponse] object.
+ */
+@Sampled
+fun processCreateCredentialResponse(
+    response: CreateCredentialResponse,
+    loginWithPasskey: (String) -> Unit,
+    loginWithPassword: () -> Unit,
+    loginWithExampleCustomCredential: (CreateExampleCustomCredentialResponse) -> Unit
+) {
+    when (response) {
+        is CreatePasswordResponse ->
+            // Password saved successfully, proceed to signed in experience.
+            loginWithPassword()
+        is CreatePublicKeyCredentialResponse ->
+            // Validate and register the registration json from your server, and if successful
+            // proceed to signed in experience.
+            loginWithPasskey(response.registrationResponseJson)
+        is CreateCustomCredentialResponse -> {
+            // If you are also using any external sign-in libraries, parse them here with the
+            // utility functions provided they provided.
+            if (response.type == ExampleCustomCredential.TYPE) {
+                try {
+                    val createExampleCustomCredentialResponse =
+                        CreateExampleCustomCredentialResponse.createFrom(response)
+                    loginWithExampleCustomCredential(createExampleCustomCredentialResponse)
+                } catch (e: CreateExampleCustomCredentialResponse.ParsingException) {
+                    // Unlikely to happen. If it does, you likely need to update the dependency
+                    // version of your external sign-in library.
+                    Log.e(TAG, "Failed to parse a CreateExampleCustomCredentialResponse", e)
+                }
+            } else {
+                Log.w(
+                    TAG,
+                    "Received unrecognized response type ${response.type}. " +
+                        "This shouldn't happen")
+            }
+        }
+        else -> {
+            Log.w(
+                TAG,
+                "Received unrecognized response type ${response.type}. This shouldn't happen")
+        }
+    }
+}
+
 @Sampled
 /**
- * Sample showing how to use a Credential object - as a passkey credential, a password credential,
+ * Sample showing how to use a [Credential] object - as a passkey credential, a password credential,
  * or any custom credential.
  */
 fun processCredential(
@@ -148,4 +198,21 @@ class ExampleCustomCredential(
     }
 
     class ExampleCustomCredentialParsingException(e: Throwable? = null) : Exception(e)
+}
+
+class CreateExampleCustomCredentialResponse(
+    data: Bundle
+) : CreateCustomCredentialResponse(
+    type = ExampleCustomCredential.TYPE,
+    data = data
+) {
+    companion object {
+        @JvmStatic
+        fun createFrom(
+            response: CreateCredentialResponse
+        ): CreateExampleCustomCredentialResponse =
+            CreateExampleCustomCredentialResponse(response.data)
+    }
+
+    class ParsingException(e: Throwable? = null) : Exception(e)
 }

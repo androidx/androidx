@@ -24,6 +24,8 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * Base response class for the credential creation operation made with the
  * [CreateCredentialRequest].
  *
+ * @sample androidx.credentials.samples.processCreateCredentialResponse
+ *
  * @property type the credential type determined by the credential-type-specific subclass (e.g.
  * the type for [CreatePasswordResponse] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
  * [CreatePublicKeyCredentialResponse] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
