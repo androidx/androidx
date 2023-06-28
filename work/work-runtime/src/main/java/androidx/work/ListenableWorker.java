@@ -16,6 +16,8 @@
 
 package androidx.work;
 
+import static androidx.work.WorkInfo.STOP_REASON_UNKNOWN;
+
 import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
@@ -64,7 +66,7 @@ public abstract class ListenableWorker {
     private @NonNull WorkerParameters mWorkerParams;
 
     private volatile boolean mStopped;
-    private volatile int mStopReason;
+    private volatile int mStopReason = STOP_REASON_UNKNOWN;
 
     private boolean mUsed;
 

@@ -179,7 +179,13 @@ data class WorkSpec(
         defaultValue = "0"
     )
     // If reset every min interval, would last 500 years.
-    var nextScheduleTimeOverrideGeneration: Int = 0
+    var nextScheduleTimeOverrideGeneration: Int = 0,
+
+    @ColumnInfo(
+        name = "stop_reason",
+        defaultValue = "${WorkInfo.STOP_REASON_NOT_STOPPED}"
+    )
+    val stopReason: Int = WorkInfo.STOP_REASON_NOT_STOPPED,
 ) {
     constructor(
         id: String,
@@ -208,6 +214,7 @@ data class WorkSpec(
         periodCount = other.periodCount,
         nextScheduleTimeOverride = other.nextScheduleTimeOverride,
         nextScheduleTimeOverrideGeneration = other.nextScheduleTimeOverrideGeneration,
+        stopReason = other.stopReason,
     )
 
     /**
@@ -392,6 +399,9 @@ data class WorkSpec(
         @ColumnInfo(name = "next_schedule_time_override")
         val nextScheduleTimeOverride: Long,
 
+        @ColumnInfo(name = "stop_reason")
+        val stopReason: Int,
+
         @Relation(
             parentColumn = "id",
             entityColumn = "work_spec_id",
@@ -433,7 +443,8 @@ data class WorkSpec(
                 constraints,
                 initialDelay,
                 getPeriodicityOrNull(),
-                calculateNextRunTimeMillis()
+                calculateNextRunTimeMillis(),
+                stopReason,
             )
         }
 
