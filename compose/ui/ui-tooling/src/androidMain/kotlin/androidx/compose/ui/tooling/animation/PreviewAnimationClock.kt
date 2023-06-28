@@ -112,7 +112,11 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
             animation.parse()?.let {
                 transitionClocks[it] = TransitionClock(it)
                 notifySubscribe(it)
+                return@trackAnimation
             }
+
+            // If for some reason animation couldn't be parsed, track it as unsupported.
+            createUnsupported(animation.label)
         }
     }
 
@@ -138,7 +142,11 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
             animation.parse()?.let {
                 animateXAsStateClocks[it] = AnimateXAsStateClock(it)
                 notifySubscribe(it)
+                return@trackAnimation
             }
+
+            // If for some reason animation couldn't be parsed, track it as unsupported.
+            createUnsupported(animation.animatable.label)
         }
     }
 
@@ -159,7 +167,10 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
             animation.parseAnimatedContent()?.let {
                 animatedContentClocks[it] = TransitionClock(it)
                 notifySubscribe(it)
+                return@trackAnimation
             }
+            // If for some reason animation couldn't be parsed, track it as unsupported.
+            createUnsupported(animation.label)
         }
     }
 
@@ -186,10 +197,14 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
 
     private fun trackUnsupported(animation: Any, label: String) {
         trackAnimation(animation) {
-            UnsupportedComposeAnimation.create(label)?.let {
-                trackedUnsupportedAnimations.add(it)
-                notifySubscribe(it)
-            }
+            createUnsupported(label)
+        }
+    }
+
+    private fun createUnsupported(label: String?) {
+        UnsupportedComposeAnimation.create(label)?.let {
+            trackedUnsupportedAnimations.add(it)
+            notifySubscribe(it)
         }
     }
 
