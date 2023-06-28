@@ -24,13 +24,13 @@ import android.graphics.RectF
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
 import androidx.wear.watchface.CanvasComplicationFactory
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasTypes
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -196,13 +196,13 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             currentUserStyleRepository: CurrentUserStyleRepository
         ) =
             WatchFace(
-                WatchFaceType.ANALOG,
+                WatchFaceTypes.ANALOG,
                 object :
                     Renderer.CanvasRenderer2<MySharedAssets>(
                         surfaceHolder,
                         currentUserStyleRepository,
                         watchState,
-                        CanvasType.HARDWARE,
+                        CanvasTypes.HARDWARE,
                         interactiveDrawModeUpdateDelayMillis = 16,
                         clearWithBackgroundTintBeforeRenderingHighlightLayer = true
                     ) {

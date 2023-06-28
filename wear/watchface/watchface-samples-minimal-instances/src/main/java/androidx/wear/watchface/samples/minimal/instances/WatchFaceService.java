@@ -23,7 +23,7 @@ import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.ListenableWatchFaceService;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
-import androidx.wear.watchface.WatchFaceType;
+import androidx.wear.watchface.WatchFaceTypes;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
@@ -43,7 +43,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
         Renderer renderer =
                 new WatchFaceRenderer(
                         surfaceHolder, currentUserStyleRepository, watchState, getResources());
-        WatchFace watchFace = new WatchFace(WatchFaceType.DIGITAL, renderer);
+        WatchFace watchFace = new WatchFace(WatchFaceTypes.DIGITAL, renderer);
         return Futures.immediateFuture(watchFace);
     }
 }

@@ -61,14 +61,14 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("Deprecation")
             object :
                 ListenableCanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override fun initFuture(): ListenableFuture<Unit> {

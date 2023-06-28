@@ -33,7 +33,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -136,7 +136,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-                WatchFaceType.ANALOG,
+                WatchFaceTypes.ANALOG,
                 ExampleOpenGLRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,

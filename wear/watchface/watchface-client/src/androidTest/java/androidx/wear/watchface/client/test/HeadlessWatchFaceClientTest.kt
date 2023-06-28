@@ -29,7 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypes
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
@@ -101,7 +101,7 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
             headlessInstance.complicationSlotsState[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
         Truth.assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
         Truth.assertThat(leftComplicationDetails.boundsType)
-            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
         Truth.assertThat(leftComplicationDetails.defaultDataSourcePolicy.systemDataSourceFallback)
             .isEqualTo(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK)
         Truth.assertThat(leftComplicationDetails.defaultDataSourceType)
@@ -123,7 +123,7 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
         Truth.assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
         Truth.assertThat(rightComplicationDetails.boundsType)
-            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
         Truth.assertThat(rightComplicationDetails.defaultDataSourcePolicy.systemDataSourceFallback)
             .isEqualTo(SystemDataSources.DATA_SOURCE_STEP_COUNT)
         Truth.assertThat(rightComplicationDetails.defaultDataSourceType)

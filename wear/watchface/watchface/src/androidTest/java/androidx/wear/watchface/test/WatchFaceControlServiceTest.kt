@@ -32,14 +32,14 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasTypes
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.data.ColorRamp
 import androidx.wear.watchface.complications.data.ComplicationText
@@ -88,14 +88,14 @@ internal class AsyncInitWithUiThreadTaskWatchFace : WatchFaceService() {
     ): WatchFace =
         withContext(mainThreadCoroutineScope.coroutineContext) {
             WatchFace(
-                WatchFaceType.DIGITAL,
+                WatchFaceTypes.DIGITAL,
                 @Suppress("deprecation")
                 object :
                     Renderer.CanvasRenderer(
                         surfaceHolder,
                         currentUserStyleRepository,
                         watchState,
-                        CanvasType.SOFTWARE,
+                        CanvasTypes.SOFTWARE,
                         16
                     ) {
                     override fun render(

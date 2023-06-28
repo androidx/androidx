@@ -70,13 +70,13 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             object :
                 ListenableCanvasRenderer2<TestSharedAssets>(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override fun initFuture(): ListenableFuture<Unit> {

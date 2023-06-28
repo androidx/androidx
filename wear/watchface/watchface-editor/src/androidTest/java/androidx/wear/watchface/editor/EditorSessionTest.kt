@@ -49,11 +49,11 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.BroadcastsObserver
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasTypes
 import androidx.wear.watchface.ComplicationDataSourceChooserIntent
 import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.ComplicationSlot
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypes
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DEFAULT_INSTANCE_ID
 import androidx.wear.watchface.MutableWatchState
@@ -64,7 +64,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHostApi
 import androidx.wear.watchface.WatchFaceImpl
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchFaceId
@@ -278,14 +278,14 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.ANALOG,
+            WatchFaceTypes.ANALOG,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.SOFTWARE,
+                    CanvasTypes.SOFTWARE,
                     100
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
@@ -607,7 +607,7 @@ public class EditorSessionTest {
                     mockSurfaceHolder,
                     userStyleRepository,
                     MutableWatchState().asWatchState(),
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     interactiveDrawModeUpdateDelayMillis = 16,
                     clearWithBackgroundTintBeforeRenderingHighlightLayer = false
                 ) {
@@ -852,7 +852,7 @@ public class EditorSessionTest {
             assertThat(complicationSlotsState.size).isEqualTo(3)
             val leftSlot = complicationSlotsState[LEFT_COMPLICATION_ID]!!
             assertThat(leftSlot.bounds).isEqualTo(Rect(120, 160, 160, 240))
-            assertThat(leftSlot.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+            assertThat(leftSlot.boundsType).isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
             assertFalse(leftSlot.fixedComplicationDataSource)
             assertTrue(leftSlot.isInitiallyEnabled)
             assertThat(leftSlot.defaultDataSourcePolicy.primaryDataSource)
@@ -869,7 +869,7 @@ public class EditorSessionTest {
 
             val rightSlot = complicationSlotsState[RIGHT_COMPLICATION_ID]!!
             assertThat(rightSlot.bounds).isEqualTo(Rect(240, 160, 280, 240))
-            assertThat(rightSlot.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+            assertThat(rightSlot.boundsType).isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
             assertFalse(rightSlot.fixedComplicationDataSource)
             assertTrue(rightSlot.isInitiallyEnabled)
             assertThat(rightSlot.defaultDataSourcePolicy.primaryDataSource)
@@ -886,7 +886,7 @@ public class EditorSessionTest {
 
             val backgroundSlot = complicationSlotsState[BACKGROUND_COMPLICATION_ID]!!
             assertThat(backgroundSlot.bounds).isEqualTo(screenBounds)
-            assertThat(backgroundSlot.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
+            assertThat(backgroundSlot.boundsType).isEqualTo(ComplicationSlotBoundsTypes.BACKGROUND)
             assertFalse(backgroundSlot.fixedComplicationDataSource)
             assertFalse(backgroundSlot.isInitiallyEnabled)
             // We could test more state but this should be enough.
@@ -2412,14 +2412,14 @@ public class EditorSessionTest {
             // testComponentName.
             WatchFaceImpl(
                 WatchFace(
-                    WatchFaceType.DIGITAL,
+                    WatchFaceTypes.DIGITAL,
                     @Suppress("deprecation")
                     object :
                         Renderer.CanvasRenderer(
                             mockSurfaceHolder,
                             currentUserStyleRepository,
                             watchState,
-                            CanvasType.SOFTWARE,
+                            CanvasTypes.SOFTWARE,
                             16
                         ) {
                         override fun render(

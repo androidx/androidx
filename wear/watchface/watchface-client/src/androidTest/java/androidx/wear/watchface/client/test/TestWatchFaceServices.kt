@@ -27,7 +27,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.Px
 import androidx.wear.watchface.BoundingArc
 import androidx.wear.watchface.CanvasComplication
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasTypes
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ComplicationTapFilter
@@ -35,7 +35,7 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchFaceTypes
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -84,7 +84,7 @@ internal class TestLifeCycleWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, 16) {
@@ -231,14 +231,14 @@ internal class TestWatchfaceOverlayStyleWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-                WatchFaceType.DIGITAL,
+                WatchFaceTypes.DIGITAL,
                 @Suppress("deprecation")
                 object :
                     Renderer.CanvasRenderer(
                         surfaceHolder,
                         currentUserStyleRepository,
                         watchState,
-                        CanvasType.HARDWARE,
+                        CanvasTypes.HARDWARE,
                         16
                     ) {
                     override fun render(
@@ -280,14 +280,14 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override suspend fun init() {
@@ -337,7 +337,7 @@ internal class TestAsyncGlesRenderInitWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.GlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, 16) {
@@ -433,14 +433,14 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
@@ -528,14 +528,14 @@ internal class TestEdgeComplicationWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
@@ -580,7 +580,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override suspend fun init() {
@@ -595,7 +595,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                     zonedDateTime: ZonedDateTime
                 ) {}
             }
-        return WatchFace(WatchFaceType.DIGITAL, renderer)
+        return WatchFace(WatchFaceTypes.DIGITAL, renderer)
     }
 }
 
@@ -715,14 +715,14 @@ internal class TestComplicationStyleUpdateWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.ANALOG,
+            WatchFaceTypes.ANALOG,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
@@ -818,14 +818,14 @@ internal class TestCustomTapFilterWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceType.DIGITAL,
+            WatchFaceTypes.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasType.HARDWARE,
+                    CanvasTypes.HARDWARE,
                     16
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
