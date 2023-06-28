@@ -44,7 +44,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * For example, if there is an UNKNOWN exception type, assuming the base Exception is
  * [ClearCredentialException], we can add an 'exception type' class for it as follows:
- * TODO("Add in new flow with extensive 'getType' function")
  * ```
  * class ClearCredentialUnknownException(
  *     errorMessage: CharSequence? = null
