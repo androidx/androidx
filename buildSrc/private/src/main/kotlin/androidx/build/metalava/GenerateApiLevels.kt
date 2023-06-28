@@ -18,14 +18,7 @@ package androidx.build.metalava
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
-import androidx.build.registerAsComponentForPublishing
 import java.io.File
-import org.gradle.api.Project
-import org.gradle.api.attributes.Bundling
-import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.Usage
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.named
 
 /**
  * Returns the API files that should be used to generate the API levels metadata.
@@ -91,44 +84,3 @@ private fun sameMajorMinor(v1: Version, v2: Version) =
     v1.major == v2.major && v1.minor == v2.minor
 
 private fun Version.roundUp() = Version(this.major, this.minor, this.patch)
-
-/**
- * Usage attribute to specify the version metadata component.
- */
-internal val Project.versionMetadataUsage: Usage
-    get() = objects.named("library-version-metadata")
-
-/**
- * Creates a component for the version metadata JSON and registers it for publishing.
- */
-internal fun Project.registerVersionMetadataComponent(
-    generateApiTask: TaskProvider<GenerateApiTask>
-) {
-    configurations.create("libraryVersionMetadata") { configuration ->
-        configuration.isVisible = false
-        configuration.isCanBeResolved = false
-
-        configuration.attributes.attribute(
-            Usage.USAGE_ATTRIBUTE,
-            versionMetadataUsage
-        )
-        configuration.attributes.attribute(
-            Category.CATEGORY_ATTRIBUTE,
-            objects.named<Category>(Category.DOCUMENTATION)
-        )
-        configuration.attributes.attribute(
-            Bundling.BUNDLING_ATTRIBUTE,
-            objects.named<Bundling>(Bundling.EXTERNAL)
-        )
-
-        // The generate API task has many output files, only add the version metadata as an artifact
-        val levelsFile = generateApiTask.map { task ->
-            task.apiLocation.map { location ->
-                location.apiLevelsFile
-            }
-        }
-        configuration.outgoing.artifact(levelsFile)
-
-        registerAsComponentForPublishing(configuration)
-    }
-}
