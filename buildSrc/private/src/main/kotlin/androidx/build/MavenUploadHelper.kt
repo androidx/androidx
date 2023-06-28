@@ -297,7 +297,7 @@ private fun Project.replaceBaseMultiplatformPublication(
     val kotlinComponent = components.findByName("kotlin") as SoftwareComponentInternal
     withSourcesComponents(
         componentFactory,
-        setOf("androidxSourcesElements", "libraryVersionMetadata")
+        setOf("androidxSourcesElements")
     ) { sourcesComponents ->
         configure<PublishingExtension> {
             publications { pubs ->

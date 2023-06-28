@@ -25,10 +25,12 @@ import java.util.Locale
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Bundling
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
+import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.CacheableTask
@@ -201,6 +203,19 @@ private fun Project.registerSourcesVariant(
         gradleVariant.outgoing.artifact(sourceJar)
 
         registerAsComponentForPublishing(gradleVariant)
+    }
+}
+
+private fun Project.registerAsComponentForPublishing(gradleVariant: Configuration) {
+    // Android Library project 'release' component
+    val release = components.findByName("release")
+    if (release is AdhocComponentWithVariants) {
+        release.addVariantsFromConfiguration(gradleVariant) { }
+    }
+    // Java Library project 'java' component
+    val javaComponent = components.findByName("java")
+    if (javaComponent is AdhocComponentWithVariants) {
+        javaComponent.addVariantsFromConfiguration(gradleVariant) { }
     }
 }
 
