@@ -49,6 +49,7 @@ import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -105,7 +106,7 @@ class TextFieldKeyboardActionsTest {
             )
         }
 
-        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNode(hasSetTextAction()).requestFocus()
 
         rule.runOnIdle {
             inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEND)
@@ -130,7 +131,7 @@ class TextFieldKeyboardActionsTest {
             )
         }
 
-        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNode(hasSetTextAction()).requestFocus()
 
         rule.runOnIdle {
             inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
@@ -285,7 +286,7 @@ class TextFieldKeyboardActionsTest {
             )
         }
 
-        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNode(hasSetTextAction()).requestFocus()
 
         rule.runOnIdle {
             inputConnection?.performEditorAction(EditorInfo.IME_ACTION_GO)
@@ -309,7 +310,7 @@ class TextFieldKeyboardActionsTest {
             )
         }
 
-        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNode(hasSetTextAction()).requestFocus()
 
         rule.runOnIdle {
             inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEARCH)

@@ -50,8 +50,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -122,7 +122,7 @@ class CardTest {
         rule.onNodeWithTag(CardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -149,7 +149,7 @@ class CardTest {
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performLongKeyPress(rule, Key.DirectionCenter)
@@ -170,12 +170,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(CardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(CardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
@@ -198,12 +198,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(CardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(CardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
@@ -231,7 +231,7 @@ class CardTest {
 
         rule.runOnIdle { Truth.assertThat(interactions).isEmpty() }
 
-        rule.onNodeWithTag(CardTag).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag(CardTag).requestFocus()
 
         rule.runOnIdle {
             Truth.assertThat(interactions).hasSize(1)
@@ -265,7 +265,7 @@ class CardTest {
         rule.onNodeWithTag(ClassicCardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -293,7 +293,7 @@ class CardTest {
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performLongKeyPress(rule, Key.DirectionCenter)
@@ -315,12 +315,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(ClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(ClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
@@ -344,12 +344,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(ClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(ClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
@@ -428,7 +428,7 @@ class CardTest {
         rule.onNodeWithTag(CompactCardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -456,7 +456,7 @@ class CardTest {
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performLongKeyPress(rule, Key.DirectionCenter)
@@ -478,12 +478,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(CompactCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(CompactCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
@@ -507,12 +507,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(CompactCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(CompactCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
@@ -534,7 +534,7 @@ class CardTest {
         rule.onNodeWithTag(WideClassicCardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -562,7 +562,7 @@ class CardTest {
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performLongKeyPress(rule, Key.DirectionCenter)
@@ -584,12 +584,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(WideClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(WideClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
@@ -613,12 +613,12 @@ class CardTest {
         }
 
         rule.onNodeWithTag(WideClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(WideClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }

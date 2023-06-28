@@ -36,13 +36,12 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -322,7 +321,7 @@ internal class BasicTextField2ImmIntegrationTest {
     }
 
     private fun requestFocus(tag: String) =
-        rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag(tag).requestFocus()
 
     private class FakeInputMethodManager : ComposeInputMethodManager {
         private val calls = mutableListOf<String>()

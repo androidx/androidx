@@ -46,8 +46,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -84,7 +84,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
@@ -119,7 +119,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(openItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -128,7 +128,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(closeItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -155,14 +155,14 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(3)
@@ -184,7 +184,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(!checkedState)
@@ -382,7 +382,7 @@ class ListItemTest {
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, false))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, true))
@@ -409,7 +409,7 @@ class ListItemTest {
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, false))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .performLongKeyPress(rule, Key.DirectionCenter)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, true))
@@ -452,7 +452,7 @@ class ListItemTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()

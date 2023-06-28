@@ -24,7 +24,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -37,8 +36,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -80,7 +79,7 @@ class CardLayoutTest {
             .onChild()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
 
         rule.onNodeWithTag(StandardCardLayoutTag)
@@ -109,13 +108,13 @@ class CardLayoutTest {
 
         rule.onNodeWithTag(StandardCardLayoutTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(StandardCardLayoutTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)
@@ -143,7 +142,7 @@ class CardLayoutTest {
             .onChild()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
 
         rule.onNodeWithTag(WideCardLayoutTag)
@@ -172,13 +171,13 @@ class CardLayoutTest {
 
         rule.onNodeWithTag(WideCardLayoutTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(WideCardLayoutTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(3)

@@ -29,17 +29,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -154,7 +153,7 @@ class BasicSecureTextFieldTest {
             rule.mainClock.advanceTimeBy(200)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
             rule.onNodeWithTag("otherFocusable")
-                .performSemanticsAction(SemanticsActions.RequestFocus)
+                .requestFocus()
             rule.mainClock.advanceTimeBy(50)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("\u2022")
         }
