@@ -245,6 +245,7 @@ package androidx.transition {
     method public static void endTransitions(android.view.ViewGroup?);
     method public static void go(androidx.transition.Scene);
     method public static void go(androidx.transition.Scene, androidx.transition.Transition?);
+    method public static androidx.transition.TransitionSeekController? seekTo(androidx.transition.Scene, androidx.transition.Transition);
     method public void setTransition(androidx.transition.Scene, androidx.transition.Scene, androidx.transition.Transition?);
     method public void setTransition(androidx.transition.Scene, androidx.transition.Transition?);
     method public void transitionTo(androidx.transition.Scene);
@@ -258,14 +259,18 @@ package androidx.transition {
   }
 
   public interface TransitionSeekController {
+    method public void addOnProgressChangedListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
     method public void addOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
     method public void animateToEnd();
     method public void animateToStart();
-    method public long getCurrentPlayTimeMillis();
-    method public long getDurationMillis();
+    method @FloatRange(from=0.0, to=1.0) public float getCurrentFraction();
+    method @IntRange(from=0) public long getCurrentPlayTimeMillis();
+    method @IntRange(from=0) public long getDurationMillis();
     method public boolean isReady();
+    method public void removeOnProgressChangedListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
     method public void removeOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
-    method public void setCurrentPlayTimeMillis(long);
+    method public void setCurrentFraction(@FloatRange(from=0.0, to=1.0) float);
+    method public void setCurrentPlayTimeMillis(@IntRange(from=0) long);
   }
 
   public class TransitionSet extends androidx.transition.Transition {

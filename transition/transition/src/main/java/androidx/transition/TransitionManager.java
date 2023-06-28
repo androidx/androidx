@@ -350,6 +350,59 @@ public class TransitionManager {
     }
 
     /**
+     * Convenience method to seek to the given scene using the given transition. If seeking
+     * is not supported because the device is {@link Build.VERSION_CODES.TIRAMISU} or earlier,
+     * the scene transition is immediate and {@code null} is returned.
+     *
+     * @param scene      The Scene to change to
+     * @param transition The transition to use for this scene change.
+     * @return a {@link TransitionSeekController} that can be used control the animation to the
+     * destination scene. {@code null} is returned when seeking is not supported on the scene,
+     * either because it is running on {@link android.os.Build.VERSION_CODES.TIRAMISU} or earlier,
+     * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
+     * had a layout yet.
+     * @throws IllegalArgumentException if {@code transition} returns {@code false} from
+     * {@link Transition#isSeekingSupported()}.
+     */
+    @Nullable
+    public static TransitionSeekController seekTo(
+            @NonNull Scene scene,
+            @NonNull Transition transition
+    ) {
+        final ViewGroup sceneRoot = scene.getSceneRoot();
+
+        if (!transition.isSeekingSupported()) {
+            throw new IllegalArgumentException("The Transition must support seeking.");
+        }
+        if (sPendingTransitions.contains(sceneRoot)) {
+            return null; // Already in the process of transitioning
+        }
+        Scene oldScene = Scene.getCurrentScene(sceneRoot);
+        if (!ViewCompat.isLaidOut(sceneRoot)
+                || Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        ) {
+            // Can't control it, so just change the scene immediately
+            if (oldScene != null) {
+                oldScene.exit();
+            }
+            scene.enter();
+            return null;
+        }
+        sPendingTransitions.add(sceneRoot);
+        final Transition transitionClone = transition.clone();
+        final TransitionSet set = new TransitionSet();
+        set.addTransition(transitionClone);
+        if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {
+            set.setCanRemoveViews(true);
+        }
+        sceneChangeSetup(sceneRoot, set);
+        scene.enter();
+
+        sceneChangeRunTransition(sceneRoot, set);
+        return set.createSeekController();
+    }
+
+    /**
      * Convenience method to simply change to the given scene using
      * the given transition.
      *
