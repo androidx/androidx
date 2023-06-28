@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.dp
  * See [TextFieldDefaults.outlinedTextFieldColors] for the default colors used in
  * [OutlinedTextField].
  */
-@JvmDefaultWithCompatibility
 @Stable
 interface TextFieldColors {
     /**
