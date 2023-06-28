@@ -13,221 +13,209 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.TaskExecutor
+import androidx.arch.core.executor.TaskExecutorWithFakeMainThread
+import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.lifecycle.util.InstantTaskExecutor
+import java.util.concurrent.Executor
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.timeout
+import org.mockito.Mockito.verify
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+@RunWith(JUnit4::class)
+class ComputableLiveDataTest {
+    private lateinit var taskExecutor: TaskExecutor
+    private lateinit var lifecycleOwner: TestLifecycleOwner
 
-import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.TaskExecutor;
-import androidx.arch.core.executor.TaskExecutorWithFakeMainThread;
-import androidx.lifecycle.testing.TestLifecycleOwner;
-import androidx.lifecycle.util.InstantTaskExecutor;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Collections;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-@RunWith(JUnit4.class)
-public class ComputableLiveDataTest {
-    private TaskExecutor mTaskExecutor;
-    private TestLifecycleOwner mLifecycleOwner;
-
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    public void setup() {
-        mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                UnconfinedTestDispatcher(null, null));
+    fun setup() {
+        lifecycleOwner = TestLifecycleOwner(
+            Lifecycle.State.INITIALIZED,
+            UnconfinedTestDispatcher(null, null)
+        )
     }
 
     @Before
-    public void swapExecutorDelegate() {
-        mTaskExecutor = spy(new InstantTaskExecutor());
-        ArchTaskExecutor.getInstance().setDelegate(mTaskExecutor);
+    fun swapExecutorDelegate() {
+        taskExecutor = spy(InstantTaskExecutor())
+        ArchTaskExecutor.getInstance().setDelegate(taskExecutor)
     }
 
     @After
-    public void removeExecutorDelegate() {
-        ArchTaskExecutor.getInstance().setDelegate(null);
+    fun removeExecutorDelegate() {
+        ArchTaskExecutor.getInstance().setDelegate(null)
     }
 
     @Test
-    public void noComputeWithoutObservers() {
-        final TestComputable computable = new TestComputable();
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.refreshRunnable);
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.invalidationRunnable);
+    fun noComputeWithoutObservers() {
+        val computable = TestComputable()
+        verify(taskExecutor, never())?.executeOnDiskIO(computable.refreshRunnable)
+        verify(taskExecutor, never())
+            ?.executeOnDiskIO(computable.invalidationRunnable)
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void noConcurrentCompute() throws InterruptedException {
-        TaskExecutorWithFakeMainThread executor = new TaskExecutorWithFakeMainThread(2);
-        ArchTaskExecutor.getInstance().setDelegate(executor);
+    @Throws(InterruptedException::class)
+    fun noConcurrentCompute() {
+        val executor = TaskExecutorWithFakeMainThread(2)
+        ArchTaskExecutor.getInstance().setDelegate(executor)
         try {
             // # of compute calls
-            final Semaphore computeCounter = new Semaphore(0);
+            val computeCounter = Semaphore(0)
             // available permits for computation
-            final Semaphore computeLock = new Semaphore(0);
-            final TestComputable computable = new TestComputable(1, 2) {
-                @Override
-                protected Integer compute() {
+            val computeLock = Semaphore(0)
+            val computable: TestComputable = object : TestComputable(1, 2) {
+                override fun compute(): Int {
                     try {
-                        computeCounter.release(1);
-                        computeLock.tryAcquire(1, 20, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        throw new AssertionError(e);
+                        computeCounter.release(1)
+                        computeLock.tryAcquire(1, 20, TimeUnit.SECONDS)
+                    } catch (e: InterruptedException) {
+                        throw AssertionError(e)
                     }
-                    return super.compute();
+                    return super.compute()
                 }
-            };
-            final ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
-            final Observer<Integer> observer = mock(Observer.class);
-            executor.postToMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    computable.getLiveData().observeForever(observer);
-                    verify(observer, never()).onChanged(anyInt());
-                }
-            });
+            }
+            val captor = ArgumentCaptor.forClass(
+                Int::class.java
+            )
+            @Suppress("unchecked_cast")
+            val observer: Observer<in Int?> = mock(Observer::class.java) as Observer<in Int?>
+            executor.postToMainThread {
+                computable.liveData.observeForever(observer)
+                verify(observer, never()).onChanged(anyInt())
+            }
             // wait for first compute call
-            assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), is(true));
+            assertThat(
+                computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS),
+                `is`(true)
+            )
             // re-invalidate while in compute
-            computable.invalidate();
-            computable.invalidate();
-            computable.invalidate();
-            computable.invalidate();
+            computable.invalidate()
+            computable.invalidate()
+            computable.invalidate()
+            computable.invalidate()
             // ensure another compute call does not arrive
-            assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), is(false));
+            assertThat(
+                computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS),
+                `is`(false)
+            )
             // allow computation to finish
-            computeLock.release(2);
+            computeLock.release(2)
             // wait for the second result, first will be skipped due to invalidation during compute
-            verify(observer, timeout(2000)).onChanged(captor.capture());
-            assertThat(captor.getAllValues(), is(Collections.singletonList(2)));
-            reset(observer);
+            verify(observer, timeout(2000)).onChanged(captor.capture())
+            assertThat(captor.allValues, `is`(listOf(2)))
+            reset(observer)
             // allow all computations to run, there should not be any.
-            computeLock.release(100);
+            computeLock.release(100)
             // unfortunately, Mockito.after is not available in 1.9.5
-            executor.drainTasks(2);
+            executor.drainTasks(2)
             // assert no other results arrive
-            verify(observer, never()).onChanged(anyInt());
+            verify(observer, never()).onChanged(ArgumentMatchers.anyInt())
         } finally {
-            ArchTaskExecutor.getInstance().setDelegate(null);
+            ArchTaskExecutor.getInstance().setDelegate(null)
         }
     }
 
     @Test
-    public void addingObserverShouldTriggerAComputation() {
-        TestComputable computable = new TestComputable(1);
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer integer) {
-                //noinspection ConstantConditions
-                mValue.set(integer);
-            }
-        });
-        verify(mTaskExecutor, never()).executeOnDiskIO(any(Runnable.class));
-        assertThat(mValue.get(), is(-1));
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        verify(mTaskExecutor).executeOnDiskIO(computable.refreshRunnable);
-        assertThat(mValue.get(), is(1));
+    fun addingObserverShouldTriggerAComputation() {
+        val computable = TestComputable(1)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        val value = AtomicInteger(-1)
+        computable.liveData.observe(lifecycleOwner) { integer -> value.set(integer!!) }
+        verify(taskExecutor, never())?.executeOnDiskIO(any(Runnable::class.java))
+        assertThat(value.get(), `is`(-1))
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        verify(taskExecutor)?.executeOnDiskIO(computable.refreshRunnable)
+        assertThat(value.get(), `is`(1))
     }
 
     @Test
-    public void customExecutor() {
-        Executor customExecutor = mock(Executor.class);
-        TestComputable computable = new TestComputable(customExecutor, 1);
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer integer) {
-                // ignored
-            }
-        });
-        verify(mTaskExecutor, never()).executeOnDiskIO(any(Runnable.class));
-        verify(customExecutor, never()).execute(any(Runnable.class));
-
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.refreshRunnable);
-        verify(customExecutor).execute(computable.refreshRunnable);
+    fun customExecutor() {
+        val customExecutor = mock(
+            Executor::class.java
+        )
+        val computable = TestComputable(customExecutor, 1)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        computable.liveData.observe(lifecycleOwner) {
+            // ignored
+        }
+        verify(taskExecutor, never())?.executeOnDiskIO(
+            any(
+                Runnable::class.java
+            )
+        )
+        verify(customExecutor, never()).execute(
+            any(
+                Runnable::class.java
+            )
+        )
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        verify(taskExecutor, never())?.executeOnDiskIO(computable.refreshRunnable)
+        verify(customExecutor).execute(computable.refreshRunnable)
     }
 
     @Test
-    public void invalidationShouldNotReTriggerComputationIfObserverIsInActive() {
-        TestComputable computable = new TestComputable(1, 2);
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer integer) {
-                //noinspection ConstantConditions
-                mValue.set(integer);
-            }
-        });
-        assertThat(mValue.get(), is(1));
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        computable.invalidate();
-        reset(mTaskExecutor);
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.refreshRunnable);
-        assertThat(mValue.get(), is(1));
+    fun invalidationShouldNotReTriggerComputationIfObserverIsInActive() {
+        val computable = TestComputable(1, 2)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        val value = AtomicInteger(-1)
+        computable.liveData.observe(lifecycleOwner) { integer -> value.set(integer!!) }
+        assertThat(value.get(), `is`(1))
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        computable.invalidate()
+        reset(taskExecutor)
+        verify(taskExecutor, never())?.executeOnDiskIO(computable.refreshRunnable)
+        assertThat(value.get(), `is`(1))
     }
 
     @Test
-    public void invalidationShouldReTriggerQueryIfObserverIsActive() {
-        TestComputable computable = new TestComputable(1, 2);
-        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer integer) {
-                //noinspection ConstantConditions
-                mValue.set(integer);
-            }
-        });
-        assertThat(mValue.get(), is(1));
-        computable.invalidate();
-        assertThat(mValue.get(), is(2));
+    fun invalidationShouldReTriggerQueryIfObserverIsActive() {
+        val computable = TestComputable(1, 2)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        val value = AtomicInteger(-1)
+        computable.liveData.observe(lifecycleOwner) { integer -> value.set(integer!!) }
+        assertThat(value.get(), `is`(1))
+        computable.invalidate()
+        assertThat(value.get(), `is`(2))
     }
 
-    static class TestComputable extends ComputableLiveData<Integer> {
-        final int[] mValues;
-        AtomicInteger mValueCounter = new AtomicInteger();
+    internal open class TestComputable : ComputableLiveData<Int?> {
+        private val values: IntArray
+        private var valueCounter = AtomicInteger()
 
-        TestComputable(@NonNull Executor executor, int... values) {
-            super(executor);
-            mValues = values;
+        constructor(executor: Executor, vararg values: Int) : super(executor) {
+            this.values = values
         }
 
-        TestComputable(int... values) {
-            mValues = values;
+        constructor(vararg values: Int) {
+            this.values = values
         }
 
-        @Override
-        protected Integer compute() {
-            return mValues[mValueCounter.getAndIncrement()];
+        override fun compute(): Int {
+            return values[valueCounter.getAndIncrement()]
         }
     }
 }
