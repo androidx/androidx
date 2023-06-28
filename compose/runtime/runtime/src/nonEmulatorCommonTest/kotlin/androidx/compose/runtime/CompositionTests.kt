@@ -1599,7 +1599,7 @@ class CompositionTests {
     }
 
     @Test
-    fun testRemember_Forget_NoForgetOnRemember() = compositionTest {
+    fun testRemember_Forget_ForgetOnRemember() = compositionTest {
         var expectedRemember = true
         var expectedForget = true
         val rememberObject = object : RememberObserver {
@@ -1714,8 +1714,8 @@ class CompositionTests {
             "Object should have only been notified once"
         )
 
-        expectedRemember = false
-        expectedForget = false
+        expectedRemember = true
+        expectedForget = true
         a = false
         b = true
         c = false
@@ -1730,8 +1730,8 @@ class CompositionTests {
         }
         assertEquals(1, rememberObject.count, "No enter or leaves")
 
-        expectedRemember = false
-        expectedForget = false
+        expectedRemember = true
+        expectedForget = true
         a = false
         b = false
         c = true
@@ -1746,8 +1746,8 @@ class CompositionTests {
         }
         assertEquals(1, rememberObject.count, "No enter or leaves")
 
-        expectedRemember = false
-        expectedForget = false
+        expectedRemember = true
+        expectedForget = true
         a = true
         b = false
         c = false

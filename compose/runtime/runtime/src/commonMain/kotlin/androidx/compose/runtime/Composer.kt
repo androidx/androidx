@@ -1650,10 +1650,12 @@ internal class ComposerImpl(
     override fun endNode() = end(isNode = true)
 
     override fun startReusableGroup(key: Int, dataKey: Any?) {
-        if (reader.groupKey == key && reader.groupAux != dataKey && reusingGroup < 0) {
-            // Starting to reuse nodes
-            reusingGroup = reader.currentGroup
-            reusing = true
+        if (!inserting) {
+            if (reader.groupKey == key && reader.groupAux != dataKey && reusingGroup < 0) {
+                // Starting to reuse nodes
+                reusingGroup = reader.currentGroup
+                reusing = true
+            }
         }
         start(key, null, GroupKind.Group, dataKey)
     }
