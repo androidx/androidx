@@ -15,7 +15,6 @@
  */
 package androidx.appsearch.platformstorage;
 
-import android.annotation.SuppressLint;
 import android.app.appsearch.AppSearchResult;
 import android.app.appsearch.BatchResultCallback;
 import android.os.Build;
@@ -48,7 +47,6 @@ import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverte
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -89,7 +87,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName, @NonNull String databaseName,
             @NonNull GetByDocumentIdRequest request) {
-        if (Build.VERSION.SDK_INT < 33) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             throw new UnsupportedOperationException(Features.GLOBAL_SEARCH_SESSION_GET_BY_ID
                     + " is not supported on this AppSearch implementation.");
         }
@@ -105,9 +103,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return future;
     }
 
-    // TODO(b/265311462): Remove these two lines once BuildCompat.isAtLeastU() is removed
-    @SuppressLint("NewApi")
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public SearchResults search(
@@ -136,16 +131,13 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return future;
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName) {
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (Build.VERSION.SDK_INT < 33) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
                             + " is not supported on this AppSearch implementation.");
@@ -178,7 +170,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(observer);
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (Build.VERSION.SDK_INT < 33) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");
@@ -237,7 +229,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkNotNull(observer);
         // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
         // unsupported build.
-        if (Build.VERSION.SDK_INT < 33) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             throw new UnsupportedOperationException(
                     Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK
                             + " is not supported on this AppSearch implementation");

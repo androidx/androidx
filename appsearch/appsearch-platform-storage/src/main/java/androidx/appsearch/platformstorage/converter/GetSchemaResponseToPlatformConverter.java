@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.collection.ArraySet;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
@@ -44,15 +43,12 @@ public final class GetSchemaResponseToPlatformConverter {
      * Translates a platform {@link android.app.appsearch.GetSchemaResponse} into a jetpack
      * {@link GetSchemaResponse}.
      */
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static GetSchemaResponse toJetpackGetSchemaResponse(
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
         Preconditions.checkNotNull(platformResponse);
         GetSchemaResponse.Builder jetpackBuilder;
-        if (Build.VERSION.SDK_INT < 33) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             // Android API level in S-v2 and lower won't have any supported feature.
             jetpackBuilder = new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false);
         } else {

@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -47,9 +46,6 @@ public final class SearchSpecToPlatformConverter {
     // Most jetpackSearchSpec.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SearchSpec toPlatformSearchSpec(
             @NonNull SearchSpec jetpackSearchSpec) {
@@ -59,7 +55,7 @@ public final class SearchSpecToPlatformConverter {
                 new android.app.appsearch.SearchSpec.Builder();
 
         if (!jetpackSearchSpec.getAdvancedRankingExpression().isEmpty()) {
-            if (!BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 throw new UnsupportedOperationException(
                         Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION
                                 + " is not available on this AppSearch implementation.");
@@ -101,7 +97,7 @@ public final class SearchSpecToPlatformConverter {
         }
 
         if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {
-            if (!BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 throw new UnsupportedOperationException(
                         "Property weights are not supported with this backend/Android API level "
                                 + "combination.");
@@ -114,7 +110,7 @@ public final class SearchSpecToPlatformConverter {
             if (jetpackSearchSpec.isNumericSearchEnabled()
                     || jetpackSearchSpec.isVerbatimSearchEnabled()
                     || jetpackSearchSpec.isListFilterQueryLanguageEnabled()) {
-                if (!BuildCompat.isAtLeastU()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     throw new UnsupportedOperationException(
                             "Advanced query features (NUMERIC_SEARCH, VERBATIM_SEARCH and "
                                     + "LIST_FILTER_QUERY_LANGUAGE) are not supported with this "
@@ -125,7 +121,7 @@ public final class SearchSpecToPlatformConverter {
         }
 
         if (jetpackSearchSpec.getJoinSpec() != null) {
-            if (!BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 throw new UnsupportedOperationException("JoinSpec is not available on this "
                         + "AppSearch implementation.");
             }
@@ -134,11 +130,7 @@ public final class SearchSpecToPlatformConverter {
         return platformBuilder.build();
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed. Also, replace literal '34' with
-    //  Build.VERSION_CODES.UPSIDE_DOWN_CAKE once the SDK_INT is finalized.
-    @BuildCompat.PrereleaseSdkCheck
-    @RequiresApi(34)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private static class ApiHelperForU {
         private ApiHelperForU() {
             // This class is not instantiable.
