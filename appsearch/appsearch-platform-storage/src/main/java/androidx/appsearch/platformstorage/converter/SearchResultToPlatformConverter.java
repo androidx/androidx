@@ -24,7 +24,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -39,9 +38,6 @@ public class SearchResultToPlatformConverter {
     private SearchResultToPlatformConverter() {}
 
     /** Translates from Platform to Jetpack versions of {@link SearchResult}. */
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static SearchResult toJetpackSearchResult(
             @NonNull android.app.appsearch.SearchResult platformResult) {
@@ -58,7 +54,7 @@ public class SearchResultToPlatformConverter {
             SearchResult.MatchInfo jetpackMatchInfo = toJetpackMatchInfo(platformMatches.get(i));
             builder.addMatchInfo(jetpackMatchInfo);
         }
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             for (android.app.appsearch.SearchResult joinedResult :
                     ApiHelperForU.getJoinedResults(platformResult)) {
                 builder.addJoinedResult(toJetpackSearchResult(joinedResult));
@@ -109,9 +105,7 @@ public class SearchResultToPlatformConverter {
         }
     }
 
-    // TODO(b/265311462): Replace literal '34' with Build.VERSION_CODES.UPSIDE_DOWN_CAKE when the
-    // SDK_INT is finalized.
-    @RequiresApi(34)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private static class ApiHelperForU {
         private ApiHelperForU() {
             // This class is not instantiable.

@@ -16,6 +16,8 @@
 
 package androidx.appsearch.platformstorage.converter;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -30,9 +32,8 @@ import java.util.List;
  *
  * @exportToFramework:hide
  */
-// TODO(b/227356108) replace literal '34' with Build.VERSION_CODES.U once the SDK_INT is finalized.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(34)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public class SearchSuggestionResultToPlatformConverter {
     private SearchSuggestionResultToPlatformConverter() {}
 
