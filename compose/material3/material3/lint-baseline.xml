@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="BanThreadSleep"
@@ -471,6 +471,24 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method OutlinedTextFieldLayout has parameter &apos;onLabelMeasured&apos; with type Function1&lt;? super Size, Unit>."
+        errorLine1="    onLabelMeasured: (Size) -> Unit,"
+        errorLine2="                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor OutlinedTextFieldMeasurePolicy has parameter &apos;onLabelMeasured&apos; with type Function1&lt;? super Size, Unit>."
+        errorLine1="    private val onLabelMeasured: (Size) -> Unit,"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicWidth has parameter &apos;intrinsicMeasurer&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
         errorLine1="        intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -483,6 +501,15 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicHeight has parameter &apos;intrinsicMeasurer&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
         errorLine1="        intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;calculateVerticalPosition&apos; with type Function1&lt;? super Placeable, ? extends Integer>."
+        errorLine1="    // Single line text fields have text components centered vertically."
+        errorLine2="    ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
     </issue>
@@ -579,6 +606,15 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;PressGestureScope, Offset, Continuation&lt;? super Unit>, Object> of &apos;getPress$lint_module&apos;."
+        errorLine1="    internal val press: suspend PressGestureScope.(Offset) -> Unit = { pos ->"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor RangeSliderState has parameter &apos;initialOnValueChange&apos; with type Function1&lt;? super FloatRange, Unit>."
         errorLine1="    initialOnValueChange: ((FloatRange) -> Unit)? = null,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
@@ -611,6 +647,33 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;isValidDistance&apos; with type Function1&lt;? super Float, ? extends Boolean>."
+        errorLine1="        fun Float.isValidDistance(): Boolean {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnapFlingBehavior.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;calculateSnappingOffsetBounds&apos; with type Function0&lt;? extends FloatRange>."
+        errorLine1="        fun calculateSnappingOffsetBounds(): FloatRange {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnapFlingBehavior.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;consumeDelta&apos; with type Function2&lt;? super AnimationScope&lt;Float, AnimationVector1D>, ? super Float, ? extends Unit>."
+        errorLine1="        fun AnimationScope&lt;Float, AnimationVector1D>.consumeDelta(delta: Float) {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnapFlingBehavior.kt"/>
     </issue>
 
     <issue
@@ -750,6 +813,15 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SwipeAnchorsModifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    private val onSizeChanged: (layoutSize: IntSize) -> Unit,"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;valueToOffset&apos; with type Function1&lt;? super Boolean, ? extends Float>."
         errorLine1="    val valueToOffset = remember&lt;(Boolean) -> Float>(minBound, maxBound) {"
         errorLine2="    ^">
@@ -773,6 +845,33 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;calculateVerticalPosition&apos; with type Function1&lt;? super Placeable, ? extends Integer>."
+        errorLine1="    // Single line text field without label places its text components centered vertically."
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;labelColor&apos; with type Function1&lt;? super InputPhase, ? extends Color>."
+        errorLine1="    val labelColor: @Composable (InputPhase) -> Color = {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Transition has parameter &apos;contentColor&apos; with type Function1&lt;? super InputPhase, Color>."
+        errorLine1="        contentColor: @Composable (InputPhase) -> Color,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextFieldImpl.kt"/>
     </issue>
 
     <issue

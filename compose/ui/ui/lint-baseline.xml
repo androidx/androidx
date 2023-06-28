@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="BanHideAnnotation"
@@ -120,6 +120,15 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;canScroll&apos; with type Function2&lt;? super ScrollAxisRange, ? super Float, ? extends Boolean>."
+        errorLine1="                // Will the scrollable scroll when ScrollBy is invoked with the given [amount]?"
+        errorLine2="                ^">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
         errorLine1="                val scrollAction ="
         errorLine2="                ^">
@@ -141,6 +150,15 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
         errorLine1="                var scrollAction = scrollableAncestor?.config?.getOrNull(SemanticsActions.ScrollBy)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollDelta&apos; with type Function2&lt;? super Float, ? super Float, ? extends Float>."
+        errorLine1="                // Given the desired scroll value to align either side of the target with the"
+        errorLine2="                ^">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
     </issue>
@@ -215,6 +233,186 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/input/InputModeManager.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor IntermediateLayoutModifierNode has parameter &apos;measureBlock&apos; with type Function3&lt;? super IntermediateMeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    internal var measureBlock: IntermediateMeasureScope.("
+        errorLine2="                               ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/IntermediateLayoutModifierNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setMeasureBlock$lint_module has parameter &apos;&lt;set-?>&apos; with type Function3&lt;? super IntermediateMeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    internal var measureBlock: IntermediateMeasureScope.("
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/IntermediateLayoutModifierNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;IntermediateMeasureScope, Measurable, Constraints, MeasureResult> of &apos;getMeasureBlock$lint_module&apos;."
+        errorLine1="    internal var measureBlock: IntermediateMeasureScope.("
+        errorLine2="                               ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/IntermediateLayoutModifierNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method layout has parameter &apos;measure&apos; with type Function3&lt;? super MeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    measure: MeasureScope.(Measurable, Constraints) -> MeasureResult"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LayoutModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LayoutElement has parameter &apos;measure&apos; with type Function3&lt;? super MeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    val measure: MeasureScope.(Measurable, Constraints) -> MeasureResult"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LayoutModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;MeasureScope, Measurable, Constraints, MeasureResult> of &apos;getMeasure&apos;."
+        errorLine1="    val measure: MeasureScope.(Measurable, Constraints) -> MeasureResult"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LayoutModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LayoutModifierImpl has parameter &apos;measureBlock&apos; with type Function3&lt;? super MeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    var measureBlock: MeasureScope.(Measurable, Constraints) -> MeasureResult"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LayoutModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setMeasureBlock has parameter &apos;&lt;set-?>&apos; with type Function3&lt;? super MeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    var measureBlock: MeasureScope.(Measurable, Constraints) -> MeasureResult"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LayoutModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;MeasureScope, Measurable, Constraints, MeasureResult> of &apos;getMeasureBlock&apos;."
+        errorLine1="    var measureBlock: MeasureScope.(Measurable, Constraints) -> MeasureResult"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LayoutModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;printSubTree&apos; with type Function2&lt;? super LayoutNode, ? super Integer, ? extends Unit>."
+        errorLine1="        fun printSubTree(node: LayoutNode, depth: Int) {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/LayoutTreeConsistencyChecker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intermediateLayout has parameter &apos;measure&apos; with type Function3&lt;? super IntermediateMeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    measure: IntermediateMeasureScope.("
+        errorLine2="             ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LookaheadScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor IntermediateLayoutElement has parameter &apos;measure&apos; with type Function3&lt;? super IntermediateMeasureScope, ? super Measurable, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    val measure: IntermediateMeasureScope.("
+        errorLine2="                 ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LookaheadScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;IntermediateMeasureScope, Measurable, Constraints, MeasureResult> of &apos;getMeasure&apos;."
+        errorLine1="    val measure: IntermediateMeasureScope.("
+        errorLine2="                 ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/LookaheadScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method onSizeChanged has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    onSizeChanged: (IntSize) -> Unit"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/OnRemeasuredModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor OnSizeChangedModifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    val onSizeChanged: (IntSize) -> Unit,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/OnRemeasuredModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;IntSize, Unit> of &apos;getOnSizeChanged&apos;."
+        errorLine1="    val onSizeChanged: (IntSize) -> Unit,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/OnRemeasuredModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method invokeOverAllPasses has parameter &apos;$this$invokeOverAllPasses&apos; with type Function3&lt;? super PointerEvent, ? super PointerEventPass, ? super IntSize, Unit>."
+        errorLine1="internal fun PointerInputHandler.invokeOverAllPasses("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/input/pointer/PointerInputTestUtil.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method invokeOverPass has parameter &apos;$this$invokeOverPass&apos; with type Function3&lt;? super PointerEvent, ? super PointerEventPass, ? super IntSize, Unit>."
+        errorLine1="internal fun PointerInputHandler.invokeOverPass("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/input/pointer/PointerInputTestUtil.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method invokeOverPasses has parameter &apos;$this$invokeOverPasses&apos; with type Function3&lt;? super PointerEvent, ? super PointerEventPass, ? super IntSize, Unit>."
+        errorLine1="internal fun PointerInputHandler.invokeOverPasses("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/input/pointer/PointerInputTestUtil.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method invokeOverPasses has parameter &apos;$this$invokeOverPasses&apos; with type Function3&lt;? super PointerEvent, ? super PointerEventPass, ? super IntSize, Unit>."
+        errorLine1="internal fun PointerInputHandler.invokeOverPasses("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/input/pointer/PointerInputTestUtil.kt"/>
     </issue>
 
     <issue
@@ -341,6 +539,87 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SubcomposeLayout has parameter &apos;measurePolicy&apos; with type Function2&lt;? super SubcomposeMeasureScope, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/SubcomposeLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SubcomposeLayout has parameter &apos;measurePolicy&apos; with type Function2&lt;? super SubcomposeMeasureScope, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/SubcomposeLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LayoutNode, Function2&lt;? super SubcomposeMeasureScope, ? super Constraints, ? extends MeasureResult>, Unit> of &apos;getSetMeasurePolicy$lint_module&apos;."
+        errorLine1="        LayoutNode.((SubcomposeMeasureScope.(Constraints) -> MeasureResult)) -> Unit ="
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/SubcomposeLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method createMeasurePolicy has parameter &apos;block&apos; with type Function2&lt;? super SubcomposeMeasureScope, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="        block: SubcomposeMeasureScope.(Constraints) -> MeasureResult"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/SubcomposeLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;majorAxisDistance&apos; with type Function1&lt;? super Rect, ? extends Float>."
+        errorLine1="    // The distance from the edge furthest in the given direction of source to the edge nearest"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/TwoDimensionalFocusSearch.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;minorAxisDistance&apos; with type Function1&lt;? super Rect, ? extends Float>."
+        errorLine1="    // Find the distance on the minor axis w.r.t the direction to the nearest edge of the"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/TwoDimensionalFocusSearch.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;weightedDistance&apos; with type Function1&lt;? super Rect, ? extends Long>."
+        errorLine1="    // Fudge-factor opportunity: how to calculate distance given major and minor axis distances."
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/TwoDimensionalFocusSearch.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;majorAxisDistance&apos; with type Function1&lt;? super Rect, ? extends Float>."
+        errorLine1="    // The distance from the edge furthest in the given direction of source to the edge nearest"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/TwoDimensionalFocusSearch.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;majorAxisDistanceToFarEdge&apos; with type Function1&lt;? super Rect, ? extends Float>."
+        errorLine1="    // The distance along the major axis w.r.t the direction from the edge of source to the far"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/TwoDimensionalFocusSearch.kt"/>
     </issue>
 
     <issue
