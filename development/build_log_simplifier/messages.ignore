@@ -1314,3 +1314,6 @@ Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KCallableImpl's kotlin\.Metadata: null
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
+# > Task :paging:paging-samples:lintReportDebug
+Warning: Lint will treat :paging:paging\-common as an external dependency and not analyze it\.
+\* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :paging:paging\-common\. to enable lint to analyze those sources\.

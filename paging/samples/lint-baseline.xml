@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="true" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.cachedInSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun cachedInSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/CachedInSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.insertSeparatorsSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun insertSeparatorsSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/InsertSeparatorsSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.insertSeparatorsUiModelSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun insertSeparatorsUiModelSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/InsertSeparatorsUiModelSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.itemKeyedPagingSourceSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun itemKeyedPagingSourceSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/PagingSourceSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.pageKeyedPagingSourceSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun pageKeyedPagingSourceSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/PagingSourceSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.pageKeyedPage is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun pageKeyedPage() {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/PagingSourceSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.pageIndexedPage is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun pageIndexedPage() {"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/PagingSourceSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.remoteMediatorItemKeyedSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun remoteMediatorItemKeyedSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/RemoteMediatorSample.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSampledAnnotation"
+        message="androidx.paging.samples.remoteMediatorPageKeyedSample is annotated with @Sampled, but is not linked to from a @sample tag."
+        errorLine1="fun remoteMediatorPageKeyedSample() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/samples/RemoteMediatorSample.kt"/>
+    </issue>
+
+</issues>
