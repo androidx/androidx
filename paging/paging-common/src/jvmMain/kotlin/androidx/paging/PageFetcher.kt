@@ -238,7 +238,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     inner class PagerHintReceiver<Key : Any, Value : Any> constructor(
-        @VisibleForTesting
+        @get:VisibleForTesting
         internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
     ) : HintReceiver {
 
