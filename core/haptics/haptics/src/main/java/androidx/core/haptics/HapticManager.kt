@@ -19,11 +19,14 @@ package androidx.core.haptics
 import android.content.Context
 import android.os.Vibrator
 import androidx.annotation.RequiresPermission
+import androidx.annotation.VisibleForTesting
+import androidx.core.content.ContextCompat
 import androidx.core.haptics.impl.HapticManagerImpl
-import androidx.core.haptics.signal.PredefinedEffect
+import androidx.core.haptics.impl.VibratorWrapperImpl
+import androidx.core.haptics.signal.HapticSignal
 
 /**
- * Manager for the vibrators of a device.
+ * Manager for interactions with a device vibrator.
  *
  * <p>If your process exits, any vibration you started will stop.
  */
@@ -32,35 +35,38 @@ interface HapticManager {
     companion object {
 
         /**
-         * Creates haptic manager for the system vibrators.
+         * Creates a haptic manager for the system vibrator.
          *
-         * Sample code:
          * @sample androidx.core.haptics.samples.PlaySystemStandardClick
          *
-         * @param context Context to load the device vibrators.
-         * @return a new instance of HapticManager for the system vibrators.
+         * @param context Context to load the device vibrator.
+         * @return a new instance of HapticManager for the system vibrator.
          */
         @JvmStatic
         fun create(context: Context): HapticManager {
-            return HapticManagerImpl(context)
+            return HapticManagerImpl(
+                VibratorWrapperImpl(
+                    requireNotNull(ContextCompat.getSystemService(context, Vibrator::class.java)) {
+                        "Vibrator service not found"
+                    }
+                )
+            )
         }
 
-        /** Creates haptic manager for given vibrator. */
-        internal fun createForVibrator(vibrator: Vibrator): HapticManager {
+        /** Creates a haptic manager for the given vibrator. */
+        @VisibleForTesting
+        internal fun createForVibrator(vibrator: VibratorWrapper): HapticManager {
             return HapticManagerImpl(vibrator)
         }
     }
 
     /**
-     * Play a [PredefinedEffect].
+     * Play a [HapticSignal].
      *
-     * The app should be in the foreground for the vibration to happen.
+     * @sample androidx.core.haptics.samples.PlayHapticSignal
      *
-     * Sample code:
-     * @sample androidx.core.haptics.samples.PlaySystemStandardClick
-     *
-     * @param effect The predefined haptic effect to be played.
+     * @param signal The haptic signal to be played.
      */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    fun play(effect: PredefinedEffect)
+    fun play(signal: HapticSignal)
 }

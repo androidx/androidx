@@ -20,12 +20,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    tools:context="androidx.core.haptics.demos.HapticSamplesActivity">
+    tools:context=".HapticDemosActivity">
 
     <Button
         android:id="@+id/standard_click_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/standard_click" />
+
+    <Button
+        android:id="@+id/scaled_click_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/scaled_click" />
+
+    <Button
+        android:id="@+id/on_off_pattern_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/on_off_pattern" />
+
+    <Button
+        android:id="@+id/repeating_waveform_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/repeating_waveform" />
 
 </LinearLayout>
