@@ -24,7 +24,7 @@ import java.util.UUID
  * Represents a Bluetooth GATT characteristic descriptor
  *
  * GATT descriptors contain additional information and attributes of a GATT characteristic,
- * [BluetoothGattCharacteristic]. They can be used to describe the characteristic's features or
+ * [GattCharacteristic]. They can be used to describe the characteristic's features or
  * to control certain behaviours of the characteristic.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
