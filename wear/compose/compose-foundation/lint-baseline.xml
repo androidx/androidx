@@ -217,4 +217,13 @@
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
     </issue>
 
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SwipeAnchorsModifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    private val onSizeChanged: (layoutSize: IntSize) -> Unit,"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
 </issues>

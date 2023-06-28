@@ -29,17 +29,17 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.lang.jvm.types.JvmType
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiWildcardType
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.util.EnumSet
-import org.jetbrains.kotlin.asJava.classes.KtUltraLightClass
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UVariable
-import org.jetbrains.uast.kotlin.KotlinULambdaExpression
 
 /**
  * Lambdas with primitives will box the primitives on every call. This lint rule will find
@@ -57,8 +57,7 @@ class PrimitiveInLambdaDetector : Detector(), SourceCodeScanner {
         override fun visitMethod(node: UMethod) {
             if (!isKotlin(node) ||
                 context.evaluator.isOverride(node) ||
-                (context.evaluator.isData(node.containingClass) &&
-                    (node.name.startsWith("copy") || node.name.startsWith("component")))
+                node.isDataClassGeneratedMethod(context)
             ) {
                 return
             }
@@ -88,15 +87,10 @@ class PrimitiveInLambdaDetector : Detector(), SourceCodeScanner {
             }
 
             if (node.type.hasLambdaWithPrimitive()) {
-                val parent = node.uastParent
-                if (parent is KotlinULambdaExpression) {
-                    val sourcePsi = node.sourcePsi
-                    if (sourcePsi == null ||
-                        (sourcePsi as? KtParameter)?.isLambdaParameter == true
-                    ) {
-                        return // Don't notify for lambda parameters
-                    }
+                if (node.isLambdaParameter()) {
+                    return // Don't notify for lambda parameters
                 }
+                val parent = node.uastParent
                 val messageContext = if (parent is UMethod) {
                     val isInline = context.evaluator.isInline(parent)
                     val isParameterNoInline = context.evaluator.isNoInline(node)
@@ -130,10 +124,15 @@ class PrimitiveInLambdaDetector : Detector(), SourceCodeScanner {
     }
 
     private fun report(context: JavaContext, node: UElement, target: Any?, messageContext: String) {
+        val location = if (target == null) {
+            context.getLocation(node)
+        } else {
+            context.getLocation(target)
+        }
         context.report(
             issue = ISSUE,
             scope = node,
-            location = context.getLocation(target),
+            location = location,
             message = "Use a functional interface instead of lambda syntax for lambdas with " +
                 "primitive values in $messageContext."
         )
@@ -164,7 +163,7 @@ private val JvmInlineAnnotation = JvmInline::class.qualifiedName!!
 
 // Set of all boxed types that we want to prevent. We don't have to worry
 // about Boolean or because the boxed values are kept and reused (and there are only 2).
-private val BoxedPrimitives = setOf(
+val BoxedPrimitives = setOf(
     "java.lang.Byte",
     "java.lang.Character",
     "java.lang.Short",
@@ -177,6 +176,17 @@ private val BoxedPrimitives = setOf(
     "kotlin.UInt",
     "kotlin.ULong",
 )
+
+fun UMethod.isDataClassGeneratedMethod(context: JavaContext): Boolean =
+    context.evaluator.isData(containingClass) &&
+        (name.startsWith("copy") || name.startsWith("component"))
+
+fun UVariable.isLambdaParameter(): Boolean {
+    val sourcePsi = sourcePsi
+    return ((sourcePsi == null && (javaPsi as? PsiParameter)?.name == "it") ||
+        (sourcePsi as? KtParameter)?.isLambdaParameter == true
+    )
+}
 
 private fun JvmType.hasLambdaWithPrimitive(): Boolean {
     if (isLambda() && hasPrimitiveTypeArgs()) {
@@ -192,10 +202,10 @@ private fun JvmType.hasLambdaWithPrimitive(): Boolean {
     return false
 }
 
-private fun JvmType.isLambda(): Boolean =
+fun JvmType.isLambda(): Boolean =
     (this is PsiClassReferenceType && reference.qualifiedName.startsWith(FunctionPrefix))
 
-private fun JvmType.hasPrimitiveTypeArgs(): Boolean {
+fun JvmType.hasPrimitiveTypeArgs(): Boolean {
     if (this !is PsiClassReferenceType) {
         return false
     }
@@ -225,15 +235,18 @@ private fun JvmType.hasPrimitiveTypeArgs(): Boolean {
     return false
 }
 
-private fun PsiClassReferenceType.isBoxedPrimitive(): Boolean {
+fun PsiClassReferenceType.isBoxedPrimitive(): Boolean {
     val resolvedType = resolve() ?: return false
-    if (resolvedType is KtUltraLightClass && hasJvmInline(resolvedType)) {
+    if (hasJvmInline(resolvedType)) {
         val constructorParam =
-            resolvedType.constructors.firstOrNull()?.parameters?.firstOrNull()
+            resolvedType.constructors.firstOrNull { it.parameters.size == 1 }?.parameters?.first()
+                ?: resolvedType.methods.firstOrNull {
+                    it.parameters.size == 1 && it.name == "constructor-impl"
+                }?.parameters?.first()
         if (constructorParam != null) {
             val type = constructorParam.type
             if (type is PsiPrimitiveType) {
-                return true
+                return type.boxedTypeName in BoxedPrimitives
             }
             if (type is PsiClassReferenceType) {
                 return type.isBoxedPrimitive()
@@ -243,7 +256,7 @@ private fun PsiClassReferenceType.isBoxedPrimitive(): Boolean {
     return resolvedType.qualifiedName in BoxedPrimitives
 }
 
-private fun hasJvmInline(type: KtUltraLightClass): Boolean {
+private fun hasJvmInline(type: PsiClass): Boolean {
     for (annotation in type.annotations) {
         if (annotation.qualifiedName == JvmInlineAnnotation) {
             return true
