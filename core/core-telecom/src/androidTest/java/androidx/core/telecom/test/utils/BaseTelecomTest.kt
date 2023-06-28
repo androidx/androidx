@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom.utils
+package androidx.core.telecom.test.utils
 
 import android.content.Context
 import android.content.pm.PackageManager

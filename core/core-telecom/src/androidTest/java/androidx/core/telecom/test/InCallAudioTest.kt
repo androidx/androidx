@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom
+package androidx.core.telecom.test
 
 import android.media.AudioManager.MODE_IN_COMMUNICATION
 import android.os.Build
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.Utils
-import androidx.core.telecom.utils.BaseTelecomTest
-import androidx.core.telecom.utils.TestUtils
+import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
