@@ -32,7 +32,7 @@ import androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.allCaps
@@ -96,7 +96,7 @@ private fun DigitsOnlyDemo() {
 
         override fun filter(
             originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBufferWithSelection
+            valueWithChanges: TextFieldBuffer
         ) {
             if (!valueWithChanges.isDigitsOnly()) {
                 valueWithChanges.revertAllChanges()

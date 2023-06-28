@@ -26,14 +26,11 @@ import androidx.compose.foundation.text.selection.getSelectionHandleCoordinates
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextEditResult
 import androidx.compose.foundation.text2.input.TextFieldBuffer
-import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.selectAll
-import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -497,18 +494,15 @@ internal class TextFieldSelectionState(
     /**
      * Edits the TextFieldState content with a filter applied if available.
      */
-    private fun editWithFilter(block: TextFieldBuffer.() -> TextEditResult) {
+    private fun editWithFilter(block: TextFieldBuffer.() -> Unit) {
         val filter = textEditFilter
         if (filter == null) {
             textFieldState.edit(block)
         } else {
             val originalValue = textFieldState.text
             // create a new buffer to pass to TextEditFilter after edit ops
-            val buffer = TextFieldBufferWithSelection(originalValue, originalValue)
-            val textEditResult = buffer.block()
-            // selection is returned as a result, also apply it to buffer
-            val newSelection = textEditResult.calculateSelection(originalValue, buffer)
-            buffer.selectCharsIn(newSelection)
+            val buffer = TextFieldBuffer(originalValue)
+            buffer.block()
 
             // finally filter the buffer's current status
             textEditFilter?.filter(originalValue, buffer)

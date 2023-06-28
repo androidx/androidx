@@ -52,13 +52,13 @@ fun interface TextEditFilter {
      * The filter operation. For more information see the documentation on [TextEditFilter].
      *
      * To reject all changes in [valueWithChanges], call
-     * `valueWithChanges.`[revertAllChanges][TextFieldBufferWithSelection.revertAllChanges].
+     * `valueWithChanges.`[revertAllChanges][TextFieldBuffer.revertAllChanges].
      *
      * @param originalValue The value of the field before the change was performed.
      * @param valueWithChanges The value of the field after the change. This value can be changed
      * in-place to alter or reject the changes or set the selection.
      */
-    fun filter(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBufferWithSelection)
+    fun filter(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer)
 
     companion object
 }
@@ -89,7 +89,7 @@ private class FilterChain(
 
     override fun filter(
         originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBufferWithSelection
+        valueWithChanges: TextFieldBuffer
     ) {
         first.filter(originalValue, valueWithChanges)
         second.filter(originalValue, valueWithChanges)

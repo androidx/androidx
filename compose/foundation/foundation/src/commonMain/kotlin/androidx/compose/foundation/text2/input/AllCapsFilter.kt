@@ -43,7 +43,7 @@ private data class AllCapsFilter(private val locale: Locale) : TextEditFilter {
 
     override fun filter(
         originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBufferWithSelection
+        valueWithChanges: TextFieldBuffer
     ) {
         val selection = valueWithChanges.selectionInCodepoints
         valueWithChanges.replace(

@@ -26,7 +26,7 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
 import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
+import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

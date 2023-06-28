@@ -28,11 +28,11 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalFoundationApi::class)
 @RunWith(JUnit4::class)
-class TextFieldBufferWithSelectionTest {
+class TextFieldBufferTest {
 
     @Test
     fun initialSelection() {
-        val state = TextFieldBufferWithSelection(TextFieldCharSequence())
+        val state = TextFieldBuffer(TextFieldCharSequence())
         assertThat(state.selectionInChars).isEqualTo(TextRange(0))
         assertThat(state.hasSelection).isFalse()
     }
@@ -155,8 +155,8 @@ class TextFieldBufferWithSelectionTest {
     @Test
     fun resetTo_copiesTextAndSelection() {
         val expectedValue = TextFieldCharSequence("world", TextRange(5))
-        val state = TextFieldBufferWithSelection(
-            value = TextFieldCharSequence("hello", TextRange(2)),
+        val state = TextFieldBuffer(
+            initialValue = TextFieldCharSequence("hello", TextRange(2)),
             sourceValue = expectedValue
         )
         state.revertAllChanges()
@@ -164,6 +164,121 @@ class TextFieldBufferWithSelectionTest {
         assertThat(state.changes.changeCount).isEqualTo(0)
     }
 
+    @Test
+    fun placeCursorBeforeCharAt_emptyBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorBeforeCharAt(-1)
+        }
+
+        buffer.placeCursorBeforeCharAt(0)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorBeforeCharAt(1)
+        }
+    }
+
+    @Test
+    fun placeCursorBeforeCharAt_nonEmptyBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorBeforeCharAt(-1)
+        }
+
+        buffer.placeCursorBeforeCharAt(0)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0))
+
+        buffer.placeCursorBeforeCharAt(1)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(1))
+
+        buffer.placeCursorBeforeCharAt(5)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(5))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorBeforeCharAt(6)
+        }
+    }
+
+    @Test
+    fun placeCursorAfterCharAt_emptyBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+
+        buffer.placeCursorAfterCharAt(-1)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorAfterCharAt(0)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorAfterCharAt(1)
+        }
+    }
+
+    @Test
+    fun placeCursorAfterCharAt_nonEmptyBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+
+        buffer.placeCursorAfterCharAt(-1)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0))
+
+        buffer.placeCursorAfterCharAt(0)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(1))
+
+        buffer.placeCursorAfterCharAt(1)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(2))
+
+        buffer.placeCursorAfterCharAt(4)
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(5))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.placeCursorAfterCharAt(5)
+        }
+    }
+
+    @Test
+    fun selectCharsIn_emptyBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+
+        buffer.selectCharsIn(TextRange(0))
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.selectCharsIn(TextRange(0, 1))
+        }
+    }
+
+    @Test
+    fun selectCharsIn_nonEmptyBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+
+        buffer.selectCharsIn(TextRange(0))
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0))
+
+        buffer.selectCharsIn(TextRange(0, 1))
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0, 1))
+
+        buffer.selectCharsIn(TextRange(0, 5))
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(0, 5))
+
+        buffer.selectCharsIn(TextRange(4, 5))
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(4, 5))
+
+        buffer.selectCharsIn(TextRange(5, 5))
+        assertThat(buffer.selectionInChars).isEqualTo(TextRange(5, 5))
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.selectCharsIn(TextRange(5, 6))
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            buffer.selectCharsIn(TextRange(6, 6))
+        }
+    }
+
+    /** Tests of private testing helper code. */
     @Test
     fun testConvertTextFieldValueToAndFromString() {
         assertThat("".parseAsTextEditState()).isEqualTo(TextFieldCharSequence())
@@ -191,10 +306,10 @@ class TextFieldBufferWithSelectionTest {
 
     private fun testSelectionAdjustment(
         initial: String,
-        transform: TextFieldBufferWithSelection.() -> Unit,
+        transform: TextFieldBuffer.() -> Unit,
         expected: String
     ) {
-        val state = TextFieldBufferWithSelection(initial.parseAsTextEditState())
+        val state = TextFieldBuffer(initial.parseAsTextEditState())
         state.transform()
         assertThat(state.toTextFieldCharSequence().toParsableString()).isEqualTo(expected)
     }

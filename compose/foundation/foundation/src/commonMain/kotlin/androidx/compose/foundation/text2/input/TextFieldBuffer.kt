@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text2.input
 
-import androidx.annotation.CallSuper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.internal.ChangeTracker
@@ -25,23 +24,39 @@ import androidx.compose.ui.text.TextRange
 /**
  * A text buffer that can be edited, similar to [StringBuilder].
  *
- * This class provides methods for changing the text, such as [replace], [append], [insert], and
- * [delete].
+ * This class provides methods for changing the text, such as:
+ *  - [replace]
+ *  - [append]
+ *  - [insert]
+ *  - [delete]
+ *
+ * This class also stores and tracks the cursor position or selection range. The cursor position is
+ * just a selection range with zero length. The cursor and selection can be changed using methods
+ * such as:
+ *  - [placeCursorAfterCodepointAt]
+ *  - [placeCursorAfterCharAt]
+ *  - [placeCursorBeforeCodepointAt]
+ *  - [placeCursorBeforeCharAt]
+ *  - [placeCursorAtEnd]
+ *  - [selectAll]
  *
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
- *
- * [TextFieldBufferWithSelection] is a special type of buffer that has an associated cursor position
- * or selection range.
  */
 @ExperimentalFoundationApi
-open class TextFieldBuffer internal constructor(
-    internal val value: TextFieldCharSequence,
-    initialChanges: ChangeTracker? = null
+class TextFieldBuffer internal constructor(
+    initialValue: TextFieldCharSequence,
+    initialChanges: ChangeTracker? = null,
+    /**
+     * The value reverted to when [revertAllChanges] is called. This is not necessarily
+     * [initialValue] since the initial value may have already have had some intermediate changes
+     * applied to it.
+     */
+    private val sourceValue: TextFieldCharSequence = initialValue,
 ) : CharSequence,
     Appendable {
 
-    private val buffer = StringBuffer(value)
+    private val buffer = StringBuffer(initialValue)
 
     /**
      * Lazily-allocated [ChangeTracker], initialized on the first text change.
@@ -69,6 +84,32 @@ open class TextFieldBuffer internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
      */
     val changes: ChangeList get() = changeTracker ?: EmptyChangeList
+
+    /**
+     * True if the selection range has non-zero length. If this is false, then the selection
+     * represents the cursor.
+     *
+     * @see selectionInChars
+     */
+    @get:JvmName("hasSelection")
+    val hasSelection: Boolean
+        get() = !selectionInChars.collapsed
+
+    /**
+     * The selected range of characters.
+     *
+     * @see selectionInCodepoints
+     */
+    var selectionInChars: TextRange = initialValue.selectionInChars
+        private set
+
+    /**
+     * The selected range of codepoints.
+     *
+     * @see selectionInChars
+     */
+    val selectionInCodepoints: TextRange
+        get() = charsToCodepoints(selectionInChars)
 
     /**
      * Replaces the text between [start] (inclusive) and [end] (exclusive) in this value with
@@ -116,10 +157,48 @@ open class TextFieldBuffer internal constructor(
      * @param rangeToBeReplaced The range in the current text that's about to be replaced.
      * @param newLength The length of the replacement.
      */
-    @CallSuper
-    protected open fun onTextWillChange(rangeToBeReplaced: TextRange, newLength: Int) {
+    private fun onTextWillChange(rangeToBeReplaced: TextRange, newLength: Int) {
         (changeTracker ?: ChangeTracker().also { changeTracker = it })
             .trackChange(rangeToBeReplaced, newLength)
+
+        // Adjust selection.
+        val start = rangeToBeReplaced.min
+        val end = rangeToBeReplaced.max
+        var selStart = selectionInChars.min
+        var selEnd = selectionInChars.max
+
+        if (selEnd < start) {
+            // The entire selection is before the insertion point – we don't have to adjust the
+            // mark at all, so skip the math.
+            return
+        }
+
+        if (selStart <= start && end <= selEnd) {
+            // The insertion is entirely inside the selection, move the end only.
+            val diff = newLength - (end - start)
+            // Preserve "cursorness".
+            if (selStart == selEnd) {
+                selStart += diff
+            }
+            selEnd += diff
+        } else if (selStart > start && selEnd < end) {
+            // Selection is entirely inside replacement, move it to the end.
+            selStart = start + newLength
+            selEnd = start + newLength
+        } else if (selStart >= end) {
+            // The entire selection is after the insertion, so shift everything forward.
+            val diff = newLength - (end - start)
+            selStart += diff
+            selEnd += diff
+        } else if (start < selStart) {
+            // Insertion is around start of selection, truncate start of selection.
+            selStart = start + newLength
+            selEnd += newLength - (end - start)
+        } else {
+            // Insertion is around end of selection, truncate end of selection.
+            selEnd = start
+        }
+        selectionInChars = TextRange(selStart, selEnd)
     }
 
     override operator fun get(index: Int): Char = buffer[index]
@@ -129,31 +208,177 @@ open class TextFieldBuffer internal constructor(
 
     override fun toString(): String = buffer.toString()
 
-    internal fun clearChangeList() {
+    private fun clearChangeList() {
         changeTracker?.clearChanges()
     }
 
+    /**
+     * Revert all changes made to this value since it was created.
+     *
+     * After calling this method, this object will be in the same state it was when it was initially
+     * created, and [changes] will be empty.
+     */
+    fun revertAllChanges() {
+        replace(0, length, sourceValue.toString())
+        selectionInChars = sourceValue.selectionInChars
+        clearChangeList()
+    }
+
+    /**
+     * Places the cursor before the codepoint at the given index.
+     *
+     * If [index] is inside an invalid run, the cursor will be placed at the nearest earlier index.
+     *
+     * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the
+     * end of the field, after the last character, pass index
+     * [TextFieldBuffer.codepointLength] or call [placeCursorAtEnd].
+     *
+     * @param index Codepoint index to place cursor before, should be in range 0 to
+     * [TextFieldBuffer.codepointLength], inclusive.
+     *
+     * @see placeCursorBeforeCharAt
+     * @see placeCursorAfterCodepointAt
+     */
+    fun placeCursorBeforeCodepointAt(index: Int) {
+        requireValidIndex(index, startExclusive = true, endExclusive = false, inCodepoints = true)
+        val charIndex = codepointIndexToCharIndex(index)
+        selectionInChars = TextRange(charIndex)
+    }
+
+    /**
+     * Places the cursor before the character at the given index.
+     *
+     * If [index] is inside a surrogate pair or other invalid run, the cursor will be placed at the
+     * nearest earlier index.
+     *
+     * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the
+     * end of the field, after the last character, pass index [TextFieldBuffer.length] or call
+     * [placeCursorAtEnd].
+     *
+     * @param index Character index to place cursor before, should be in range 0 to
+     * [TextFieldBuffer.length], inclusive.
+     *
+     * @see placeCursorBeforeCodepointAt
+     * @see placeCursorAfterCharAt
+     */
+    fun placeCursorBeforeCharAt(index: Int) {
+        requireValidIndex(index, startExclusive = true, endExclusive = false, inCodepoints = false)
+        selectionInChars = TextRange(index)
+    }
+
+    /**
+     * Places the cursor after the codepoint at the given index.
+     *
+     * If [index] is inside an invalid run, the cursor will be placed at the nearest later index.
+     *
+     * To place the cursor at the end of the field, after the last character, pass index
+     * [TextFieldBuffer.codepointLength] or call [placeCursorAtEnd].
+     *
+     * @param index Codepoint index to place cursor after, should be in range 0 (inclusive) to
+     * [TextFieldBuffer.codepointLength] (exclusive).
+     *
+     * @see placeCursorAfterCharAt
+     * @see placeCursorBeforeCodepointAt
+     */
+    fun placeCursorAfterCodepointAt(index: Int) {
+        requireValidIndex(index, startExclusive = false, endExclusive = true, inCodepoints = true)
+        val charIndex = codepointIndexToCharIndex((index + 1).coerceAtMost(codepointLength))
+        selectionInChars = TextRange(charIndex)
+    }
+
+    /**
+     * Places the cursor after the character at the given index.
+     *
+     * If [index] is inside a surrogate pair or other invalid run, the cursor will be placed at the
+     * nearest later index.
+     *
+     * To place the cursor at the end of the field, after the last character, pass index
+     * [TextFieldBuffer.length] or call [placeCursorAtEnd].
+     *
+     * @param index Character index to place cursor after, should be in range 0 (inclusive) to
+     * [TextFieldBuffer.length] (exclusive).
+     *
+     * @see placeCursorAfterCodepointAt
+     * @see placeCursorBeforeCharAt
+     */
+    fun placeCursorAfterCharAt(index: Int) {
+        requireValidIndex(index, startExclusive = false, endExclusive = true, inCodepoints = false)
+        selectionInChars = TextRange((index + 1).coerceAtMost(length))
+    }
+
+    /**
+     * Places the selection around the given [range] in codepoints.
+     *
+     * If the start or end of [range] fall inside invalid runs, the values will be adjusted to the
+     * nearest earlier and later codepoints, respectively.
+     *
+     * To place the start of the selection at the beginning of the field, pass index 0. To place the
+     * end of the selection at the end of the field, after the last codepoint, pass index
+     * [TextFieldBuffer.codepointLength]. Passing a zero-length range is the same as calling
+     * [placeCursorBeforeCodepointAt].
+     *
+     * @param range Codepoint range of the selection, should be in range 0 to
+     * [TextFieldBuffer.codepointLength], inclusive.
+     *
+     * @see selectCharsIn
+     */
+    fun selectCodepointsIn(range: TextRange) {
+        requireValidRange(range, inCodepoints = true)
+        selectionInChars = codepointsToChars(range)
+    }
+
+    /**
+     * Places the selection around the given [range] in characters.
+     *
+     * If the start or end of [range] fall inside surrogate pairs or other invalid runs, the values will
+     * be adjusted to the nearest earlier and later characters, respectively.
+     *
+     * To place the start of the selection at the beginning of the field, pass index 0. To place the end
+     * of the selection at the end of the field, after the last character, pass index
+     * [TextFieldBuffer.length]. Passing a zero-length range is the same as calling
+     * [placeCursorBeforeCharAt].
+     *
+     * @param range Codepoint range of the selection, should be in range 0 to
+     * [TextFieldBuffer.length], inclusive.
+     *
+     * @see selectCodepointsIn
+     */
+    fun selectCharsIn(range: TextRange) {
+        requireValidRange(range, inCodepoints = false)
+        selectionInChars = range
+    }
+
     internal fun toTextFieldCharSequence(
-        selection: TextRange,
         composition: TextRange? = null
     ): TextFieldCharSequence = TextFieldCharSequence(
         buffer.toString(),
-        selection = selection,
+        selection = selectionInChars,
         composition = composition
     )
 
-    internal fun requireValidIndex(index: Int, inCodepoints: Boolean) {
+    private fun requireValidIndex(
+        index: Int,
+        startExclusive: Boolean,
+        endExclusive: Boolean,
+        inCodepoints: Boolean
+    ) {
+        var start = if (startExclusive) 0 else -1
+        var end = if (endExclusive) length else length + 1
+
         // The "units" of the range in the error message should match the units passed in.
         // If the input was in codepoint indices, the output should be in codepoint indices.
-        val validRange = TextRange(0, length)
-            .let { if (inCodepoints) charsToCodepoints(it) else it }
-        require(index in validRange) {
+        if (inCodepoints) {
+            start = charIndexToCodepointIndex(start)
+            end = charIndexToCodepointIndex(end)
+        }
+
+        require(index in start until end) {
             val unit = if (inCodepoints) "codepoints" else "chars"
-            "Expected $index to be in $validRange ($unit)"
+            "Expected $index to be in [$start, $end) $unit"
         }
     }
 
-    internal fun requireValidRange(range: TextRange, inCodepoints: Boolean) {
+    private fun requireValidRange(range: TextRange, inCodepoints: Boolean) {
         // The "units" of the range in the error message should match the units passed in.
         // If the input was in codepoint indices, the output should be in codepoint indices.
         val validRange = TextRange(0, length)
@@ -164,21 +389,18 @@ open class TextFieldBuffer internal constructor(
         }
     }
 
-    internal fun toTextFieldCharSequence(selection: TextRange): TextFieldCharSequence =
-        TextFieldCharSequence(buffer.toString(), selection = selection)
-
-    internal fun codepointsToChars(range: TextRange): TextRange = TextRange(
+    private fun codepointsToChars(range: TextRange): TextRange = TextRange(
         codepointIndexToCharIndex(range.start),
         codepointIndexToCharIndex(range.end)
     )
 
-    internal fun charsToCodepoints(range: TextRange): TextRange = TextRange(
+    private fun charsToCodepoints(range: TextRange): TextRange = TextRange(
         charIndexToCodepointIndex(range.start),
         charIndexToCodepointIndex(range.end),
     )
 
     // TODO Support actual codepoints.
-    internal fun codepointIndexToCharIndex(index: Int): Int = index
+    private fun codepointIndexToCharIndex(index: Int): Int = index
     private fun charIndexToCodepointIndex(index: Int): Int = index
 
     /**
@@ -243,6 +465,22 @@ fun TextFieldBuffer.insert(index: Int, text: String) {
 @ExperimentalFoundationApi
 fun TextFieldBuffer.delete(start: Int, end: Int) {
     replace(start, end, "")
+}
+
+/**
+ * Places the cursor at the end of the text.
+ */
+@ExperimentalFoundationApi
+fun TextFieldBuffer.placeCursorAtEnd() {
+    placeCursorBeforeCharAt(length)
+}
+
+/**
+ * Places the selection around all the text.
+ */
+@ExperimentalFoundationApi
+fun TextFieldBuffer.selectAll() {
+    selectCharsIn(TextRange(0, length))
 }
 
 /**
