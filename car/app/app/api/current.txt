@@ -1851,16 +1851,16 @@ package androidx.car.app.navigation.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public final class MapWithContentTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method public androidx.car.app.model.Template getContentTemplate();
     method public androidx.car.app.navigation.model.MapController? getMapController();
-    method public androidx.car.app.model.Template getTemplate();
   }
 
   public static final class MapWithContentTemplate.Builder {
     ctor public MapWithContentTemplate.Builder();
     method public androidx.car.app.navigation.model.MapWithContentTemplate build();
     method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setContentTemplate(androidx.car.app.model.Template);
     method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
-    method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setTemplate(androidx.car.app.model.Template);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
@@ -2041,16 +2041,6 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Trip build();
     method public androidx.car.app.navigation.model.Trip.Builder setCurrentRoad(CharSequence);
     method public androidx.car.app.navigation.model.Trip.Builder setLoading(boolean);
-  }
-
-}
-
-package androidx.car.app.navigation.model.constraints {
-
-  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class ContentTemplateConstraints {
-    method public void validateOrThrow(androidx.car.app.model.Template);
-    field public static final androidx.car.app.navigation.model.constraints.ContentTemplateConstraints MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS;
-    field public static final androidx.car.app.navigation.model.constraints.ContentTemplateConstraints TAB_CONTENTS_CONSTRAINTS;
   }
 
 }

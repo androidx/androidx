@@ -47,7 +47,7 @@ public final class MapWithContentTemplate implements Template {
     @Nullable
     private final MapController mMapController;
     @NonNull
-    private final Template mTemplate;
+    private final Template mContentTemplate;
     @Nullable
     private final ActionStrip mActionStrip;
 
@@ -57,14 +57,14 @@ public final class MapWithContentTemplate implements Template {
      */
     MapWithContentTemplate(Builder builder) {
         mMapController = builder.mMapController;
-        mTemplate = builder.mTemplate;
+        mContentTemplate = builder.mContentTemplate;
         mActionStrip = builder.mActionStrip;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private MapWithContentTemplate() {
         mMapController = null;
-        mTemplate = new Template() {
+        mContentTemplate = new Template() {
             @Override
             public int hashCode() {
                 return super.hashCode();
@@ -86,11 +86,11 @@ public final class MapWithContentTemplate implements Template {
     /**
      * Returns the {@link Template} content to display in this template.
      *
-     * @see Builder#setTemplate(Template)
+     * @see Builder#setContentTemplate(Template)
      */
     @NonNull
-    public Template getTemplate() {
-        return mTemplate;
+    public Template getContentTemplate() {
+        return mContentTemplate;
     }
 
     /**
@@ -105,7 +105,7 @@ public final class MapWithContentTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mMapController, mTemplate, mActionStrip);
+        return Objects.hash(mMapController, mContentTemplate, mActionStrip);
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class MapWithContentTemplate implements Template {
         }
         MapWithContentTemplate otherTemplate = (MapWithContentTemplate) other;
 
-        return Objects.equals(mTemplate, otherTemplate.mTemplate)
+        return Objects.equals(mContentTemplate, otherTemplate.mContentTemplate)
                 && Objects.equals(mMapController, otherTemplate.mMapController)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
@@ -128,7 +128,7 @@ public final class MapWithContentTemplate implements Template {
         @Nullable
         MapController mMapController;
         @NonNull
-        Template mTemplate = new Template() {};
+        Template mContentTemplate = new Template() {};
         @Nullable
         ActionStrip mActionStrip;
 
@@ -165,8 +165,8 @@ public final class MapWithContentTemplate implements Template {
          * Sets the content to be displayed on top of the map tiles.
          */
         @NonNull
-        public Builder setTemplate(@NonNull Template template) {
-            mTemplate = requireNonNull(template);
+        public Builder setContentTemplate(@NonNull Template template) {
+            mContentTemplate = requireNonNull(template);
             return this;
         }
 
@@ -184,15 +184,14 @@ public final class MapWithContentTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * @throws NullPointerException if the {@link Template} is null
-         * @throws Exception if the template is not one of the allowed Content types
+         * @throws IllegalArgumentException if the template is not one of the allowed Content types
          * see {@link ContentTemplateConstraints#MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS}
          * for the list of supported content templates.
          */
         @NonNull
         public MapWithContentTemplate build() {
             ContentTemplateConstraints.MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS
-                    .validateOrThrow(mTemplate);
+                    .validateOrThrow(mContentTemplate);
 
             return new MapWithContentTemplate(this);
         }
