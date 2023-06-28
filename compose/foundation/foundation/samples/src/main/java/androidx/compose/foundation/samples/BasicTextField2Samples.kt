@@ -34,7 +34,6 @@ import androidx.compose.foundation.text2.input.forEachChangeReversed
 import androidx.compose.foundation.text2.input.forEachTextValue
 import androidx.compose.foundation.text2.input.insert
 import androidx.compose.foundation.text2.input.rememberTextFieldState
-import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text2.input.textAsFlow
 import androidx.compose.foundation.text2.input.then

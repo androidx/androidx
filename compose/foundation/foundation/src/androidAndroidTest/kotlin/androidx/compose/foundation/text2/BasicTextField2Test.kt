@@ -30,8 +30,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
-import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
@@ -996,7 +996,7 @@ internal class BasicTextField2Test {
     private object RejectAllTextFilter : TextEditFilter {
         override fun filter(
             originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBufferWithSelection
+            valueWithChanges: TextFieldBuffer
         ) {
             valueWithChanges.revertAllChanges()
         }
@@ -1006,7 +1006,7 @@ internal class BasicTextField2Test {
         TextEditFilter {
         override fun filter(
             originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBufferWithSelection
+            valueWithChanges: TextFieldBuffer
         ) {
             // Noop
         }

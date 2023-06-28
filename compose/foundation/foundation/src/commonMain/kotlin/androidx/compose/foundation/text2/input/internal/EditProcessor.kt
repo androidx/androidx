@@ -18,15 +18,13 @@ package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.util.fastForEach
@@ -52,8 +50,6 @@ internal class EditProcessor(
      */
     var value: TextFieldCharSequence by valueMutableState
         private set
-
-    val valueState: State<TextFieldCharSequence> get() = valueMutableState
 
     // The editing buffer used for applying editor commands from IME.
     internal var mBuffer: EditingBuffer = EditingBuffer(
@@ -177,8 +173,8 @@ internal class EditProcessor(
                 return
             }
 
-            val mutableValue = TextFieldBufferWithSelection(
-                value = proposedValue,
+            val mutableValue = TextFieldBuffer(
+                initialValue = proposedValue,
                 sourceValue = oldValue,
                 initialChanges = mBuffer.changeTracker
             )
@@ -253,5 +249,3 @@ internal fun EditCommand.toStringForLog(): String = when (this) {
     is MoveCursorCommand -> toString()
     is DeleteAllCommand -> toString()
 }
-
-private val EmptyAnnotatedString = buildAnnotatedString { }
