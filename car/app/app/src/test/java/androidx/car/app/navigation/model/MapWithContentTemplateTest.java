@@ -77,21 +77,21 @@ public class MapWithContentTemplateTest {
     public void createInstance_unsupportedTemplate_throws() {
         assertThrows(IllegalArgumentException.class, () ->
                 new MapWithContentTemplate.Builder()
-                .setTemplate(getListTemplate())
+                .setContentTemplate(getListTemplate())
                 .build());
     }
 
     @Test
     public void createInstance_gridTemplate_doesNotThrow() {
         new MapWithContentTemplate.Builder()
-            .setTemplate(getGridTemplate())
+            .setContentTemplate(getGridTemplate())
             .build();
     }
 
     @Test
     public void createInstance_messageTemplate_doesNotThrow() {
         new MapWithContentTemplate.Builder()
-            .setTemplate(getMessageTemplate())
+            .setContentTemplate(getMessageTemplate())
             .build();
     }
 
@@ -104,10 +104,10 @@ public class MapWithContentTemplateTest {
         MapWithContentTemplate template = new MapWithContentTemplate.Builder()
                 .setMapController(mapController)
                 .setActionStrip(actionStrip)
-                .setTemplate(getMessageTemplate())
+                .setContentTemplate(getMessageTemplate())
                 .build();
 
-        assertThat(template.getTemplate()).isEqualTo(getMessageTemplate());
+        assertThat(template.getContentTemplate()).isEqualTo(getMessageTemplate());
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
         assertThat(template.getMapController().getMapActionStrip()).isEqualTo(mMapActionStrip);
     }
@@ -121,10 +121,10 @@ public class MapWithContentTemplateTest {
         MapWithContentTemplate template = new MapWithContentTemplate.Builder()
                 .setMapController(mapController)
                 .setActionStrip(actionStrip)
-                .setTemplate(getGridTemplate())
+                .setContentTemplate(getGridTemplate())
                 .build();
 
-        assertThat(template.getTemplate()).isEqualTo(getGridTemplate());
+        assertThat(template.getContentTemplate()).isEqualTo(getGridTemplate());
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
         assertThat(template.getMapController().getMapActionStrip()).isEqualTo(mMapActionStrip);
     }
@@ -138,13 +138,13 @@ public class MapWithContentTemplateTest {
         MapWithContentTemplate template = new MapWithContentTemplate.Builder()
                 .setMapController(mapController)
                 .setActionStrip(actionStrip)
-                .setTemplate(getGridTemplate())
+                .setContentTemplate(getGridTemplate())
                 .build();
 
         assertThat(template).isNotEqualTo(new MapWithContentTemplate.Builder()
                 .setMapController(mapController)
                 .setActionStrip(new ActionStrip.Builder().addAction(Action.APP_ICON).build())
-                .setTemplate(getGridTemplate())
+                .setContentTemplate(getGridTemplate())
                 .build());
     }
 
@@ -157,13 +157,13 @@ public class MapWithContentTemplateTest {
         MapWithContentTemplate template = new MapWithContentTemplate.Builder()
                 .setMapController(mapController)
                 .setActionStrip(actionStrip)
-                .setTemplate(getGridTemplate())
+                .setContentTemplate(getGridTemplate())
                 .build();
 
         assertThat(template).isNotEqualTo(new MapWithContentTemplate.Builder()
                 .setMapController(mapController)
                 .setActionStrip(actionStrip)
-                .setTemplate(getMessageTemplate())
+                .setContentTemplate(getMessageTemplate())
                 .build());
     }
 }

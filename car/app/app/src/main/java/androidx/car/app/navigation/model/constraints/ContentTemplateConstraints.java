@@ -17,6 +17,7 @@
 package androidx.car.app.navigation.model.constraints;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.GridTemplate;
@@ -32,6 +33,7 @@ import com.google.common.collect.ImmutableSet;
  * Encapsulates the constraints to apply when creating a Content {@link Template} within a parent
  * template.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @ExperimentalCarApi
 @RequiresCarApi(7)
 public class ContentTemplateConstraints {
