@@ -19,7 +19,7 @@ package androidx.lifecycle.observers;
 import androidx.lifecycle.Lifecycle;
 
 @SuppressWarnings("deprecation")
-public class DerivedWithOverridenMethodsWithLfAnnotation extends Base {
+public class DerivedWithOverriddenMethodsWithLfAnnotation extends Base {
 
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     @Override

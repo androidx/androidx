@@ -13,179 +13,171 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.lifecycle.Lifecycling.lifecycleEventObserver
+import androidx.lifecycle.observers.DerivedSequence1
+import androidx.lifecycle.observers.DerivedSequence2
+import androidx.lifecycle.observers.DerivedWithNewMethods
+import androidx.lifecycle.observers.DerivedWithNoNewMethods
+import androidx.lifecycle.observers.DerivedWithOverriddenMethodsWithLfAnnotation
+import androidx.lifecycle.observers.InterfaceImpl1
+import androidx.lifecycle.observers.InterfaceImpl2
+import androidx.lifecycle.observers.InterfaceImpl3
+import androidx.lifecycle.observers.NoOpLifecycle
+import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import static androidx.lifecycle.Lifecycle.Event.ON_ANY;
-import static androidx.lifecycle.Lifecycling.lifecycleEventObserver;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.observers.DerivedSequence1;
-import androidx.lifecycle.observers.DerivedSequence2;
-import androidx.lifecycle.observers.DerivedWithNewMethods;
-import androidx.lifecycle.observers.DerivedWithNoNewMethods;
-import androidx.lifecycle.observers.DerivedWithOverridenMethodsWithLfAnnotation;
-import androidx.lifecycle.observers.InterfaceImpl1;
-import androidx.lifecycle.observers.InterfaceImpl2;
-import androidx.lifecycle.observers.InterfaceImpl3;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@SuppressWarnings("deprecation")
-@RunWith(JUnit4.class)
-public class LifecyclingTest {
-
+@Suppress("deprecation")
+@RunWith(JUnit4::class)
+class LifecyclingTest {
     @Test
-    public void testDerivedWithNewLfMethodsNoGeneratedAdapter() {
-        LifecycleEventObserver callback = lifecycleEventObserver(new DerivedWithNewMethods());
-        assertThat(callback, instanceOf(ReflectiveGenericLifecycleObserver.class));
+    fun testDerivedWithNewLfMethodsNoGeneratedAdapter() {
+        val callback = lifecycleEventObserver(DerivedWithNewMethods())
+        assertThat(
+            callback, instanceOf(
+                ReflectiveGenericLifecycleObserver::class.java
+            )
+        )
     }
 
     @Test
-    public void testDerivedWithNoNewLfMethodsNoGeneratedAdapter() {
-        LifecycleEventObserver callback = lifecycleEventObserver(new DerivedWithNoNewMethods());
-        assertThat(callback, instanceOf(SingleGeneratedAdapterObserver.class));
+    fun testDerivedWithNoNewLfMethodsNoGeneratedAdapter() {
+        val callback = lifecycleEventObserver(DerivedWithNoNewMethods())
+        assertThat(
+            callback, instanceOf(
+                SingleGeneratedAdapterObserver::class.java
+            )
+        )
     }
 
     @Test
-    public void testDerivedWithOverridenMethodsNoGeneratedAdapter() {
-        LifecycleEventObserver callback = lifecycleEventObserver(
-                new DerivedWithOverridenMethodsWithLfAnnotation());
+    fun testDerivedWithOverriddenMethodsNoGeneratedAdapter() {
+        val callback = lifecycleEventObserver(
+            DerivedWithOverriddenMethodsWithLfAnnotation()
+        )
         // that is not effective but...
-        assertThat(callback, instanceOf(ReflectiveGenericLifecycleObserver.class));
+        assertThat(
+            callback, instanceOf(
+                ReflectiveGenericLifecycleObserver::class.java
+            )
+        )
     }
 
     @Test
-    public void testInterfaceImpl1NoGeneratedAdapter() {
-        LifecycleEventObserver callback = lifecycleEventObserver(new InterfaceImpl1());
-        assertThat(callback, instanceOf(SingleGeneratedAdapterObserver.class));
+    fun testInterfaceImpl1NoGeneratedAdapter() {
+        val callback = lifecycleEventObserver(InterfaceImpl1())
+        assertThat(
+            callback, instanceOf(
+                SingleGeneratedAdapterObserver::class.java
+            )
+        )
     }
 
     @Test
-    public void testInterfaceImpl2NoGeneratedAdapter() {
-        LifecycleEventObserver callback = lifecycleEventObserver(new InterfaceImpl2());
-        assertThat(callback, instanceOf(CompositeGeneratedAdaptersObserver.class));
+    fun testInterfaceImpl2NoGeneratedAdapter() {
+        val callback = lifecycleEventObserver(InterfaceImpl2())
+        assertThat(
+            callback, instanceOf(
+                CompositeGeneratedAdaptersObserver::class.java
+            )
+        )
     }
 
     @Test
-    public void testInterfaceImpl3NoGeneratedAdapter() {
-        LifecycleEventObserver callback = lifecycleEventObserver(new InterfaceImpl3());
-        assertThat(callback, instanceOf(CompositeGeneratedAdaptersObserver.class));
+    fun testInterfaceImpl3NoGeneratedAdapter() {
+        val callback = lifecycleEventObserver(InterfaceImpl3())
+        assertThat(
+            callback, instanceOf(
+                CompositeGeneratedAdaptersObserver::class.java
+            )
+        )
     }
 
     @Test
-    public void testDerivedSequence() {
-        LifecycleEventObserver callback2 = lifecycleEventObserver(new DerivedSequence2());
-        assertThat(callback2, instanceOf(ReflectiveGenericLifecycleObserver.class));
-        LifecycleEventObserver callback1 = lifecycleEventObserver(new DerivedSequence1());
-        assertThat(callback1, instanceOf(SingleGeneratedAdapterObserver.class));
+    fun testDerivedSequence() {
+        val callback2 = lifecycleEventObserver(DerivedSequence2())
+        assertThat(
+            callback2, instanceOf(
+                ReflectiveGenericLifecycleObserver::class.java
+            )
+        )
+        val callback1 = lifecycleEventObserver(DerivedSequence1())
+        assertThat(
+            callback1, instanceOf(
+                SingleGeneratedAdapterObserver::class.java
+            )
+        )
     }
 
     // MUST BE HERE TILL Lifecycle 3.0.0 release for back-compatibility with other modules
-    @SuppressWarnings("deprecation")
+    @Suppress("deprecation")
     @Test
-    public void testDeprecatedGenericLifecycleObserver() {
-        GenericLifecycleObserver genericLifecycleObserver = new GenericLifecycleObserver() {
-            @Override
-            public void onStateChanged(@NonNull LifecycleOwner source,
-                    @NonNull Lifecycle.Event event) {
-            }
-        };
-        LifecycleEventObserver observer = lifecycleEventObserver(genericLifecycleObserver);
-        assertThat(observer, is(observer));
+    fun testDeprecatedGenericLifecycleObserver() {
+        val genericLifecycleObserver = GenericLifecycleObserver { _, _ -> }
+        val observer = lifecycleEventObserver(genericLifecycleObserver)
+        assertThat(observer, `is`(observer))
     }
 
     @Test
-    public void defaultLifecycleObserverAndAnnotations() {
-        class AnnotatedFullLifecycleObserver implements DefaultLifecycleObserver {
-            @SuppressWarnings("deprecation")
-            @OnLifecycleEvent(ON_ANY)
-            public void onAny() {
-                throw new IllegalStateException("Annotations in FullLifecycleObserver "
-                        + "must not be called");
-            }
-
-            @Override
-            public void onCreate(@NonNull LifecycleOwner owner) {
-
-            }
-
-            @Override
-            public void onStart(@NonNull LifecycleOwner owner) {
-
-            }
-
-            @Override
-            public void onResume(@NonNull LifecycleOwner owner) {
-
-            }
-
-            @Override
-            public void onPause(@NonNull LifecycleOwner owner) {
-
-            }
-
-            @Override
-            public void onStop(@NonNull LifecycleOwner owner) {
-
-            }
-
-            @Override
-            public void onDestroy(@NonNull LifecycleOwner owner) {
-
+    fun defaultLifecycleObserverAndAnnotations() {
+        class AnnotatedFullLifecycleObserver : DefaultLifecycleObserver {
+            @Suppress("deprecation")
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            fun onAny() {
+                throw IllegalStateException(
+                    "Annotations in FullLifecycleObserver must not be called"
+                )
             }
         }
 
-        LifecycleEventObserver callback = lifecycleEventObserver(
-                new AnnotatedFullLifecycleObserver());
+        val callback = lifecycleEventObserver(
+            AnnotatedFullLifecycleObserver()
+        )
         // check that neither of these calls fail
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_CREATE);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_START);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_RESUME);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_PAUSE);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_STOP);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_DESTROY);
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_CREATE)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_START)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_RESUME)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_PAUSE)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_STOP)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_DESTROY)
     }
 
     @Test
-    public void lifecycleEventObserverAndAnnotations() {
-        class AnnotatedLifecycleEventObserver implements LifecycleEventObserver {
-            @SuppressWarnings("deprecation")
-            @OnLifecycleEvent(ON_ANY)
-            public void onAny() {
-                throw new IllegalStateException("Annotations in FullLifecycleObserver "
-                        + "must not be called");
+    fun lifecycleEventObserverAndAnnotations() {
+        class AnnotatedLifecycleEventObserver : LifecycleEventObserver {
+            @Suppress("deprecation")
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            fun onAny() {
+                throw IllegalStateException(
+                    "Annotations in FullLifecycleObserver must not be called"
+                )
             }
 
-            @Override
-            public void onStateChanged(@NonNull LifecycleOwner source,
-                    @NonNull Lifecycle.Event event) {
-            }
+            override fun onStateChanged(
+                source: LifecycleOwner,
+                event: Lifecycle.Event
+            ) {}
         }
 
-        LifecycleEventObserver callback = lifecycleEventObserver(
-                new AnnotatedLifecycleEventObserver());
+        val callback = lifecycleEventObserver(
+            AnnotatedLifecycleEventObserver()
+        )
+
         // check that neither of these calls fail
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_CREATE);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_START);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_RESUME);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_PAUSE);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_STOP);
-        callback.onStateChanged(new DefaultLifecycleOwner(), Lifecycle.Event.ON_DESTROY);
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_CREATE)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_START)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_RESUME)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_PAUSE)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_STOP)
+        callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_DESTROY)
     }
 
-
-    static class DefaultLifecycleOwner implements LifecycleOwner {
-        @NonNull
-        @Override
-        public Lifecycle getLifecycle() {
-            throw new UnsupportedOperationException("getLifecycle is not supported");
-        }
+    internal class DefaultLifecycleOwner : LifecycleOwner {
+        override val lifecycle = NoOpLifecycle()
     }
 }
