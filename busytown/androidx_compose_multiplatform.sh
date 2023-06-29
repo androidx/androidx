@@ -10,7 +10,6 @@ export ANDROIDX_PROJECTS=COMPOSE
 
 # b/235340662 don't verify dependency versions because we cannot pin to multiplatform deps
 impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs \
-      -Pandroidx.compose.multiplatformEnabled=true \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \

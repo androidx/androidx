@@ -65,12 +65,14 @@ const val VERSION_EXTRA_CHECK_ENABLED = "androidx.versionExtraCheckEnabled"
 const val VALIDATE_PROJECT_STRUCTURE = "androidx.validateProjectStructure"
 
 /**
- * Setting this property enables multiplatform builds of Compose
+ * Setting this property enables Compose Compiler metrics - see
+ * compose/compiler/design/compiler-metrics.md
  */
 const val ENABLE_COMPOSE_COMPILER_METRICS = "androidx.enableComposeCompilerMetrics"
 
 /**
- * Setting this property enables multiplatform builds of Compose
+ * Setting this property enables Compose Compiler reports - see
+ * compose/compiler/design/compiler-metrics.md
  */
 const val ENABLE_COMPOSE_COMPILER_REPORTS = "androidx.enableComposeCompilerReports"
 
@@ -168,7 +170,6 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ALTERNATIVE_PROJECT_URL,
     VERSION_EXTRA_CHECK_ENABLED,
     VALIDATE_PROJECT_STRUCTURE,
-    COMPOSE_MPP_ENABLED,
     ENABLE_COMPOSE_COMPILER_METRICS,
     ENABLE_COMPOSE_COMPILER_REPORTS,
     DISPLAY_TEST_OUTPUT,

@@ -91,7 +91,6 @@ gradleEnterprise {
             value("BUILD_NUMBER", BUILD_NUMBER)
             link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$BUILD_NUMBER&tail=$BUILD_NUMBER")
         }
-        value("androidx.compose.multiplatformEnabled", isMultiplatformEnabled().toString())
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
@@ -171,12 +170,6 @@ dependencyResolutionManagement {
             library("skikoCurrentOs", "org.jetbrains.skiko", currentOsArtifact).versionRef("skiko")
         }
     }
-}
-
-boolean isMultiplatformEnabled() {
-    def mppParameter = properties.get("androidx.compose.multiplatformEnabled")
-    if (mppParameter == null) return false
-    return Boolean.parseBoolean(mppParameter)
 }
 
 /////////////////////////////
@@ -567,12 +560,9 @@ includeProject(":compose:compiler:compiler-hosted:integration-tests", [BuildType
 includeProject(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-daemon", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-daemon:integration-tests", [BuildType.COMPOSE])
-
-if (isMultiplatformEnabled()) {
-    includeProject(":compose:desktop", [BuildType.COMPOSE, BuildType.KMP])
-    includeProject(":compose:desktop:desktop", [BuildType.COMPOSE, BuildType.KMP])
-    includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE, BuildType.KMP])
-}
+includeProject(":compose:desktop", [BuildType.COMPOSE, BuildType.KMP])
+includeProject(":compose:desktop:desktop", [BuildType.COMPOSE, BuildType.KMP])
+includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation-benchmark", "compose/foundation/foundation/benchmark", [BuildType.COMPOSE])
