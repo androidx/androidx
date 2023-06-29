@@ -24,7 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.impl.platform.records.PlatformExerciseRoute
-import androidx.health.connect.client.impl.platform.records.toSdkExerciseRoute
+import androidx.health.connect.client.impl.platform.records.toSdkExerciseRouteData
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.platform.client.impl.logger.Logger
 
@@ -36,15 +36,15 @@ import androidx.health.platform.client.impl.logger.Logger
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class RequestExerciseRouteUpsideDownCake :
-    ActivityResultContract<String?, ExerciseRoute?>() {
-    override fun createIntent(context: Context, input: String?): Intent {
-        require(!input.isNullOrEmpty()) { "Session identifier is required" }
+    ActivityResultContract<String, ExerciseRoute.Data?>() {
+    override fun createIntent(context: Context, input: String): Intent {
+        require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return Intent(HealthConnectManager.ACTION_REQUEST_EXERCISE_ROUTE).apply {
             putExtra(HealthConnectManager.EXTRA_SESSION_ID, input)
         }
     }
 
-    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute? {
+    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute.Data? {
         val route =
             intent?.getParcelableExtra(
                 HealthConnectManager.EXTRA_EXERCISE_ROUTE,
@@ -55,6 +55,6 @@ internal class RequestExerciseRouteUpsideDownCake :
             return null
         }
         Logger.debug(HealthConnectClient.HEALTH_CONNECT_CLIENT_TAG, "Returned a route.")
-        return route.toSdkExerciseRoute()
+        return route.toSdkExerciseRouteData()
     }
 }

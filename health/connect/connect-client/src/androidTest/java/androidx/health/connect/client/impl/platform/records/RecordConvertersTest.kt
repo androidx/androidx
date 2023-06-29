@@ -407,8 +407,8 @@ class RecordConvertersTest {
                                 10
                             )
                         ),
-                    route =
-                        ExerciseRoute(
+                    exerciseRoute =
+                        ExerciseRoute.Data(
                             listOf(
                                 ExerciseRoute.Location(
                                     START_TIME,
@@ -1179,7 +1179,7 @@ class RecordConvertersTest {
 
     @Test
     fun exerciseSessionRecord_convertToSdk() {
-        val sdkExerciseSession =
+        val platformExerciseSessionBuilder =
             PlatformExerciseSessionRecordBuilder(
                     PLATFORM_METADATA,
                     START_TIME,
@@ -1230,8 +1230,9 @@ class RecordConvertersTest {
                         )
                     )
                 )
-                .build()
-                .toSdkRecord() as ExerciseSessionRecord
+
+        var sdkExerciseSession =
+            platformExerciseSessionBuilder.build().toSdkRecord() as ExerciseSessionRecord
 
         assertSdkRecord(sdkExerciseSession) {
             assertThat(title).isEqualTo("Training")
@@ -1260,9 +1261,9 @@ class RecordConvertersTest {
                         10
                     )
                 )
-            assertThat(route)
+            assertThat(exerciseRoute as ExerciseRoute.Data)
                 .isEqualTo(
-                    ExerciseRoute(
+                    ExerciseRoute.Data(
                         listOf(
                             ExerciseRoute.Location(
                                 time = START_TIME,
@@ -1275,6 +1276,14 @@ class RecordConvertersTest {
                         )
                     )
                 )
+        }
+
+        sdkExerciseSession =
+            platformExerciseSessionBuilder.setRoute(null).build().toSdkRecord()
+                as ExerciseSessionRecord
+
+        assertSdkRecord(sdkExerciseSession) {
+            assertThat(exerciseRoute).isEqualTo(ExerciseRoute.NoData())
         }
     }
 

@@ -16,43 +16,66 @@
 
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.units.Length
 import java.time.Instant
 
-/**
- * Captures a route associated with an exercise session a user does.
- *
- * Contains a sequence of location points, with timestamps, which do not have to be in order.
- *
- * Location points contain a timestamp, longitude, latitude, and optionally altitude, horizontal and
- * vertical accuracy.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ExerciseRoute(public val route: List<Location>) {
+/** Captures a route associated with an exercise session a user does. */
+abstract class ExerciseRoute internal constructor() {
 
-    init {
-        val sortedRoute: List<Location> = route.sortedWith { a, b -> a.time.compareTo(b.time) }
-        for (i in 0 until sortedRoute.lastIndex) {
-            require(sortedRoute[i].time.isBefore(sortedRoute[i + 1].time))
+    /**
+     * Class containing data of an exercise route.
+     *
+     * Contains a sequence of location points, with timestamps, which do not have to be in order.
+     *
+     * Location points contain a timestamp, longitude, latitude, and optionally altitude, horizontal
+     * and vertical accuracy.
+     */
+    class Data constructor(val route: List<Location>) : ExerciseRoute() {
+        init {
+            val sortedRoute: List<Location> = route.sortedBy { it.time }
+            for (i in 0 until sortedRoute.lastIndex) {
+                require(sortedRoute[i].time.isBefore(sortedRoute[i + 1].time))
+            }
+        }
+
+        internal fun isWithin(startTime: Instant, endTime: Instant): Boolean {
+            val minTime = route.minBy { it.time }.time
+            val maxTime = route.maxBy { it.time }.time
+            return !minTime.isBefore(startTime) && maxTime.isBefore(endTime)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Data) return false
+
+            return route == other.route
+        }
+
+        override fun hashCode(): Int {
+            return route.hashCode()
         }
     }
-    internal fun isWithin(startTime: Instant, endTime: Instant): Boolean {
-        // startTime is inclusive, endTime is exclusive
-        val sortedRoute: List<Location> = route.sortedWith { a, b -> a.time.compareTo(b.time) }
-        return !sortedRoute.first().time.isBefore(startTime) &&
-            sortedRoute.last().time.isBefore(endTime)
+
+    /** Class indicating that a permission hasn't been granted and a value couldn't be returned. */
+    class ConsentRequired : ExerciseRoute() {
+        override fun equals(other: Any?): Boolean {
+            return other is ConsentRequired
+        }
+
+        override fun hashCode(): Int {
+            return 0
+        }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ExerciseRoute) return false
+    /** Class indicating that there's no data to request permissions for. */
+    class NoData : ExerciseRoute() {
+        override fun equals(other: Any?): Boolean {
+            return other is NoData
+        }
 
-        return route == other.route
-    }
-
-    override fun hashCode(): Int {
-        return route.hashCode()
+        override fun hashCode(): Int {
+            return 0
+        }
     }
 
     /**
@@ -67,7 +90,7 @@ public class ExerciseRoute(public val route: List<Location>) {
      * @param verticalAccuracy in [Length] unit. Optional field. Valid range: non-negative numbers.
      * @see ExerciseRoute
      */
-    public class Location(
+    class Location(
         val time: Instant,
         val latitude: Double,
         val longitude: Double,
