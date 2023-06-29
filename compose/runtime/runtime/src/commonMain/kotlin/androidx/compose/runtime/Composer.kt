@@ -1987,28 +1987,30 @@ internal class ComposerImpl(
     }
 
     @InternalComposeApi
+    @Suppress("UNCHECKED_CAST")
     override fun startProvider(value: ProvidedValue<*>) {
         val parentScope = currentCompositionLocalScope()
         startGroup(providerKey, provider)
-        val state = invokeComposableForResult(this) {
-            @Suppress("UNCHECKED_CAST")
-            (value as ProvidedValue<Any?>).compositionLocal.provided(value.value)
+        val oldState = rememberedValue().let {
+            if (it == Composer.Empty) null
+            else it as State<Any?>
         }
-        startGroup(providerValuesKey)
-        val change = changed(state)
-        endGroup()
+        val local = value.compositionLocal as CompositionLocal<Any?>
+        val state = local.updatedStateOf(value.value, oldState)
+        val change = state != oldState
+        if (change) {
+            updateRememberedValue(state)
+        }
         val providers: PersistentCompositionLocalMap
         val invalid: Boolean
-        @Suppress("UNCHECKED_CAST")
-        val key = value.compositionLocal as CompositionLocal<Any?>
         if (inserting) {
-            providers = parentScope.putValue(key, state)
+            providers = parentScope.putValue(local, state)
             invalid = false
         } else {
             val oldScope = reader.groupAux(reader.currentGroup) as PersistentCompositionLocalMap
             providers =
-                if ((!skipping || change) && (value.canOverride || !parentScope.contains(key)))
-                    parentScope.putValue(key, state)
+                if ((!skipping || change) && (value.canOverride || !parentScope.contains(local)))
+                    parentScope.putValue(local, state)
                 else oldScope
             if (oldScope !== providers) {
                 invalid = true
@@ -2038,27 +2040,17 @@ internal class ComposerImpl(
     override fun startProviders(values: Array<out ProvidedValue<*>>) {
         val parentScope = currentCompositionLocalScope()
         startGroup(providerKey, provider)
-        // The group is needed here because compositionLocalMapOf() might change the number or
-        // kind of slots consumed depending on the content of values to remember, for example, the
-        // value holders used last time.
-        startGroup(providerValuesKey, providerValues)
-        val currentProviders = invokeComposableForResult(this) {
-            compositionLocalMapOf(values, parentScope)
-        }
-        endGroup()
         val providers: PersistentCompositionLocalMap
         val invalid: Boolean
         if (inserting) {
+            val currentProviders = updateCompositionMap(values, parentScope)
             providers = updateProviderMapGroup(parentScope, currentProviders)
             invalid = false
             writerHasAProvider = true
         } else {
-            @Suppress("UNCHECKED_CAST")
             val oldScope = reader.groupGet(0) as PersistentCompositionLocalMap
-
-            @Suppress("UNCHECKED_CAST")
             val oldValues = reader.groupGet(1) as PersistentCompositionLocalMap
-
+            val currentProviders = updateCompositionMap(values, parentScope, oldValues)
             // skipping is true iff parentScope has not changed.
             if (!skipping || reusing || oldValues != currentProviders) {
                 providers = updateProviderMapGroup(parentScope, currentProviders)
