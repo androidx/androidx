@@ -10,8 +10,15 @@ package androidx.tracing.perfetto.handshake {
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingImmediate(optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
   }
 
-  public static final class PerfettoSdkHandshake.LibrarySource {
-    ctor public PerfettoSdkHandshake.LibrarySource(java.io.File libraryZip, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
+  public abstract static sealed class PerfettoSdkHandshake.LibrarySource {
+    method public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource aarLibrarySource(java.io.File aarFile, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
+    method public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource apkLibrarySource(java.io.File apkFile, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
+    field public static final androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource.Companion Companion;
+  }
+
+  public static final class PerfettoSdkHandshake.LibrarySource.Companion {
+    method public androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource aarLibrarySource(java.io.File aarFile, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
+    method public androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource apkLibrarySource(java.io.File apkFile, java.io.File tempDirectory, kotlin.jvm.functions.Function2<? super java.io.File,? super java.io.File,kotlin.Unit> moveLibFileFromTmpDirToAppDir);
   }
 
 }
