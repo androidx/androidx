@@ -265,9 +265,6 @@ private class ScrollableNode(
     bringIntoViewScroller: BringIntoViewScroller
 ) : DelegatingNode(), ObserverModifierNode, CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
-
-    val scrollConfig: ScrollConfig = platformScrollConfig()
-
     val nestedScrollDispatcher = NestedScrollDispatcher()
 
     // Place holder fling behavior, we'll initialize it when the density is available.
@@ -319,7 +316,6 @@ private class ScrollableNode(
             orientation = orientation,
             enabled = enabled,
             nestedScrollDispatcher = nestedScrollDispatcher,
-            scrollConfig = scrollConfig,
             scrollLogic = scrollingLogic
         )
     )
@@ -354,7 +350,6 @@ private class ScrollableNode(
         scrollableGesturesNode.update(
             interactionSource = interactionSource,
             orientation = orientation,
-            scrollConfig = scrollConfig,
             enabled = enabled
         )
 
@@ -541,9 +536,9 @@ private class ScrollableGesturesNode(
     val orientation: Orientation,
     val enabled: Boolean,
     val nestedScrollDispatcher: NestedScrollDispatcher,
-    val interactionSource: MutableInteractionSource?,
-    var scrollConfig: ScrollConfig
+    val interactionSource: MutableInteractionSource?
 ) : DelegatingNode() {
+    init { delegate(MouseWheelScrollNode(scrollLogic)) }
 
     val draggableState = ScrollDraggableState(scrollLogic)
     private val startDragImmediately = { scrollLogic.shouldScrollImmediately() }
@@ -567,10 +562,7 @@ private class ScrollableGesturesNode(
         )
     )
 
-    val mouseWheelScrollNode = delegate(MouseWheelScrollNode(scrollLogic, scrollConfig))
-
     fun update(
-        scrollConfig: ScrollConfig,
         orientation: Orientation,
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
@@ -588,12 +580,6 @@ private class ScrollableGesturesNode(
             onDragStopped = onDragStopped,
             canDrag = CanDragCalculation
         )
-
-        // update mouse wheel scroll
-        if (this.scrollConfig != scrollConfig) {
-            mouseWheelScrollNode.update(scrollConfig)
-        }
-        this.scrollConfig = scrollConfig
     }
 }
 
@@ -603,40 +589,44 @@ private val CanDragCalculation: (PointerInputChange) -> Boolean =
 private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
 
 private class MouseWheelScrollNode(
-    private val scrollingLogic: ScrollingLogic,
-    private var mouseWheelScrollConfig: ScrollConfig
-) : DelegatingNode() {
-    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitScrollEvent()
-                if (event.changes.fastAll { !it.isConsumed }) {
-                    with(mouseWheelScrollConfig) {
-                        val scrollAmount = calculateMouseWheelScroll(event, size)
+    private val scrollingLogic: ScrollingLogic
+) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+    // Need to wait until onAttach to read the scroll config. Currently this is static, so we
+    // don't need to worry about observation / updating this over time.
+    var scrollConfig: ScrollConfig? = null
 
-                        with(scrollingLogic) {
-                            // A coroutine is launched for every individual scroll event in the
-                            // larger scroll gesture. If we see degradation in the future (that is,
-                            // a fast scroll gesture on a slow device causes UI jank [not seen up to
-                            // this point), we can switch to a more efficient solution where we
-                            // lazily launch one coroutine (with the first event) and use a Channel
-                            // to communicate the scroll amount to the UI thread.
-                            coroutineScope.launch {
-                                scrollableState.scroll(MutatePriority.UserInput) {
-                                    dispatchScroll(scrollAmount, Wheel)
+    override fun onAttach() {
+        scrollConfig = platformScrollConfig()
+    }
+
+    init {
+        delegate(SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitScrollEvent()
+                    if (event.changes.fastAll { !it.isConsumed }) {
+                        with(scrollConfig!!) {
+                            val scrollAmount = calculateMouseWheelScroll(event, size)
+
+                            with(scrollingLogic) {
+                                // A coroutine is launched for every individual scroll event in the
+                                // larger scroll gesture. If we see degradation in the future (that is,
+                                // a fast scroll gesture on a slow device causes UI jank [not seen up to
+                                // this point), we can switch to a more efficient solution where we
+                                // lazily launch one coroutine (with the first event) and use a Channel
+                                // to communicate the scroll amount to the UI thread.
+                                coroutineScope.launch {
+                                    scrollableState.scroll(MutatePriority.UserInput) {
+                                        dispatchScroll(scrollAmount, Wheel)
+                                    }
                                 }
+                                event.changes.fastForEach { it.consume() }
                             }
-                            event.changes.fastForEach { it.consume() }
                         }
                     }
                 }
             }
-        }
-    })
-
-    fun update(mouseWheelScrollConfig: ScrollConfig) {
-        this.mouseWheelScrollConfig = mouseWheelScrollConfig
-        pointerInputNode.resetPointerInputHandler()
+        })
     }
 }
 
