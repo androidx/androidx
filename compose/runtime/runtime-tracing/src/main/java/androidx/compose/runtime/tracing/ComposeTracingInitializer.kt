@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionTracer
 import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.startup.Initializer
-import androidx.tracing.perfetto.Trace
+import androidx.tracing.perfetto.PerfettoSdkTrace
 
 /**
  * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific
@@ -32,11 +32,11 @@ class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         Composer.setTracer(object : CompositionTracer {
             override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) =
-                Trace.beginSection(info)
+                PerfettoSdkTrace.beginSection(info)
 
-            override fun traceEventEnd() = Trace.endSection()
+            override fun traceEventEnd() = PerfettoSdkTrace.endSection()
 
-            override fun isTraceInProgress(): Boolean = Trace.isEnabled
+            override fun isTraceInProgress(): Boolean = PerfettoSdkTrace.isEnabled
         })
     }
 

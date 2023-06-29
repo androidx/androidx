@@ -68,7 +68,7 @@ class PerfettoSdkOverheadBenchmark {
         runWithTimingDisabled { /* nothing */ }
     }
 
-    /** Measuring overhead of [androidx.tracing.perfetto.Trace]. */
+    /** Measuring overhead of [androidx.tracing.perfetto.PerfettoSdkTrace]. */
     @Test
     fun traceBeginEnd_perfettoSdkTrace() {
         PerfettoCapture().enableAndroidxTracingPerfetto(targetPackage, true).let { response ->
@@ -79,8 +79,8 @@ class PerfettoSdkOverheadBenchmark {
         }
         var ix = 0
         benchmarkRule.measureRepeated {
-            androidx.tracing.perfetto.Trace.beginSection(testData[ix++ % testData.size])
-            androidx.tracing.perfetto.Trace.endSection()
+            androidx.tracing.perfetto.PerfettoSdkTrace.beginSection(testData[ix++ % testData.size])
+            androidx.tracing.perfetto.PerfettoSdkTrace.endSection()
         }
     }
 
