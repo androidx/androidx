@@ -194,6 +194,10 @@
          <trusted-key id="5dceb296690bd5101756f2441f8cf885d537a431" group="com.nhaarman.mockitokotlin2"/>
          <trusted-key id="5fa41c402006eac55d72aafd99ce9d9f22dc5c99" group="org.json"/>
          <trusted-key id="600ea202b1ec682f4a788e5aac7a514bc9f9bb70" group="io.opencensus"/>
+         <trusted-key id="60200ac4ae761f1614d6c46766d68daa073be985">
+            <trusting group="ch.qos.logback"/>
+            <trusting group="org.slf4j"/>
+         </trusted-key>
          <trusted-key id="6214760097dc5cfad0175ac2c9fbaa83a8753994">
             <trusting group="com.fasterxml"/>
             <trusting group="com.fasterxml.jackson"/>

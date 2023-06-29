@@ -23,7 +23,6 @@ import java.nio.file.Paths
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileTree
@@ -47,25 +46,6 @@ val bundlingAttribute: Attribute<String> =
         String::class.java
     )
 
-/**
- * Sets an explicit ktlint version on the given configuration to ensure all ktlint artifacts
- * use the same version.
- * Needed as an internal API to workaround b/234884534.
- */
-internal fun Project.enforceKtlintVersion(
-    configuration: Configuration
-) {
-    val version = getVersionByName("ktlint")
-    configuration.resolutionStrategy.eachDependency { resolveDetails ->
-        if (resolveDetails.requested.group == "com.pinterest" ||
-            resolveDetails.requested.group == "com.pinterest.ktlint"
-        ) {
-            resolveDetails.useVersion(version)
-            resolveDetails.because("All ktlint artifacts should use the same version")
-        }
-    }
-}
-
 private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
     return files(
         configurations.findByName("ktlint") ?: configurations.create("ktlint") {
@@ -73,7 +53,6 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
             val dependency = dependencies.create("com.pinterest:ktlint:$version")
             it.dependencies.add(dependency)
             it.attributes.attribute(bundlingAttribute, "external")
-            project.enforceKtlintVersion(it)
         }
     )
 }
@@ -86,6 +65,31 @@ private val DisabledRules = listOf(
     // TODO: reenable when 'indent' is also enabled, meanwhile its to keep the status-quo
     //       see: https://github.com/pinterest/ktlint/releases/tag/0.45.0
     "wrapping",
+    // Upgrade to 0.49.1 introduced new checks. TODO: fix and re-enable them.
+    "trailing-comma-on-call-site",
+    "trailing-comma-on-declaration-site",
+    "argument-list-wrapping",
+    "kdoc-wrapping",
+    "comment-wrapping",
+    "property-wrapping",
+    "no-empty-first-line-in-method-block",
+    "multiline-if-else",
+    "annotation",
+    "spacing-between-declarations-with-annotations",
+    "spacing-between-declarations-with-comments",
+    "spacing-around-angle-brackets",
+    "annotation-spacing",
+    "modifier-list-spacing",
+    "double-colon-spacing",
+    "fun-keyword-spacing",
+    "function-return-type-spacing",
+    "unary-op-spacing",
+    "function-type-reference-spacing",
+    "block-comment-initial-star-alignment",
+    "package-name",
+    "class-naming",
+    "no-semi",
+    "filename",
 ).joinToString(",")
 
 private val ExcludedDirectories = listOf(
@@ -99,10 +103,6 @@ private const val InputDir = "src"
 private const val IncludedFiles = "**/*.kt"
 
 fun Project.configureKtlint() {
-    // workaround for b/234884534
-    configurations.all {
-        enforceKtlintVersion(it)
-    }
     val outputDir = "${buildDir.relativeTo(projectDir)}/reports/ktlint/"
     val lintProvider = tasks.register("ktlint", KtlintCheckTask::class.java) { task ->
         task.report = File("${outputDir}ktlint-checkstyle-report.xml")
@@ -169,7 +169,8 @@ abstract class BaseKtlintTask : DefaultTask() {
     lateinit var report: File
 
     protected fun getArgsList(shouldFormat: Boolean): List<String> {
-        val arguments = mutableListOf("--android")
+        val arguments = mutableListOf("--code-style=android_studio")
+        arguments.add("--log-level=error")
         if (shouldFormat) arguments.add("-F")
         arguments.add("--disabled_rules")
         arguments.add(DisabledRules)
