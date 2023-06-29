@@ -31,6 +31,7 @@ class MockInCallService : InCallService() {
         val LOG_TAG = "MockInCallService"
         val mCalls = Collections.synchronizedList(ArrayList<Call>())
         var mIsServiceBound = false
+        var mService: MockInCallService? = null
 
         @Suppress("deprecation")
         fun destroyAllCalls() {
@@ -58,17 +59,25 @@ class MockInCallService : InCallService() {
         fun getCallCount(): Int {
             return mCalls.size
         }
+
+        fun setMute(muted: Boolean) {
+            mService?.setMuted(muted)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.i(LOG_TAG, "Service bounded")
         mIsServiceBound = true
+        if (mService == null) {
+            mService = this
+        }
         return super.onBind(intent)
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         Log.i(LOG_TAG, "Service has been unbound")
         mIsServiceBound = false
+        mService = null
         return super.onUnbind(intent)
     }
 
