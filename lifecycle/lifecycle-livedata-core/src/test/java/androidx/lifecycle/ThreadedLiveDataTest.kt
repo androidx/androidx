@@ -13,84 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.arch.core.executor.JunitTaskExecutorRule
+import androidx.lifecycle.testing.TestLifecycleOwner
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.SECONDS
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import static androidx.lifecycle.Lifecycle.Event.ON_START;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
-
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.JunitTaskExecutorRule;
-import androidx.arch.core.executor.TaskExecutor;
-import androidx.lifecycle.testing.TestLifecycleOwner;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-@RunWith(JUnit4.class)
-public class ThreadedLiveDataTest {
-
-    private static final int TIMEOUT_SECS = 3;
-
+@RunWith(JUnit4::class)
+class ThreadedLiveDataTest {
+    @JvmField
     @Rule
-    public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, false);
+    var taskExecutorRule = JunitTaskExecutorRule(1, false)
 
-    private LiveData<String> mLiveData;
-    private TestLifecycleOwner mLifecycleOwner;
+    private lateinit var liveData: LiveData<String>
+    private lateinit var lifecycleOwner: TestLifecycleOwner
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    public void init() {
-        mLiveData = new MutableLiveData<>();
-        mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                UnconfinedTestDispatcher(null, null));
+    fun init() {
+        liveData = MutableLiveData()
+        lifecycleOwner = TestLifecycleOwner(
+            Lifecycle.State.INITIALIZED,
+            UnconfinedTestDispatcher(null, null)
+        )
     }
 
     @Test
-    public void testPostValue() throws InterruptedException {
-        final TaskExecutor taskExecutor = mTaskExecutorRule.getTaskExecutor();
-        final CountDownLatch finishTestLatch = new CountDownLatch(1);
-        final Observer<String> observer = new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String newValue) {
-                try {
-                    assertThat(taskExecutor.isMainThread(), is(true));
-                    assertThat(newValue, is("success"));
-                } finally {
-                    finishTestLatch.countDown();
-                }
+    @Throws(InterruptedException::class)
+    fun testPostValue() {
+        val taskExecutor = taskExecutorRule.taskExecutor
+        val finishTestLatch = CountDownLatch(1)
+        val observer = Observer<String?> { newValue ->
+            try {
+                assertThat(taskExecutor.isMainThread, `is`(true))
+                assertThat(newValue, `is`("success"))
+            } finally {
+                finishTestLatch.countDown()
             }
-        };
-        taskExecutor.executeOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                mLifecycleOwner.handleLifecycleEvent(ON_START);
-                mLiveData.observe(mLifecycleOwner, observer);
-                final CountDownLatch latch = new CountDownLatch(1);
-                taskExecutor.executeOnDiskIO(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLiveData.postValue("fail");
-                        mLiveData.postValue("success");
-                        latch.countDown();
-                    }
-                });
-                try {
-                    assertThat(latch.await(TIMEOUT_SECS, TimeUnit.SECONDS), is(true));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        }
+        taskExecutor.executeOnMainThread {
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            liveData.observe(lifecycleOwner, observer)
+            val latch = CountDownLatch(1)
+            taskExecutor.executeOnDiskIO {
+                liveData.postValue("fail")
+                liveData.postValue("success")
+                latch.countDown()
             }
-        });
-        assertThat(finishTestLatch.await(TIMEOUT_SECS, TimeUnit.SECONDS), is(true));
+            try {
+                assertThat(
+                    latch.await(TIMEOUT_SECS.toLong(), SECONDS),
+                    `is`(true)
+                )
+            } catch (e: InterruptedException) {
+                throw RuntimeException(e)
+            }
+        }
+        assertThat(
+            finishTestLatch.await(TIMEOUT_SECS.toLong(), SECONDS),
+            `is`(true)
+        )
+    }
+
+    companion object {
+        private const val TIMEOUT_SECS = 3
     }
 }
