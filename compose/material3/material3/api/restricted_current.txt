@@ -579,8 +579,9 @@ package androidx.compose.material3 {
   }
 
   public final class DividerKt {
-    method @androidx.compose.runtime.Composable public static void Divider(optional androidx.compose.ui.Modifier modifier, optional boolean horizontal, optional float thickness, optional long color);
     method @Deprecated @androidx.compose.runtime.Composable public static void Divider(optional androidx.compose.ui.Modifier modifier, optional float thickness, optional long color);
+    method @androidx.compose.runtime.Composable public static void HorizontalDivider(optional androidx.compose.ui.Modifier modifier, optional float thickness, optional long color);
+    method @androidx.compose.runtime.Composable public static void VerticalDivider(optional androidx.compose.ui.Modifier modifier, optional float thickness, optional long color);
   }
 
   public final class DrawerDefaults {
