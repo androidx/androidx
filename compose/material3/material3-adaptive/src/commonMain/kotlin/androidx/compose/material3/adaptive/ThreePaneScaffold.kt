@@ -23,9 +23,31 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 
+/**
+ * A pane scaffold composable that can display up to three panes according to the instructions
+ * provided by [ThreePaneScaffoldValue] in the order that [ThreePaneScaffoldArrangement] specifies,
+ * and allocate margins and spacers according to [AdaptiveLayoutDirective].
+ *
+ * [ThreePaneScaffold] is the base composable functions of adaptive programming. Developers can
+ * freely pipeline the relevant adaptive signals and use them as input of the scaffold function
+ * to render the final adaptive layout.
+ *
+ * It's recommended to use [ThreePaneScaffold] with [calculateStandardAdaptiveLayoutDirective],
+ * [calculateThreePaneScaffoldValue] to follow the Material design guidelines on adaptive
+ * programming.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param layoutDirective The top-level directives about how the scaffold should arrange its panes.
+ * @param scaffoldValue The current adapted value of the scaffold.
+ * @param arrangement The arrangement of the panes in the scaffold.
+ * @param secondaryPane The content of the secondary pane that has a priority lower then the primary
+ *                      pane but higher than the tertiary pane.
+ * @param tertiaryPane The content of the tertiary pane that has the lowest priority.
+ * @param primaryPane The content of the primary pane that has the highest priority.
+ */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun ThreePaneScaffold(
+fun ThreePaneScaffold(
     modifier: Modifier,
     layoutDirective: AdaptiveLayoutDirective,
     scaffoldValue: ThreePaneScaffoldValue,
@@ -142,8 +164,11 @@ private class PaneMeasurable(
     var measuredWidth = if (preferredWidth.isFinite() && preferredWidth > 0) preferredWidth else 0f
 }
 
+/**
+ * Scope for the panes of [ThreePaneScaffold].
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal interface ThreePaneScaffoldScope : PaneScaffoldScope
+interface ThreePaneScaffoldScope : PaneScaffoldScope
 
 private object ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldScopeImpl()
 
