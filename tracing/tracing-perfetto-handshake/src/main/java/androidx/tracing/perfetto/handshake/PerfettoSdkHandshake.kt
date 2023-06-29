@@ -59,12 +59,16 @@ public class PerfettoSdkHandshake(
         librarySource: LibrarySource? = null
     ): Response = safeExecute {
         val libPath = librarySource?.run {
-            PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
-                libraryZip,
-                tempDirectory,
-                executeShellCommand,
-                moveLibFileFromTmpDirToAppDir
-            )
+            when (this) {
+                is LibrarySource.ZipLibrarySource -> {
+                    PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
+                        libraryZip,
+                        tempDirectory,
+                        executeShellCommand,
+                        moveLibFileFromTmpDirToAppDir
+                    )
+                }
+            }
         }
         sendTracingBroadcast(ACTION_ENABLE_TRACING, libPath)
     }
@@ -88,12 +92,16 @@ public class PerfettoSdkHandshake(
     ): Response = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath = librarySource?.run {
-            PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
-                libraryZip,
-                tempDirectory,
-                executeShellCommand,
-                moveLibFileFromTmpDirToAppDir
-            )
+            when (this) {
+                is LibrarySource.ZipLibrarySource -> {
+                    PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
+                        libraryZip,
+                        tempDirectory,
+                        executeShellCommand,
+                        moveLibFileFromTmpDirToAppDir
+                    )
+                }
+            }
         }
 
         // ensure a clean start (e.g. in case tracing is already enabled)
@@ -224,20 +232,54 @@ public class PerfettoSdkHandshake(
         }
     }
 
-    /**
-     * @param libraryZip either an AAR or an APK containing `libtracing_perfetto.so`
-     * @param tempDirectory a directory directly accessible to the caller process (used for
-     * extraction of the binaries from the zip)
-     * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from
-     * the [tempDirectory] to an app accessible folder
-     */
-    // TODO(245426369): consider moving to a factory pattern for constructing these and refer to
-    //  this one as `aarLibrarySource` and `apkLibrarySource`
-    public class LibrarySource @Suppress("StreamFiles") constructor(
-        internal val libraryZip: File,
-        internal val tempDirectory: File,
-        internal val moveLibFileFromTmpDirToAppDir: FileMover
-    )
+    /** Provides means to sideload Perfetto SDK native binaries */
+    public sealed class LibrarySource {
+        internal class ZipLibrarySource @Suppress("StreamFiles") constructor(
+            internal val libraryZip: File,
+            internal val tempDirectory: File,
+            internal val moveLibFileFromTmpDirToAppDir: FileMover
+        ) : LibrarySource()
+
+        public companion object {
+            /**
+             * Provides means to sideload Perfetto SDK native binaries with a library AAR used as
+             * a source
+             *
+             * @param aarFile either an AAR or an APK containing `libtracing_perfetto.so`
+             * @param tempDirectory a directory directly accessible to the caller process (used for
+             * extraction of the binaries from the zip)
+             * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file
+             * from the [tempDirectory] to an app accessible folder
+             */
+            @Suppress("StreamFiles")
+            @JvmStatic
+            public fun aarLibrarySource(
+                aarFile: File,
+                tempDirectory: File,
+                moveLibFileFromTmpDirToAppDir: FileMover
+            ): LibrarySource =
+                ZipLibrarySource(aarFile, tempDirectory, moveLibFileFromTmpDirToAppDir)
+
+            /**
+             * Provides means to sideload Perfetto SDK native binaries with an APK containing
+             * the library used as a source
+             *
+             * @param apkFile either an AAR or an APK containing `libtracing_perfetto.so`
+             * @param tempDirectory a directory directly accessible to the caller process (used for
+             * extraction of the binaries from the zip)
+             * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file
+             * from the [tempDirectory] to an app accessible folder
+             */
+            @Suppress("StreamFiles")
+            @JvmStatic
+            public fun apkLibrarySource(
+                apkFile: File,
+                tempDirectory: File,
+                moveLibFileFromTmpDirToAppDir: FileMover
+            ): LibrarySource =
+                ZipLibrarySource(apkFile, tempDirectory, moveLibFileFromTmpDirToAppDir)
+        }
+    }
 }
 
 /** Internal exception class for issues specific to [PerfettoSdkHandshake] */

@@ -125,7 +125,7 @@ public class PerfettoCapture(
                         .context.applicationInfo.publicSourceDir!!
                 )
                 handshake.enableTracingImmediate(
-                    PerfettoSdkHandshake.LibrarySource(
+                    PerfettoSdkHandshake.LibrarySource.aarLibrarySource(
                         baseApk,
                         Outputs.dirUsableByAppAndShell
                     ) { srcFile, dstFile ->
