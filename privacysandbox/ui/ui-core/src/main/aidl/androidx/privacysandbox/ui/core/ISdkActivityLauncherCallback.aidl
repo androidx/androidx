@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.ui.core;
 
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ISdkActivityLauncherCallback {
   void onLaunchAccepted(in IBinder sdkActivityHandlerToken) = 1;
   void onLaunchRejected(in IBinder sdkActivityHandlerToken) = 2;
