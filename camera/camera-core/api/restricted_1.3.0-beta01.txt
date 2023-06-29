@@ -53,7 +53,7 @@ package androidx.camera.core {
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
-    method @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
   }
 
   @RequiresApi(21) public final class CameraInfoUnavailableException extends java.lang.Exception {
@@ -69,7 +69,7 @@ package androidx.camera.core {
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
     field public static final int LENS_FACING_BACK = 1; // 0x1
-    field @androidx.camera.core.ExperimentalLensFacing public static final int LENS_FACING_EXTERNAL = 2; // 0x2
+    field @SuppressCompatibility @androidx.camera.core.ExperimentalLensFacing public static final int LENS_FACING_EXTERNAL = 2; // 0x2
     field public static final int LENS_FACING_FRONT = 0; // 0x0
     field public static final int LENS_FACING_UNKNOWN = -1; // 0xffffffff
   }
@@ -193,16 +193,16 @@ package androidx.camera.core {
     field public static final androidx.camera.core.DynamicRange UNSPECIFIED;
   }
 
-  @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  @SuppressCompatibility @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseApi {
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseApi {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalZeroShutterLag {
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalZeroShutterLag {
   }
 
   @RequiresApi(21) public interface ExposureState {
@@ -243,7 +243,7 @@ package androidx.camera.core {
 
   @RequiresApi(21) public final class ImageAnalysis extends androidx.camera.core.UseCase {
     method public void clearAnalyzer();
-    method @androidx.camera.core.ExperimentalUseCaseApi public java.util.concurrent.Executor? getBackgroundExecutor();
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalUseCaseApi public java.util.concurrent.Executor? getBackgroundExecutor();
     method public int getBackpressureStrategy();
     method public int getImageQueueDepth();
     method public int getOutputImageFormat();
@@ -296,7 +296,7 @@ package androidx.camera.core {
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0; // 0x0
     field public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1; // 0x1
-    field @androidx.camera.core.ExperimentalZeroShutterLag public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2; // 0x2
+    field @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2; // 0x2
     field public static final int ERROR_CAMERA_CLOSED = 3; // 0x3
     field public static final int ERROR_CAPTURE_FAILED = 2; // 0x2
     field public static final int ERROR_FILE_IO = 1; // 0x1
@@ -386,7 +386,7 @@ package androidx.camera.core {
     method public android.graphics.Rect getCropRect();
     method public int getFormat();
     method public int getHeight();
-    method @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
     method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
     method public int getWidth();

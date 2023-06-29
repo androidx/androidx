@@ -94,7 +94,7 @@ package androidx.navigation {
     method @MainThread public final boolean clearBackStack(@IdRes int destinationId);
     method @MainThread public final boolean clearBackStack(String route);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
-    method @androidx.navigation.NavDeepLinkSaveStateControl public static final void enableDeepLinkSaveState(boolean saveState);
+    method @SuppressCompatibility @androidx.navigation.NavDeepLinkSaveStateControl public static final void enableDeepLinkSaveState(boolean saveState);
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
     method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
@@ -150,7 +150,7 @@ package androidx.navigation {
   }
 
   public static final class NavController.Companion {
-    method @androidx.navigation.NavDeepLinkSaveStateControl public void enableDeepLinkSaveState(boolean saveState);
+    method @SuppressCompatibility @androidx.navigation.NavDeepLinkSaveStateControl public void enableDeepLinkSaveState(boolean saveState);
   }
 
   public static fun interface NavController.OnDestinationChangedListener {
@@ -181,7 +181,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId);
   }
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface NavDeepLinkSaveStateControl {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface NavDeepLinkSaveStateControl {
   }
 
   public interface NavHost {

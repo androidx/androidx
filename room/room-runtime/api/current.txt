@@ -24,7 +24,7 @@ package androidx.room {
     field public final java.util.List<java.lang.Object> typeConverters;
   }
 
-  @RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {
+  @SuppressCompatibility @RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {
   }
 
   public class InvalidationTracker {
@@ -43,7 +43,7 @@ package androidx.room {
     method public abstract void onInvalidated(java.util.Set<java.lang.String> tables);
   }
 
-  @androidx.room.ExperimentalRoomApi public final class MultiInstanceInvalidationService extends android.app.Service {
+  @SuppressCompatibility @androidx.room.ExperimentalRoomApi public final class MultiInstanceInvalidationService extends android.app.Service {
     ctor public MultiInstanceInvalidationService();
     method public android.os.IBinder onBind(android.content.Intent intent);
   }
@@ -106,9 +106,9 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int... startVersions);
     method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade();
     method public androidx.room.RoomDatabase.Builder<T> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? factory);
-    method @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setAutoCloseTimeout(@IntRange(from=0L) long autoCloseTimeout, java.util.concurrent.TimeUnit autoCloseTimeUnit);
+    method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setAutoCloseTimeout(@IntRange(from=0L) long autoCloseTimeout, java.util.concurrent.TimeUnit autoCloseTimeUnit);
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode journalMode);
-    method @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setMultiInstanceInvalidationServiceIntent(android.content.Intent invalidationServiceIntent);
+    method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setMultiInstanceInvalidationServiceIntent(android.content.Intent invalidationServiceIntent);
     method public androidx.room.RoomDatabase.Builder<T> setQueryCallback(androidx.room.RoomDatabase.QueryCallback queryCallback, java.util.concurrent.Executor executor);
     method public androidx.room.RoomDatabase.Builder<T> setQueryExecutor(java.util.concurrent.Executor executor);
     method public androidx.room.RoomDatabase.Builder<T> setTransactionExecutor(java.util.concurrent.Executor executor);

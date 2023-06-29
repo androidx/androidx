@@ -99,7 +99,7 @@ package androidx.window.area {
 
 package androidx.window.core {
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
   }
 
 }
@@ -107,11 +107,11 @@ package androidx.window.core {
 package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {
-    method @androidx.window.core.ExperimentalWindowApi public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
-    method @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
     method public boolean isActivityEmbedded(android.app.Activity activity);
-    method @androidx.window.core.ExperimentalWindowApi public boolean isFinishingActivityStacksSupported();
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public boolean isFinishingActivityStacksSupported();
     field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;
   }
 
@@ -120,9 +120,9 @@ package androidx.window.embedding {
   }
 
   public final class ActivityEmbeddingOptions {
-    method @androidx.window.core.ExperimentalWindowApi public static boolean isSetLaunchingActivityStackSupported(android.app.ActivityOptions);
-    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.app.Activity activity);
-    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static boolean isSetLaunchingActivityStackSupported(android.app.ActivityOptions);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.app.Activity activity);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
   }
 
   public final class ActivityFilter {
@@ -248,13 +248,13 @@ package androidx.window.embedding {
     method public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
-    method @androidx.window.core.ExperimentalWindowApi public void invalidateTopVisibleSplitAttributes();
-    method @androidx.window.core.ExperimentalWindowApi public boolean isInvalidatingTopVisibleSplitAttributesSupported();
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public void invalidateTopVisibleSplitAttributes();
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public boolean isInvalidatingTopVisibleSplitAttributesSupported();
     method public boolean isSplitAttributesCalculatorSupported();
-    method @androidx.window.core.ExperimentalWindowApi public boolean isUpdatingSplitAttributesSupported();
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public boolean isUpdatingSplitAttributesSupported();
     method public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
-    method @androidx.window.core.ExperimentalWindowApi public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
     property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }
@@ -444,7 +444,7 @@ package androidx.window.layout {
 
   public final class WindowMetrics {
     method public android.graphics.Rect getBounds();
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) @androidx.window.core.ExperimentalWindowApi public androidx.core.view.WindowInsetsCompat getWindowInsets();
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.R) @androidx.window.core.ExperimentalWindowApi public androidx.core.view.WindowInsetsCompat getWindowInsets();
     property public final android.graphics.Rect bounds;
   }
 
