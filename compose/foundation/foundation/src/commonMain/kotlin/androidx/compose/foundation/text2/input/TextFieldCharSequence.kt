@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.internal.toCharArray
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 
@@ -76,6 +77,23 @@ internal fun TextFieldCharSequence(
     composition: TextRange? = null
 ): TextFieldCharSequence = TextFieldCharSequenceWrapper(text, selection, composition)
 
+/**
+ * Copies the contents of this sequence from [[sourceStartIndex], [sourceEndIndex]) into
+ * [destination] starting at [destinationOffset].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal fun TextFieldCharSequence.toCharArray(
+    destination: CharArray,
+    destinationOffset: Int,
+    sourceStartIndex: Int,
+    sourceEndIndex: Int
+) = (this as TextFieldCharSequenceWrapper).toCharArray(
+    destination,
+    destinationOffset,
+    sourceStartIndex,
+    sourceEndIndex
+)
+
 @OptIn(ExperimentalFoundationApi::class)
 private class TextFieldCharSequenceWrapper(
     private val text: CharSequence,
@@ -98,6 +116,15 @@ private class TextFieldCharSequenceWrapper(
     override fun toString(): String = text.toString()
 
     override fun contentEquals(other: CharSequence): Boolean = text.contentEquals(other)
+
+    fun toCharArray(
+        destination: CharArray,
+        destinationOffset: Int,
+        sourceStartIndex: Int,
+        sourceEndIndex: Int
+    ) {
+        text.toCharArray(destination, destinationOffset, sourceStartIndex, sourceEndIndex)
+    }
 
     /**
      * Returns true if [other] is a [TextFieldCharSequence] with the same contents, text, and composition.

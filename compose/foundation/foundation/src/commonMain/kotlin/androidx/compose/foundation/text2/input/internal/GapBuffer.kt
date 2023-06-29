@@ -17,37 +17,6 @@
 package androidx.compose.foundation.text2.input.internal
 
 /**
- * Like [toCharArray] but copies the entire source string.
- * Workaround for compiler error when giving [toCharArray] above default parameters.
- */
-private fun String.toCharArray(
-    destination: CharArray,
-    destinationOffset: Int
-) = toCharArray(destination, destinationOffset, startIndex = 0, endIndex = this.length)
-
-/**
- * Copies characters from this [String] into [destination].
- *
- * Platform-specific implementations should use native functions for performing this operation if
- * they exist, since they will likely be more efficient than copying each character individually.
- *
- * @param destination The [CharArray] to copy into.
- * @param destinationOffset The index in [destination] to start copying to.
- * @param startIndex The index in `this` of the first character to copy from (inclusive).
- * @param endIndex The index in `this` of the last character to copy from (exclusive).
- */
-// TODO(halilibo): Revert back to expect/actual when moving to foundation
-internal fun String.toCharArray(
-    destination: CharArray,
-    destinationOffset: Int,
-    startIndex: Int,
-    endIndex: Int
-) {
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    (this as java.lang.String).getChars(startIndex, endIndex, destination, destinationOffset)
-}
-
-/**
  * The gap buffer implementation
  *
  * @param initBuffer An initial buffer. This class takes ownership of this object, so do not modify
@@ -190,7 +159,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
      * @param end an exclusive end offset for replacement
      * @param text a text to replace
      */
-    fun replace(start: Int, end: Int, text: String) {
+    fun replace(start: Int, end: Int, text: CharSequence) {
         makeSureAvailableSpace(text.length - (end - start))
 
         delete(start, end)
@@ -229,13 +198,14 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * @param text The initial text
  * @suppress
  */
-internal class PartialGapBuffer(var text: String) {
+internal class PartialGapBuffer(text: CharSequence) {
     internal companion object {
         const val BUF_SIZE = 255
         const val SURROUNDING_SIZE = 64
         const val NOWHERE = -1
     }
 
+    private var text: CharSequence = text
     private var buffer: GapBuffer? = null
     private var bufStart = NOWHERE
     private var bufEnd = NOWHERE
@@ -256,7 +226,7 @@ internal class PartialGapBuffer(var text: String) {
      * @param end an exclusive end offset for replacement
      * @param text a text to replace
      */
-    fun replace(start: Int, end: Int, text: String) {
+    fun replace(start: Int, end: Int, text: CharSequence) {
         require(start <= end) {
             "start index must be less than or equal to end index: $start > $end"
         }
@@ -273,7 +243,7 @@ internal class PartialGapBuffer(var text: String) {
             val rightCopyCount = minOf(this.text.length - end, SURROUNDING_SIZE)
 
             // Copy left surrounding
-            this.text.toCharArray(charArray, 0, start - leftCopyCount, start)
+            this.text.toString().toCharArray(charArray, 0, start - leftCopyCount, start)
 
             // Copy right surrounding
             this.text.toCharArray(
@@ -328,7 +298,7 @@ internal class PartialGapBuffer(var text: String) {
     }
 
     override fun toString(): String {
-        val b = buffer ?: return text
+        val b = buffer ?: return text.toString()
         val sb = StringBuilder()
         sb.append(text, 0, bufStart)
         b.append(sb)
