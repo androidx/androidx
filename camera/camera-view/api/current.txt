@@ -86,7 +86,7 @@ package androidx.camera.view {
     method @UiThread public androidx.camera.view.CameraController? getController();
     method @UiThread public androidx.camera.view.PreviewView.ImplementationMode getImplementationMode();
     method @UiThread public androidx.camera.core.MeteringPointFactory getMeteringPointFactory();
-    method public androidx.camera.view.transform.OutputTransform? getOutputTransform();
+    method @SuppressCompatibility public androidx.camera.view.transform.OutputTransform? getOutputTransform();
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
@@ -130,7 +130,7 @@ package androidx.camera.view {
 
 package androidx.camera.view.transform {
 
-  @RequiresApi(21) public final class CoordinateTransform {
+  @SuppressCompatibility @RequiresApi(21) public final class CoordinateTransform {
     ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);
     method public void mapPoint(android.graphics.PointF);
     method public void mapPoints(float[]);
@@ -138,7 +138,7 @@ package androidx.camera.view.transform {
     method public void transform(android.graphics.Matrix);
   }
 
-  @RequiresApi(21) public final class FileTransformFactory {
+  @SuppressCompatibility @RequiresApi(21) public final class FileTransformFactory {
     ctor public FileTransformFactory();
     method public androidx.camera.view.transform.OutputTransform getOutputTransform(android.content.ContentResolver, android.net.Uri) throws java.io.IOException;
     method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.File) throws java.io.IOException;
@@ -147,7 +147,7 @@ package androidx.camera.view.transform {
     method public void setUsingExifOrientation(boolean);
   }
 
-  @RequiresApi(21) public final class ImageProxyTransformFactory {
+  @SuppressCompatibility @RequiresApi(21) public final class ImageProxyTransformFactory {
     ctor public ImageProxyTransformFactory();
     method public androidx.camera.view.transform.OutputTransform getOutputTransform(androidx.camera.core.ImageProxy);
     method public boolean isUsingCropRect();
@@ -156,7 +156,7 @@ package androidx.camera.view.transform {
     method public void setUsingRotationDegrees(boolean);
   }
 
-  @RequiresApi(21) public final class OutputTransform {
+  @SuppressCompatibility @RequiresApi(21) public final class OutputTransform {
   }
 
 }

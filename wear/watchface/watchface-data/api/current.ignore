@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat:
+    Removed class androidx.wear.watchface.data.BoundingArcWireFormat from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#BoundingArcWireFormat(float, float, float):
+    Removed constructor androidx.wear.watchface.data.BoundingArcWireFormat(float,float,float) from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#BoundingArcWireFormat(float, float, float) parameter #0:
+    Removed parameter arg1 in androidx.wear.watchface.data.BoundingArcWireFormat(float arg1, float arg2, float arg3) from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#BoundingArcWireFormat(float, float, float) parameter #1:
+    Removed parameter arg2 in androidx.wear.watchface.data.BoundingArcWireFormat(float arg1, float arg2, float arg3) from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#BoundingArcWireFormat(float, float, float) parameter #2:
+    Removed parameter arg3 in androidx.wear.watchface.data.BoundingArcWireFormat(float arg1, float arg2, float arg3) from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#CREATOR:
+    Removed field androidx.wear.watchface.data.BoundingArcWireFormat.CREATOR from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#describeContents():
+    Removed method androidx.wear.watchface.data.BoundingArcWireFormat.describeContents() from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#getArcStartAngle():
+    Removed method androidx.wear.watchface.data.BoundingArcWireFormat.getArcStartAngle() from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#getArcThickness():
+    Removed method androidx.wear.watchface.data.BoundingArcWireFormat.getArcThickness() from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#getTotalArcAngle():
+    Removed method androidx.wear.watchface.data.BoundingArcWireFormat.getTotalArcAngle() from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#writeToParcel(android.os.Parcel, int):
+    Removed method androidx.wear.watchface.data.BoundingArcWireFormat.writeToParcel(android.os.Parcel,int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#writeToParcel(android.os.Parcel, int) parameter #0:
+    Removed parameter arg1 in androidx.wear.watchface.data.BoundingArcWireFormat.writeToParcel(android.os.Parcel arg1, int arg2) from compatibility checked API surface
+BecameUnchecked: androidx.wear.watchface.data.BoundingArcWireFormat#writeToParcel(android.os.Parcel, int) parameter #1:
+    Removed parameter arg2 in androidx.wear.watchface.data.BoundingArcWireFormat.writeToParcel(android.os.Parcel arg1, int arg2) from compatibility checked API surface

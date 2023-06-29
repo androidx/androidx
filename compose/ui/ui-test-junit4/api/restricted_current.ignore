@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher,long)
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher,long)
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher,long)
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher,int,long)

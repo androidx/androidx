@@ -411,7 +411,7 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.Easing Standard;
   }
 
-  @kotlin.RequiresOptIn(message="MotionLayout API is experimental and it is likely to change.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMotionApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="MotionLayout API is experimental and it is likely to change.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMotionApi {
   }
 
   @androidx.compose.runtime.Immutable public final class FlowStyle {

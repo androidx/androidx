@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.car.app {
 
-  @androidx.car.app.annotations.CarProtocol public final class AppInfo {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class AppInfo {
     ctor @VisibleForTesting public AppInfo(int, int, String);
     method public int getLatestCarAppApiLevel();
     method public String getLibraryDisplayVersion();
@@ -36,16 +36,16 @@ package androidx.car.app {
     method public androidx.car.app.Session onCreateSession();
     method @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
     method public final boolean onUnbind(android.content.Intent);
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_CALLING_APP = "androidx.car.app.category.CALLING";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_CALLING_APP = "androidx.car.app.category.CALLING";
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
     field @androidx.car.app.annotations.RequiresCarApi(6) public static final String CATEGORY_FEATURE_CLUSTER = "androidx.car.app.category.FEATURE_CLUSTER";
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_IOT_APP = "androidx.car.app.category.IOT";
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_MESSAGING_APP = "androidx.car.app.category.MESSAGING";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_IOT_APP = "androidx.car.app.category.IOT";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_MESSAGING_APP = "androidx.car.app.category.MESSAGING";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
     field @Deprecated public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
     field public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_WEATHER_APP = "androidx.car.app.category.WEATHER";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_WEATHER_APP = "androidx.car.app.category.WEATHER";
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
 
@@ -86,7 +86,7 @@ package androidx.car.app {
     field public static final int LENGTH_SHORT = 0; // 0x0
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class FailureResponse {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class FailureResponse {
     ctor public FailureResponse(Throwable);
     method public int getErrorType();
     method public String getStackTrace();
@@ -99,7 +99,7 @@ package androidx.car.app {
     field public static final int UNKNOWN_ERROR = 0; // 0x0
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class HandshakeInfo {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class HandshakeInfo {
     ctor public HandshakeInfo(String, int);
     method public int getHostCarAppApiLevel();
     method public String getHostPackageName();
@@ -164,7 +164,7 @@ package androidx.car.app {
     method public void onNewIntent(android.content.Intent);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class SessionInfo {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class SessionInfo {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
@@ -191,7 +191,7 @@ package androidx.car.app {
     method public default void onVisibleAreaChanged(android.graphics.Rect);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class SurfaceContainer {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class SurfaceContainer {
     ctor public SurfaceContainer(android.view.Surface?, int, int, int);
     method public int getDpi();
     method public int getHeight();
@@ -206,7 +206,7 @@ package androidx.car.app.annotations {
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface CarProtocol {
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalCarApi {
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalCarApi {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface RequiresCarApi {
@@ -246,7 +246,7 @@ package androidx.car.app.constraints {
 package androidx.car.app.hardware {
 
   @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarHardwareManager extends androidx.car.app.managers.Manager {
-    method @androidx.car.app.annotations.ExperimentalCarApi public default androidx.car.app.hardware.climate.CarClimate getCarClimate();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public default androidx.car.app.hardware.climate.CarClimate getCarClimate();
     method public default androidx.car.app.hardware.info.CarInfo getCarInfo();
     method public default androidx.car.app.hardware.info.CarSensors getCarSensors();
   }
@@ -255,7 +255,7 @@ package androidx.car.app.hardware {
 
 package androidx.car.app.hardware.climate {
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class CabinTemperatureProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class CabinTemperatureProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Float!,java.lang.Float!>!> getCarZoneSetsToCabinCelsiusTemperatureRanges();
     method public float getCelsiusSupportedIncrement();
     method public float getFahrenheitSupportedIncrement();
@@ -278,14 +278,14 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.CabinTemperatureProfile.Builder setSupportedMinMaxFahrenheitRange(android.util.Pair<java.lang.Float!,java.lang.Float!>);
   }
 
-  @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimate {
+  @SuppressCompatibility @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimate {
     method public void fetchClimateProfile(java.util.concurrent.Executor, androidx.car.app.hardware.climate.ClimateProfileRequest, androidx.car.app.hardware.climate.CarClimateProfileCallback);
     method public void registerClimateStateCallback(java.util.concurrent.Executor, androidx.car.app.hardware.climate.RegisterClimateStateRequest, androidx.car.app.hardware.climate.CarClimateStateCallback);
     method public <E> void setClimateState(java.util.concurrent.Executor, androidx.car.app.hardware.climate.ClimateStateRequest<E!>, androidx.car.app.hardware.common.CarSetOperationStatusCallback);
     method public void unregisterClimateStateCallback(androidx.car.app.hardware.climate.CarClimateStateCallback);
   }
 
-  @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class CarClimateFeature {
+  @SuppressCompatibility @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class CarClimateFeature {
     method public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
     method public int getFeature();
   }
@@ -296,7 +296,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.CarClimateFeature build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateProfileCallback {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateProfileCallback {
     method public default void onCabinTemperatureProfileAvailable(androidx.car.app.hardware.climate.CabinTemperatureProfile);
     method public default void onCarZoneMappingInfoProfileAvailable(androidx.car.app.hardware.climate.CarZoneMappingInfoProfile);
     method public default void onDefrosterProfileAvailable(androidx.car.app.hardware.climate.DefrosterProfile);
@@ -316,7 +316,7 @@ package androidx.car.app.hardware.climate {
     method public default void onSteeringWheelHeatProfileAvailable(androidx.car.app.hardware.climate.SteeringWheelHeatProfile);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateStateCallback {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateStateCallback {
     method public default void onCabinTemperatureStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
     method public default void onDefrosterStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public default void onElectricDefrosterStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
@@ -335,7 +335,7 @@ package androidx.car.app.hardware.climate {
     method public default void onSteeringWheelHeatStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class CarZoneMappingInfoProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class CarZoneMappingInfoProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -344,7 +344,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.CarZoneMappingInfoProfile build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateProfileRequest {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateProfileRequest {
     method public java.util.Set<java.lang.Integer!> getAllClimateProfiles();
     method public java.util.List<androidx.car.app.hardware.climate.CarClimateFeature!> getClimateProfileFeatures();
     field public static final int FEATURE_CABIN_TEMPERATURE = 4; // 0x4
@@ -373,7 +373,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.ClimateProfileRequest.Builder setAllClimateProfiles();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateStateRequest<T> {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateStateRequest<T> {
     method public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
     method public int getRequestedFeature();
     method public T getRequestedValue();
@@ -385,7 +385,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.ClimateStateRequest<T!> build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class DefrosterProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class DefrosterProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -394,7 +394,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.DefrosterProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class ElectricDefrosterProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class ElectricDefrosterProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -403,7 +403,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.ElectricDefrosterProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class FanDirectionProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class FanDirectionProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,java.util.Set<java.lang.Integer!>!> getCarZoneSetsToFanDirectionValues();
   }
 
@@ -412,7 +412,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.FanDirectionProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class FanSpeedLevelProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class FanSpeedLevelProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Integer!,java.lang.Integer!>!> getCarZoneSetsToFanSpeedLevelRanges();
   }
 
@@ -421,7 +421,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.FanSpeedLevelProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAcProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAcProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -430,7 +430,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacAcProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAutoModeProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAutoModeProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -439,7 +439,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacAutoModeProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAutoRecirculationProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacAutoRecirculationProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -448,7 +448,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacAutoRecirculationProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacDualModeProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacDualModeProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -457,7 +457,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacDualModeProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacMaxAcModeProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacMaxAcModeProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -466,7 +466,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacMaxAcModeProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacPowerProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacPowerProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -475,7 +475,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacPowerProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class HvacRecirculationProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class HvacRecirculationProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZones();
   }
 
@@ -484,7 +484,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.HvacRecirculationProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class MaxDefrosterProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class MaxDefrosterProfile {
     method public java.util.List<java.util.Set<androidx.car.app.hardware.common.CarZone!>!> getSupportedCarZoneSets();
   }
 
@@ -493,7 +493,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.MaxDefrosterProfile build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class RegisterClimateStateRequest {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class RegisterClimateStateRequest {
     method public java.util.List<androidx.car.app.hardware.climate.CarClimateFeature!> getClimateRegisterFeatures();
   }
 
@@ -503,7 +503,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.RegisterClimateStateRequest build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class SeatTemperatureProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class SeatTemperatureProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Integer!,java.lang.Integer!>!> getCarZoneSetsToSeatTemperatureValues();
   }
 
@@ -512,7 +512,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.SeatTemperatureProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class SeatVentilationProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class SeatVentilationProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Integer!,java.lang.Integer!>!> getCarZoneSetsToSeatVentilationValues();
   }
 
@@ -521,7 +521,7 @@ package androidx.car.app.hardware.climate {
     method public androidx.car.app.hardware.climate.SeatVentilationProfile build();
   }
 
-  @androidx.car.app.annotations.ExperimentalCarApi public final class SteeringWheelHeatProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class SteeringWheelHeatProfile {
     method public java.util.Map<java.util.Set<androidx.car.app.hardware.common.CarZone!>!,android.util.Pair<java.lang.Integer!,java.lang.Integer!>!> getCarZoneSetsToSteeringWheelHeatValues();
   }
 
@@ -534,7 +534,7 @@ package androidx.car.app.hardware.climate {
 
 package androidx.car.app.hardware.common {
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarSetOperationStatusCallback {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarSetOperationStatusCallback {
     method public default void onSetCarClimateStateCabinTemperature(int);
     method public default void onSetCarClimateStateDefroster(int);
     method public default void onSetCarClimateStateElectricDefroster(int);
@@ -565,23 +565,23 @@ package androidx.car.app.hardware.common {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarUnit {
     method public static String toString(int);
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final int IMPERIAL_GALLON = 204; // 0xcc
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int IMPERIAL_GALLON = 204; // 0xcc
     field public static final int KILOMETER = 3; // 0x3
     field public static final int KILOMETERS_PER_HOUR = 102; // 0x66
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final int LITER = 202; // 0xca
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int LITER = 202; // 0xca
     field public static final int METER = 2; // 0x2
     field public static final int METERS_PER_SEC = 101; // 0x65
     field public static final int MILE = 4; // 0x4
     field public static final int MILES_PER_HOUR = 103; // 0x67
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final int MILLILITER = 201; // 0xc9
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int MILLILITER = 201; // 0xc9
     field public static final int MILLIMETER = 1; // 0x1
-    field @androidx.car.app.annotations.ExperimentalCarApi public static final int US_GALLON = 203; // 0xcb
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int US_GALLON = 203; // 0xcb
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarValue<T> {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarValue<T> {
     ctor public CarValue(T?, long, int);
-    ctor @androidx.car.app.annotations.ExperimentalCarApi public CarValue(T?, long, int, java.util.List<androidx.car.app.hardware.common.CarZone!>);
-    method @androidx.car.app.annotations.ExperimentalCarApi public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
+    ctor @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public CarValue(T?, long, int, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
     method public int getStatus();
     method public long getTimestampMillis();
     method public T? getValue();
@@ -591,7 +591,7 @@ package androidx.car.app.hardware.common {
     field public static final int STATUS_UNKNOWN = 0; // 0x0
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class CarZone {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class CarZone {
     method public int getColumn();
     method public int getRow();
     field public static final int CAR_ZONE_COLUMN_ALL = 16; // 0x10
@@ -623,26 +623,26 @@ package androidx.car.app.hardware.common {
 
 package androidx.car.app.hardware.info {
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Accelerometer {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Accelerometer {
     ctor public Accelerometer(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!>);
     method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!> getForces();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarHardwareLocation {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarHardwareLocation {
     ctor public CarHardwareLocation(androidx.car.app.hardware.common.CarValue<android.location.Location!>);
     method public androidx.car.app.hardware.common.CarValue<android.location.Location!> getLocation();
   }
 
   @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarInfo {
     method public void addEnergyLevelListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
-    method @androidx.car.app.annotations.ExperimentalCarApi public void addEvStatusListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public void addEvStatusListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
     method public void addMileageListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
     method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
     method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
     method public void fetchEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyProfile!>);
     method public void fetchModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Model!>);
     method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
-    method @androidx.car.app.annotations.ExperimentalCarApi public void removeEvStatusListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public void removeEvStatusListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
     method public void removeMileageListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
     method public void removeSpeedListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
     method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
@@ -662,17 +662,17 @@ package androidx.car.app.hardware.info {
     field public static final int UPDATE_RATE_UI = 2; // 0x2
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Compass {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Compass {
     ctor public Compass(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!>);
     method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!> getOrientations();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class EnergyLevel {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class EnergyLevel {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getBatteryPercent();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEnergyIsLow();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getFuelPercent();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getFuelVolumeDisplayUnit();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getFuelVolumeDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRangeRemainingMeters();
   }
 
@@ -683,11 +683,11 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setDistanceDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setEnergyIsLow(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelPercent(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelVolumeDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelVolumeDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setRangeRemainingMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class EnergyProfile {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class EnergyProfile {
     method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!> getEvConnectorTypes();
     method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!> getFuelTypes();
     field public static final int EVCONNECTOR_TYPE_CHADEMO = 3; // 0x3
@@ -725,7 +725,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyProfile.Builder setFuelTypes(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class EvStatus {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class EvStatus {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEvChargePortConnected();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEvChargePortOpen();
   }
@@ -737,12 +737,12 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortOpen(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Gyroscope {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Gyroscope {
     ctor public Gyroscope(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!>);
     method public androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Float!>!> getRotations();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Mileage {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Mileage {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getOdometerMeters();
   }
@@ -754,7 +754,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.Mileage.Builder setOdometerMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Model {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Model {
     method public androidx.car.app.hardware.common.CarValue<java.lang.String!> getManufacturer();
     method public androidx.car.app.hardware.common.CarValue<java.lang.String!> getName();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getYear();
@@ -768,7 +768,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.Model.Builder setYear(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Speed {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Speed {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getDisplaySpeedMetersPerSecond();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRawSpeedMetersPerSecond();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getSpeedDisplayUnit();
@@ -782,7 +782,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.Speed.Builder setSpeedDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class TollCard {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class TollCard {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getCardState();
     field public static final int TOLLCARD_STATE_INVALID = 2; // 0x2
     field public static final int TOLLCARD_STATE_NOT_INSERTED = 3; // 0x3
@@ -811,7 +811,7 @@ package androidx.car.app.media {
     method public void onStopRecording();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public class CarAudioCallbackDelegate {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public class CarAudioCallbackDelegate {
     method public void onStopRecording();
   }
 
@@ -825,7 +825,7 @@ package androidx.car.app.media {
     field public static final int AUDIO_CONTENT_SAMPLING_RATE = 16000; // 0x3e80
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneRequest {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneRequest {
     method public androidx.car.app.media.CarAudioCallbackDelegate getCarAudioCallbackDelegate();
   }
 
@@ -834,7 +834,7 @@ package androidx.car.app.media {
     method public androidx.car.app.media.OpenMicrophoneRequest build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneResponse {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneResponse {
     method public androidx.car.app.media.CarAudioCallbackDelegate getCarAudioCallback();
     method public java.io.InputStream getCarMicrophoneInputStream();
   }
@@ -858,7 +858,7 @@ package androidx.car.app.mediaextensions {
 
 package androidx.car.app.messaging {
 
-  @androidx.car.app.annotations.ExperimentalCarApi public class MessagingServiceConstants {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public class MessagingServiceConstants {
     field public static final String ACTION_HANDLE_CAR_MESSAGING = "androidx.car.app.messaging.action.HANDLE_CAR_MESSAGING";
   }
 
@@ -866,7 +866,7 @@ package androidx.car.app.messaging {
 
 package androidx.car.app.messaging.model {
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class CarMessage {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class CarMessage {
     method public androidx.car.app.model.CarText getBody();
     method public long getReceivedTimeEpochMillis();
     method public androidx.core.app.Person? getSender();
@@ -882,17 +882,17 @@ package androidx.car.app.messaging.model {
     method public androidx.car.app.messaging.model.CarMessage.Builder setSender(androidx.core.app.Person?);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface ConversationCallback {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface ConversationCallback {
     method public void onMarkAsRead();
     method public void onTextReply(String);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public interface ConversationCallbackDelegate {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public interface ConversationCallbackDelegate {
     method public void sendMarkAsRead(androidx.car.app.OnDoneCallback);
     method public void sendTextReply(String, androidx.car.app.OnDoneCallback);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class ConversationItem implements androidx.car.app.model.Item {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class ConversationItem implements androidx.car.app.model.Item {
     method public androidx.car.app.messaging.model.ConversationCallbackDelegate getConversationCallbackDelegate();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public String getId();
@@ -919,7 +919,7 @@ package androidx.car.app.messaging.model {
 
 package androidx.car.app.model {
 
-  @androidx.car.app.annotations.CarProtocol public final class Action {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Action {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method @androidx.car.app.annotations.RequiresCarApi(4) public int getFlags();
     method public androidx.car.app.model.CarIcon? getIcon();
@@ -954,7 +954,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Action.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class ActionStrip {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ActionStrip {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getFirstActionOfType(int);
   }
@@ -965,7 +965,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ActionStrip build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Alert {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Alert {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.AlertCallbackDelegate? getCallbackDelegate();
     method public long getDurationMillis();
@@ -997,7 +997,7 @@ package androidx.car.app.model {
     method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class Badge {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class Badge {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public boolean hasDot();
@@ -1011,7 +1011,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Badge.Builder setIcon(androidx.car.app.model.CarIcon);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class CarColor {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class CarColor {
     method public static androidx.car.app.model.CarColor createCustom(@ColorInt int, @ColorInt int);
     method @ColorInt public int getColor();
     method @ColorInt public int getColorDark();
@@ -1033,7 +1033,7 @@ package androidx.car.app.model {
     field public static final androidx.car.app.model.CarColor YELLOW;
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class CarIcon {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class CarIcon {
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public androidx.car.app.model.CarColor? getTint();
     method public int getType();
@@ -1057,7 +1057,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class CarIconSpan extends androidx.car.app.model.CarSpan {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class CarIconSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon);
     method public static androidx.car.app.model.CarIconSpan create(androidx.car.app.model.CarIcon, int);
     method public int getAlignment();
@@ -1067,19 +1067,19 @@ package androidx.car.app.model {
     field public static final int ALIGN_CENTER = 2; // 0x2
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class CarLocation {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class CarLocation {
     method public static androidx.car.app.model.CarLocation create(android.location.Location);
     method public static androidx.car.app.model.CarLocation create(double, double);
     method public double getLatitude();
     method public double getLongitude();
   }
 
-  @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
     ctor public CarSpan();
     method public void updateDrawState(android.text.TextPaint);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class CarText {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class CarText {
     method public static androidx.car.app.model.CarText create(CharSequence);
     method public java.util.List<java.lang.CharSequence!> getVariants();
     method public boolean isEmpty();
@@ -1087,13 +1087,13 @@ package androidx.car.app.model {
     method public CharSequence toCharSequence();
   }
 
-  public static final class CarText.Builder {
+  @SuppressCompatibility public static final class CarText.Builder {
     ctor public CarText.Builder(CharSequence);
     method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.CarText.Builder addVariant(CharSequence);
     method public androidx.car.app.model.CarText build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public final class ClickableSpan extends androidx.car.app.model.CarSpan {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(2) public final class ClickableSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.ClickableSpan create(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.OnClickDelegate getOnClickDelegate();
   }
@@ -1102,7 +1102,7 @@ package androidx.car.app.model {
     method public String getContentId();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class DateTimeWithZone {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class DateTimeWithZone {
     method @RequiresApi(26) public static androidx.car.app.model.DateTimeWithZone create(java.time.ZonedDateTime);
     method public static androidx.car.app.model.DateTimeWithZone create(long, @IntRange(from=0xffff02e0, to=64800) int, String);
     method public static androidx.car.app.model.DateTimeWithZone create(long, java.util.TimeZone);
@@ -1111,7 +1111,7 @@ package androidx.car.app.model {
     method public String? getZoneShortName();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Distance {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Distance {
     method public static androidx.car.app.model.Distance create(double, int);
     method public double getDisplayDistance();
     method public int getDisplayUnit();
@@ -1124,24 +1124,24 @@ package androidx.car.app.model {
     field public static final int UNIT_YARDS = 7; // 0x7
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class DistanceSpan extends androidx.car.app.model.CarSpan {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class DistanceSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.DistanceSpan create(androidx.car.app.model.Distance);
     method public androidx.car.app.model.Distance getDistance();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class DurationSpan extends androidx.car.app.model.CarSpan {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class DurationSpan extends androidx.car.app.model.CarSpan {
     method @RequiresApi(26) public static androidx.car.app.model.DurationSpan create(java.time.Duration);
     method public static androidx.car.app.model.DurationSpan create(long);
     method public long getDurationSeconds();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class ForegroundCarColorSpan extends androidx.car.app.model.CarSpan {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ForegroundCarColorSpan extends androidx.car.app.model.CarSpan {
     method public static androidx.car.app.model.ForegroundCarColorSpan create(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.CarColor getColor();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class GridItem implements androidx.car.app.model.Item {
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Badge? getBadge();
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class GridItem implements androidx.car.app.model.Item {
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Badge? getBadge();
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
@@ -1156,9 +1156,9 @@ package androidx.car.app.model {
     ctor public GridItem.Builder();
     method public androidx.car.app.model.GridItem build();
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon);
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, androidx.car.app.model.Badge);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, androidx.car.app.model.Badge);
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int);
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int, androidx.car.app.model.Badge);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int, androidx.car.app.model.Badge);
     method public androidx.car.app.model.GridItem.Builder setLoading(boolean);
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.GridItem.Builder setText(androidx.car.app.model.CarText);
@@ -1167,36 +1167,36 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class GridTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class GridTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getHeaderAction();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemImageShape();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemSize();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemImageShape();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemSize();
     method public androidx.car.app.model.ItemList? getSingleList();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
-    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
-    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_IMAGE_SHAPE_UNSET = 1; // 0x1
-    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_LARGE = 4; // 0x4
-    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_MEDIUM = 2; // 0x2
-    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_SMALL = 1; // 0x1
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_IMAGE_SHAPE_UNSET = 1; // 0x1
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_LARGE = 4; // 0x4
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_MEDIUM = 2; // 0x2
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_SMALL = 1; // 0x1
   }
 
   public static final class GridTemplate.Builder {
     ctor public GridTemplate.Builder();
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder addAction(androidx.car.app.model.Action);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.GridTemplate build();
     method public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setItemImageShape(int);
-    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setItemSize(int);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setItemImageShape(@SuppressCompatibility int);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setItemSize(@SuppressCompatibility int);
     method public androidx.car.app.model.GridTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.GridTemplate.Builder setSingleList(androidx.car.app.model.ItemList);
     method public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
     method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
     method public androidx.car.app.model.Action? getStartHeaderAction();
     method public androidx.car.app.model.CarText? getTitle();
@@ -1224,20 +1224,20 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol public interface Item {
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class ItemList {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ItemList {
     method public java.util.List<androidx.car.app.model.Item!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
     method public androidx.car.app.model.OnSelectedDelegate? getOnSelectedDelegate();
     method public int getSelectedIndex();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ItemList.Builder toBuilder();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ItemList.Builder toBuilder();
   }
 
   public static final class ItemList.Builder {
     ctor public ItemList.Builder();
     method public androidx.car.app.model.ItemList.Builder addItem(androidx.car.app.model.Item);
     method public androidx.car.app.model.ItemList build();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ItemList.Builder clearItems();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ItemList.Builder clearItems();
     method public androidx.car.app.model.ItemList.Builder setNoItemsMessage(CharSequence);
     method public androidx.car.app.model.ItemList.Builder setOnItemsVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener);
     method public androidx.car.app.model.ItemList.Builder setOnSelectedListener(androidx.car.app.model.ItemList.OnSelectedListener);
@@ -1252,7 +1252,7 @@ package androidx.car.app.model {
     method public void onSelected(int);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class ListTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ListTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getHeaderAction();
@@ -1260,7 +1260,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ItemList? getSingleList();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder toBuilder();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder toBuilder();
   }
 
   public static final class ListTemplate.Builder {
@@ -1268,7 +1268,7 @@ package androidx.car.app.model {
     method @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.ListTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
-    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder clearSectionedLists();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder clearSectionedLists();
     method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder setLoading(boolean);
@@ -1276,7 +1276,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ListTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(2) public final class LongMessageTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class LongMessageTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getHeaderAction();
@@ -1293,7 +1293,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.LongMessageTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class MessageTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class MessageTemplate implements androidx.car.app.model.Template {
     method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
@@ -1318,7 +1318,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Metadata {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Metadata {
     method public androidx.car.app.model.Place? getPlace();
     field public static final androidx.car.app.model.Metadata EMPTY_METADATA;
   }
@@ -1359,7 +1359,7 @@ package androidx.car.app.model {
     method public void sendSelected(int, androidx.car.app.OnDoneCallback);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Pane {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Pane {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.CarIcon? getImage();
     method public java.util.List<androidx.car.app.model.Row!> getRows();
@@ -1375,7 +1375,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.Pane getPane();
@@ -1390,12 +1390,12 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class ParkedOnlyOnClickListener implements androidx.car.app.model.OnClickListener {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ParkedOnlyOnClickListener implements androidx.car.app.model.OnClickListener {
     method public static androidx.car.app.model.ParkedOnlyOnClickListener create(androidx.car.app.model.OnClickListener);
     method public void onClick();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Place {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Place {
     method public androidx.car.app.model.CarLocation getLocation();
     method public androidx.car.app.model.PlaceMarker? getMarker();
   }
@@ -1407,7 +1407,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Place.Builder setMarker(androidx.car.app.model.PlaceMarker);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class PlaceListMapTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceListMapTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Place? getAnchor();
     method public androidx.car.app.model.Action? getHeaderAction();
@@ -1432,7 +1432,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class PlaceMarker {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceMarker {
     method public androidx.car.app.model.CarColor? getColor();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public int getIconType();
@@ -1449,7 +1449,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceMarker.Builder setLabel(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Row implements androidx.car.app.model.Item {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Row implements androidx.car.app.model.Item {
     method @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata? getMetadata();
@@ -1492,7 +1492,7 @@ package androidx.car.app.model {
     method public void sendSearchTextChanged(String, androidx.car.app.OnDoneCallback);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class SearchTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class SearchTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public String? getInitialSearchText();
@@ -1520,13 +1520,13 @@ package androidx.car.app.model {
     method public default void onSearchTextChanged(String);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
     method public static androidx.car.app.model.SectionedItemList create(androidx.car.app.model.ItemList, CharSequence);
     method public androidx.car.app.model.CarText getHeader();
     method public androidx.car.app.model.ItemList getItemList();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
     method public String getContentId();
     method public androidx.car.app.model.CarIcon getIcon();
     method public androidx.car.app.model.CarText getTitle();
@@ -1545,7 +1545,7 @@ package androidx.car.app.model {
     method public void sendTabSelected(String, androidx.car.app.OnDoneCallback);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabContents implements androidx.car.app.model.Content {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabContents implements androidx.car.app.model.Content {
     method public String getContentId();
     method public androidx.car.app.model.Template getTemplate();
     field public static final String CONTENT_ID = "TAB_CONTENTS_CONTENT_ID";
@@ -1556,7 +1556,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.TabContents build();
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabTemplate implements androidx.car.app.model.Template {
     method public String getActiveTabContentId();
     method public androidx.car.app.model.Action getHeaderAction();
     method public androidx.car.app.model.TabCallbackDelegate getTabCallbackDelegate();
@@ -1583,13 +1583,13 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol public interface Template {
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class TemplateInfo {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class TemplateInfo {
     ctor public TemplateInfo(Class<? extends androidx.car.app.model.Template>, String);
     method public Class<? extends androidx.car.app.model.Template> getTemplateClass();
     method public String getTemplateId();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class TemplateWrapper {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class TemplateWrapper {
     method public static androidx.car.app.model.TemplateWrapper copyOf(androidx.car.app.model.TemplateWrapper);
     method public int getCurrentTaskStep();
     method public String getId();
@@ -1604,7 +1604,7 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.TemplateWrapper wrap(androidx.car.app.model.Template, String);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Toggle {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Toggle {
     method public androidx.car.app.model.OnCheckedChangeDelegate getOnCheckedChangeDelegate();
     method public boolean isChecked();
     method @androidx.car.app.annotations.RequiresCarApi(5) public boolean isEnabled();
@@ -1625,7 +1625,7 @@ package androidx.car.app.model {
 
 package androidx.car.app.model.signin {
 
-  @androidx.car.app.annotations.RequiresCarApi(2) public final class InputSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+  @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class InputSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
     method public androidx.car.app.model.CarText? getDefaultValue();
     method public androidx.car.app.model.CarText? getErrorMessage();
     method public androidx.car.app.model.CarText? getHint();
@@ -1652,22 +1652,22 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.signin.InputSignInMethod.Builder setShowKeyboardByDefault(boolean);
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+  @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class PinSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
     ctor public PinSignInMethod(CharSequence);
     method public androidx.car.app.model.CarText getPinCode();
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(2) public final class ProviderSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+  @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class ProviderSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
     ctor public ProviderSignInMethod(androidx.car.app.model.Action);
     method public androidx.car.app.model.Action getAction();
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(4) public final class QRCodeSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+  @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(4) public final class QRCodeSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
     ctor public QRCodeSignInMethod(android.net.Uri);
     method public android.net.Uri getUri();
   }
 
-  @androidx.car.app.annotations.RequiresCarApi(2) public final class SignInTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class SignInTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getAdditionalText();
@@ -1715,7 +1715,7 @@ package androidx.car.app.navigation {
 
 package androidx.car.app.navigation.model {
 
-  @androidx.car.app.annotations.CarProtocol public final class Destination {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Destination {
     method public androidx.car.app.model.CarText? getAddress();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.CarText? getName();
@@ -1729,7 +1729,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Destination.Builder setName(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Lane {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Lane {
     method public java.util.List<androidx.car.app.navigation.model.LaneDirection!> getDirections();
   }
 
@@ -1739,7 +1739,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Lane build();
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class LaneDirection {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class LaneDirection {
     method public static androidx.car.app.navigation.model.LaneDirection create(int, boolean);
     method public int getShape();
     method public boolean isRecommended();
@@ -1755,7 +1755,7 @@ package androidx.car.app.navigation.model {
     field public static final int SHAPE_U_TURN_RIGHT = 10; // 0xa
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Maneuver {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Maneuver {
     method public androidx.car.app.model.CarIcon? getIcon();
     method public int getRoundaboutExitAngle();
     method public int getRoundaboutExitNumber();
@@ -1819,7 +1819,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Maneuver.Builder setRoundaboutExitNumber(@IntRange(from=1) int);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapController {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapController {
     method public androidx.car.app.model.ActionStrip? getMapActionStrip();
     method public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
   }
@@ -1831,7 +1831,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MapController.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Header? getHeader();
     method public androidx.car.app.model.ItemList? getItemList();
@@ -1849,7 +1849,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MapTemplate.Builder setPane(androidx.car.app.model.Pane);
   }
 
-  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public final class MapWithContentTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public final class MapWithContentTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Template getContentTemplate();
     method public androidx.car.app.navigation.model.MapController? getMapController();
@@ -1863,7 +1863,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class MessageInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText? getTitle();
@@ -1879,7 +1879,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MessageInfo.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class NavigationTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class NavigationTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.navigation.model.TravelEstimate? getDestinationTravelEstimate();
@@ -1911,7 +1911,7 @@ package androidx.car.app.navigation.model {
     method public void onPanModeChanged(boolean);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
@@ -1938,7 +1938,7 @@ package androidx.car.app.navigation.model {
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
@@ -1965,7 +1965,7 @@ package androidx.car.app.navigation.model {
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class RoutingInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class RoutingInfo implements androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo {
     method public androidx.car.app.model.Distance? getCurrentDistance();
     method public androidx.car.app.navigation.model.Step? getCurrentStep();
     method public androidx.car.app.model.CarIcon? getJunctionImage();
@@ -1982,7 +1982,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutingInfo.Builder setNextStep(androidx.car.app.navigation.model.Step);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Step {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Step {
     method public androidx.car.app.model.CarText? getCue();
     method public java.util.List<androidx.car.app.navigation.model.Lane!> getLanes();
     method public androidx.car.app.model.CarIcon? getLanesImage();
@@ -2002,7 +2002,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Step.Builder setRoad(CharSequence);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class TravelEstimate {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class TravelEstimate {
     method public androidx.car.app.model.DateTimeWithZone? getArrivalTimeAtDestination();
     method public androidx.car.app.model.Distance? getRemainingDistance();
     method public androidx.car.app.model.CarColor? getRemainingDistanceColor();
@@ -2025,7 +2025,7 @@ package androidx.car.app.navigation.model {
     method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.TravelEstimate.Builder setTripText(androidx.car.app.model.CarText);
   }
 
-  @androidx.car.app.annotations.CarProtocol public final class Trip {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Trip {
     method public androidx.car.app.model.CarText? getCurrentRoad();
     method public java.util.List<androidx.car.app.navigation.model.TravelEstimate!> getDestinationTravelEstimates();
     method public java.util.List<androidx.car.app.navigation.model.Destination!> getDestinations();
@@ -2135,7 +2135,7 @@ package androidx.car.app.suggestion {
 
 package androidx.car.app.suggestion.model {
 
-  @androidx.car.app.annotations.CarProtocol public final class Suggestion {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Suggestion {
     method public android.app.PendingIntent? getAction();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public String getIdentifier();

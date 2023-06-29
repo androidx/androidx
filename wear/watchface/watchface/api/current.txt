@@ -5,7 +5,7 @@ package androidx.wear.watchface {
     ctor public BackgroundComplicationTapFilter();
   }
 
-  @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArc {
+  @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArc {
     ctor public BoundingArc(float startAngle, float totalAngle, @Px float thickness);
     method public float getStartAngle();
     method public float getThickness();
@@ -18,7 +18,7 @@ package androidx.wear.watchface {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface CanvasComplication {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color);
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public default void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color, androidx.wear.watchface.BoundingArc? boundingArc);
+    method @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public default void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color, androidx.wear.watchface.BoundingArc? boundingArc);
     method public androidx.wear.watchface.complications.data.ComplicationData getData();
     method public void loadData(androidx.wear.watchface.complications.data.ComplicationData complicationData, boolean loadDrawablesAsynchronous);
     method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
@@ -43,8 +43,8 @@ package androidx.wear.watchface {
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen, optional boolean applyMargins);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc);
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc);
+    method @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
     method @UiThread public int getAccessibilityTraversalIndex();
@@ -101,8 +101,8 @@ package androidx.wear.watchface {
 
   public static final class ComplicationSlot.Companion {
     method public androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc);
-    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc);
+    method @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
     method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
   }
@@ -221,7 +221,7 @@ package androidx.wear.watchface {
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
     method public final android.view.SurfaceHolder getSurfaceHolder();
-    method @androidx.wear.watchface.WatchFaceExperimental public final androidx.wear.watchface.WatchFaceColors? getWatchfaceColors();
+    method @SuppressCompatibility @androidx.wear.watchface.WatchFaceExperimental public final androidx.wear.watchface.WatchFaceColors? getWatchfaceColors();
     method @UiThread public final void invalidate();
     method @UiThread public void onDestroy();
     method @UiThread public abstract void onDump(java.io.PrintWriter writer);
@@ -231,7 +231,7 @@ package androidx.wear.watchface {
     method public final void setAdditionalContentDescriptionLabels(java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>>);
     method public final void setInteractiveDrawModeUpdateDelayMillis(long);
     method protected final void setSurfaceHolder(android.view.SurfaceHolder);
-    method @androidx.wear.watchface.WatchFaceExperimental public final void setWatchfaceColors(androidx.wear.watchface.WatchFaceColors?);
+    method @SuppressCompatibility @androidx.wear.watchface.WatchFaceExperimental public final void setWatchfaceColors(androidx.wear.watchface.WatchFaceColors?);
     method @UiThread public boolean shouldAnimate();
     property public final java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>> additionalContentDescriptionLabels;
     property public final float centerX;
@@ -240,7 +240,7 @@ package androidx.wear.watchface {
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
     property public final android.view.SurfaceHolder surfaceHolder;
-    property @androidx.wear.watchface.WatchFaceExperimental public final androidx.wear.watchface.WatchFaceColors? watchfaceColors;
+    property @SuppressCompatibility @androidx.wear.watchface.WatchFaceExperimental public final androidx.wear.watchface.WatchFaceColors? watchfaceColors;
   }
 
   @Deprecated public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
@@ -381,7 +381,7 @@ package androidx.wear.watchface {
     method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
-  @androidx.wear.watchface.WatchFaceExperimental public final class WatchFaceColors {
+  @SuppressCompatibility @androidx.wear.watchface.WatchFaceExperimental public final class WatchFaceColors {
     ctor public WatchFaceColors(android.graphics.Color primaryColor, android.graphics.Color secondaryColor, android.graphics.Color tertiaryColor);
     method public android.graphics.Color getPrimaryColor();
     method public android.graphics.Color getSecondaryColor();
@@ -391,7 +391,7 @@ package androidx.wear.watchface {
     property public final android.graphics.Color tertiaryColor;
   }
 
-  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceExperimental {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceExperimental {
   }
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {

@@ -138,14 +138,14 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
     method public String? getIconContent();
     method public String getText();
-    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
 
   public static final class CompactChip.Builder {
     ctor public CompactChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.CompactChip build();
     method public androidx.wear.protolayout.material.CompactChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
-    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.CompactChip.Builder setExcludeFontPadding(boolean);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.CompactChip.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.CompactChip.Builder setIconContent(String);
   }
 
@@ -175,7 +175,7 @@ package androidx.wear.protolayout.material {
     method public int getOverflow();
     method public androidx.wear.protolayout.TypeBuilders.StringProp getText();
     method public int getWeight();
-    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
     method public boolean isItalic();
     method public boolean isUnderline();
   }
@@ -185,7 +185,7 @@ package androidx.wear.protolayout.material {
     ctor public Text.Builder(android.content.Context, String);
     method public androidx.wear.protolayout.material.Text build();
     method public androidx.wear.protolayout.material.Text.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
-    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.Text.Builder setExcludeFontPadding(boolean);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.Text.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setItalic(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.material.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
@@ -204,14 +204,14 @@ package androidx.wear.protolayout.material {
     method public String? getIconContent();
     method public String getText();
     method public androidx.wear.protolayout.DimensionBuilders.ContainerDimension getWidth();
-    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
 
   public static final class TitleChip.Builder {
     ctor public TitleChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.TitleChip build();
     method public androidx.wear.protolayout.material.TitleChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
-    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.TitleChip.Builder setExcludeFontPadding(boolean);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.TitleChip.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.TitleChip.Builder setHorizontalAlignment(int);
     method public androidx.wear.protolayout.material.TitleChip.Builder setIconContent(String);
     method public androidx.wear.protolayout.material.TitleChip.Builder setWidth(androidx.wear.protolayout.DimensionBuilders.ContainerDimension);

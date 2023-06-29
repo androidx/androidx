@@ -282,7 +282,7 @@ package androidx.fragment.app {
     method public final void clearFragmentResultListener(String);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method @Deprecated public static void enableDebugLogging(boolean);
-    method @androidx.fragment.app.PredictiveBackControl public static void enablePredictiveBack(boolean);
+    method @SuppressCompatibility @androidx.fragment.app.PredictiveBackControl public static void enablePredictiveBack(boolean);
     method @MainThread public boolean executePendingTransactions();
     method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
     method public androidx.fragment.app.Fragment? findFragmentById(@IdRes int);
@@ -486,7 +486,7 @@ package androidx.fragment.app {
     method public void setSelection(int);
   }
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface PredictiveBackControl {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface PredictiveBackControl {
   }
 
 }

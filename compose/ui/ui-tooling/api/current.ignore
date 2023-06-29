@@ -1,3 +1,15 @@
 // Baseline format: 1.0
-InvalidNullConversion: androidx.compose.ui.tooling.animation.ToolingState#ToolingState(T) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter default in androidx.compose.ui.tooling.animation.ToolingState(T default)
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker:
+    Removed class androidx.compose.ui.tooling.ComposableInvoker from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker#INSTANCE:
+    Removed field androidx.compose.ui.tooling.ComposableInvoker.INSTANCE from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker#invokeComposable(String, String, androidx.compose.runtime.Composer, java.lang.Object...):
+    Removed method androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(String,String,androidx.compose.runtime.Composer,java.lang.Object...) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker#invokeComposable(String, String, androidx.compose.runtime.Composer, java.lang.Object...) parameter #0:
+    Removed parameter className in androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(String className, String methodName, androidx.compose.runtime.Composer composer, java.lang.Object... args) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker#invokeComposable(String, String, androidx.compose.runtime.Composer, java.lang.Object...) parameter #1:
+    Removed parameter methodName in androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(String className, String methodName, androidx.compose.runtime.Composer composer, java.lang.Object... args) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker#invokeComposable(String, String, androidx.compose.runtime.Composer, java.lang.Object...) parameter #2:
+    Removed parameter composer in androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(String className, String methodName, androidx.compose.runtime.Composer composer, java.lang.Object... args) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.tooling.ComposableInvoker#invokeComposable(String, String, androidx.compose.runtime.Composer, java.lang.Object...) parameter #3:
+    Removed parameter args in androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(String className, String methodName, androidx.compose.runtime.Composer composer, java.lang.Object... args) from compatibility checked API surface

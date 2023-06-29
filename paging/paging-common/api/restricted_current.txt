@@ -46,7 +46,7 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPagingApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPagingApi {
   }
 
   public final class InvalidatingPagingSourceFactory<Key, Value> implements androidx.paging.PagingSourceFactory<Key,Value> {
@@ -269,7 +269,7 @@ package androidx.paging {
   }
 
   public final class Pager<Key, Value> {
-    ctor @androidx.paging.ExperimentalPagingApi public Pager(androidx.paging.PagingConfig config, optional Key? initialKey, androidx.paging.RemoteMediator<Key,Value>? remoteMediator, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
+    ctor @SuppressCompatibility @androidx.paging.ExperimentalPagingApi public Pager(androidx.paging.PagingConfig config, optional Key? initialKey, androidx.paging.RemoteMediator<Key,Value>? remoteMediator, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     ctor public Pager(androidx.paging.PagingConfig config, optional Key? initialKey, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     ctor public Pager(androidx.paging.PagingConfig config, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> getFlow();
@@ -471,7 +471,7 @@ package androidx.paging {
     field @Deprecated public final int startPosition;
   }
 
-  @androidx.paging.ExperimentalPagingApi public abstract class RemoteMediator<Key, Value> {
+  @SuppressCompatibility @androidx.paging.ExperimentalPagingApi public abstract class RemoteMediator<Key, Value> {
     ctor public RemoteMediator();
     method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>);
     method public abstract suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>);

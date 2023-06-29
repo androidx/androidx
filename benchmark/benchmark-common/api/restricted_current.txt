@@ -2,35 +2,35 @@
 package androidx.benchmark {
 
   public final class BenchmarkState {
-    ctor @androidx.benchmark.ExperimentalBenchmarkStateApi public BenchmarkState(optional Integer? warmupCount, optional Integer? repeatCount);
-    method @androidx.benchmark.ExperimentalBenchmarkStateApi public java.util.List<java.lang.Double> getMeasurementTimeNs();
+    ctor @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkStateApi public BenchmarkState(optional Integer? warmupCount, optional Integer? repeatCount);
+    method @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkStateApi public java.util.List<java.lang.Double> getMeasurementTimeNs();
     method public boolean keepRunning();
     method @kotlin.PublishedApi internal boolean keepRunningInternal();
     method public void pauseTiming();
-    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
+    method @SuppressCompatibility @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
     method public void resumeTiming();
     field public static final androidx.benchmark.BenchmarkState.Companion Companion;
     field @kotlin.PublishedApi internal int iterationsRemaining;
   }
 
   public static final class BenchmarkState.Companion {
-    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
+    method @SuppressCompatibility @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
   }
 
-  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
-  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
   }
 
 }
 
 package androidx.benchmark.perfetto {
 
-  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
   }
 
-  @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public abstract sealed class PerfettoConfig {
+  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public abstract sealed class PerfettoConfig {
   }
 
   public static final class PerfettoConfig.Binary extends androidx.benchmark.perfetto.PerfettoConfig {
@@ -45,7 +45,7 @@ package androidx.benchmark.perfetto {
     property public final String text;
   }
 
-  @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTrace {
+  @SuppressCompatibility @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTrace {
     ctor public PerfettoTrace(String path);
     method public String getPath();
     method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);

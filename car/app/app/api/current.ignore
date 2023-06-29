@@ -1,0 +1,51 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.car.app.model.CarSpan:
+    Removed class androidx.car.app.model.CarSpan from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.CarSpan#CarSpan():
+    Removed constructor androidx.car.app.model.CarSpan() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.CarSpan#updateDrawState(android.text.TextPaint):
+    Removed method androidx.car.app.model.CarSpan.updateDrawState(android.text.TextPaint) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.CarSpan#updateDrawState(android.text.TextPaint) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.CarSpan.updateDrawState(android.text.TextPaint arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper:
+    Removed class androidx.car.app.model.TemplateWrapper from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#copyOf(androidx.car.app.model.TemplateWrapper):
+    Removed method androidx.car.app.model.TemplateWrapper.copyOf(androidx.car.app.model.TemplateWrapper) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#copyOf(androidx.car.app.model.TemplateWrapper) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.copyOf(androidx.car.app.model.TemplateWrapper arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#getCurrentTaskStep():
+    Removed method androidx.car.app.model.TemplateWrapper.getCurrentTaskStep() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#getId():
+    Removed method androidx.car.app.model.TemplateWrapper.getId() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#getTemplate():
+    Removed method androidx.car.app.model.TemplateWrapper.getTemplate() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#getTemplateInfosForScreenStack():
+    Removed method androidx.car.app.model.TemplateWrapper.getTemplateInfosForScreenStack() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#isRefresh():
+    Removed method androidx.car.app.model.TemplateWrapper.isRefresh() from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setCurrentTaskStep(int):
+    Removed method androidx.car.app.model.TemplateWrapper.setCurrentTaskStep(int) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setCurrentTaskStep(int) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.setCurrentTaskStep(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setId(String):
+    Removed method androidx.car.app.model.TemplateWrapper.setId(String) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setId(String) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.setId(String arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setRefresh(boolean):
+    Removed method androidx.car.app.model.TemplateWrapper.setRefresh(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setRefresh(boolean) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.setRefresh(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setTemplate(androidx.car.app.model.Template):
+    Removed method androidx.car.app.model.TemplateWrapper.setTemplate(androidx.car.app.model.Template) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#setTemplate(androidx.car.app.model.Template) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.setTemplate(androidx.car.app.model.Template arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#wrap(androidx.car.app.model.Template):
+    Removed method androidx.car.app.model.TemplateWrapper.wrap(androidx.car.app.model.Template) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#wrap(androidx.car.app.model.Template) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.wrap(androidx.car.app.model.Template arg1) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#wrap(androidx.car.app.model.Template, String):
+    Removed method androidx.car.app.model.TemplateWrapper.wrap(androidx.car.app.model.Template,String) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#wrap(androidx.car.app.model.Template, String) parameter #0:
+    Removed parameter arg1 in androidx.car.app.model.TemplateWrapper.wrap(androidx.car.app.model.Template arg1, String arg2) from compatibility checked API surface
+BecameUnchecked: androidx.car.app.model.TemplateWrapper#wrap(androidx.car.app.model.Template, String) parameter #1:
+    Removed parameter arg2 in androidx.car.app.model.TemplateWrapper.wrap(androidx.car.app.model.Template arg1, String arg2) from compatibility checked API surface

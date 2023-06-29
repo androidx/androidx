@@ -34,6 +34,7 @@
       <trusted-keys>
          <trusted-key id="00089ee8c3afa95a854d0f1df800dd0933ecf7f7" group="com.google.guava"/>
          <trusted-key id="019082bc00e0324e2aef4cf00d3b328562a119a7" group="org.openjdk.jmh"/>
+         <trusted-key id="03c123038c20aae9e286c857479d601f3a7b5c1a" group="com.github.ajalt.clikt" name="clikt-jvm" version="3.5.3"/>
          <trusted-key id="042b29e928995b9db963c636c7ca19b7b620d787" group="org.apache.maven"/>
          <trusted-key id="04543577d6a9cc626239c50c7ecbd740ff06aeb5">
             <trusting group="com.sun.activation"/>

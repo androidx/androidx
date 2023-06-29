@@ -1,9 +1,227 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher,long)
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher,long)
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher,long)
-AddedAbstractMethod: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long):
-    Added method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher,int,long)
+BecameUnchecked: Field AndroidComposeUiTest.activity:
+    Removed Field AndroidComposeUiTest.activity from compatibility checked API surface
+BecameUnchecked: Field AndroidComposeUiTestEnvironment.activity:
+    Removed Field AndroidComposeUiTestEnvironment.activity from compatibility checked API surface
+BecameUnchecked: Field AndroidComposeUiTestEnvironment.test:
+    Removed Field AndroidComposeUiTestEnvironment.test from compatibility checked API surface
+BecameUnchecked: Field ComposeUiTest.density:
+    Removed Field ComposeUiTest.density from compatibility checked API surface
+BecameUnchecked: Field ComposeUiTest.mainClock:
+    Removed Field ComposeUiTest.mainClock from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTest:
+    Removed class androidx.compose.ui.test.AndroidComposeUiTest from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTest#getActivity():
+    Removed method androidx.compose.ui.test.AndroidComposeUiTest.getActivity() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment:
+    Removed class androidx.compose.ui.test.AndroidComposeUiTestEnvironment from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment#AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext):
+    Removed constructor androidx.compose.ui.test.AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment#AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext effectContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment#getActivity():
+    Removed method androidx.compose.ui.test.AndroidComposeUiTestEnvironment.getActivity() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment#getTest():
+    Removed method androidx.compose.ui.test.AndroidComposeUiTestEnvironment.getTest() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment#runTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? extends R>):
+    Removed method androidx.compose.ui.test.AndroidComposeUiTestEnvironment.runTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? extends R>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.AndroidComposeUiTestEnvironment#runTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? extends R>) parameter #0:
+    Removed parameter block in androidx.compose.ui.test.AndroidComposeUiTestEnvironment.runTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? extends R> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest:
+    Removed class androidx.compose.ui.test.ComposeUiTest from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTest.awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.test.ComposeUiTest.awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit> arg1) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#getDensity():
+    Removed method androidx.compose.ui.test.ComposeUiTest.getDensity() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#getMainClock():
+    Removed method androidx.compose.ui.test.ComposeUiTest.getMainClock() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#registerIdlingResource(androidx.compose.ui.test.IdlingResource):
+    Removed method androidx.compose.ui.test.ComposeUiTest.registerIdlingResource(androidx.compose.ui.test.IdlingResource) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#registerIdlingResource(androidx.compose.ui.test.IdlingResource) parameter #0:
+    Removed parameter idlingResource in androidx.compose.ui.test.ComposeUiTest.registerIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#runOnIdle(kotlin.jvm.functions.Function0<? extends T>):
+    Removed method androidx.compose.ui.test.ComposeUiTest.runOnIdle(kotlin.jvm.functions.Function0<? extends T>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#runOnIdle(kotlin.jvm.functions.Function0<? extends T>) parameter #0:
+    Removed parameter action in androidx.compose.ui.test.ComposeUiTest.runOnIdle(kotlin.jvm.functions.Function0<? extends T> action) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#runOnUiThread(kotlin.jvm.functions.Function0<? extends T>):
+    Removed method androidx.compose.ui.test.ComposeUiTest.runOnUiThread(kotlin.jvm.functions.Function0<? extends T>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#runOnUiThread(kotlin.jvm.functions.Function0<? extends T>) parameter #0:
+    Removed parameter action in androidx.compose.ui.test.ComposeUiTest.runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#setContent(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTest.setContent(kotlin.jvm.functions.Function0<kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#setContent(kotlin.jvm.functions.Function0<kotlin.Unit>) parameter #0:
+    Removed parameter composable in androidx.compose.ui.test.ComposeUiTest.setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#unregisterIdlingResource(androidx.compose.ui.test.IdlingResource):
+    Removed method androidx.compose.ui.test.ComposeUiTest.unregisterIdlingResource(androidx.compose.ui.test.IdlingResource) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#unregisterIdlingResource(androidx.compose.ui.test.IdlingResource) parameter #0:
+    Removed parameter idlingResource in androidx.compose.ui.test.ComposeUiTest.unregisterIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#waitForIdle():
+    Removed method androidx.compose.ui.test.ComposeUiTest.waitForIdle() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#waitUntil(long, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Removed method androidx.compose.ui.test.ComposeUiTest.waitUntil(long,kotlin.jvm.functions.Function0<java.lang.Boolean>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#waitUntil(long, kotlin.jvm.functions.Function0<java.lang.Boolean>) parameter #0:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.ComposeUiTest.waitUntil(long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest#waitUntil(long, kotlin.jvm.functions.Function0<java.lang.Boolean>) parameter #1:
+    Removed parameter condition in androidx.compose.ui.test.ComposeUiTest.waitUntil(long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#runComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTestKt.runComposeUiTest(kotlin.coroutines.CoroutineContext,kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#runComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.ComposeUiTestKt.runComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#runComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) parameter #1:
+    Removed parameter block in androidx.compose.ui.test.ComposeUiTestKt.runComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.ComposeUiTestKt.waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest,androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.test.ComposeUiTestKt.waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter matcher in androidx.compose.ui.test.ComposeUiTestKt.waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #2:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.ComposeUiTestKt.waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.ComposeUiTestKt.waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest,androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.test.ComposeUiTestKt.waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter matcher in androidx.compose.ui.test.ComposeUiTestKt.waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #2:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.ComposeUiTestKt.waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.ComposeUiTestKt.waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest,androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.test.ComposeUiTestKt.waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter matcher in androidx.compose.ui.test.ComposeUiTestKt.waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, long) parameter #2:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.ComposeUiTestKt.waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, int, long):
+    Removed method androidx.compose.ui.test.ComposeUiTestKt.waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest,androidx.compose.ui.test.SemanticsMatcher,int,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.test.ComposeUiTestKt.waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #1:
+    Removed parameter matcher in androidx.compose.ui.test.ComposeUiTestKt.waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #2:
+    Removed parameter count in androidx.compose.ui.test.ComposeUiTestKt.waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt#waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #3:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.ComposeUiTestKt.waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest arg1, androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function0<? extends A>):
+    Removed method androidx.compose.ui.test.ComposeUiTest_androidKt.AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext,kotlin.jvm.functions.Function0<? extends A>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function0<? extends A>) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.ComposeUiTest_androidKt.AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function0<? extends A> activityProvider) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function0<? extends A>) parameter #1:
+    Removed parameter activityProvider in androidx.compose.ui.test.ComposeUiTest_androidKt.AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function0<? extends A> activityProvider) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(Class<A>, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(Class<A>,kotlin.coroutines.CoroutineContext,kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(Class<A>, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) parameter #0:
+    Removed parameter activityClass in androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(Class<A> activityClass, kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(Class<A>, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) parameter #1:
+    Removed parameter effectContext in androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(Class<A> activityClass, kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(Class<A>, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) parameter #2:
+    Removed parameter block in androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(Class<A> activityClass, kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(kotlin.coroutines.CoroutineContext,kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runAndroidComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit>) parameter #1:
+    Removed parameter block in androidx.compose.ui.test.ComposeUiTest_androidKt.runAndroidComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTest_androidKt.runComposeUiTest(kotlin.coroutines.CoroutineContext,kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.ComposeUiTest_androidKt.runComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runComposeUiTest(kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) parameter #1:
+    Removed parameter block in androidx.compose.ui.test.ComposeUiTest_androidKt.runComposeUiTest(kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runEmptyComposeUiTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>):
+    Removed method androidx.compose.ui.test.ComposeUiTest_androidKt.runEmptyComposeUiTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.ComposeUiTest_androidKt#runEmptyComposeUiTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit>) parameter #0:
+    Removed parameter block in androidx.compose.ui.test.ComposeUiTest_androidKt.runEmptyComposeUiTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.StateRestorationTester:
+    Removed class androidx.compose.ui.test.StateRestorationTester from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.StateRestorationTester#StateRestorationTester(androidx.compose.ui.test.ComposeUiTest):
+    Removed constructor androidx.compose.ui.test.StateRestorationTester(androidx.compose.ui.test.ComposeUiTest) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.StateRestorationTester#StateRestorationTester(androidx.compose.ui.test.ComposeUiTest) parameter #0:
+    Removed parameter composeTest in androidx.compose.ui.test.StateRestorationTester(androidx.compose.ui.test.ComposeUiTest composeTest) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.StateRestorationTester#emulateSaveAndRestore():
+    Removed method androidx.compose.ui.test.StateRestorationTester.emulateSaveAndRestore() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.StateRestorationTester#setContent(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Removed method androidx.compose.ui.test.StateRestorationTester.setContent(kotlin.jvm.functions.Function0<kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.StateRestorationTester#setContent(kotlin.jvm.functions.Function0<kotlin.Unit>) parameter #0:
+    Removed parameter composable in androidx.compose.ui.test.StateRestorationTester.setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#AndroidComposeTestRule(R, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super R,? extends A>):
+    Removed constructor androidx.compose.ui.test.junit4.AndroidComposeTestRule(R,kotlin.coroutines.CoroutineContext,kotlin.jvm.functions.Function1<? super R,? extends A>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#AndroidComposeTestRule(R, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super R,? extends A>) parameter #0:
+    Removed parameter activityRule in androidx.compose.ui.test.junit4.AndroidComposeTestRule(R activityRule, kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#AndroidComposeTestRule(R, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super R,? extends A>) parameter #1:
+    Removed parameter effectContext in androidx.compose.ui.test.junit4.AndroidComposeTestRule(R activityRule, kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#AndroidComposeTestRule(R, kotlin.coroutines.CoroutineContext, kotlin.jvm.functions.Function1<? super R,? extends A>) parameter #2:
+    Removed parameter activityProvider in androidx.compose.ui.test.junit4.AndroidComposeTestRule(R activityRule, kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher,int,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #1:
+    Removed parameter count in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #2:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createAndroidComposeRule(Class<A>, kotlin.coroutines.CoroutineContext):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createAndroidComposeRule(Class<A>,kotlin.coroutines.CoroutineContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createAndroidComposeRule(Class<A>, kotlin.coroutines.CoroutineContext) parameter #0:
+    Removed parameter activityClass in androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createAndroidComposeRule(Class<A> activityClass, kotlin.coroutines.CoroutineContext effectContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createAndroidComposeRule(Class<A>, kotlin.coroutines.CoroutineContext) parameter #1:
+    Removed parameter effectContext in androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createAndroidComposeRule(Class<A> activityClass, kotlin.coroutines.CoroutineContext effectContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createAndroidComposeRule(kotlin.coroutines.CoroutineContext):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createAndroidComposeRule(kotlin.coroutines.CoroutineContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createAndroidComposeRule(kotlin.coroutines.CoroutineContext) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createAndroidComposeRule(kotlin.coroutines.CoroutineContext effectContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createComposeRule(kotlin.coroutines.CoroutineContext):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createComposeRule(kotlin.coroutines.CoroutineContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createComposeRule(kotlin.coroutines.CoroutineContext) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createComposeRule(kotlin.coroutines.CoroutineContext effectContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createEmptyComposeRule(kotlin.coroutines.CoroutineContext):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createEmptyComposeRule(kotlin.coroutines.CoroutineContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createEmptyComposeRule(kotlin.coroutines.CoroutineContext) parameter #0:
+    Removed parameter effectContext in androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createEmptyComposeRule(kotlin.coroutines.CoroutineContext effectContext) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long):
+    Removed method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher, long) parameter #1:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long):
+    Removed method androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher,int,long) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #0:
+    Removed parameter matcher in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #1:
+    Removed parameter count in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.test.junit4.ComposeTestRule#waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher, int, long) parameter #2:
+    Removed parameter timeoutMillis in androidx.compose.ui.test.junit4.ComposeTestRule.waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, long timeoutMillis) from compatibility checked API surface

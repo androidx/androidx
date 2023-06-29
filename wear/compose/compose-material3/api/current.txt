@@ -175,7 +175,7 @@ package androidx.wear.compose.material3 {
     method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
-  @kotlin.RequiresOptIn(message="This Wear Material3 API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterial3Api {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material3 API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterial3Api {
   }
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
@@ -264,9 +264,9 @@ package androidx.wear.compose.material3 {
   }
 
   public final class InteractiveComponentSizeKt {
-    method @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalMinimumInteractiveComponentEnforcement();
+    method @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalMinimumInteractiveComponentEnforcement();
     method public static androidx.compose.ui.Modifier minimumInteractiveComponentSize(androidx.compose.ui.Modifier);
-    property @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumInteractiveComponentEnforcement;
+    property @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumInteractiveComponentEnforcement;
   }
 
   public final class MaterialTheme {
