@@ -15,13 +15,12 @@
  */
 package androidx.health.connect.client
 
-import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.connect.client.contracts.HealthPermissionsRequestContract
 import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.permission.platform.HealthDataRequestPermissionsUpsideDownCake
 
 @JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */
@@ -71,10 +70,7 @@ interface PermissionController {
         fun createRequestPermissionResultContract(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<String>, Set<String>> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                return HealthDataRequestPermissionsUpsideDownCake()
-            }
-            return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)
+            return HealthPermissionsRequestContract(providerPackageName)
         }
     }
 }

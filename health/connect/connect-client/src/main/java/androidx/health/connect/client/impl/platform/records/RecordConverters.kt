@@ -290,11 +290,11 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         exerciseType = exerciseType.toSdkExerciseSessionType(),
         title = title?.toString(),
         notes = notes?.toString(),
-        route = route?.toSdkExerciseRoute(),
         laps = laps.map { it.toSdkExerciseLap() }.sortedBy { it.startTime },
         segments = segments.map { it.toSdkExerciseSegment() }.sortedBy { it.startTime },
-        hasRoute = hasRoute(),
         metadata = metadata.toSdkMetadata(),
+        exerciseRoute = route?.toSdkExerciseRouteData()
+                ?: if (hasRoute()) ExerciseRoute.ConsentRequired() else ExerciseRoute.NoData(),
     )
 
 private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
@@ -706,9 +706,11 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
             endZoneOffset?.let { setEndZoneOffset(it) }
             notes?.let { setNotes(it) }
             title?.let { setTitle(it) }
-            route?.let { setRoute(it.toPlatformExerciseRoute()) }
             setLaps(laps.map { it.toPlatformExerciseLap() })
             setSegments(segments.map { it.toPlatformExerciseSegment() })
+            if (exerciseRoute is ExerciseRoute.Data) {
+                setRoute(exerciseRoute.toPlatformExerciseRoute())
+            }
         }
         .build()
 
@@ -717,7 +719,7 @@ private fun ExerciseLap.toPlatformExerciseLap() =
         .apply { length?.let { setLength(it.toPlatformLength()) } }
         .build()
 
-private fun ExerciseRoute.toPlatformExerciseRoute() =
+private fun ExerciseRoute.Data.toPlatformExerciseRoute() =
     PlatformExerciseRoute(
         route.map { location ->
             PlatformExerciseRouteLocationBuilder(
@@ -1031,8 +1033,8 @@ private fun PlatformStepsCadenceSample.toSdkStepsCadenceSample() =
 private fun PlatformSleepSessionStage.toSdkSleepSessionStage() =
     SleepSessionRecord.Stage(startTime, endTime, type.toSdkSleepStageType())
 
-internal fun PlatformExerciseRoute.toSdkExerciseRoute() =
-    ExerciseRoute(
+internal fun PlatformExerciseRoute.toSdkExerciseRouteData() =
+    ExerciseRoute.Data(
         routeLocations.map { value ->
             ExerciseRoute.Location(
                 time = value.time,
