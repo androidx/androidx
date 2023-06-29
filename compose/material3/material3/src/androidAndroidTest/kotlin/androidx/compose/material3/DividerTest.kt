@@ -16,29 +16,17 @@
 
 package androidx.compose.material3
 
-import android.os.Build
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import kotlin.math.roundToInt
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,81 +41,73 @@ class DividerTest {
     private val defaultThickness = 1.dp
 
     @Test
-    fun horizontalDivider_DefaultSizes() {
+    fun horizontalDivider_defaultSize() {
         rule
             .setMaterialContentForSizeAssertions {
-                Divider()
+                HorizontalDivider()
             }
             .assertHeightIsEqualTo(defaultThickness)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
     @Test
-    fun horizontalDivider_CustomSizes() {
+    fun horizontalDivider_customSize() {
         val thickness = 20.dp
         rule
             .setMaterialContentForSizeAssertions {
-                Divider(thickness = thickness)
+                HorizontalDivider(thickness = thickness)
             }
             .assertWidthIsEqualTo(rule.rootWidth())
             .assertHeightIsEqualTo(thickness)
     }
 
     @Test
-    fun verticalDivider_DefaultSizes() {
+    fun verticalDivider_defaultSize() {
         rule
             .setMaterialContentForSizeAssertions {
-                Divider(horizontal = false)
+                VerticalDivider()
             }
             .assertHeightIsEqualTo(rule.rootHeight())
             .assertWidthIsEqualTo(defaultThickness)
     }
 
     @Test
-    fun verticalDivider_CustomSizes() {
+    fun verticalDivider_customSize() {
         val thickness = 20.dp
         rule
             .setMaterialContentForSizeAssertions {
-                Divider(thickness = thickness, horizontal = false)
+                VerticalDivider(thickness = thickness)
             }
             .assertWidthIsEqualTo(thickness)
             .assertHeightIsEqualTo(rule.rootHeight())
     }
 
     @Test
-    fun divider_SizesWithIndent_DoesNotChanged() {
+    fun divider_withIndent_doesNotChangeSize() {
         val indent = 75.dp
         val thickness = 21.dp
 
         rule
             .setMaterialContentForSizeAssertions {
-                Divider(modifier = Modifier.padding(start = indent), thickness = thickness)
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = indent),
+                    thickness = thickness
+                )
             }
             .assertHeightIsEqualTo(thickness)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun divider_HairlineThickness() {
-        val size = 5.dp
-        val testTag = "testTag"
-        var sizePx = 0
-        var dividerColor = Color.Transparent
-        rule.setContent {
-            sizePx = with(LocalDensity.current) { size.toPx().roundToInt() }
-            dividerColor =
-                MaterialTheme.colorScheme.outlineVariant
-            Box(modifier = Modifier.size(size).background(Color.Black)) {
-                Divider(
-                    modifier = Modifier.testTag(testTag).fillMaxWidth(),
-                    thickness = Dp.Hairline
-                )
-            }
+    fun divider_hairlineThickness() {
+        var heightPx = 0
+        rule.setMaterialContent(lightColorScheme()) {
+            HorizontalDivider(
+                modifier = Modifier.onGloballyPositioned { heightPx = it.size.height },
+                thickness = Dp.Hairline,
+            )
         }
 
-        rule.onNodeWithTag(testTag).captureToImage().assertPixels(IntSize(sizePx, 1)) {
-            dividerColor
-        }
+        assertThat(heightPx).isEqualTo(0)
     }
 }

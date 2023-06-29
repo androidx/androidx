@@ -274,7 +274,7 @@ fun SearchBar(
             }
             if (showResults) {
                 Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                     content()
                 }
             }
@@ -401,7 +401,7 @@ fun DockedSearchBar(
                 }
 
                 Column(Modifier.heightIn(min = minHeight, max = maxHeight)) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                     content()
                 }
             }
