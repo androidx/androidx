@@ -23,8 +23,8 @@ import android.os.Build
 import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
+import androidx.tracing.perfetto.PerfettoSdkTrace.Response
 import androidx.tracing.perfetto.StartupTracingConfigStore.store
-import androidx.tracing.perfetto.Trace.Response
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_DISABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
@@ -101,7 +101,7 @@ class TracingReceiver : BroadcastReceiver() {
             }
             srcPath != null && context != null -> {
                 try {
-                    Trace.enable(File(srcPath), context)
+                    PerfettoSdkTrace.enable(File(srcPath), context)
                 } catch (e: Exception) {
                     Response(RESULT_CODE_ERROR_OTHER, e)
                 }
@@ -114,7 +114,7 @@ class TracingReceiver : BroadcastReceiver() {
             }
             else -> {
                 // Library path was not provided, trying to resolve using app's local library files.
-                Trace.enable()
+                PerfettoSdkTrace.enable()
             }
         }
 

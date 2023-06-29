@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests for Perfetto SDK tracing [androidx.tracing.perfetto.Trace] verifying that:
+ * Tests for Perfetto SDK tracing [androidx.tracing.perfetto.PerfettoSdkTrace] verifying that:
  * - it works in conjunction with android.os.Trace
  * - it can handle non-ASCII characters, including unicode surrogate pairs
  * - it can handle whitespace at the start/end of the traced string
@@ -74,8 +74,8 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
         assumeTrue(PerfettoHelper.isAbiSupported())
         StringSource.appTagTraceStrings.forEach { trace(it) { } }
         StringSource.userspaceTraceStrings.forEach { str ->
-            androidx.tracing.perfetto.Trace.beginSection(str)
-            androidx.tracing.perfetto.Trace.endSection()
+            androidx.tracing.perfetto.PerfettoSdkTrace.beginSection(str)
+            androidx.tracing.perfetto.PerfettoSdkTrace.endSection()
         }
     }
 
