@@ -455,7 +455,7 @@ fun PermanentNavigationDrawer(
 fun ModalDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = DrawerDefaults.shape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -492,7 +492,7 @@ fun ModalDrawerSheet(
 fun DismissibleDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -529,7 +529,7 @@ fun DismissibleDrawerSheet(
 fun PermanentDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -554,7 +554,7 @@ private fun DrawerSheet(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     content: @Composable ColumnScope.() -> Unit
