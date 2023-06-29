@@ -4,8 +4,9 @@ package androidx.tracing.perfetto.handshake {
   public final class PerfettoSdkHandshake {
     ctor public PerfettoSdkHandshake(String targetPackage, kotlin.jvm.functions.Function1<? super java.lang.String,? extends java.util.Map<java.lang.String,java.lang.String>> parseJsonMap, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.String> executeShellCommand);
     method public androidx.tracing.perfetto.handshake.protocol.Response disableTracingColdStart();
-    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
-    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource, optional boolean persistent);
+    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart();
+    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(optional boolean persistent);
+    method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(optional boolean persistent, optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingImmediate(optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
   }
 

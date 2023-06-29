@@ -83,8 +83,8 @@ public class PerfettoSdkHandshake(
      */
     @JvmOverloads
     public fun enableTracingColdStart(
-        librarySource: LibrarySource?,
-        persistent: Boolean = false
+        persistent: Boolean = false,
+        librarySource: LibrarySource? = null
     ): Response = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath = librarySource?.run {

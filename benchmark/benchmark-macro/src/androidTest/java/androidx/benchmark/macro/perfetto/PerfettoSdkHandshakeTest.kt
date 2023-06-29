@@ -238,7 +238,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
 
         try {
             val enableColdTracingResponse =
-                handshake.enableTracingColdStart(librarySource, persistent)
+                handshake.enableTracingColdStart(persistent, librarySource)
             assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
             assertPackageAlive(false)
 
@@ -296,7 +296,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             PerfettoSdkHandshake.LibrarySource(libraryZip, tmpDir, mvTmpDst)
         }
         val enableColdTracingResponse =
-            handshake.enableTracingColdStart(librarySource, persistent)
+            handshake.enableTracingColdStart(persistent, librarySource)
         assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
 
         // disable cold start tracing
