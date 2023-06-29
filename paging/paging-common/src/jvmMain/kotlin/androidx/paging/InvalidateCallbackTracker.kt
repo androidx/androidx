@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import java.util.concurrent.locks.ReentrantLock
+import co.touchlab.stately.concurrency.Lock
 import kotlin.concurrent.withLock
 
 /**
@@ -30,7 +30,7 @@ internal class InvalidateCallbackTracker<T>(
      */
     private val invalidGetter: (() -> Boolean)? = null,
 ) {
-    private val lock = ReentrantLock()
+    private val lock = Lock()
     private val callbacks = mutableListOf<T>()
     internal var invalid = false
         private set
