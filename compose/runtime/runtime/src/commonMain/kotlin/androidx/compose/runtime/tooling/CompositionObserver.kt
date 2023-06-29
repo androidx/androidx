@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.tooling
 
-@RequiresOptIn(
-    level = RequiresOptIn.Level.ERROR,
-    message = "This in experimental API that may change frequently and without warning."
-)
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.FIELD,
-    AnnotationTarget.PROPERTY_GETTER,
-)
-@Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalComposeRuntimeApi
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionImplServiceKey
+import androidx.compose.runtime.ExperimentalComposeRuntimeApi
+import androidx.compose.runtime.RecomposeScope
+import androidx.compose.runtime.RecomposeScopeImpl
+import androidx.compose.runtime.getCompositionService
 
 /**
  * Observe when the composition begins and ends.
@@ -98,3 +91,36 @@ interface CompositionObserverHandle {
      */
     fun dispose()
 }
+
+/**
+ * Observe the composition. Calling this twice on the same composition will implicitly dispose
+ * the previous observer. the [CompositionObserver] will be called for this composition and
+ * all sub-composition, transitively, for which this composition is a context. If, however,
+ * [observe] is called on a sub-composition, it will override the parent composition and
+ * notification for it and all sub-composition of it, will go to its observer instead of the
+ * one registered for the parent.
+ *
+ * @param observer the observer that will be informed of composition events for this
+ * composition and all sub-compositions for which this composition is the composition context.
+ * Observing a composition will prevent the parent composition's observer from receiving
+ * composition events about this composition.
+ *
+ * @return a handle that allows the observer to be disposed and detached from the composition.
+ * Disposing an observer for a composition with a parent observer will begin sending the events
+ * to the parent composition's observer. A `null` indicates the composition does not support
+ * being observed.
+ */
+@ExperimentalComposeRuntimeApi
+fun Composition.observe(observer: CompositionObserver): CompositionObserverHandle? =
+    getCompositionService(CompositionImplServiceKey)?.observe(observer)
+
+/**
+ * Observer when this scope recomposes.
+
+ * @param observer the observer that will be informed of recompose events for this scope.
+ *
+ * @return a handle that allows the observer to be disposed and detached from the recompose scope.
+ */
+@ExperimentalComposeRuntimeApi
+fun RecomposeScope.observe(observer: RecomposeScopeObserver): CompositionObserverHandle =
+    (this as RecomposeScopeImpl).observe(observer)

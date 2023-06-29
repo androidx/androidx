@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.CompositionServiceKey
+import androidx.compose.runtime.CompositionServices
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.currentComposer
@@ -123,7 +125,7 @@ private fun enableDebugInspectorInfo() {
 private class WrappedComposition(
     val owner: AndroidComposeView,
     val original: Composition
-) : Composition, LifecycleEventObserver {
+) : Composition, LifecycleEventObserver, CompositionServices {
 
     private var disposed = false
     private var addedToLifecycle: Lifecycle? = null
@@ -184,6 +186,9 @@ private class WrappedComposition(
             }
         }
     }
+
+    override fun <T> getCompositionService(key: CompositionServiceKey<T>): T? =
+        (original as? CompositionServices)?.getCompositionService(key)
 }
 
 private val DefaultLayoutParams = ViewGroup.LayoutParams(
