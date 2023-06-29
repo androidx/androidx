@@ -2454,7 +2454,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 24) // TODO: Should be 20. Adjust when b/288084025 is fixed.
+    @SdkSuppress(minSdkVersion = 20)
     public void testCallStyle_preservesCustomActions() {
         PendingIntent hangupIntent = createIntent("hangup");
         Person person = new Person.Builder().setName("test name").build();
