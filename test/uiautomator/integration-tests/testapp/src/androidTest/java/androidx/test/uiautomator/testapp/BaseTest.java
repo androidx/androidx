@@ -43,8 +43,6 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayOutputStream;
-
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseTest {
 
@@ -58,9 +56,8 @@ public abstract class BaseTest {
     public TestWatcher mDumpHierarchyWatcher = new TestWatcher() {
         @Override
         protected void failed(Throwable t, Description description) {
-            try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-                mDevice.dumpWindowHierarchy(stream);
-                Log.w(description.getTestClass().getSimpleName(), stream.toString());
+            try {
+                mDevice.dumpWindowHierarchy(System.err);
             } catch (Exception e) {
                 Log.e(description.getTestClass().getSimpleName(), "Failed to dump hierarchy", e);
             }
