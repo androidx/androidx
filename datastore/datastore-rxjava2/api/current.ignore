@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+BecameUnchecked: androidx.datastore.rxjava2.RxDataStore#data():
+    Removed method androidx.datastore.rxjava2.RxDataStore.data() from compatibility checked API surface
+BecameUnchecked: androidx.datastore.rxjava2.RxDataStore#updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>>):
+    Removed method androidx.datastore.rxjava2.RxDataStore.updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>>) from compatibility checked API surface
+BecameUnchecked: androidx.datastore.rxjava2.RxDataStore#updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>>) parameter #0:
+    Removed parameter transform in androidx.datastore.rxjava2.RxDataStore.updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform) from compatibility checked API surface
+
+
 InvalidNullConversion: androidx.datastore.rxjava2.RxSharedPreferencesMigration#migrate(androidx.datastore.migrations.SharedPreferencesView, T) parameter #1:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter currentData in androidx.datastore.rxjava2.RxSharedPreferencesMigration.migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T currentData)
 InvalidNullConversion: androidx.datastore.rxjava2.RxSharedPreferencesMigration#shouldMigrate(T) parameter #0:

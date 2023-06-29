@@ -8,14 +8,14 @@ package androidx.lifecycle.viewmodel.compose {
     field public static final androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner INSTANCE;
   }
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface SavedStateHandleSaveableApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface SavedStateHandleSaveableApi {
   }
 
   public final class SavedStateHandleSaverKt {
-    method @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> kotlin.properties.PropertyDelegateProvider<java.lang.Object,kotlin.properties.ReadOnlyProperty<java.lang.Object,T>> saveable(androidx.lifecycle.SavedStateHandle, optional androidx.compose.runtime.saveable.Saver<T,?> saver, kotlin.jvm.functions.Function0<? extends T> init);
-    method @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> androidx.compose.runtime.MutableState<T> saveable(androidx.lifecycle.SavedStateHandle, String key, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
-    method @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> T saveable(androidx.lifecycle.SavedStateHandle, String key, optional androidx.compose.runtime.saveable.Saver<T,?> saver, kotlin.jvm.functions.Function0<? extends T> init);
-    method @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T, M extends androidx.compose.runtime.MutableState<T>> kotlin.properties.PropertyDelegateProvider<java.lang.Object,kotlin.properties.ReadWriteProperty<java.lang.Object,T>> saveableMutableState(androidx.lifecycle.SavedStateHandle, optional androidx.compose.runtime.saveable.Saver<T,?> stateSaver, kotlin.jvm.functions.Function0<? extends M> init);
+    method @SuppressCompatibility @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> kotlin.properties.PropertyDelegateProvider<java.lang.Object,kotlin.properties.ReadOnlyProperty<java.lang.Object,T>> saveable(androidx.lifecycle.SavedStateHandle, optional androidx.compose.runtime.saveable.Saver<T,?> saver, kotlin.jvm.functions.Function0<? extends T> init);
+    method @SuppressCompatibility @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> androidx.compose.runtime.MutableState<T> saveable(androidx.lifecycle.SavedStateHandle, String key, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
+    method @SuppressCompatibility @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T> T saveable(androidx.lifecycle.SavedStateHandle, String key, optional androidx.compose.runtime.saveable.Saver<T,?> saver, kotlin.jvm.functions.Function0<? extends T> init);
+    method @SuppressCompatibility @androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi public static <T, M extends androidx.compose.runtime.MutableState<T>> kotlin.properties.PropertyDelegateProvider<java.lang.Object,kotlin.properties.ReadWriteProperty<java.lang.Object,T>> saveableMutableState(androidx.lifecycle.SavedStateHandle, optional androidx.compose.runtime.saveable.Saver<T,?> stateSaver, kotlin.jvm.functions.Function0<? extends M> init);
   }
 
   public final class ViewModelKt {

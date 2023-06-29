@@ -302,7 +302,7 @@ package androidx.wear.tiles {
     field @Deprecated public static final int FONT_VARIANT_TITLE = 1; // 0x1
     field @Deprecated public static final int FONT_VARIANT_UNDEFINED = 0; // 0x0
     field @Deprecated public static final int FONT_WEIGHT_BOLD = 700; // 0x2bc
-    field @Deprecated @androidx.wear.tiles.TilesExperimental public static final int FONT_WEIGHT_MEDIUM = 500; // 0x1f4
+    field @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public static final int FONT_WEIGHT_MEDIUM = 500; // 0x1f4
     field @Deprecated public static final int FONT_WEIGHT_NORMAL = 400; // 0x190
     field @Deprecated public static final int FONT_WEIGHT_UNDEFINED = 0; // 0x0
     field @Deprecated public static final int HORIZONTAL_ALIGN_CENTER = 2; // 0x2
@@ -489,7 +489,7 @@ package androidx.wear.tiles {
     method @Deprecated public androidx.wear.tiles.DimensionBuilders.EmProp? getLetterSpacing();
     method @Deprecated public androidx.wear.tiles.DimensionBuilders.SpProp? getSize();
     method @Deprecated public androidx.wear.tiles.TypeBuilders.BoolProp? getUnderline();
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp? getVariant();
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp? getVariant();
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp? getWeight();
   }
 
@@ -503,8 +503,8 @@ package androidx.wear.tiles {
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.DimensionBuilders.SpProp);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.tiles.TypeBuilders.BoolProp);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(androidx.wear.tiles.LayoutElementBuilders.FontVariantProp);
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(int);
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(androidx.wear.tiles.LayoutElementBuilders.FontVariantProp);
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(int);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.tiles.LayoutElementBuilders.FontWeightProp);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(int);
   }
@@ -523,7 +523,7 @@ package androidx.wear.tiles {
     method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
   }
 
-  @Deprecated @androidx.wear.tiles.TilesExperimental public static final class LayoutElementBuilders.FontVariantProp {
+  @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public static final class LayoutElementBuilders.FontVariantProp {
     method @Deprecated public int getValue();
   }
 
@@ -576,10 +576,10 @@ package androidx.wear.tiles {
   }
 
   @Deprecated public static final class LayoutElementBuilders.Layout {
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.LayoutElementBuilders.Layout? fromByteArray(byte[]);
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.LayoutElementBuilders.Layout? fromByteArray(byte[]);
     method @Deprecated public static androidx.wear.tiles.LayoutElementBuilders.Layout fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
   }
 
   @Deprecated public static final class LayoutElementBuilders.Layout.Builder {
@@ -973,10 +973,10 @@ package androidx.wear.tiles {
   }
 
   @Deprecated public static final class ResourceBuilders.Resources {
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.ResourceBuilders.Resources? fromByteArray(byte[]);
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.ResourceBuilders.Resources? fromByteArray(byte[]);
     method @Deprecated public java.util.Map<java.lang.String!,androidx.wear.tiles.ResourceBuilders.ImageResource!> getIdToImageMapping();
     method @Deprecated public String getVersion();
-    method @Deprecated @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
+    method @Deprecated @SuppressCompatibility @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
   }
 
   @Deprecated public static final class ResourceBuilders.Resources.Builder {
@@ -1039,7 +1039,7 @@ package androidx.wear.tiles {
     method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService>);
   }
 
-  @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {
   }
 
   @Deprecated public final class TimelineBuilders {

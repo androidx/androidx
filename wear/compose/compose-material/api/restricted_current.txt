@@ -90,7 +90,7 @@ package androidx.wear.compose.material {
   public final class ChipDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors childChipColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipBorder chipBorder(optional androidx.compose.foundation.BorderStroke? borderStroke, optional androidx.compose.foundation.BorderStroke? disabledBorderStroke);
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public androidx.wear.compose.material.ChipColors chipColors(androidx.compose.ui.graphics.painter.Painter backgroundPainter, long contentColor, long secondaryContentColor, long iconColor, androidx.compose.ui.graphics.painter.Painter disabledBackgroundPainter, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
+    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public androidx.wear.compose.material.ChipColors chipColors(androidx.compose.ui.graphics.painter.Painter backgroundPainter, long contentColor, long secondaryContentColor, long iconColor, androidx.compose.ui.graphics.painter.Painter disabledBackgroundPainter, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors chipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledBackgroundColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method public float getChipHorizontalPadding();
     method public float getChipVerticalPadding();
@@ -193,16 +193,16 @@ package androidx.wear.compose.material {
     method @Deprecated public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
-  @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterialApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterialApi {
   }
 
-  @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class FixedThreshold implements androidx.wear.compose.material.ThresholdConfig {
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class FixedThreshold implements androidx.wear.compose.material.ThresholdConfig {
     ctor public FixedThreshold(float offset);
     method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
     method public androidx.wear.compose.material.FixedThreshold copy-0680j_4(float offset);
   }
 
-  @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class FractionalThreshold implements androidx.wear.compose.material.ThresholdConfig {
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class FractionalThreshold implements androidx.wear.compose.material.ThresholdConfig {
     ctor public FractionalThreshold(float fraction);
     method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
     method public androidx.wear.compose.material.FractionalThreshold copy(float fraction);
@@ -359,7 +359,7 @@ package androidx.wear.compose.material {
     property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> Saver;
   }
 
-  @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class PlaceholderDefaults {
+  @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class PlaceholderDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter painterWithPlaceholderOverlayBackgroundBrush(androidx.wear.compose.material.PlaceholderState placeholderState, androidx.compose.ui.graphics.painter.Painter painter, optional long color);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter placeholderBackgroundBrush(androidx.wear.compose.material.PlaceholderState placeholderState, optional long color);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors placeholderChipColors(androidx.wear.compose.material.ChipColors originalChipColors, androidx.wear.compose.material.PlaceholderState placeholderState, optional long color);
@@ -368,12 +368,12 @@ package androidx.wear.compose.material {
   }
 
   public final class PlaceholderKt {
-    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.compose.ui.Modifier placeholder(androidx.compose.ui.Modifier, androidx.wear.compose.material.PlaceholderState placeholderState, optional androidx.compose.ui.graphics.Shape shape, optional long color);
-    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.compose.ui.Modifier placeholderShimmer(androidx.compose.ui.Modifier, androidx.wear.compose.material.PlaceholderState placeholderState, optional androidx.compose.ui.graphics.Shape shape, optional long color);
-    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.wear.compose.material.PlaceholderState rememberPlaceholderState(kotlin.jvm.functions.Function0<java.lang.Boolean> isContentReady);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.compose.ui.Modifier placeholder(androidx.compose.ui.Modifier, androidx.wear.compose.material.PlaceholderState placeholderState, optional androidx.compose.ui.graphics.Shape shape, optional long color);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.compose.ui.Modifier placeholderShimmer(androidx.compose.ui.Modifier, androidx.wear.compose.material.PlaceholderState placeholderState, optional androidx.compose.ui.graphics.Shape shape, optional long color);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static androidx.wear.compose.material.PlaceholderState rememberPlaceholderState(kotlin.jvm.functions.Function0<java.lang.Boolean> isContentReady);
   }
 
-  @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class PlaceholderState {
+  @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class PlaceholderState {
     method public float getPlaceholderProgression();
     method public boolean isShowContent();
     method public boolean isWipeOff();
@@ -450,7 +450,7 @@ package androidx.wear.compose.material {
     field public static final androidx.wear.compose.material.RadioButtonDefaults INSTANCE;
   }
 
-  @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class ResistanceConfig {
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class ResistanceConfig {
     ctor public ResistanceConfig(float basis, optional float factorAtMin, optional float factorAtMax);
     method public float computeResistance(float overflow);
     method public float getBasis();
@@ -640,7 +640,7 @@ package androidx.wear.compose.material {
     method @Deprecated @androidx.compose.runtime.Composable public static void Stepper(int value, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onValueChange, kotlin.ranges.IntProgression valueProgression, kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional androidx.compose.ui.Modifier modifier, optional long backgroundColor, optional long contentColor, optional long iconColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
-  @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeProgress<T> {
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeProgress<T> {
     ctor public SwipeProgress(T from, T to, float fraction);
     method public float getFraction();
     method public T getFrom();
@@ -690,7 +690,7 @@ package androidx.wear.compose.material {
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
   }
 
-  @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeableDefaults {
+  @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeableDefaults {
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
     method public float getVelocityThreshold();
     method public androidx.wear.compose.material.ResistanceConfig? resistanceConfig(java.util.Set<java.lang.Float> anchors, optional float factorAtMin, optional float factorAtMax);
@@ -702,13 +702,13 @@ package androidx.wear.compose.material {
   }
 
   public final class SwipeableKt {
-    method @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static <T> androidx.wear.compose.material.SwipeableState<T> rememberSwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.wear.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.wear.compose.material.ThresholdConfig> thresholds, optional androidx.wear.compose.material.ResistanceConfig? resistance, optional float velocityThreshold);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static <T> androidx.wear.compose.material.SwipeableState<T> rememberSwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
+    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.wear.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.wear.compose.material.ThresholdConfig> thresholds, optional androidx.wear.compose.material.ResistanceConfig? resistance, optional float velocityThreshold);
   }
 
-  @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public class SwipeableState<T> {
+  @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public class SwipeableState<T> {
     ctor public SwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final T getCurrentValue();
     method public final float getDirection();
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
@@ -716,15 +716,15 @@ package androidx.wear.compose.material {
     method public final androidx.wear.compose.material.SwipeProgress<T> getProgress();
     method public final T getTargetValue();
     method public final boolean isAnimationRunning();
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? performFling(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? snapTo(T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final T currentValue;
-    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final float direction;
+    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final float direction;
     property public final boolean isAnimationRunning;
-    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> offset;
-    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> overflow;
-    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.wear.compose.material.SwipeProgress<T> progress;
-    property @androidx.wear.compose.material.ExperimentalWearMaterialApi public final T targetValue;
+    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> offset;
+    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.compose.runtime.State<java.lang.Float> overflow;
+    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final androidx.wear.compose.material.SwipeProgress<T> progress;
+    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final T targetValue;
     field public static final androidx.wear.compose.material.SwipeableState.Companion Companion;
   }
 
@@ -752,7 +752,7 @@ package androidx.wear.compose.material {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
-  @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public interface ThresholdConfig {
+  @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public interface ThresholdConfig {
     method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
   }
 

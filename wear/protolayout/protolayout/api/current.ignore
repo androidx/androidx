@@ -1,0 +1,403 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities:
+    Removed class androidx.wear.protolayout.DeviceParametersBuilders.Capabilities from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities#getMinimumFreshnessLimitMillis():
+    Removed method androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.getMinimumFreshnessLimitMillis() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder:
+    Removed class androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder#build():
+    Removed method androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder#setMinimumFreshnessLimitMillis(long):
+    Removed method androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder.setMinimumFreshnessLimitMillis(long) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder#setMinimumFreshnessLimitMillis(long) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder.setMinimumFreshnessLimitMillis(long arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters#getCapabilities():
+    Removed method androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.getCapabilities() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder#setCapabilities(androidx.wear.protolayout.DeviceParametersBuilders.Capabilities):
+    Removed method androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder.setCapabilities(androidx.wear.protolayout.DeviceParametersBuilders.Capabilities) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder#setCapabilities(androidx.wear.protolayout.DeviceParametersBuilders.Capabilities) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder.setCapabilities(androidx.wear.protolayout.DeviceParametersBuilders.Capabilities arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.DimensionBuilders.ExtensionDimension:
+    Removed class androidx.wear.protolayout.DimensionBuilders.ExtensionDimension from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders#FONT_WEIGHT_MEDIUM:
+    Removed field androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_MEDIUM from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders#TEXT_OVERFLOW_MARQUEE:
+    Removed field androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_MARQUEE from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle:
+    Removed class androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle#getExcludeFontPadding():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.getExcludeFontPadding() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder:
+    Removed class androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder#build():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder#setExcludeFontPadding(boolean):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder.setExcludeFontPadding(boolean) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder#setExcludeFontPadding(boolean) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder.setExcludeFontPadding(boolean arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement:
+    Removed class androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement#getExtensionId():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.getExtensionId() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement#getHeight():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.getHeight() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement#getPayload():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.getPayload() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement#getWidth():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.getWidth() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder:
+    Removed class androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#build():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setExtensionId(String):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setExtensionId(String) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setExtensionId(String) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setExtensionId(String arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setHeight(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setHeight(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setHeight(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setHeight(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setPayload(byte[]):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setPayload(byte[]) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setPayload(byte[]) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setPayload(byte[] arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setWidth(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setWidth(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder#setWidth(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder.setWidth(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontStyle#getVariant():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.FontStyle.getVariant() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder#setVariant(androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.setVariant(androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder#setVariant(androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.setVariant(androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder#setVariant(int):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.setVariant(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder#setVariant(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.setVariant(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp:
+    Removed class androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp#getValue():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.getValue() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder:
+    Removed class androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder#build():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder#setValue(int):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder.setValue(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder#setValue(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp.Builder.setValue(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Layout#fromByteArray(byte[]):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Layout.fromByteArray(byte[]) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Layout#fromByteArray(byte[]) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.Layout.fromByteArray(byte[] arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Layout#toByteArray():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Layout.toByteArray() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.SpanText#getAndroidTextStyle():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.SpanText.getAndroidTextStyle() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder#setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder.setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder#setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder.setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Spannable#getMarqueeIterations():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Spannable.getMarqueeIterations() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder#setMarqueeIterations(int):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder.setMarqueeIterations(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder#setMarqueeIterations(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder.setMarqueeIterations(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Text#getAndroidTextStyle():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Text.getAndroidTextStyle() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Text#getMarqueeIterations():
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Text.getMarqueeIterations() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Text.Builder#setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Text.Builder.setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Text.Builder#setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.Text.Builder.setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Text.Builder#setMarqueeIterations(int):
+    Removed method androidx.wear.protolayout.LayoutElementBuilders.Text.Builder.setMarqueeIterations(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.LayoutElementBuilders.Text.Builder#setMarqueeIterations(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.LayoutElementBuilders.Text.Builder.setMarqueeIterations(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_DIRECTION_BOTTOM_TO_TOP:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_DIRECTION_BOTTOM_TO_TOP from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_DIRECTION_LEFT_TO_RIGHT:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_DIRECTION_LEFT_TO_RIGHT from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_DIRECTION_RIGHT_TO_LEFT:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_DIRECTION_RIGHT_TO_LEFT from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_DIRECTION_TOP_TO_BOTTOM:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_DIRECTION_TOP_TO_BOTTOM from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_DIRECTION_UNDEFINED:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_DIRECTION_UNDEFINED from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_PARENT_SNAP_TO_INSIDE:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_PARENT_SNAP_TO_INSIDE from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_PARENT_SNAP_TO_OUTSIDE:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_PARENT_SNAP_TO_OUTSIDE from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders#SLIDE_PARENT_SNAP_UNDEFINED:
+    Removed field androidx.wear.protolayout.ModifiersBuilders.SLIDE_PARENT_SNAP_UNDEFINED from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility#getEnterTransition():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.getEnterTransition() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility#getExitTransition():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.getExitTransition() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder#setEnterTransition(androidx.wear.protolayout.ModifiersBuilders.EnterTransition):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder.setEnterTransition(androidx.wear.protolayout.ModifiersBuilders.EnterTransition) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder#setEnterTransition(androidx.wear.protolayout.ModifiersBuilders.EnterTransition) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder.setEnterTransition(androidx.wear.protolayout.ModifiersBuilders.EnterTransition arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder#setExitTransition(androidx.wear.protolayout.ModifiersBuilders.ExitTransition):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder.setExitTransition(androidx.wear.protolayout.ModifiersBuilders.ExitTransition) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder#setExitTransition(androidx.wear.protolayout.ModifiersBuilders.ExitTransition) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility.Builder.setExitTransition(androidx.wear.protolayout.ModifiersBuilders.ExitTransition arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#fadeIn():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeIn() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#fadeInSlideIn(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeInSlideIn(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#fadeInSlideIn(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeInSlideIn(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#fadeOut():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeOut() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#fadeOutSlideOut(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeOutSlideOut(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#fadeOutSlideOut(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeOutSlideOut(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#slideIn(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.slideIn(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#slideIn(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.slideIn(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#slideOut(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.slideOut(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions#slideOut(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.slideOut(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.EnterTransition from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition#getFadeIn():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.EnterTransition.getFadeIn() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition#getSlideIn():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.EnterTransition.getSlideIn() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder#setFadeIn(androidx.wear.protolayout.ModifiersBuilders.FadeInTransition):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder.setFadeIn(androidx.wear.protolayout.ModifiersBuilders.FadeInTransition) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder#setFadeIn(androidx.wear.protolayout.ModifiersBuilders.FadeInTransition) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder.setFadeIn(androidx.wear.protolayout.ModifiersBuilders.FadeInTransition arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder#setSlideIn(androidx.wear.protolayout.ModifiersBuilders.SlideInTransition):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder.setSlideIn(androidx.wear.protolayout.ModifiersBuilders.SlideInTransition) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder#setSlideIn(androidx.wear.protolayout.ModifiersBuilders.SlideInTransition) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.EnterTransition.Builder.setSlideIn(androidx.wear.protolayout.ModifiersBuilders.SlideInTransition arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.ExitTransition from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition#getFadeOut():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.ExitTransition.getFadeOut() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition#getSlideOut():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.ExitTransition.getSlideOut() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder#setFadeOut(androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder.setFadeOut(androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder#setFadeOut(androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder.setFadeOut(androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder#setSlideOut(androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder.setSlideOut(androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder#setSlideOut(androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.ExitTransition.Builder.setSlideOut(androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.FadeInTransition from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition#getAnimationSpec():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.getAnimationSpec() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition#getInitialAlpha():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.getInitialAlpha() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder#setInitialAlpha(float):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder.setInitialAlpha(float) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder#setInitialAlpha(float) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.FadeInTransition.Builder.setInitialAlpha(float arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition#getAnimationSpec():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.getAnimationSpec() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition#getTargetAlpha():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.getTargetAlpha() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder#setTargetAlpha(float):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder.setTargetAlpha(float) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder#setTargetAlpha(float) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition.Builder.setTargetAlpha(float arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.Modifiers#getContentUpdateAnimation():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.Modifiers.getContentUpdateAnimation() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder#setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder.setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder#setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder.setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideBound:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideBound from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideInTransition from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition#getAnimationSpec():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.getAnimationSpec() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition#getDirection():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.getDirection() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition#getInitialSlideBound():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.getInitialSlideBound() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#setDirection(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.setDirection(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#setDirection(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.setDirection(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#setInitialSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.setInitialSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder#setInitialSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideInTransition.Builder.setInitialSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition#getAnimationSpec():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.getAnimationSpec() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition#getDirection():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.getDirection() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition#getTargetSlideBound():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.getTargetSlideBound() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.setAnimationSpec(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#setDirection(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.setDirection(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#setDirection(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.setDirection(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#setTargetSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.setTargetSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder#setTargetSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideOutTransition.Builder.setTargetSlideBound(androidx.wear.protolayout.ModifiersBuilders.SlideBound arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideParentBound from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound#getSnapTo():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.getSnapTo() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder:
+    Removed class androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder#build():
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder#setSnapTo(int):
+    Removed method androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder.setSnapTo(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder#setSnapTo(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ModifiersBuilders.SlideParentBound.Builder.setSnapTo(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId:
+    Removed class androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId#getAnimatedImageFormat():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.getAnimatedImageFormat() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId#getResourceId():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.getResourceId() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId#getStartTrigger():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.getStartTrigger() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder:
+    Removed class androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#build():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#setAnimatedImageFormat(int):
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.setAnimatedImageFormat(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#setAnimatedImageFormat(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.setAnimatedImageFormat(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#setResourceId(int):
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.setResourceId(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#setResourceId(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.setResourceId(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#setStartTrigger(androidx.wear.protolayout.TriggerBuilders.Trigger):
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.setStartTrigger(androidx.wear.protolayout.TriggerBuilders.Trigger) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder#setStartTrigger(androidx.wear.protolayout.TriggerBuilders.Trigger) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId.Builder.setStartTrigger(androidx.wear.protolayout.TriggerBuilders.Trigger arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId:
+    Removed class androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId#getAnimatedImageFormat():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.getAnimatedImageFormat() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId#getProgress():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.getProgress() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId#getResourceId():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.getResourceId() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder:
+    Removed class androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#Builder():
+    Removed constructor androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#build():
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.build() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#setAnimatedImageFormat(int):
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.setAnimatedImageFormat(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#setAnimatedImageFormat(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.setAnimatedImageFormat(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#setProgress(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat):
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.setProgress(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#setProgress(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.setProgress(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#setResourceId(int):
+    Removed method androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.setResourceId(int) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder#setResourceId(int) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId.Builder.setResourceId(int arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.ImageResource#getAndroidAnimatedResourceByResId():
+    Removed method androidx.wear.protolayout.ResourceBuilders.ImageResource.getAndroidAnimatedResourceByResId() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.ImageResource#getAndroidSeekableAnimatedResourceByResId():
+    Removed method androidx.wear.protolayout.ResourceBuilders.ImageResource.getAndroidSeekableAnimatedResourceByResId() from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder#setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId):
+    Removed method androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder.setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder#setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder.setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId arg1) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder#setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId):
+    Removed method androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder.setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId) from compatibility checked API surface
+BecameUnchecked: androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder#setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId) parameter #0:
+    Removed parameter arg1 in androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder.setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId arg1) from compatibility checked API surface

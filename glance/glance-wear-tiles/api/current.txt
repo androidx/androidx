@@ -15,7 +15,7 @@ package androidx.glance.wear.tiles {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> LocalTimeInterval;
   }
 
-  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearTilesApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearTilesApi {
   }
 
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
@@ -33,7 +33,7 @@ package androidx.glance.wear.tiles {
   }
 
   public final class GlanceWearTilesKt {
-    method @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public static suspend Object? compose(android.content.Context context, long size, optional Object? state, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.glance.wear.tiles.WearTilesCompositionResult>);
+    method @SuppressCompatibility @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public static suspend Object? compose(android.content.Context context, long size, optional Object? state, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.glance.wear.tiles.WearTilesCompositionResult>);
   }
 
   public final class TimeInterval {
@@ -60,7 +60,7 @@ package androidx.glance.wear.tiles {
     property public final java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals;
   }
 
-  @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public final class WearTilesCompositionResult {
+  @SuppressCompatibility @androidx.glance.wear.tiles.ExperimentalGlanceWearTilesApi public final class WearTilesCompositionResult {
     ctor public WearTilesCompositionResult(androidx.wear.tiles.LayoutElementBuilders.LayoutElement layout, androidx.wear.tiles.ResourceBuilders.Resources resources);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getLayout();
     method public androidx.wear.tiles.ResourceBuilders.Resources getResources();

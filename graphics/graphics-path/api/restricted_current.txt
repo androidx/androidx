@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.graphics.path {
 
-  @androidx.core.os.BuildCompat.PrereleaseSdkCheck public final class PathIterator implements java.util.Iterator<androidx.graphics.path.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
+  @SuppressCompatibility @androidx.core.os.BuildCompat.PrereleaseSdkCheck public final class PathIterator implements java.util.Iterator<androidx.graphics.path.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
     ctor public PathIterator(android.graphics.Path path, optional androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
     method public int calculateSize(optional boolean includeConvertedConics);
     method public androidx.graphics.path.PathIterator.ConicEvaluation getConicEvaluation();
@@ -53,8 +53,8 @@ package androidx.graphics.path {
   }
 
   public final class PathUtilities {
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static operator androidx.graphics.path.PathIterator iterator(android.graphics.Path);
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static androidx.graphics.path.PathIterator iterator(android.graphics.Path, androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
+    method @SuppressCompatibility @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static operator androidx.graphics.path.PathIterator iterator(android.graphics.Path);
+    method @SuppressCompatibility @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static androidx.graphics.path.PathIterator iterator(android.graphics.Path, androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
   }
 
 }

@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-ChangedType: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, String, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
-    Method androidx.navigation.NavGraphViewModelLazyKt.navGraphViewModels has changed return type from kotlin.Lazy<? extends VM> to kotlin.Lazy<VM>
-ChangedType: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, String, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
-    Method androidx.navigation.NavGraphViewModelLazyKt.navGraphViewModels has changed return type from kotlin.Lazy<? extends VM> to kotlin.Lazy<VM>
-ChangedType: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, int, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
-    Method androidx.navigation.NavGraphViewModelLazyKt.navGraphViewModels has changed return type from kotlin.Lazy<? extends VM> to kotlin.Lazy<VM>
-ChangedType: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, int, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
-    Method androidx.navigation.NavGraphViewModelLazyKt.navGraphViewModels has changed return type from kotlin.Lazy<? extends VM> to kotlin.Lazy<VM>

@@ -8,11 +8,11 @@ package androidx.datastore.rxjava2 {
   }
 
   public final class RxDataStore<T> implements io.reactivex.disposables.Disposable {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Flowable<T> data();
+    method @SuppressCompatibility @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Flowable<T> data();
     method public void dispose();
     method public boolean isDisposed();
     method public io.reactivex.Completable shutdownComplete();
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Single<T> updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform);
+    method @SuppressCompatibility @kotlinx.coroutines.ExperimentalCoroutinesApi public io.reactivex.Single<T> updateDataAsync(io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform);
     field public static final androidx.datastore.rxjava2.RxDataStore.Companion Companion;
   }
 

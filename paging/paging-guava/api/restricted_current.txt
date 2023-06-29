@@ -18,7 +18,7 @@ package androidx.paging {
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagingSource.LoadResult<Key,Value>> loadFuture(androidx.paging.PagingSource.LoadParams<Key> params);
   }
 
-  @androidx.paging.ExperimentalPagingApi public abstract class ListenableFutureRemoteMediator<Key, Value> extends androidx.paging.RemoteMediator<Key,Value> {
+  @SuppressCompatibility @androidx.paging.ExperimentalPagingApi public abstract class ListenableFutureRemoteMediator<Key, Value> extends androidx.paging.RemoteMediator<Key,Value> {
     ctor public ListenableFutureRemoteMediator();
     method public final suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.InitializeAction> initializeFuture();

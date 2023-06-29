@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.wear.watchface.data {
 
-  @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArcWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+  @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArcWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public BoundingArcWireFormat(float, float, float);
     method public int describeContents();
     method public float getArcStartAngle();

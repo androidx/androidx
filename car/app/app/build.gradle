@@ -166,7 +166,7 @@ class GenerateProtocolApiTask extends ProtocolApiTask {
                 '--api',
                 generatedApi.toString(),
                 "--show-annotation",
-                "@androidx.car.app.annotations.CarProtocol",
+                "androidx.car.app.annotations.CarProtocol",
                 "--hide",
                 "UnhiddenSystemApi"
         ]
