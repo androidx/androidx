@@ -67,7 +67,6 @@ import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.SleepTestWorker;
-import androidx.work.worker.StopAwareForegroundWorker;
 import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 
@@ -292,27 +291,6 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkerWrapper.interrupt(0);
         mWorkerWrapper.interrupt(0);
         verify(mWorker.getDelegate(), times(1)).onStopped();
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
-    public void testConstraintTrackingWorker_delegateStopForeground()
-            throws InterruptedException {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        setupDelegateForExecution(StopAwareForegroundWorker.class.getName(), executorService);
-        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
-        builder.withWorker(mWorker);
-
-        mWorkerWrapper = builder.build();
-        executorService.execute(mWorkerWrapper);
-        Thread.sleep(TEST_TIMEOUT_IN_MS);
-
-        mWorkerWrapper.interrupt(0);
-        executorService.shutdown();
-        verify(mForegroundProcessor).stopForeground(mWork.getStringId());
-        assertThat(mWorker.isStopped(), is(true));
-        assertThat(mWorker.getDelegate(), is(notNullValue()));
-        assertThat(mWorker.getDelegate().isStopped(), is(true));
     }
 
     private void setupDelegateForExecution(@NonNull String delegateName, Executor executor) {

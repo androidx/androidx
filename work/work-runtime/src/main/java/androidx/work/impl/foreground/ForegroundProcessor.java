@@ -34,12 +34,4 @@ public interface ForegroundProcessor {
      * @param foregroundInfo The {@link ForegroundInfo} associated
      */
     void startForeground(@NonNull String workSpecId, @NonNull ForegroundInfo foregroundInfo);
-
-    /**
-     * Marks the foreground work corresponding to the {{@link androidx.work.impl.model.WorkSpec} id
-     * as completed.
-     *
-     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
-     */
-    void stopForeground(@NonNull String workSpecId);
 }
