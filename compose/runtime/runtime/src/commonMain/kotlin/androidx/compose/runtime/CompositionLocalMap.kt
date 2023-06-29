@@ -90,19 +90,23 @@ internal fun <T> PersistentCompositionLocalMap.read(
     key.defaultValueHolder.value
 }
 
-@Composable
-internal fun compositionLocalMapOf(
+internal fun updateCompositionMap(
     values: Array<out ProvidedValue<*>>,
-    parentScope: PersistentCompositionLocalMap
+    parentScope: PersistentCompositionLocalMap,
+    previous: PersistentCompositionLocalMap = persistentCompositionLocalHashMapOf(),
 ): PersistentCompositionLocalMap {
-    val result: PersistentCompositionLocalMap = persistentCompositionLocalHashMapOf()
-    return result.mutate {
-        for (provided in values) {
-            if (provided.canOverride || !parentScope.contains(provided.compositionLocal)) {
-                @Suppress("UNCHECKED_CAST")
-                it[provided.compositionLocal as CompositionLocal<Any?>] =
-                    provided.compositionLocal.provided(provided.value)
-            }
+    val builder: PersistentCompositionLocalMap.Builder =
+        persistentCompositionLocalHashMapOf().builder()
+    val map: PersistentMap<CompositionLocal<Any?>, State<Any?>> = previous
+    @Suppress("UNCHECKED_CAST")
+    for (index in values.indices) {
+        val provided = values[index]
+        val local = provided.compositionLocal as ProvidableCompositionLocal<Any?>
+        if (provided.canOverride || !parentScope.contains(local)) {
+            val previousState = map[local]
+            val newState = local.updatedStateOf(provided.value, previousState)
+            builder[local] = newState
         }
     }
+    return builder.build()
 }
