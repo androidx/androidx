@@ -104,7 +104,7 @@ fun Chip(
             .clip(shape = shape)
             .width(intrinsicSize = IntrinsicSize.Max)
             .paint(
-                painter = background(enabled = enabled).value,
+                painter = background(enabled).value,
                 contentScale = ContentScale.Crop
             )
             .clickable(

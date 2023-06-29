@@ -63,10 +63,9 @@ fun AppLazyRow(
             items.forEachIndexed { index, movie ->
                 item {
                     drawItem(
-                        movie = movie,
-                        index = index,
-                        modifier = Modifier
-                            .ifElse(index == 0, focusRestorerModifiers.childModifier)
+                        movie,
+                        index,
+                        Modifier.ifElse(index == 0, focusRestorerModifiers.childModifier)
                     )
                 }
             }

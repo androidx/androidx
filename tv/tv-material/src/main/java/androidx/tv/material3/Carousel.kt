@@ -502,7 +502,7 @@ object CarouselDefaults {
         ) {
             repeat(itemCount) {
                 val isActive = it == activeItemIndex
-                indicator(isActive = isActive)
+                indicator(isActive)
             }
         }
     }
