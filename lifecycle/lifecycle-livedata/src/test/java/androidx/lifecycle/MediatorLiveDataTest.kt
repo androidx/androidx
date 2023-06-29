@@ -13,187 +13,192 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.arch.core.executor.ArchTaskExecutor.getInstance
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.lifecycle.util.InstantTaskExecutor
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.ExpectedException
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.verify
 
-import static com.google.common.truth.Truth.assertThat;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-
-import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
-
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.testing.TestLifecycleOwner;
-import androidx.lifecycle.util.InstantTaskExecutor;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@SuppressWarnings("unchecked")
-@RunWith(JUnit4.class)
-public class MediatorLiveDataTest {
-
+@RunWith(JUnit4::class)
+class MediatorLiveDataTest {
+    @JvmField
     @Rule
-    public InstantTaskExecutorRule mInstantTaskExecutorRule = new InstantTaskExecutorRule();
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @JvmField
     @Rule
-    @SuppressWarnings("deprecation")
-    public ExpectedException exception = ExpectedException.none();
+    @Suppress("deprecation")
+    var exception: ExpectedException = ExpectedException.none()
 
-    private TestLifecycleOwner mOwner;
-    private MediatorLiveData<String> mMediator;
-    private LiveData<String> mSource;
-    private boolean mSourceActive;
+    private lateinit var owner: TestLifecycleOwner
+    private lateinit var mediator: MediatorLiveData<String>
+    private lateinit var source: LiveData<String?>
+    private var sourceActive = false
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    public void setup() {
-        mOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
-                UnconfinedTestDispatcher(null, null));
-        mMediator = new MediatorLiveData<>();
-        mSource = new LiveData<String>() {
-            @Override
-            protected void onActive() {
-                mSourceActive = true;
+    fun setup() {
+        owner = TestLifecycleOwner(
+            Lifecycle.State.STARTED,
+            UnconfinedTestDispatcher(null, null)
+        )
+        mediator = MediatorLiveData()
+        source = object : LiveData<String?>() {
+            override fun onActive() {
+                sourceActive = true
             }
 
-            @Override
-            protected void onInactive() {
-                mSourceActive = false;
+            override fun onInactive() {
+                sourceActive = false
             }
-        };
-        mSourceActive = false;
-        mMediator.observe(mOwner, mock(Observer.class));
+        }
+        sourceActive = false
+        @Suppress("unchecked_cast")
+        mediator.observe(owner, mock(Observer::class.java) as Observer<in String>)
     }
 
     @Before
-    public void swapExecutorDelegate() {
-        ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+    fun swapExecutorDelegate() {
+        getInstance().setDelegate(InstantTaskExecutor())
     }
 
     @Test
-    public void testHasInitialValue() {
-        MediatorLiveData<String> mediator = new MediatorLiveData<>("value");
-        assertThat(mediator.getValue()).isEqualTo("value");
+    fun testHasInitialValue() {
+        val mediator = MediatorLiveData("value")
+        assertThat(mediator.value).isEqualTo("value")
     }
 
     @Test
-    public void testSingleDelivery() {
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        mSource.setValue("flatfoot");
-        verify(observer).onChanged("flatfoot");
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        reset(observer);
-        verify(observer, never()).onChanged(any());
+    fun testSingleDelivery() {
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        source.setValue("flatfoot")
+        verify(observer).onChanged("flatfoot")
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        reset(observer)
+        verify(observer, never()).onChanged(any())
+    }
+
+    @Suppress("unchecked_cast")
+    @Test
+    fun testChangeWhileInactive() {
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        mediator.observe(owner, mock(Observer::class.java) as Observer<in String>)
+        source.value = "one"
+        verify(observer).onChanged("one")
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        reset(observer)
+        source.value = "flatfoot"
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        verify(observer).onChanged("flatfoot")
     }
 
     @Test
-    public void testChangeWhileInactive() {
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        mMediator.observe(mOwner, mock(Observer.class));
-        mSource.setValue("one");
-        verify(observer).onChanged("one");
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        reset(observer);
-        mSource.setValue("flatfoot");
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        verify(observer).onChanged("flatfoot");
-    }
-
-
-    @Test
-    public void testAddSourceToActive() {
-        mSource.setValue("flatfoot");
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        verify(observer).onChanged("flatfoot");
+    fun testAddSourceToActive() {
+        source.value = "flatfoot"
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        verify(observer).onChanged("flatfoot")
     }
 
     @Test
-    public void testAddSourceToInActive() {
-        mSource.setValue("flatfoot");
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        verify(observer, never()).onChanged(any());
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        verify(observer).onChanged("flatfoot");
+    fun testAddSourceToInActive() {
+        source.value = "flatfoot"
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        verify(observer, never()).onChanged(any())
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        verify(observer).onChanged("flatfoot")
     }
 
     @Test
-    public void testRemoveSource() {
-        mSource.setValue("flatfoot");
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        verify(observer).onChanged("flatfoot");
-        mMediator.removeSource(mSource);
-        reset(observer);
-        mSource.setValue("failure");
-        verify(observer, never()).onChanged(any());
+    fun testRemoveSource() {
+        source.value = "flatfoot"
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        verify(observer).onChanged("flatfoot")
+        mediator.removeSource(source)
+        reset(observer)
+        source.value = "failure"
+        verify(observer, never()).onChanged(any())
     }
 
     @Test
-    public void testSourceInactive() {
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        assertThat(mSourceActive, is(true));
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        assertThat(mSourceActive, is(false));
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        assertThat(mSourceActive, is(true));
+    fun testSourceInactive() {
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        assertThat(sourceActive, `is`(true))
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        assertThat(sourceActive, `is`(false))
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        assertThat(sourceActive, `is`(true))
     }
 
     @Test
-    public void testNoLeakObserver() {
+    fun testNoLeakObserver() {
         // Imitates a destruction of a ViewModel: a listener of LiveData is destroyed,
         // a reference to MediatorLiveData is cleaned up. In this case we shouldn't leak
         // MediatorLiveData as an observer of mSource.
-        assertThat(mSource.hasObservers(), is(false));
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        assertThat(mSource.hasObservers(), is(true));
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-        mMediator = null;
-        assertThat(mSource.hasObservers(), is(false));
+        assertThat(source.hasObservers(), `is`(false))
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        assertThat(source.hasObservers(), `is`(true))
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        mediator.removeObserver(observer)
+        assertThat(source.hasObservers(), `is`(false))
+    }
+
+    @Suppress("unchecked_cast")
+    @Test
+    fun testMultipleSources() {
+        val observer1 = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer1)
+        val source2 = MutableLiveData<Int>()
+        val observer2 = mock(Observer::class.java) as Observer<in Int?>
+        mediator.addSource(source2, observer2)
+        source.value = "flatfoot"
+        verify(observer1).onChanged("flatfoot")
+        verify(observer2, never()).onChanged(any())
+        reset(observer1, observer2)
+        source2.value = 1703
+        verify(observer1, never()).onChanged(any())
+        verify(observer2).onChanged(1703)
+        reset(observer1, observer2)
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        source.value = "failure"
+        source2.value = 0
+        verify(observer1, never()).onChanged(any())
+        verify(observer2, never()).onChanged(any())
     }
 
     @Test
-    public void testMultipleSources() {
-        Observer observer1 = mock(Observer.class);
-        mMediator.addSource(mSource, observer1);
-        MutableLiveData<Integer> source2 = new MutableLiveData<>();
-        Observer observer2 = mock(Observer.class);
-        mMediator.addSource(source2, observer2);
-        mSource.setValue("flatfoot");
-        verify(observer1).onChanged("flatfoot");
-        verify(observer2, never()).onChanged(any());
-        reset(observer1, observer2);
-        source2.setValue(1703);
-        verify(observer1, never()).onChanged(any());
-        verify(observer2).onChanged(1703);
-        reset(observer1, observer2);
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        mSource.setValue("failure");
-        source2.setValue(0);
-        verify(observer1, never()).onChanged(any());
-        verify(observer2, never()).onChanged(any());
-    }
-
-    @Test
-    public void removeSourceDuringOnActive() {
+    fun removeSourceDuringOnActive() {
         // to trigger ConcurrentModificationException,
         // we have to call remove from a collection during "for" loop.
         // ConcurrentModificationException is thrown from next() method of an iterator
@@ -201,64 +206,49 @@ public class MediatorLiveDataTest {
         // because if it is a last iteration, then next() wouldn't be called.
         // And the last: an order of an iteration over sources is not defined,
         // so I have to call it remove operation  from all observers.
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        Observer<String> removingObserver = new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                mMediator.removeSource(mSource);
-            }
-        };
-        mMediator.addSource(mSource, removingObserver);
-        MutableLiveData<String> source2 = new MutableLiveData<>();
-        source2.setValue("nana");
-        mMediator.addSource(source2, removingObserver);
-        mSource.setValue("petjack");
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        val removingObserver: Observer<String?> =
+            Observer { mediator.removeSource(source) }
+        mediator.addSource(source, removingObserver)
+        val source2 = MutableLiveData<String>()
+        source2.setValue("nana")
+        mediator.addSource(source2, removingObserver)
+        source.setValue("pet-jack")
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void reAddSameSourceWithDifferentObserver() {
-        mMediator.addSource(mSource, mock(Observer.class));
-        mMediator.addSource(mSource, mock(Observer.class));
+    @Suppress("unchecked_cast")
+    @Test(expected = IllegalArgumentException::class)
+    fun reAddSameSourceWithDifferentObserver() {
+        mediator.addSource(
+            source, mock(Observer::class.java) as Observer<in String?>
+        )
+        mediator.addSource(
+            source, mock(Observer::class.java) as Observer<in String?>
+        )
     }
 
     @Test
-    public void addSameSourceWithSameObserver() {
-        Observer observer = mock(Observer.class);
-        mMediator.addSource(mSource, observer);
-        mMediator.addSource(mSource, observer);
+    fun addSameSourceWithSameObserver() {
+        @Suppress("unchecked_cast")
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        mediator.addSource(source, observer)
+        mediator.addSource(source, observer)
         // no exception was thrown
     }
 
     @Test
-    public void addSourceDuringOnActive() {
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        mSource.setValue("a");
-        mMediator.addSource(mSource, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                MutableLiveData<String> source = new MutableLiveData<>();
-                source.setValue("b");
-                mMediator.addSource(source, new Observer<String>() {
-                    @Override
-                    public void onChanged(@Nullable String s) {
-                        mMediator.setValue("c");
-                    }
-                });
+    fun addSourceDuringOnActive() {
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        source.value = "a"
+        mediator.addSource(source, Observer {
+            val source = MutableLiveData<String>()
+            source.value = "b"
+            mediator.addSource(source) {
+                mediator.value = "c"
             }
-        });
-        mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        assertThat(mMediator.getValue(), is("c"));
+        })
+        owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        assertThat(mediator.value, `is`("c"))
     }
-
-    @Test
-    public void addNullSource() {
-        Observer observer = mock(Observer.class);
-        exception.expect(NullPointerException.class);
-        exception.expectMessage("source cannot be null");
-
-        mMediator.addSource(null, observer);
-
-    }
-
 }
