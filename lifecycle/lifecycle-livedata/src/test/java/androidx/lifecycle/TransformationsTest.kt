@@ -13,246 +13,218 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.arch.core.executor.ArchTaskExecutor.getInstance
+import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.lifecycle.util.InstantTaskExecutor
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.only
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.verify
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-
-import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
-
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.lifecycle.testing.TestLifecycleOwner;
-import androidx.lifecycle.util.InstantTaskExecutor;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@SuppressWarnings("unchecked")
-@RunWith(JUnit4.class)
-public class TransformationsTest {
-
-    private TestLifecycleOwner mOwner;
+@Suppress("unchecked_cast")
+@RunWith(JUnit4::class)
+class TransformationsTest {
+    private lateinit var owner: TestLifecycleOwner
 
     @Before
-    public void swapExecutorDelegate() {
-        ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+    fun swapExecutorDelegate() {
+        getInstance().setDelegate(InstantTaskExecutor())
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    public void setup() {
-        mOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
-                UnconfinedTestDispatcher(null, null));
+    fun setup() {
+        owner = TestLifecycleOwner(
+            Lifecycle.State.STARTED,
+            UnconfinedTestDispatcher(null, null)
+        )
     }
 
     @Test
-    public void testMap() {
-        LiveData<String> source = new MutableLiveData<>();
-        LiveData<Integer> mapped = Transformations.map(source, String::length);
-        Observer<Integer> observer = mock(Observer.class);
-        mapped.observe(mOwner, observer);
-        source.setValue("four");
-        verify(observer).onChanged(4);
+    fun testMap() {
+        val source: LiveData<String> = MutableLiveData()
+        val mapped = source.map(String::length)
+        val observer = mock(Observer::class.java) as Observer<Int>
+        mapped.observe(owner, observer)
+        source.value = "four"
+        verify(observer).onChanged(4)
     }
 
     @Test
-    public void testSwitchMap() {
-        LiveData<Integer> trigger = new MutableLiveData<>();
-        final LiveData<String> first = new MutableLiveData<>();
-        final LiveData<String> second = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(
-                trigger,
-                (Integer input) -> {
-                    if (input == 1) {
-                        return first;
-                    } else {
-                        return second;
-                    }
-                });
-
-        Observer<String> observer = mock(Observer.class);
-        result.observe(mOwner, observer);
-        verify(observer, never()).onChanged(anyString());
-        first.setValue("first");
-        trigger.setValue(1);
-        verify(observer).onChanged("first");
-        second.setValue("second");
-        reset(observer);
-        verify(observer, never()).onChanged(anyString());
-        trigger.setValue(2);
-        verify(observer).onChanged("second");
-        reset(observer);
-        first.setValue("failure");
-        verify(observer, never()).onChanged(anyString());
+    fun testSwitchMap() {
+        val trigger: LiveData<Int> = MutableLiveData()
+        val first: LiveData<String> = MutableLiveData()
+        val second: LiveData<String> = MutableLiveData()
+        val result = trigger.switchMap { input ->
+            if (input == 1) {
+                first
+            } else {
+                second
+            }
+        }
+        val observer = mock(Observer::class.java) as Observer<String>
+        result.observe(owner, observer)
+        verify(observer, never()).onChanged(anyString())
+        first.value = "first"
+        trigger.value = 1
+        verify(observer).onChanged("first")
+        second.value = "second"
+        reset(observer)
+        verify(observer, never()).onChanged(anyString())
+        trigger.value = 2
+        verify(observer).onChanged("second")
+        reset(observer)
+        first.value = "failure"
+        verify(observer, never()).onChanged(anyString())
     }
 
     @Test
-    public void testSwitchMap2() {
-        LiveData<Integer> trigger = new MutableLiveData<>();
-        final LiveData<String> first = new MutableLiveData<>();
-        final LiveData<String> second = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(
-                trigger,
-                (Integer input) -> {
-                    if (input == 1) {
-                        return first;
-                    } else {
-                        return second;
-                    }
-                });
-
-        Observer<String> observer = mock(Observer.class);
-        result.observe(mOwner, observer);
-
-        verify(observer, never()).onChanged(anyString());
-        trigger.setValue(1);
-        verify(observer, never()).onChanged(anyString());
-        first.setValue("fi");
-        verify(observer).onChanged("fi");
-        first.setValue("rst");
-        verify(observer).onChanged("rst");
-
-        second.setValue("second");
-        reset(observer);
-        verify(observer, never()).onChanged(anyString());
-        trigger.setValue(2);
-        verify(observer).onChanged("second");
-        reset(observer);
-        first.setValue("failure");
-        verify(observer, never()).onChanged(anyString());
+    fun testSwitchMap2() {
+        val trigger: LiveData<Int> = MutableLiveData()
+        val first: LiveData<String> = MutableLiveData()
+        val second: LiveData<String> = MutableLiveData()
+        val result = trigger.switchMap { input: Int ->
+            if (input == 1) {
+                first
+            } else {
+                second
+            }
+        }
+        val observer = mock(Observer::class.java) as Observer<String>
+        result.observe(owner, observer)
+        verify(observer, never()).onChanged(anyString())
+        trigger.value = 1
+        verify(observer, never()).onChanged(anyString())
+        first.value = "fi"
+        verify(observer).onChanged("fi")
+        first.value = "rst"
+        verify(observer).onChanged("rst")
+        second.value = "second"
+        reset(observer)
+        verify(observer, never()).onChanged(anyString())
+        trigger.value = 2
+        verify(observer).onChanged("second")
+        reset(observer)
+        first.value = "failure"
+        verify(observer, never()).onChanged(anyString())
     }
 
     @Test
-    public void testNoRedispatchSwitchMap() {
-        LiveData<Integer> trigger = new MutableLiveData<>();
-        final LiveData<String> first = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(trigger, (Integer input) -> first);
-
-        Observer<String> observer = mock(Observer.class);
-        result.observe(mOwner, observer);
-        verify(observer, never()).onChanged(anyString());
-        first.setValue("first");
-        trigger.setValue(1);
-        verify(observer).onChanged("first");
-        reset(observer);
-        trigger.setValue(2);
-        verify(observer, never()).onChanged(anyString());
+    fun testNoRedispatchSwitchMap() {
+        val trigger: LiveData<Int> = MutableLiveData()
+        val first: LiveData<String> = MutableLiveData()
+        val result = trigger.switchMap { first }
+        val observer = mock(Observer::class.java) as Observer<String>
+        result.observe(owner, observer)
+        verify(observer, never()).onChanged(anyString())
+        first.value = "first"
+        trigger.value = 1
+        verify(observer).onChanged("first")
+        reset(observer)
+        trigger.value = 2
+        verify(observer, never()).onChanged(anyString())
     }
 
     @Test
-    public void testSwitchMapToNull() {
-        LiveData<Integer> trigger = new MutableLiveData<>();
-        final LiveData<String> first = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(
-                trigger,
-                (Integer input) -> {
-                    if (input == 1) {
-                        return first;
-                    } else {
-                        return null;
-                    }
-                });
-
-        Observer<String> observer = mock(Observer.class);
-        result.observe(mOwner, observer);
-        verify(observer, never()).onChanged(anyString());
-        first.setValue("first");
-        trigger.setValue(1);
-        verify(observer).onChanged("first");
-        reset(observer);
-
-        trigger.setValue(2);
-        verify(observer, never()).onChanged(anyString());
-        assertThat(first.hasObservers(), is(false));
+    fun testSwitchMapToNull() {
+        val trigger: LiveData<Int> = MutableLiveData()
+        val first: LiveData<String> = MutableLiveData()
+        val result = trigger.switchMap { input: Int ->
+            if (input == 1) {
+                first
+            } else {
+                null
+            }
+        }
+        val observer = mock(Observer::class.java) as Observer<String>
+        result.observe(owner, observer)
+        verify(observer, never()).onChanged(anyString())
+        first.value = "first"
+        trigger.value = 1
+        verify(observer).onChanged("first")
+        reset(observer)
+        trigger.value = 2
+        verify(observer, never()).onChanged(anyString())
+        assertThat(first.hasObservers(), `is`(false))
     }
 
     @Test
-    public void noObsoleteValueTest() {
-        MutableLiveData<Integer> numbers = new MutableLiveData<>();
-        LiveData<Integer> squared = Transformations.map(numbers, (Integer input) -> input * input);
-
-        Observer observer = mock(Observer.class);
-        squared.setValue(1);
-        squared.observeForever(observer);
-        verify(observer).onChanged(1);
-        squared.removeObserver(observer);
-        reset(observer);
-        numbers.setValue(2);
-        squared.observeForever(observer);
-        verify(observer, only()).onChanged(4);
+    fun noObsoleteValueTest() {
+        val numbers = MutableLiveData<Int>()
+        val squared = numbers.map { input: Int -> input * input }
+        val observer = mock(Observer::class.java) as Observer<Int>
+        squared.value = 1
+        squared.observeForever(observer)
+        verify(observer).onChanged(1)
+        squared.removeObserver(observer)
+        reset(observer)
+        numbers.value = 2
+        squared.observeForever(observer)
+        verify(observer, only()).onChanged(4)
     }
 
     @Test
-    public void testDistinctUntilChanged_initialValueIsSet() {
-        MutableLiveData<String> originalLiveData = new MutableLiveData<>("value");
-
-        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
-        assertThat(dedupedLiveData.getValue(), is("value"));
-
-        CountingObserver<String> observer = new CountingObserver<>();
-        dedupedLiveData.observe(mOwner, observer);
-        assertThat(observer.mTimesUpdated, is(1));
-        assertThat(dedupedLiveData.getValue(), is("value"));
+    fun testDistinctUntilChanged_initialValueIsSet() {
+        val originalLiveData = MutableLiveData("value")
+        val newLiveData = originalLiveData.distinctUntilChanged()
+        assertThat(newLiveData.value, `is`("value"))
+        val observer = CountingObserver<String>()
+        newLiveData.observe(owner, observer)
+        assertThat(observer.timesUpdated, `is`(1))
+        assertThat(newLiveData.value, `is`("value"))
     }
 
     @Test
-    public void testDistinctUntilChanged_triggersOnInitialNullValue() {
-        MutableLiveData<String> originalLiveData = new MutableLiveData<>();
-        originalLiveData.setValue(null);
-
-        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
-        assertThat(dedupedLiveData.getValue(), is(nullValue()));
-
-        CountingObserver<String> observer = new CountingObserver<>();
-        dedupedLiveData.observe(mOwner, observer);
-        assertThat(observer.mTimesUpdated, is(1));
-        assertThat(dedupedLiveData.getValue(), is(nullValue()));
+    fun testDistinctUntilChanged_triggersOnInitialNullValue() {
+        val originalLiveData = MutableLiveData<String?>()
+        originalLiveData.value = null
+        val newLiveData = originalLiveData.distinctUntilChanged()
+        assertThat(newLiveData.value, `is`(nullValue()))
+        val observer = CountingObserver<String?>()
+        newLiveData.observe(owner, observer)
+        assertThat(observer.timesUpdated, `is`(1))
+        assertThat(newLiveData.value, `is`(nullValue()))
     }
 
     @Test
-    public void testDistinctUntilChanged_dedupesValues() {
-        MutableLiveData<String> originalLiveData = new MutableLiveData<>();
-        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
-        assertThat(dedupedLiveData.getValue(), is(nullValue()));
-
-        CountingObserver<String> observer = new CountingObserver<>();
-        dedupedLiveData.observe(mOwner, observer);
-        assertThat(observer.mTimesUpdated, is(0));
-
-        String value = "new value";
-        originalLiveData.setValue(value);
-        assertThat(dedupedLiveData.getValue(), is(value));
-        assertThat(observer.mTimesUpdated, is(1));
-
-        originalLiveData.setValue(value);
-        assertThat(dedupedLiveData.getValue(), is(value));
-        assertThat(observer.mTimesUpdated, is(1));
-
-        String newerValue = "newer value";
-        originalLiveData.setValue(newerValue);
-        assertThat(dedupedLiveData.getValue(), is(newerValue));
-        assertThat(observer.mTimesUpdated, is(2));
-
-        dedupedLiveData.removeObservers(mOwner);
+    fun testDistinctUntilChanged_copiesValues() {
+        val originalLiveData = MutableLiveData<String>()
+        val newLiveData = originalLiveData.distinctUntilChanged()
+        assertThat(newLiveData.value, `is`(nullValue()))
+        val observer = CountingObserver<String>()
+        newLiveData.observe(owner, observer)
+        assertThat(observer.timesUpdated, `is`(0))
+        val value = "new value"
+        originalLiveData.value = value
+        assertThat(newLiveData.value, `is`(value))
+        assertThat(observer.timesUpdated, `is`(1))
+        originalLiveData.value = value
+        assertThat(newLiveData.value, `is`(value))
+        assertThat(observer.timesUpdated, `is`(1))
+        val newerValue = "newer value"
+        originalLiveData.value = newerValue
+        assertThat(newLiveData.value, `is`(newerValue))
+        assertThat(observer.timesUpdated, `is`(2))
+        newLiveData.removeObservers(owner)
     }
 
-    private static class CountingObserver<T> implements Observer<T> {
-
-        int mTimesUpdated;
-
-        @Override
-        public void onChanged(@Nullable T value) {
-            ++mTimesUpdated;
+    private class CountingObserver<T> : Observer<T> {
+        var timesUpdated = 0
+        override fun onChanged(value: T) {
+            ++timesUpdated
         }
     }
 }
