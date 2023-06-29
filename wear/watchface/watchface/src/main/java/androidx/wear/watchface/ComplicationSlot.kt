@@ -404,8 +404,8 @@ internal constructor(
     screenReaderNameResourceId: Int?,
     // TODO(b/230364881): This should really be public but some metalava bug is preventing
     // @ComplicationExperimental from working on the getter so it's currently hidden.
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val boundingArc: BoundingArc?
 ) {
     /**
      * The [ComplicationSlotsManager] this is attached to. Only set after the

@@ -27,5 +27,13 @@ RemovedClass: androidx.wear.watchface.complications.data.TypeKt:
     Removed class androidx.wear.watchface.complications.data.TypeKt
 
 
+RemovedMethod: androidx.wear.watchface.complications.data.PlainComplicationText#getTimeDependentText():
+    Removed method androidx.wear.watchface.complications.data.PlainComplicationText.getTimeDependentText()
+RemovedMethod: androidx.wear.watchface.complications.data.TimeDifferenceComplicationText#getTimeDependentText():
+    Removed method androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.getTimeDependentText()
+RemovedMethod: androidx.wear.watchface.complications.data.TimeFormatComplicationText#getTimeDependentText():
+    Removed method androidx.wear.watchface.complications.data.TimeFormatComplicationText.getTimeDependentText()
+
+
 RemovedPackage: androidx.wear.watchface.utility:
     Removed package androidx.wear.watchface.utility

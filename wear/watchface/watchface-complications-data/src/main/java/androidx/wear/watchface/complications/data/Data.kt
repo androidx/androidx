@@ -328,7 +328,6 @@ internal constructor(
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.NO_DATA
@@ -357,7 +356,6 @@ public class EmptyComplicationData :
         return "EmptyComplicationData()"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.EMPTY
@@ -387,7 +385,6 @@ public class NotConfiguredComplicationData :
         return "NotConfiguredComplicationData()"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.NOT_CONFIGURED
@@ -577,7 +574,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.SHORT_TEXT
@@ -761,7 +757,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.LONG_TEXT
@@ -1146,7 +1141,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.RANGED_VALUE
@@ -1476,7 +1470,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.GOAL_PROGRESS
@@ -1926,7 +1919,6 @@ internal constructor(
             "dynamicValueInvalidationFallback=$dynamicValueInvalidationFallback)"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.MONOCHROMATIC_IMAGE
@@ -2046,7 +2038,6 @@ internal constructor(
 
     override fun hasPlaceholderFields() = smallImage.isPlaceholder()
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.SMALL_IMAGE
@@ -2172,7 +2163,6 @@ internal constructor(
 
     override fun hasPlaceholderFields() = photoImage.isPlaceholder()
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.PHOTO_IMAGE
@@ -2299,7 +2289,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.NO_PERMISSION
