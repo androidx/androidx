@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// ktlint-disable indent https://github.com/pinterest/ktlint/issues/967
 // Ignore lint warnings in documentation snippets
 @file:Suppress(
     "unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER",
