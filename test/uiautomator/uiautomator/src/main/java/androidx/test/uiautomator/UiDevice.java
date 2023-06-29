@@ -48,6 +48,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.test.uiautomator.util.Traces;
 import androidx.test.uiautomator.util.Traces.Section;
 
@@ -1115,8 +1116,9 @@ public class UiDevice implements Searchable {
      * @param cmd the command to run
      * @return the standard output of the command
      * @throws IOException
-     * @hide legacy hidden method, kept for compatibility with existing tests.
+     * Legacy hidden method, kept for compatibility with existing tests.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(21)
     @NonNull
     public String executeShellCommand(@NonNull String cmd) throws IOException {

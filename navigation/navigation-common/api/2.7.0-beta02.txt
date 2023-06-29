@@ -128,6 +128,10 @@ package androidx.navigation {
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
+    field public static final androidx.navigation.NavBackStackEntry.Companion Companion;
+  }
+
+  public static final class NavBackStackEntry.Companion {
   }
 
   public final class NavDeepLink {
