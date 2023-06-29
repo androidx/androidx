@@ -19,6 +19,33 @@ package androidx.compose.foundation {
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final float DefaultMarqueeVelocity;
   }
 
+  public final class BasicTooltipDefaults {
+    method public androidx.compose.foundation.MutatorMutex getGlobalMutatorMutex();
+    property public final androidx.compose.foundation.MutatorMutex GlobalMutatorMutex;
+    field public static final androidx.compose.foundation.BasicTooltipDefaults INSTANCE;
+    field public static final long TooltipDuration = 1500L; // 0x5dcL
+  }
+
+  public final class BasicTooltipKt {
+    method @androidx.compose.runtime.Composable public static void BasicTooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.foundation.BasicTooltipState state, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.foundation.BasicTooltipState BasicTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @androidx.compose.runtime.Composable public static androidx.compose.foundation.BasicTooltipState rememberBasicTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+  }
+
+  @androidx.compose.runtime.Stable public interface BasicTooltipState {
+    method public void dismiss();
+    method public boolean isPersistent();
+    method public boolean isVisible();
+    method public void onDispose();
+    method public suspend Object? show(optional androidx.compose.foundation.MutatePriority mutatePriority, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract boolean isPersistent;
+    property public abstract boolean isVisible;
+  }
+
+  public final class BasicTooltip_androidKt {
+    method @androidx.compose.runtime.Composable public static void BasicTooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.foundation.BasicTooltipState state, androidx.compose.ui.Modifier modifier, boolean focusable, boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   public final class BorderKt {
     method public static androidx.compose.ui.Modifier border(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, optional androidx.compose.ui.graphics.Shape shape);
     method public static androidx.compose.ui.Modifier border(androidx.compose.ui.Modifier, float width, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
