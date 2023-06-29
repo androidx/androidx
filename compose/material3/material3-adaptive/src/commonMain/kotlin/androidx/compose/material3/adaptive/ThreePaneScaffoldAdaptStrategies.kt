@@ -27,10 +27,18 @@ package androidx.compose.material3.adaptive
  */
 @ExperimentalMaterial3AdaptiveApi
 class ThreePaneScaffoldAdaptStrategies(
-    val primaryPaneAdaptStrategy: AdaptStrategy,
-    val secondaryPaneAdaptStrategy: AdaptStrategy,
-    val tertiaryPaneAdaptStrategy: AdaptStrategy
+    private val primaryPaneAdaptStrategy: AdaptStrategy,
+    private val secondaryPaneAdaptStrategy: AdaptStrategy,
+    private val tertiaryPaneAdaptStrategy: AdaptStrategy
 ) {
+    operator fun get(role: ThreePaneScaffoldRole): AdaptStrategy {
+        return when (role) {
+            ThreePaneScaffoldRole.Primary -> primaryPaneAdaptStrategy
+            ThreePaneScaffoldRole.Secondary -> secondaryPaneAdaptStrategy
+            ThreePaneScaffoldRole.Tertiary -> tertiaryPaneAdaptStrategy
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldAdaptStrategies) return false
