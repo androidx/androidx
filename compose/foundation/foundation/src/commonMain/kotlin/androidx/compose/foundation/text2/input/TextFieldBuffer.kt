@@ -19,6 +19,7 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.internal.ChangeTracker
+import androidx.compose.foundation.text2.input.internal.PartialGapBuffer
 import androidx.compose.ui.text.TextRange
 
 /**
@@ -56,7 +57,7 @@ class TextFieldBuffer internal constructor(
 ) : CharSequence,
     Appendable {
 
-    private val buffer = StringBuffer(initialValue)
+    private val buffer = PartialGapBuffer(initialValue)
 
     /**
      * Lazily-allocated [ChangeTracker], initialized on the first text change.
@@ -73,7 +74,7 @@ class TextFieldBuffer internal constructor(
     /**
      * The number of codepoints in the text field. This will be equal to or less than [length].
      */
-    val codepointLength: Int get() = buffer.codePointCount(0, length)
+    val codepointLength: Int get() = Character.codePointCount(this, 0, length)
 
     /**
      * The [ChangeList] represents the changes made to this value and is inherently mutable. This
@@ -133,7 +134,7 @@ class TextFieldBuffer internal constructor(
     override fun append(text: CharSequence?): Appendable = apply {
         if (text != null) {
             onTextWillChange(TextRange(length), text.length)
-            buffer.append(text)
+            buffer.replace(buffer.length, buffer.length, text)
         }
     }
 
@@ -141,14 +142,14 @@ class TextFieldBuffer internal constructor(
     override fun append(text: CharSequence?, start: Int, end: Int): Appendable = apply {
         if (text != null) {
             onTextWillChange(TextRange(length), end - start)
-            buffer.append(text, start, end)
+            buffer.replace(buffer.length, buffer.length, text.subSequence(start, end))
         }
     }
 
     // Doc inherited from Appendable.
     override fun append(char: Char): Appendable = apply {
         onTextWillChange(TextRange(length), 1)
-        buffer.append(char)
+        buffer.replace(buffer.length, buffer.length, char.toString())
     }
 
     /**
@@ -204,7 +205,7 @@ class TextFieldBuffer internal constructor(
     override operator fun get(index: Int): Char = buffer[index]
 
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
-        buffer.subSequence(startIndex, endIndex)
+        buffer.toString().subSequence(startIndex, endIndex)
 
     override fun toString(): String = buffer.toString()
 
