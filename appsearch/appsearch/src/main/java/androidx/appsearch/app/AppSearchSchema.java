@@ -16,6 +16,7 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -36,6 +37,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -1181,6 +1183,8 @@ public final class AppSearchSchema {
     public static final class DocumentPropertyConfig extends PropertyConfig {
         private static final String SCHEMA_TYPE_FIELD = "schemaType";
         private static final String INDEX_NESTED_PROPERTIES_FIELD = "indexNestedProperties";
+        private static final String INDEXABLE_NESTED_PROPERTIES_LIST_FIELD =
+                "indexableNestedPropertiesList";
 
         DocumentPropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
@@ -1193,14 +1197,28 @@ public final class AppSearchSchema {
         }
 
         /**
-         * Returns whether fields in the nested document should be indexed according to that
+         * Returns whether properties in the nested document should be indexed according to that
          * document's schema.
          *
          * <p>If false, the nested document's properties are not indexed regardless of its own
          * schema.
+         *
+         * @see DocumentPropertyConfig.Builder#addIndexableNestedProperties(String...) for
+         * indexing a subset of properties from the nested document.
          */
         public boolean shouldIndexNestedProperties() {
             return mBundle.getBoolean(INDEX_NESTED_PROPERTIES_FIELD);
+        }
+
+        /** Returns the list of indexable nested properties for the nested document. */
+        @NonNull
+        public List<String> getIndexableNestedProperties() {
+            List<String> indexableNestedPropertiesList =
+                    mBundle.getStringArrayList(INDEXABLE_NESTED_PROPERTIES_LIST_FIELD);
+            if (indexableNestedPropertiesList == null) {
+                return Collections.emptyList();
+            }
+            return Collections.unmodifiableList(indexableNestedPropertiesList);
         }
 
         /** Builder for {@link DocumentPropertyConfig}. */
@@ -1209,6 +1227,7 @@ public final class AppSearchSchema {
             private final String mSchemaType;
             @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
             private boolean mShouldIndexNestedProperties = false;
+            private final Set<String> mIndexableNestedPropertiesList = new ArraySet<>();
 
             /**
              * Creates a new {@link DocumentPropertyConfig.Builder}.
@@ -1242,11 +1261,14 @@ public final class AppSearchSchema {
             }
 
             /**
-             * Configures whether fields in the nested document should be indexed according to that
-             * document's schema.
+             * Configures whether properties in the nested document should be indexed according to
+             * that document's schema.
              *
              * <p>If false, the nested document's properties are not indexed regardless of its own
              * schema.
+             *
+             * <p>To index a subset of properties from the nested document, set this to false and
+             * use {@link #addIndexableNestedProperties(String...)}.
              */
             @CanIgnoreReturnValue
             @NonNull
@@ -1256,14 +1278,131 @@ public final class AppSearchSchema {
                 return this;
             }
 
-            /** Constructs a new {@link PropertyConfig} from the contents of this builder. */
+            /**
+             * Adds one or more properties for indexing from the nested document. The added property
+             * will be indexed according to that property's indexing configurations in the
+             * document's schema definition. All properties in this list will consume a sectionId
+             * regardless of its actual indexing config -- this includes properties added that
+             * do not actually exist, as well as properties that are not set as indexable in the
+             * nested schema type.
+             *
+             * <p>Input strings should follow the format of the property path for the nested
+             * property, with '.' as the path separator. This nested document's property name
+             * should not be included in the property path.
+             *
+             * <p>Ex. Consider an 'Organization' schema type which defines a nested document
+             * property 'address' (Address schema type), where Address has a nested document
+             * property 'country' (Country schema type with string 'name' property), and a string
+             * 'street' property. The 'street' and 'country's name' properties from the 'address'
+             * document property can be indexed for the 'Organization' schema type by calling:
+             * <pre>{@code
+             * OrganizationSchema.addProperty(
+             *                 new DocumentPropertyConfig.Builder("address", "Address")
+             *                         .addIndexableNestedProperties("street", "country.name")
+             *                         .build()).
+             * }</pre>
+             *
+             * <p>{@link DocumentPropertyConfig.Builder#setShouldIndexNestedProperties} is
+             * required to be false if any indexable nested property is added this way for the
+             * document property. Attempting to build a DocumentPropertyConfig when this is not
+             * true throws {@link IllegalArgumentException}.
+             */
+            @CanIgnoreReturnValue
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedProperties(
+                    @NonNull String... indexableNestedProperties) {
+                Preconditions.checkNotNull(indexableNestedProperties);
+                return addIndexableNestedProperties(Arrays.asList(indexableNestedProperties));
+            }
+
+            /**
+             * Adds one or more property paths for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(String...)
+             */
+            @CanIgnoreReturnValue
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
+                    @NonNull PropertyPath... indexableNestedPropertyPaths) {
+                Preconditions.checkNotNull(indexableNestedPropertyPaths);
+                return addIndexableNestedPropertyPaths(Arrays.asList(indexableNestedPropertyPaths));
+            }
+
+            /**
+             * Adds one or more properties for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(String...)
+             */
+            @CanIgnoreReturnValue
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedProperties(
+                    @NonNull Collection<String> indexableNestedProperties) {
+                Preconditions.checkNotNull(indexableNestedProperties);
+                mIndexableNestedPropertiesList.addAll(indexableNestedProperties);
+                return this;
+            }
+
+            /**
+             * Adds one or more property paths for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(String...)
+             */
+            @CanIgnoreReturnValue
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
+                    @NonNull Collection<PropertyPath> indexableNestedPropertyPaths) {
+                Preconditions.checkNotNull(indexableNestedPropertyPaths);
+                List<PropertyPath> propertyPathList = new ArrayList<>(indexableNestedPropertyPaths);
+                for (int i = 0; i < indexableNestedPropertyPaths.size(); i++) {
+                    mIndexableNestedPropertiesList.add(propertyPathList.get(i).toString());
+                }
+                return this;
+            }
+
+            /**
+             * Constructs a new {@link PropertyConfig} from the contents of this builder.
+             *
+             * @throws IllegalArgumentException if the provided PropertyConfig sets
+             * {@link #shouldIndexNestedProperties()} to true and has one or more properties
+             * defined for {@link #getIndexableNestedProperties()}.
+             */
             @NonNull
             public DocumentPropertyConfig build() {
+                if (mShouldIndexNestedProperties && !mIndexableNestedPropertiesList.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "DocumentIndexingConfig#shouldIndexNestedProperties is required "
+                                    + "to be false when one or more indexableNestedProperties are "
+                                    + "provided.");
+                }
                 Bundle bundle = new Bundle();
                 bundle.putString(NAME_FIELD, mPropertyName);
                 bundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_DOCUMENT);
                 bundle.putInt(CARDINALITY_FIELD, mCardinality);
                 bundle.putBoolean(INDEX_NESTED_PROPERTIES_FIELD, mShouldIndexNestedProperties);
+                bundle.putStringArrayList(INDEXABLE_NESTED_PROPERTIES_LIST_FIELD,
+                        new ArrayList<>(mIndexableNestedPropertiesList));
                 bundle.putString(SCHEMA_TYPE_FIELD, mSchemaType);
                 return new DocumentPropertyConfig(bundle);
             }
@@ -1281,6 +1420,10 @@ public final class AppSearchSchema {
             builder
                     .append("shouldIndexNestedProperties: ")
                     .append(shouldIndexNestedProperties())
+                    .append(",\n");
+
+            builder.append("indexableNestedProperties: ")
+                    .append(getIndexableNestedProperties())
                     .append(",\n");
 
             builder.append("schemaType: \"").append(getSchemaType()).append("\",\n");
