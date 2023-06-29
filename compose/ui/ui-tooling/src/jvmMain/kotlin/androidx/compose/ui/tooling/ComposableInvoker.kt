@@ -30,26 +30,31 @@ import kotlin.math.ceil
 object ComposableInvoker {
 
     /**
-     * Returns true if the [declaredMethodTypes] and [actualTypes] are compatible. This means that every
-     * `actualTypes` are assignable to `methodTypes`.
+     *  Compares the parameter types taken from the composable method and checks if they are all compatible with
+     *  the types taken from the PreviewParameterProvider.
+     *
+     *  @param composableMethodTypes types of the Composable Method
+     *  @param previewParameterTypes types defined in the PreviewParameterProvider
+     *  @return true if every `composableMethodTypes[n]` are equal or assignable to `previewParameterTypes[n]`.
      */
-    private fun isCompatibleTypes(
-        declaredMethodTypes: Array<Class<*>>,
-        actualTypes: Array<Class<*>>
-    ): Boolean = declaredMethodTypes.size == actualTypes.size &&
-        declaredMethodTypes.mapIndexed { index, clazz ->
-            val actualType = actualTypes[index]
-            // We can't use [isAssignableFrom] if we have java primitives.
-            // Java primitives aren't equal to Java classes:
-            // comparing int with kotlin.Int or java.lang.Integer will return false.
-            // However, if we convert them both to a KClass they can be compared:
-            // int and java.lang.Integer will be both converted to Int
-            // see more: https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class)
-            clazz.kotlin == actualType.kotlin || clazz.isAssignableFrom(actualType)
-        }.all { it }
+    private fun areParameterTypesCompatible(
+        composableMethodTypes: Array<Class<*>>,
+        previewParameterTypes: Array<Class<*>>
+    ): Boolean = composableMethodTypes.size == previewParameterTypes.size &&
+            composableMethodTypes.mapIndexed { index, clazz ->
+                val composableParameterType = previewParameterTypes[index]
+                // We can't use [isAssignableFrom] if we have java primitives.
+                // Java primitives aren't equal to Java classes:
+                // comparing int with kotlin.Int or java.lang.Integer will return false.
+                // However, if we convert them both to a KClass they can be compared:
+                // int and java.lang.Integer will be both converted to Int
+                // see more: https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#isAssignableFrom(java.lang.Class)
+                clazz.kotlin == composableParameterType.kotlin ||
+                    clazz.isAssignableFrom(composableParameterType)
+            }.all { it }
 
     /**
-     * Same as [Class#getDeclaredMethod] but it accounts for compatible types so the signature does
+     * Takes the declared methods and accounts for compatible types so the signature does
      * not need to exactly match. This allows finding method calls that use subclasses as parameters
      * instead of the exact types.
      *
@@ -59,16 +64,12 @@ object ComposableInvoker {
     private fun Array<Method>.findCompatibleComposeMethod(
         methodName: String,
         vararg args: Class<*>
-    ): Method = asSequence()
-        .filter {
-            methodName == it.name || it.name.startsWith("$methodName-")
-        }
-        .firstOrNull {
-            // Methods with inlined classes as parameter will have the name mangled
-            // so we need to check for methodName-xxxx as well
-            isCompatibleTypes(it.parameterTypes, arrayOf(*args))
-        }
-        ?: throw NoSuchMethodException("$methodName not found")
+    ): Method = firstOrNull {
+            (methodName == it.name || it.name.startsWith("$methodName-")) &&
+                // Methods with inlined classes as parameter will have the name mangled
+                // so we need to check for methodName-xxxx as well
+                areParameterTypesCompatible(it.parameterTypes, arrayOf(*args))
+        } ?: throw NoSuchMethodException("$methodName not found")
 
     private inline fun <reified T> T.dup(count: Int): Array<T> {
         return (0 until count).map { this }.toTypedArray()
@@ -85,7 +86,7 @@ object ComposableInvoker {
         vararg previewParamArgs: Any?
     ): Method? {
         val argsArray: Array<Class<out Any>> =
-            previewParamArgs.filterNotNull().map { it::class.java }.toTypedArray()
+            previewParamArgs.mapNotNull { it?.javaClass }.toTypedArray()
         return try {
             // without defaults
             val changedParamsCount = changedParamCount(argsArray.size, 0)
