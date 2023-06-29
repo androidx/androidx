@@ -194,21 +194,18 @@ class PrepareGetCredentialResponse private constructor(
         private var hasCredentialResultsDelegate: HasCredentialResultsDelegate? = null
 
         /** Sets the credential type handler. */
-        @VisibleForTesting
         fun setCredentialTypeDelegate(handler: HasCredentialResultsDelegate): TestBuilder {
             this.hasCredentialResultsDelegate = handler
             return this
         }
 
         /** Sets the has authentication results bit. */
-        @VisibleForTesting
         fun setHasAuthResultsDelegate(handler: HasAuthenticationResultsDelegate): TestBuilder {
             this.hasAuthResultsDelegate = handler
             return this
         }
 
         /** Sets the has remote results bit. */
-        @VisibleForTesting
         fun setHasRemoteResultsDelegate(handler: HasRemoteResultsDelegate): TestBuilder {
             this.hasRemoteResultsDelegate = handler
             return this
