@@ -8,9 +8,6 @@
          <key-server uri="https://keyserver.ubuntu.com"/>
       </key-servers>
       <trusted-artifacts>
-         <trust group="ch.qos.logback" name="logback-classic" version="1.2.11" reason="b/234161459"/>
-         <trust group="ch.qos.logback" name="logback-core" version="1.2.11" reason="b/234161459"/>
-         <trust group="ch.qos.logback" name="logback-parent" version="1.2.11" reason="b/234161459"/>
          <trust group="com.google.android.datatransport" reason="b/215442095"/>
          <trust group="com.google.android.gms" reason="b/215442095"/>
          <trust group="com.google.android.material" reason="b/216192082"/>
@@ -19,12 +16,7 @@
          <trust group="com.google.firebase" reason="b/223907608"/>
          <trust group="com.google.mlkit" reason="b/223907608"/>
          <trust group="com.google.testing.platform" reason="b/215430394"/>
-         <trust group="com.pinterest" name="ktlint" version="0.46.0-20220520.192227-74" reason="b/234161459"/>
-         <trust group="com.pinterest.ktlint" version="0.46.0-20220520.192227-74" reason="b/234161459"/>
          <trust group="gradle" name="gradle"/>
-         <trust group="info.picocli" name="picocli" version="4.6.3" reason="b/234161459"/>
-         <trust group="org.slf4j" name="slf4j-api" version="1.7.32" reason="b/234161459"/>
-         <trust group="org.slf4j" name="slf4j-parent" version="1.7.32" reason="b/234161459"/>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*kotlin-native-prebuilt-macos-.*" regex="true" reason="b/228184608"/>
