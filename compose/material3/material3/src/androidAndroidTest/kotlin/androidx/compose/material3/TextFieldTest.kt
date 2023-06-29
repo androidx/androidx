@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -1503,11 +1501,9 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.onGloballyPositioned { size = it.size }) {
                 Row(Modifier.height(IntrinsicSize.Min)) {
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(10.dp)
-                            .onGloballyPositioned { dividerSize = it.size }
+                    VerticalDivider(
+                        thickness = 10.dp,
+                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
                     TextField(
                         value = "",
@@ -1533,11 +1529,9 @@ class TextFieldTest {
             val text = remember { mutableStateOf("") }
             Box {
                 Column(Modifier.width(IntrinsicSize.Min)) {
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                            .onGloballyPositioned { dividerSize = it.size }
+                    HorizontalDivider(
+                        thickness = 10.dp,
+                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
                     TextField(
                         value = text.value,
@@ -1741,7 +1735,7 @@ class TextFieldTest {
                         value = text.value,
                         onValueChange = { text.value = it },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                    VerticalDivider()
                 }
             }
         }
@@ -1768,7 +1762,7 @@ class TextFieldTest {
                         prefix = { Text("P") },
                         suffix = { Text("S") },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                    VerticalDivider()
                 }
             }
         }

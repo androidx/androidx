@@ -1170,7 +1170,7 @@ internal fun DateEntryContainer(
                 }
                 // Display a divider only when there is a title, headline, or a mode toggle.
                 if (title != null || headline != null || modeToggleButton != null) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                 }
             }
         }
@@ -1397,7 +1397,7 @@ private fun DatePickerContent(
                         yearRange = yearRange,
                         colors = colors
                     )
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                 }
             }
         }
