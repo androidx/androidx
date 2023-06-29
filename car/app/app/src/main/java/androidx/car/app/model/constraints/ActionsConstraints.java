@@ -22,6 +22,8 @@ import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -147,11 +149,13 @@ public final class ActionsConstraints {
      *
      * <p>Only buttons with icons and background color are allowed.
      */
+    @SuppressLint("UnsafeOptInUsageError")
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_FAB =
             new ActionsConstraints.Builder()
                     .setMaxActions(1)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .addAllowedActionType(Action.TYPE_COMPOSE_MESSAGE)
                     .setRequireActionIcons(true)
                     .setRequireActionBackgroundColor(true)
                     .setOnClickListenerAllowed(true)
