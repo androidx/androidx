@@ -23,6 +23,10 @@ import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.startup.Initializer
 import androidx.tracing.perfetto.Trace
 
+/**
+ * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific
+ * information (e.g. Composable function names) in a Perfetto SDK trace
+ */
 @OptIn(InternalComposeTracingApi::class)
 class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
