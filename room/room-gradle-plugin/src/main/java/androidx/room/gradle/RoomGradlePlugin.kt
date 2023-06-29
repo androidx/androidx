@@ -274,7 +274,7 @@ class RoomGradlePlugin @Inject constructor(
                 }
             // Validate that if multiple schema files for the same database and version are copied
             // to the same schema directory that they are the same in content (via checksum), as
-            // otherwise it would indicate pre-variant schemas and thus requiring pre-variant
+            // otherwise it would indicate per-variant schemas and thus requiring per-variant
             // schema directories.
             copiedHashes.filterValues { it.size > 1 }.forEach { (schemaDir, hashes) ->
                 val errorMsg = buildString {
