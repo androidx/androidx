@@ -44,7 +44,6 @@ fun runMetalavaWithArgs(
     workerExecutor: WorkerExecutor,
 ) {
     val allArgs = args + listOf(
-        "--no-banner",
         "--hide",
         "HiddenSuperclass", // We allow having a hidden parent class
         "--hide",
