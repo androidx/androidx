@@ -22,6 +22,7 @@ import androidx.datastore.core.okio.OkioSerializer
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
@@ -45,7 +46,7 @@ class PreferencesSerializerTest {
         fileSystem.createDirectories(testFile.path.parent!!)
     }
     fun doTest(test: suspend TestScope.() -> Unit) {
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10000.milliseconds) {
             test(this)
         }
     }

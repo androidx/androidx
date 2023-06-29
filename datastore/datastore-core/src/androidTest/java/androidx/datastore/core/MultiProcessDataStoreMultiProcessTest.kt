@@ -31,6 +31,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -153,7 +154,7 @@ class MultiProcessDataStoreMultiProcessTest {
     fun testSimpleUpdateData_okio() = testSimpleUpdateData_runner(StorageVariant.OKIO)
 
     private fun testSimpleUpdateData_runner(variant: StorageVariant) =
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10000.milliseconds) {
             val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
             val dataStore: DataStore<FooProto> =
                 createDataStore(testData, dataStoreScope, context = dataStoreContext)
@@ -195,7 +196,7 @@ class MultiProcessDataStoreMultiProcessTest {
     fun testConcurrentReadUpdate_okio() = testConcurrentReadUpdate_runner(StorageVariant.OKIO)
 
     private fun testConcurrentReadUpdate_runner(variant: StorageVariant) =
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10000.milliseconds) {
             val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
             val dataStore: DataStore<FooProto> =
                 createDataStore(testData, dataStoreScope, context = dataStoreContext)
@@ -272,7 +273,7 @@ class MultiProcessDataStoreMultiProcessTest {
     fun testInterleavedUpdateData_okio() = testInterleavedUpdateData_runner(StorageVariant.OKIO)
 
     private fun testInterleavedUpdateData_runner(variant: StorageVariant) =
-        runTest(UnconfinedTestDispatcher(), dispatchTimeoutMs = 10000) {
+        runTest(UnconfinedTestDispatcher(), timeout = 10000.milliseconds) {
             val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
             val dataStore: DataStore<FooProto> =
                 createDataStore(testData, dataStoreScope, context = dataStoreContext)
@@ -334,7 +335,7 @@ class MultiProcessDataStoreMultiProcessTest {
         testInterleavedUpdateDataWithLocalRead_runner(StorageVariant.OKIO)
 
     private fun testInterleavedUpdateDataWithLocalRead_runner(variant: StorageVariant) =
-        runTest(UnconfinedTestDispatcher(), dispatchTimeoutMs = 10000) {
+        runTest(UnconfinedTestDispatcher(), timeout = 10000.milliseconds) {
             val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
             val dataStore: DataStore<FooProto> =
                 createDataStore(testData, dataStoreScope, context = dataStoreContext)
@@ -427,7 +428,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
     private fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(
         variant: StorageVariant
-    ) = runTest(dispatchTimeoutMs = 10000) {
+    ) = runTest(timeout = 10000.milliseconds) {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
         val dataStore: DataStore<FooProto> =
             createDataStore(testData, dataStoreScope, context = dataStoreContext)
@@ -492,7 +493,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
     private fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(
         variant: StorageVariant
-    ) = runTest(UnconfinedTestDispatcher(), dispatchTimeoutMs = 10000) {
+    ) = runTest(UnconfinedTestDispatcher(), timeout = 10000.milliseconds) {
         val localScope = TestScope(UnconfinedTestDispatcher() + Job())
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
         val dataStore: DataStore<FooProto> =
@@ -554,7 +555,7 @@ class MultiProcessDataStoreMultiProcessTest {
     fun testReadUpdateCorrupt_okio() = testReadUpdateCorrupt_runner(StorageVariant.OKIO)
 
     private fun testReadUpdateCorrupt_runner(variant: StorageVariant) =
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10000.milliseconds) {
             FileOutputStream(testFile).use {
                 OutputStreamWriter(it).write("garbage")
             }
