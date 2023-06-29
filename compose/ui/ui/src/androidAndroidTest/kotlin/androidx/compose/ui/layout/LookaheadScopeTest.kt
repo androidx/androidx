@@ -2348,7 +2348,7 @@ class LookaheadScopeTest {
             if (enableControlGroup) {
                 Layout(measurePolicy = defaultMeasurePolicy, content = {
                     content(
-                        modifier = Modifier.trackSizeAndPosition(
+                        Modifier.trackSizeAndPosition(
                             controlGroupSizes,
                             controlGroupPositions,
                         )
@@ -2358,7 +2358,7 @@ class LookaheadScopeTest {
                 Layout(measurePolicy = defaultMeasurePolicy, content = {
                     LookaheadScope {
                         content(
-                            modifier = Modifier
+                            Modifier
                                 .trackSizeAndPosition(sizes, positions)
                                 .assertSameSizeAndPosition(this)
                         )
