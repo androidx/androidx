@@ -65,6 +65,10 @@ package androidx.wear.watchface.style {
     ctor public UserStyleFlavors(java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors);
     method public java.util.List<androidx.wear.watchface.style.UserStyleFlavor> getFlavors();
     property public final java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors;
+    field public static final androidx.wear.watchface.style.UserStyleFlavors.Companion Companion;
+  }
+
+  public static final class UserStyleFlavors.Companion {
   }
 
   public final class UserStyleSchema {
@@ -76,6 +80,10 @@ package androidx.wear.watchface.style {
     method @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
     property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> rootUserStyleSettings;
     property @Deprecated public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
+    field public static final androidx.wear.watchface.style.UserStyleSchema.Companion Companion;
+  }
+
+  public static final class UserStyleSchema.Companion {
   }
 
   public abstract sealed class UserStyleSetting {

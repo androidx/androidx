@@ -432,9 +432,8 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
     /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
     public val rootUserStyleSettings by lazy { userStyleSettings.filter { !it.hasParent } }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
             resources: Resources,

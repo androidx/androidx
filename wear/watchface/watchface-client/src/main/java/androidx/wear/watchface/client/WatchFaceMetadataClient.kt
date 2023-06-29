@@ -58,8 +58,6 @@ import kotlinx.coroutines.CompletableDeferred
 public interface WatchFaceMetadataClient : AutoCloseable {
 
     public companion object {
-        /** @hide */
-        private const val TAG = "WatchFaceMetadataClient"
 
         /**
          * Constructs a [WatchFaceMetadataClient] for fetching metadata for the specified watch
@@ -94,12 +92,6 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                 ParserProvider()
             )
         }
-
-        /** @hide */
-        private const val ANDROIDX_WATCHFACE_XML_VERSION = "androidx.wear.watchface.xml_version"
-        /** @hide */
-        private const val ANDROIDX_WATCHFACE_CONTROL_SERVICE =
-            "androidx.wear.watchface.control.WatchFaceControlService"
 
         @Suppress("DEPRECATION") // getServiceInfo
         internal fun isXmlVersionCompatible(
@@ -245,6 +237,11 @@ public interface WatchFaceMetadataClient : AutoCloseable {
      */
     public fun getUserStyleFlavors(): UserStyleFlavors
 }
+
+private const val TAG = "WatchFaceMetadataClient"
+private const val ANDROIDX_WATCHFACE_XML_VERSION = "androidx.wear.watchface.xml_version"
+private const val ANDROIDX_WATCHFACE_CONTROL_SERVICE =
+    "androidx.wear.watchface.control.WatchFaceControlService"
 
 /**
  * Static metadata for a [androidx.wear.watchface.ComplicationSlot].

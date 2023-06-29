@@ -44,6 +44,10 @@ package androidx.wear.watchface.complications {
     method public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeMargins();
     property public final java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
     property public final java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeMargins;
+    field public static final androidx.wear.watchface.complications.ComplicationSlotBounds.Companion Companion;
+  }
+
+  public static final class ComplicationSlotBounds.Companion {
   }
 
   public final class DefaultComplicationDataSourcePolicy {
@@ -67,6 +71,10 @@ package androidx.wear.watchface.complications {
     property public final androidx.wear.watchface.complications.data.ComplicationType? secondaryDataSourceDefaultType;
     property public final int systemDataSourceFallback;
     property public final androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType;
+    field public static final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.Companion Companion;
+  }
+
+  public static final class DefaultComplicationDataSourcePolicy.Companion {
   }
 
   public final class SystemDataSources {

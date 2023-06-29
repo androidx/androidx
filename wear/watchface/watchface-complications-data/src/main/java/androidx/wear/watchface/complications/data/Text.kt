@@ -67,8 +67,7 @@ public interface ComplicationText {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun isPlaceholder(): Boolean = false
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getTimeDependentText(): WireTimeDependentText
 
     /** Converts this value to [WireComplicationText] object used for serialization. */
@@ -111,8 +110,7 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -265,8 +263,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -415,8 +412,7 @@ public class TimeFormatComplicationText internal constructor(delegate: WireCompl
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

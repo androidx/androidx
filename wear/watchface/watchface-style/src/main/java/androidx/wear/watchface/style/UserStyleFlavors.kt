@@ -206,9 +206,8 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
         return flavors.hashCode()
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
             resources: Resources,
