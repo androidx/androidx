@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
@@ -391,6 +392,8 @@ internal class SkiaBasedOwner(
     override fun calculateLocalPosition(positionInWindow: Offset): Offset = positionInWindow
 
     override fun localToScreen(localPosition: Offset): Offset = localPosition
+
+    override fun localToScreen(localTransform: Matrix) {}
 
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 

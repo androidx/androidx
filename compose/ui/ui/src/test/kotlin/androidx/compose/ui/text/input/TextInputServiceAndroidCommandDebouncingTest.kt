@@ -40,8 +40,9 @@ class TextInputServiceAndroidCommandDebouncingTest {
     private val view = mock<View>()
     private val inputMethodManager = TestInputMethodManager()
     private val executor = Executor { runnable -> scope.launch { runnable.run() } }
-    private val service =
-        TextInputServiceAndroid(view, inputMethodManager, inputCommandProcessorExecutor = executor)
+    private val service = TextInputServiceAndroid(
+        view, mock(), inputMethodManager, inputCommandProcessorExecutor = executor
+    )
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher + Job())
 
