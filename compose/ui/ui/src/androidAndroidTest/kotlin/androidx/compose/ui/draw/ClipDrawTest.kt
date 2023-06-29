@@ -17,10 +17,15 @@
 package androidx.compose.ui.draw
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Build
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,9 +49,12 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.padding
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
@@ -55,6 +63,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.waitAndScreenShot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -120,7 +129,9 @@ class ClipDrawTest {
                 Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
                     AtLeastSize(
                         size = 10,
-                        modifier = Modifier.clip(rectShape).fillColor(Color.Cyan)
+                        modifier = Modifier
+                            .clip(rectShape)
+                            .fillColor(Color.Cyan)
                     ) {
                     }
                 }
@@ -141,7 +152,9 @@ class ClipDrawTest {
                 Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
                     AtLeastSize(
                         size = 10,
-                        modifier = Modifier.clipToBounds().fillColor(Color.Cyan)
+                        modifier = Modifier
+                            .clipToBounds()
+                            .fillColor(Color.Cyan)
                     ) {
                     }
                 }
@@ -161,7 +174,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 10,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .padding(10)
                         .clip(rectShape)
                         .fillColor(Color.Cyan)
@@ -189,7 +203,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(shape)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -234,7 +249,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(shape)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -259,7 +275,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(triangleShape)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -295,7 +312,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(concaveShape)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -317,7 +335,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(model.value)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -356,7 +375,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(model.value)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -384,7 +404,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.fillColor(Color.Green)
+                    modifier = Modifier
+                        .fillColor(Color.Green)
                         .clip(model.value)
                         .fillColor(Color.Cyan)
                 ) {}
@@ -427,7 +448,8 @@ class ClipDrawTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30,
-                    modifier = Modifier.background(Color.Green)
+                    modifier = Modifier
+                        .background(Color.Green)
                         .then(clip)
                         .drawBehind(drawCallback)
                 ) {
@@ -456,7 +478,9 @@ class ClipDrawTest {
             activity.setContent {
                 Padding(size = 10, modifier = Modifier.fillColor(Color.Green)) {
                     val modifier = if (model.value) {
-                        Modifier.clip(rectShape).fillColor(Color.Cyan)
+                        Modifier
+                            .clip(rectShape)
+                            .fillColor(Color.Cyan)
                     } else {
                         Modifier
                     }
@@ -499,7 +523,8 @@ class ClipDrawTest {
                 CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
                     AtLeastSize(
                         size = 30,
-                        modifier = Modifier.fillColor(Color.Green)
+                        modifier = Modifier
+                            .fillColor(Color.Green)
                             .clip(shape)
                             .fillColor(Color.Cyan)
                     ) {}
@@ -558,6 +583,59 @@ class ClipDrawTest {
 
         takeScreenShot(30).apply {
             assertRect(Color.Red, size = 30)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun androidView_visibilityGone() {
+        var view: View? = null
+        val viewSize = 50
+        rule.runOnUiThread {
+            activity.setContent {
+                val viewDp = with(LocalDensity.current) { viewSize.toDp() }
+                Box(Modifier.background(Color.White).size(viewDp))
+
+                AndroidView(
+                    modifier = Modifier
+                        .testTag("wrapper")
+                        .drawBehind {
+                            drawRect(Color.Green)
+                            drawLatch.countDown()
+                        },
+                    factory = {
+                        object : View(it) {
+                            val paint = Paint().apply {
+                                color = Color.Red.toArgb()
+                            }
+                            override fun onDraw(canvas: Canvas) {
+                                canvas.drawRect(
+                                    0f,
+                                    0f,
+                                    viewSize.toFloat(),
+                                    viewSize.toFloat(),
+                                    paint
+                                )
+                            }
+                        }
+                    },
+                    update = {
+                        view = it
+                        it.layoutParams = ViewGroup.LayoutParams(viewSize, viewSize)
+                    },
+                )
+            }
+        }
+
+        takeScreenShot(viewSize).apply {
+            assertRect(Color.Red)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThread { view?.visibility = View.GONE }
+
+        takeScreenShot(viewSize).apply {
+            assertRect(Color.White)
         }
     }
 

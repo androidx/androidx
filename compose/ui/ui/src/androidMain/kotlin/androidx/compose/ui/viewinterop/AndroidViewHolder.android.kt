@@ -223,6 +223,11 @@ internal open class AndroidViewHolder(
             )
             return
         }
+        if (view.visibility == GONE) {
+            setMeasuredDimension(0, 0)
+            return
+        }
+
         view.measure(widthMeasureSpec, heightMeasureSpec)
         setMeasuredDimension(view.measuredWidth, view.measuredHeight)
         lastWidthMeasureSpec = widthMeasureSpec
@@ -334,10 +339,12 @@ internal open class AndroidViewHolder(
             .pointerInteropFilter(this)
             .drawBehind {
                 drawIntoCanvas { canvas ->
-                    isDrawing = true
-                    (layoutNode.owner as? AndroidComposeView)
-                        ?.drawAndroidView(this@AndroidViewHolder, canvas.nativeCanvas)
-                    isDrawing = false
+                    if (view.visibility != GONE) {
+                        isDrawing = true
+                        (layoutNode.owner as? AndroidComposeView)
+                            ?.drawAndroidView(this@AndroidViewHolder, canvas.nativeCanvas)
+                        isDrawing = false
+                    }
                 }
             }.onGloballyPositioned {
                 // The global position of this LayoutNode can change with it being replaced. For

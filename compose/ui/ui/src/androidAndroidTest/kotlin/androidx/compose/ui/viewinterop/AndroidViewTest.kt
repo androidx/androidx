@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
@@ -73,6 +74,9 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -1439,10 +1443,15 @@ class AndroidViewTest {
         val columnHeightDp = with(rule.density) { columnHeight.toDp() }
         var viewSize = IntSize.Zero
         rule.setContent {
-            Column(Modifier.height(columnHeightDp).fillMaxWidth()) {
+            Column(
+                Modifier
+                    .height(columnHeightDp)
+                    .fillMaxWidth()) {
                 AndroidView(
                     factory = { View(it) },
-                    modifier = Modifier.weight(1f).onGloballyPositioned { viewSize = it.size }
+                    modifier = Modifier
+                        .weight(1f)
+                        .onGloballyPositioned { viewSize = it.size }
                 )
 
                 Box(Modifier.height(columnHeightDp / 4))
@@ -1452,6 +1461,82 @@ class AndroidViewTest {
         rule.runOnIdle {
             assertEquals(columnHeight * 3 / 4, viewSize.height)
         }
+    }
+
+    @Test
+    fun androidView_visibilityGone() {
+        var view: View? = null
+        var drawCount = 0
+        val viewSizeDp = 50.dp
+        val viewSize = with(rule.density) { viewSizeDp.roundToPx() }
+        rule.setContent {
+            AndroidView(
+                modifier = Modifier
+                    .testTag("wrapper")
+                    .heightIn(max = viewSizeDp),
+                factory = {
+                    object : View(it) {
+                        override fun dispatchDraw(canvas: Canvas) {
+                            drawCount++
+                            super.dispatchDraw(canvas)
+                        }
+                    }
+                },
+                update = {
+                    view = it
+                    it.layoutParams = ViewGroup.LayoutParams(viewSize, WRAP_CONTENT)
+                },
+            )
+        }
+
+        rule.onNodeWithTag("wrapper")
+            .assertHeightIsEqualTo(viewSizeDp)
+
+        rule.runOnUiThread {
+            drawCount = 0
+            view?.visibility = View.GONE
+        }
+
+        rule.onNodeWithTag("wrapper")
+            .assertHeightIsEqualTo(0.dp)
+        assertEquals(0, drawCount)
+    }
+
+    @Test
+    fun androidView_visibilityGone_column() {
+        var view: View? = null
+        val viewSizeDp = 50.dp
+        val viewSize = with(rule.density) { viewSizeDp.roundToPx() }
+        rule.setContent {
+            Column {
+                AndroidView(
+                    modifier = Modifier
+                        .testTag("wrapper")
+                        .heightIn(max = viewSizeDp),
+                    factory = {
+                        View(it)
+                    },
+                    update = {
+                        view = it
+                        it.layoutParams = ViewGroup.LayoutParams(viewSize, WRAP_CONTENT)
+                    },
+                )
+
+                Box(Modifier.size(viewSizeDp).testTag("box"))
+            }
+        }
+
+        rule.onNodeWithTag("box")
+            .assertTopPositionInRootIsEqualTo(viewSizeDp)
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+
+        rule.runOnUiThread {
+            view?.visibility = View.GONE
+        }
+
+        rule.onNodeWithTag("box")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+            .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     @ExperimentalComposeUiApi
