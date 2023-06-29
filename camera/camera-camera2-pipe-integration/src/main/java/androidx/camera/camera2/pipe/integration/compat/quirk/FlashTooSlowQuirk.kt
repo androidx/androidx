@@ -26,10 +26,11 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * Quirks that denotes the device has a slow flash sequence that could result in blurred pictures.
  *
  * QuirkSummary
- * - Bug Id: 211474332
+ * - Bug Id: 211474332, 286190938, 280221967
  * - Description: When capturing still photos in auto flash mode, it needs more than 1 second to
- *   flash and therefore it easily results in blurred pictures.
- * - Device(s): Pixel 3a / Pixel 3a XL
+ *   flash or capture actual photo after flash, and therefore it easily results in blurred or dark
+ *   or overexposed pictures.
+ * - Device(s): Pixel 3a / Pixel 3a XL, all models of Pixel 4 and 5, SM-A320
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -41,6 +42,8 @@ class FlashTooSlowQuirk : UseTorchAsFlashQuirk {
         private val AFFECTED_MODEL_PREFIXES = listOf(
             "PIXEL 3A",
             "PIXEL 3A XL",
+            "PIXEL 4", // includes Pixel 4 XL, 4A, and 4A (5g) too
+            "PIXEL 5", // includes Pixel 5A too
             "SM-A320"
         )
 

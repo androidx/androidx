@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.compat.quirk
+package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.impl.Quirks
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -29,8 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.ShadowCameraCharacteristics
-
-private const val CAMERA_ID_0 = "0"
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
@@ -69,17 +70,29 @@ class FlashTooSlowQuirkTest(
             CameraCharacteristics.LENS_FACING,
             lensFacing
         )
-        val characteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, CAMERA_ID_0)
-        return CameraQuirks.get(CAMERA_ID_0, characteristicsCompat)
+
+        val cameraMetadata = FakeCameraMetadata(
+            characteristics = mapOf(
+                CameraCharacteristics.LENS_FACING to lensFacing
+            )
+        )
+
+        return CameraQuirks(
+            cameraMetadata,
+            StreamConfigurationMapCompat(
+                StreamConfigurationMapBuilder.newBuilder().build(),
+                OutputSizesCorrector(
+                    cameraMetadata,
+                    StreamConfigurationMapBuilder.newBuilder().build()
+                )
+            )
+        ).quirks
     }
 
     @Test
     fun canEnableQuirkCorrectly() {
         // Arrange
         ShadowBuild.setModel(model)
-        ShadowBuild.setManufacturer("Google") // don't care
-        ShadowBuild.setDevice("device") // don't care
 
         // Act
         val cameraQuirks = getCameraQuirks(lensFacing)
