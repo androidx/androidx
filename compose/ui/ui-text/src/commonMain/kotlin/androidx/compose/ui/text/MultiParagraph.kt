@@ -470,7 +470,7 @@ class MultiParagraph(
         }
         return with(paragraphInfoList[paragraphIndex]) {
             if (length == 0) {
-                max(0, startIndex - 1)
+                startLineIndex
             } else {
                 paragraph.getLineForVerticalPosition(
                     vertical.toLocalYPosition()
@@ -488,7 +488,7 @@ class MultiParagraph(
         }
         return with(paragraphInfoList[paragraphIndex]) {
             if (length == 0) {
-                max(0, startIndex - 1)
+                startIndex
             } else {
                 paragraph.getOffsetForPosition(position.toLocal()).toGlobalIndex()
             }
