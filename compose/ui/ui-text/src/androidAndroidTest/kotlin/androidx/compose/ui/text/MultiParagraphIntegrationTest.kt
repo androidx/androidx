@@ -245,6 +245,141 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun getOffsetForPosition_emptyLine() = with(defaultDensity) {
+        val lineLength = 2
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        // each line contains max 2 character
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aa
+        //     <blank line>
+
+        val position = Offset(
+            x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
+            y = fontSizeInPx * 1.5f // center of second line vertically
+        )
+
+        assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
+    }
+
+    @Test
+    fun getOffsetForPosition_emptyLines() = with(defaultDensity) {
+        val lineLength = 2
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), "", ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aa
+        //     <blank line>
+        //     <blank line>
+
+        val position = Offset(
+            x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
+            y = fontSizeInPx * 1.5f // center of second line vertically
+        )
+
+        assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
+    }
+
+    @Test
+    fun getLineForVerticalPosition() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(List(2) { "a".repeat(lineLength) })
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     aaaa
+
+        val lineHeight = fontSizeInPx.toFloat()
+        generateSequence(-0.5f) { it + 0.5f }
+            .takeWhile { it <= 3f }
+            .forEach {
+                val expected = it.toInt().coerceIn(0..1)
+                val actual = paragraph.getLineForVerticalPosition(lineHeight * it)
+                assertWithMessage("paragraph.getLineForVerticalPosition(lineHeight * $it) failed")
+                    .that(actual).isEqualTo(expected)
+            }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_emptyLine() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     <blank line>
+
+        val y = fontSizeInPx * 1.5f // center of second line vertically
+        val actual = paragraph.getLineForVerticalPosition(y)
+        assertThat(actual).isEqualTo(1)
+    }
+
+    @Test
+    fun getLineForVerticalPosition_emptyLines() = with(defaultDensity) {
+        val lineLength = 4
+        val text = createAnnotatedString(mutableListOf("a".repeat(lineLength), "", ""))
+
+        val fontSize = 50.sp
+        val fontSizeInPx = fontSize.roundToPx()
+        val width = lineLength * fontSizeInPx
+
+        val paragraph = simpleMultiParagraph(
+            text = text,
+            fontSize = fontSize,
+            width = width.toFloat()
+        )
+
+        // The text should be rendered as:
+        //     aaaa
+        //     <blank line>
+        //     <blank line>
+
+        val y = fontSizeInPx * 1.5f // center of second line vertically
+        val actual = paragraph.getLineForVerticalPosition(y)
+        assertThat(actual).isEqualTo(1)
+    }
+
+    @Test
     fun getBoundingBox() {
         with(defaultDensity) {
             val lineLength = 2
