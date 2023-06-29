@@ -20,6 +20,7 @@ import android.content.pm.SigningInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +37,11 @@ import org.junit.runner.RunWith
 
      @Test
      fun constructor_success_withOrigin() {
-         CallingAppInfo("name", SigningInfo(), "origin")
+         val origin = "origin"
+         val callingAppInfo = CallingAppInfo("name", SigningInfo(), origin)
+
+         assertThat(callingAppInfo.getOrigin("{\"key\":\"value\"}")).isNull()
+         assertThat(callingAppInfo.origin).isEqualTo(origin)
      }
 
      @Test
@@ -47,5 +52,33 @@ import org.junit.runner.RunWith
         ) {
             CallingAppInfo("", SigningInfo(), "origin")
         }
+     }
+
+     @Test
+     fun getOrigin_emptyPrivilegedAllowlist_throwsException() {
+         val origin = "origin"
+         val callingAppInfo = CallingAppInfo("name", SigningInfo(), origin)
+
+         assertThat(callingAppInfo.origin).isEqualTo(origin)
+         Assert.assertThrows(
+             "Expected exception from emptyPrivilegedAllowList",
+             IllegalArgumentException::class.java
+         ) {
+             callingAppInfo.getOrigin("")
+         }
+     }
+
+     @Test
+     fun getOrigin_invalidJSON_throwsException() {
+         val origin = "origin"
+         val callingAppInfo = CallingAppInfo("name", SigningInfo(), origin)
+
+         assertThat(callingAppInfo.origin).isEqualTo(origin)
+         Assert.assertThrows(
+             "Expected exception from emptyPrivilegedAllowList",
+             IllegalArgumentException::class.java
+         ) {
+             callingAppInfo.getOrigin("invalid_json")
+         }
      }
  }
