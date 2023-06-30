@@ -16,7 +16,7 @@
 
 package androidx.work;
 
-import static androidx.work.WorkInfo.STOP_REASON_UNKNOWN;
+import static androidx.work.WorkInfo.STOP_REASON_NOT_STOPPED;
 
 import android.content.Context;
 import android.net.Network;
@@ -65,8 +65,7 @@ public abstract class ListenableWorker {
     private @NonNull Context mAppContext;
     private @NonNull WorkerParameters mWorkerParams;
 
-    private volatile boolean mStopped;
-    private volatile int mStopReason = STOP_REASON_UNKNOWN;
+    private volatile int mStopReason = STOP_REASON_NOT_STOPPED;
 
     private boolean mUsed;
 
@@ -270,22 +269,19 @@ public abstract class ListenableWorker {
      * @return {@code true} if the work operation has been interrupted
      */
     public final boolean isStopped() {
-        return mStopped;
+        return mStopReason != STOP_REASON_NOT_STOPPED;
     }
 
     /**
      * Returns a reason why this worker has been stopped. Return values match values of
      * {@code JobParameters.STOP_REASON_*} constants, e.g.
-     * {@link android.app.job.JobParameters#STOP_REASON_CONSTRAINT_CHARGING}
+     * {@link android.app.job.JobParameters#STOP_REASON_CONSTRAINT_CHARGING} or
+     * {@link WorkInfo#STOP_REASON_UNKNOWN}
      * <p>
-     * Throws if workers hasn't been stopped ({@link #isStopped()} returns {@code false})
+     * If a worker hasn't been stopped, {@link WorkInfo#STOP_REASON_NOT_STOPPED} is returned.
      */
     @RequiresApi(31)
     public final int getStopReason() {
-        if (!mStopped) {
-            throw new IllegalStateException("getStopReason() can be called only if the "
-                    + "worker is stopped (isStopped() returns true)");
-        }
         return mStopReason;
     }
 
@@ -293,7 +289,6 @@ public abstract class ListenableWorker {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void stop(int reason) {
-        mStopped = true;
         mStopReason = reason;
         onStopped();
     }
