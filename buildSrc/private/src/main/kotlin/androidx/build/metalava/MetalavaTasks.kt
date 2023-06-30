@@ -72,6 +72,7 @@ object MetalavaTasks {
             // using it to validate the generated api
             task.mustRunAfter("updateApiLintBaseline")
         }
+        project.registerVersionMetadataComponent(generateApi)
 
         // Policy: If the artifact has previously been released, e.g. has a beta or later API file
         // checked in, then we must verify "release compatibility" against the work-in-progress
