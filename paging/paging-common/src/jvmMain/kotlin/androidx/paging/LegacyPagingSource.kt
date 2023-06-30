@@ -38,7 +38,7 @@ import kotlinx.coroutines.withContext
 public class LegacyPagingSource<Key : Any, Value : Any>(
     private val fetchContext: CoroutineContext,
     internal val dataSource: DataSource<Key, Value>
-) : PagingSource<Key, Value>() {
+) : PagingSource<Key, Value>(), CompatLegacyPagingSource {
     private var pageSize: Int = PAGE_SIZE_NOT_SET
 
     init {
@@ -54,7 +54,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setPageSize(pageSize: Int) {
+    public override fun setPageSize(pageSize: Int) {
         check(this.pageSize == PAGE_SIZE_NOT_SET || pageSize == this.pageSize) {
             "Page size is already set to ${this.pageSize}."
         }
