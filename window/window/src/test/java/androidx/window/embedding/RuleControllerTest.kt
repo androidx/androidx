@@ -40,6 +40,7 @@ class RuleControllerTest {
         ruleController = RuleController(mockEmbeddingBackend)
 
         mockContext = mock()
+        doReturn(mockContext).whenever(mockContext).applicationContext
     }
 
     @Test
@@ -77,5 +78,20 @@ class RuleControllerTest {
         doReturn(rules).whenever(mockEmbeddingBackend).getRules()
 
         assertEquals(rules, ruleController.getRules())
+    }
+
+    @Test
+    fun testGetInstance() {
+        EmbeddingBackend.overrideDecorator(object : EmbeddingBackendDecorator {
+            override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =
+                mockEmbeddingBackend
+        })
+
+        val controller = RuleController.getInstance(mockContext)
+        controller.clearRules()
+
+        verify(mockEmbeddingBackend).setRules(eq(emptySet()))
+
+        EmbeddingBackend.reset()
     }
 }
