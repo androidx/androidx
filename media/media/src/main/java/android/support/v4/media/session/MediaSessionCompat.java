@@ -89,6 +89,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Allows interaction with media controllers, volume keys, media buttons, and
@@ -3851,6 +3852,7 @@ public class MediaSessionCompat {
     @RequiresApi(21)
     static class MediaSessionImplApi21 implements MediaSessionImpl {
         final MediaSession mSessionFwk;
+        final ExtraSession mExtraSession;
         final Token mToken;
         final Object mLock = new Object();
         Bundle mSessionInfo;
@@ -3877,7 +3879,8 @@ public class MediaSessionCompat {
         MediaSessionImplApi21(Context context, String tag, VersionedParcelable session2Token,
                 Bundle sessionInfo) {
             mSessionFwk = createFwkMediaSession(context, tag, sessionInfo);
-            mToken = new Token(mSessionFwk.getSessionToken(), new ExtraSession(), session2Token);
+            mExtraSession = new ExtraSession(/* mediaSessionImpl= */ this);
+            mToken = new Token(mSessionFwk.getSessionToken(), mExtraSession, session2Token);
             mSessionInfo = sessionInfo;
             // For backward compatibility, these flags are always set.
             setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -3889,7 +3892,8 @@ public class MediaSessionCompat {
                         "mediaSession is not a valid MediaSession object");
             }
             mSessionFwk = (MediaSession) mediaSession;
-            mToken = new Token(mSessionFwk.getSessionToken(), new ExtraSession());
+            mExtraSession = new ExtraSession(/* mediaSessionImpl= */ this);
+            mToken = new Token(mSessionFwk.getSessionToken(), mExtraSession);
             mSessionInfo = null;
             // For backward compatibility, these flags are always set.
             setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -3995,6 +3999,7 @@ public class MediaSessionCompat {
             }
             // Prevent from receiving callbacks from released session.
             mSessionFwk.setCallback(null);
+            mExtraSession.release();
             mSessionFwk.release();
         }
 
@@ -4175,7 +4180,22 @@ public class MediaSessionCompat {
             }
         }
 
-        class ExtraSession extends IMediaSession.Stub {
+        private static class ExtraSession extends IMediaSession.Stub {
+
+            private final AtomicReference<MediaSessionImplApi21> mMediaSessionImplRef;
+
+            ExtraSession(@NonNull MediaSessionImplApi21 mediaSessionImpl) {
+                mMediaSessionImplRef = new AtomicReference<>(mediaSessionImpl);
+            }
+
+            /**
+             * Clears the reference to the containing component in order to enable garbage
+             * collection.
+             */
+            public void release() {
+                mMediaSessionImplRef.set(null);
+            }
+
             @Override
             public void sendCommand(String command, Bundle args, ResultReceiverWrapper cb) {
                 // Will not be called.
@@ -4190,30 +4210,36 @@ public class MediaSessionCompat {
 
             @Override
             public void registerCallbackListener(IMediaControllerCallback cb) {
-                if (mDestroyed) {
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                if (mediaSessionImpl == null) {
                     return;
                 }
                 int callingPid = Binder.getCallingPid();
                 int callingUid = Binder.getCallingUid();
                 RemoteUserInfo info = new RemoteUserInfo(
                         RemoteUserInfo.LEGACY_CONTROLLER, callingPid, callingUid);
-                mExtraControllerCallbacks.register(cb, info);
-                synchronized (mLock) {
-                    if (mRegistrationCallbackHandler != null) {
-                        mRegistrationCallbackHandler.postCallbackRegistered(callingPid, callingUid);
+                mediaSessionImpl.mExtraControllerCallbacks.register(cb, info);
+                synchronized (mediaSessionImpl.mLock) {
+                    if (mediaSessionImpl.mRegistrationCallbackHandler != null) {
+                        mediaSessionImpl.mRegistrationCallbackHandler.postCallbackRegistered(
+                                callingPid, callingUid);
                     }
                 }
             }
 
             @Override
             public void unregisterCallbackListener(IMediaControllerCallback cb) {
-                mExtraControllerCallbacks.unregister(cb);
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                if (mediaSessionImpl == null) {
+                    return;
+                }
+                mediaSessionImpl.mExtraControllerCallbacks.unregister(cb);
 
                 int callingPid = Binder.getCallingPid();
                 int callingUid = Binder.getCallingUid();
-                synchronized (mLock) {
-                    if (mRegistrationCallbackHandler != null) {
-                        mRegistrationCallbackHandler.postCallbackUnregistered(
+                synchronized (mediaSessionImpl.mLock) {
+                    if (mediaSessionImpl.mRegistrationCallbackHandler != null) {
+                        mediaSessionImpl.mRegistrationCallbackHandler.postCallbackUnregistered(
                                 callingPid, callingUid);
                     }
                 }
@@ -4227,7 +4253,10 @@ public class MediaSessionCompat {
 
             @Override
             public Bundle getSessionInfo() {
-                return mSessionInfo == null ? null : new Bundle(mSessionInfo);
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                return mediaSessionImpl.mSessionInfo == null
+                        ? null
+                        : new Bundle(mediaSessionImpl.mSessionInfo);
             }
 
             @Override
@@ -4274,19 +4303,19 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public void prepareFromMediaId(String mediaId, Bundle extras) throws RemoteException {
+            public void prepareFromMediaId(String mediaId, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void prepareFromSearch(String query, Bundle extras) throws RemoteException {
+            public void prepareFromSearch(String query, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void prepareFromUri(Uri uri, Bundle extras) throws RemoteException {
+            public void prepareFromUri(Uri uri, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
@@ -4298,19 +4327,19 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public void playFromMediaId(String mediaId, Bundle extras) throws RemoteException {
+            public void playFromMediaId(String mediaId, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void playFromSearch(String query, Bundle extras) throws RemoteException {
+            public void playFromSearch(String query, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void playFromUri(Uri uri, Bundle extras) throws RemoteException {
+            public void playFromUri(Uri uri, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
@@ -4322,79 +4351,79 @@ public class MediaSessionCompat {
             }
 
             @Override
-            public void pause() throws RemoteException {
+            public void pause() {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void stop() throws RemoteException {
+            public void stop() {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void next() throws RemoteException {
+            public void next() {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void previous() throws RemoteException {
+            public void previous() {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void fastForward() throws RemoteException {
+            public void fastForward() {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void rewind() throws RemoteException {
+            public void rewind() {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void seekTo(long pos) throws RemoteException {
+            public void seekTo(long pos) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void rate(RatingCompat rating) throws RemoteException {
+            public void rate(RatingCompat rating) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void rateWithExtras(RatingCompat rating, Bundle extras) throws RemoteException {
+            public void rateWithExtras(RatingCompat rating, Bundle extras) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void setPlaybackSpeed(float speed) throws RemoteException {
+            public void setPlaybackSpeed(float speed) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void setCaptioningEnabled(boolean enabled) throws RemoteException {
+            public void setCaptioningEnabled(boolean enabled) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void setRepeatMode(int repeatMode) throws RemoteException {
+            public void setRepeatMode(int repeatMode) {
                 // Will not be called.
                 throw new AssertionError();
             }
 
             @Override
-            public void setShuffleModeEnabledRemoved(boolean enabled) throws RemoteException {
+            public void setShuffleModeEnabledRemoved(boolean enabled) {
                 // Do nothing.
             }
 
@@ -4418,7 +4447,13 @@ public class MediaSessionCompat {
 
             @Override
             public PlaybackStateCompat getPlaybackState() {
-                return getStateWithUpdatedPosition(mPlaybackState, mMetadata);
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                if (mediaSessionImpl != null) {
+                    return getStateWithUpdatedPosition(
+                            mediaSessionImpl.mPlaybackState, mediaSessionImpl.mMetadata);
+                } else {
+                    return null;
+                }
             }
 
             @Override
@@ -4466,18 +4501,25 @@ public class MediaSessionCompat {
             @Override
             @RatingCompat.Style
             public int getRatingType() {
-                return mRatingType;
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                return mediaSessionImpl != null
+                        ? mediaSessionImpl.mRatingType
+                        : RatingCompat.RATING_NONE;
             }
 
             @Override
             public boolean isCaptioningEnabled() {
-                return mCaptioningEnabled;
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                return mediaSessionImpl != null && mediaSessionImpl.mCaptioningEnabled;
             }
 
             @Override
             @PlaybackStateCompat.RepeatMode
             public int getRepeatMode() {
-                return mRepeatMode;
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                return mediaSessionImpl != null
+                        ? mediaSessionImpl.mRepeatMode
+                        : PlaybackStateCompat.REPEAT_MODE_INVALID;
             }
 
             @Override
@@ -4488,7 +4530,10 @@ public class MediaSessionCompat {
             @Override
             @PlaybackStateCompat.ShuffleMode
             public int getShuffleMode() {
-                return mShuffleMode;
+                MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
+                return mediaSessionImpl != null
+                        ? mediaSessionImpl.mShuffleMode
+                        : PlaybackStateCompat.SHUFFLE_MODE_INVALID;
             }
 
             @Override
