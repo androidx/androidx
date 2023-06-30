@@ -57,42 +57,6 @@ class GLFrameBufferRenderer internal constructor(
     glRenderer: GLRenderer?
 ) {
 
-    private val surfaceControlProviderCallbacks = object : SurfaceControlProvider.Callback {
-        override fun destroySurfaceControl() {
-            detachTargets(true)
-        }
-
-        override fun onSurfaceControlCreated(
-            surfaceControl: SurfaceControlCompat,
-            width: Int,
-            height: Int,
-            bufferTransformer: BufferTransformer,
-            inverseTransform: Int
-        ) {
-            val frameBufferPool = FrameBufferPool(
-                bufferTransformer.glWidth,
-                bufferTransformer.glHeight,
-                this@GLFrameBufferRenderer.mFormat,
-                mUsage,
-                mMaxBuffers
-            )
-            val renderCallback = createFrameBufferRenderer(
-                surfaceControl,
-                inverseTransform,
-                bufferTransformer,
-                frameBufferPool,
-                callback
-            )
-            mBufferPool = frameBufferPool
-            mSurfaceControl = surfaceControl
-            mRenderTarget = mGLRenderer.createRenderTarget(width, height, renderCallback)
-        }
-
-        override fun requestRender(renderComplete: Runnable?) {
-            drawAsync(renderComplete)
-        }
-    }
-
     /**
      * Builder used to create a [GLFrameBufferRenderer] with various configurations
      */
@@ -122,6 +86,9 @@ class GLFrameBufferRenderer internal constructor(
         /**
          * Creates a new [GLFrameBufferRenderer.Builder] with the provided [SurfaceControlCompat]
          * as the parent [SurfaceControlCompat] for presenting contents to the display.
+         *
+         * It is the responsibility of the caller to release the provided [SurfaceControlCompat]
+         * instance as the [GLFrameBufferRenderer] will consume but not release it.
          *
          * @param parentSurfaceControl Parent [SurfaceControlCompat] instance.
          * @param width Logical width of the buffers to be rendered into. This would correspond to
@@ -273,7 +240,7 @@ class GLFrameBufferRenderer internal constructor(
         }
 
         override fun onEGLContextDestroyed(eglManager: EGLManager) {
-            tearDown(mBufferPool, mSurfaceControl)
+            mBufferPool?.close()
         }
     }
 
@@ -296,8 +263,42 @@ class GLFrameBufferRenderer internal constructor(
             glRenderer
         }
         renderer.registerEGLContextCallback(mContextCallbacks)
-        surfaceControlProvider.createSurfaceControl(surfaceControlProviderCallbacks)
         mGLRenderer = renderer
+        surfaceControlProvider.createSurfaceControl(object : SurfaceControlProvider.Callback {
+            override fun onSurfaceControlDestroyed() {
+                detachTargets(true)
+            }
+
+            override fun onSurfaceControlCreated(
+                surfaceControl: SurfaceControlCompat,
+                width: Int,
+                height: Int,
+                bufferTransformer: BufferTransformer,
+                inverseTransform: Int
+            ) {
+                val frameBufferPool = FrameBufferPool(
+                    bufferTransformer.glWidth,
+                    bufferTransformer.glHeight,
+                    this@GLFrameBufferRenderer.mFormat,
+                    mUsage,
+                    mMaxBuffers
+                )
+                val renderCallback = createFrameBufferRenderer(
+                    surfaceControl,
+                    inverseTransform,
+                    bufferTransformer,
+                    frameBufferPool,
+                    callback
+                )
+                mBufferPool = frameBufferPool
+                mSurfaceControl = surfaceControl
+                mRenderTarget = renderer.createRenderTarget(width, height, renderCallback)
+            }
+
+            override fun requestRender(renderComplete: Runnable?) {
+                drawAsync(renderComplete)
+            }
+        })
     }
 
     /**
@@ -357,6 +358,8 @@ class GLFrameBufferRenderer internal constructor(
     val maxBuffers: Int
         get() = mMaxBuffers
 
+    private var mCurrentFrameBuffer: FrameBuffer? = null
+
     internal fun createFrameBufferRenderer(
         surfaceControl: SurfaceControlCompat,
         inverseTransform: Int,
@@ -370,8 +373,6 @@ class GLFrameBufferRenderer internal constructor(
                 this.width = bufferTransformer.glWidth
                 this.height = bufferTransformer.glHeight
             }
-
-            private var mCurrentFrameBuffer: FrameBuffer? = null
 
             override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
                 val currentFrameBuffer = mCurrentFrameBuffer
@@ -387,28 +388,38 @@ class GLFrameBufferRenderer internal constructor(
             }
 
             override fun onDraw(eglManager: EGLManager) {
-                callback.onDrawFrame(eglManager, bufferInfo, bufferTransformer.transform)
+                val buffer = mCurrentFrameBuffer
+                if (buffer != null && !buffer.isClosed) {
+                    callback.onDrawFrame(eglManager, bufferInfo, bufferTransformer.transform)
+                }
             }
 
             override fun onDrawComplete(
                 frameBuffer: FrameBuffer,
                 syncFenceCompat: SyncFenceCompat?
             ) {
-                val transaction = SurfaceControlCompat.Transaction()
-                    .setVisibility(surfaceControl, true)
-                    .setBuffer(surfaceControl, frameBuffer.hardwareBuffer, syncFenceCompat) {
-                        releaseFence ->
-                        if (mMaxBuffers > 1) {
-                            // Release the previous buffer only if we are not in single buffered
-                            // mode
-                            frameBufferPool.release(frameBuffer, releaseFence)
+                if (surfaceControl.isValid() && !frameBuffer.isClosed) {
+                    val transaction = SurfaceControlCompat.Transaction()
+                        .setVisibility(surfaceControl, true)
+                        .setBuffer(surfaceControl, frameBuffer.hardwareBuffer, syncFenceCompat) {
+                                releaseFence ->
+                            if (mMaxBuffers > 1 || frameBufferPool.isClosed) {
+                                // Release the previous buffer only if we are not in single buffered
+                                // mode
+                                frameBufferPool.release(frameBuffer, releaseFence)
+                            }
                         }
+                    if (inverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                        transaction.setBufferTransform(surfaceControl, inverseTransform)
                     }
-                if (inverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                    transaction.setBufferTransform(surfaceControl, inverseTransform)
+                    callback.onDrawComplete(
+                        surfaceControl,
+                        transaction,
+                        frameBuffer,
+                        syncFenceCompat
+                    )
+                    transaction.commit()
                 }
-                callback.onDrawComplete(surfaceControl, transaction, frameBuffer, syncFenceCompat)
-                transaction.commit()
             }
         },
         mSyncStrategy
@@ -455,9 +466,8 @@ class GLFrameBufferRenderer internal constructor(
     @JvmOverloads
     fun release(cancelPending: Boolean, onReleaseCallback: (() -> Unit)? = null) {
         if (!mIsReleased) {
-            surfaceControlProvider.release()
-
             detachTargets(cancelPending, onReleaseCallback)
+            surfaceControlProvider.release()
 
             mGLRenderer.unregisterEGLContextCallback(mContextCallbacks)
             if (mIsManagingGLRenderer) {
@@ -470,29 +480,14 @@ class GLFrameBufferRenderer internal constructor(
         }
     }
 
-    @WorkerThread
-    internal fun tearDown(
-        frameBufferPool: FrameBufferPool?,
-        surfaceControl: SurfaceControlCompat?
-    ) {
-        frameBufferPool?.close()
-        if (surfaceControl != null) {
-            // Reparent the surface control to remove its contents from the display
-            SurfaceControlCompat.Transaction()
-                .reparent(surfaceControl, null)
-                .commit()
-            surfaceControl.release()
-        }
-    }
-
     internal fun detachTargets(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         val frameBufferPool = mBufferPool
-        val surfaceControl = mSurfaceControl
         val renderTarget = mRenderTarget
         renderTarget?.detach(cancelPending)
 
         mGLRenderer.execute {
-            tearDown(frameBufferPool, surfaceControl)
+            mCurrentFrameBuffer?.let { buffer -> frameBufferPool?.release(buffer) }
+            frameBufferPool?.close()
             onReleaseComplete?.invoke()
         }
         mBufferPool = null
@@ -635,7 +630,7 @@ class GLFrameBufferRenderer internal constructor(
              * Callback invoked when resources associated with the created [SurfaceControlCompat]
              * instance should be destroyed
              */
-            fun destroySurfaceControl()
+            fun onSurfaceControlDestroyed()
 
             /**
              * Callback invoked when the [SurfaceControlCompat] is created. This includes
@@ -672,6 +667,8 @@ class GLFrameBufferRenderer internal constructor(
 
         private val bufferTransformer = BufferTransformer()
 
+        private var mSurfaceControlCallback: SurfaceControlProvider.Callback? = null
+
         override fun createSurfaceControl(callback: SurfaceControlProvider.Callback) {
             val inverse = bufferTransformer.invertBufferTransform(transformHint)
             bufferTransformer.computeTransform(width, height, inverse)
@@ -682,6 +679,7 @@ class GLFrameBufferRenderer internal constructor(
                 bufferTransformer,
                 inverse
             )
+            mSurfaceControlCallback = callback
         }
 
         override fun release() {
@@ -700,13 +698,16 @@ class GLFrameBufferRenderer internal constructor(
     ) : SurfaceControlProvider {
         private val mTransformResolver = BufferTransformHintResolver()
 
+        private var mSurfaceControl: SurfaceControlCompat? = null
         private var mSurfaceHolderCallback: SurfaceHolder.Callback2? = null
+        private var mSurfaceControlCallback: SurfaceControlProvider.Callback? = null
 
         internal fun createSurfaceControl(
             surfaceView: SurfaceView,
             callback: SurfaceControlProvider.Callback
         ) {
-            callback.destroySurfaceControl()
+            destroySurfaceControl(callback)
+
             val width = surfaceView.width
             val height = surfaceView.height
             val transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
@@ -725,6 +726,9 @@ class GLFrameBufferRenderer internal constructor(
                 bufferTransformer,
                 inverse
             )
+
+            mSurfaceControl = surfaceControl
+            mSurfaceControlCallback = callback
         }
 
         override fun createSurfaceControl(callback: SurfaceControlProvider.Callback) {
@@ -744,7 +748,7 @@ class GLFrameBufferRenderer internal constructor(
                     }
 
                     override fun surfaceDestroyed(p0: SurfaceHolder) {
-                        callback.destroySurfaceControl()
+                        destroySurfaceControl(callback)
                     }
 
                     override fun surfaceRedrawNeeded(p0: SurfaceHolder) {
@@ -769,7 +773,25 @@ class GLFrameBufferRenderer internal constructor(
             }
         }
 
+        fun destroySurfaceControl(callback: SurfaceControlProvider.Callback) {
+            callback.onSurfaceControlDestroyed()
+            releaseSurfaceControl()
+        }
+
+        private fun releaseSurfaceControl() {
+            mSurfaceControl?.let { surfaceControl ->
+                if (surfaceControl.isValid()) {
+                    SurfaceControlCompat.Transaction()
+                        .reparent(surfaceControl, null)
+                        .commit()
+                    surfaceControl.release()
+                }
+                mSurfaceControl = null
+            }
+        }
+
         override fun release() {
+            releaseSurfaceControl()
             surfaceView?.holder?.removeCallback(mSurfaceHolderCallback)
             surfaceView = null
         }
