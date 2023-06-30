@@ -79,17 +79,12 @@ class StopReasonTest {
     }
 
     @Test
-    fun testGetStopReasonThrowsWhileRunning() = runBlocking {
+    fun testGetStopReasonWhileRunning() = runBlocking {
         val request = OneTimeWorkRequest.Builder(CompletableWorker::class.java).build()
         workManager.enqueue(request)
         val worker = workerFactory.await(request.id)
         workManager.getWorkInfoByIdFlow(request.id).first { it.state == WorkInfo.State.RUNNING }
-        try {
-            worker.stopReason
-            throw AssertionError()
-        } catch (e: IllegalStateException) {
-            // it is expected to happen
-        }
+        assertThat(worker.stopReason).isEqualTo(WorkInfo.STOP_REASON_NOT_STOPPED)
     }
 
     @Test
