@@ -235,6 +235,12 @@ object BuildCompat {
     @PrereleaseSdkCheck
     @JvmStatic
     @ChecksSdkIntAtLeast(api = 34, codename = "UpsideDownCake")
+    @Deprecated(
+        message = "Android UpsideDownCase is a finalized release and this method is no longer " +
+            "necessary. It will be removed in a future release of this library. Instead, use " +
+            "`Build.VERSION.SDK_INT >= 34`.",
+        ReplaceWith("android.os.Build.VERSION.SDK_INT >= 34")
+    )
     fun isAtLeastU(): Boolean =
         Build.VERSION.SDK_INT >= 34 || (Build.VERSION.SDK_INT >= 33 && isAtLeastPreReleaseCodename(
             "UpsideDownCake",
