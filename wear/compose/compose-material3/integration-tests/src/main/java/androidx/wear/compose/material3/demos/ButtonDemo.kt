@@ -23,14 +23,13 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonSample
@@ -49,10 +48,9 @@ fun ButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(
-                text = "1 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("1 slot button")
+            }
         }
         item {
             SimpleButtonSample()
@@ -65,10 +63,9 @@ fun ButtonDemo() {
             )
         }
         item {
-            Text(
-                text = "3 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("3 slot button")
+            }
         }
         item {
             ButtonSample()
@@ -98,10 +95,9 @@ fun FilledTonalButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(
-                text = "1 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("1 slot button")
+            }
         }
         item {
             SimpleFilledTonalButtonSample()
@@ -114,10 +110,9 @@ fun FilledTonalButtonDemo() {
             )
         }
         item {
-            Text(
-                text = "3 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("3 slot button")
+            }
         }
         item {
             FilledTonalButtonSample()
@@ -147,10 +142,9 @@ fun OutlinedButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(
-                text = "1 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("1 slot button")
+            }
         }
         item {
             SimpleOutlinedButtonSample()
@@ -163,10 +157,9 @@ fun OutlinedButtonDemo() {
             )
         }
         item {
-            Text(
-                text = "3 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("3 slot button")
+            }
         }
         item {
             OutlinedButtonSample()
@@ -196,10 +189,9 @@ fun ChildButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text(
-                text = "1 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("1 slot button")
+            }
         }
         item {
             SimpleChildButtonSample()
@@ -212,10 +204,9 @@ fun ChildButtonDemo() {
             )
         }
         item {
-            Text(
-                text = "3 slot button",
-                modifier = Modifier.semantics { heading() }
-            )
+            ListHeader {
+                Text("3 slot button")
+            }
         }
         item {
             ChildButtonSample()

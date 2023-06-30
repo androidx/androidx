@@ -42,6 +42,7 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.InlineSlider
 import androidx.wear.compose.material3.InlineSliderColors
 import androidx.wear.compose.material3.InlineSliderDefaults
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.InlineSliderSample
 import androidx.wear.compose.material3.samples.InlineSliderSegmentedSample
@@ -97,7 +98,11 @@ fun InlineSliderDemo(segmented: Boolean = false) {
         modifier = Modifier.fillMaxSize(),
         autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
-        item { Text("Enabled Slider, value = $enabledValue") }
+        item {
+            ListHeader {
+                Text("Enabled Slider, value = $enabledValue")
+            }
+        }
         item {
             DefaultInlineSlider(
                 value = enabledValue,
@@ -108,7 +113,11 @@ fun InlineSliderDemo(segmented: Boolean = false) {
                 onValueChange = { enabledValue = it }
             )
         }
-        item { Text("Disabled Slider, value = $disabledValue") }
+        item {
+            ListHeader {
+                Text("Disabled Slider, value = $disabledValue")
+            }
+        }
         item {
             DefaultInlineSlider(
                 value = disabledValue,
@@ -136,7 +145,11 @@ fun InlineSliderWithIntegersDemo() {
         modifier = Modifier.fillMaxSize(),
         autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
-        item { Text("No segments, value = $valueWithoutSegments") }
+        item {
+            ListHeader {
+                Text("No segments, value = $valueWithoutSegments")
+            }
+        }
         item {
             DefaultInlineSlider(
                 value = valueWithoutSegments,
@@ -144,7 +157,11 @@ fun InlineSliderWithIntegersDemo() {
                 segmented = false,
                 onValueChange = { valueWithoutSegments = it })
         }
-        item { Text("With segments, value = $valueWithSegments") }
+        item {
+            ListHeader {
+                Text("With segments, value = $valueWithSegments")
+            }
+        }
         item {
             DefaultInlineSlider(
                 value = valueWithSegments,
