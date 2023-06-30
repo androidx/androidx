@@ -41,7 +41,6 @@ public fun <T : Any, R : Any> PagingData<T>.map(
     transform: suspend (T) -> R
 ): PagingData<R> = transform { it.map(transform) }
 
-
 /**
  * Returns a [PagingData] of all elements returned from applying the given [transform]
  * to each element, as it is loaded.
