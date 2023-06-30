@@ -16,13 +16,8 @@
 
 package androidx.core.performance
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @JvmDefaultWithCompatibility
@@ -85,14 +80,7 @@ interface DevicePerformanceSupplier {
 private class DefaultDevicePerformanceImpl(
     val devicePerformanceSupplier: DevicePerformanceSupplier
 ) : DevicePerformance {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val logTag = "DefaultDevicePerformanceImpl"
-
-    init {
-        scope.launch {
-            devicePerformanceSupplier.mediaPerformanceClassFlow.first()
-        }
-    }
 
     override val mediaPerformanceClass by lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
         runBlocking {
