@@ -95,17 +95,19 @@ class FrameBuffer(
      * when the frame buffer is no longer needed or being accessed.
      */
     override fun close() {
-        buffer[0] = frameBuffer
-        GLES20.glDeleteBuffers(1, buffer, 0)
-        frameBuffer = -1
+        if (!isClosed) {
+            buffer[0] = frameBuffer
+            GLES20.glDeleteBuffers(1, buffer, 0)
+            frameBuffer = -1
 
-        buffer[0] = texture
-        GLES20.glDeleteTextures(1, buffer, 0)
-        texture = -1
+            buffer[0] = texture
+            GLES20.glDeleteTextures(1, buffer, 0)
+            texture = -1
 
-        eglImage?.let { egl.eglDestroyImageKHR(it) }
-        eglImage = null
-        hardwareBuffer.close()
-        isClosed = true
+            eglImage?.let { egl.eglDestroyImageKHR(it) }
+            eglImage = null
+            hardwareBuffer.close()
+            isClosed = true
+        }
     }
 }

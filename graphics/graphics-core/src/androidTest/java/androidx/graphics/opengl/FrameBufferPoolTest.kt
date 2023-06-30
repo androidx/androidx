@@ -78,6 +78,33 @@ internal class FrameBufferPoolTest {
     }
 
     @Test
+    fun testReleaseAlreadyReleasedFrameBuffer() {
+        withEGLSpec { egl ->
+            val pool = createPool()
+            val fb1 = pool.obtain(egl)
+            val fb2 = pool.obtain(egl)
+            pool.release(fb1)
+            pool.release(fb1) // This should be ignored as it is already released
+            pool.close()
+            pool.release(fb2)
+        }
+    }
+
+    @Test
+    fun testReleaseAlreadyClosedFrameBuffer() {
+        withEGLSpec { egl ->
+            val pool = createPool()
+            val fb = pool.obtain(egl)
+            assertEquals(1, pool.allocationCount)
+            pool.release(fb)
+            pool.close()
+            pool.release(fb)
+            // releasing already closed buffer should reduce the allocation count
+            assertEquals(0, pool.allocationCount)
+        }
+    }
+
+    @Test
     fun testAllocationAtMaxPoolSizeBlocks() {
         withEGLSpec { egl ->
             val poolSize = 2
@@ -111,6 +138,28 @@ internal class FrameBufferPoolTest {
             pool.release(b1, SyncStrategy.ALWAYS.createSyncFence(egl))
             assertTrue(latch.await(3, TimeUnit.SECONDS))
             assertTrue(b1 === b3)
+        }
+    }
+
+    @Test
+    fun testReleaseCloseBufferAtMaxPoolSizeUnblocks() {
+        withEGLSpec { egl ->
+            val poolSize = 2
+            val latch = CountDownLatch(1)
+            val pool = createPool(maxPoolSize = poolSize)
+            val b1 = pool.obtain(egl)
+            pool.obtain(egl)
+            var b3: FrameBuffer? = null
+            thread {
+                b3 = pool.obtain(egl)
+                latch.countDown()
+            }
+            b1.close()
+            pool.release(b1, SyncStrategy.ALWAYS.createSyncFence(egl))
+            assertTrue(latch.await(3, TimeUnit.SECONDS))
+            // Because b1 was closed before releasing, the pool should allocate a new
+            // buffer for b3 instead of reusing b1
+            assertTrue(b1 !== b3)
         }
     }
 

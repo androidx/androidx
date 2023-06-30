@@ -77,6 +77,14 @@ internal class FrameBufferPool(
     }
 
     /**
+     * Return the current pool allocation size. This will increase until the [maxPoolSize].
+     * This count will decrease if a buffer is closed before it is returned to the pool as a
+     * closed buffer is no longer re-usable
+     */
+    val allocationCount: Int
+        get() = mPool.size
+
+    /**
      * Obtains a [FrameBuffer] instance. This will either return a [FrameBuffer] if one is
      * available within the pool, or creates a new [FrameBuffer] instance if the number of
      * outstanding [FrameBuffer] instances is less than [maxPoolSize]
@@ -99,7 +107,10 @@ internal class FrameBufferPool(
             return if (entry != null) {
                 mBuffersAvailable--
                 entry.isAvailable = false
-                entry.fence?.awaitForever()
+                entry.fence?.let { fence ->
+                    fence.awaitForever()
+                    fence.close()
+                }
                 entry.frameBuffer
             } else {
                 FrameBuffer(
@@ -128,25 +139,45 @@ internal class FrameBufferPool(
         mLock.withLock {
             val entry = mPool.find { entry -> entry.frameBuffer === frameBuffer }
             if (entry != null) {
-                entry.fence = fence
-                entry.isAvailable = true
-                mBuffersAvailable++
-            } else {
+                // Only mark the entry as available if it was previously allocated
+                // This protects against the potential for the same buffer to be released
+                // multiple times into the same pool
+                if (!entry.isAvailable) {
+                    if (!entry.frameBuffer.isClosed) {
+                        entry.fence = fence
+                        entry.isAvailable = true
+                        mBuffersAvailable++
+                    } else {
+                        // The consumer closed the buffer before releasing it to the pool.
+                        // In this case remove the entry to allocate new buffers when requested.
+                        // Because framebuffer instances can be managed by applications, we should
+                        // defend against this potential scenario.
+                        mPool.remove(entry)
+                    }
+                }
+
+                if (!mIsClosed) {
+                    mCondition.signal()
+                } else {
+                    // If a buffer is attempted to be released after the pool is closed
+                    // just remove it from the entries and release it
+                    frameBuffer.close()
+                    if (mBuffersAvailable == mPool.size) {
+                        mPool.clear()
+                    }
+                }
+            } else if (!frameBuffer.isClosed) {
+                // If the FrameBuffer is not previously closed and we don't own this, flag this as
+                // an error as most likely this buffer was attempted to be returned to the wrong
+                // pool
                 throw IllegalArgumentException("No entry associated with this framebuffer " +
                     "instance. Was this frame buffer created from a different FrameBufferPool?")
             }
-            if (!mIsClosed) {
-                mCondition.signal()
-            } else {
-                // If a buffer is attempted to be released after the pool is closed
-                // just remove it from the entries and release it
-                frameBuffer.close()
-                if (mBuffersAvailable == mPool.size) {
-                    mPool.clear()
-                }
-            }
         }
     }
+
+    val isClosed: Boolean
+        get() = mLock.withLock { mIsClosed }
 
     /**
      * Invokes [FrameBuffer.close] on all [FrameBuffer] instances currently available within
@@ -159,6 +190,10 @@ internal class FrameBufferPool(
                 for (entry in mPool) {
                     val frameBuffer = entry.frameBuffer
                     if (entry.isAvailable) {
+                        entry.fence?.let { fence ->
+                            fence.awaitForever()
+                            fence.close()
+                        }
                         frameBuffer.close()
                     }
                 }
