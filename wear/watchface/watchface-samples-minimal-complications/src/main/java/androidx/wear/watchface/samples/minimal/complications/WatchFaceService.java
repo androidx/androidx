@@ -29,7 +29,7 @@ import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.ListenableWatchFaceService;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
-import androidx.wear.watchface.WatchFaceTypes;
+import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity;
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity;
@@ -64,7 +64,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
                         watchState,
                         complicationSlotsManager);
         return Futures.immediateFuture(
-                new WatchFace(WatchFaceTypes.DIGITAL, renderer)
+                new WatchFace(WatchFaceType.DIGITAL, renderer)
                         .setComplicationDeniedDialogIntent(
                                 new Intent(this, ComplicationDeniedActivity.class))
                         .setComplicationRationaleDialogIntent(

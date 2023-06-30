@@ -63,7 +63,7 @@ internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             object :
                 ListenableGlesRenderer2<TestSharedAssets>(
                     surfaceHolder,

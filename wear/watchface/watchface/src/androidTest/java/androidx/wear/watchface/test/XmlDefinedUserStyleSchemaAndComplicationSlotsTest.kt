@@ -30,15 +30,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.CanvasComplicationFactory
-import androidx.wear.watchface.CanvasTypes
-import androidx.wear.watchface.ComplicationSlotBoundsTypes
+import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ComplicationSlotInflationFactory
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceTypes
+import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -132,14 +132,14 @@ class TestXmlWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasTypes.HARDWARE,
+                    CanvasType.HARDWARE,
                     16L
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
@@ -245,7 +245,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(watchFaceImpl.complicationSlotsManager.complicationSlots.size).isEqualTo(5)
 
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
-            assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
             assertThat(slotA.supportedTypes)
                 .containsExactly(
                     ComplicationType.RANGED_VALUE,
@@ -271,7 +271,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                 .isEqualTo(R.string.complication_screen_reader_name_one)
 
             val slotB = watchFaceImpl.complicationSlotsManager.complicationSlots[20]!!
-            assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsTypes.BACKGROUND)
+            assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
             assertThat(slotB.supportedTypes)
                 .containsExactly(ComplicationType.LONG_TEXT, ComplicationType.SHORT_TEXT)
                 .inOrder()

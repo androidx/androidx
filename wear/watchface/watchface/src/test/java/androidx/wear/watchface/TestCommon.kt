@@ -44,7 +44,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 internal class TestWatchFaceService(
-    @WatchFaceType private val watchFaceType: Int,
+    @WatchFaceTypeIntDef private val watchFaceType: Int,
     private val complicationSlots: List<ComplicationSlot>,
     private val rendererFactory:
         suspend (
@@ -249,7 +249,7 @@ public open class TestRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
-        CanvasTypes.HARDWARE,
+        CanvasType.HARDWARE,
         interactiveFrameRateMs
     ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null

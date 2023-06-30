@@ -23,44 +23,11 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import java.time.Instant
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@IntDef(value = [TapTypes.DOWN, TapTypes.UP, TapTypes.CANCEL])
-public annotation class TapType {
-    // This companion object is retained for backwards compatibility, but ideally it shouldn't
-    // exist.
-    public companion object {
-        /**
-         * Used to indicate a "down" touch event on the watch face.
-         *
-         * The watch face will receive an [UP] or a [CANCEL] event to follow this event, to indicate
-         * whether this down event corresponds to a tap gesture to be handled by the watch face, or
-         * a different type of gesture that is handled by the system, respectively.
-         */
-        public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
-
-        /**
-         * Used in to indicate that a previous [TapType.DOWN] touch event has been canceled. This
-         * generally happens when the watch face is touched but then a move or long press occurs.
-         *
-         * The watch face should not trigger any action, as the system is already processing the
-         * gesture.
-         */
-        public const val CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
-
-        /**
-         * Used to indicate that an "up" event on the watch face has occurred that has not been
-         * consumed by the system. A [TapType.DOWN] will always occur first. This event will not be
-         * sent if a [TapType.CANCEL] is sent.
-         *
-         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed to
-         * be close enough to be considered a tap according to the value returned by
-         * [android.view.ViewConfiguration.getScaledTouchSlop].
-         */
-        public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP
-    }
-}
+@IntDef(value = [TapType.DOWN, TapType.UP, TapType.CANCEL])
+public annotation class TapTypeIntDef
 
 /** The types of tap events the system can forward to the watch face. */
-public object TapTypes {
+public object TapType {
     /**
      * Used to indicate a "down" touch event on the watch face.
      *
@@ -71,7 +38,7 @@ public object TapTypes {
     public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
 
     /**
-     * Used in to indicate that a previous [TapTypes.DOWN] touch event has been canceled. This
+     * Used in to indicate that a previous [TapType.DOWN] touch event has been canceled. This
      * generally happens when the watch face is touched but then a move or long press occurs.
      *
      * The watch face should not trigger any action, as the system is already processing the
@@ -81,10 +48,10 @@ public object TapTypes {
 
     /**
      * Used to indicate that an "up" event on the watch face has occurred that has not been
-     * consumed by the system. A [TapTypes.DOWN] will always occur first. This event will not be
-     * sent if a [TapTypes.CANCEL] is sent.
+     * consumed by the system. A [TapType.DOWN] will always occur first. This event will not be
+     * sent if a [TapType.CANCEL] is sent.
      *
-     * Therefore, a [TapTypes.DOWN] event and the successive [TapTypes.UP] event are guaranteed to
+     * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed to
      * be close enough to be considered a tap according to the value returned by
      * [android.view.ViewConfiguration.getScaledTouchSlop].
      */

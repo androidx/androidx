@@ -30,7 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Px;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.FlowLiveDataConversions;
-import androidx.wear.watchface.CanvasTypes;
+import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.DrawMode;
 import androidx.wear.watchface.ListenableCanvasRenderer;
 import androidx.wear.watchface.RenderParameters;
@@ -77,7 +77,7 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
                 surfaceHolder,
                 currentUserStyleRepository,
                 watchState,
-                CanvasTypes.HARDWARE,
+                CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mInstanceIdRenderer = new InstanceIdRenderer(watchState);
         mMinimalRenderer = new MinimalRenderer(watchState, mInstanceIdRenderer);

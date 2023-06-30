@@ -478,7 +478,7 @@ public class WatchFaceServiceTest {
     }
 
     private fun initEngine(
-        @WatchFaceType watchFaceType: Int,
+        @WatchFaceTypeIntDef watchFaceType: Int,
         complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         apiVersion: Int = 2,
@@ -599,7 +599,7 @@ public class WatchFaceServiceTest {
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
-        @WatchFaceType watchFaceType: Int = WatchFaceTypes.ANALOG,
+        @WatchFaceTypeIntDef watchFaceType: Int = WatchFaceType.ANALOG,
         complicationSlots: List<ComplicationSlot> = emptyList(),
         userStyleSchema: UserStyleSchema = UserStyleSchema(emptyList()),
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams =
@@ -776,7 +776,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun maybeUpdateDrawMode_setsCorrectDrawMode() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -832,7 +832,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onDraw_zonedDateTime_setFromSystemTime() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -847,7 +847,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onDraw_zonedDateTime_affectedCorrectly_with2xMockTime() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -878,7 +878,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onDraw_zonedDateTime_affectedCorrectly_withMockTimeWrapping() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -928,22 +928,22 @@ public class WatchFaceServiceTest {
     private fun tapAt(x: Int, y: Int) {
         // The eventTime is ignored.
         watchFaceImpl.onTapCommand(
-            TapTypes.DOWN,
+            TapType.DOWN,
             TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
         )
         watchFaceImpl.onTapCommand(
-            TapTypes.UP,
+            TapType.UP,
             TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
         )
     }
 
     private fun tapCancelAt(x: Int, y: Int) {
         watchFaceImpl.onTapCommand(
-            TapTypes.DOWN,
+            TapType.DOWN,
             TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
         )
         watchFaceImpl.onTapCommand(
-            TapTypes.CANCEL,
+            TapType.CANCEL,
             TapEvent(x, y, Instant.ofEpochMilli(looperTimeMillis))
         )
     }
@@ -952,7 +952,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun singleTaps_correctlyDetected() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -999,7 +999,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeBounds_does_not_mutate_it() {
-        initEngine(WatchFaceTypes.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         val leftComplication = complicationSlotsManager[LEFT_COMPLICATION_ID]!!
         val oldLeftBounds =
@@ -1021,7 +1021,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun singleTaps_inMargins_correctlyDetected() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1133,7 +1133,7 @@ public class WatchFaceServiceTest {
                 .build()
 
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(complication100, complication80, complication90),
             UserStyleSchema(emptyList())
         )
@@ -1145,7 +1145,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun singleTaps_onDifferentComplications() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1172,7 +1172,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun tapCancel_after_tapDown_CancelsTap() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1187,7 +1187,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun edgeComplication_tap() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(edgeComplication),
             UserStyleSchema(emptyList()),
             tapListener = tapListener
@@ -1219,7 +1219,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun edgeComplicationWithBoundingArc_tap() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(edgeComplicationWithBoundingArc),
             UserStyleSchema(emptyList()),
             tapListener = tapListener
@@ -1255,7 +1255,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun tapListener_tap() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             tapListener = tapListener
@@ -1265,16 +1265,16 @@ public class WatchFaceServiceTest {
         tapAt(1, 1)
 
         verify(tapListener)
-            .onTapEvent(TapTypes.DOWN, TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)), null)
+            .onTapEvent(TapType.DOWN, TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)), null)
         verify(tapListener)
-            .onTapEvent(TapTypes.UP, TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)), null)
+            .onTapEvent(TapType.UP, TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)), null)
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun tapListener_tap_viaWallpaperCommand() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             tapListener = tapListener
@@ -1311,13 +1311,13 @@ public class WatchFaceServiceTest {
 
         verify(tapListener)
             .onTapEvent(
-                TapTypes.DOWN,
+                TapType.DOWN,
                 TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
                 null
             )
         verify(tapListener)
             .onTapEvent(
-                TapTypes.UP,
+                TapType.UP,
                 TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
                 null
             )
@@ -1327,7 +1327,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun tapListener_tapComplication() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             tapListener = tapListener
@@ -1338,13 +1338,13 @@ public class WatchFaceServiceTest {
 
         verify(tapListener)
             .onTapEvent(
-                TapTypes.DOWN,
+                TapType.DOWN,
                 TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
                 rightComplication
             )
         verify(tapListener)
             .onTapEvent(
-                TapTypes.UP,
+                TapType.UP,
                 TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
                 rightComplication
             )
@@ -1354,7 +1354,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun interactiveFrameRate_reducedWhenBatteryLow() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1381,7 +1381,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun interactiveFrameRate_restoreWhenPowerConnectedAfterBatteryLow() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1408,7 +1408,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_accountsForSlowDraw() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1427,7 +1427,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_verySlowDraw() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1447,7 +1447,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_beginFrameTimeInTheFuture() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1469,7 +1469,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_1000ms_update_atTopOfSecond() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1492,7 +1492,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_frame_scheduled_at_near_perfect_time() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1515,7 +1515,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_60000ms_update_atTopOfMinute() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1538,7 +1538,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun computeDelayTillNextFrame_60000ms_update_with_stopwatchComplication() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1581,7 +1581,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationSlotsManager_getNextChangeInstant() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1644,7 +1644,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun getComplicationSlotIdAt_returnsCorrectComplications() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1663,7 +1663,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun getBackgroundComplicationSlotId_returnsNull() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -1677,7 +1677,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun getBackgroundComplicationSlotId_returnsCorrectId() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, backgroundComplication),
             UserStyleSchema(emptyList())
         )
@@ -1691,7 +1691,7 @@ public class WatchFaceServiceTest {
         // The style should get persisted in a file because this test is set up using the legacy
         // Wear 2.0 APIs.
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             2
@@ -1713,7 +1713,7 @@ public class WatchFaceServiceTest {
 
         val service2 =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -1750,7 +1750,7 @@ public class WatchFaceServiceTest {
     @RequiresApi(Build.VERSION_CODES.R)
     public fun onApplyWindowInsetsRAndAbove_setsChinHeight() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -1775,7 +1775,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun initWallpaperInteractiveWatchFaceInstanceWithUserStyle() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -1806,7 +1806,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun initWallpaperInteractiveWatchFaceInstanceWithUserStyleThatDoesntMatchSchema() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -1827,7 +1827,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun wear2ImmutablePropertiesSetCorrectly() {
-        initEngine(WatchFaceTypes.ANALOG, emptyList(), UserStyleSchema(emptyList()), 2, true, false)
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()), 2, true, false)
 
         assertTrue(watchState.hasLowBitAmbient)
         assertFalse(watchState.hasBurnInProtection)
@@ -1836,7 +1836,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun wear2ImmutablePropertiesSetCorrectly2() {
-        initEngine(WatchFaceTypes.ANALOG, emptyList(), UserStyleSchema(emptyList()), 2, false, true)
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()), 2, false, true)
 
         assertFalse(watchState.hasLowBitAmbient)
         assertTrue(watchState.hasBurnInProtection)
@@ -1846,7 +1846,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun wallpaperInteractiveWatchFaceImmutablePropertiesSetCorrectly() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -1869,7 +1869,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun invalidOldStyleIdReplacedWithDefault() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -1890,7 +1890,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onCreate_calls_setActiveComplications_withCorrectIDs() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication, backgroundComplication),
             UserStyleSchema(emptyList())
         )
@@ -1906,7 +1906,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onCreate_calls_setContentDescriptionLabels_withCorrectArgs() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication, backgroundComplication),
             UserStyleSchema(emptyList())
         )
@@ -1928,7 +1928,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onCreate_calls_setContentDescriptionLabels_withCorrectArgs_noComplications() {
-        initEngine(WatchFaceTypes.ANALOG, emptyList(), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()))
 
         runPostedTasksFor(0)
 
@@ -1944,7 +1944,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun ContentDescriptionLabels_notMadeForEmptyComplication() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication, backgroundComplication),
             UserStyleSchema(emptyList()),
             setInitialComplicationData = false
@@ -1971,7 +1971,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun moveComplications() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             4
@@ -1986,12 +1986,12 @@ public class WatchFaceServiceTest {
             complicationSlotsManager.getComplicationsState(renderer.screenBounds)
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails[0].complicationState.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(Rect(30, 30, 50, 50))
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails[1].complicationState.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(Rect(70, 75, 90, 95))
 
         // Despite disabling the background complication we should still get a
@@ -2040,7 +2040,7 @@ public class WatchFaceServiceTest {
             )
 
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             4
@@ -2093,7 +2093,7 @@ public class WatchFaceServiceTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun centerX_and_centerY_containUpToDateValues() {
-        initEngine(WatchFaceTypes.ANALOG, emptyList(), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()))
 
         assertThat(renderer.centerX).isEqualTo(50f)
         assertThat(renderer.centerY).isEqualTo(50f)
@@ -2118,7 +2118,7 @@ public class WatchFaceServiceTest {
     public fun requestStyleBeforeSetBinder() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 listOf(leftComplication, rightComplication, backgroundComplication),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -2174,7 +2174,7 @@ public class WatchFaceServiceTest {
                 )
                 .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
-        initEngine(WatchFaceTypes.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
 
         runPostedTasksFor(0)
 
@@ -2210,7 +2210,7 @@ public class WatchFaceServiceTest {
                 .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
                 .build()
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(complication),
             UserStyleSchema(emptyList()),
             apiVersion = 0
@@ -2264,7 +2264,7 @@ public class WatchFaceServiceTest {
             )
 
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             instanceParams
@@ -2299,7 +2299,7 @@ public class WatchFaceServiceTest {
             )
 
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             instanceParams
@@ -2312,7 +2312,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun getComplicationDetails() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication, backgroundComplication),
             UserStyleSchema(emptyList()),
             apiVersion = 4
@@ -2322,7 +2322,7 @@ public class WatchFaceServiceTest {
             complicationSlotsManager.getComplicationsState(renderer.screenBounds)
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails[0].complicationState.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(Rect(20, 40, 40, 60))
         assertThat(complicationDetails[0].complicationState.supportedTypes)
             .isEqualTo(
@@ -2337,7 +2337,7 @@ public class WatchFaceServiceTest {
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails[1].complicationState.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(Rect(60, 40, 80, 60))
         assertThat(complicationDetails[1].complicationState.supportedTypes)
             .isEqualTo(
@@ -2352,7 +2352,7 @@ public class WatchFaceServiceTest {
 
         assertThat(complicationDetails[2].id).isEqualTo(BACKGROUND_COMPLICATION_ID)
         assertThat(complicationDetails[2].complicationState.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.BACKGROUND)
+            .isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
         assertThat(complicationDetails[2].complicationState.bounds).isEqualTo(Rect(0, 0, 100, 100))
         assertThat(complicationDetails[2].complicationState.supportedTypes)
             .isEqualTo(intArrayOf(WireComplicationData.TYPE_LARGE_IMAGE))
@@ -2380,7 +2380,7 @@ public class WatchFaceServiceTest {
         val initDeferred = CompletableDeferred<Unit>()
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 listOf(leftComplication, rightComplication),
                 { _, currentUserStyleRepository, watchState ->
                     // Prevent initialization until initDeferred completes.
@@ -2458,7 +2458,7 @@ public class WatchFaceServiceTest {
         lateinit var testRenderer: TestRendererWithShouldAnimate
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     testRenderer =
@@ -2503,7 +2503,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationsUserStyleSettingSelectionAppliesChanges() {
         initEngine(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             apiVersion = 4
@@ -2547,7 +2547,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun partialComplicationOverrides() {
         initEngine(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             apiVersion = 4
@@ -2607,7 +2607,7 @@ public class WatchFaceServiceTest {
             )
 
         initEngine(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             apiVersion = 4
@@ -2743,7 +2743,7 @@ public class WatchFaceServiceTest {
             )
 
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(choice, complicationsStyleSetting, complicationsStyleSetting2)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -2799,7 +2799,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun observeComplicationData() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -2870,7 +2870,7 @@ public class WatchFaceServiceTest {
                 null
             )
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             instanceParams,
@@ -2919,7 +2919,7 @@ public class WatchFaceServiceTest {
 
         val service2 =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 listOf(leftComplication, rightComplication),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3008,7 +3008,7 @@ public class WatchFaceServiceTest {
                 null
             )
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             instanceParams,
@@ -3052,7 +3052,7 @@ public class WatchFaceServiceTest {
 
         val service2 =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 listOf(leftComplication, rightComplication),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3138,7 +3138,7 @@ public class WatchFaceServiceTest {
                 null
             )
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             instanceParams,
@@ -3175,7 +3175,7 @@ public class WatchFaceServiceTest {
 
         val service2 =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 listOf(leftComplication),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3261,7 +3261,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationsInitialized_with_NoComplicationComplicationData() {
         initEngine(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             setInitialComplicationData = false
@@ -3287,7 +3287,7 @@ public class WatchFaceServiceTest {
     public fun headless_complicationsInitialized_with_EmptyComplicationData() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 listOf(leftComplication, rightComplication),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3354,7 +3354,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun complication_isActiveAt() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3418,7 +3418,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun updateInvalidCompliationIdDoesNotCrash() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3463,7 +3463,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun watchStateStateFlowDataMembersHaveValues() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3487,7 +3487,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun isBatteryLowAndNotCharging_modified_by_broadcasts() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3519,7 +3519,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun processBatteryStatus() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3572,7 +3572,7 @@ public class WatchFaceServiceTest {
     public fun isAmbientInitalisedEvenWithoutPropertiesSent() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3604,7 +3604,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun ambientToInteractiveTransition() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3646,7 +3646,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun interactiveToAmbientTransition() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3682,7 +3682,7 @@ public class WatchFaceServiceTest {
     public fun onDestroy_clearsInstanceRecord() {
         val instanceId = INTERACTIVE_INSTANCE_ID
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3704,7 +3704,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun sendComplicationWallpaperCommandPreRFlow() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -3733,7 +3733,7 @@ public class WatchFaceServiceTest {
     public fun sendComplicationWallpaperCommandIgnoredPostRFlow() {
         val instanceId = INTERACTIVE_INSTANCE_ID
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3796,7 +3796,7 @@ public class WatchFaceServiceTest {
             )
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3854,7 +3854,7 @@ public class WatchFaceServiceTest {
         val instanceId = "DirectBootInstance"
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -3899,7 +3899,7 @@ public class WatchFaceServiceTest {
     public fun firstOnVisibilityChangedIgnoredPostRFlow() {
         val instanceId = INTERACTIVE_INSTANCE_ID
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -3980,7 +3980,7 @@ public class WatchFaceServiceTest {
             )
 
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(complicationsStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -4051,7 +4051,7 @@ public class WatchFaceServiceTest {
                 .build()
 
         initEngine(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -4092,7 +4092,7 @@ public class WatchFaceServiceTest {
         // We don't want full init as in other tests with initEngine(), since
         // engineWrapper.getWatchFaceImplOrNull() will return null and test will brake with NPE.
         initEngineBeforeGetWatchFaceImpl(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -4113,7 +4113,7 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     renderer =
@@ -4196,7 +4196,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun onAccessibilityStateChanged_preAndroidR() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -4223,7 +4223,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun onAccessibilityStateChanged_androidR_or_above() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -4251,7 +4251,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun contentDescriptionLabels_contains_ComplicationData() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -4332,7 +4332,7 @@ public class WatchFaceServiceTest {
 
         try {
             initWallpaperInteractiveWatchFaceInstance(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 UserStyleSchema(listOf(settingWithTooLargeIcon, watchHandStyleSetting)),
                 WallpaperInteractiveWatchFaceInstanceParams(
@@ -4383,7 +4383,7 @@ public class WatchFaceServiceTest {
 
         try {
             initWallpaperInteractiveWatchFaceInstance(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 UserStyleSchema(listOf(tooLargeList, watchHandStyleSetting)),
                 WallpaperInteractiveWatchFaceInstanceParams(
@@ -4411,7 +4411,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun getComplicationSlotMetadataWireFormats_parcelTest() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -4459,7 +4459,7 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     @Suppress("DEPRECATION")
@@ -4599,7 +4599,7 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     renderer =
@@ -4608,7 +4608,7 @@ public class WatchFaceServiceTest {
                                 surfaceHolder,
                                 currentUserStyleRepository,
                                 watchState,
-                                CanvasTypes.HARDWARE,
+                                CanvasType.HARDWARE,
                                 INTERACTIVE_UPDATE_RATE_MS,
                                 clearWithBackgroundTintBeforeRenderingHighlightLayer = false
                             ) {
@@ -4737,7 +4737,7 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     renderer =
@@ -4861,7 +4861,7 @@ public class WatchFaceServiceTest {
         var onDestroyCalled = false
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     renderer =
@@ -4939,7 +4939,7 @@ public class WatchFaceServiceTest {
         looperTimeMillis = 1000
 
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -4992,7 +4992,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun dump_wslFlow() {
         initEngine(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -5011,7 +5011,7 @@ public class WatchFaceServiceTest {
     public fun uiThreadPriority_interactive() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5087,7 +5087,7 @@ public class WatchFaceServiceTest {
     public fun uiThreadPriority_headless() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5139,7 +5139,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     fun onVisibilityChanged_true_always_renders_a_frame() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -5161,7 +5161,7 @@ public class WatchFaceServiceTest {
     public fun headlessId() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5225,7 +5225,7 @@ public class WatchFaceServiceTest {
 
         a.setTimelineEntryCollection(listOf(b, c))
 
-        initEngine(WatchFaceTypes.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         engineWrapper.setComplicationDataList(
             listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
@@ -5309,7 +5309,7 @@ public class WatchFaceServiceTest {
 
         a.setTimelineEntryCollection(listOf(b, c))
 
-        initEngine(WatchFaceTypes.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         engineWrapper.setComplicationDataList(
             listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
@@ -5364,7 +5364,7 @@ public class WatchFaceServiceTest {
                 .build()
         wireLongTextComplication.setTimelineEntryCollection(listOf(timelineEntry))
 
-        initEngine(WatchFaceTypes.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication), UserStyleSchema(emptyList()))
 
         engineWrapper.setComplicationDataList(
             listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, wireLongTextComplication))
@@ -5433,7 +5433,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun renderParameters_isScreenshot() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             emptyList(),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -5468,7 +5468,7 @@ public class WatchFaceServiceTest {
     @Suppress("Deprecation")
     public fun applyComplicationSlotsStyleCategoryOption() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -5580,7 +5580,7 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5643,7 +5643,7 @@ public class WatchFaceServiceTest {
 
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5704,7 +5704,7 @@ public class WatchFaceServiceTest {
     public fun onActionAmbientStarted_onActionAmbientStopped_ambientEnabled() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5779,7 +5779,7 @@ public class WatchFaceServiceTest {
     public fun onActionTimeTick() {
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     TestRenderer(
@@ -5852,7 +5852,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun setComplicationDataListMergesCorrectly() {
         initEngine(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
@@ -5898,7 +5898,7 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun updateInstance() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -5955,7 +5955,7 @@ public class WatchFaceServiceTest {
             )
 
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -5999,7 +5999,7 @@ public class WatchFaceServiceTest {
         @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     @Suppress("DEPRECATION")
@@ -6009,7 +6009,7 @@ public class WatchFaceServiceTest {
                                 surfaceHolder,
                                 currentUserStyleRepository,
                                 watchState,
-                                CanvasTypes.HARDWARE,
+                                CanvasType.HARDWARE,
                                 INTERACTIVE_UPDATE_RATE_MS
                             ) {
                             init {
@@ -6122,7 +6122,7 @@ public class WatchFaceServiceTest {
         @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     @Suppress("DEPRECATION")
@@ -6132,7 +6132,7 @@ public class WatchFaceServiceTest {
                                 surfaceHolder,
                                 currentUserStyleRepository,
                                 watchState,
-                                CanvasTypes.HARDWARE,
+                                CanvasType.HARDWARE,
                                 INTERACTIVE_UPDATE_RATE_MS
                             ) {
                             override fun render(
@@ -6238,7 +6238,7 @@ public class WatchFaceServiceTest {
         @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     @Suppress("DEPRECATION")
@@ -6248,7 +6248,7 @@ public class WatchFaceServiceTest {
                                 surfaceHolder,
                                 currentUserStyleRepository,
                                 watchState,
-                                CanvasTypes.HARDWARE,
+                                CanvasType.HARDWARE,
                                 INTERACTIVE_UPDATE_RATE_MS
                             ) {
                             init {
@@ -6341,7 +6341,7 @@ public class WatchFaceServiceTest {
         @Suppress("DEPRECATION") lateinit var renderer: Renderer.CanvasRenderer
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     @Suppress("DEPRECATION")
@@ -6351,7 +6351,7 @@ public class WatchFaceServiceTest {
                                 surfaceHolder,
                                 currentUserStyleRepository,
                                 watchState,
-                                CanvasTypes.HARDWARE,
+                                CanvasType.HARDWARE,
                                 INTERACTIVE_UPDATE_RATE_MS
                             ) {
                             init {
@@ -6405,7 +6405,7 @@ public class WatchFaceServiceTest {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public fun doNotDisplayComplicationWhenScreenLocked() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -6456,7 +6456,7 @@ public class WatchFaceServiceTest {
     @Test
     fun actionScreenOff_keyguardLocked() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -6481,7 +6481,7 @@ public class WatchFaceServiceTest {
     @Test
     fun actionScreenOff_keyguardUnlocked() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -6506,7 +6506,7 @@ public class WatchFaceServiceTest {
     @Test
     fun actionUserUnlocked_after_keyguardLocked() {
         initWallpaperInteractiveWatchFaceInstance(
-            WatchFaceTypes.ANALOG,
+            WatchFaceType.ANALOG,
             listOf(leftComplication),
             UserStyleSchema(emptyList()),
             WallpaperInteractiveWatchFaceInstanceParams(
@@ -6625,7 +6625,7 @@ public class WatchFaceServiceTest {
         // Construct a parameterless engine.
         testWatchFaceService =
             TestWatchFaceService(
-                WatchFaceTypes.DIGITAL,
+                WatchFaceType.DIGITAL,
                 emptyList(),
                 { _, currentUserStyleRepository, watchState ->
                     renderer =
@@ -6745,14 +6745,14 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             @Suppress("deprecation")
             object :
                 Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    CanvasTypes.HARDWARE,
+                    CanvasType.HARDWARE,
                     16
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {

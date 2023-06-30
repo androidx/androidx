@@ -86,7 +86,7 @@ public enum class DrawMode {
  * @param highlightLayer Optional [HighlightLayer] used by editors to visually highlight an aspect
  *   of the watch face. Rendered last on top of [watchFaceLayers]. If highlighting isn't needed this
  *   will be `null`.
- * @param lastComplicationTapDownEvents Map of [ComplicationSlot] id to the latest [TapTypes.DOWN]
+ * @param lastComplicationTapDownEvents Map of [ComplicationSlot] id to the latest [TapType.DOWN]
  *   [TapEvent] that ComplicationSlot received, if any.
  */
 public class RenderParameters

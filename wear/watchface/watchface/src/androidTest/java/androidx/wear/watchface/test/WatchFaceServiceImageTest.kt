@@ -46,7 +46,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX
 import androidx.wear.watchface.TapEvent
-import androidx.wear.watchface.TapTypes
+import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationText
@@ -864,7 +864,7 @@ public class WatchFaceServiceImageTest {
                 interactiveWatchFaceInstance.instanceId
             )!!
         try {
-            interactiveWatchFaceInstance.sendTouchEvent(85, 165, TapTypes.UP)
+            interactiveWatchFaceInstance.sendTouchEvent(85, 165, TapType.UP)
 
             assertThat(ComplicationTapActivity.awaitIntent()).isNotNull()
         } finally {

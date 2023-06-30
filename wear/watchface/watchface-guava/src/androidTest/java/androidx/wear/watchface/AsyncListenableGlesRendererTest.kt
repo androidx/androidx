@@ -60,7 +60,7 @@ internal class TestAsyncGlesRenderInitWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
         WatchFace(
-            WatchFaceTypes.DIGITAL,
+            WatchFaceType.DIGITAL,
             @Suppress("Deprecation")
             object :
                 ListenableGlesRenderer(surfaceHolder, currentUserStyleRepository, watchState, 16) {
