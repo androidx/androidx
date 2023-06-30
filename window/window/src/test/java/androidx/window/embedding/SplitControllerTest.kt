@@ -87,4 +87,29 @@ internal class SplitControllerTest {
         splitController.clearSplitAttributesCalculator()
         verify(mockBackend).clearSplitAttributesCalculator()
     }
+
+    @Test
+    fun test_updateSplitAttribute_delegates() {
+        whenever(mockBackend.areSplitAttributesUpdatesSupported()).thenReturn(true)
+        assertTrue(splitController.isUpdatingSplitAttributesSupported())
+
+        val mockSplitAttributes = SplitAttributes()
+        val mockSplitInfo = SplitInfo(
+            ActivityStack(emptyList(), true, mock()),
+            ActivityStack(emptyList(), true, mock()),
+            mockSplitAttributes,
+            mock()
+        )
+        splitController.updateSplitAttributes(mockSplitInfo, mockSplitAttributes)
+        verify(mockBackend).updateSplitAttributes(eq(mockSplitInfo), eq(mockSplitAttributes))
+    }
+
+    @Test
+    fun test_invalidateTopVisibleSplitAttributes_delegates() {
+        whenever(mockBackend.areSplitAttributesUpdatesSupported()).thenReturn(true)
+        assertTrue(splitController.isInvalidatingTopVisibleSplitAttributesSupported())
+
+        splitController.invalidateTopVisibleSplitAttributes()
+        verify(mockBackend).invalidateTopVisibleSplitAttributes()
+    }
 }
