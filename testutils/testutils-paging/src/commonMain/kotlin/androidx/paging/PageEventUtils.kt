@@ -22,7 +22,7 @@ fun <T> assertEvents(expected: List<T>, actual: List<T>) {
     try {
         assertEquals(expected, actual)
     } catch (e: Throwable) {
-        val msg = e.localizedMessage
+        val msg = e.message!!
             .replace("),", "),\n")
             .replace("<[", "<[\n ")
             .replace("actual", "\nactual")
