@@ -41,6 +41,8 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.7.0-alpha02")
+                implementation(libs.statelyConcurrency)
+                implementation(libs.statelyConcurrentCollections)
             }
         }
 

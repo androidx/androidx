@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import java.util.concurrent.CopyOnWriteArrayList
+import co.touchlab.stately.collections.ConcurrentMutableList
 
 /**
  * Wrapper class for a [PagingSource] factory intended for usage in [Pager] construction.
@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * Calling [invalidate] on this [InvalidatingPagingSourceFactory] will forward invalidate signals
  * to all active [PagingSource]s that were produced by calling [invoke].
  *
- * This class is backed by a [CopyOnWriteArrayList], which is thread-safe for concurrent calls to
+ * This class is backed by a [ConcurrentMutableList], which is thread-safe for concurrent calls to
  * any mutative operations including both [invoke] and [invalidate].
  *
  * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
@@ -35,7 +35,7 @@ public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
 ) : PagingSourceFactory<Key, Value> {
 
     @VisibleForTesting
-    internal val pagingSources = CopyOnWriteArrayList<PagingSource<Key, Value>>()
+    internal val pagingSources = ConcurrentMutableList<PagingSource<Key, Value>>()
 
     /**
      * @return [PagingSource] which will be invalidated when this factory's [invalidate] method
@@ -50,11 +50,9 @@ public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
      * [InvalidatingPagingSourceFactory]
      */
     public fun invalidate() {
-        for (pagingSource in pagingSources) {
-            if (!pagingSource.invalid) {
-                pagingSource.invalidate()
-            }
-        }
+        pagingSources
+            .filterNot { it.invalid }
+            .forEach { it.invalidate() }
 
         pagingSources.removeAll { it.invalid }
     }

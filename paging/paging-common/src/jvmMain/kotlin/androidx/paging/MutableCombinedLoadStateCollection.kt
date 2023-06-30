@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
-import java.util.concurrent.CopyOnWriteArrayList
+import co.touchlab.stately.collections.ConcurrentMutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.update
  */
 internal class MutableCombinedLoadStateCollection {
 
-    private val listeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
+    private val listeners = ConcurrentMutableList<(CombinedLoadStates) -> Unit>()
     private val _stateFlow = MutableStateFlow<CombinedLoadStates?>(null)
     public val stateFlow = _stateFlow.asStateFlow()
 
