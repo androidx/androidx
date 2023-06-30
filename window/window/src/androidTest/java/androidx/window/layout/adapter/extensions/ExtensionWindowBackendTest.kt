@@ -59,14 +59,14 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-class ExtensionWindowLayoutInfoBackendTest {
+class ExtensionWindowBackendTest {
 
     @get:Rule
     public val activityScenario: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
     private val consumerAdapter = ConsumerAdapter(
-        ExtensionWindowLayoutInfoBackendTest::class.java.classLoader!!
+        ExtensionWindowBackendTest::class.java.classLoader!!
     )
 
     @Before
@@ -79,7 +79,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeAtLeastVendorApiLevel(1)
         val component = RequestTrackingWindowComponent()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -98,7 +98,7 @@ class ExtensionWindowLayoutInfoBackendTest {
 
         val component = RequestTrackingWindowComponent()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         val windowContext = WindowTestUtils.createOverlayWindowContext()
         val windowContextConsumer = TestConsumer<WindowLayoutInfo>()
@@ -121,7 +121,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeBeforeVendorApiLevel(2)
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -142,7 +142,7 @@ class ExtensionWindowLayoutInfoBackendTest {
 
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         val windowContext = WindowTestUtils.createOverlayWindowContext()
         val windowContextConsumer = TestConsumer<WindowLayoutInfo>()
@@ -181,7 +181,7 @@ class ExtensionWindowLayoutInfoBackendTest {
             val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
             consumer.accept(OEMWindowLayoutInfo(emptyList()))
         }
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -203,7 +203,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         val windowContextConsumer = TestConsumer<WindowLayoutInfo>()
         val windowLayoutInfoFromContext = newTestOEMWindowLayoutInfo(windowContext)
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
         backend.registerLayoutChangeCallback(windowContext, Runnable::run, windowContextConsumer)
         component.emit(windowLayoutInfoFromContext)
         windowContextConsumer.assertValue(
@@ -236,7 +236,7 @@ class ExtensionWindowLayoutInfoBackendTest {
             val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
             consumer.accept(OEMWindowLayoutInfo(emptyList()))
         }
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -269,7 +269,7 @@ class ExtensionWindowLayoutInfoBackendTest {
             val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
             consumer.accept(OEMWindowLayoutInfo(emptyList()))
         }
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -292,7 +292,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeBeforeVendorApiLevel(2)
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -312,7 +312,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeBeforeVendorApiLevel(2)
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -346,7 +346,7 @@ class ExtensionWindowLayoutInfoBackendTest {
 
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -390,7 +390,7 @@ class ExtensionWindowLayoutInfoBackendTest {
 
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -441,7 +441,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeBeforeVendorApiLevel(2)
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -472,7 +472,7 @@ class ExtensionWindowLayoutInfoBackendTest {
 
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         val windowContext = WindowTestUtils.createOverlayWindowContext()
         val windowContextConsumer = TestConsumer<WindowLayoutInfo>()
@@ -512,7 +512,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeBeforeVendorApiLevel(2)
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+            val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
             // Check registering the layout change callback
             val firstConsumer = mock<Consumer<WindowLayoutInfo>>()
@@ -552,7 +552,7 @@ class ExtensionWindowLayoutInfoBackendTest {
 
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+            val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
             // Check registering the layout change callback
             val firstConsumer = mock<Consumer<WindowLayoutInfo>>()
@@ -583,7 +583,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeBeforeVendorApiLevel(2)
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+            val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
             // Check that callbacks from the extension are propagated correctly
             val consumer = mock<Consumer<WindowLayoutInfo>>()
@@ -604,7 +604,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeAtLeastVendorApiLevel(2)
 
         val component = FakeWindowComponent()
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         // Check that callbacks from the extension are propagated for WindowContext.
         val consumer = mock<Consumer<WindowLayoutInfo>>()
@@ -624,7 +624,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeAtLeastVendorApiLevel(1)
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+            val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
             val consumer = TestConsumer<WindowLayoutInfo>()
             val oemWindowLayoutInfo = newTestOEMWindowLayoutInfo(activity)
             val expected = listOf(
@@ -650,7 +650,7 @@ class ExtensionWindowLayoutInfoBackendTest {
         assumeAtLeastVendorApiLevel(2)
 
         val component = FakeWindowComponent()
-        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
         val consumer = TestConsumer<WindowLayoutInfo>()
         val windowContext = WindowTestUtils.createOverlayWindowContext()
 
