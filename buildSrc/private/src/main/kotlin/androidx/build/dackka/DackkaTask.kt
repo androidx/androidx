@@ -26,6 +26,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
@@ -102,6 +103,10 @@ abstract class DackkaTask @Inject constructor(
 
     @Input
     lateinit var annotationsNotToDisplayKotlin: List<String>
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    lateinit var versionMetadataFiles: Provider<List<File>>
 
     // Maps to the system variable LIBRARY_METADATA_FILE containing artifactID and other metadata
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
@@ -205,6 +210,7 @@ abstract class DackkaTask @Inject constructor(
                             "annotationsNotToDisplay" to annotationsNotToDisplay,
                             "annotationsNotToDisplayJava" to annotationsNotToDisplayJava,
                             "annotationsNotToDisplayKotlin" to annotationsNotToDisplayKotlin,
+                            "versionMetadataFilenames" to checkVersionMetadataFiles()
                         )
                     )
                 )
@@ -216,6 +222,26 @@ abstract class DackkaTask @Inject constructor(
         outputFile.deleteOnExit()
         outputFile.writeText(json)
         return outputFile
+    }
+
+    /**
+     * Return the list of version metadata files after checking if they're all JSON.
+     * If version metadata does not exist for a project, it's possible that a configuration which
+     * isn't an exact match of the version metadata attributes to be selected as version metadata.
+     */
+    private fun checkVersionMetadataFiles(): List<File> {
+        val (json, nonJson) = versionMetadataFiles.get().partition { it.extension == "json" }
+        if (nonJson.isNotEmpty()) {
+            logger.error(
+                "The following were resolved as version metadata files but are not JSON files. " +
+                    "If these projects do not have API tracking enabled (e.g. compiler plugin, " +
+                    "annotation processor, proto), they should not be included in the docs. " +
+                    "Remove the projects from `docs-public/build.gradle` and/or " +
+                    "`docs-tip-of-tree/build.gradle`.\n" +
+                    nonJson.joinToString("\n")
+            )
+        }
+        return json
     }
 
     @TaskAction
