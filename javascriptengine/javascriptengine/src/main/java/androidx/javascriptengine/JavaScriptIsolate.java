@@ -16,32 +16,15 @@
 
 package androidx.javascriptengine;
 
-import android.content.res.AssetFileDescriptor;
-import android.os.Binder;
-import android.os.RemoteException;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.javascriptengine.common.LengthLimitExceededException;
-import androidx.javascriptengine.common.Utils;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
-import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
-import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallback;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -59,191 +42,52 @@ import javax.annotation.concurrent.GuardedBy;
  * isolation multiple {@link JavaScriptSandbox} processes should be used, but it is not supported
  * at the moment. Please find the feature request <a href="https://crbug.com/1349860">here</a>.
  * <p>
- * Each isolate object must only be used from one thread.
+ * This class is thread-safe.
  */
 public final class JavaScriptIsolate implements AutoCloseable {
     private static final String TAG = "JavaScriptIsolate";
-    private final Object mSetLock = new Object();
-    /**
-     * Interface to underlying service-backed implementation.
-     * <p>
-     * mJsIsolateStub should only be null when the Isolate has been explicitly closed - not when the
-     * isolate has crashed or simply had its pending and future evaluations cancelled.
-     */
-    @Nullable
-    private IJsSandboxIsolate mJsIsolateStub;
+    private final Object mLock = new Object();
     private final CloseGuardHelper mGuard = CloseGuardHelper.create();
+
     final JavaScriptSandbox mJsSandbox;
 
-    @Nullable
-    @GuardedBy("mSetLock")
-    private HashSet<CallbackToFutureAdapter.Completer<String>> mPendingCompleterSet =
-            new HashSet<>();
-    /**
-     * If mSandboxClosed is true, new evaluations will throw this exception asynchronously.
-     * <p>
-     * Note that if the isolate is closed, IllegalStateException is thrown synchronously instead.
-     */
-    @Nullable
-    private Exception mExceptionForNewEvaluations;
-    private final AtomicBoolean mSandboxClosed = new AtomicBoolean(false);
-    final IsolateStartupParameters mStartupParameters;
-
-    private class IJsSandboxIsolateSyncCallbackStubWrapper extends
-            IJsSandboxIsolateSyncCallback.Stub {
-        @NonNull
-        private final CallbackToFutureAdapter.Completer<String> mCompleter;
-
-        IJsSandboxIsolateSyncCallbackStubWrapper(
-                @NonNull CallbackToFutureAdapter.Completer<String> completer) {
-            mCompleter = completer;
-        }
-
-        @Override
-        public void reportResultWithFd(AssetFileDescriptor afd) {
-            Objects.requireNonNull(afd);
-            mJsSandbox.mThreadPoolTaskExecutor.execute(
-                    () -> {
-                        String result;
-                        try {
-                            result = Utils.readToString(afd,
-                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(),
-                                    /*truncate=*/false);
-                        } catch (IOException | UnsupportedOperationException ex) {
-                            mCompleter.setException(
-                                    new JavaScriptException(
-                                            "Retrieving result failed: " + ex.getMessage()));
-                            removePending(mCompleter);
-                            return;
-                        } catch (LengthLimitExceededException ex) {
-                            if (ex.getMessage() != null) {
-                                mCompleter.setException(
-                                        new EvaluationResultSizeLimitExceededException(
-                                                ex.getMessage()));
-                            } else {
-                                mCompleter.setException(
-                                        new EvaluationResultSizeLimitExceededException());
-                            }
-                            removePending(mCompleter);
-                            return;
-                        }
-                        handleEvaluationResult(mCompleter, result);
-                    });
-        }
-
-        @Override
-        public void reportErrorWithFd(@ExecutionErrorTypes int type, AssetFileDescriptor afd) {
-            Objects.requireNonNull(afd);
-            mJsSandbox.mThreadPoolTaskExecutor.execute(
-                    () -> {
-                        String error;
-                        try {
-                            error = Utils.readToString(afd,
-                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(),
-                                    /*truncate=*/true);
-                        } catch (IOException | UnsupportedOperationException ex) {
-                            mCompleter.setException(
-                                    new JavaScriptException(
-                                            "Retrieving error failed: " + ex.getMessage()));
-                            removePending(mCompleter);
-                            return;
-                        } catch (LengthLimitExceededException ex) {
-                            throw new AssertionError("unreachable");
-                        }
-                        handleEvaluationError(mCompleter, type, error);
-                    });
-        }
-    }
-
-    private class IJsSandboxIsolateCallbackStubWrapper extends IJsSandboxIsolateCallback.Stub {
-        @NonNull
-        private final CallbackToFutureAdapter.Completer<String> mCompleter;
-
-        IJsSandboxIsolateCallbackStubWrapper(
-                @NonNull CallbackToFutureAdapter.Completer<String> completer) {
-            mCompleter = completer;
-        }
-
-        @Override
-        public void reportResult(String result) {
-            Objects.requireNonNull(result);
-            final long identityToken = Binder.clearCallingIdentity();
-            try {
-                handleEvaluationResult(mCompleter, result);
-            } finally {
-                Binder.restoreCallingIdentity(identityToken);
-            }
-        }
-
-        @Override
-        public void reportError(@ExecutionErrorTypes int type, String error) {
-            Objects.requireNonNull(error);
-            final long identityToken = Binder.clearCallingIdentity();
-            try {
-                handleEvaluationError(mCompleter, type, error);
-            } finally {
-                Binder.restoreCallingIdentity(identityToken);
-            }
-        }
-    }
-
-    private static final class JsSandboxConsoleCallbackRelay
-            extends IJsSandboxConsoleCallback.Stub {
-        @NonNull
-        private final Executor mExecutor;
-        @NonNull
-        private final JavaScriptConsoleCallback mCallback;
-
-        JsSandboxConsoleCallbackRelay(@NonNull Executor executor,
-                @NonNull JavaScriptConsoleCallback callback) {
-            mExecutor = executor;
-            mCallback = callback;
-        }
-
-        @Override
-        public void consoleMessage(final int contextGroupId, final int level, final String message,
-                final String source, final int line, final int column, final String trace) {
-            final long identity = Binder.clearCallingIdentity();
-            try {
-                mExecutor.execute(() -> {
-                    if ((level & JavaScriptConsoleCallback.ConsoleMessage.LEVEL_ALL) == 0
-                            || ((level - 1) & level) != 0) {
-                        throw new IllegalArgumentException(
-                                "invalid console level " + level + " provided by isolate");
-                    }
-                    Objects.requireNonNull(message);
-                    Objects.requireNonNull(source);
-                    mCallback.onConsoleMessage(
-                            new JavaScriptConsoleCallback.ConsoleMessage(
-                                    level, message, source, line, column, trace));
-                });
-            } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Console message dropped", e);
-            } finally {
-                Binder.restoreCallingIdentity(identity);
-            }
-        }
-
-        @Override
-        public void consoleClear(int contextGroupId) {
-            final long identity = Binder.clearCallingIdentity();
-            try {
-                mExecutor.execute(mCallback::onConsoleClear);
-            } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Console clear dropped", e);
-            } finally {
-                Binder.restoreCallingIdentity(identity);
-            }
-        }
-    }
+    @GuardedBy("mLock")
+    @NonNull
+    private IsolateState mIsolateState;
 
     JavaScriptIsolate(@NonNull IJsSandboxIsolate jsIsolateStub, @NonNull JavaScriptSandbox sandbox,
             @NonNull IsolateStartupParameters settings) {
+        synchronized (mLock) {
+            mIsolateState = new IsolateUsableState(this, jsIsolateStub,
+                    settings.getMaxEvaluationReturnSizeBytes());
+        }
         mJsSandbox = sandbox;
-        mJsIsolateStub = jsIsolateStub;
-        mStartupParameters = settings;
         mGuard.open("close");
         // This should be at the end of the constructor.
+    }
+
+    /**
+     * Changes the state to denote that the isolate is dead.
+     *
+     * {@link IsolateClosedState} takes precedence so it will not change state if the current state
+     * is {@link IsolateClosedState}
+     */
+    void maybeSetIsolateDead() {
+        synchronized (mLock) {
+            mIsolateState = mIsolateState.setIsolateDead();
+        }
+    }
+
+    /**
+     * Changes the state to denote that the sandbox is dead.
+     *
+     * {@link IsolateClosedState} takes precedence so it will not change state if the current state
+     * is {@link IsolateClosedState}
+     */
+    void maybeSetSandboxDead() {
+        synchronized (mLock) {
+            mIsolateState = mIsolateState.setSandboxDead();
+        }
     }
 
     /**
@@ -281,50 +125,19 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * <p>
      * Do not use this method to transfer raw binary data. Scripts or results containing unpaired
      * surrogate code units are not supported.
+     *
      * @param code JavaScript code to evaluate. The script should return a JavaScript String or,
      *             alternatively, a Promise that will resolve to a String if
      *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported.
      * @return Future that evaluates to the result String of the evaluation or exceptions (see
      * {@link JavaScriptException} and subclasses) if there is an error.
      */
-    @SuppressWarnings("NullAway")
     @NonNull
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
         Objects.requireNonNull(code);
-        if (!mSandboxClosed.get() && mJsSandbox.isFeatureSupported(
-                JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT)) {
-            // This process can be made more memory efficient by converting the String to
-            // UTF-8 encoded bytes and writing to the pipe in chunks.
-            byte[] inputBytes = code.getBytes(StandardCharsets.UTF_8);
-            return evaluateJavaScriptAsync(inputBytes);
+        synchronized (mLock) {
+            return mIsolateState.evaluateJavaScriptAsync(code);
         }
-        if (mJsIsolateStub == null) {
-            throw new IllegalStateException(
-                    "Calling evaluateJavaScriptAsync() after closing the Isolate");
-        }
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            final String futureDebugMessage = "evaluateJavascript Future";
-            IJsSandboxIsolateCallbackStubWrapper callbackStub;
-            synchronized (mSetLock) {
-                if (mPendingCompleterSet == null) {
-                    assert mExceptionForNewEvaluations != null;
-                    completer.setException(mExceptionForNewEvaluations);
-                    return futureDebugMessage;
-                }
-                mPendingCompleterSet.add(completer);
-            }
-            callbackStub = new IJsSandboxIsolateCallbackStubWrapper(completer);
-            try {
-                mJsIsolateStub.evaluateJavascript(code, callbackStub);
-            } catch (RemoteException e) {
-                completer.setException(new RuntimeException(e));
-                synchronized (mSetLock) {
-                    mPendingCompleterSet.remove(completer);
-                }
-            }
-            // Debug string.
-            return futureDebugMessage;
-        });
     }
 
     /**
@@ -338,6 +151,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * This overload is provided for clients to pass in a UTF-8 encoded {@code byte[]} directly
      * instead of having to convert it into a {@code String} to use
      * {@link #evaluateJavaScriptAsync(String)}.
+     *
      * @param code UTF-8 encoded JavaScript code to evaluate. The script should return a
      *             JavaScript String or, alternatively, a Promise that will resolve to a String if
      *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported. The byte
@@ -345,46 +159,14 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * @return Future that evaluates to the result String of the evaluation or exceptions (see
      * {@link JavaScriptException} and subclasses) if there is an error
      */
-    @SuppressWarnings("NullAway")
     @NonNull
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
         Objects.requireNonNull(code);
-        if (mJsIsolateStub == null) {
-            throw new IllegalStateException(
-                    "Calling evaluateJavaScriptAsync() after closing the Isolate");
+        synchronized (mLock) {
+            return mIsolateState.evaluateJavaScriptAsync(code);
         }
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            final String futureDebugMessage = "evaluateJavascript Future";
-            IJsSandboxIsolateSyncCallbackStubWrapper callbackStub;
-            synchronized (mSetLock) {
-                if (mPendingCompleterSet == null) {
-                    assert mExceptionForNewEvaluations != null;
-                    completer.setException(mExceptionForNewEvaluations);
-                    return futureDebugMessage;
-                }
-                mPendingCompleterSet.add(completer);
-            }
-            callbackStub = new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
-            try {
-                // We pass the codeAfd to the separate sandbox process but we still need to
-                // close it on our end to avoid file descriptor leaks.
-                try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
-                        mJsSandbox.mThreadPoolTaskExecutor)) {
-                    mJsIsolateStub.evaluateJavascriptWithFd(codeAfd, callbackStub);
-                }
-            } catch (RemoteException | IOException e) {
-                completer.setException(new RuntimeException(e));
-                synchronized (mSetLock) {
-                    if (mPendingCompleterSet != null) {
-                        mPendingCompleterSet.remove(completer);
-                    }
-                }
-            }
-            // Debug string.
-            return futureDebugMessage;
-        });
     }
 
     /**
@@ -401,20 +183,12 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @Override
     public void close() {
-        // IllegalStateException will be thrown synchronously instead for new evaluations.
-        mExceptionForNewEvaluations = null;
-        if (mJsIsolateStub == null) {
-            return;
+        synchronized (mLock) {
+            mIsolateState.close();
+            mIsolateState = new IsolateClosedState();
+            mJsSandbox.removeFromIsolateSet(this);
+            mGuard.close();
         }
-        try {
-            cancelAllPendingEvaluations(new IsolateTerminatedException());
-            mJsIsolateStub.close();
-        } catch (RemoteException e) {
-            Log.e(TAG, "RemoteException was thrown during close()", e);
-        }
-        mJsIsolateStub = null;
-        mJsSandbox.removeFromIsolateSet(this);
-        mGuard.close();
     }
 
     /**
@@ -470,83 +244,9 @@ public final class JavaScriptIsolate implements AutoCloseable {
     public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(inputBytes);
-        if (mJsIsolateStub == null) {
-            throw new IllegalStateException("Calling provideNamedData() after closing the Isolate");
+        synchronized (mLock) {
+            return mIsolateState.provideNamedData(name, inputBytes);
         }
-        try {
-            // We pass the codeAfd to the separate sandbox process but we still need to close
-            // it on our end to avoid file descriptor leaks.
-            try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
-                    mJsSandbox.mThreadPoolTaskExecutor)) {
-                return mJsIsolateStub.provideNamedData(name, codeAfd);
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "RemoteException was thrown during provideNamedData()", e);
-        } catch (IOException e) {
-            Log.e(TAG, "IOException was thrown during provideNamedData", e);
-        }
-        return false;
-    }
-
-    void handleEvaluationError(@NonNull CallbackToFutureAdapter.Completer<String> completer,
-            int type, @NonNull String error) {
-        boolean crashing = false;
-        switch (type) {
-            case IJsSandboxIsolateSyncCallback.JS_EVALUATION_ERROR:
-                completer.setException(new EvaluationFailedException(error));
-                break;
-            case IJsSandboxIsolateSyncCallback.MEMORY_LIMIT_EXCEEDED:
-                completer.setException(new MemoryLimitExceededException(error));
-                crashing = true;
-                break;
-            default:
-                completer.setException(new JavaScriptException(
-                        "Crashing due to unknown JavaScriptException: " + error));
-                // Assume the worst
-                crashing = true;
-        }
-        removePending(completer);
-        if (crashing) {
-            handleCrash();
-        }
-    }
-
-    void handleEvaluationResult(@NonNull CallbackToFutureAdapter.Completer<String> completer,
-            @NonNull String result) {
-        completer.set(result);
-        removePending(completer);
-    }
-
-    void notifySandboxClosed() {
-        mSandboxClosed.set(true);
-        cancelAllPendingEvaluations(new SandboxDeadException());
-    }
-
-    // Cancel all pending and future evaluations with the given exception.
-    // Only the first call to this method has any effect.
-    void cancelAllPendingEvaluations(@NonNull Exception e) {
-        final HashSet<CallbackToFutureAdapter.Completer<String>> pendingSet;
-        synchronized (mSetLock) {
-            if (mPendingCompleterSet == null) return;
-            pendingSet = mPendingCompleterSet;
-            mPendingCompleterSet = null;
-            mExceptionForNewEvaluations = e;
-        }
-        for (CallbackToFutureAdapter.Completer<String> ele : pendingSet) {
-            ele.setException(e);
-        }
-    }
-
-    void removePending(@NonNull CallbackToFutureAdapter.Completer<String> completer) {
-        synchronized (mSetLock) {
-            if (mPendingCompleterSet != null) {
-                mPendingCompleterSet.remove(completer);
-            }
-        }
-    }
-
-    void handleCrash() {
-        cancelAllPendingEvaluations(new IsolateTerminatedException());
     }
 
     @Override
@@ -554,9 +254,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     protected void finalize() throws Throwable {
         try {
             mGuard.warnIfOpen();
-            if (mJsIsolateStub != null) {
-                close();
-            }
+            close();
         } finally {
             super.finalize();
         }
@@ -592,15 +290,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
             @NonNull JavaScriptConsoleCallback callback) {
         Objects.requireNonNull(executor);
         Objects.requireNonNull(callback);
-        if (mJsIsolateStub == null) {
-            throw new IllegalStateException(
-                    "Calling setConsoleCallback() after closing the Isolate");
-        }
-        try {
-            mJsIsolateStub.setConsoleCallback(
-                    new JsSandboxConsoleCallbackRelay(executor, callback));
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (mLock) {
+            mIsolateState.setConsoleCallback(executor, callback);
         }
     }
 
@@ -609,13 +300,17 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * <p>
      * This is the same as calling {@link #setConsoleCallback(Executor, JavaScriptConsoleCallback)}
      * using the main executor of the context used to create the {@link JavaScriptSandbox} object.
+     *
      * @param callback Callback implementing console logging behaviour.
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public void setConsoleCallback(@NonNull JavaScriptConsoleCallback callback) {
         Objects.requireNonNull(callback);
-        setConsoleCallback(mJsSandbox.getMainExecutor(), callback);
+        synchronized (mLock) {
+            mIsolateState.setConsoleCallback(mJsSandbox.getMainExecutor(),
+                    callback);
+        }
     }
 
     /**
@@ -626,14 +321,8 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
     public void clearConsoleCallback() {
-        if (mJsIsolateStub == null) {
-            throw new IllegalStateException(
-                    "Calling clearConsoleCallback() after closing the Isolate");
-        }
-        try {
-            mJsIsolateStub.setConsoleCallback(null);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        synchronized (mLock) {
+            mIsolateState.clearConsoleCallback();
         }
     }
 }
