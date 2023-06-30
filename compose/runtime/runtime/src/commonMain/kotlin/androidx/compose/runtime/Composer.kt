@@ -3265,6 +3265,7 @@ internal class ComposerImpl(
                 isComposing = false
                 invalidations.clear()
                 if (!complete) abortRoot()
+                createFreshInsertTable()
             }
         }
     }

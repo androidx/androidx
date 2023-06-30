@@ -3832,6 +3832,39 @@ class CompositionTests {
         }
     }
 
+    // Regression test for b/288717411
+    @Test
+    fun test_forgottenValue_isFreedFromSlotTable() = compositionTest {
+        val value = Any()
+        var rememberValue by mutableStateOf(false)
+        val composers = mutableSetOf<Composer>()
+        compose {
+            composers += currentComposer
+            if (rememberValue) {
+                remember { value }
+            }
+        }
+
+        validate {
+            assertFalse(value in composition!!.getSlots())
+        }
+
+        rememberValue = true
+        expectChanges()
+
+        validate {
+            assertTrue(value in composition!!.getSlots())
+        }
+
+        rememberValue = false
+        expectChanges()
+
+        validate {
+            assertFalse(value in composition!!.getSlots())
+            assertFalse(composers.any { value in it.getInsertTableSlots() })
+        }
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
