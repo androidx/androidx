@@ -632,6 +632,8 @@ public class EditorSessionTest {
 
                 private val backgroundHandler = Handler(backgroundHandlerThread.looper)
 
+                override var editorObscuresWatchFace: Boolean = false
+
                 override val userStyleSchema = userStyleRepository.schema
                 override var userStyle: UserStyle
                     get() = userStyleRepository.userStyle.value

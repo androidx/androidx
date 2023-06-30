@@ -22,6 +22,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Picture
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
@@ -39,6 +40,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
@@ -78,8 +80,8 @@ public object CanvasType {
      * to a software canvas.
      *
      * NOTE the system takes screenshots for use in the watch face picker UI and these will be
-     * taken using software rendering. This means [Bitmap]s with [Bitmap.Config.HARDWARE] must
-     * be avoided.
+     * taken using software rendering for API level 27 and below. This means on API level 27 and
+     * below [Bitmap]s with [Bitmap.Config.HARDWARE] must be avoided.
      */
     public const val HARDWARE: Int = 1
 }
@@ -605,22 +607,39 @@ constructor(
             renderParameters: RenderParameters
         ): Bitmap =
             TraceEvent("CanvasRenderer.takeScreenshot").use {
-                val bitmap =
-                    Bitmap.createBitmap(
-                        screenBounds.width(),
-                        screenBounds.height(),
-                        Bitmap.Config.ARGB_8888
-                    )
                 val prevRenderParameters = this.renderParameters
                 val originalIsForScreenshot = renderParameters.isForScreenshot
 
                 renderParameters.isForScreenshot = true
                 this.renderParameters = renderParameters
-                renderAndComposite(Canvas(bitmap), zonedDateTime)
-                this.renderParameters = prevRenderParameters
-                renderParameters.isForScreenshot = originalIsForScreenshot
 
-                return bitmap
+                if (Build.VERSION.SDK_INT >= 28) {
+                    val picture = Picture()
+                    renderAndComposite(
+                        picture.beginRecording(screenBounds.width(), screenBounds.height()),
+                        zonedDateTime
+                    )
+                    picture.endRecording()
+                    this.renderParameters = prevRenderParameters
+                    renderParameters.isForScreenshot = originalIsForScreenshot
+                    return Api28CreateBitmapHelper.createBitmap(
+                        picture,
+                        screenBounds.width(),
+                        screenBounds.height(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                } else {
+                    val bitmap =
+                        Bitmap.createBitmap(
+                            screenBounds.width(),
+                            screenBounds.height(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                    renderAndComposite(Canvas(bitmap), zonedDateTime)
+                    this.renderParameters = prevRenderParameters
+                    renderParameters.isForScreenshot = originalIsForScreenshot
+                    return bitmap
+                }
             }
 
         internal override fun renderScreenshotToSurface(
@@ -653,17 +672,34 @@ constructor(
                 // Render and composite the HighlightLayer
                 val highlightLayer = renderParameters.highlightLayer
                 if (highlightLayer != null) {
-                    val highlightLayerBitmap =
-                        Bitmap.createBitmap(
+                    val highlightLayerBitmap: Bitmap
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        val picture = Picture()
+                        val highlightCanvas =
+                            picture.beginRecording(screenBounds.width(), screenBounds.height())
+                        if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
+                            highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                        }
+                        renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
+                        picture.endRecording()
+                        highlightLayerBitmap = Api28CreateBitmapHelper.createBitmap(
+                            picture,
                             screenBounds.width(),
                             screenBounds.height(),
                             Bitmap.Config.ARGB_8888
                         )
-                    val highlightCanvas = Canvas(highlightLayerBitmap)
-                    if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
-                        highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                    } else {
+                        highlightLayerBitmap = Bitmap.createBitmap(
+                            screenBounds.width(),
+                            screenBounds.height(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                        val highlightCanvas = Canvas(highlightLayerBitmap)
+                        if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
+                            highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                        }
+                        renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
                     }
-                    renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
                     canvas.drawBitmap(highlightLayerBitmap, 0f, 0f, HIGHLIGHT_LAYER_COMPOSITE_PAINT)
                     highlightLayerBitmap.recycle()
                 }
@@ -1760,4 +1796,15 @@ constructor(
             renderHighlightLayer(zonedDateTime, sharedAssetsHolder.sharedAssets!! as SharedAssetsT)
         }
     }
+}
+
+/** Helper to allow class verification. */
+@RequiresApi(28)
+internal object Api28CreateBitmapHelper {
+    fun createBitmap(
+        picture: Picture,
+        width: Int,
+        height: Int,
+        config: Bitmap.Config
+    ) = Bitmap.createBitmap(picture, width, height, config)
 }
