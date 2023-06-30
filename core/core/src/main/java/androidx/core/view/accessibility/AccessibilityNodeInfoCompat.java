@@ -680,13 +680,10 @@ public class AccessibilityNodeInfoCompat {
         @NonNull
         @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
         public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
-                new AccessibilityActionCompat(BuildCompat.isAtLeastU()
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 34
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION
-                        : null,
-                        // TODO (267511848): update ID value once U resources are finalized.
-                        BuildCompat.isAtLeastU()
-                                ? android.R.id.accessibilityActionScrollInDirection : -1,
-                        null, null, null);
+                        : null, android.R.id.accessibilityActionScrollInDirection, null, null,
+                        null);
 
         final Object mAction;
         private final int mId;
@@ -4738,12 +4735,9 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_DRAG_DROP";
             case android.R.id.accessibilityActionDragCancel:
                 return "ACTION_DRAG_CANCEL";
+            case android.R.id.accessibilityActionScrollInDirection:
+                return "ACTION_SCROLL_IN_DIRECTION";
             default:
-                // TODO (b/267511848): fix after Android U constants are finalized.
-                if (Build.VERSION.SDK_INT >= 34
-                        && action == android.R.id.accessibilityActionScrollInDirection) {
-                    return "ACTION_SCROLL_IN_DIRECTION";
-                }
                 return "ACTION_UNKNOWN";
         }
     }

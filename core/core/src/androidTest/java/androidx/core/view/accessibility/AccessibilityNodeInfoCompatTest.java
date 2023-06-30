@@ -335,7 +335,6 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
     }
 
-    @SdkSuppress(minSdkVersion = 34)
     @SmallTest
     @Test
     public void testActionScrollInDirection() {
