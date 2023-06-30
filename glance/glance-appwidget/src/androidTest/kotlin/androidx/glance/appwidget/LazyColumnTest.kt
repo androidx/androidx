@@ -64,9 +64,8 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-// b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
-@SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33)
 @MediumTest
+@SdkSuppress(minSdkVersion = 29)
 class LazyColumnTest {
     @get:Rule
     val mHostRule = AppWidgetHostRule()
@@ -386,8 +385,7 @@ class LazyColumnTest {
     }
 
     @Test
-    // b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 31)
     fun clickable_addsClickHandlers() {
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {
@@ -450,8 +448,7 @@ class LazyColumnTest {
     }
 
     @Test
-    // b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
-    @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 31)
     fun clickTriggersOnlyOneLambda() = runBlocking {
         val received = MutableStateFlow(-1)
         TestGlanceAppWidget.uiDefinition = {
@@ -544,8 +541,7 @@ class LazyColumnTest {
     }
 
     @Test
-    // b/205868100 Run on 34+ once FLAG_UNSAFE_MUTABLE_IMPLICIT_INTENT is added
-    @SdkSuppress(minSdkVersion = 32, maxSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 32)
     fun listCanBeUpdated_RemoteCollectionItems() = runTest {
         val countFlow = MutableStateFlow(0)
         TestGlanceAppWidget.uiDefinition = {
