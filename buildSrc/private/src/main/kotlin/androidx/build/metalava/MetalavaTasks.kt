@@ -103,6 +103,7 @@ object MetalavaTasks {
                 task.referenceApi.set(checkApiRelease!!.flatMap { it.referenceApi })
                 task.baselines.set(checkApiRelease!!.flatMap { it.baselines })
                 task.api.set(builtApiLocation)
+                task.version.set(version)
                 task.dependencyClasspath = javaCompileInputs.dependencyClasspath
                 task.bootClasspath = javaCompileInputs.bootClasspath
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
