@@ -84,7 +84,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
                 // indicates we are either performing auto-backup or the user never used a custom
                 // Application class (or both).
                 throw new IllegalStateException("WorkManager needs to be initialized via a "
-                        + "ContentProvider#onCreate() or an Application#onCreate().");
+                        + "ContentProvider#onCreate() or an Application#onCreate().", e);
             }
             Logger.get().warning(TAG, "Could not find WorkManager instance; this may be because "
                     + "an auto-backup is in progress. Ignoring JobScheduler commands for now. "
