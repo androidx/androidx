@@ -101,6 +101,54 @@ Please see Jetpack's
 [open-source policy page](/company/teams/androidx/open_source.md) for more
 details on using third-party libraries.
 
+### Platform extension (sidecar JAR) dependencies {#dependencies-sidecar}
+
+Platform extension or "sidecar JAR" libraries ship as part of the Android system
+image and are made available to developers through the `<uses-library>` manifest
+tag.
+
+Examples include Wear OS extensions (`com.google.android.wearable`), Camera OEM
+extensions (`androidx.camera.extensions.impl`), and Window OEM extensions
+(`androix.window.extensions`).
+
+Project dependencies on extension libraries **must** use `compileOnly`:
+
+`build.gradle`:
+
+```
+dependencies {
+    // Extension interfaces defined in Jetpack
+    compileOnly(project(":window:extensions:extensions"))
+
+    // Extension interfaces defined in a stub JAR
+    compileOnly(
+        fileTree(
+            dir: "../wear_stubs",
+            include: ["com.google.android.wearable-stubs.jar"]
+        )
+    )
+}
+```
+
+Documentation dependencies **must** use the `stubs` configuration:
+
+`docs-public/build.gradle`:
+
+```
+dependencies {
+  stubs("androidx.window:window-extensions:1.0.0-alpha01")
+  stubs(
+    fileTree(
+        dir: "../wear/wear_stubs/",
+        include: ["com.google.android.wearable-stubs.jar"]
+    )
+  )
+}
+```
+
+See [Packaging and naming](/company/teams/androidx/api_guidelines#module-naming)
+for details about defining extension interfaces in Jetpack projects.
+
 ### Types of dependencies {#dependencies-types}
 
 AndroidX allows dependencies to be specified as `api` or `implementation` with a
