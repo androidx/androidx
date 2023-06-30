@@ -78,7 +78,7 @@ class WorkerHasPublicModifierDetector : Detector(), SourceCodeScanner {
         }
 
         if (!declaration.hasModifier(JvmModifier.PUBLIC)) {
-            workers += Pair(declaration, context.getLocation(declaration.javaPsi))
+            workers += Pair(declaration, context.getNameLocation(declaration))
         }
     }
 
