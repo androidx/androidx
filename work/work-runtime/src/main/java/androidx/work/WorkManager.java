@@ -120,8 +120,7 @@ import kotlinx.coroutines.flow.Flow;
  * uniquely-identifiable name (see
  * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}).
  * <p>
- * <a name="initializing"></a>
- * <b>Initializing WorkManager</b>
+ * <h3 id="initializing">Initializing WorkManager</h3>
  * <p>
  * By default, WorkManager auto-initializes itself using a built-in {@code ContentProvider}.
  * ContentProviders are created and run before the {@code Application} object, so this allows the
@@ -130,8 +129,7 @@ import kotlinx.coroutines.flow.Flow;
  * {@link Configuration.Provider} or
  * {@link WorkManager#initialize(android.content.Context, androidx.work.Configuration)}.
  * <p>
- * <a name="worker_class_names"></a>
- * <b>Renaming and Removing ListenableWorker Classes</b>
+ * <h3 id="worker_class_names">Renaming and Removing ListenableWorker Classes</h3>
  * <p>
  * Exercise caution in renaming classes derived from {@link ListenableWorker}s.  WorkManager stores
  * the class name in its internal database when the {@link WorkRequest} is enqueued so it can later
