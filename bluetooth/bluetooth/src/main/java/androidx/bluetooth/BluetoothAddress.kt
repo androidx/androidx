@@ -17,6 +17,8 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothAdapter
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 
 /**
  * Represents a Bluetooth address for a remote device.
@@ -25,17 +27,45 @@ import android.bluetooth.BluetoothAdapter
  * @property addressType valid address type
  *
  */
-class BluetoothAddress(val address: String, var addressType: Int) {
+class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
+    companion object {
+        /** Address type is public and registered with the IEEE. */
+        const val ADDRESS_TYPE_PUBLIC: Int = 0
+
+        /** Address type is random static. */
+        const val ADDRESS_TYPE_RANDOM_STATIC: Int = 1
+
+        /** Address type is random resolvable. */
+        const val ADDRESS_TYPE_RANDOM_RESOLVABLE: Int = 2
+
+        /** Address type is random non resolvable. */
+        const val ADDRESS_TYPE_RANDOM_NON_RESOLVABLE: Int = 3
+
+        /** Address type is unknown. */
+        const val ADDRESS_TYPE_UNKNOWN: Int = 0xFFFF
+    }
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        ADDRESS_TYPE_PUBLIC,
+        ADDRESS_TYPE_RANDOM_STATIC,
+        ADDRESS_TYPE_RANDOM_RESOLVABLE,
+        ADDRESS_TYPE_RANDOM_NON_RESOLVABLE,
+        ADDRESS_TYPE_UNKNOWN
+    )
+    annotation class AddressType
+
     init {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             throw IllegalArgumentException("$address is not a valid Bluetooth address")
         }
 
-        if (addressType != AddressType.ADDRESS_TYPE_PUBLIC &&
-            addressType != AddressType.ADDRESS_TYPE_RANDOM_STATIC &&
-            addressType != AddressType.ADDRESS_TYPE_RANDOM_RESOLVABLE &&
-            addressType != AddressType.ADDRESS_TYPE_RANDOM_NON_RESOLVABLE) {
-            addressType = AddressType.ADDRESS_TYPE_UNKNOWN
+        addressType = when (addressType) {
+            ADDRESS_TYPE_PUBLIC,
+            ADDRESS_TYPE_RANDOM_STATIC,
+            ADDRESS_TYPE_RANDOM_RESOLVABLE,
+            ADDRESS_TYPE_RANDOM_NON_RESOLVABLE -> addressType
+            else -> ADDRESS_TYPE_UNKNOWN
         }
     }
 }

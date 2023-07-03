@@ -28,6 +28,15 @@ package androidx.bluetooth {
     method public void setAddressType(int);
     property public final String address;
     property public final int addressType;
+    field public static final int ADDRESS_TYPE_PUBLIC = 0; // 0x0
+    field public static final int ADDRESS_TYPE_RANDOM_NON_RESOLVABLE = 3; // 0x3
+    field public static final int ADDRESS_TYPE_RANDOM_RESOLVABLE = 2; // 0x2
+    field public static final int ADDRESS_TYPE_RANDOM_STATIC = 1; // 0x1
+    field public static final int ADDRESS_TYPE_UNKNOWN = 65535; // 0xffff
+    field public static final androidx.bluetooth.BluetoothAddress.Companion Companion;
+  }
+
+  public static final class BluetoothAddress.Companion {
   }
 
   public final class BluetoothDevice {
