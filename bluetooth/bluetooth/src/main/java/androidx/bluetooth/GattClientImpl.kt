@@ -239,6 +239,9 @@ internal class GattClientImpl {
 
             override suspend fun readCharacteristic(characteristic: GattCharacteristic):
                 Result<ByteArray> {
+                if (characteristic.properties and GattCharacteristic.PROPERTY_READ == 0) {
+                    return Result.failure(IllegalArgumentException("can't read the characteristic"))
+                }
                 return runTask {
                     bluetoothGatt.readCharacteristic(characteristic.fwkCharacteristic)
                     val res = takeMatchingResult<CallbackResult.OnCharacteristicRead>(
@@ -256,6 +259,10 @@ internal class GattClientImpl {
                 value: ByteArray,
                 writeType: Int
             ): Result<Unit> {
+                if (characteristic.properties and GattCharacteristic.PROPERTY_WRITE == 0) {
+                    return Result.failure(
+                        IllegalArgumentException("can't write to the characteristic"))
+                }
                 return runTask {
                     bluetoothGatt.writeCharacteristic(
                         characteristic.fwkCharacteristic, value, writeType)
@@ -270,6 +277,9 @@ internal class GattClientImpl {
 
             override fun subscribeToCharacteristic(characteristic: GattCharacteristic):
                 Flow<ByteArray> {
+                if (characteristic.properties and GattCharacteristic.PROPERTY_NOTIFY == 0) {
+                    return emptyFlow()
+                }
                 val cccd = characteristic.fwkCharacteristic.getDescriptor(CCCD_UID)
                     ?: return emptyFlow()
 
