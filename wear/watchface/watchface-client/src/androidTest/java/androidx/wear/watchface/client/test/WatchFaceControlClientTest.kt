@@ -41,11 +41,11 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.BoundingArc
-import androidx.wear.watchface.ComplicationSlotBoundsTypes
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.TapTypes
+import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
@@ -248,8 +248,8 @@ abstract class WatchFaceControlClientTestBase {
         val leftClickX = interactiveInstance.complicationSlotsState[slotId]!!.bounds.centerX()
         val leftClickY = interactiveInstance.complicationSlotsState[slotId]!!.bounds.centerY()
 
-        interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapTypes.DOWN)
-        interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapTypes.UP)
+        interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapType.DOWN)
+        interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapType.UP)
     }
 }
 
@@ -367,7 +367,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
         assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
         assertThat(leftComplicationDetails.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(leftComplicationDetails.defaultDataSourcePolicy.systemDataSourceFallback)
             .isEqualTo(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK)
         assertThat(leftComplicationDetails.defaultDataSourceType)
@@ -394,7 +394,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
         assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
         assertThat(rightComplicationDetails.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         assertThat(rightComplicationDetails.defaultDataSourcePolicy.systemDataSourceFallback)
             .isEqualTo(SystemDataSources.DATA_SOURCE_STEP_COUNT)
         assertThat(rightComplicationDetails.defaultDataSourceType)
@@ -1009,7 +1009,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
             assertThat(interactiveInstance.complicationSlotsState.keys).containsExactly(123)
 
             val slot = interactiveInstance.complicationSlotsState[123]!!
-            assertThat(slot.boundsType).isEqualTo(ComplicationSlotBoundsTypes.EDGE)
+            assertThat(slot.boundsType).isEqualTo(ComplicationSlotBoundsType.EDGE)
             assertThat(slot.getBoundingArc()).isEqualTo(BoundingArc(45f, 90f, 0.1f))
             assertThat(slot.bounds).isEqualTo(Rect(0, 0, 400, 400))
         } finally {

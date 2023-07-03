@@ -32,12 +32,12 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.wear.watchface.ComplicationSlot
-import androidx.wear.watchface.ComplicationSlotBoundsTypes
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.TapType
+import androidx.wear.watchface.TapTypeIntDef
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -257,9 +257,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
             .firstOrNull {
                 it.value.isEnabled &&
                     when (it.value.boundsType) {
-                        ComplicationSlotBoundsTypes.ROUND_RECT -> it.value.bounds.contains(x, y)
-                        ComplicationSlotBoundsTypes.BACKGROUND -> false
-                        ComplicationSlotBoundsTypes.EDGE -> false
+                        ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                        ComplicationSlotBoundsType.BACKGROUND -> false
+                        ComplicationSlotBoundsType.EDGE -> false
                         else -> false
                     }
             }
@@ -288,10 +288,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      *
      * @param xPosition The x-coordinate of the tap in pixels
      * @param yPosition The y-coordinate of the tap in pixels
-     * @param tapType The [TapType] of the event
+     * @param tapType The [TapTypeIntDef] of the event
      */
     @Throws(RemoteException::class)
-    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
+    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapTypeIntDef tapType: Int)
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
@@ -612,7 +612,7 @@ internal constructor(
             synchronized(lock) { closed = true }
         }
 
-    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int) =
+    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapTypeIntDef tapType: Int) =
         TraceEvent("InteractiveWatchFaceClientImpl.sendTouchEvent").use {
             iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
         }
@@ -773,10 +773,10 @@ internal constructor(
                     .firstOrNull {
                         it.value.isEnabled &&
                             when (it.value.boundsType) {
-                                ComplicationSlotBoundsTypes.ROUND_RECT ->
+                                ComplicationSlotBoundsType.ROUND_RECT ->
                                     it.value.bounds.contains(x, y)
-                                ComplicationSlotBoundsTypes.BACKGROUND -> false
-                                ComplicationSlotBoundsTypes.EDGE -> false
+                                ComplicationSlotBoundsType.BACKGROUND -> false
+                                ComplicationSlotBoundsType.EDGE -> false
                                 else -> false
                             }
                     }

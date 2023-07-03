@@ -40,7 +40,7 @@ import android.view.animation.PathInterpolator
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.CanvasComplicationFactory
-import androidx.wear.watchface.CanvasTypes
+import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
@@ -49,7 +49,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceTypes
+import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -328,7 +328,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 renderer.oldBounds.set(0, 0, 0, 0)
             }
         }
-        return WatchFace(WatchFaceTypes.DIGITAL, renderer)
+        return WatchFace(WatchFaceType.DIGITAL, renderer)
             .setComplicationDeniedDialogIntent(Intent(this, ComplicationDeniedActivity::class.java))
             .setComplicationRationaleDialogIntent(
                 Intent(this, ComplicationRationalActivity::class.java)
@@ -351,7 +351,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
-            CanvasTypes.HARDWARE,
+            CanvasType.HARDWARE,
             INTERACTIVE_UPDATE_RATE_MS,
             clearWithBackgroundTintBeforeRenderingHighlightLayer = true
         ) {

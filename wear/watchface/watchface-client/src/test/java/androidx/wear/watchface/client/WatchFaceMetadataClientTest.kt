@@ -22,7 +22,7 @@ import android.content.ServiceConnection
 import android.graphics.RectF
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.ComplicationSlotBoundsTypes
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.control.IWatchFaceControlService
@@ -59,7 +59,7 @@ class WatchFaceMetadataClientTest {
                             ComplicationType.LONG_TEXT.toWireComplicationType()
                         ),
                         arrayOf(shortTextBounds, longTextBounds),
-                        ComplicationSlotBoundsTypes.ROUND_RECT,
+                        ComplicationSlotBoundsType.ROUND_RECT,
                         intArrayOf(ComplicationType.SHORT_TEXT.toWireComplicationType()),
                         emptyList(),
                         SystemDataSources.DATA_SOURCE_DATE,

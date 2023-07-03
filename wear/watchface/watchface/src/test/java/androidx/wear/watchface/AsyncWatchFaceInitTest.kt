@@ -302,7 +302,7 @@ public class AsyncWatchFaceInitTest {
         // pendingInteractiveWatchFaceWcs.
         completableDirectBootWatchFace.complete(
             WatchFace(
-                WatchFaceTypes.ANALOG,
+                WatchFaceType.ANALOG,
                 TestRenderer(
                     pendingSurfaceHolder,
                     pendingCurrentUserStyleRepository,

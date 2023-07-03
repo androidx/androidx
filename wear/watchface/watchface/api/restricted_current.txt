@@ -33,9 +33,9 @@ package androidx.wear.watchface {
     method @WorkerThread public androidx.wear.watchface.CanvasComplication create(androidx.wear.watchface.WatchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback);
   }
 
-  public final class CanvasTypes {
+  public final class CanvasType {
     field public static final int HARDWARE = 1; // 0x1
-    field public static final androidx.wear.watchface.CanvasTypes INSTANCE;
+    field public static final androidx.wear.watchface.CanvasType INSTANCE;
     field public static final int SOFTWARE = 0; // 0x0
   }
 
@@ -107,10 +107,10 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
   }
 
-  public final class ComplicationSlotBoundsTypes {
+  public final class ComplicationSlotBoundsType {
     field public static final int BACKGROUND = 1; // 0x1
     field public static final int EDGE = 2; // 0x2
-    field public static final androidx.wear.watchface.ComplicationSlotBoundsTypes INSTANCE;
+    field public static final androidx.wear.watchface.ComplicationSlotBoundsType INSTANCE;
     field public static final int ROUND_RECT = 0; // 0x0
   }
 
@@ -321,10 +321,10 @@ package androidx.wear.watchface {
     property public final int yPos;
   }
 
-  public final class TapTypes {
+  public final class TapType {
     field public static final int CANCEL = 1; // 0x1
     field public static final int DOWN = 0; // 0x0
-    field public static final androidx.wear.watchface.TapTypes INSTANCE;
+    field public static final androidx.wear.watchface.TapType INSTANCE;
     field public static final int UP = 2; // 0x2
   }
 
@@ -412,10 +412,10 @@ package androidx.wear.watchface {
   public static final class WatchFaceService.Companion {
   }
 
-  public final class WatchFaceTypes {
+  public final class WatchFaceType {
     field public static final int ANALOG = 0; // 0x0
     field public static final int DIGITAL = 1; // 0x1
-    field public static final androidx.wear.watchface.WatchFaceTypes INSTANCE;
+    field public static final androidx.wear.watchface.WatchFaceType INSTANCE;
   }
 
   public final class WatchState {

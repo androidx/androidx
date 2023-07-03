@@ -47,7 +47,7 @@ internal class FakeRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
-        CanvasTypes.SOFTWARE,
+        CanvasType.SOFTWARE,
         16
     ) {
     override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
@@ -67,7 +67,7 @@ private class TestAsyncListenableWatchFaceService : ListenableWatchFaceService()
         getUiThreadHandler().post {
             future.set(
                 WatchFace(
-                        WatchFaceTypes.DIGITAL,
+                        WatchFaceType.DIGITAL,
                         FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
                     )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }

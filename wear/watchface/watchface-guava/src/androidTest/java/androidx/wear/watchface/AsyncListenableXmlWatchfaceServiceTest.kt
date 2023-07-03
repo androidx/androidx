@@ -93,7 +93,7 @@ private class TestAsyncXmlListenableWatchFaceService(testContext: Context) :
         getUiThreadHandler().post {
             future.set(
                 WatchFace(
-                        WatchFaceTypes.DIGITAL,
+                        WatchFaceType.DIGITAL,
                         FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
                     )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }

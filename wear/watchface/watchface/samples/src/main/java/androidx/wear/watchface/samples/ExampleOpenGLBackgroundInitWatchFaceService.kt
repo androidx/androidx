@@ -29,7 +29,7 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceTypes
+import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
@@ -90,7 +90,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
                 resources,
                 colorStyleSetting
             )
-        return WatchFace(WatchFaceTypes.ANALOG, renderer)
+        return WatchFace(WatchFaceType.ANALOG, renderer)
             .setComplicationDeniedDialogIntent(Intent(this, ComplicationDeniedActivity::class.java))
             .setComplicationRationaleDialogIntent(
                 Intent(this, ComplicationRationalActivity::class.java)
