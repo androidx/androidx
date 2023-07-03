@@ -55,7 +55,7 @@ class BluetoothDeviceTest {
         Assume.assumeNotNull(bluetoothAdapter) // Bluetooth is not available if adapter is null
         val fwkBluetoothDevice = bluetoothAdapter!!.getRemoteDevice("00:01:02:03:04:05")
 
-        val bluetoothDevice = BluetoothDevice(fwkBluetoothDevice)
+        val bluetoothDevice = BluetoothDevice.of(fwkBluetoothDevice)
 
         assertEquals(bluetoothDevice.bondState, fwkBluetoothDevice.bondState)
         assertEquals(bluetoothDevice.name, fwkBluetoothDevice.name)

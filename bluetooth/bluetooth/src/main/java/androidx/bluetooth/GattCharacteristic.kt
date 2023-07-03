@@ -51,6 +51,10 @@ class GattCharacteristic internal constructor(
         const val PERMISSION_WRITE_SIGNED: Int = BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED
         const val PERMISSION_WRITE_SIGNED_MITM: Int =
             BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
+
+        const val WRITE_TYPE_DEFAULT: Int = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        const val WRITE_TYPE_SIGNED: Int = BluetoothGattCharacteristic.WRITE_TYPE_SIGNED
+        const val WRITE_TYPE_NO_RESPONSE: Int = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
     }
 
     /**
@@ -70,12 +74,6 @@ class GattCharacteristic internal constructor(
      */
     val permissions: Int
         get() = fwkCharacteristic.permissions
-
-    /**
-     * A list of descriptors for the characteristic
-     */
-    val descriptors: List<BluetoothGattDescriptor> =
-        fwkCharacteristic.descriptors.map { BluetoothGattDescriptor(it) }
 
     internal var service: GattService? = null
 }

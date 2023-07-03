@@ -16,11 +16,9 @@
 
 package androidx.bluetooth.integration.testapp.data.connection
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
 import androidx.bluetooth.BluetoothDevice
+import androidx.bluetooth.GattCharacteristic
+import androidx.bluetooth.GattService
 import java.util.UUID
 import kotlinx.coroutines.Job
 
@@ -31,15 +29,15 @@ class DeviceConnection(
     var onClickReadCharacteristic: OnClickCharacteristic? = null
     var onClickWriteCharacteristic: OnClickCharacteristic? = null
     var status = Status.DISCONNECTED
-    var services = emptyList<BluetoothGattService>()
+    var services = emptyList<GattService>()
 
     private val values = mutableMapOf<UUID, ByteArray?>()
 
-    fun storeValueFor(characteristic: BluetoothGattCharacteristic, value: ByteArray?) {
+    fun storeValueFor(characteristic: GattCharacteristic, value: ByteArray?) {
         values[characteristic.uuid] = value
     }
 
-    fun valueFor(characteristic: BluetoothGattCharacteristic): ByteArray? {
+    fun valueFor(characteristic: GattCharacteristic): ByteArray? {
         return values[characteristic.uuid]
     }
 }

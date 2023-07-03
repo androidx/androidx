@@ -28,6 +28,8 @@ import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
+import java.util.UUID
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -148,5 +150,80 @@ class BluetoothLe(private val context: Context) {
             Log.d(TAG, "awaitClose() called")
             bleScanner?.stopScan(callback)
         }
+    }
+
+    /**
+     * Scope for operations as a GATT client role.
+     *
+     * @see connectGatt
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    interface GattClientScope {
+
+        /**
+         * Gets the services discovered from the remote device
+         */
+        fun getServices(): List<GattService>
+
+        /**
+         * Gets the service of the remote device by UUID.
+         *
+         * If multiple instances of the same service exist, the first instance of the service
+         * is returned.
+         */
+        fun getService(uuid: UUID): GattService?
+
+        /**
+         * Reads the given remote characteristic.
+         *
+         * @param characteristic a remote [GattCharacteristic] to read
+         * @return The value of the characteristic
+         */
+        suspend fun readCharacteristic(characteristic: GattCharacteristic):
+            Result<ByteArray>
+
+        /**
+         * Writes the given value to the given remote characteristic.
+         *
+         * @param characteristic a remote [GattCharacteristic] to write
+         * @param value a value to be written.
+         * @param writeType [GattCharacteristic.WRITE_TYPE_DEFAULT],
+         * [GattCharacteristic.WRITE_TYPE_NO_RESPONSE], or
+         * [GattCharacteristic.WRITE_TYPE_SIGNED].
+         * @return the result of the write operation
+         */
+        suspend fun writeCharacteristic(
+            characteristic: GattCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        ): Result<Unit>
+
+        /**
+         * Returns a _cold_ [Flow] that contains the indicated value of the given characteristic.
+         */
+        fun subscribeToCharacteristic(characteristic: GattCharacteristic): Flow<ByteArray>
+
+        /**
+         * Suspends the current coroutine until the pending operations are handled and the connection
+         * is closed, then it invokes the given [block] before resuming the coroutine.
+         */
+        suspend fun awaitClose(block: () -> Unit)
+    }
+
+    /**
+     * Connects to the GATT server on the remote Bluetooth device and
+     * invokes the given [block] after the connection is made.
+     *
+     * The block may not be run if connection fails.
+     *
+     * @param device a [BluetoothDevice] to connect to
+     * @param block a block of code that is invoked after the connection is made.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    suspend fun <R> connectGatt(
+        device: BluetoothDevice,
+        block: suspend GattClientScope.() -> R
+    ): R? {
+        return GattClientImpl().connect(context, device, block)
     }
 }
