@@ -221,6 +221,8 @@ interface Modifier {
             private set
         internal var insertedNodeAwaitingAttachForInvalidation = false
         internal var updatedNodeAwaitingAttachForInvalidation = false
+        private var onAttachRunExpected = false
+        private var onDetachRunExpected = false
         /**
          * Indicates that the node is attached to a [androidx.compose.ui.layout.Layout] which is
          * part of the UI tree.
@@ -262,21 +264,34 @@ interface Modifier {
             check(!isAttached) { "node attached multiple times" }
             check(coordinator != null) { "attach invoked on a node without a coordinator" }
             isAttached = true
+            onAttachRunExpected = true
         }
 
         internal open fun runAttachLifecycle() {
             check(isAttached) { "Must run markAsAttached() prior to runAttachLifecycle" }
+            check(onAttachRunExpected) { "Must run runAttachLifecycle() only once after " +
+                "markAsAttached()"
+            }
+            onAttachRunExpected = false
             onAttach()
+            onDetachRunExpected = true
         }
 
         internal open fun runDetachLifecycle() {
             check(isAttached) { "node detached multiple times" }
             check(coordinator != null) { "detach invoked on a node without a coordinator" }
+            check(onDetachRunExpected) {
+                "Must run runDetachLifecycle() once after runAttachLifecycle() and before " +
+                    "markAsDetached()"
+            }
+            onDetachRunExpected = false
             onDetach()
         }
 
         internal open fun markAsDetached() {
             check(isAttached) { "Cannot detach a node that is not attached" }
+            check(!onAttachRunExpected) { "Must run runAttachLifecycle() before markAsDetached()" }
+            check(!onDetachRunExpected) { "Must run runDetachLifecycle() before markAsDetached()" }
             isAttached = false
 
             scope?.let {
