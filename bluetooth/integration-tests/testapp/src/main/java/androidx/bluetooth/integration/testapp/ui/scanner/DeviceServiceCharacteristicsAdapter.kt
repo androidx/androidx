@@ -16,14 +16,13 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattCharacteristic
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
@@ -33,7 +32,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class DeviceServiceCharacteristicsAdapter(
     private val deviceConnection: DeviceConnection,
-    private val characteristics: List<BluetoothGattCharacteristic>,
+    private val characteristics: List<GattCharacteristic>,
     private val onClickReadCharacteristic: OnClickCharacteristic,
     private val onClickWriteCharacteristic: OnClickCharacteristic
 ) : RecyclerView.Adapter<DeviceServiceCharacteristicsAdapter.ViewHolder>() {
@@ -72,7 +71,7 @@ class DeviceServiceCharacteristicsAdapter(
             itemView.findViewById(R.id.button_write_characteristic)
 
         private var currentDeviceConnection: DeviceConnection? = null
-        private var currentCharacteristic: BluetoothGattCharacteristic? = null
+        private var currentCharacteristic: GattCharacteristic? = null
 
         init {
             buttonReadCharacteristic.setOnClickListener {
@@ -92,7 +91,7 @@ class DeviceServiceCharacteristicsAdapter(
             }
         }
 
-        fun bind(deviceConnection: DeviceConnection, characteristic: BluetoothGattCharacteristic) {
+        fun bind(deviceConnection: DeviceConnection, characteristic: GattCharacteristic) {
             currentDeviceConnection = deviceConnection
             currentCharacteristic = characteristic
 
@@ -103,19 +102,19 @@ class DeviceServiceCharacteristicsAdapter(
 
             val propertiesList = mutableListOf<String>()
             // TODO(ofy) Update these with BluetoothGattCharacteristic.isReadable, isWriteable, ...
-            if (properties.and(BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+            if (properties.and(GattCharacteristic.PROPERTY_INDICATE) != 0) {
                 propertiesList.add(context.getString(R.string.indicate))
             }
-            if (properties.and(BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+            if (properties.and(GattCharacteristic.PROPERTY_NOTIFY) != 0) {
                 propertiesList.add(context.getString(R.string.notify))
             }
-            val isReadable = properties.and(BluetoothGattCharacteristic.PROPERTY_READ) != 0
+            val isReadable = properties.and(GattCharacteristic.PROPERTY_READ) != 0
             if (isReadable) {
                 propertiesList.add(context.getString(R.string.read))
             }
-            val isWriteable = (properties.and(BluetoothGattCharacteristic.PROPERTY_WRITE) != 0 ||
-                properties.and(BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
-                properties.and(BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE) != 0)
+            val isWriteable = (properties.and(GattCharacteristic.PROPERTY_WRITE) != 0 ||
+                properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
+                properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0)
             if (isWriteable) {
                 propertiesList.add(context.getString(R.string.write))
             }

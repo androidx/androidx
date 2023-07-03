@@ -17,9 +17,7 @@
 package androidx.bluetooth.integration.testapp.ui.scanner
 
 // TODO(ofy) Migrate to androidx.bluetooth.AdvertiseParams
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothGattCharacteristic
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -31,12 +29,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
+import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
 import androidx.bluetooth.integration.testapp.data.connection.Status
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
-import androidx.bluetooth.integration.testapp.experimental.BluetoothLe as ExperimentalLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.view.isVisible
@@ -64,8 +62,6 @@ class ScannerFragment : Fragment() {
     }
 
     private lateinit var bluetoothLe: BluetoothLe
-    // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
-    private lateinit var experimenalLe: ExperimentalLe
 
     private var deviceServicesAdapter: DeviceServicesAdapter? = null
 
@@ -113,7 +109,7 @@ class ScannerFragment : Fragment() {
     private val onClickReadCharacteristic = object : OnClickCharacteristic {
         override fun onClick(
             deviceConnection: DeviceConnection,
-            characteristic: BluetoothGattCharacteristic
+            characteristic: GattCharacteristic
         ) {
             deviceConnection.onClickReadCharacteristic?.onClick(deviceConnection, characteristic)
         }
@@ -122,7 +118,7 @@ class ScannerFragment : Fragment() {
     private val onClickWriteCharacteristic = object : OnClickCharacteristic {
         override fun onClick(
             deviceConnection: DeviceConnection,
-            characteristic: BluetoothGattCharacteristic
+            characteristic: GattCharacteristic
         ) {
             deviceConnection.onClickWriteCharacteristic?.onClick(deviceConnection, characteristic)
         }
@@ -146,7 +142,6 @@ class ScannerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         bluetoothLe = BluetoothLe(requireContext())
-        experimenalLe = ExperimentalLe(requireContext())
 
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
@@ -262,8 +257,7 @@ class ScannerFragment : Fragment() {
             }
 
             try {
-                experimenalLe.connectGatt(requireContext(),
-                    deviceConnection.bluetoothDevice.fwkDevice) {
+                bluetoothLe.connectGatt(deviceConnection.bluetoothDevice) {
                     Log.d(TAG, "connectGatt result: getServices() = ${getServices()}")
 
                     deviceConnection.status = Status.CONNECTED
@@ -278,7 +272,7 @@ class ScannerFragment : Fragment() {
                         object : OnClickCharacteristic {
                             override fun onClick(
                                 deviceConnection: DeviceConnection,
-                                characteristic: BluetoothGattCharacteristic
+                                characteristic: GattCharacteristic
                             ) {
                                 connectScope.launch {
                                     val result = readCharacteristic(characteristic)
@@ -301,7 +295,7 @@ class ScannerFragment : Fragment() {
                         object : OnClickCharacteristic {
                             override fun onClick(
                                 deviceConnection: DeviceConnection,
-                                characteristic: BluetoothGattCharacteristic
+                                characteristic: GattCharacteristic
                             ) {
                                 val view = layoutInflater.inflate(
                                     R.layout.dialog_write_characteristic,
@@ -321,7 +315,7 @@ class ScannerFragment : Fragment() {
                                             val result = writeCharacteristic(
                                                 characteristic,
                                                 value,
-                                                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                                                GattCharacteristic.WRITE_TYPE_DEFAULT
                                             )
                                             Log.d(TAG, "writeCharacteristic() called with: " +
                                                 "result = $result")

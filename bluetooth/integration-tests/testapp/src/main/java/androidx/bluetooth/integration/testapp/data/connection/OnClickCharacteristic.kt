@@ -16,9 +16,8 @@
 
 package androidx.bluetooth.integration.testapp.data.connection
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattCharacteristic
+import androidx.bluetooth.GattCharacteristic
 
 interface OnClickCharacteristic {
-    fun onClick(deviceConnection: DeviceConnection, characteristic: BluetoothGattCharacteristic)
+    fun onClick(deviceConnection: DeviceConnection, characteristic: GattCharacteristic)
 }
