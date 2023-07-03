@@ -40,6 +40,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.CaptureProcessorImpl
 import androidx.camera.extensions.impl.ProcessResultImpl
 import androidx.camera.extensions.internal.sessionprocessor.StillCaptureProcessor.OnCaptureResultCallback
+import androidx.camera.extensions.util.Api21Impl
+import androidx.camera.extensions.util.Api21Impl.toCameraDeviceWrapper
 import androidx.camera.testing.Camera2Util
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
@@ -80,7 +82,7 @@ class StillCaptureProcessorTest {
     private lateinit var backgroundThread: HandlerThread
     private lateinit var backgroundHandler: Handler
     private lateinit var imageReaderJpeg: ImageReaderProxy
-    private var cameraDevice: CameraDevice? = null
+    private var cameraDevice: Api21Impl.CameraDeviceWrapper? = null
     private var cameraYuvImageReader: ImageReader? = null
     companion object {
         const val CAMERA_ID = "0"
@@ -224,19 +226,24 @@ class StillCaptureProcessorTest {
     @Test
     fun canStartCaptureMultipleTimes(): Unit = runBlocking {
         val captureStageIdList = listOf(0, 1, 2)
-        cameraDevice = Camera2Util.openCameraDevice(cameraManager, CAMERA_ID, backgroundHandler)
+        cameraDevice = Camera2Util.openCameraDevice(
+            cameraManager,
+            CAMERA_ID,
+            backgroundHandler
+        ).toCameraDeviceWrapper()
+
         cameraYuvImageReader = ImageReader.newInstance(
             WIDTH, HEIGHT, ImageFormat.YUV_420_888,
             captureStageIdList.size /* maxImages */
         )
         val captureSession = Camera2Util.openCaptureSession(
-            cameraDevice!!, listOf(cameraYuvImageReader!!.surface), backgroundHandler
+            cameraDevice!!.unwrap(), listOf(cameraYuvImageReader!!.surface), backgroundHandler
         )
 
         withTimeout(30000) {
             repeat(3) {
                 captureImage(
-                    cameraDevice!!, captureSession, cameraYuvImageReader!!, listOf(0, 1, 2)
+                    cameraDevice!!.unwrap(), captureSession, cameraYuvImageReader!!, listOf(0, 1, 2)
                 ).use {
                     assertThat(it).isNotNull()
                 }
@@ -278,13 +285,17 @@ class StillCaptureProcessorTest {
         onJpegProcessDone: suspend () -> Unit = {},
     ): Pair<Deferred<Unit>, Deferred<ImageProxy>> {
         stillCaptureProcessor.setRotationDegrees(rotationDegrees)
-        cameraDevice = Camera2Util.openCameraDevice(cameraManager, CAMERA_ID, backgroundHandler)
+        cameraDevice = Camera2Util.openCameraDevice(
+            cameraManager,
+            CAMERA_ID,
+            backgroundHandler
+        ).toCameraDeviceWrapper()
         cameraYuvImageReader = ImageReader.newInstance(
             WIDTH, HEIGHT, ImageFormat.YUV_420_888,
             captureStageIdList.size /* maxImages */
         )
         val captureSession = Camera2Util.openCaptureSession(
-            cameraDevice!!, listOf(cameraYuvImageReader!!.surface), backgroundHandler
+            cameraDevice!!.unwrap(), listOf(cameraYuvImageReader!!.surface), backgroundHandler
         )
 
         val deferredCapture = CompletableDeferred<Unit>()
@@ -321,7 +332,7 @@ class StillCaptureProcessorTest {
 
         for (id in captureStageIdList) {
             val captureResult = Camera2Util.submitSingleRequest(
-                cameraDevice!!,
+                cameraDevice!!.unwrap(),
                 captureSession,
                 listOf(cameraYuvImageReader!!.surface),
                 backgroundHandler
