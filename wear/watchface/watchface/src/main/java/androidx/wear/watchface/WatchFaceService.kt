@@ -1835,7 +1835,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TAP") {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
                         watchFaceImpl.onTapCommand(
-                            TapTypes.UP,
+                            TapType.UP,
                             TapEvent(
                                 x,
                                 y,
@@ -1847,7 +1847,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     uiThreadCoroutineScope.runBlockingWithTracing("onCommand COMMAND_TOUCH") {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
                         watchFaceImpl.onTapCommand(
-                            TapTypes.DOWN,
+                            TapType.DOWN,
                             TapEvent(
                                 x,
                                 y,
@@ -1861,7 +1861,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     ) {
                         val watchFaceImpl = deferredWatchFaceImpl.await()
                         watchFaceImpl.onTapCommand(
-                            TapTypes.CANCEL,
+                            TapType.CANCEL,
                             TapEvent(
                                 x,
                                 y,
@@ -2628,8 +2628,8 @@ public abstract class WatchFaceService : WallpaperService() {
                                     else -> true
                                 }
                         ) {
-                            if (complication.boundsType == ComplicationSlotBoundsTypes.BACKGROUND) {
-                                ComplicationSlotBoundsTypes.BACKGROUND
+                            if (complication.boundsType == ComplicationSlotBoundsType.BACKGROUND) {
+                                ComplicationSlotBoundsType.BACKGROUND
                             } else {
                                 labels.add(
                                     Pair(

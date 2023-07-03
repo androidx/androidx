@@ -33,7 +33,7 @@ import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Px;
-import androidx.wear.watchface.CanvasTypes;
+import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.ComplicationSlot;
 import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.RenderParameters.HighlightLayer;
@@ -72,7 +72,7 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
                 surfaceHolder,
                 userStyleRepository,
                 watchState,
-                CanvasTypes.HARDWARE,
+                CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS,
                 /* clearWithBackgroundTintBeforeRenderingHighlightLayer= */ true);
         mComplicationSlotsManager = complicationSlotsManager;

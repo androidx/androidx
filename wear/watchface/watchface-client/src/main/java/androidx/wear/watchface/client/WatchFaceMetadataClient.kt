@@ -29,7 +29,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.BoundingArc
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypeIntDef
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
 import androidx.wear.watchface.client.WatchFaceControlClient.Companion.createWatchFaceControlClient
@@ -248,7 +248,7 @@ private const val ANDROIDX_WATCHFACE_CONTROL_SERVICE =
  *
  * @property bounds The complication slot's [ComplicationSlotBounds]. Only non `null` for watch
  *   faces with a new enough [androidx.wear.watchface.control.WatchFaceControlService].
- * @property boundsType The [ComplicationSlotBoundsType] of the complication slot.
+ * @property boundsType The [ComplicationSlotBoundsTypeIntDef] of the complication slot.
  * @property supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
  *   during complication data source selection, this list should be non-empty.
  * @property defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] which controls the
@@ -267,7 +267,7 @@ public class ComplicationSlotMetadata
 @ComplicationExperimental
 constructor(
     public val bounds: ComplicationSlotBounds?,
-    @ComplicationSlotBoundsType public val boundsType: Int,
+    @ComplicationSlotBoundsTypeIntDef public val boundsType: Int,
     public val supportedTypes: List<ComplicationType>,
     public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
     @get:JvmName("isInitiallyEnabled") public val isInitiallyEnabled: Boolean,
@@ -285,7 +285,7 @@ constructor(
      *
      * @param bounds The complication slot's [ComplicationSlotBounds]. Only non `null` for watch
      *   faces with a new enough [androidx.wear.watchface.control.WatchFaceControlService].
-     * @param boundsType The [ComplicationSlotBoundsType] of the complication slot.
+     * @param boundsType The [ComplicationSlotBoundsTypeIntDef] of the complication slot.
      * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot.
      *   Used during complication data source selection, this list should be non-empty.
      * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] which controls the
@@ -304,7 +304,7 @@ constructor(
     @OptIn(ComplicationExperimental::class)
     constructor(
         bounds: ComplicationSlotBounds?,
-        @ComplicationSlotBoundsType boundsType: Int,
+        @ComplicationSlotBoundsTypeIntDef boundsType: Int,
         supportedTypes: List<ComplicationType>,
         defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         isInitiallyEnabled: Boolean,

@@ -21,7 +21,7 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.BoundingArc
 import androidx.wear.watchface.ComplicationSlot
-import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.ComplicationSlotBoundsTypeIntDef
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
@@ -36,7 +36,7 @@ public class ComplicationSlotState {
     public val bounds: Rect
 
     /** The type of the complication's bounds. */
-    @ComplicationSlotBoundsType public val boundsType: Int
+    @ComplicationSlotBoundsTypeIntDef public val boundsType: Int
 
     /** The [ComplicationType]s supported by this complication. */
     public val supportedTypes: List<ComplicationType>
@@ -113,7 +113,7 @@ public class ComplicationSlotState {
      */
     public constructor(
         bounds: Rect,
-        @ComplicationSlotBoundsType boundsType: Int,
+        @ComplicationSlotBoundsTypeIntDef boundsType: Int,
         supportedTypes: List<ComplicationType>,
         defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         isEnabled: Boolean,
@@ -166,7 +166,7 @@ public class ComplicationSlotState {
     @ComplicationExperimental
     public constructor(
         bounds: Rect,
-        @ComplicationSlotBoundsType boundsType: Int,
+        @ComplicationSlotBoundsTypeIntDef boundsType: Int,
         supportedTypes: List<ComplicationType>,
         defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         isEnabled: Boolean,
@@ -220,7 +220,7 @@ public class ComplicationSlotState {
     )
     public constructor(
         bounds: Rect,
-        @ComplicationSlotBoundsType boundsType: Int,
+        @ComplicationSlotBoundsTypeIntDef boundsType: Int,
         supportedTypes: List<ComplicationType>,
         defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         defaultDataSourceType: ComplicationType,

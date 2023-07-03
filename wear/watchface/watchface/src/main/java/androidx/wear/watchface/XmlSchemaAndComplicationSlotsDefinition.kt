@@ -113,7 +113,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
     public class ComplicationSlotStaticData(
         val slotId: Int,
         val accessibilityTraversalIndex: Int?,
-        @ComplicationSlotBoundsType val boundsType: Int,
+        @ComplicationSlotBoundsTypeIntDef val boundsType: Int,
         val bounds: ComplicationSlotBounds,
         val supportedTypes: List<ComplicationType>,
         val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
@@ -159,9 +159,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 }
                 val boundsType =
                     when (parser.getAttributeIntValue(NAMESPACE_APP, "boundsType", 0)) {
-                        0 -> ComplicationSlotBoundsTypes.ROUND_RECT
-                        1 -> ComplicationSlotBoundsTypes.BACKGROUND
-                        2 -> ComplicationSlotBoundsTypes.EDGE
+                        0 -> ComplicationSlotBoundsType.ROUND_RECT
+                        1 -> ComplicationSlotBoundsType.BACKGROUND
+                        2 -> ComplicationSlotBoundsType.EDGE
                         else -> throw IllegalArgumentException("Unknown boundsType")
                     }
 
@@ -265,9 +265,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     Bundle(),
                     it.fixedComplicationDataSource,
                     when (it.boundsType) {
-                        ComplicationSlotBoundsTypes.ROUND_RECT -> RoundRectComplicationTapFilter()
-                        ComplicationSlotBoundsTypes.BACKGROUND -> BackgroundComplicationTapFilter()
-                        ComplicationSlotBoundsTypes.EDGE ->
+                        ComplicationSlotBoundsType.ROUND_RECT -> RoundRectComplicationTapFilter()
+                        ComplicationSlotBoundsType.BACKGROUND -> BackgroundComplicationTapFilter()
+                        ComplicationSlotBoundsType.EDGE ->
                             complicationSlotInflationFactory.getEdgeComplicationTapFilter(it.slotId)
                         else ->
                             throw UnsupportedOperationException(

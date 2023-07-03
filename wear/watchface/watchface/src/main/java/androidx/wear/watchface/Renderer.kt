@@ -59,34 +59,14 @@ import kotlinx.coroutines.sync.withLock
  * request from a [SurfaceHolder].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@IntDef(value = [CanvasTypes.SOFTWARE, CanvasTypes.HARDWARE])
-public annotation class CanvasType {
-    // This companion object is retained for backwards compatibility, but ideally it shouldn't
-    // exist.
-    public companion object {
-        /** A software canvas will be requested. */
-        public const val SOFTWARE: Int = CanvasTypes.SOFTWARE
-
-        /**
-         * A hardware canvas will be requested. This is usually faster than software rendering,
-         * however it can sometimes increase battery usage by rendering at a higher frame rate.
-         *
-         * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
-         * to a software canvas.
-         *
-         * NOTE the system takes screenshots for use in the watch face picker UI and these will be
-         * taken using software rendering. This means [Bitmap]s with [Bitmap.Config.HARDWARE] must
-         * be avoided.
-         */
-        public const val HARDWARE: Int = CanvasTypes.HARDWARE
-    }
-}
+@IntDef(value = [CanvasType.SOFTWARE, CanvasType.HARDWARE])
+public annotation class CanvasTypeIntDef
 
 /**
  * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] can
  * request from a [SurfaceHolder].
  */
-public object CanvasTypes {
+public object CanvasType {
     /** A software canvas will be requested. */
     public const val SOFTWARE: Int = 0
 
@@ -570,7 +550,7 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasType] to request. Note even if [CanvasTypes.HARDWARE] is used,
+     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is used,
      *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
@@ -591,7 +571,7 @@ constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-        @CanvasType private val canvasType: Int,
+        @CanvasTypeIntDef private val canvasType: Int,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
         val clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean = false
     ) :
@@ -603,7 +583,7 @@ constructor(
         ) {
         internal override fun renderInternal(zonedDateTime: ZonedDateTime) {
             val canvas =
-                (if (canvasType == CanvasTypes.HARDWARE) {
+                (if (canvasType == CanvasType.HARDWARE) {
                     surfaceHolder.lockHardwareCanvas()
                 } else {
                     surfaceHolder.lockCanvas()
@@ -734,7 +714,7 @@ constructor(
 
         internal override fun renderBlackFrame() {
             val canvas =
-                if (canvasType == CanvasTypes.SOFTWARE) {
+                if (canvasType == CanvasType.SOFTWARE) {
                     surfaceHolder.lockCanvas()
                 } else {
                     surfaceHolder.lockHardwareCanvas()
@@ -810,7 +790,7 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasType] to request. Note even if [CanvasTypes.HARDWARE] is used,
+     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is used,
      *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
@@ -829,7 +809,7 @@ constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-        @CanvasType private val canvasType: Int,
+        @CanvasTypeIntDef private val canvasType: Int,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
         clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean
     ) :

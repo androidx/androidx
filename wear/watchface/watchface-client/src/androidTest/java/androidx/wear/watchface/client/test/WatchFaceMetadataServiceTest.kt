@@ -29,7 +29,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.BoundingArc
-import androidx.wear.watchface.ComplicationSlotBoundsTypes
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationExperimental
@@ -141,7 +141,7 @@ public class WatchFaceMetadataServiceTest {
             )
             .isEqualTo(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         Truth.assertThat(leftComplicationMetadata.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         Truth.assertThat(leftComplicationMetadata.defaultDataSourcePolicy.systemDataSourceFallback)
             .isEqualTo(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK)
         Truth.assertThat(
@@ -167,7 +167,7 @@ public class WatchFaceMetadataServiceTest {
             )
             .isEqualTo(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         Truth.assertThat(rightComplicationMetadata.boundsType)
-            .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+            .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
         Truth.assertThat(rightComplicationMetadata.defaultDataSourcePolicy.systemDataSourceFallback)
             .isEqualTo(SystemDataSources.DATA_SOURCE_STEP_COUNT)
         Truth.assertThat(
@@ -239,7 +239,7 @@ public class WatchFaceMetadataServiceTest {
             Truth.assertThat(complications.keys).containsExactly(10, 20, 30)
 
             Truth.assertThat(complications[10]!!.boundsType)
-                .isEqualTo(ComplicationSlotBoundsTypes.ROUND_RECT)
+                .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
 
             Truth.assertThat(complications[10]!!.supportedTypes)
                 .containsExactly(
@@ -280,7 +280,7 @@ public class WatchFaceMetadataServiceTest {
                 .isEqualTo(RectF(0.3f, 0.7f, 0.7f, 0.9f))
 
             Truth.assertThat(complications[20]!!.boundsType)
-                .isEqualTo(ComplicationSlotBoundsTypes.BACKGROUND)
+                .isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
 
             Truth.assertThat(complications[20]!!.supportedTypes)
                 .containsExactly(ComplicationType.PHOTO_IMAGE)
@@ -310,7 +310,7 @@ public class WatchFaceMetadataServiceTest {
                 .isEqualTo(ComplicationType.PHOTO_IMAGE)
 
             Truth.assertThat(complications[30]!!.boundsType)
-                .isEqualTo(ComplicationSlotBoundsTypes.EDGE)
+                .isEqualTo(ComplicationSlotBoundsType.EDGE)
 
             Truth.assertThat(complications[30]!!.supportedTypes)
                 .containsExactly(ComplicationType.SHORT_TEXT, ComplicationType.RANGED_VALUE)

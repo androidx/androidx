@@ -39,7 +39,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.watchface.ComplicationHelperActivity
-import androidx.wear.watchface.ComplicationSlotBoundsTypes
+import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFace
@@ -189,7 +189,7 @@ public interface EditorSession : AutoCloseable {
 
     /**
      * Returns the ID of the complication at the given coordinates or `null` if there isn't one.
-     * Only [androidx.wear.watchface.ComplicationSlot]s with [ComplicationSlotBoundsTypes.ROUND_RECT]
+     * Only [androidx.wear.watchface.ComplicationSlot]s with [ComplicationSlotBoundsType.ROUND_RECT]
      * are supported by this function.
      */
     @SuppressWarnings("AutoBoxing")
@@ -604,7 +604,7 @@ internal constructor(
     override val backgroundComplicationSlotId: Int? by lazy {
         requireNotClosed()
         complicationSlotsState.value.entries
-            .firstOrNull { it.value.boundsType == ComplicationSlotBoundsTypes.BACKGROUND }
+            .firstOrNull { it.value.boundsType == ComplicationSlotBoundsType.BACKGROUND }
             ?.key
     }
 
@@ -1058,9 +1058,9 @@ internal class HeadlessEditorSession(
             .firstOrNull {
                 it.value.isEnabled &&
                     when (it.value.boundsType) {
-                        ComplicationSlotBoundsTypes.ROUND_RECT -> it.value.bounds.contains(x, y)
-                        ComplicationSlotBoundsTypes.BACKGROUND -> false
-                        ComplicationSlotBoundsTypes.EDGE -> false
+                        ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                        ComplicationSlotBoundsType.BACKGROUND -> false
+                        ComplicationSlotBoundsType.EDGE -> false
                         else -> false
                     }
             }
