@@ -1134,6 +1134,10 @@ public class NotificationCompat {
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
             if (Build.VERSION.SDK_INT >= 23) {
                 this.mSmallIcon = Api23Impl.getSmallIcon(notification);
+                Icon largeIcon = Api23Impl.getLargeIcon(notification);
+                if (largeIcon != null) {
+                    this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
+                }
             }
 
             // Add actions from the notification.
@@ -2651,6 +2655,11 @@ public class NotificationCompat {
             @DoNotInline
             static Icon getSmallIcon(Notification notification) {
                 return notification.getSmallIcon();
+            }
+
+            @DoNotInline
+            static Icon getLargeIcon(Notification notification) {
+                return notification.getLargeIcon();
             }
         }
 
