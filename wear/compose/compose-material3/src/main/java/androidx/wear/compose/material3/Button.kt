@@ -20,8 +20,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -43,9 +45,10 @@ import androidx.compose.ui.unit.dp
  * Used as the container for more opinionated [Button] components that take specific
  * content such as icons and labels.
  *
- * The [Button] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. The [Button] can have an icon or image
- * horizontally parallel to the two lines of text.
+ * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
+ * text of [Typography.buttonMedium] style. With localisation and/or large font sizes, the text can
+ * extend to a maximum of 3 lines in which case, the [Button] height adjusts to accommodate the
+ * contents.
  *
  * [Button] takes the [ButtonDefaults.filledButtonColors] color scheme by default,
  * with colored background, contrasting content color and no border. This is a high-emphasis button
@@ -86,7 +89,7 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -94,7 +97,9 @@ fun Button(
     content: @Composable RowScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Chip(
-        modifier = modifier.height(ButtonDefaults.Height),
+        modifier = modifier
+            .defaultMinSize(minHeight = ButtonDefaults.Height)
+            .height(IntrinsicSize.Min),
         onClick = onClick,
         background = { colors.containerPainter(enabled = it) },
         border = { rememberUpdatedState(border) },
@@ -117,8 +122,10 @@ fun Button(
  * content such as icons and labels.
  *
  * The [FilledTonalButton] is Stadium-shaped by default and has a max height designed to take no
- * more than two lines of text of [Typography.buttonMedium] style. The [FilledTonalButton] can have
- * an icon or image horizontally parallel to the two lines of text.
+ * more than two lines of text of [Typography.buttonMedium] style.
+ * With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in which
+ * case, the [FilledTonalButton] height adjusts to accommodate the contents.
+ * The [FilledTonalButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [FilledTonalButton] takes the [ButtonDefaults.filledTonalButtonColors] color scheme by default,
  * with muted background, contrasting content color and no border. This is a medium-emphasis button
@@ -160,7 +167,7 @@ fun FilledTonalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -176,8 +183,10 @@ fun FilledTonalButton(
  * as icons and labels.
  *
  * The [OutlinedButton] is Stadium-shaped by default and has a max height designed to take no more
- * than two lines of text of [Typography.buttonMedium] style. The [OutlinedButton] can have an
- * icon or image horizontally parallel to the two lines of text.
+ * than two lines of text of [Typography.buttonMedium] style.
+ * With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in which
+ * case, the [OutlinedButton] height adjusts to accommodate the contents.
+ * The [OutlinedButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [OutlinedButton] takes the [ButtonDefaults.outlinedButtonColors] color scheme by default,
  * with a transparent background and a thin border. This is a medium-emphasis button
@@ -218,7 +227,7 @@ fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -233,9 +242,11 @@ fun OutlinedButton(
  * the container for more opinionated [ChildButton] components that take specific content such
  * as icons and labels.
  *
- * The [ChildButton] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. The [ChildButton] can have an icon or image
- * horizontally parallel to the two lines of text.
+ * The [ChildButton] is stadium-shaped by default and its standard height is designed to
+ * take 2 lines of text of [Typography.buttonMedium] style.
+ * With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in which
+ * case, the [ChildButton] height adjusts to accommodate the contents.
+ * The [ChildButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [ChildButton] takes the [ButtonDefaults.childButtonColors] color scheme by default,
  * with a transparent background and no border. This is a low-emphasis button for optional
@@ -276,7 +287,7 @@ fun ChildButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -292,9 +303,11 @@ fun ChildButton(
  * The items are laid out with the icon, if provided, at the start of a row, with a column next
  * containing the two label slots.
  *
- * The [Button] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. If no secondary label is provided then
- * the label can be two lines of text. The label and secondary label should be consistently aligned.
+ * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
+ * text of [Typography.buttonMedium] style - either a two-line label or both a single line label
+ * and a secondary label.
+ * With localisation and/or large font sizes, the [Button] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -351,7 +364,7 @@ fun Button(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -359,7 +372,9 @@ fun Button(
     label: @Composable RowScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Chip(
-        modifier = modifier.height(ButtonDefaults.Height),
+        modifier = modifier
+            .defaultMinSize(minHeight = ButtonDefaults.Height)
+            .height(IntrinsicSize.Min),
         onClick = onClick,
         background = { colors.containerPainter(enabled = it) },
         border = { rememberUpdatedState(border) },
@@ -391,10 +406,14 @@ fun Button(
  * The items are laid out with the icon, if provided, at the start of a row, with a column next
  * containing the two label slots.
  *
- * The [FilledTonalButton] is Stadium-shaped by default and has a max height designed to take no
- * more than two lines of text of [Typography.buttonMedium] style. If no secondary label is provided
- * then the label can be two lines of text. The label and secondary label should be consistently
- * aligned.
+ * The [FilledTonalButton] is stadium-shaped by default and its standard height is designed to take
+ * 2 lines of text of [Typography.buttonMedium] style - either a two-line label or both a single
+ * line label and a secondary label.
+ * With localisation and/or large font sizes, the [FilledTonalButton] height adjusts
+ * to accommodate the contents. The label and secondary label should be consistently aligned.
+ *
+ * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
+ * the text starts next to the icon.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -452,7 +471,7 @@ fun FilledTonalButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -478,9 +497,11 @@ fun FilledTonalButton(
  * The items are laid out with the icon, if provided, at the start of a row, with a column next
  * containing the two label slots.
  *
- * The [OutlinedButton] is Stadium-shaped by default and has a max height designed to take no more
- * than two lines of text of [Typography.buttonMedium] style. If no secondary label is provided then
- * the label can be two lines of text. The label and secondary label should be consistently aligned.
+ * The [OutlinedButton] is stadium-shaped by default and its standard height is designed to take
+ * 2 lines of text of [Typography.buttonMedium] style - either a two-line label or both a single
+ * line label and a secondary label.
+ * With localisation and/or large font sizes, the [OutlinedButton] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -536,7 +557,7 @@ fun OutlinedButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -561,9 +582,11 @@ fun OutlinedButton(
  * secondaryLabel. The icon and secondaryLabel are optional. The items are laid out with the icon,
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
- * The [ChildButton] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. If no secondary label is provided then
- * the label can be two lines of text. The label and secondary label should be consistently aligned.
+ * The [ChildButton] is stadium-shaped by default and its standard height is designed to take
+ * 2 lines of text of [Typography.buttonMedium] style - either a two-line label or both a single
+ * line label and a secondary label.
+ * With localisation and/or large font sizes, the [ChildButton] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -619,7 +642,7 @@ fun ChildButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = MaterialTheme.shapes.large,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,

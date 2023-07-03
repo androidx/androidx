@@ -142,7 +142,7 @@ object ShapeDefaults {
     val Medium = RoundedCornerShape(corner = CornerSize(16.dp))
 
     /** Large sized corner shape */
-    val Large = RoundedCornerShape(corner = CornerSize(24.dp))
+    val Large = RoundedCornerShape(corner = CornerSize(26.dp))
 
     /** Extra large sized corner shape */
     val ExtraLarge = RoundedCornerShape(corner = CornerSize(32.dp))

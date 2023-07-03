@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -79,6 +80,8 @@ import androidx.compose.ui.unit.dp
  *
  * The [ToggleChip] is Stadium shaped and has a max height designed to take no more than
  * two lines of text of [Typography.button] style.
+ * With localisation and/or large font sizes, the [ToggleChip] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [ToggleChipColors] can be obtained from
  * [ToggleChipDefaults], e.g. [ToggleChipDefaults.toggleChipColors].
@@ -141,7 +144,8 @@ public fun ToggleChip(
 ) {
     Box(
         modifier = modifier
-            .height(ToggleChipDefaults.Height)
+            .defaultMinSize(minHeight = ToggleChipDefaults.Height)
+            .height(IntrinsicSize.Min)
             .clip(shape = shape)
             .width(IntrinsicSize.Max)
             .paint(
@@ -240,6 +244,8 @@ public fun ToggleChip(
  *
  * The [SplitToggleChip] is Stadium shaped and has a max height designed to take no more than
  * two lines of text of [Typography.button] style.
+ * With localisation and/or large font sizes, the [SplitToggleChip] height adjusts
+ * to accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [SplitToggleChipColors] can be obtained from
  * [ToggleChipDefaults], e.g. [ToggleChipDefaults.splitToggleChipColors].
@@ -306,7 +312,8 @@ public fun SplitToggleChip(
 ) {
     Box(
         modifier = modifier
-            .height(ToggleChipDefaults.Height)
+            .defaultMinSize(minHeight = ToggleChipDefaults.Height)
+            .height(IntrinsicSize.Min)
             .width(IntrinsicSize.Max)
             .clip(shape = shape)
             .background(colors.backgroundColor(enabled = enabled).value)
