@@ -849,31 +849,6 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
-    public void testLargeScriptByteArrayJsEvaluation() throws Throwable {
-        final String longString = Strings.repeat("a", 2000000);
-        final String codeString = ""
-                + "let " + longString + " = 0;"
-                + "\"PASS\"";
-        final byte[] code = codeString.getBytes(StandardCharsets.UTF_8);
-        final String expected = "PASS";
-        Context context = ApplicationProvider.getApplicationContext();
-
-        ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
-                JavaScriptSandbox.createConnectedInstanceAsync(context);
-        try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
-            Assume.assumeTrue(jsSandbox.isFeatureSupported(
-                    JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT));
-            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
-                ListenableFuture<String> resultFuture = jsIsolate.evaluateJavaScriptAsync(code);
-                String result = resultFuture.get(10, TimeUnit.SECONDS);
-
-                Assert.assertEquals(expected, result);
-            }
-        }
-    }
-
-    @Test
-    @LargeTest
     public void testLargeReturn() throws Throwable {
         final String code = "'a'.repeat(2000000);";
         final String expected = Strings.repeat("a", 2000000);

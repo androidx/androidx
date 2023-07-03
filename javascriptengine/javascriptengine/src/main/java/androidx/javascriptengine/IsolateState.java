@@ -34,8 +34,6 @@ import java.util.concurrent.Executor;
  * Refer: https://en.wikipedia.org/wiki/State_pattern
  */
 interface IsolateState {
-    @NonNull
-    ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code);
 
     @NonNull
     ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code);

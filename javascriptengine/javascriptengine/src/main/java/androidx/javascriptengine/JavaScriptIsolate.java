@@ -141,35 +141,6 @@ public final class JavaScriptIsolate implements AutoCloseable {
     }
 
     /**
-     * Evaluates the given JavaScript code which is encoded in UTF-8 and returns the result.
-     * <p>
-     * Please refer to the documentation of {@link #evaluateJavaScriptAsync(String)} as the
-     * behavior of this method is similar other than for the input type.
-     * <p>
-     * <strong>Note: The {@code byte[]} must be UTF-8 encoded.</strong>
-     * <p>
-     * This overload is provided for clients to pass in a UTF-8 encoded {@code byte[]} directly
-     * instead of having to convert it into a {@code String} to use
-     * {@link #evaluateJavaScriptAsync(String)}.
-     *
-     * @param code UTF-8 encoded JavaScript code to evaluate. The script should return a
-     *             JavaScript String or, alternatively, a Promise that will resolve to a String if
-     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported. The byte
-     *             array must not be modified until the evaluation has completed.
-     * @return Future that evaluates to the result String of the evaluation or exceptions (see
-     * {@link JavaScriptException} and subclasses) if there is an error
-     */
-    @NonNull
-    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
-            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
-    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
-        Objects.requireNonNull(code);
-        synchronized (mLock) {
-            return mIsolateState.evaluateJavaScriptAsync(code);
-        }
-    }
-
-    /**
      * Closes the {@link JavaScriptIsolate} object and renders it unusable.
      * <p>
      * Once closed, no more method calls should be made. Pending evaluations resolve with
