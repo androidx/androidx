@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -306,6 +307,21 @@ class ButtonTest {
     }
 
     @Test
+    fun gives_base_button_has_adjustable_height() {
+        val minHeight = ButtonDefaults.Height + 1.dp
+
+        rule.setContentWithThemeForSizeAssertions {
+            Button(
+                onClick = {},
+            ) {
+                Text(text = "Button with multiple lines of text to exceed default" +
+                    " minimum height. This should exceed the minimum height for the button.")
+            }
+        }
+            .assertHeightIsAtLeast(minHeight)
+    }
+
+    @Test
     fun gives_three_slot_button_correct_height() {
         rule.setContentWithThemeForSizeAssertions {
             Button(
@@ -314,6 +330,22 @@ class ButtonTest {
             )
         }
             .assertHeightIsEqualTo(ButtonDefaults.Height)
+    }
+
+    @Test
+    fun gives_three_slot_button_has_adjustable_height() {
+        val minHeight = ButtonDefaults.Height + 1.dp
+
+        rule.setContentWithThemeForSizeAssertions {
+            Button(
+                onClick = {},
+                label = {
+                    Text(text = "Button with multiple lines of text to exceed default" +
+                        " minimum height. This should exceed the minimum height for the button.")
+                }
+            )
+        }
+            .assertHeightIsAtLeast(minHeight)
     }
 
     @Test

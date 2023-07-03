@@ -155,7 +155,8 @@ internal fun BoxScope.DisplayDemoList(
                     label = {
                         Text(
                             text = demo.title,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines = 2
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
