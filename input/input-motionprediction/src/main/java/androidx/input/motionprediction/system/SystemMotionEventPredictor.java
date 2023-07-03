@@ -19,6 +19,7 @@ package androidx.input.motionprediction.system;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.MotionPredictor;
 
@@ -75,7 +76,9 @@ public class SystemMotionEventPredictor implements MotionEventPredictor {
     public MotionEvent predict() {
         final int predictionTimeDelta = mPredictionEstimator.estimate();
         if (mUsingSystemPredictor) {
-            return mSystemPredictor.predict(TimeUnit.MILLISECONDS.toNanos(predictionTimeDelta));
+            return mSystemPredictor.predict(
+                TimeUnit.MILLISECONDS.toNanos(SystemClock.uptimeMillis() + predictionTimeDelta)
+            );
         } else {
             return getKalmanPredictor().predict(predictionTimeDelta);
         }
