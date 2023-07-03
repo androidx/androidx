@@ -34,7 +34,7 @@ class BluetoothAddressTest {
 
     @Test
     fun constructorWithAddressTypePublic() {
-        val addressType = AddressType.ADDRESS_TYPE_PUBLIC
+        val addressType = BluetoothAddress.ADDRESS_TYPE_PUBLIC
 
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_PUBLIC, addressType)
 
@@ -44,7 +44,7 @@ class BluetoothAddressTest {
 
     @Test
     fun constructorWithAddressTypeRandomStatic() {
-        val addressType = AddressType.ADDRESS_TYPE_RANDOM_STATIC
+        val addressType = BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC
 
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_RANDOM_STATIC, addressType)
 
@@ -54,7 +54,7 @@ class BluetoothAddressTest {
 
     @Test
     fun constructorWithAddressTypeUnknown() {
-        val addressType = AddressType.ADDRESS_TYPE_UNKNOWN
+        val addressType = BluetoothAddress.ADDRESS_TYPE_UNKNOWN
 
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_UNKNOWN, addressType)
 
@@ -69,7 +69,7 @@ class BluetoothAddressTest {
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_UNKNOWN, invalidAddressType)
 
         assertEquals(TEST_ADDRESS_UNKNOWN, bluetoothAddress.address)
-        assertEquals(AddressType.ADDRESS_TYPE_UNKNOWN, bluetoothAddress.addressType)
+        assertEquals(BluetoothAddress.ADDRESS_TYPE_UNKNOWN, bluetoothAddress.addressType)
     }
 
     @Test
@@ -77,7 +77,7 @@ class BluetoothAddressTest {
         val invalidAddress = "invalidAddress"
 
         assertFailsWith<IllegalArgumentException> {
-            BluetoothAddress(invalidAddress, AddressType.ADDRESS_TYPE_UNKNOWN)
+            BluetoothAddress(invalidAddress, BluetoothAddress.ADDRESS_TYPE_UNKNOWN)
         }
     }
 }

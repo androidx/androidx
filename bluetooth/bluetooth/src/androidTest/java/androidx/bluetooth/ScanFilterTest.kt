@@ -44,7 +44,8 @@ class ScanFilterTest {
 
     @Test
     fun constructor() {
-        val deviceAddress = BluetoothAddress("00:01:02:03:04:05", AddressType.ADDRESS_TYPE_PUBLIC)
+        val deviceAddress = BluetoothAddress("00:01:02:03:04:05",
+            BluetoothAddress.ADDRESS_TYPE_PUBLIC)
         val manufacturerId = 1
         val manufacturerData = "AA".toByteArray()
         val manufacturerDataMask = "AB".toByteArray()
