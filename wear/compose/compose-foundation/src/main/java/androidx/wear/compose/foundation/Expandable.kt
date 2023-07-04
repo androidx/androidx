@@ -22,6 +22,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -55,6 +56,29 @@ public fun rememberExpandableState(
     val scope = rememberCoroutineScope()
     return remember {
         ExpandableState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
+    }
+}
+
+/**
+ * Create and [remember] a mapping from keys to [ExpandableState]s
+ * [ExpandableState]s can be requested by key, and we will created with the parameters given here
+ * when a mapping didn't exist before.
+ * This is mainly useful when you want to have a variable number of expandables, that can change at
+ * runtime (for example, elements on a ScalingLazyColumn)
+ *
+ * @param initiallyExpanded A function to compute the initial state given the key.
+ * @param expandAnimationSpec The [AnimationSpec] to use when showing the extra information.
+ * @param collapseAnimationSpec The [AnimationSpec] to use when hiding the extra information.
+ */
+@Composable
+public fun <T> rememberExpandableStateMapping(
+    initiallyExpanded: (key: T) -> Boolean = { false },
+    expandAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.expandAnimationSpec,
+    collapseAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.collapseAnimationSpec,
+): ExpandableStateMapping<T> {
+    val scope = rememberCoroutineScope()
+    return remember {
+        ExpandableStateMapping(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
     }
 }
 
@@ -192,7 +216,7 @@ public class ExpandableState internal constructor(
     initiallyExpanded: Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,
-    private val collapseAnimationSpec: AnimationSpec<Float>,
+    private val collapseAnimationSpec: AnimationSpec<Float>
 ) {
     private val _expandProgress = Animatable(if (initiallyExpanded) 1f else 0f)
 
@@ -226,6 +250,31 @@ public class ExpandableState internal constructor(
                 }
             }
         }
+}
+
+/**
+ * A class that maps from keys of the given type to [ExpandableState].
+ * An instance can be created and remembered with [rememberExpandableStateMapping]
+ */
+public class ExpandableStateMapping<T> internal constructor(
+    private val initiallyExpanded: (key: T) -> Boolean,
+    private val coroutineScope: CoroutineScope,
+    private val expandAnimationSpec: AnimationSpec<Float>,
+    private val collapseAnimationSpec: AnimationSpec<Float>
+) {
+
+    private val states = mutableStateMapOf<T, ExpandableState>()
+
+    /**
+     * Returns the [ExpandableState] for the given key if the value is present and not null.
+     * Otherwise, creates a new one, puts it into the map under the given key and returns it.
+     * The parameters used to create the new [ExpandableState] are the ones passed to
+     * [rememberExpandableStateMapping]
+     */
+    public fun getOrPutNew(key: T) = states.getOrPut(key) {
+        ExpandableState(initiallyExpanded(key), coroutineScope,
+            expandAnimationSpec, collapseAnimationSpec)
+    }
 }
 
 /**

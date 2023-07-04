@@ -17,7 +17,9 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +27,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -35,6 +40,8 @@ import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.rememberExpandableState
+import androidx.wear.compose.foundation.rememberExpandableStateMapping
+import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
@@ -57,6 +64,53 @@ fun ExpandableListItems() {
             DemoItem(rest[it], color = color)
         }
         expandButton(state, outline = true)
+    }
+}
+
+private data class ItemsToShow(val text: String, val key: Int = keySeq++) {
+    override fun toString() = "$text $key"
+
+    companion object {
+        var keySeq: Int = 0
+    }
+}
+
+@Composable
+fun ExpandableMultipleItems() {
+    val items = remember {
+        ItemsToShow.keySeq = 0
+        mutableStateListOf(*Array(100) { ItemsToShow("Item") })
+    }
+
+    val states = rememberExpandableStateMapping<Int>()
+
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items.forEachIndexed { ix, item ->
+            val state = states.getOrPutNew(item.key)
+            expandableItem(state, item.key) { expanded ->
+                Text((if (expanded) { "Expanded " } else { "" }) + item)
+            }
+            item(key = item.key + 1_000_000) {
+                Row(
+                    verticalAlignment = CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Button(onClick = { state.expanded = !state.expanded }) {
+                        Text(if (state.expanded) { "-" } else { "+" })
+                    }
+                    Button(onClick = { items.removeAt(ix) }) {
+                        Text("Del")
+                    }
+                    Button(onClick = {
+                        items.add(ix, ItemsToShow("New"))
+                    }) {
+                        Text("Add")
+                    }
+                }
+            }
+        }
     }
 }
 
