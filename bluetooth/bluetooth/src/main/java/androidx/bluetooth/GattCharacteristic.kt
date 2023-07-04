@@ -28,15 +28,45 @@ class GattCharacteristic internal constructor(
     internal var fwkCharacteristic: BluetoothGattCharacteristic
 ) {
     companion object {
+        /**
+         * It permits broadcasts of the characteristic.
+         */
         const val PROPERTY_BROADCAST = BluetoothGattCharacteristic.PROPERTY_BROADCAST
-        const val PROPERTY_EXTENDS_PROP = BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS
-        const val PROPERTY_INDICATE = BluetoothGattCharacteristic.PROPERTY_INDICATE
-        const val PROPERTY_NOTIFY = BluetoothGattCharacteristic.PROPERTY_NOTIFY
+        /**
+         * It permits reads of the characteristic.
+         */
         const val PROPERTY_READ = BluetoothGattCharacteristic.PROPERTY_READ
-        const val PROPERTY_SIGNED_WRITE = BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
-        const val PROPERTY_WRITE = BluetoothGattCharacteristic.PROPERTY_WRITE
+
+        /**
+         * It permits writes of the characteristic without response.
+         */
         const val PROPERTY_WRITE_NO_RESPONSE =
             BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+
+        /**
+         * It permits writes of the characteristic with response.
+         */
+        const val PROPERTY_WRITE = BluetoothGattCharacteristic.PROPERTY_WRITE
+
+        /**
+         * It permits notifications of a characteristic value without acknowledgment.
+         */
+        const val PROPERTY_NOTIFY = BluetoothGattCharacteristic.PROPERTY_NOTIFY
+
+        /**
+         * It permits indications of a characteristic value with acknowledgment.
+         */
+        const val PROPERTY_INDICATE = BluetoothGattCharacteristic.PROPERTY_INDICATE
+
+        /**
+         * It permits signed writes to the characteristic value.
+         */
+        const val PROPERTY_SIGNED_WRITE = BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+
+        /**
+         * Additional characteristic properties are defined.
+         */
+        const val PROPERTY_EXTENDS_PROP = BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS
 
         const val PERMISSION_READ: Int = BluetoothGattCharacteristic.PERMISSION_READ
         const val PERMISSION_READ_ENCRYPTED: Int =
@@ -58,19 +88,19 @@ class GattCharacteristic internal constructor(
     }
 
     /**
-     * The UUID of the characteristic
+     * The UUID of the characteristic.
      */
     val uuid: UUID
         get() = fwkCharacteristic.uuid
 
     /**
-     * The properties of the characteristic
+     * The properties of the characteristic.
      */
     val properties: Int
         get() = fwkCharacteristic.properties
 
     /**
-     * The permissions for the characteristic
+     * The permissions for the characteristic.
      */
     val permissions: Int
         get() = fwkCharacteristic.permissions
@@ -79,7 +109,7 @@ class GattCharacteristic internal constructor(
 }
 
 /**
- * Creates a [GattCharacteristic] for a GATT server.
+ * Creates a [GattCharacteristic] instance for a GATT server.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 fun GattCharacteristic(uuid: UUID, properties: Int, permissions: Int): GattCharacteristic {
