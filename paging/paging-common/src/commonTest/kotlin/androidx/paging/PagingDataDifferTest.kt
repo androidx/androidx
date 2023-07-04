@@ -1428,7 +1428,7 @@ class PagingDataDifferTest(
         ) {
             TestPagingSource().also {
                 if (generation == 0) {
-                    it.nextLoadResult = PagingSource.LoadResult.Invalid()
+                    it.nextLoadResult = LoadResult.Invalid()
                 }
                 generation++
             }

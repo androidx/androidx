@@ -144,7 +144,7 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType REFRESH;
   }
 
-  @kotlin.jvm.JvmDefaultWithCompatibility public interface Logger {
+  public interface Logger {
     method public boolean isLoggable(int level);
     method public void log(int level, String message, optional Throwable? tr);
   }
