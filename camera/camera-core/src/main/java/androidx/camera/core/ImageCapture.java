@@ -105,6 +105,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -1151,6 +1152,37 @@ public final class ImageCapture extends UseCase {
         Set<Integer> targets = new HashSet<>();
         targets.add(IMAGE_CAPTURE);
         return targets;
+    }
+
+    /**
+     * Returns an estimate of the capture and processing sequence duration based on the current
+     * camera configuration and scene conditions. The value will vary as the scene and/or camera
+     * configuration change.
+     *
+     * <p>The processing estimate can vary based on device processing load.
+     *
+     * <p>If the image capture latency estimate is not supported then
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_IMAGE_CAPTURE_LATENCY} is returned. If the
+     * capture latency is not supported then the capture latency component will be
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_CAPTURE_LATENCY}. If the processing
+     * latency is not supported then the processing latency component will be
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_PROCESSING_LATENCY}.
+     **/
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate() {
+        final CameraInternal camera = getCamera();
+        if (camera == null) {
+            return ImageCaptureLatencyEstimate.UNDEFINED_IMAGE_CAPTURE_LATENCY;
+        }
+
+        final CameraConfig config = camera.getExtendedConfig();
+        final SessionProcessor sessionProcessor = config.getSessionProcessor();
+        final Pair<Long, Long> latencyEstimate = sessionProcessor.getRealtimeCaptureLatency();
+        if (latencyEstimate == null) {
+            return ImageCaptureLatencyEstimate.UNDEFINED_IMAGE_CAPTURE_LATENCY;
+        }
+        return new ImageCaptureLatencyEstimate(latencyEstimate.first, latencyEstimate.second);
     }
 
     /**
@@ -2367,6 +2399,7 @@ public final class ImageCapture extends UseCase {
          * Sets the {@link DynamicRange}.
          *
          * <p>This is currently only exposed to internally set the dynamic range to SDR.
+         *
          * @return The current Builder.
          * @see DynamicRange
          */

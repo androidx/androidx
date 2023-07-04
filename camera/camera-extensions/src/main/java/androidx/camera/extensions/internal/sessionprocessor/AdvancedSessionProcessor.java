@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -185,6 +186,16 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public void abortCapture(int captureSequenceId) {
         mImpl.abortCapture(captureSequenceId);
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImpl.getRealtimeCaptureLatency();
+        }
+        return null;
     }
 
     /**

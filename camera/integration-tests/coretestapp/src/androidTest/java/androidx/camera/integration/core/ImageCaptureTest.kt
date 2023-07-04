@@ -30,6 +30,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Pair
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -1633,6 +1634,40 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
         capturedImage_withHighResolutionEnabled(preview, imageAnalysis)
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun getRealtimeCaptureLatencyEstimate_whenSessionProcessorSupportsRealtimeLatencyEstimate() =
+        runBlocking {
+            val expectedCaptureLatencyMillis = 1000L
+            val expectedProcessingLatencyMillis = 100L
+            val sessionProcessor = object : SessionProcessor by FakeSessionProcessor(
+                inputFormatPreview = null, // null means using the same output surface
+                inputFormatCapture = null
+            ) {
+                override fun getRealtimeCaptureLatency(): Pair<Long, Long> =
+                    Pair(expectedCaptureLatencyMillis, expectedProcessingLatencyMillis)
+            }
+
+            val imageCapture = ImageCapture.Builder().build()
+            val preview = Preview.Builder().build()
+
+            withContext(Dispatchers.Main) {
+                preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                val cameraSelector =
+                    getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner, cameraSelector, imageCapture, preview
+                )
+            }
+
+            val latencyEstimate = imageCapture.realtimeCaptureLatencyEstimate
+            // Check the realtime latency estimate is correct.
+            assertThat(latencyEstimate.captureLatencyMillis).isEqualTo(expectedCaptureLatencyMillis)
+            assertThat(latencyEstimate.processingLatencyMillis).isEqualTo(
+                expectedProcessingLatencyMillis
+            )
+        }
 
     private fun capturedImage_withHighResolutionEnabled(
         preview: Preview? = null,
