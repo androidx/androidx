@@ -104,6 +104,11 @@ val WearMaterial3Demos = DemoCategory(
             "Slider",
             SliderDemos
         ),
+        ComposableDemo("List Headers") {
+            Centralize {
+                ListHeaderDemo()
+            }
+        },
         ComposableDemo(
             title = "Fixed Font Size"
         ) {

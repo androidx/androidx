@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
@@ -41,7 +42,9 @@ fun TextButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text("Text Button")
+            ListHeader {
+                Text("Text Button")
+            }
         }
         item {
             Row {
@@ -53,7 +56,9 @@ fun TextButtonDemo() {
             }
         }
         item {
-            Text("FilledTonalTextButton")
+            ListHeader {
+                Text("FilledTonalTextButton")
+            }
         }
         item {
             Row {
@@ -69,7 +74,9 @@ fun TextButtonDemo() {
             }
         }
         item {
-            Text("FilledTextButton")
+            ListHeader {
+                Text("FilledTextButton")
+            }
         }
         item {
             Row {
@@ -85,7 +92,9 @@ fun TextButtonDemo() {
             }
         }
         item {
-            Text("OutlinedTextButton")
+            ListHeader {
+                Text("OutlinedTextButton")
+            }
         }
         item {
             Row {
