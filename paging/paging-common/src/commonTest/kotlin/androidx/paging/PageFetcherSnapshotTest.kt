@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.kruth.assertThat
-import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
@@ -66,6 +65,8 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+
+private val EXCEPTION = Exception()
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 class PageFetcherSnapshotTest {
