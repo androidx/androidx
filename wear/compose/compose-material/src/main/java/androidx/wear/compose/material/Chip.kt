@@ -1121,7 +1121,7 @@ public object ChipDefaults {
      * The default height applied for the [Chip].
      * Note that you can override it by applying Modifier.heightIn directly on [Chip].
      */
-    internal val Height = 52.dp
+    public val Height = 52.dp
 
     /**
      * The height applied for the [CompactChip]. This includes a visible chip height of 32.dp and
@@ -1131,7 +1131,7 @@ public object ChipDefaults {
      * Note that you can override it by adjusting Modifier.height and Modifier.padding directly on
      * [CompactChip].
      */
-    internal val CompactChipHeight = 48.dp
+    public val CompactChipHeight = 48.dp
 
     /**
      * The default padding to be provided around a [CompactChip] in order to ensure that its
