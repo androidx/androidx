@@ -337,6 +337,20 @@ class BasicExtenderSessionProcessorTest(
         )
     }
 
+    @Test
+    fun getRealtimeCaptureLatencyEstimate_invokesCaptureExtenderImpl(): Unit = runBlocking {
+        assumeTrue(hasCaptureProcessor)
+        fakeCaptureExtenderImpl = object : FakeImageCaptureExtenderImpl(hasCaptureProcessor) {
+            override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
+        }
+
+        basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+        )
+
+        assertThat(basicExtenderSessionProcessor.realtimeCaptureLatency).isEqualTo(Pair(1000L, 10L))
+    }
+
     class ResultMonitor {
         private var latch: CountDownLatch? = null
         private var keyToCheck: CaptureRequest.Key<*>? = null
@@ -833,7 +847,7 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
-    private class FakeImageCaptureExtenderImpl(
+    private open class FakeImageCaptureExtenderImpl(
         private val hasCaptureProcessor: Boolean = false,
         private val throwErrorOnProcess: Boolean = false
     ) : ImageCaptureExtenderImpl, FakeExtenderStateListener() {

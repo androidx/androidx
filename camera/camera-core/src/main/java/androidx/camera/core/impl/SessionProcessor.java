@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import android.hardware.camera2.CaptureResult;
 import android.media.ImageReader;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -134,6 +135,30 @@ public interface SessionProcessor {
     @NonNull
     default @RestrictedCameraControl.CameraOperation Set<Integer> getSupportedCameraOperations() {
         return Collections.emptySet();
+    }
+
+    /**
+     * Returns the dynamically calculated capture latency pair in milliseconds.
+     *
+     * The measurement is expected to take in to account dynamic parameters such as the current
+     * scene, the state of 3A algorithms, the state of internal HW modules and return a more
+     * accurate assessment of the capture and/or processing latency.</p>
+     *
+     * @return pair that includes the estimated input frame/frames camera capture latency as the
+     * first field. This is the time between {@link CaptureCallback#onCaptureStarted} and
+     * {@link CaptureCallback#onCaptureProcessStarted}. The second field value includes the
+     * estimated post-processing latency. This is the time between
+     * {@link CaptureCallback#onCaptureProcessStarted} until the processed frame returns back to the
+     * client registered surface.
+     * Both first and second values will be in milliseconds. The total still capture latency will be
+     * the sum of both the first and second values of the pair.
+     * The pair is expected to be null if the dynamic latency estimation is not supported.
+     * If clients have not configured a still capture output, then this method can also return a
+     * null pair.
+     */
+    @Nullable
+    default Pair<Long, Long> getRealtimeCaptureLatency() {
+        return null;
     }
 
     /**
