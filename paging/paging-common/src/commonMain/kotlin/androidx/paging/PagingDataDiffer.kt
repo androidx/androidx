@@ -30,6 +30,7 @@ import androidx.paging.internal.BUGANIZER_URL
 import androidx.paging.internal.appendMediatorStatesIfNotNull
 import co.touchlab.stately.collections.ConcurrentMutableList
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Volatile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
