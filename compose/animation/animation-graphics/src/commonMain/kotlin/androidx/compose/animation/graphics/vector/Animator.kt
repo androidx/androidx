@@ -50,7 +50,7 @@ internal sealed class Animator {
     fun createVectorConfig(
         transition: Transition<Boolean>,
         overallDuration: Int
-    ): VectorConfig {
+    ): StateVectorConfig {
         return remember { StateVectorConfig() }.also { config ->
             Configure(transition, config, overallDuration)
         }
@@ -484,6 +484,25 @@ internal class StateVectorConfig : VectorConfig {
             is VectorProperty.TrimPathEnd -> trimPathEndState?.value ?: defaultValue
             is VectorProperty.TrimPathOffset -> trimPathOffsetState?.value ?: defaultValue
         } as T
+    }
+
+    fun merge(config: StateVectorConfig) {
+        if (config.rotationState != null) rotationState = config.rotationState
+        if (config.pivotXState != null) pivotXState = config.pivotXState
+        if (config.pivotYState != null) pivotYState = config.pivotYState
+        if (config.scaleXState != null) scaleXState = config.scaleXState
+        if (config.scaleYState != null) scaleYState = config.scaleYState
+        if (config.translateXState != null) translateXState = config.translateXState
+        if (config.translateYState != null) translateYState = config.translateYState
+        if (config.pathDataState != null) pathDataState = config.pathDataState
+        if (config.fillColorState != null) fillColorState = config.fillColorState
+        if (config.strokeColorState != null) strokeColorState = config.strokeColorState
+        if (config.strokeWidthState != null) strokeWidthState = config.strokeWidthState
+        if (config.strokeAlphaState != null) strokeAlphaState = config.strokeAlphaState
+        if (config.fillAlphaState != null) fillAlphaState = config.fillAlphaState
+        if (config.trimPathStartState != null) trimPathStartState = config.trimPathStartState
+        if (config.trimPathEndState != null) trimPathEndState = config.trimPathEndState
+        if (config.trimPathOffsetState != null) trimPathOffsetState = config.trimPathOffsetState
     }
 }
 
