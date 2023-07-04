@@ -28,7 +28,6 @@ public var LOGGER: Logger? = null
 
 public const val LOG_TAG: String = "Paging"
 
-@JvmDefaultWithCompatibility
 /**
  */
 public interface Logger {

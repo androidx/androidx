@@ -1311,3 +1311,14 @@ public fun <Key : Any, Value : Any> PagedList(
         .setInitialKey(initialKey)
         .build()
 }
+
+/** @suppress */
+@Suppress("DEPRECATION")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
+    key: Key?
+): PagingSource.LoadParams<Key> = PagingSource.LoadParams.Refresh(
+    key,
+    initialLoadSizeHint,
+    enablePlaceholders,
+)
