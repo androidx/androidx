@@ -26,7 +26,10 @@ dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
 
-    implementation("androidx.core:core:1.7.0")
+    // For BundleCompat#putBinder.
+    // TODO(b/280561849): Use stable version when available.
+    implementation("androidx.core:core:1.12.0-alpha05")
+
     implementation("androidx.lifecycle:lifecycle-common:2.2.0")
     implementation project(path: ':privacysandbox:sdkruntime:sdkruntime-client')
     implementation project(path: ':privacysandbox:ui:ui-core')
