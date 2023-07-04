@@ -27,9 +27,9 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    api("androidx.compose.foundation:foundation:1.2.1")
+    api("androidx.compose.foundation:foundation:1.5.0-beta03")
     api(project(":paging:paging-common"))
-    api("androidx.compose.runtime:runtime:1.2.1")
+    api("androidx.compose.runtime:runtime:1.5.0-beta03")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
     androidTestImplementation projectOrArtifact(":compose:ui:ui-tooling")
