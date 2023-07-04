@@ -174,16 +174,19 @@ class BluetoothLe(private val context: Context) {
         fun getService(uuid: UUID): GattService?
 
         /**
-         * Reads the given remote characteristic.
+         * Reads the characteristic value from the server.
          *
          * @param characteristic a remote [GattCharacteristic] to read
          * @return The value of the characteristic
+         *
+         * @throws IllegalArgumentException If [GattCharacteristic#PROPERTY_READ] is not set
+         * for the characteristic.
          */
         suspend fun readCharacteristic(characteristic: GattCharacteristic):
             Result<ByteArray>
 
         /**
-         * Writes the given value to the given remote characteristic.
+         * Writes the characteristic value to the server.
          *
          * @param characteristic a remote [GattCharacteristic] to write
          * @param value a value to be written.
@@ -191,6 +194,9 @@ class BluetoothLe(private val context: Context) {
          * [GattCharacteristic.WRITE_TYPE_NO_RESPONSE], or
          * [GattCharacteristic.WRITE_TYPE_SIGNED].
          * @return the result of the write operation
+         *
+         * @throws IllegalArgumentException If [GattCharacteristic#PROPERTY_WRITE] is not set
+         * for the characteristic.
          */
         suspend fun writeCharacteristic(
             characteristic: GattCharacteristic,
