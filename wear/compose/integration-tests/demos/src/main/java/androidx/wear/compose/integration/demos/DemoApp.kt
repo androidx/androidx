@@ -43,6 +43,10 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.SwipeToDismissBox
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToDismissKeys
+import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
@@ -50,6 +54,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.integration.demos.common.ActivityDemo
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.Demo
@@ -60,12 +65,7 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.SwipeToDismissBoxState
-import androidx.wear.compose.material.SwipeToDismissKeys
-import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -93,7 +93,7 @@ private fun DisplayDemo(
 ) {
     SwipeToDismissBox(
         state = state,
-        hasBackground = parentDemo != null,
+        userSwipeEnabled = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = currentDemo.title,
     ) { isBackground ->

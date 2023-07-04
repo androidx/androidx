@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedBottomLayout
@@ -24,6 +26,7 @@ import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
+import androidx.wear.compose.foundation.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.foundation.samples.ExpandableTextSample
 import androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
 import androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
@@ -33,9 +36,50 @@ import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
+import androidx.wear.compose.foundation.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.foundation.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+
+// Declare the swipe to dismiss demos so that we can use this variable as the background composable
+// for the SwipeToDismissDemo itself.
+internal val SwipeToDismissDemos =
+    DemoCategory(
+        "Swipe to Dismiss",
+        listOf(
+            DemoCategory(
+                "Samples",
+                listOf(
+                    ComposableDemo("Simple") { params ->
+                        SimpleSwipeToDismissBox(params.navigateBack)
+                    },
+                    ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                    ComposableDemo("Edge swipe") { params ->
+                        EdgeSwipeForSwipeToDismiss(params.navigateBack)
+                    },
+                )
+            ),
+            DemoCategory(
+                "Demos",
+                listOf(
+                    ComposableDemo("Demo") { params ->
+                        val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
+                        SwipeToDismissDemo(navigateBack = params.navigateBack, demoState = state)
+                    },
+                    ComposableDemo("Stateful Demo") { params ->
+                        SwipeToDismissBoxWithState(params.navigateBack)
+                    },
+                    ComposableDemo("EdgeSwipeToDismiss modifier") { params ->
+                        EdgeSwipeDemo(params.swipeToDismissBoxState)
+                    },
+                    ComposableDemo("Nested SwipeToDismissBox") {
+                        NestedSwipeToDismissDemo()
+                    }
+                )
+            )
+        )
+    )
 
 val WearFoundationDemos = DemoCategory(
     "Foundation",
@@ -101,6 +145,7 @@ val WearFoundationDemos = DemoCategory(
                 },
             ),
         ),
+        SwipeToDismissDemos,
         DemoCategory(
             "Swipe To Reveal",
             listOf(

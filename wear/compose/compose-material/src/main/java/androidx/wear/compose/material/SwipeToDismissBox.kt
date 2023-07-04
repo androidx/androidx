@@ -16,50 +16,23 @@
 
 package androidx.wear.compose.material
 
+import androidx.annotation.RestrictTo
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.changedToUp
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.isActive
+import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
+import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
+import androidx.wear.compose.foundation.edgeSwipeToDismiss as foundationEdgeSwipeToDismiss
 
 /**
  * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
@@ -95,7 +68,6 @@ import kotlinx.coroutines.isActive
  * and is shown without scrim once the finger passes the swipe-to-dismiss threshold.
  */
 @Composable
-@OptIn(ExperimentalWearMaterialApi::class)
 public fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
@@ -106,114 +78,18 @@ public fun SwipeToDismissBox(
     hasBackground: Boolean = true,
     content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) {
-    // Will be updated in onSizeChanged, initialise to any value other than zero
-    // so that it is different to the other anchor used for the swipe gesture.
-    var maxWidth by remember { mutableFloatStateOf(1f) }
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .onSizeChanged { maxWidth = it.width.toFloat() }
-            .swipeable(
-                state = state.swipeableState,
-                enabled = hasBackground,
-                anchors = anchors(maxWidth),
-                thresholds = { _, _ -> FractionalThreshold(SWIPE_THRESHOLD) },
-                resistance = ResistanceConfig(
-                    basis = maxWidth,
-                    factorAtMin = TOTAL_RESISTANCE,
-                    factorAtMax = TOTAL_RESISTANCE,
-                ),
-                orientation = Orientation.Horizontal,
-            )
+    CompositionLocalProvider(
+        LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
+        LocalSwipeToDismissContentScrimColor provides contentScrimColor
     ) {
-        var squeezeMode by remember {
-            mutableStateOf(true)
-        }
-
-        LaunchedEffect(state.isAnimationRunning) {
-            if (state.targetValue == SwipeToDismissValue.Dismissed) {
-                squeezeMode = false
-            }
-        }
-
-        LaunchedEffect(state.targetValue) {
-            if (!squeezeMode && state.targetValue == SwipeToDismissValue.Default) {
-                squeezeMode = true
-            }
-        }
-
-        val isRound = isRoundDevice()
-
-        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
-        // b/280392104: re-calculate modifiers if keys have changed
-        val modifiers by remember(isRound, backgroundScrimColor, backgroundKey, contentKey) {
-            derivedStateOf {
-                val progress = (state.swipeableState.offset.value / maxWidth).coerceIn(0f, 1f)
-                val scale = lerp(SCALE_MAX, SCALE_MIN, progress).coerceIn(SCALE_MIN, SCALE_MAX)
-                val squeezeOffset = max(0f, (1f - scale) * maxWidth / 2f)
-                val slideOffset = lerp(squeezeOffset, maxWidth, max(0f, progress - 0.7f) / 0.3f)
-
-                val translationX = if (squeezeMode) squeezeOffset else slideOffset
-
-                val backgroundAlpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress)
-                val contentScrimAlpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
-
-                Modifiers(
-                    contentForeground = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            this.translationX = translationX
-                            scaleX = scale
-                            scaleY = scale
-                            clip = isRound && translationX > 0
-                            shape = if (isRound) CircleShape else RectangleShape
-                        }
-                        .background(backgroundScrimColor),
-                    scrimForeground =
-                    Modifier
-                        .background(
-                            contentScrimColor.copy(alpha = contentScrimAlpha)
-                        )
-                        .fillMaxSize(),
-                    scrimBackground =
-                    Modifier
-                        .matchParentSize()
-                        .background(
-                            backgroundScrimColor.copy(alpha = backgroundAlpha)
-                        )
-                )
-            }
-        }
-
-        repeat(2) {
-            val isBackground = it == 0
-            val contentModifier = if (isBackground) {
-                Modifier.fillMaxSize()
-            } else {
-                modifiers.contentForeground
-            }
-
-            val scrimModifier = if (isBackground) {
-                modifiers.scrimBackground
-            } else {
-                modifiers.scrimForeground
-            }
-
-            key(if (isBackground) backgroundKey else contentKey) {
-                if (!isBackground ||
-                    (hasBackground && state.swipeableState.offset.value.roundToInt() > 0)
-                ) {
-                    Box(contentModifier) {
-                        // We use the repeat loop above and call content at this location
-                        // for both background and foreground so that any persistence
-                        // within the content composable has the same call stack which is used
-                        // as part of the hash identity for saveable state.
-                        content(isBackground)
-                        Box(modifier = scrimModifier)
-                    }
-                }
-            }
-        }
+        androidx.wear.compose.foundation.SwipeToDismissBox(
+            state = state.foundationState,
+            modifier = modifier,
+            backgroundKey = backgroundKey,
+            contentKey = contentKey,
+            userSwipeEnabled = hasBackground,
+            content = content
+        )
     }
 }
 
@@ -264,32 +140,29 @@ public fun SwipeToDismissBox(
     hasBackground: Boolean = true,
     content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) {
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SwipeToDismissValue.Dismissed) {
-            state.snapTo(SwipeToDismissValue.Default)
-            onDismissed()
-        }
+    CompositionLocalProvider(
+        LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
+        LocalSwipeToDismissContentScrimColor provides contentScrimColor
+    ) {
+        androidx.wear.compose.foundation.SwipeToDismissBox(
+            state = state.foundationState,
+            modifier = modifier,
+            onDismissed = onDismissed,
+            backgroundKey = backgroundKey,
+            contentKey = contentKey,
+            userSwipeEnabled = hasBackground,
+            content = content
+        )
     }
-    SwipeToDismissBox(
-        state = state,
-        modifier = modifier,
-        backgroundScrimColor = backgroundScrimColor,
-        contentScrimColor = contentScrimColor,
-        backgroundKey = backgroundKey,
-        contentKey = contentKey,
-        hasBackground = hasBackground,
-        content = content
-    )
 }
 
-@Stable
 /**
  * State for [SwipeToDismissBox].
  *
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
-@OptIn(ExperimentalWearMaterialApi::class)
+@Stable
 public class SwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
     confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
@@ -301,7 +174,7 @@ public class SwipeToDismissBoxState(
      * [SwipeToDismissValue.Dismissed] if the swipe has been completed.
      */
     public val currentValue: SwipeToDismissValue
-        get() = swipeableState.currentValue
+        get() = convertFromFoundationSwipeToDismissValue(foundationState.currentValue)
 
     /**
      * The target value of the state.
@@ -311,78 +184,34 @@ public class SwipeToDismissBoxState(
      * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
      */
     public val targetValue: SwipeToDismissValue
-        get() = swipeableState.targetValue
+        get() = convertFromFoundationSwipeToDismissValue(foundationState.targetValue)
 
     /**
      * Whether the state is currently animating.
      */
     public val isAnimationRunning: Boolean
-        get() = swipeableState.isAnimationRunning
-
-    internal fun edgeNestedScrollConnection(
-        edgeSwipeState: State<EdgeSwipeState>
-    ): NestedScrollConnection =
-        swipeableState.edgeNestedScrollConnection(edgeSwipeState)
+        get() = foundationState.isAnimationRunning
 
     /**
      * Set the state without any animation and suspend until it's set
      *
      * @param targetValue The new target value to set [currentValue] to.
      */
-    public suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
+    public suspend fun snapTo(targetValue: SwipeToDismissValue) =
+        foundationState.snapTo(convertToFoundationSwipeToDismissValue(targetValue))
 
-    private companion object {
-        private fun <T> SwipeableState<T>.edgeNestedScrollConnection(
-            edgeSwipeState: State<EdgeSwipeState>
-        ): NestedScrollConnection =
-            object : NestedScrollConnection {
-                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    val delta = available.x
-                    // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss
-                    // drag and consume everything
-                    return if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss &&
-                        source == NestedScrollSource.Drag
-                    ) {
-                        performDrag(delta)
-                        available
-                    } else {
-                        Offset.Zero
-                    }
-                }
-
-                override fun onPostScroll(
-                    consumed: Offset,
-                    available: Offset,
-                    source: NestedScrollSource
-                ): Offset = Offset.Zero
-
-                override suspend fun onPreFling(available: Velocity): Velocity {
-                    val toFling = available.x
-                    // Consumes fling by SwipeToDismiss
-                    return if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss ||
-                        edgeSwipeState.value == EdgeSwipeState.SwipeToDismissInProgress
-                    ) {
-                        performFling(velocity = toFling)
-                        available
-                    } else
-                        Velocity.Zero
-                }
-
-                override suspend fun onPostFling(
-                    consumed: Velocity,
-                    available: Velocity
-                ): Velocity {
-                    performFling(velocity = available.x)
-                    return available
-                }
-            }
-    }
-
-    internal val swipeableState = SwipeableState(
-        initialValue = SwipeToDismissValue.Default,
+    /**
+     * Foundation version of the [SwipeToDismissBoxState].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val foundationState = androidx.wear.compose.foundation.SwipeToDismissBoxState(
         animationSpec = animationSpec,
-        confirmStateChange = confirmStateChange,
+        confirmStateChange = { value: androidx.wear.compose.foundation.SwipeToDismissValue ->
+            confirmStateChange(convertFromFoundationSwipeToDismissValue(value))
+        }
     )
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        get() = field
 }
 
 /**
@@ -476,111 +305,30 @@ public fun Modifier.edgeSwipeToDismiss(
     swipeToDismissBoxState: SwipeToDismissBoxState,
     edgeWidth: Dp = SwipeToDismissBoxDefaults.EdgeWidth
 ): Modifier =
-    composed(
-        inspectorInfo = debugInspectorInfo {
-            name = "edgeSwipeToDismiss"
-            properties["swipeToDismissBoxState"] = swipeToDismissBoxState
-            properties["edgeWidth"] = edgeWidth
-        }
-    ) {
-        // Tracks the current swipe status
-        val edgeSwipeState = remember { mutableStateOf(EdgeSwipeState.WaitingForTouch) }
-        val nestedScrollConnection =
-            remember(swipeToDismissBoxState) {
-                swipeToDismissBoxState.edgeNestedScrollConnection(edgeSwipeState)
-            }
-
-        val nestedPointerInput: suspend PointerInputScope.() -> Unit = {
-            coroutineScope {
-                awaitPointerEventScope {
-                    while (isActive) {
-                        awaitPointerEvent(PointerEventPass.Initial).changes.forEach { change ->
-                            // By default swipeState is WaitingForTouch.
-                            // If it is in this state and a first touch hit an edge area, we
-                            // set swipeState to EdgeClickedWaitingForDirection.
-                            // After that to track which direction the swipe will go, we check
-                            // the next touch. If it lands to the left of the first, we consider
-                            // it as a swipe left and set the state to SwipingToPage. Otherwise,
-                            // set the state to SwipingToDismiss
-                            when (edgeSwipeState.value) {
-                                EdgeSwipeState.SwipeToDismissInProgress,
-                                EdgeSwipeState.WaitingForTouch -> {
-                                    edgeSwipeState.value =
-                                        if (change.position.x < edgeWidth.toPx())
-                                            EdgeSwipeState.EdgeClickedWaitingForDirection
-                                        else
-                                            EdgeSwipeState.SwipingToPage
-                                }
-                                EdgeSwipeState.EdgeClickedWaitingForDirection -> {
-                                    edgeSwipeState.value =
-                                        if (change.position.x < change.previousPosition.x)
-                                            EdgeSwipeState.SwipingToPage
-                                        else
-                                            EdgeSwipeState.SwipingToDismiss
-                                }
-                                else -> {} // Do nothing
-                            }
-                            // When finger is up - reset swipeState to WaitingForTouch
-                            // or to SwipeToDismissInProgress if current
-                            // state is SwipingToDismiss
-                            if (change.changedToUp()) {
-                                edgeSwipeState.value =
-                                    if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss)
-                                        EdgeSwipeState.SwipeToDismissInProgress
-                                    else
-                                        EdgeSwipeState.WaitingForTouch
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        pointerInput(edgeWidth, nestedPointerInput)
-            .nestedScroll(nestedScrollConnection)
-    }
-
-/**
- * An enum which represents a current state of swipe action.
- */
-internal enum class EdgeSwipeState {
-    // Waiting for touch, edge was not touched before.
-    WaitingForTouch,
-
-    // Edge was touched, now waiting for the second touch
-    // to determine whether we swipe left or right.
-    EdgeClickedWaitingForDirection,
-
-    // Direction was determined, swiping to dismiss.
-    SwipingToDismiss,
-
-    // Direction was determined, all gestures are handled by the page itself.
-    SwipingToPage,
-
-    // Swipe was finished, used to handle fling.
-    SwipeToDismissInProgress
-}
-
-/**
- * Class to enable calculating group of modifiers in a single, memoised block.
- */
-private data class Modifiers(
-    val contentForeground: Modifier,
-    val scrimForeground: Modifier,
-    val scrimBackground: Modifier,
-)
-
-// Map pixel position to states - initially, don't know the width in pixels so omit upper bound.
-private fun anchors(maxWidth: Float): Map<Float, SwipeToDismissValue> =
-    mapOf(
-        0f to SwipeToDismissValue.Default,
-        maxWidth to SwipeToDismissValue.Dismissed
+    foundationEdgeSwipeToDismiss(
+        swipeToDismissBoxState = swipeToDismissBoxState.foundationState,
+        edgeWidth = edgeWidth
     )
 
-private const val SWIPE_THRESHOLD = 0.5f
-private const val TOTAL_RESISTANCE = 1000f
-private const val SCALE_MAX = 1f
-private const val SCALE_MIN = 0.7f
-private const val MAX_CONTENT_SCRIM_ALPHA = 0.3f
-private const val MAX_BACKGROUND_SCRIM_ALPHA = 0.5f
+private fun convertToFoundationSwipeToDismissValue(
+    value: SwipeToDismissValue
+) = when (value) {
+    SwipeToDismissValue.Default ->
+        androidx.wear.compose.foundation.SwipeToDismissValue.Default
+
+    SwipeToDismissValue.Dismissed ->
+        androidx.wear.compose.foundation.SwipeToDismissValue.Dismissed
+}
+
+private fun convertFromFoundationSwipeToDismissValue(
+    value: androidx.wear.compose.foundation.SwipeToDismissValue
+) = when (value) {
+    androidx.wear.compose.foundation.SwipeToDismissValue.Default ->
+        SwipeToDismissValue.Default
+
+    androidx.wear.compose.foundation.SwipeToDismissValue.Dismissed ->
+        SwipeToDismissValue.Dismissed
+}
+
 private val SWIPE_TO_DISMISS_BOX_ANIMATION_SPEC =
     TweenSpec<Float>(200, 0, LinearOutSlowInEasing)

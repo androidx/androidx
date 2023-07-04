@@ -43,12 +43,14 @@ import androidx.navigation.Navigator
 import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.createGraph
 import androidx.navigation.get
-import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.SwipeToDismissBoxState
-import androidx.wear.compose.material.SwipeToDismissKeys
-import androidx.wear.compose.material.SwipeToDismissValue
-import androidx.wear.compose.material.edgeSwipeToDismiss
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
+import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
+import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
+import androidx.wear.compose.foundation.SwipeToDismissBox
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToDismissKeys
+import androidx.wear.compose.foundation.SwipeToDismissValue
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 
 /**
  * Provides a place in the Compose hierarchy for self-contained navigation to occur,
@@ -62,7 +64,8 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  *
  * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
- * the background.
+ * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
+ * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
  *
  * Example of a [SwipeDismissableNavHost] alternating between 2 screens:
  * @sample androidx.wear.compose.navigation.samples.SimpleNavHost
@@ -107,7 +110,8 @@ public fun SwipeDismissableNavHost(
  *
  * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
- * the background.
+ * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
+ * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
  *
  * Example of a [SwipeDismissableNavHost] alternating between 2 screens:
  * @sample androidx.wear.compose.navigation.samples.SimpleNavHost
@@ -213,7 +217,7 @@ public fun SwipeDismissableNavHost(
     SwipeToDismissBox(
         state = swipeState,
         modifier = Modifier,
-        hasBackground = previous != null,
+        userSwipeEnabled = previous != null,
         backgroundKey = previous?.id ?: SwipeToDismissKeys.Background,
         contentKey = current?.id ?: SwipeToDismissKeys.Content,
         content = { isBackground ->
@@ -247,7 +251,16 @@ public fun SwipeDismissableNavHost(
  */
 public class SwipeDismissableNavHostState(
     internal val swipeToDismissBoxState: SwipeToDismissBoxState
-)
+) {
+
+    @Deprecated(
+        "This overload is provided for backward compatibility. " +
+            "A newer overload is available which uses SwipeToDismissBoxState " +
+            "from androidx.wear.compose.foundation package."
+    )
+    constructor(swipeToDismissBoxState: androidx.wear.compose.material.SwipeToDismissBoxState) :
+        this(swipeToDismissBoxState.foundationState)
+}
 
 /**
  * Create a [SwipeToDismissBoxState] and remember it.
@@ -258,7 +271,23 @@ public class SwipeDismissableNavHostState(
  */
 @Composable
 public fun rememberSwipeDismissableNavHostState(
-    swipeToDismissBoxState: SwipeToDismissBoxState = rememberSwipeToDismissBoxState(),
+    swipeToDismissBoxState: SwipeToDismissBoxState = rememberSwipeToDismissBoxState()
+): SwipeDismissableNavHostState {
+    return remember(swipeToDismissBoxState) {
+        SwipeDismissableNavHostState(swipeToDismissBoxState)
+    }
+}
+
+@Suppress("DEPRECATION")
+@Deprecated(
+    "This overload is provided for backward compatibility. A newer overload is available " +
+        "which uses SwipeToDismissBoxState from androidx.wear.compose.foundation package.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun rememberSwipeDismissableNavHostState(
+    swipeToDismissBoxState: androidx.wear.compose.material.SwipeToDismissBoxState =
+        androidx.wear.compose.material.rememberSwipeToDismissBoxState()
 ): SwipeDismissableNavHostState {
     return remember(swipeToDismissBoxState) {
         SwipeDismissableNavHostState(swipeToDismissBoxState)
