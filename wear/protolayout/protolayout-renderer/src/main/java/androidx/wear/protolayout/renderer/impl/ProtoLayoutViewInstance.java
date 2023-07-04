@@ -674,8 +674,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                             ? new ProtoLayoutDynamicDataPipeline(
                                     config.getPlatformDataProviders(),
                                     stateStore,
-                                    new FixedQuotaManagerImpl(config.getRunningAnimationsLimit()),
-                                    new FixedQuotaManagerImpl(DYNAMIC_NODES_MAX_COUNT))
+                                    new FixedQuotaManagerImpl(
+                                            config.getRunningAnimationsLimit(),
+                                            "animations"),
+                                    new FixedQuotaManagerImpl(
+                                            DYNAMIC_NODES_MAX_COUNT, "dynamic nodes"))
                             : new ProtoLayoutDynamicDataPipeline(
                                     config.getPlatformDataProviders(), stateStore);
             mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());
