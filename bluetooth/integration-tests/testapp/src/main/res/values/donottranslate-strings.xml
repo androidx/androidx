@@ -17,7 +17,6 @@
 <resources>
     <string name="app_name">AndroidX Bluetooth Test App</string>
 
-    <string name="title_home">AndroidX Bluetooth</string>
     <string name="title_scanner">Scanner</string>
     <string name="title_advertiser">Advertiser</string>
 
@@ -70,13 +69,4 @@
     <string name="gatt_server">Gatt Server</string>
     <string name="open_gatt_server">Open Gatt Server</string>
     <string name="stop_gatt_server">Stop Gatt Server</string>
-
-    <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
-    <string name="scan_start_message">Scan started. Results are in Logcat</string>
-
-    <string name="advertise_using_androidx_bluetooth">Advertise using AndroidX Bluetooth APIs</string>
-    <string name="advertise_start_message">Advertise started</string>
-
-    <string name="open_gatt_server_using_androidx_bluetooth">Open GATT Server using AndroidX Bluetooth APIs</string>
-    <string name="gatt_server_open">GATT Server open</string>
 </resources>
