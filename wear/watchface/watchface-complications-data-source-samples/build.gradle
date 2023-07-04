@@ -21,13 +21,11 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.core:core:1.1.0")
     api(project(":wear:watchface:watchface-complications-data-source"))
     api(libs.guavaAndroid)
     api(libs.kotlinStdlib)
-    // TODO(b/267170061): Use released protolayout-expression, remove protolayout-proto.
-    implementation(project(":wear:protolayout:protolayout-expression"))
-    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout-expression:1.0.0-beta01")
 }
 
 android {
