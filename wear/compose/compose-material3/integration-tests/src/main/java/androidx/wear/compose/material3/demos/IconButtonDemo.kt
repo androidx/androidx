@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.OutlinedIconButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FilledIconButtonSample
@@ -45,7 +46,9 @@ fun IconButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text("Icon Button")
+            ListHeader {
+                Text("Icon button")
+            }
         }
         item {
             Row {
@@ -63,7 +66,9 @@ fun IconButtonDemo() {
             }
         }
         item {
-            Text("FilledTonalIconButton")
+            ListHeader {
+                Text("FilledTonalIconButton")
+            }
         }
         item {
             Row {
@@ -81,7 +86,9 @@ fun IconButtonDemo() {
             }
         }
         item {
-            Text("FilledIconButton")
+            ListHeader {
+                Text("FilledIconButton")
+            }
         }
         item {
             Row {
@@ -99,7 +106,9 @@ fun IconButtonDemo() {
             }
         }
         item {
-            Text("OutlinedIconButton")
+            ListHeader {
+                Text("OutlinedIconButton")
+            }
         }
         item {
             Row {
