@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
-import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
