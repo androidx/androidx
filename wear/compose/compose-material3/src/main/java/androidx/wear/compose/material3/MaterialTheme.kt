@@ -25,6 +25,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
+import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
+import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
 
 /**
  * MaterialTheme defines the styling principles from the Wear Material3 design specification
@@ -74,7 +76,8 @@ public fun MaterialTheme(
         LocalIndication provides rippleIndication,
         LocalRippleTheme provides MaterialRippleTheme,
         LocalTextSelectionColors provides selectionColors,
-
+        LocalSwipeToDismissBackgroundScrimColor provides rememberedColors.background,
+        LocalSwipeToDismissContentScrimColor provides rememberedColors.background
         ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }
