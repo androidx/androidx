@@ -2011,7 +2011,11 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     ) {
         Box(
             if (animSpec != null) {
-                Modifier.animateItemPlacement(animSpec)
+                Modifier.animateItem(
+                    fadeInSpec = null,
+                    fadeOutSpec = null,
+                    placementSpec = animSpec
+                )
             } else {
                 Modifier
             }

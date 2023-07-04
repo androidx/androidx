@@ -871,7 +871,7 @@ private fun ReorderWithCustomKeys() {
                 key = { it }
             ) {
                 var counter by rememberSaveable { mutableIntStateOf(0) }
-                Button(onClick = { counter++ }, modifier = Modifier.animateItemPlacement()) {
+                Button(onClick = { counter++ }, modifier = Modifier.animateItem()) {
                     Text("$it has $counter")
                 }
             }
@@ -1071,7 +1071,7 @@ private fun AnimateItemPlacementDemo() {
                 .weight(1f), reverseLayout = reverse) {
             items(items, key = { it }) { item ->
                 val selected = selectedIndexes.getOrDefault(item, false)
-                val modifier = Modifier.animateItemPlacement()
+                val modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
                 var height by remember { mutableStateOf(40.dp) }
                 Row(
                     modifier

@@ -2575,7 +2575,11 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 items(list, key = { it }) { item ->
                     Box(
                         Modifier
-                            .animateItemPlacement(tween(160))
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                                placementSpec = tween<IntOffset>(160)
+                            )
                             .trackPositions(
                                 lookaheadPosition,
                                 postLookaheadPosition,
@@ -2644,7 +2648,11 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                         items(4, key = { it }) {
                             Box(
                                 Modifier
-                                    .animateItemPlacement(tween(160, easing = LinearEasing))
+                                    .animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                        placementSpec = tween<IntOffset>(160, easing = LinearEasing)
+                                    )
                                     .trackPositions(
                                         lookaheadPosition,
                                         postLookaheadPosition,
@@ -2827,7 +2835,14 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                             if (vertical) {
                                 Column(
                                     Modifier
-                                        .animateItemPlacement(tween(160, easing = LinearEasing))
+                                        .animateItem(
+                                            fadeInSpec = null,
+                                            fadeOutSpec = null,
+                                            placementSpec = tween<IntOffset>(
+                                                160,
+                                                easing = LinearEasing
+                                            )
+                                        )
                                         .trackPositions(
                                             lookaheadPosition,
                                             postLookaheadPosition,
@@ -2843,7 +2858,14 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                             } else {
                                 Row(
                                     Modifier
-                                        .animateItemPlacement(tween(160, easing = LinearEasing))
+                                        .animateItem(
+                                            fadeInSpec = null,
+                                            fadeOutSpec = null,
+                                            placementSpec = tween<IntOffset>(
+                                                160,
+                                                easing = LinearEasing
+                                            )
+                                        )
                                         .trackPositions(
                                             lookaheadPosition,
                                             postLookaheadPosition,
