@@ -24,10 +24,14 @@ import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
 import androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED
 import androidx.camera.core.ImageCapture.OutputFileResults
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.imagecapture.FakeImageCaptureControl.Action.SUBMIT_REQUESTS
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.internal.compat.quirk.CaptureFailedRetryQuirk
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,6 +39,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowBuild
 
 /**
  * Unit tests for [TakePictureManager].
@@ -133,7 +138,7 @@ class TakePictureManagerTest {
         // Assert: one request is sent.
         assertThat(imageCaptureControl.actions).containsExactly(
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
         // Both request are aborted.
@@ -184,7 +189,7 @@ class TakePictureManagerTest {
         // Assert: only one request is sent.
         assertThat(imageCaptureControl.actions).containsExactly(
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
 
@@ -195,10 +200,10 @@ class TakePictureManagerTest {
         // Assert: 2nd request is sent too.
         assertThat(imageCaptureControl.actions).containsExactly(
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
     }
@@ -275,7 +280,7 @@ class TakePictureManagerTest {
         // Assert:
         assertThat(imageCaptureControl.actions).containsExactly(
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
         assertThat(imageCaptureControl.latestCaptureConfigs).isEqualTo(response1)
@@ -288,10 +293,10 @@ class TakePictureManagerTest {
         // Assert: imageCaptureControl was invoked in the exact given order.
         assertThat(imageCaptureControl.actions).containsExactly(
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
         assertThat(imageCaptureControl.latestCaptureConfigs).isEqualTo(response2)
@@ -399,7 +404,7 @@ class TakePictureManagerTest {
         assertThat(takePictureManager.mNewRequests.size).isEqualTo(0)
         assertThat(imageCaptureControl.actions).containsExactly(
             FakeImageCaptureControl.Action.LOCK_FLASH,
-            FakeImageCaptureControl.Action.SUBMIT_REQUESTS,
+            SUBMIT_REQUESTS,
             FakeImageCaptureControl.Action.UNLOCK_FLASH,
         ).inOrder()
     }
@@ -442,5 +447,75 @@ class TakePictureManagerTest {
 
         // Assert. new request can be issued after the capture failure of the first request
         takePictureManager.offerRequest(request2)
+    }
+
+    @Test
+    fun requestFailure_failureReportedIfQuirkDisabled() {
+        // Arrange: use the real ImagePipeline implementation to do the test
+        takePictureManager.mImagePipeline =
+            ImagePipeline(Utils.createEmptyImageCaptureConfig(), Size(640, 480))
+
+        // Create a request and offer it to the manager.
+        imageCaptureControl.shouldUsePendingResult = true
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        takePictureManager.offerRequest(request)
+
+        // Act: make the request fail once.
+        imageCaptureControl.pendingResultCompleter.setException(
+            ImageCaptureException(
+                ERROR_CAPTURE_FAILED, "", null
+            )
+        )
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: failure exception received and no more retry possible.
+        assertThat((request.exceptionReceived as ImageCaptureException).imageCaptureError)
+            .isEqualTo(ERROR_CAPTURE_FAILED)
+        assertThat(request.remainingRetries).isEqualTo(0)
+        // Only 1 request submitted to camera
+        assertThat(imageCaptureControl.actions.count { it == SUBMIT_REQUESTS }).isEqualTo(1)
+    }
+
+    @Test
+    fun requestFailure_retriedIfQuirkEnabled() {
+        // Arrange: enable retry related quirk.
+        ShadowBuild.setBrand("SAMSUNG")
+        ShadowBuild.setModel("SM-G981U1")
+
+        val captureFailedRetryQuirk = DeviceQuirks.get(CaptureFailedRetryQuirk::class.java)
+
+        assertWithMessage("CaptureFailedRetryQuirk not enabled!")
+            .that(captureFailedRetryQuirk).isNotNull()
+
+        // Use the real ImagePipeline implementation to do the test
+        takePictureManager.mImagePipeline =
+            ImagePipeline(Utils.createEmptyImageCaptureConfig(), Size(640, 480))
+
+        // Create a request and offer it to the manager.
+        imageCaptureControl.shouldUsePendingResult = true
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        takePictureManager.offerRequest(request)
+
+        // Act: make the request fail once and then successful if retried later.
+        imageCaptureControl.pendingResultCompleter.setException(
+            ImageCaptureException(
+                ERROR_CAPTURE_FAILED, "", null
+            )
+        )
+        imageCaptureControl.resetPendingResult()
+
+        // complete the new capture successfully
+        imageCaptureControl.pendingResultCompleter.set(null)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: retry count decremented without any failure.
+        assertThat(request.remainingRetries).isEqualTo(captureFailedRetryQuirk!!.retryCount - 1)
+        assertThat(request.exceptionReceived).isNull()
+        // 2 requests submitted to camera
+        assertThat(imageCaptureControl.actions.count { it == SUBMIT_REQUESTS }).isEqualTo(2)
+
+        // Clean-up brands and models set for enabling quirk.
+        ShadowBuild.setBrand("")
+        ShadowBuild.setModel("")
     }
 }
