@@ -781,7 +781,7 @@ public object ToggleChipDefaults {
      * Note that you can override it by applying Modifier.heightIn directly on [ToggleChip] or
      * [SplitToggleChip].
      */
-    internal val Height = 52.dp
+    public val Height = 52.dp
 
     /**
      * The default size of app icons or toggle controls when used inside a [ToggleChip] or

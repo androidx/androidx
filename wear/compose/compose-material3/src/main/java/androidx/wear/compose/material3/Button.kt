@@ -922,7 +922,7 @@ object ButtonDefaults {
      * The default height applied for the [Button].
      * Note that you can override it by applying Modifier.heightIn directly on [Button].
      */
-    internal val Height = 52.dp
+    val Height = 52.dp
 
     /**
      * The default size of the spacing between an icon and a text when they are used inside a

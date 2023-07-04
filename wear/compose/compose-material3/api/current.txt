@@ -30,6 +30,7 @@ package androidx.wear.compose.material3 {
     method public float getButtonHorizontalPadding();
     method public float getButtonVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getHeight();
     method public float getIconSize();
     method public float getLargeIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors imageBackgroundButtonColors(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
@@ -38,6 +39,7 @@ package androidx.wear.compose.material3 {
     property public final float ButtonHorizontalPadding;
     property public final float ButtonVerticalPadding;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float Height;
     property public final float IconSize;
     property public final float LargeIconSize;
     field public static final androidx.wear.compose.material3.ButtonDefaults INSTANCE;

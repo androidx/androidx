@@ -95,10 +95,12 @@ package androidx.wear.compose.material {
     method public float getChipHorizontalPadding();
     method public float getChipVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getCompactChipContentPadding();
+    method public float getCompactChipHeight();
     method public float getCompactChipHorizontalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getCompactChipTapTargetPadding();
     method public float getCompactChipVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getHeight();
     method public float getIconSize();
     method public float getLargeIconSize();
     method public float getSmallIconSize();
@@ -111,10 +113,12 @@ package androidx.wear.compose.material {
     property public final float ChipHorizontalPadding;
     property public final float ChipVerticalPadding;
     property public final androidx.compose.foundation.layout.PaddingValues CompactChipContentPadding;
+    property public final float CompactChipHeight;
     property public final float CompactChipHorizontalPadding;
     property public final androidx.compose.foundation.layout.PaddingValues CompactChipTapTargetPadding;
     property public final float CompactChipVerticalPadding;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float Height;
     property public final float IconSize;
     property public final float LargeIconSize;
     property public final float SmallIconSize;
@@ -815,6 +819,7 @@ package androidx.wear.compose.material {
     method public androidx.compose.ui.graphics.vector.ImageVector checkboxIcon(boolean checked);
     method public androidx.compose.ui.graphics.vector.ImageVector getCheckboxOn();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getHeight();
     method public float getIconSize();
     method public androidx.compose.ui.graphics.vector.ImageVector getRadioOff();
     method public androidx.compose.ui.graphics.vector.ImageVector getRadioOn();
@@ -825,6 +830,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ToggleChipColors toggleChipColors(optional long checkedStartBackgroundColor, optional long checkedEndBackgroundColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedToggleControlColor, optional long uncheckedStartBackgroundColor, optional long uncheckedEndBackgroundColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedToggleControlColor, optional androidx.compose.ui.unit.LayoutDirection gradientDirection);
     property public final androidx.compose.ui.graphics.vector.ImageVector CheckboxOn;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float Height;
     property public final float IconSize;
     property public final androidx.compose.ui.graphics.vector.ImageVector RadioOff;
     property public final androidx.compose.ui.graphics.vector.ImageVector RadioOn;
