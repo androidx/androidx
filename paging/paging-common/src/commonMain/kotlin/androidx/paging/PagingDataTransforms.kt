@@ -21,6 +21,10 @@ package androidx.paging
 
 import androidx.annotation.CheckResult
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmSynthetic
 import kotlinx.coroutines.flow.map
 
 internal inline fun <T : Any, R : Any> PagingData<T>.transform(
