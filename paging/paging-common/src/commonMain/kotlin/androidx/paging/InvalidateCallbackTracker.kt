@@ -18,7 +18,7 @@ package androidx.paging
 
 import androidx.annotation.VisibleForTesting
 import co.touchlab.stately.concurrency.Lock
-import kotlin.concurrent.withLock
+import co.touchlab.stately.concurrency.withLock
 
 /**
  * Helper class for thread-safe invalidation callback tracking + triggering on registration.
@@ -74,7 +74,7 @@ internal class InvalidateCallbackTracker<T>(
     internal fun invalidate(): Boolean {
         if (invalid) return false
 
-        var callbacksToInvoke: List<T>?
+        var callbacksToInvoke: List<T>? = null
         lock.withLock {
             if (invalid) return false
 

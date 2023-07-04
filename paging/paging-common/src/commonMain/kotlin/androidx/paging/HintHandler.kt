@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import co.touchlab.stately.concurrency.Lock
-import kotlin.concurrent.withLock
+import co.touchlab.stately.concurrency.withLock
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
