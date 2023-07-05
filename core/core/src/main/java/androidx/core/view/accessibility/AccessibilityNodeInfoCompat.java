@@ -96,8 +96,8 @@ public class AccessibilityNodeInfoCompat {
      * </p>
      * <p class="note">
      * <strong>Note:</strong> Views which support these actions should invoke
-     * {@link View#setImportantForAccessibility(int)} with
-     * {@link View#IMPORTANT_FOR_ACCESSIBILITY_YES} to ensure an
+     * {@link ViewCompat#setImportantForAccessibility(View, int)} with
+     * {@link ViewCompat#IMPORTANT_FOR_ACCESSIBILITY_YES} to ensure an
      * {@link android.accessibilityservice.AccessibilityService} can discover the set of supported
      * actions.
      * </p>
@@ -1397,6 +1397,7 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
     private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
+    private static final int BOOLEAN_PROPERTY_TEXT_SELECTABLE = 1 << 23;
     private static final int BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING = 1 << 26;
 
     private final AccessibilityNodeInfo mInfo;
@@ -2833,7 +2834,11 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Gets if the node supports granular scrolling.
-     *
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: Returns false.</li>
+     * </ul>
      * @return True if all scroll actions that could support
      * {@link #ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT} have done so, false otherwise.
      */
@@ -2849,7 +2854,11 @@ public class AccessibilityNodeInfoCompat {
      *   {@link android.accessibilityservice.AccessibilityService}.
      *   This class is made immutable before being delivered to an AccessibilityService.
      * </p>
-     *
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: No-op.</li>
+     * </ul>
      * @param granularScrollingSupported True if the node supports granular scrolling, false
      *                                  otherwise.
      *
@@ -2867,11 +2876,12 @@ public class AccessibilityNodeInfoCompat {
      *     Services should use {@link #ACTION_SET_SELECTION} for selection. Editable text nodes must
      *     also be selectable. But not all UIs will populate this field, so services should consider
      *     'isTextSelectable | isEditable' to ensure they don't miss nodes with selectable text.
-     *  Compatibility:
-     *  <ul>
-     *      <li>Api &lt; 33: Returns false.</li>
-     *  </ul>
      * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: Returns false.</li>
+     * </ul>
      *
      * @see #isEditable
      * @return True if the node has selectable text.
@@ -2880,7 +2890,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.isTextSelectable(mInfo);
         } else {
-            return false;
+            return getBooleanProperty(BOOLEAN_PROPERTY_TEXT_SELECTABLE);
         }
     }
 
@@ -2890,10 +2900,12 @@ public class AccessibilityNodeInfoCompat {
      *   <strong>Note:</strong> Cannot be called from an
      *   {@link android.accessibilityservice.AccessibilityService}.
      *   This class is made immutable before being delivered to an AccessibilityService.
-     *  Compatibility:
-     *  <ul>
-     *      <li>Api &lt; 33: Does not operate.</li>
-     *  </ul>
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: Does not operate.</li>
+     * </ul>
      * </p>
      *
      * @param selectableText True if the node has selectable text, false otherwise.
@@ -2903,6 +2915,8 @@ public class AccessibilityNodeInfoCompat {
     public void setTextSelectable(boolean selectableText) {
         if (Build.VERSION.SDK_INT >= 33) {
             Api33Impl.setTextSelectable(mInfo, selectableText);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_TEXT_SELECTABLE, selectableText);
         }
     }
 
@@ -3167,8 +3181,8 @@ public class AccessibilityNodeInfoCompat {
      * than 19.
      */
     public @Nullable CharSequence getStateDescription() {
-        if (BuildCompat.isAtLeastR()) {
-            return mInfo.getStateDescription();
+        if (Build.VERSION.SDK_INT >= 30) {
+            return  Api30Impl.getStateDescription(mInfo);
         } else if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getCharSequence(STATE_DESCRIPTION_KEY);
         }
@@ -3202,8 +3216,8 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setStateDescription(@Nullable CharSequence stateDescription) {
-        if (BuildCompat.isAtLeastR()) {
-            mInfo.setStateDescription(stateDescription);
+        if (Build.VERSION.SDK_INT >= 30) {
+            Api30Impl.setStateDescription(mInfo, stateDescription);
         } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
         }
@@ -3215,10 +3229,9 @@ public class AccessibilityNodeInfoCompat {
      * @return the unique id or null if android version smaller
      * than 19.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public @Nullable String getUniqueId() {
-        if (BuildCompat.isAtLeastT()) {
-            return mInfo.getUniqueId();
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getUniqueId(mInfo);
         } else if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getString(UNIQUE_ID_KEY);
         }
@@ -3236,10 +3249,9 @@ public class AccessibilityNodeInfoCompat {
      * @param uniqueId the unique id of this node.
      * @throws IllegalStateException If called from an AccessibilityService.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void setUniqueId(@Nullable String uniqueId) {
-        if (BuildCompat.isAtLeastT()) {
-            mInfo.setUniqueId(uniqueId);
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.setUniqueId(mInfo, uniqueId);
         } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putString(UNIQUE_ID_KEY, uniqueId);
         }
@@ -4338,7 +4350,7 @@ public class AccessibilityNodeInfoCompat {
      * Returns whether node represents a heading.
      * <p><strong>Note:</strong> Returns {@code true} if either {@link #setHeading(boolean)}
      * marks this node as a heading or if the node has a {@link CollectionItemInfoCompat} that marks
-     * it as such, to accomodate apps that use the now-deprecated API.</p>
+     * it as such, to accommodate apps that use the now-deprecated API.</p>
      *
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
@@ -4594,8 +4606,12 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; packageName: ").append(getPackageName());
         builder.append("; className: ").append(getClassName());
         builder.append("; text: ").append(getText());
+        builder.append("; error: ").append(getError());
+        builder.append("; maxTextLength: ").append(getMaxTextLength());
+        builder.append("; stateDescription: ").append(getStateDescription());
         builder.append("; contentDescription: ").append(getContentDescription());
-        builder.append("; viewId: ").append(getViewIdResourceName());
+        builder.append("; tooltipText: ").append(getTooltipText());
+        builder.append("; viewIdResName: ").append(getViewIdResourceName());
         builder.append("; uniqueId: ").append(getUniqueId());
 
         builder.append("; checkable: ").append(isCheckable());
@@ -4605,9 +4621,14 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; selected: ").append(isSelected());
         builder.append("; clickable: ").append(isClickable());
         builder.append("; longClickable: ").append(isLongClickable());
+        builder.append("; contextClickable: ").append(isContextClickable());
         builder.append("; enabled: ").append(isEnabled());
         builder.append("; password: ").append(isPassword());
         builder.append("; scrollable: " + isScrollable());
+        builder.append("; granularScrollingSupported: ").append(isGranularScrollingSupported());
+        builder.append("; importantForAccessibility: ").append(isImportantForAccessibility());
+        builder.append("; visible: ").append(isVisibleToUser());
+        builder.append("; isTextSelectable: ").append(isTextSelectable());
 
         builder.append("; [");
         if (Build.VERSION.SDK_INT >= 21) {
@@ -4748,6 +4769,24 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    @RequiresApi(30)
+    private static class Api30Impl {
+        private Api30Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static void setStateDescription(AccessibilityNodeInfo info,
+                CharSequence stateDescription) {
+            info.setStateDescription(stateDescription);
+        }
+
+        @DoNotInline
+        public static CharSequence getStateDescription(AccessibilityNodeInfo info) {
+            return info.getStateDescription();
+        }
+    }
+
     @RequiresApi(33)
     private static class Api33Impl {
         private Api33Impl() {
@@ -4768,6 +4807,16 @@ public class AccessibilityNodeInfoCompat {
         @DoNotInline
         public static void setTextSelectable(AccessibilityNodeInfo info, boolean selectable) {
             info.setTextSelectable(selectable);
+        }
+
+        @DoNotInline
+        public static String getUniqueId(AccessibilityNodeInfo info) {
+            return info.getUniqueId();
+        }
+
+        @DoNotInline
+        public static void setUniqueId(AccessibilityNodeInfo info, String uniqueId) {
+            info.setUniqueId(uniqueId);
         }
     }
 
