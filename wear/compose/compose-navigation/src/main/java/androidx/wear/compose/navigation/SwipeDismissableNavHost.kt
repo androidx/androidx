@@ -76,6 +76,7 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
  * @param navController The navController for this host
  * @param startDestination The route for the start destination
  * @param modifier The modifier to be applied to the layout
+ * @param userSwipeEnabled [Boolean] Whether swipe-to-dismiss gesture is enabled.
  * @param state State containing information about ongoing swipe and animation.
  * @param route The route for the graph
  * @param builder The builder used to construct the graph
@@ -85,6 +86,7 @@ public fun SwipeDismissableNavHost(
     navController: NavHostController,
     startDestination: String,
     modifier: Modifier = Modifier,
+    userSwipeEnabled: Boolean = true,
     state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
@@ -95,6 +97,7 @@ public fun SwipeDismissableNavHost(
             navController.createGraph(startDestination, route, builder)
         },
         modifier,
+        userSwipeEnabled,
         state = state,
     )
 
@@ -122,6 +125,7 @@ public fun SwipeDismissableNavHost(
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
  * @param modifier [Modifier] to be applied to the layout
+ * @param userSwipeEnabled [Boolean] Whether swipe-to-dismiss gesture is enabled.
  * @param state State containing information about ongoing swipe and animation.
  *
  * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
@@ -131,6 +135,7 @@ public fun SwipeDismissableNavHost(
     navController: NavHostController,
     graph: NavGraph,
     modifier: Modifier = Modifier,
+    userSwipeEnabled: Boolean = true,
     state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -217,7 +222,7 @@ public fun SwipeDismissableNavHost(
     SwipeToDismissBox(
         state = swipeState,
         modifier = Modifier,
-        userSwipeEnabled = previous != null,
+        userSwipeEnabled = userSwipeEnabled && previous != null,
         backgroundKey = previous?.id ?: SwipeToDismissKeys.Background,
         contentKey = current?.id ?: SwipeToDismissKeys.Content,
         content = { isBackground ->
@@ -241,6 +246,104 @@ public fun SwipeDismissableNavHost(
         }
     }
 }
+
+/**
+ * Provides a place in the Compose hierarchy for self-contained navigation to occur,
+ * with backwards navigation provided by a swipe gesture.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
+ * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
+ * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
+ * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
+ *
+ * Example of a [SwipeDismissableNavHost] alternating between 2 screens:
+ * @sample androidx.wear.compose.navigation.samples.SimpleNavHost
+ *
+ * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
+ * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
+ *
+ * @param navController The navController for this host
+ * @param startDestination The route for the start destination
+ * @param modifier The modifier to be applied to the layout
+ * @param state State containing information about ongoing swipe and animation.
+ * @param route The route for the graph
+ * @param builder The builder used to construct the graph
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility. " +
+        "A newer overload is available with an additional userSwipeEnabled param.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun SwipeDismissableNavHost(
+    navController: NavHostController,
+    startDestination: String,
+    modifier: Modifier = Modifier,
+    state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+) = SwipeDismissableNavHost(
+    navController = navController,
+    startDestination = startDestination,
+    modifier = modifier,
+    userSwipeEnabled = true,
+    state = state,
+    route = route,
+    builder = builder
+)
+
+/**
+ * Provides a place in the Compose hierarchy for self-contained navigation to occur,
+ * with backwards navigation provided by a swipe gesture.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
+ * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
+ * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
+ * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
+ *
+ * Example of a [SwipeDismissableNavHost] alternating between 2 screens:
+ * @sample androidx.wear.compose.navigation.samples.SimpleNavHost
+ *
+ * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
+ * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
+ *
+ * @param navController [NavHostController] for this host
+ * @param graph Graph for this host
+ * @param modifier [Modifier] to be applied to the layout
+ * @param state State containing information about ongoing swipe and animation.
+ *
+ * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility. " +
+        "A newer overload is available with an additional userSwipeEnabled param.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun SwipeDismissableNavHost(
+    navController: NavHostController,
+    graph: NavGraph,
+    modifier: Modifier = Modifier,
+    state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
+) = SwipeDismissableNavHost(
+    navController = navController,
+    graph = graph,
+    modifier = modifier,
+    userSwipeEnabled = true,
+    state = state
+)
 
 /**
  * State for [SwipeDismissableNavHost]

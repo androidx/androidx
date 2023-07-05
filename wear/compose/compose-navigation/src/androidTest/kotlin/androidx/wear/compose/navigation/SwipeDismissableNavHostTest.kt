@@ -101,6 +101,21 @@ class SwipeDismissableNavHostTest {
     }
 
     @Test
+    fun does_not_navigate_back_to_previous_level_when_swipe_disabled() {
+        rule.setContentWithTheme {
+            SwipeDismissWithNavigation(userSwipeEnabled = false)
+        }
+
+        // Click to move to next destination then swipe to dismiss.
+        rule.onNodeWithText(START).performClick()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+
+        // Should still display "next".
+        rule.onNodeWithText(NEXT).assertExists()
+        rule.onNodeWithText(START).assertDoesNotExist()
+    }
+
+    @Test
     fun navigates_back_to_previous_level_with_back_button() {
         val onBackPressedDispatcher = OnBackPressedDispatcher()
         val dispatcherOwner =
@@ -423,12 +438,14 @@ class SwipeDismissableNavHostTest {
 
     @Composable
     fun SwipeDismissWithNavigation(
-        navController: NavHostController = rememberSwipeDismissableNavController()
+        navController: NavHostController = rememberSwipeDismissableNavController(),
+        userSwipeEnabled: Boolean = true
     ) {
         SwipeDismissableNavHost(
             navController = navController,
             startDestination = START,
             modifier = Modifier.testTag(TEST_TAG),
+            userSwipeEnabled = userSwipeEnabled
         ) {
             composable(START) {
                 CompactChip(
