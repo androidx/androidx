@@ -13,337 +13,267 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.testing.TestLifecycleOwner
+import io.reactivex.Flowable.fromPublisher
+import io.reactivex.Flowable.just
+import io.reactivex.processors.PublishProcessor.create
+import io.reactivex.processors.ReplayProcessor
+import io.reactivex.schedulers.TestScheduler
+import io.reactivex.subjects.AsyncSubject
+import java.util.concurrent.TimeUnit.SECONDS
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestRule
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+class LiveDataReactiveStreamsTest {
 
-import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+    @JvmField
+    @Rule
+    val instantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.testing.TestLifecycleOwner;
+    private lateinit var lifecycleOwner: TestLifecycleOwner
+    private val liveDataOutput = ArrayList<String>()
+    private val observer = Observer<String> { s -> liveDataOutput.add(s) }
+    private val outputProcessor = ReplayProcessor.create<String>()
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.processors.PublishProcessor;
-import io.reactivex.processors.ReplayProcessor;
-import io.reactivex.schedulers.TestScheduler;
-import io.reactivex.subjects.AsyncSubject;
-
-public class LiveDataReactiveStreamsTest {
-    @Rule public final TestRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-
-    private TestLifecycleOwner mLifecycleOwner;
-
-    private final List<String> mLiveDataOutput = new ArrayList<>();
-    private final Observer<String> mObserver = new Observer<String>() {
-        @Override
-        public void onChanged(@Nullable String s) {
-            mLiveDataOutput.add(s);
-        }
-    };
-
-    private final ReplayProcessor<String> mOutputProcessor = ReplayProcessor.create();
-
-    private static final TestScheduler sBackgroundScheduler = new TestScheduler();
-
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
-    public void init() {
-        mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.RESUMED,
-                UnconfinedTestDispatcher(null, null));
+    fun init() {
+        lifecycleOwner = TestLifecycleOwner(
+            Lifecycle.State.RESUMED,
+            UnconfinedTestDispatcher(null, null)
+        )
     }
 
     @Test
-    public void convertsFromPublisher() {
-        PublishProcessor<String> processor = PublishProcessor.create();
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        processor.onNext("foo");
-        processor.onNext("bar");
-        processor.onNext("baz");
-
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar", "baz")));
+    fun convertsFromPublisher() {
+        val processor = create<String>()
+        val liveData = processor.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("foo")
+        processor.onNext("bar")
+        processor.onNext("baz")
+        assertThat(liveDataOutput, `is`(mutableListOf("foo", "bar", "baz")))
     }
 
     @Test
-    public void convertsFromPublisherSubscribeWithDelay() {
-        PublishProcessor<String> processor = PublishProcessor.create();
-        processor.delaySubscription(100, TimeUnit.SECONDS, sBackgroundScheduler);
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        processor.onNext("foo");
-        liveData.removeObserver(mObserver);
-        sBackgroundScheduler.triggerActions();
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        processor.onNext("bar");
-        processor.onNext("baz");
-
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "foo", "bar", "baz")));
+    fun convertsFromPublisherSubscribeWithDelay() {
+        val processor = create<String>()
+        processor.delaySubscription(100, SECONDS, backgroundScheduler)
+        val liveData = processor.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("foo")
+        liveData.removeObserver(observer)
+        backgroundScheduler.triggerActions()
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("bar")
+        processor.onNext("baz")
+        assertThat(liveDataOutput, `is`(mutableListOf("foo", "foo", "bar", "baz")))
     }
 
     @Test
-    public void convertsFromPublisherThrowsException() {
-        PublishProcessor<String> processor = PublishProcessor.create();
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        IllegalStateException exception = new IllegalStateException("test exception");
+    fun convertsFromPublisherThrowsException() {
+        val processor = create<String>()
+        val liveData = processor.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        val exception = IllegalStateException("test exception")
         try {
-            processor.onError(exception);
-            fail("Runtime Exception expected");
-        } catch (RuntimeException ex) {
-            assertEquals(ex.getCause(), exception);
+            processor.onError(exception)
+            fail("Runtime Exception expected")
+        } catch (ex: RuntimeException) {
+            assertEquals(ex.cause, exception)
         }
     }
 
     @Test
-    public void convertsFromPublisherWithMultipleObservers() {
-        final List<String> output2 = new ArrayList<>();
-        PublishProcessor<String> processor = PublishProcessor.create();
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        processor.onNext("foo");
-        processor.onNext("bar");
+    fun convertsFromPublisherWithMultipleObservers() {
+        val output2 = ArrayList<String>()
+        val processor = create<String>()
+        val liveData = processor.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("foo")
+        processor.onNext("bar")
 
         // The second observer should only get the newest value and any later values.
-        liveData.observe(mLifecycleOwner, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                output2.add(s);
-            }
-        });
-
-        processor.onNext("baz");
-
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar", "baz")));
-        assertThat(output2, is(Arrays.asList("bar", "baz")));
+        liveData.observe(lifecycleOwner) { s -> output2.add(s) }
+        processor.onNext("baz")
+        assertThat(liveDataOutput, `is`(mutableListOf("foo", "bar", "baz")))
+        assertThat(output2, `is`(mutableListOf("bar", "baz")))
     }
 
     @Test
-    public void convertsFromPublisherWithMultipleObserversAfterInactive() {
-        final List<String> output2 = new ArrayList<>();
-        PublishProcessor<String> processor = PublishProcessor.create();
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        processor.onNext("foo");
-        processor.onNext("bar");
+    fun convertsFromPublisherWithMultipleObserversAfterInactive() {
+        val output2 = ArrayList<String>()
+        val processor = create<String>()
+        val liveData = processor.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("foo")
+        processor.onNext("bar")
 
         // The second observer should only get the newest value and any later values.
-        liveData.observe(mLifecycleOwner, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                output2.add(s);
-            }
-        });
-
-        liveData.removeObserver(mObserver);
-        processor.onNext("baz");
-
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar")));
-        assertThat(output2, is(Arrays.asList("bar", "baz")));
+        liveData.observe(lifecycleOwner) { s -> output2.add(s) }
+        liveData.removeObserver(observer)
+        processor.onNext("baz")
+        assertThat(liveDataOutput, `is`(mutableListOf("foo", "bar")))
+        assertThat(output2, `is`(mutableListOf("bar", "baz")))
     }
 
     @Test
-    public void convertsFromPublisherAfterInactive() {
-        PublishProcessor<String> processor = PublishProcessor.create();
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-        processor.onNext("foo");
-        liveData.removeObserver(mObserver);
-        processor.onNext("bar");
-
-        liveData.observe(mLifecycleOwner, mObserver);
-        processor.onNext("baz");
-
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "foo", "baz")));
+    fun convertsFromPublisherAfterInactive() {
+        val processor = create<String>()
+        val liveData = processor.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("foo")
+        liveData.removeObserver(observer)
+        processor.onNext("bar")
+        liveData.observe(lifecycleOwner, observer)
+        processor.onNext("baz")
+        assertThat(liveDataOutput, `is`(mutableListOf("foo", "foo", "baz")))
     }
 
     @Test
-    public void convertsFromPublisherManagesSubscriptions() {
-        PublishProcessor<String> processor = PublishProcessor.create();
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
-
-        assertThat(processor.hasSubscribers(), is(false));
-        liveData.observe(mLifecycleOwner, mObserver);
+    fun convertsFromPublisherManagesSubscriptions() {
+        val processor = create<String>()
+        val liveData = processor.toLiveData()
+        assertThat(processor.hasSubscribers(), `is`(false))
+        liveData.observe(lifecycleOwner, observer)
 
         // once the live data is active, there's a subscriber
-        assertThat(processor.hasSubscribers(), is(true));
-
-        liveData.removeObserver(mObserver);
+        assertThat(processor.hasSubscribers(), `is`(true))
+        liveData.removeObserver(observer)
         // once the live data is inactive, the subscriber is removed
-        assertThat(processor.hasSubscribers(), is(false));
+        assertThat(processor.hasSubscribers(), `is`(false))
     }
 
     @Test
-    public void convertsFromAsyncPublisher() {
-        Flowable<String> input = Flowable.just("foo")
-                .concatWith(Flowable.just("bar", "baz").observeOn(sBackgroundScheduler));
-        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(input);
-
-        liveData.observe(mLifecycleOwner, mObserver);
-
-        assertThat(mLiveDataOutput, is(Collections.singletonList("foo")));
-        sBackgroundScheduler.triggerActions();
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar", "baz")));
+    fun convertsFromAsyncPublisher() {
+        val input = just("foo").concatWith(just("bar", "baz")
+                .observeOn(backgroundScheduler))
+        val liveData = input.toLiveData()
+        liveData.observe(lifecycleOwner, observer)
+        assertThat(liveDataOutput, `is`(listOf("foo")))
+        backgroundScheduler.triggerActions()
+        assertThat(liveDataOutput, `is`(mutableListOf("foo", "bar", "baz")))
     }
 
     @Test
-    public void convertsToPublisherWithSyncData() {
-        MutableLiveData<String> liveData = new MutableLiveData<>();
-        liveData.setValue("foo");
-        assertThat(liveData.getValue(), is("foo"));
-
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
-                .subscribe(mOutputProcessor);
-
-        liveData.setValue("bar");
-        liveData.setValue("baz");
-
+    fun convertsToPublisherWithSyncData() {
+        val liveData = MutableLiveData<String>()
+        liveData.value = "foo"
+        assertThat(liveData.value, `is`("foo"))
+        fromPublisher(toPublisher(lifecycleOwner, liveData))
+            .subscribe(outputProcessor)
+        liveData.value = "bar"
+        liveData.value = "baz"
         assertThat(
-                mOutputProcessor.getValues(new String[]{}),
-                is(new String[]{"foo", "bar", "baz"}));
+            outputProcessor.getValues(arrayOf()),
+            `is`(arrayOf("foo", "bar", "baz"))
+        )
     }
 
     @Test
-    public void convertingToPublisherIsCancelable() {
-        MutableLiveData<String> liveData = new MutableLiveData<>();
-        liveData.setValue("foo");
-        assertThat(liveData.getValue(), is("foo"));
-
-        Disposable disposable = Flowable
-                .fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        mLiveDataOutput.add(s);
-                    }
-                });
-
-        liveData.setValue("bar");
-        liveData.setValue("baz");
-
-        assertThat(liveData.hasObservers(), is(true));
-        disposable.dispose();
-
-        liveData.setValue("fizz");
-        liveData.setValue("buzz");
-
-        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar", "baz")));
+    fun convertingToPublisherIsCancelable() {
+        val liveData = MutableLiveData<String>()
+        liveData.value = "foo"
+        assertThat(liveData.value, `is`("foo"))
+        val disposable = fromPublisher(toPublisher(lifecycleOwner, liveData))
+            .subscribe { s -> liveDataOutput.add(s) }
+        liveData.value = "bar"
+        liveData.value = "baz"
+        assertThat(liveData.hasObservers(), `is`(true))
+        disposable.dispose()
+        liveData.value = "fizz"
+        liveData.value = "buzz"
+        assertThat(liveDataOutput, `is`(mutableListOf<String?>("foo", "bar", "baz")))
         // Canceling disposable should also remove livedata mObserver.
-        assertThat(liveData.hasObservers(), is(false));
+        assertThat(liveData.hasObservers(), `is`(false))
     }
 
     @Test
-    public void convertsToPublisherWithBackpressure() {
-        MutableLiveData<String> liveData = new MutableLiveData<>();
+    fun convertsToPublisherWithBackpressure() {
+        val liveData = MutableLiveData<String>()
+        val subscriptionSubject = AsyncSubject.create<Subscription>()
+        fromPublisher(toPublisher<String>(lifecycleOwner, liveData))
+            .subscribe(object : Subscriber<String> {
+                override fun onSubscribe(s: Subscription) {
+                    subscriptionSubject.onNext(s)
+                    subscriptionSubject.onComplete()
+                }
 
-        final AsyncSubject<Subscription> subscriptionSubject = AsyncSubject.create();
+                override fun onNext(s: String) {
+                    outputProcessor.onNext(s)
+                }
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
-                .subscribe(new Subscriber<String>() {
-                    @Override
-                    public void onSubscribe(Subscription s) {
-                        subscriptionSubject.onNext(s);
-                        subscriptionSubject.onComplete();
-                    }
+                override fun onError(t: Throwable) {
+                    throw RuntimeException(t)
+                }
 
-                    @Override
-                    public void onNext(String s) {
-                        mOutputProcessor.onNext(s);
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        throw new RuntimeException(t);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
+                override fun onComplete() {}
+            })
 
         // Subscription should have happened synchronously. If it didn't, this will deadlock.
-        final Subscription subscription = subscriptionSubject.blockingSingle();
-
-        subscription.request(1);
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{}));
-
-        liveData.setValue("foo");
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{"foo"}));
-
-        subscription.request(2);
-        liveData.setValue("baz");
-        liveData.setValue("fizz");
-
+        val subscription = subscriptionSubject.blockingSingle()
+        subscription.request(1)
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf()))
+        liveData.value = "foo"
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo")))
+        subscription.request(2)
+        liveData.value = "baz"
+        liveData.value = "fizz"
         assertThat(
-                mOutputProcessor.getValues(new String[]{}),
-                is(new String[]{"foo", "baz", "fizz"}));
+            outputProcessor.getValues(arrayOf()),
+            `is`(arrayOf("foo", "baz", "fizz"))
+        )
 
         // 'nyan' will be dropped as there is nothing currently requesting a stream.
-        liveData.setValue("nyan");
-        liveData.setValue("cat");
-
+        liveData.value = "nyan"
+        liveData.value = "cat"
         assertThat(
-                mOutputProcessor.getValues(new String[]{}),
-                is(new String[]{"foo", "baz", "fizz"}));
+            outputProcessor.getValues(arrayOf()),
+            `is`(arrayOf("foo", "baz", "fizz"))
+        )
 
         // When a new request comes in, the latest value will be pushed.
-        subscription.request(1);
+        subscription.request(1)
         assertThat(
-                mOutputProcessor.getValues(new String[]{}),
-                is(new String[]{"foo", "baz", "fizz", "cat"}));
+            outputProcessor.getValues(arrayOf()),
+            `is`(arrayOf("foo", "baz", "fizz", "cat"))
+        )
     }
 
     @Test
-    public void convertsToPublisherWithAsyncData() {
-        MutableLiveData<String> liveData = new MutableLiveData<>();
+    fun convertsToPublisherWithAsyncData() {
+        val liveData = MutableLiveData<String>()
+        fromPublisher(toPublisher(lifecycleOwner, liveData))
+            .observeOn(backgroundScheduler)
+            .subscribe(outputProcessor)
+        liveData.value = "foo"
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf()))
+        backgroundScheduler.triggerActions()
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo")))
+        liveData.value = "bar"
+        liveData.value = "baz"
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo")))
+        backgroundScheduler.triggerActions()
+        assertThat(
+            outputProcessor.getValues(arrayOf()),
+            `is`(arrayOf("foo", "bar", "baz"))
+        )
+    }
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
-                .observeOn(sBackgroundScheduler)
-                .subscribe(mOutputProcessor);
-
-        liveData.setValue("foo");
-
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{}));
-        sBackgroundScheduler.triggerActions();
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{"foo"}));
-
-        liveData.setValue("bar");
-        liveData.setValue("baz");
-
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{"foo"}));
-        sBackgroundScheduler.triggerActions();
-        assertThat(mOutputProcessor.getValues(
-                new String[]{}),
-                is(new String[]{"foo", "bar", "baz"}));
+    companion object {
+        private val backgroundScheduler = TestScheduler()
     }
 }
