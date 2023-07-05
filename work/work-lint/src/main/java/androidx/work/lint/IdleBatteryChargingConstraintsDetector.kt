@@ -34,6 +34,7 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getParentOfType
+import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
@@ -110,9 +111,10 @@ class IdleBatteryChargingConstraintsDetector : Detector(), SourceCodeScanner {
     }
 
     fun UCallExpression.identifierName(): String? {
-        var current = receiver
+        var current = receiver?.skipParenthesizedExprDown()
         while (current != null && current !is USimpleNameReferenceExpression) {
-            current = (current as? UQualifiedReferenceExpression)?.receiver
+            current =
+                (current as? UQualifiedReferenceExpression)?.receiver?.skipParenthesizedExprDown()
         }
         if (current != null && current is USimpleNameReferenceExpression) {
             return current.identifier
