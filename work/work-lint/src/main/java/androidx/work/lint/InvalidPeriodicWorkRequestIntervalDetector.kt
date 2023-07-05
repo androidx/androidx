@@ -32,6 +32,9 @@ import java.util.concurrent.TimeUnit
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UQualifiedReferenceExpression
+import org.jetbrains.uast.getParameterForArgument
+import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
  * Ensures a valid interval duration for a `PeriodicWorkRequest`.
@@ -65,11 +68,20 @@ class InvalidPeriodicWorkRequestIntervalDetector : Detector(), SourceCodeScanner
         constructor: PsiMethod
     ) {
         if (node.valueArgumentCount >= 2) {
-            val type = node.valueArguments[1].getExpressionType()?.canonicalText
+            // TestMode.PARENTHESIZED wraps Duration call in parenthesizes
+            val repeatInterval = node.valueArguments.find {
+                node.getParameterForArgument(it)?.name == "repeatInterval"
+            }?.skipParenthesizedExprDown()
+
+            val timeUnit = node.valueArguments.find {
+                node.getParameterForArgument(it)?.name == "repeatIntervalTimeUnit"
+            }?.skipParenthesizedExprDown()
+
+            val type = repeatInterval?.getExpressionType()?.canonicalText
             if ("long" == type) {
-                val value = node.valueArguments[1].evaluate() as? Long
+                val value = repeatInterval.evaluate() as? Long
                 // TimeUnit
-                val units = node.valueArguments[2].evaluate() as? Pair<ClassId, Name>
+                val units = timeUnit?.evaluate() as? Pair<ClassId, Name>
                 if (value != null && units != null) {
                     val (_, timeUnitType) = units
                     val interval: Long? = when (timeUnitType.identifier) {
@@ -94,21 +106,26 @@ class InvalidPeriodicWorkRequestIntervalDetector : Detector(), SourceCodeScanner
                     }
                 }
             } else if ("java.time.Duration" == type) {
-                val source = node.valueArguments[1].asSourceString()
                 // Look for the most common Duration specification
                 // Example: Duration.ofMinutes(15)
-                val regexp = Regex("Duration.of(\\w+)\\((\\d+)\\)")
-                val matchResult = regexp.matchEntire(source)
-                if (matchResult != null) {
-                    val unit = matchResult.groupValues[1]
-                    val value = matchResult.groupValues[2].toLong()
+
+                val callExpression: UCallExpression? = when (repeatInterval) {
+                    // ofMinutes(...)
+                    is UCallExpression -> repeatInterval
+                    // Duration.ofMinutes(...)
+                    is UQualifiedReferenceExpression -> repeatInterval.selector as? UCallExpression
+                    else -> null
+                }
+                val unit = callExpression?.methodName
+                val value = callExpression?.valueArguments?.firstOrNull()?.evaluate() as? Long
+                if (value != null) {
                     val interval: Long? = when (unit) {
-                        "Nanos" -> TimeUnit.MINUTES.convert(value, TimeUnit.NANOSECONDS)
-                        "Millis" -> TimeUnit.MINUTES.convert(value, TimeUnit.MILLISECONDS)
-                        "Seconds" -> TimeUnit.MINUTES.convert(value, TimeUnit.SECONDS)
-                        "Minutes" -> value
-                        "Hours" -> TimeUnit.MINUTES.convert(value, TimeUnit.HOURS)
-                        "Days" -> TimeUnit.MINUTES.convert(value, TimeUnit.DAYS)
+                        "ofNanos" -> TimeUnit.MINUTES.convert(value, TimeUnit.NANOSECONDS)
+                        "ofMillis" -> TimeUnit.MINUTES.convert(value, TimeUnit.MILLISECONDS)
+                        "ofSeconds" -> TimeUnit.MINUTES.convert(value, TimeUnit.SECONDS)
+                        "ofMinutes" -> value
+                        "ofHours" -> TimeUnit.MINUTES.convert(value, TimeUnit.HOURS)
+                        "ofDays" -> TimeUnit.MINUTES.convert(value, TimeUnit.DAYS)
                         else -> null
                     }
                     if (interval != null && interval < 15) {
