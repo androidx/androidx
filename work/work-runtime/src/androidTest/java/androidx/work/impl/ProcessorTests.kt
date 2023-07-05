@@ -150,6 +150,7 @@ class ProcessorTests : DatabaseTest() {
         firstWorker.countDown()
         blockedThread.shutdown()
         assertTrue(blockedThread.awaitTermination(3, TimeUnit.SECONDS))
+        assertTrue(context.intents.isEmpty())
     }
 
     @Test

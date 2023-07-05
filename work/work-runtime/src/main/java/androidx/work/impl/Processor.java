@@ -416,11 +416,14 @@ public class Processor implements ForegroundProcessor {
     @Nullable
     private WorkerWrapper cleanUpWorkerUnsafe(@NonNull String id) {
         WorkerWrapper wrapper = mForegroundWorkMap.remove(id);
-        if (wrapper == null) {
+        boolean wasForeground = wrapper != null;
+        if (!wasForeground) {
             wrapper = mEnqueuedWorkMap.remove(id);
         }
         mWorkRuns.remove(id);
-        stopForegroundService();
+        if (wasForeground) {
+            stopForegroundService();
+        }
         return wrapper;
     }
 
