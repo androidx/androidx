@@ -135,6 +135,8 @@ internal fun Pager(
         orientation == Orientation.Vertical
     )
 
+    val pagerBringIntoViewScroller = remember(state) { PagerBringIntoViewScroller(state) }
+
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
@@ -167,7 +169,7 @@ internal fun Pager(
                 state = state,
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled,
-                bringIntoViewScroller = PagerBringIntoViewScroller
+                bringIntoViewScroller = pagerBringIntoViewScroller
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
@@ -286,26 +288,37 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-private val PagerBringIntoViewScroller = object : BringIntoViewScroller {
+private class PagerBringIntoViewScroller(val pagerState: PagerState) : BringIntoViewScroller {
 
     override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 
+    /**
+     * [calculateScrollDistance] for Pager behaves differently than in a normal list. We must
+     * always respect the snapped pages over bringing a child into view. The logic here will
+     * behave like so:
+     *
+     * 1) If a child is outside of the view, start bringing it into view.
+     * 2) If a child's trailing edge is outside of the page bounds and the child is smaller than
+     * the page, scroll until the trailing edge is in view.
+     * 3) Once a child is fully in view, if it is smaller than the page, scroll until the page is
+     * settled.
+     * 4) If the child is larger than the page, scroll until it is partially in view and continue
+     * scrolling until the page is settled.
+     */
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
-        val trailingEdge = offset + size
-        val leadingEdge = offset
-
-        val sizeOfItemRequestingFocus = (trailingEdge - leadingEdge).absoluteValue
-        val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
-        val initialTargetForLeadingEdge = 0.0f
-        val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
-
-        val targetForLeadingEdge =
-            if (childSmallerThanParent && spaceAvailableToShowItem < sizeOfItemRequestingFocus) {
-                containerSize - sizeOfItemRequestingFocus
+        return if (offset >= containerSize || offset < 0) {
+            offset
+        } else {
+            if (size <= containerSize && (offset + size) > containerSize) {
+                offset // bring into view
             } else {
-                initialTargetForLeadingEdge
+                // are we in a settled position?
+                if (pagerState.currentPageOffsetFraction.absoluteValue == 0.0f) {
+                    0f
+                } else {
+                    offset
+                }
             }
-
-        return leadingEdge - targetForLeadingEdge
+        }
     }
 }
