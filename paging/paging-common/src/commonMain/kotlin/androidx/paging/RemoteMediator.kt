@@ -22,6 +22,7 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+import kotlin.jvm.JvmName
 
 /**
  * Defines a set of callbacks used to incrementally load data from a remote source into a local
