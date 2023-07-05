@@ -203,13 +203,15 @@ public fun SwipeToDismissBox(
                 if (!isBackground ||
                     (userSwipeEnabled && (state.swipeableState.offset?.roundToInt() ?: 0) > 0)
                 ) {
-                    Box(contentModifier) {
-                        // We use the repeat loop above and call content at this location
-                        // for both background and foreground so that any persistence
-                        // within the content composable has the same call stack which is used
-                        // as part of the hash identity for saveable state.
-                        content(isBackground)
-                        Box(modifier = scrimModifier)
+                    HierarchicalFocusCoordinator(requiresFocus = { !isBackground }) {
+                        Box(contentModifier) {
+                            // We use the repeat loop above and call content at this location
+                            // for both background and foreground so that any persistence
+                            // within the content composable has the same call stack which is used
+                            // as part of the hash identity for saveable state.
+                            content(isBackground)
+                            Box(modifier = scrimModifier)
+                        }
                     }
                 }
             }
