@@ -316,6 +316,7 @@ fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange) {
 
     // Register down event as the starting point for the accumulator
@@ -373,7 +374,7 @@ private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChan
     if (!event.changedToUpIgnoreConsumed() && !event.changedToDownIgnoreConsumed()) {
         lastMoveEventTimeStamp = event.uptimeMillis
         if (event.historical.isEmpty()) {
-            val delta = event.position - currentPointerPositionAccumulator
+            val delta = event.position - event.previousPosition
             currentPointerPositionAccumulator += delta
             addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
         } else {
