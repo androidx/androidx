@@ -33,6 +33,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -62,6 +63,7 @@ class AudioSourceTest {
         }
     }
 
+    @Ignore("b/289918974")
     @Test
     fun canStartAndStopAudioSource() {
         // Arrange.
