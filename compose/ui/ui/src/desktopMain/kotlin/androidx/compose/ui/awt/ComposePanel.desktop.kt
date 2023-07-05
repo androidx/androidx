@@ -142,22 +142,22 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     override fun addNotify() {
         super.addNotify()
 
-        // After [super.addNotify] is called we can safely initialize the layer and composable
+        // After [super.addNotify] is called we can safely initialize the bridge and composable
         // content.
-        bridge = createComposeLayer()
+        bridge = createComposeBridge()
         initContent()
         super.add(bridge!!.component, Integer.valueOf(1))
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
-    private fun createComposeLayer(): ComposeBridge {
+    private fun createComposeBridge(): ComposeBridge {
         val renderOnGraphics = System.getProperty("compose.swing.render.on.graphics").toBoolean()
-        val layer: ComposeBridge = if (renderOnGraphics) {
+        val bridge: ComposeBridge = if (renderOnGraphics) {
             SwingComposeBridge(skiaLayerAnalytics)
         } else {
             WindowComposeBridge(skiaLayerAnalytics)
         }
-        return layer.apply {
+        return bridge.apply {
             scene.releaseFocus()
             component.setSize(width, height)
             component.isFocusable = _isFocusable
@@ -169,14 +169,14 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
                     // The focus can be switched from the child component inside SwingPanel.
                     // In that case, SwingPanel will take care of it.
                     if (!isParentOf(e.oppositeComponent)) {
-                        layer.scene.requestFocus()
+                        bridge.scene.requestFocus()
                         when (e.cause) {
                             FocusEvent.Cause.TRAVERSAL_FORWARD -> {
-                                layer.scene.moveFocus(FocusDirection.Next)
+                                bridge.scene.moveFocus(FocusDirection.Next)
                             }
 
                             FocusEvent.Cause.TRAVERSAL_BACKWARD -> {
-                                layer.scene.moveFocus(FocusDirection.Previous)
+                                bridge.scene.moveFocus(FocusDirection.Previous)
                             }
 
                             else -> Unit
@@ -252,7 +252,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     override fun setFocusTraversalKeysEnabled(focusTraversalKeysEnabled: Boolean) {
-        // ignore, traversal keys should always be handled by ComposeLayer
+        // ignore, traversal keys should always be handled by ComposeBridge
     }
 
     override fun getFocusTraversalKeysEnabled(): Boolean {
