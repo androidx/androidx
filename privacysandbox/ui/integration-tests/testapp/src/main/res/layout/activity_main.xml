@@ -46,5 +46,31 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp"
             android:layout_height="400dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <androidx.privacysandbox.ui.client.view.SandboxedSdkView
+                android:id="@+id/new_ad_view"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:background="#FFFF00" />
+
+            <Button
+                android:id="@+id/new_ad_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="new_ad"
+                android:textAllCaps="false" />
+            />
+        </LinearLayout>
+
+
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

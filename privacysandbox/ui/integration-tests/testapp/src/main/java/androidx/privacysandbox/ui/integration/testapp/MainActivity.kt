@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresExtension
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mSandboxedSdkView1: SandboxedSdkView
     private lateinit var mSandboxedSdkView2: SandboxedSdkView
+    private lateinit var mSandboxedSdkView3: SandboxedSdkView
+    private lateinit var mNewAdButton: Button
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -73,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         mSandboxedSdkView1 = findViewById(R.id.rendered_view)
         mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
         mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ true)
+            sdkApi.loadAd(/*isWebView=*/ true, "")
         ))
 
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
@@ -83,8 +86,19 @@ class MainActivity : AppCompatActivity() {
             findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
         }
         mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false)
+            sdkApi.loadAd(/*isWebView=*/ false, "Hey!")
         ))
+
+        mSandboxedSdkView3 = findViewById(R.id.new_ad_view)
+        mSandboxedSdkView3.addStateChangedListener(StateChangeListener(mSandboxedSdkView3))
+
+        mNewAdButton = findViewById(R.id.new_ad_button)
+        var count = 1
+        mNewAdButton.setOnClickListener {
+            mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                sdkApi.loadAd(/*isWebView=*/ false, "Hey #$count")))
+            count++
+        }
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
