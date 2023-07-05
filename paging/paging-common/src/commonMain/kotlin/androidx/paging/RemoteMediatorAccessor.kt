@@ -21,7 +21,7 @@ import androidx.paging.AccessorState.BlockState.REQUIRES_REFRESH
 import androidx.paging.AccessorState.BlockState.UNBLOCKED
 import androidx.paging.RemoteMediator.MediatorResult
 import co.touchlab.stately.concurrency.Lock
-import kotlin.concurrent.withLock
+import co.touchlab.stately.concurrency.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
