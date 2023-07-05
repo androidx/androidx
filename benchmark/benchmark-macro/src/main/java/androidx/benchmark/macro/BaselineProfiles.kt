@@ -34,7 +34,6 @@ import java.io.File
 /**
  * Collects baseline profiles using a given [profileBlock], while additionally
  * waiting until they are stable.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)

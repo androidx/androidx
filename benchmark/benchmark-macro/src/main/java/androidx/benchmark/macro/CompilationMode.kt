@@ -384,7 +384,6 @@ sealed class CompilationMode {
      *
      * TODO: migrate this to an internal-only flag on [None] instead
      *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     object Interpreted : CompilationMode() {
@@ -445,7 +444,6 @@ sealed class CompilationMode {
  *
  * Used by jetpack-internal benchmarks to skip CompilationModes that would self-suppress.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun CompilationMode.isSupportedWithVmSettings(): Boolean {

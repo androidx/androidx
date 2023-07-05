@@ -34,7 +34,6 @@ import org.jetbrains.annotations.TestOnly
  * PerfettoHelper is used to start and stop the perfetto tracing and move the
  * output perfetto trace file to destination folder.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(23)
