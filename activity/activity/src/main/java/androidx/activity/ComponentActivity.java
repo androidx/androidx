@@ -1100,8 +1100,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void reportFullyDrawn() {
         try {
             if (Trace.isEnabled()) {
-                // TODO: Ideally we'd include getComponentName() (as later versions of platform
-                //  do), but b/175345114 needs to be addressed.
                 Trace.beginSection("reportFullyDrawn() for ComponentActivity");
             }
 
