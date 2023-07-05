@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.kruth.assertThat
-import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
@@ -85,6 +84,8 @@ class PageFetcherSnapshotTest {
         initialLoadSize = 2,
         maxSize = 3
     )
+
+    private val EXCEPTION = Exception()
 
     @Test
     fun loadStates_prependDone() = testScope.runTest {
