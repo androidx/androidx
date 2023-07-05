@@ -49,7 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -917,6 +920,41 @@ class DraggableTest {
         rule.runOnIdle {
             Assert.assertEquals(0f, flingVelocity)
         }
+    }
+
+    @Test
+    fun onDragStopped_inputChanged_shouldNotCancelScope() {
+        val enabled = mutableStateOf(true)
+        lateinit var runningJob: Job
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .testTag(draggableBoxTag)
+                    .size(100.dp)
+                    .draggable(
+                        enabled = enabled.value,
+                        state = rememberDraggableState { },
+                        orientation = Orientation.Vertical,
+                        onDragStopped = { _ ->
+                            runningJob = launch { delay(10_000L) } // long running operation
+                        }
+                    )
+            )
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+            up()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false // cancels pointer input scope
+        }
+
+       rule.runOnIdle {
+           assertTrue { runningJob.isActive } // check if scope is still active
+       }
     }
 
     @Test
