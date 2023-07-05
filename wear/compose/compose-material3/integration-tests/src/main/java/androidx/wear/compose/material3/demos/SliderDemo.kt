@@ -42,7 +42,6 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.InlineSlider
 import androidx.wear.compose.material3.InlineSliderColors
 import androidx.wear.compose.material3.InlineSliderDefaults
-import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.InlineSliderSample
 import androidx.wear.compose.material3.samples.InlineSliderSegmentedSample
@@ -99,9 +98,7 @@ fun InlineSliderDemo(segmented: Boolean = false) {
         autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
         item {
-            ListHeader {
-                Text("Enabled Slider, value = $enabledValue")
-            }
+            Text("Enabled Slider, value = $enabledValue")
         }
         item {
             DefaultInlineSlider(
@@ -114,9 +111,7 @@ fun InlineSliderDemo(segmented: Boolean = false) {
             )
         }
         item {
-            ListHeader {
-                Text("Disabled Slider, value = $disabledValue")
-            }
+            Text("Disabled Slider, value = $disabledValue")
         }
         item {
             DefaultInlineSlider(
@@ -146,9 +141,7 @@ fun InlineSliderWithIntegersDemo() {
         autoCentering = AutoCenteringParams(itemIndex = 0)
     ) {
         item {
-            ListHeader {
-                Text("No segments, value = $valueWithoutSegments")
-            }
+            Text("No segments, value = $valueWithoutSegments")
         }
         item {
             DefaultInlineSlider(
@@ -158,9 +151,7 @@ fun InlineSliderWithIntegersDemo() {
                 onValueChange = { valueWithoutSegments = it })
         }
         item {
-            ListHeader {
-                Text("With segments, value = $valueWithSegments")
-            }
+            Text("With segments, value = $valueWithSegments")
         }
         item {
             DefaultInlineSlider(
