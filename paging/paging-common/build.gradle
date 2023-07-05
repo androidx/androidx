@@ -59,6 +59,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-paging"))
             }
         }
 
@@ -69,7 +70,6 @@ androidXMultiplatform {
                 implementation(libs.mockitoKotlin4)
                 implementation(project(":internal-testutils-common"))
                 implementation(project(":internal-testutils-ktx"))
-                implementation(project(":internal-testutils-paging"))
             }
         }
 
