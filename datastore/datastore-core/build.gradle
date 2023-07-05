@@ -139,11 +139,6 @@ androidXMultiplatform {
             }
         }
 
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
