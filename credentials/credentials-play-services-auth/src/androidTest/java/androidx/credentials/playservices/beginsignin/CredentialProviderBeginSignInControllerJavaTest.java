@@ -20,12 +20,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.app.Activity;
+import android.os.Build;
+
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetPasswordOption;
 import androidx.credentials.playservices.TestCredentialsActivity;
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController;
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
@@ -33,19 +35,56 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.HashSet;
 import java.util.List;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 @SmallTest
 @SuppressWarnings("deprecation")
 public class CredentialProviderBeginSignInControllerJavaTest {
+
+    private final boolean mUseFragmentActivity;
+
+    @Parameterized.Parameters
+    public static Object[] data() {
+        return new Object[] {true, false};
+    }
+
+    public CredentialProviderBeginSignInControllerJavaTest(final boolean useFragmentActivity)
+            throws Throwable {
+        mUseFragmentActivity = useFragmentActivity;
+    }
+
+    interface TestActivityListener {
+        void onActivity(Activity a);
+    }
+
+    private void launchTestActivity(TestActivityListener listener) {
+        if (mUseFragmentActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            ActivityScenario<androidx.credentials.playservices.TestCredentialsFragmentActivity>
+                    activityScenario =
+                            ActivityScenario.launch(
+                                    androidx.credentials.playservices
+                                            .TestCredentialsFragmentActivity.class);
+            activityScenario.onActivity(
+                    activity -> {
+                        listener.onActivity((Activity) activity);
+                    });
+        } else {
+            ActivityScenario<TestCredentialsActivity> activityScenario =
+                    ActivityScenario.launch(TestCredentialsActivity.class);
+            activityScenario.onActivity(
+                    activity -> {
+                        listener.onActivity((Activity) activity);
+                    });
+        }
+    }
+
     @Test
     public void convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     BeginSignInRequest actualResponse =
                             CredentialProviderBeginSignInController.getInstance(activity)
@@ -60,9 +99,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
     @Test
     public void convertRequestToPlayServices_setPasswordOptionRequestAndTrueAutoSelect_success() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     BeginSignInRequest actualResponse =
                             CredentialProviderBeginSignInController.getInstance(activity)
@@ -79,9 +116,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
     @Test
     public void convertRequestToPlayServices_nullRequest_throws() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     assertThrows(
                             "null get credential request must throw exception",
@@ -94,9 +129,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
     @Test
     public void convertResponseToCredentialManager_nullRequest_throws() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     assertThrows(
                             "null sign in credential response must throw exception",
@@ -109,9 +142,6 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
     @Test
     public void convertRequestToPlayServices_setGoogleIdOptionRequestAndTrueAutoSelect_success() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-
         GetGoogleIdOption option =
                 new GetGoogleIdOption.Builder()
                         .setServerClientId("server_client_id")
@@ -122,7 +152,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                         .setAutoSelectEnabled(true)
                         .build();
 
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     BeginSignInRequest actualRequest =
                             CredentialProviderBeginSignInController.getInstance(activity)
@@ -151,9 +181,7 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
     @Test
     public void duplicateGetInstance_shouldBeEqual() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     CredentialProviderBeginSignInController firstInstance =
                             CredentialProviderBeginSignInController.getInstance(activity);

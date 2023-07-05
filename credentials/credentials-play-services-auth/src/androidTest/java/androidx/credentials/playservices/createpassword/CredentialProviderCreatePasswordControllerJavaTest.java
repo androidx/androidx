@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.credentials.CreateCredentialResponse;
@@ -29,7 +31,6 @@ import androidx.credentials.playservices.TestCredentialsActivity;
 import androidx.credentials.playservices.TestUtils;
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController;
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.gms.auth.api.identity.SignInPassword;
@@ -38,17 +39,53 @@ import kotlin.Unit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 @SmallTest
 public class CredentialProviderCreatePasswordControllerJavaTest {
 
+    private final boolean mUseFragmentActivity;
+
+    @Parameterized.Parameters
+    public static Object[] data() {
+        return new Object[] {true, false};
+    }
+
+    public CredentialProviderCreatePasswordControllerJavaTest(final boolean useFragmentActivity)
+            throws Throwable {
+        mUseFragmentActivity = useFragmentActivity;
+    }
+
+    interface TestActivityListener {
+        void onActivity(Activity a);
+    }
+
+    private void launchTestActivity(TestActivityListener listener) {
+        if (mUseFragmentActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            ActivityScenario<androidx.credentials.playservices.TestCredentialsFragmentActivity>
+                    activityScenario =
+                            ActivityScenario.launch(
+                                    androidx.credentials.playservices
+                                            .TestCredentialsFragmentActivity.class);
+            activityScenario.onActivity(
+                    activity -> {
+                        listener.onActivity((Activity) activity);
+                    });
+        } else {
+            ActivityScenario<TestCredentialsActivity> activityScenario =
+                    ActivityScenario.launch(TestCredentialsActivity.class);
+            activityScenario.onActivity(
+                    activity -> {
+                        listener.onActivity((Activity) activity);
+                    });
+        }
+    }
+
     @Test
     public void convertResponseToCredentialManager_unitInput_success() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
         String expectedResponseType = new CreatePasswordResponse().getType();
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     CreateCredentialResponse actualResponse =
                             CredentialProviderCreatePasswordController.getInstance(activity)
@@ -62,11 +99,9 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
 
     @Test
     public void convertRequestToPlayServices_createPasswordRequest_success() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
         String expectedId = "LM";
         String expectedPassword = "SodaButton";
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     SignInPassword actualRequest =
                             CredentialProviderCreatePasswordController.getInstance(activity)
@@ -83,7 +118,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
     public void convertRequestToPlayServices_nullRequest_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     assertThrows(
                             "null create password request must throw exception",
@@ -97,9 +132,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
 
     @Test
     public void convertResponseToCredentialManager_nullRequest_throws() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     assertThrows(
                             "null unit response must throw exception",
@@ -112,9 +145,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
 
     @Test
     public void duplicateGetInstance_shouldBeEqual() {
-        ActivityScenario<TestCredentialsActivity> activityScenario =
-                ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(
+        launchTestActivity(
                 activity -> {
                     CredentialProviderCreatePasswordController firstInstance =
                             CredentialProviderCreatePasswordController.getInstance(activity);
