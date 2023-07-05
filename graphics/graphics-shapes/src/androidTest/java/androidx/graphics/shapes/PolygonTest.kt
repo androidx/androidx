@@ -45,7 +45,7 @@ class PolygonTest {
         max = max * 2f
         assertInBounds(doubleSquare.toCubicShape(), min, max)
 
-        val offsetSquare = RoundedPolygon(4, center = PointF(1f, 2f))
+        val offsetSquare = RoundedPolygon(4, centerX = 1f, centerY = 2f)
         min = PointF(0f, 1f)
         max = PointF(2f, 3f)
         assertInBounds(offsetSquare.toCubicShape(), min, max)
@@ -59,14 +59,21 @@ class PolygonTest {
         val p1 = PointF(0f, 1f)
         val p2 = PointF(-1f, 0f)
         val p3 = PointF(0f, -1f)
-        val manualSquare = RoundedPolygon(listOf(p0, p1, p2, p3))
+        val manualSquare = RoundedPolygon(floatArrayOf(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y,
+            p3.x, p3.y))
         min = PointF(-1f, -1f)
         max = PointF(1f, 1f)
         assertInBounds(manualSquare.toCubicShape(), min, max)
 
         val offset = PointF(1f, 2f)
+        val p0Offset = p0 + offset
+        val p1Offset = p1 + offset
+        val p2Offset = p2 + offset
+        val p3Offset = p3 + offset
         val manualSquareOffset = RoundedPolygon(
-            vertices = listOf(p0 + offset, p1 + offset, p2 + offset, p3 + offset), center = offset)
+            vertices = floatArrayOf(p0Offset.x, p0Offset.y, p1Offset.x, p1Offset.y,
+                p2Offset.x, p2Offset.y, p3Offset.x, p3Offset.y),
+            centerX = offset.x, centerY = offset.y)
         min = PointF(0f, 1f)
         max = PointF(2f, 3f)
         assertInBounds(manualSquareOffset.toCubicShape(), min, max)
@@ -89,7 +96,7 @@ class PolygonTest {
 
     @Test
     fun centerTest() {
-        assertPointsEqualish(PointF(0f, 0f), square.center)
+        assertPointsEqualish(PointF(0f, 0f), PointF(square.centerX, square.centerY))
     }
 
     @Test
@@ -109,10 +116,18 @@ class PolygonTest {
         val squareCubics = square.toCubicShape().cubics
         val squareCopyCubics = squareCopy.toCubicShape().cubics
         for (i in 0 until squareCubics.size) {
-            assertPointsEqualish(squareCopyCubics[i].p0 + offset, squareCubics[i].p0)
-            assertPointsEqualish(squareCopyCubics[i].p1 + offset, squareCubics[i].p1)
-            assertPointsEqualish(squareCopyCubics[i].p2 + offset, squareCubics[i].p2)
-            assertPointsEqualish(squareCopyCubics[i].p3 + offset, squareCubics[i].p3)
+            assertPointsEqualish(PointF(squareCopyCubics[i].anchorX0,
+                squareCopyCubics[i].anchorY0) + offset,
+                PointF(squareCubics[i].anchorX0, squareCubics[i].anchorY0))
+            assertPointsEqualish(PointF(squareCopyCubics[i].controlX0,
+                squareCopyCubics[i].controlY0) + offset,
+                PointF(squareCubics[i].controlX0, squareCubics[i].controlY0))
+            assertPointsEqualish(PointF(squareCopyCubics[i].controlX1,
+                squareCopyCubics[i].controlY1) + offset,
+                PointF(squareCubics[i].controlX1, squareCubics[i].controlY1))
+            assertPointsEqualish(PointF(squareCopyCubics[i].anchorX1,
+                squareCopyCubics[i].anchorY1) + offset,
+                PointF(squareCubics[i].anchorX1, squareCubics[i].anchorY1))
         }
     }
 

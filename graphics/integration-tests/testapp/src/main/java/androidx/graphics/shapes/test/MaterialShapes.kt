@@ -37,12 +37,8 @@ class MaterialShapes {
             return PointF(this.x * factor, this.y * factor)
         }
 
-        private val SquarePoints = listOf(
-            PointF(1f, 1f),
-            PointF(-1f, 1f),
-            PointF(-1f, -1f),
-            PointF(1f, -1f)
-        )
+        private val SquarePoints = floatArrayOf(1f, 1f, -1f, 1f, -1f, -1f, 1f, -1f)
+
         internal fun Float.toRadians(): Float {
             return this / 360f * 2 * FloatPI
         }
@@ -56,12 +52,16 @@ class MaterialShapes {
             directionVector(angleRadians) * radius + center
 
         @JvmStatic
-        fun triangleChip(radiusRatio: Float, rounding: CornerRounding): RoundedPolygon {
-            val points = listOf(
-                radialToCartesian(1f, 270f.toRadians()),
-                radialToCartesian(1f, 30f.toRadians()),
-                radialToCartesian(radiusRatio, 90f.toRadians()),
-                radialToCartesian(1f, 150f.toRadians()),
+        fun triangleChip(innerRadius: Float, rounding: CornerRounding): RoundedPolygon {
+            val points = floatArrayOf(
+                radialToCartesian(1f, 270f.toRadians()).x,
+                radialToCartesian(1f, 270f.toRadians()).y,
+                radialToCartesian(1f, 30f.toRadians()).x,
+                radialToCartesian(1f, 30f.toRadians()).y,
+                radialToCartesian(innerRadius, 90f.toRadians()).x,
+                radialToCartesian(innerRadius, 90f.toRadians()).y,
+                radialToCartesian(1f, 150f.toRadians()).x,
+                radialToCartesian(1f, 150f.toRadians()).y
             )
             return RoundedPolygon(points, rounding)
         }
@@ -80,14 +80,12 @@ class MaterialShapes {
 
         @JvmOverloads
         @JvmStatic
-        fun blobR(radiusRatio: Float, roundnessRatio: Float, smooth: Float = 0f): RoundedPolygon {
-            return RoundedPolygon(listOf(
-                PointF(-radiusRatio, -roundnessRatio),
-                PointF(radiusRatio, -roundnessRatio),
-                PointF(radiusRatio, roundnessRatio),
-                PointF(-radiusRatio, roundnessRatio),
-            ), CornerRounding(roundnessRatio, smooth)
-            )
+        fun blobR(innerRadius: Float, roundness: Float, smooth: Float = 0f): RoundedPolygon {
+            val sx = innerRadius.coerceAtLeast(0.1f)
+            val sy = roundness.coerceAtLeast(0.1f)
+            return RoundedPolygon(
+                vertices = floatArrayOf(-sx, -sy, sx, -sy, sx, sy, -sx, sy,
+                ), CornerRounding(roundness, smooth))
         }
 
         @JvmOverloads

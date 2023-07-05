@@ -29,10 +29,14 @@ fun assertPointsEqualish(expected: PointF, actual: PointF) {
 }
 
 fun assertCubicsEqua1ish(expected: Cubic, actual: Cubic) {
-    assertPointsEqualish(expected.p0, actual.p0)
-    assertPointsEqualish(expected.p1, actual.p1)
-    assertPointsEqualish(expected.p2, actual.p2)
-    assertPointsEqualish(expected.p3, actual.p3)
+    assertPointsEqualish(PointF(expected.anchorX0, expected.anchorY0),
+        PointF(actual.anchorX0, actual.anchorY0))
+    assertPointsEqualish(PointF(expected.controlX0, expected.controlY0),
+        PointF(actual.controlX0, actual.controlY0))
+    assertPointsEqualish(PointF(expected.controlX1, expected.controlY1),
+        PointF(actual.controlX1, actual.controlY1))
+    assertPointsEqualish(PointF(expected.anchorX1, expected.anchorY1),
+        PointF(actual.anchorX1, actual.anchorY1))
 }
 
 fun assertPointGreaterish(expected: PointF, actual: PointF) {
@@ -52,13 +56,13 @@ fun assertEqualish(expected: Float, actual: Float, message: String? = null) {
 fun assertInBounds(shape: CubicShape, minPoint: PointF, maxPoint: PointF) {
     val cubics = shape.cubics
     for (cubic in cubics) {
-        assertPointGreaterish(minPoint, cubic.p0)
-        assertPointLessish(maxPoint, cubic.p0)
-        assertPointGreaterish(minPoint, cubic.p1)
-        assertPointLessish(maxPoint, cubic.p1)
-        assertPointGreaterish(minPoint, cubic.p2)
-        assertPointLessish(maxPoint, cubic.p2)
-        assertPointGreaterish(minPoint, cubic.p3)
-        assertPointLessish(maxPoint, cubic.p3)
+        assertPointGreaterish(minPoint, PointF(cubic.anchorX0, cubic.anchorY0))
+        assertPointLessish(maxPoint, PointF(cubic.anchorX0, cubic.anchorY0))
+        assertPointGreaterish(minPoint, PointF(cubic.controlX0, cubic.controlY0))
+        assertPointLessish(maxPoint, PointF(cubic.controlX0, cubic.controlY0))
+        assertPointGreaterish(minPoint, PointF(cubic.controlX1, cubic.controlY1))
+        assertPointLessish(maxPoint, PointF(cubic.controlX1, cubic.controlY1))
+        assertPointGreaterish(minPoint, PointF(cubic.anchorX1, cubic.anchorY1))
+        assertPointLessish(maxPoint, PointF(cubic.anchorX1, cubic.anchorY1))
     }
 }

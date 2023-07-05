@@ -17,7 +17,6 @@
 package androidx.graphics.shapes
 
 import android.graphics.PointF
-import androidx.core.graphics.plus
 import androidx.core.graphics.times
 import androidx.test.filters.SmallTest
 import org.junit.Assert
@@ -63,33 +62,46 @@ class RoundedPolygonTest {
         val p1 = PointF(0f, 1f)
         val p2 = PointF(-1f, 0f)
         val p3 = PointF(0f, -1f)
+        val verts = floatArrayOf(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
 
         Assert.assertThrows(IllegalArgumentException::class.java) {
-            RoundedPolygon(listOf(p0, p1))
+            RoundedPolygon(floatArrayOf(p0.x, p0.y, p1.x, p1.y))
         }
 
-        val manualSquare = RoundedPolygon(listOf(p0, p1, p2, p3))
+        val manualSquare = RoundedPolygon(verts)
         var min = PointF(-1f, -1f)
         var max = PointF(1f, 1f)
         assertInBounds(manualSquare.toCubicShape(), min, max)
 
         val offset = PointF(1f, 2f)
-        val manualSquareOffset = RoundedPolygon(
-            listOf(p0 + offset, p1 + offset, p2 + offset, p3 + offset), center = offset)
+        val offsetVerts = floatArrayOf(p0.x + offset.x, p0.y + offset.y,
+            p1.x + offset.x, p1.y + offset.y, p2.x + offset.x, p2.y + offset.y,
+            p3.x + offset.x, p3.y + offset.y)
+        val manualSquareOffset = RoundedPolygon(offsetVerts, centerX = offset.x, centerY = offset.y)
         min = PointF(0f, 1f)
         max = PointF(2f, 3f)
         assertInBounds(manualSquareOffset.toCubicShape(), min, max)
 
-        val manualSquareRounded = RoundedPolygon(listOf(p0, p1, p2, p3), rounding = rounding)
+        val manualSquareRounded = RoundedPolygon(verts, rounding = rounding)
         min = PointF(-1f, -1f)
         max = PointF(1f, 1f)
         assertInBounds(manualSquareRounded.toCubicShape(), min, max)
 
-        val manualSquarePVRounded = RoundedPolygon(listOf(p0, p1, p2, p3),
+        val manualSquarePVRounded = RoundedPolygon(verts,
             perVertexRounding = perVtxRounded)
         min = PointF(-1f, -1f)
         max = PointF(1f, 1f)
         assertInBounds(manualSquarePVRounded.toCubicShape(), min, max)
+    }
+
+    fun pointsToFloats(points: List<PointF>): FloatArray {
+        val result = FloatArray(points.size * 2)
+        var index = 0
+        for (point in points) {
+            result[index++] = point.x
+            result[index++] = point.y
+        }
+        return result
     }
 
     @Test
@@ -103,7 +115,7 @@ class RoundedPolygonTest {
             CornerRounding.Unrounded,
         )
         val polygon = RoundedPolygon(
-            vertices = listOf(p0, p1, p2),
+            vertices = pointsToFloats(listOf(p0, p1, p2)),
             perVertexRounding = pvRounding
         )
 
@@ -114,10 +126,10 @@ class RoundedPolygonTest {
         assertEquals(1, lowerEdgeFeature.cubics.size)
 
         val lowerEdge = lowerEdgeFeature.cubics.first()
-        assertEqualish(0.5f, lowerEdge.p0.x)
-        assertEqualish(0.0f, lowerEdge.p0.y)
-        assertEqualish(0.5f, lowerEdge.p3.x)
-        assertEqualish(0.0f, lowerEdge.p3.y)
+        assertEqualish(0.5f, lowerEdge.anchorX0)
+        assertEqualish(0.0f, lowerEdge.anchorY0)
+        assertEqualish(0.5f, lowerEdge.anchorX1)
+        assertEqualish(0.0f, lowerEdge.anchorY1)
     }
 
     /*
@@ -211,14 +223,14 @@ class RoundedPolygonTest {
             rounding3,
         )
         val polygon = RoundedPolygon(
-            vertices = listOf(p0, p1, p2, p3),
+            vertices = pointsToFloats(listOf(p0, p1, p2, p3)),
             perVertexRounding = pvRounding
         )
         val (e01, _, _, e30) = polygon.features.filterIsInstance<RoundedPolygon.Edge>()
         val msg = "r0 = ${show(rounding0)}, r3 = ${show(rounding3)}"
-        assertEqualish(expectedV0SX, e01.cubics.first().p0.x, msg)
-        assertEqualish(expectedV0SY, e30.cubics.first().p3.y, msg)
-        assertEqualish(expectedV3SY, 1f - e30.cubics.first().p0.y, msg)
+        assertEqualish(expectedV0SX, e01.cubics.first().anchorX0, msg)
+        assertEqualish(expectedV0SY, e30.cubics.first().anchorY1, msg)
+        assertEqualish(expectedV3SY, 1f - e30.cubics.first().anchorY0, msg)
     }
 
     private fun show(cr: CornerRounding) = "(r=${cr.radius}, s=${cr.smoothing})"

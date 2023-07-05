@@ -35,25 +35,10 @@ import kotlin.math.sqrt
 internal fun interpolate(start: Float, stop: Float, fraction: Float) =
     (start * (1 - fraction) + stop * fraction)
 
-internal fun interpolate(start: PointF, stop: PointF, fraction: Float): PointF {
-    return PointF(
-        interpolate(start.x, stop.x, fraction),
-        interpolate(start.y, stop.y, fraction)
-    )
-}
-
-/**
- * Non-allocating version of interpolate; values are stored in [result]
- */
-internal fun interpolate(start: PointF, stop: PointF, result: PointF, fraction: Float): PointF {
-    result.x = interpolate(start.x, stop.x, fraction)
-    result.y = interpolate(start.y, stop.y, fraction)
-    return result
-}
-
 internal fun PointF.getDistance() = sqrt(x * x + y * y)
 
 internal fun PointF.dotProduct(other: PointF) = x * other.x + y * other.y
+internal fun PointF.dotProduct(otherX: Float, otherY: Float) = x * otherX + y * otherY
 
 /**
  * Compute the Z coordinate of the cross product of two vectors, to check if the second vector is
@@ -71,6 +56,16 @@ internal fun PointF.getDirection() = run {
     this / d
 }
 
+internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
+
+/**
+ * Returns unit vector representing the direction to this point from (0, 0)
+ */
+internal fun directionVector(x: Float, y: Float): PointF {
+    val d = distance(x, y)
+    require(d > 0f)
+    return PointF(x / d, y / d)
+}
 /**
  * These epsilon values are used internally to determine when two points are the same, within
  * some reasonable roundoff error. The distance epsilon is smaller, with the intention that the
@@ -96,10 +91,12 @@ internal fun PointF.copy(x: Float = Float.NaN, y: Float = Float.NaN) =
 
 internal fun PointF.angle() = ((atan2(y, x) + TwoPi) % TwoPi)
 
+internal fun angle(x: Float, y: Float) = ((atan2(y, x) + TwoPi) % TwoPi)
+
 internal fun radialToCartesian(radius: Float, angleRadians: Float, center: PointF = Zero) =
     directionVector(angleRadians) * radius + center
 
-internal fun positiveModule(num: Float, mod: Float) = (num % mod + mod) % mod
+internal fun positiveModulo(num: Float, mod: Float) = (num % mod + mod) % mod
 
 /*
  * Does a ternary search in [v0..v1] to find the parameter that minimizes the given function.
@@ -128,8 +125,47 @@ internal fun findMinimum(
     return (a + b) / 2
 }
 
+internal fun verticesFromNumVerts(
+    numVertices: Int,
+    radius: Float,
+    centerX: Float,
+    centerY: Float
+): FloatArray {
+    val result = FloatArray(numVertices * 2)
+    var arrayIndex = 0
+    for (i in 0 until numVertices) {
+        val vertex = radialToCartesian(radius, (FloatPi / numVertices * 2 * i)) +
+            PointF(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+    }
+    return result
+}
+
+internal fun starVerticesFromNumVerts(
+    numVerticesPerRadius: Int,
+    radius: Float,
+    innerRadius: Float,
+    centerX: Float,
+    centerY: Float
+): FloatArray {
+    val result = FloatArray(numVerticesPerRadius * 4)
+    var arrayIndex = 0
+    for (i in 0 until numVerticesPerRadius) {
+        var vertex = radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * i)) +
+            PointF(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+        vertex = radialToCartesian(innerRadius, (FloatPi / numVerticesPerRadius * (2 * i + 1))) +
+            PointF(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+    }
+    return result
+}
+
 // Used to enable debug logging in the library
-internal val DEBUG = true
+internal val DEBUG = false
 
 internal inline fun debugLog(tag: String, messageFactory: () -> String) {
     if (DEBUG) messageFactory().split("\n").forEach { Log.d(tag, it) }
