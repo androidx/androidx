@@ -23,15 +23,8 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.AdvertiseCallback
-import android.bluetooth.le.AdvertiseData
-import android.bluetooth.le.AdvertiseSettings
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
-import java.util.UUID
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -47,92 +40,6 @@ class BluetoothLe(private val context: Context) {
 
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-
-    // Permissions are handled by MainActivity requestBluetoothPermissions
-    @SuppressLint("MissingPermission")
-    fun scan(
-        settings: ScanSettings
-    ): Flow<ScanResult> =
-        callbackFlow {
-            val callback = object : ScanCallback() {
-                override fun onScanResult(callbackType: Int, result: ScanResult) {
-                    trySend(result)
-                }
-
-                override fun onScanFailed(errorCode: Int) {
-                    Log.d(TAG, "onScanFailed() called with: errorCode = $errorCode")
-                }
-            }
-
-            val bluetoothAdapter = bluetoothManager?.adapter
-            val bleScanner = bluetoothAdapter?.bluetoothLeScanner
-
-            bleScanner?.startScan(null, settings, callback)
-
-            awaitClose {
-                Log.d(TAG, "awaitClose() called")
-                bleScanner?.stopScan(callback)
-            }
-        }
-
-    // Permissions are handled by MainActivity requestBluetoothPermissions
-    @SuppressLint("MissingPermission")
-    fun advertise(
-        settings: AdvertiseSettings,
-        data: AdvertiseData
-    ): Flow<AdvertiseResult> =
-        callbackFlow {
-            val callback = object : AdvertiseCallback() {
-                override fun onStartFailure(errorCode: Int) {
-                    // TODO(ofy) Map to proper errorCodes
-                    Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
-                    trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
-                }
-
-                override fun onStartSuccess(settingsInEffect: AdvertiseSettings?) {
-                    trySend(AdvertiseResult.ADVERTISE_STARTED)
-                }
-            }
-
-            val bluetoothAdapter = bluetoothManager?.adapter
-            val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
-
-            bleAdvertiser?.startAdvertising(settings, data, callback)
-
-            awaitClose {
-                Log.d(TAG, "awaitClose() called")
-                bleAdvertiser?.stopAdvertising(callback)
-            }
-        }
-
-    interface GattClientScope {
-
-        fun getServices(): List<BluetoothGattService>
-        fun getService(uuid: UUID): BluetoothGattService?
-
-        suspend fun readCharacteristic(characteristic: BluetoothGattCharacteristic):
-            Result<ByteArray>
-        suspend fun writeCharacteristic(
-            characteristic: BluetoothGattCharacteristic,
-            value: ByteArray,
-            writeType: Int
-        ): Result<Unit>
-        suspend fun readDescriptor(descriptor: BluetoothGattDescriptor): Result<ByteArray>
-        suspend fun writeDescriptor(
-            descriptor: BluetoothGattDescriptor,
-            value: ByteArray
-        ): Result<Unit>
-        fun subscribeToCharacteristic(characteristic: BluetoothGattCharacteristic): Flow<ByteArray>
-        suspend fun awaitClose(onClosed: () -> Unit)
-    }
-
-    suspend fun <R> connectGatt(
-        context: Context,
-        device: BluetoothDevice,
-        block: suspend GattClientScope.() -> R
-    ): R? {
-        return GattClientImpl().connect(context, device, block)
-    }
 
     @SuppressLint("MissingPermission")
     fun openGattServer(
