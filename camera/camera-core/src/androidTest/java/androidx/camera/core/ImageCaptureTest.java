@@ -49,6 +49,7 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -536,11 +537,24 @@ public class ImageCaptureTest {
 
         // Act.
         // Complete the picture taken, then new flash mode should be applied.
+        CaptureFailedRetryEnabler retryEnabler = new CaptureFailedRetryEnabler();
+        // Because of retry in some devices, we may need to notify capture failures multiple times.
+        addExtraFailureNotificationsForRetry(fakeCameraControl, retryEnabler.getRetryCount());
         fakeCameraControl.notifyAllRequestsOnCaptureFailed();
 
         // Assert.
         verify(callback, timeout(1000).times(1)).onError(any());
         assertThat(fakeCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
+    }
+
+    private void addExtraFailureNotificationsForRetry(FakeCameraControl cameraControl,
+            int retryCount) {
+        if (retryCount > 0) {
+            cameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+                addExtraFailureNotificationsForRetry(cameraControl, retryCount - 1);
+                cameraControl.notifyAllRequestsOnCaptureFailed();
+            });
+        }
     }
 
     @Test
