@@ -1224,6 +1224,12 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         private var frameCallbackPending = false
 
+        internal var editorObscuresWatchFace = false
+            set(value) {
+                getWatchFaceImplOrNull()?.editorObscuresWatchFace = value
+                field = value
+            }
+
         private val frameCallback =
             object : Choreographer.FrameCallback {
                 @SuppressWarnings("SyntheticAccessor")

@@ -163,6 +163,15 @@ internal class InteractiveInstanceManager {
             }
         }
 
+        fun getCurrentInteractiveInstance(): InteractiveWatchFaceImpl? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                if (instances.size == 1) {
+                    return instances.entries.first().value.impl
+                }
+            }
+            return null
+        }
+
         /** Can be called on any thread. */
         @SuppressLint("SyntheticAccessor")
         fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(

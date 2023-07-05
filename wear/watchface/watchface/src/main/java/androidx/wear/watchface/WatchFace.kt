@@ -25,6 +25,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Picture
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Build
@@ -50,6 +51,7 @@ import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.RemoteWatchFaceView
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -279,6 +281,12 @@ public class WatchFace(
 
         /** [Intent] to launch the complication permission request rationale dialog. */
         public val complicationRationaleDialogIntent: Intent?
+
+        /**
+         * Allows the delegate to inform the watch face if it's obscured by the editor UI. If the
+         * watch face is not visible, it will stop animating.
+         */
+        public var editorObscuresWatchFace: Boolean
 
         /**
          * Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle].
@@ -564,6 +572,16 @@ constructor(
     internal val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
+    internal var editorObscuresWatchFace = false
+        set(value) {
+            field = value
+
+            // Start animating again if needed.
+            if (!value) {
+                scheduleDraw()
+            }
+        }
+
     internal companion object {
         internal const val NO_DEFAULT_DATA_SOURCE = SystemDataSources.NO_DATA_SOURCE
 
@@ -854,6 +872,15 @@ constructor(
         override val complicationRationaleDialogIntent
             get() = watchFaceHostApi.getComplicationRationaleIntent()
 
+        override var editorObscuresWatchFace: Boolean
+            get() = InteractiveInstanceManager
+                .getCurrentInteractiveInstance()?.engine?.editorObscuresWatchFace ?: false
+            set(value) {
+                InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
+                    it.editorObscuresWatchFace = value
+                }
+            }
+
         override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             instant: Instant,
@@ -902,6 +929,9 @@ constructor(
         @SuppressLint("NewApi") // release
         override fun onDestroy(): Unit =
             TraceEvent("WFEditorDelegate.onDestroy").use {
+                InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
+                    it.editorObscuresWatchFace = false
+                }
                 if (watchState.isHeadless) {
                     headlessWatchFaceImpl!!.release()
                     this@WatchFaceImpl.onDestroy()
@@ -943,7 +973,9 @@ constructor(
     private fun scheduleDraw() {
         // Separate calls are issued to deliver the state of isAmbient and isVisible, so during init
         // we might not yet know the state of both (which is required by the shouldAnimate logic).
-        if (!watchState.isAmbient.hasValue() || !watchState.isVisible.hasValue()) {
+        // If the editor is obscuring the watch face, there's no need to schedule a frame.
+        if (!watchState.isAmbient.hasValue() || !watchState.isVisible.hasValue() ||
+            editorObscuresWatchFace) {
             return
         }
 
@@ -992,7 +1024,8 @@ constructor(
         renderer.renderInternal(startTime)
         lastDrawTimeMillis = startTimeMillis
 
-        if (renderer.shouldAnimate()) {
+        // If the editor is obscuring the watch face, there's no need to draw.
+        if (renderer.shouldAnimate() && !editorObscuresWatchFace) {
             val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
             var delayMillis =
                 computeDelayTillNextFrame(startTimeMillis, currentTimeMillis, Instant.now())
@@ -1218,8 +1251,6 @@ constructor(
                 }
 
                 val bounds = it.computeBounds(renderer.screenBounds)
-                val complicationBitmap =
-                    Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
 
                 var prevData: ComplicationData? = null
                 val screenshotComplicationData = params.complicationData
@@ -1232,13 +1263,38 @@ constructor(
                     )
                 }
 
-                it.renderer.render(
-                    Canvas(complicationBitmap),
-                    Rect(0, 0, bounds.width(), bounds.height()),
-                    zonedDateTime,
-                    RenderParameters(params.renderParametersWireFormat),
-                    params.complicationSlotId
-                )
+                val complicationBitmap: Bitmap
+                val picture = Picture()
+                if (Build.VERSION.SDK_INT >= 28) {
+                    it.renderer.render(
+                        picture.beginRecording(bounds.width(), bounds.height()),
+                        Rect(0, 0, bounds.width(), bounds.height()),
+                        zonedDateTime,
+                        RenderParameters(params.renderParametersWireFormat),
+                        params.complicationSlotId
+                    )
+                    picture.endRecording()
+                    complicationBitmap = Api28CreateBitmapHelper.createBitmap(
+                        picture,
+                        bounds.width(),
+                        bounds.height(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                } else {
+                    complicationBitmap =
+                        Bitmap.createBitmap(
+                            bounds.width(),
+                            bounds.height(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                    it.renderer.render(
+                        Canvas(complicationBitmap),
+                        Rect(0, 0, bounds.width(), bounds.height()),
+                        zonedDateTime,
+                        RenderParameters(params.renderParametersWireFormat),
+                        params.complicationSlotId
+                    )
+                }
 
                 // No point in restoring the old style and complication if this is headless.
                 if (!watchState.isHeadless) {
@@ -1257,7 +1313,9 @@ constructor(
                     }
                 }
 
-                SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
+                val bundle = SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
+                complicationBitmap.recycle()
+                bundle
             }
         }
 
@@ -1276,6 +1334,7 @@ constructor(
             "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle.value}"
         )
         writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
+        writer.println("editorObscuresWatchFace=$editorObscuresWatchFace")
         overlayStyle.dump(writer)
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
