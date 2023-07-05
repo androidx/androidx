@@ -13,46 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
-package androidx.lifecycle;
+package androidx.lifecycle
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Fragment
+import android.app.FragmentManager
+import android.app.FragmentTransaction
+import android.os.Bundle
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.os.Bundle;
+@RunWith(JUnit4::class)
+class DispatcherActivityCallbackTest {
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
-public class DispatcherActivityCallbackTest {
     @Test
-    public void onCreateFrameworkActivity() {
-        LifecycleDispatcher.DispatcherActivityCallback callback =
-                new LifecycleDispatcher.DispatcherActivityCallback();
-        Activity activity = mock(Activity.class);
-        checkReportFragment(callback, activity);
+    fun onCreateFrameworkActivity() {
+        val callback = LifecycleDispatcher.DispatcherActivityCallback()
+        val activity = mock(Activity::class.java)
+        checkReportFragment(callback, activity)
     }
 
-    @SuppressWarnings("deprecation")
+    @Suppress("deprecation")
     @SuppressLint("CommitTransaction")
-    private void checkReportFragment(LifecycleDispatcher.DispatcherActivityCallback callback,
-            Activity activity) {
-        android.app.FragmentManager fm = mock(android.app.FragmentManager.class);
-        android.app.FragmentTransaction transaction = mock(android.app.FragmentTransaction.class);
-        when(activity.getFragmentManager()).thenReturn(fm);
-        when(fm.beginTransaction()).thenReturn(transaction);
-        when(transaction.add(any(android.app.Fragment.class), anyString())).thenReturn(transaction);
-        callback.onActivityCreated(activity, mock(Bundle.class));
-        verify(activity).getFragmentManager();
-        verify(fm).beginTransaction();
-        verify(transaction).add(any(ReportFragment.class), anyString());
-        verify(transaction).commit();
+    private fun checkReportFragment(
+        callback: LifecycleDispatcher.DispatcherActivityCallback,
+        activity: Activity
+    ) {
+        val fm = mock(FragmentManager::class.java)
+        val transaction = mock(FragmentTransaction::class.java)
+        `when`(activity.fragmentManager).thenReturn(fm)
+        `when`(fm.beginTransaction()).thenReturn(transaction)
+        `when`(transaction.add(any(Fragment::class.java), anyString()))
+            .thenReturn(transaction)
+        callback.onActivityCreated(activity, mock(Bundle::class.java))
+        verify(activity).fragmentManager
+        verify(fm).beginTransaction()
+        verify(transaction).add(any(ReportFragment::class.java), anyString())
+        verify(transaction).commit()
     }
 }
