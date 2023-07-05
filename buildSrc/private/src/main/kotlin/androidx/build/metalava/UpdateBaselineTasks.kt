@@ -16,6 +16,7 @@
 
 package androidx.build.metalava
 
+import androidx.build.Version
 import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import java.io.File
@@ -92,6 +93,10 @@ abstract class IgnoreApiChangesTask @Inject constructor(
     @get:Input
     abstract val baselines: Property<ApiBaselinesLocation>
 
+    // Version for the current API surface.
+    @get:Input
+    abstract val version: Property<Version>
+
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getTaskInputs(): List<File> {
         val referenceApiLocation = referenceApi.get()
@@ -115,18 +120,23 @@ abstract class IgnoreApiChangesTask @Inject constructor(
     fun exec() {
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
 
+        val apiLocation = api.get()
+        val referenceApiLocation = referenceApi.get()
+        val freezeApis = shouldFreezeApis(referenceApiLocation.version(), version.get())
         updateBaseline(
-            api.get().publicApiFile,
-            referenceApi.get().publicApiFile,
+            apiLocation.publicApiFile,
+            referenceApiLocation.publicApiFile,
             baselines.get().publicApiFile,
-            false
+            false,
+            freezeApis
         )
-        if (referenceApi.get().restrictedApiFile.exists()) {
+        if (referenceApiLocation.restrictedApiFile.exists()) {
             updateBaseline(
-                api.get().restrictedApiFile,
-                referenceApi.get().restrictedApiFile,
+                apiLocation.restrictedApiFile,
+                referenceApiLocation.restrictedApiFile,
                 baselines.get().restrictedApiFile,
-                true
+                true,
+                freezeApis
             )
         }
     }
@@ -137,7 +147,8 @@ abstract class IgnoreApiChangesTask @Inject constructor(
         api: File,
         prevApi: File,
         baselineFile: File,
-        processRestrictedApis: Boolean
+        processRestrictedApis: Boolean,
+        freezeApis: Boolean,
     ) {
         val args = getCommonBaselineUpdateArgs(
             bootClasspath,
@@ -152,6 +163,12 @@ abstract class IgnoreApiChangesTask @Inject constructor(
             "--source-files",
             api.toString()
         )
+        if (freezeApis) {
+            args += listOf(
+                "--error-category",
+                "Compatibility"
+            )
+        }
         if (processRestrictedApis) {
             args += listOf(
                 "--show-annotation",
