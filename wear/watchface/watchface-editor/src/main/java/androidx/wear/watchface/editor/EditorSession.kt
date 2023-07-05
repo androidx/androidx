@@ -427,6 +427,7 @@ internal constructor(
 ) : EditorSession {
     protected var closed: Boolean = false
     protected var forceClosed: Boolean = false
+    protected open var editorObscuresWatchFace = false
 
     private val editorSessionTraceEvent = AsyncTraceEvent("EditorSession")
     private val closeCallback =
@@ -522,6 +523,10 @@ internal constructor(
                 "Can't configure fixed complication ID $complicationSlotId"
             }
 
+            // Don't animate the watch face while the provider is running, because that makes
+            // hardware rendering of the complication preview images very much slower.
+            editorObscuresWatchFace = true
+
             val deferredResult = CompletableDeferred<ComplicationDataSourceChooserResult?>()
 
             synchronized(this) {
@@ -551,6 +556,8 @@ internal constructor(
                 } finally {
                     synchronized(this) { pendingComplicationDataSourceChooserResult = null }
                 }
+
+            editorObscuresWatchFace = false
 
             // If deferredResult was null then the user canceled so return null.
             if (complicationDataSourceChooserResult == null) {
@@ -843,6 +850,12 @@ internal class OnWatchFaceEditorSessionImpl(
     }
 
     internal val wrappedUserStyle by lazy { MutableStateFlow(editorDelegate.userStyle) }
+
+    override var editorObscuresWatchFace: Boolean
+        get() = editorDelegate.editorObscuresWatchFace
+        set(value) {
+            editorDelegate.editorObscuresWatchFace = value
+        }
 
     // Unfortunately a dynamic proxy is the only way we can reasonably validate the UserStyle,
     // exceptions thrown within a coroutine are lost and the MutableStateFlow interface includes
