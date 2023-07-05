@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.SwipeToDismissBox
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
@@ -54,6 +55,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.integration.demos.common.ActivityDemo
 import androidx.wear.compose.integration.demos.common.ComposableDemo
@@ -133,7 +135,9 @@ internal fun BoxScope.DisplayDemoList(
 ) {
     ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(DemoListTag),
     ) {
         item {
             ListHeader {
@@ -169,7 +173,9 @@ internal fun BoxScope.DisplayDemoList(
                     ) {
                         Text(
                             text = description,
-                            modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Center),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -259,13 +265,15 @@ fun Modifier.rsbScroll(
             true
         }.let {
             if (focusRequester != null) {
-                it.focusRequester(focusRequester)
+                it
+                    .focusRequester(focusRequester)
                     .focusable()
             } else it
         }
     }
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun ScalingLazyColumnWithRSB(
     modifier: Modifier = Modifier,
@@ -284,7 +292,7 @@ fun ScalingLazyColumnWithRSB(
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(
         state = state
     ) else ScrollableDefaults.flingBehavior()
-    val focusRequester = remember { FocusRequester() }
+    val focusRequester = rememberActiveFocusRequester()
     ScalingLazyColumn(
         modifier = modifier.rsbScroll(
             scrollableState = state,
@@ -300,7 +308,4 @@ fun ScalingLazyColumnWithRSB(
         autoCentering = autoCentering,
         content = content
     )
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 }
