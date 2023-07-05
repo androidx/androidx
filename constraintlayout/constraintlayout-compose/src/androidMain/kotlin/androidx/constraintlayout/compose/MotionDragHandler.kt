@@ -18,6 +18,7 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -39,12 +40,13 @@ import kotlinx.coroutines.isActive
  */
 internal fun Modifier.motionPointerInput(
     key: Any,
-    motionProgress: MotionProgress,
+    motionProgress: MutableFloatState,
     measurer: MotionMeasurer
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "motionPointerInput"
         properties["key"] = key
+        properties["motionProgress"] = motionProgress
         properties["measurer"] = measurer
     }
 ) {
