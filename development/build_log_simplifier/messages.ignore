@@ -1317,3 +1317,11 @@ spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has n
 # > Task :paging:paging-samples:lintReportDebug
 Warning: Lint will treat :paging:paging\-common as an external dependency and not analyze it\.
 \* Recommended Action: Apply the 'com\.android\.lint' plugin to java library project :paging:paging\-common\. to enable lint to analyze those sources\.
+# > Configure project :androidx-demos
+WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
+The current default is 'false'\.
+WARNING: The option setting 'android\.r[0-9]+\.maxWorkers=[0-9]+' is experimental\.
+# > Task :compose:ui:ui:compileReleaseKotlinAndroid
+e: Daemon compilation failed: Could not connect to Kotlin compile daemon
+java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
+Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
