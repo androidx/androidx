@@ -103,10 +103,13 @@ public final class PendingIntentCompat {
     /**
      * Retrieves a {@link PendingIntent} with mandatory mutability flag set on supported platform
      * versions. The caller provides the flag as combination of all the other values except
-     * mutability flag. This method combines mutability flag when necessary. See {@link
-     * PendingIntent#getActivity(Context, int, Intent, int)}.
+     * mutability flag. This method combines mutability flag when necessary.
+     *
+     * @return Returns an existing or new PendingIntent matching the given parameters. May return
+     *         {@code null} only if {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
+     * @see PendingIntent#getActivity(Context, int, Intent, int)
      */
-    public static @NonNull PendingIntent getActivity(
+    public static @Nullable PendingIntent getActivity(
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
@@ -119,10 +122,13 @@ public final class PendingIntentCompat {
     /**
      * Retrieves a {@link PendingIntent} with mandatory mutability flag set on supported platform
      * versions. The caller provides the flag as combination of all the other values except
-     * mutability flag. This method combines mutability flag when necessary. See {@link
-     * PendingIntent#getActivity(Context, int, Intent, int, Bundle)}.
+     * mutability flag. This method combines mutability flag when necessary.
+     *
+     * @return Returns an existing or new PendingIntent matching the given parameters. May return
+     *         {@code null} only if {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
+     * @see PendingIntent#getActivity(Context, int, Intent, int, Bundle)
      */
-    public static @NonNull PendingIntent getActivity(
+    public static @Nullable PendingIntent getActivity(
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
@@ -176,10 +182,13 @@ public final class PendingIntentCompat {
     /**
      * Retrieves a {@link PendingIntent} with mandatory mutability flag set on supported platform
      * versions. The caller provides the flag as combination of all the other values except
-     * mutability flag. This method combines mutability flag when necessary. See {@link
-     * PendingIntent#getService(Context, int, Intent, int)}.
+     * mutability flag. This method combines mutability flag when necessary.
+     *
+     * @return Returns an existing or new PendingIntent matching the given parameters. May return
+     *         {@code null} only if {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
+     * @see PendingIntent#getService(Context, int, Intent, int)
      */
-    public static @NonNull PendingIntent getService(
+    public static @Nullable PendingIntent getService(
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,
