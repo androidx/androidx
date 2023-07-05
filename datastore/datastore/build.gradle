@@ -89,11 +89,7 @@ androidXMultiplatform {
             }
 
         }
-        targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
+
         targets.all { target ->
             if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
