@@ -75,7 +75,9 @@ internal class SingleRunner(
      * We use this special class so that we can still support regular cancelation coming from the
      * `block` but don't cancel its coroutine just to cancel the block.
      */
-    private class CancelIsolatedRunnerException(val runner: SingleRunner) : CancellationException()
+    private class CancelIsolatedRunnerException(
+        val runner: SingleRunner
+    ) : CancellationException("Cancelled isolated runner")
 
     private class Holder(
         private val singleRunner: SingleRunner,
