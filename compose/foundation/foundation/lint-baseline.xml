@@ -1327,7 +1327,7 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    magnifierCenter: Density.() -> Offset,"
+        errorLine1="    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
@@ -1336,7 +1336,7 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    onSizeChanged: ((DpSize) -> Unit)?,"
+        errorLine1="    onSizeChanged: ((DpSize) -> Unit)? = null,"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
@@ -1344,27 +1344,135 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updatedSourceCenter&apos; with type Function1&lt;? super Density, ? extends Offset>."
-        errorLine1="    val updatedSourceCenter by rememberUpdatedState(sourceCenter)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="    private val sourceCenter: Density.() -> Offset,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updatedMagnifierCenter&apos; with type Function1&lt;? super Density, ? extends Offset>."
-        errorLine1="    val updatedMagnifierCenter by rememberUpdatedState(magnifierCenter)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="    private val magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updatedOnSizeChanged&apos; with type Function1&lt;? super DpSize, ? extends Unit>."
-        errorLine1="    val updatedOnSizeChanged by rememberUpdatedState(onSizeChanged)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
+        errorLine1="    private val onSizeChanged: ((DpSize) -> Unit)? = null,"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="    var sourceCenter: Density.() -> Offset,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setSourceCenter has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="    var sourceCenter: Density.() -> Offset,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, Offset> of &apos;getSourceCenter&apos;."
+        errorLine1="    var sourceCenter: Density.() -> Offset,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setMagnifierCenter has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, Offset> of &apos;getMagnifierCenter&apos;."
+        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
+        errorLine1="    var onSizeChanged: ((DpSize) -> Unit)? = null,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnSizeChanged has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super DpSize, Unit>."
+        errorLine1="    var onSizeChanged: ((DpSize) -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;DpSize, Unit> of &apos;getOnSizeChanged&apos;."
+        errorLine1="    var onSizeChanged: ((DpSize) -> Unit)? = null,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="        sourceCenter: Density.() -> Offset,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
+        errorLine1="        magnifierCenter: Density.() -> Offset,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
+        errorLine1="        onSizeChanged: ((DpSize) -> Unit)?,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
