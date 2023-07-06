@@ -29,7 +29,6 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:material:material"))
-    implementation(project(":compose:material:material-icons-extended"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
