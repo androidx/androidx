@@ -53,7 +53,7 @@ androidXMultiplatform {
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core"))
                 api(project(":datastore:datastore-core-okio"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -65,7 +65,7 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTest)
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -81,7 +81,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.testRunner)

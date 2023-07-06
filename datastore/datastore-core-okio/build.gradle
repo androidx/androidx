@@ -57,12 +57,12 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
                 api(project(":internal-testutils-datastore"))
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
             }
         }
         jvmTest {
@@ -71,7 +71,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 api(project(":internal-testutils-datastore"))
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
             }
         }
 
