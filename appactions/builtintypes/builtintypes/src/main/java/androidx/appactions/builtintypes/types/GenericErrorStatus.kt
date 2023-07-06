@@ -38,7 +38,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractGenericErrorStatus] if you need to extend this type.
  */
-@Document(name = "bit:GenericErrorStatus")
+@Document(
+  name = "bit:GenericErrorStatus",
+  parent = [CommonExecutionStatus::class],
+)
 public interface GenericErrorStatus : CommonExecutionStatus {
   /** Converts this [GenericErrorStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>

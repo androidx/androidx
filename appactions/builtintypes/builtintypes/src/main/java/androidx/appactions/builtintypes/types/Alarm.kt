@@ -39,7 +39,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractAlarm] if you need to extend this type.
  */
-@Document(name = "bit:Alarm")
+@Document(
+  name = "bit:Alarm",
+  parent = [Thing::class],
+)
 public interface Alarm : Thing {
   /**
    * Associates an Alarm with a Schedule.

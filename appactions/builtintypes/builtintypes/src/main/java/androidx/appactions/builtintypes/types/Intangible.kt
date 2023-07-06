@@ -39,7 +39,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractIntangible] if you need to extend this type.
  */
-@Document(name = "bit:Intangible")
+@Document(
+  name = "bit:Intangible",
+  parent = [Thing::class],
+)
 public interface Intangible : Thing {
   /** Converts this [Intangible] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>

@@ -38,7 +38,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractPerson] if you need to extend this type.
  */
-@Document(name = "bit:Person")
+@Document(
+  name = "bit:Person",
+  parent = [Thing::class],
+)
 public interface Person : Thing {
   /**
    * Email address.

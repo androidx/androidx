@@ -40,7 +40,10 @@ import kotlin.jvm.JvmStatic
  * using [Companion.Builder] or see [AbstractObjectCreationLimitReachedStatus] if you need to extend
  * this type.
  */
-@Document(name = "bit:ObjectCreationLimitReachedStatus")
+@Document(
+  name = "bit:ObjectCreationLimitReachedStatus",
+  parent = [ExecutionStatus::class],
+)
 public interface ObjectCreationLimitReachedStatus : ExecutionStatus {
   /**
    * Converts this [ObjectCreationLimitReachedStatus] to its builder with all the properties copied
