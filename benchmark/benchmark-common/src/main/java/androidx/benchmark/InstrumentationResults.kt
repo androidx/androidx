@@ -42,7 +42,6 @@ data class IdeSummaryPair(
 
 /**
  * Provides a way to capture all the instrumentation results which needs to be reported.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
@@ -102,7 +101,6 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
 
 /**
  * Provides way to report additional results via `Instrumentation.sendStatus()` / `addResult()`.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object InstrumentationResults {

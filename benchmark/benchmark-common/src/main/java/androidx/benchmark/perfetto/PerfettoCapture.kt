@@ -38,7 +38,6 @@ import java.io.StringReader
 /**
  * Enables capturing a Perfetto trace
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(23)
