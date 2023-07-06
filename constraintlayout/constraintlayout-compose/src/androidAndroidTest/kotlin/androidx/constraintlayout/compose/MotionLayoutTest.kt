@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -660,6 +661,104 @@ internal class MotionLayoutTest {
         assertEquals(14, actualTextSize.height.value.roundToInt())
     }
 
+    @Test
+    fun testOnSwipe_withLimitBounds() = with(rule.density) {
+        val rootSizePx = 300
+        val boxSizePx = 30
+        val boxId = "box"
+        var boxPosition = IntOffset.Zero
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = remember {
+                    MotionScene {
+                        val boxRef = createRefFor(boxId)
+
+                        defaultTransition(
+                            from = constraintSet {
+                                constrain(boxRef) {
+                                    width = boxSizePx.toDp().asDimension()
+                                    height = boxSizePx.toDp().asDimension()
+
+                                    top.linkTo(parent.top)
+                                    start.linkTo(parent.start)
+                                }
+                            },
+                            to = constraintSet {
+                                constrain(boxRef) {
+                                    width = boxSizePx.toDp().asDimension()
+                                    height = boxSizePx.toDp().asDimension()
+
+                                    top.linkTo(parent.top)
+                                    end.linkTo(parent.end)
+                                }
+                            }
+                        ) {
+                            onSwipe = OnSwipe(
+                                anchor = boxRef,
+                                side = SwipeSide.End,
+                                direction = SwipeDirection.End,
+                                limitBoundsTo = boxRef
+                            )
+                        }
+                    }
+                },
+                progress = 0f,
+                modifier = Modifier
+                    .layoutTestId("MyMotion")
+                    .size(rootSizePx.toDp())
+            ) {
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .layoutTestId(boxId)
+                        .onGloballyPositioned {
+                            boxPosition = it
+                                .positionInParent()
+                                .round()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+        val motionSemantic = rule.onNodeWithTag("MyMotion")
+        motionSemantic
+            .assertExists()
+            // The first swipe will completely miss the Box, so it shouldn't move
+            .performSwipe(
+                from = {
+                    Offset(left + boxSizePx / 2, centerY)
+                },
+                to = {
+                    Offset(right * 0.9f, centerY)
+                }
+            )
+        // Wait a frame for the Touch Up animation to start
+        rule.mainClock.advanceTimeByFrame()
+        // Then wait for it to end
+        rule.waitForIdle()
+        // Box didn't move since the swipe didn't start within the box
+        assertEquals(IntOffset.Zero, boxPosition)
+
+        motionSemantic
+            .assertExists()
+            // The second swipe will start within the Box
+            .performSwipe(
+                from = {
+                    Offset(left + boxSizePx / 2, top + boxSizePx / 2)
+                },
+                to = {
+                    Offset(right * 0.9f, centerY)
+                }
+            )
+        // Wait a frame for the Touch Up animation to start
+        rule.mainClock.advanceTimeByFrame()
+        // Then wait for it to end
+        rule.waitForIdle()
+        // Box moved to end
+        assertEquals(IntOffset(rootSizePx - boxSizePx, 0), boxPosition)
+    }
+
     private fun Color.toHexString(): String = toArgb().toUInt().toString(16)
 }
 
@@ -718,7 +817,6 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
 private fun WithConsistentTextStyle(
     content: @Composable () -> Unit
 ) {
-    @Suppress("DEPRECATION")
     CompositionLocalProvider(
         LocalDensity provides Density(1f, 1f),
         LocalTextStyle provides TextStyle(

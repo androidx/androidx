@@ -33,6 +33,14 @@ internal class TransitionHandler(
         get() = motionMeasurer.transition
 
     /**
+     * Whether we consume the rest of the drag for OnSwipe.
+     *
+     * @see androidx.constraintlayout.core.state.Transition.isFirstDownAccepted
+     */
+    fun onAcceptFirstDownForOnSwipe(offset: Offset) =
+        transition.isFirstDownAccepted(offset.x, offset.y)
+
+    /**
      * The [motionProgress] is updated based on the [Offset] from a single drag event.
      */
     fun updateProgressOnDrag(dragAmount: Offset) {
