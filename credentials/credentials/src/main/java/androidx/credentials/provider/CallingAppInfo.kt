@@ -17,6 +17,8 @@
 package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
+import androidx.annotation.RestrictTo
+import androidx.credentials.provider.utils.RequestValidationUtil
 
 /**
  * Information pertaining to the calling application.
@@ -37,8 +39,31 @@ import android.content.pm.SigningInfo
 class CallingAppInfo @JvmOverloads constructor(
     val packageName: String,
     val signingInfo: SigningInfo,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val origin: String? = null
 ) {
+
+    /**
+     * Returns the origin of the calling app. This is only non-null if a
+     * privileged app like a browser calls Credential Manager APIs on
+     * behalf of another application.
+     *
+     * Additionally, in order to get the origin, the credential provider must
+     * provide an allowlist of privileged browsers/apps that it trusts.
+     * This allowlist must be in the form of a valid, non-empty JSON. The
+     * origin will only be returned if the [packageName] and [signingInfo]
+     * match with an app allowlisted in [privilegedAllowlist].
+     *
+     * @throws IllegalArgumentException If [privilegedAllowlist] is empty, or an
+     * invalid JSON
+     */
+    fun getOrigin(privilegedAllowlist: String): String? {
+        if (!RequestValidationUtil.isValidJSON(privilegedAllowlist)) {
+            throw IllegalArgumentException("privilegedAllowlist must not be " +
+                "empty, and must be a valid JSON")
+        }
+        return null
+    }
 
     init {
         require(packageName.isNotEmpty()) { "packageName must not be empty" }
