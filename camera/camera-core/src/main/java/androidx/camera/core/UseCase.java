@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
@@ -223,6 +224,17 @@ public abstract class UseCase {
                 || mUseCaseConfig.containsOption(OPTION_TARGET_RESOLUTION)) {
             if (mergedConfig.containsOption(OPTION_RESOLUTION_SELECTOR)) {
                 mergedConfig.removeOption(OPTION_RESOLUTION_SELECTOR);
+            }
+        }
+
+        // Removes the default max resolution setting if application sets any ResolutionStrategy
+        // to override it.
+        if (mUseCaseConfig.containsOption(OPTION_RESOLUTION_SELECTOR)
+                && mergedConfig.containsOption(OPTION_MAX_RESOLUTION)) {
+            ResolutionSelector resolutionSelector =
+                    mUseCaseConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR);
+            if (resolutionSelector.getResolutionStrategy() != null) {
+                mergedConfig.removeOption(OPTION_MAX_RESOLUTION);
             }
         }
 

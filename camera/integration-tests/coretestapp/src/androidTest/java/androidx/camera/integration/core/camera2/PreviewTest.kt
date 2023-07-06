@@ -35,6 +35,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -581,6 +582,39 @@ class PreviewTest(
 
         // Assert.
         Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(10, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun defaultMaxResolutionCanBeKept_whenResolutionStrategyIsNotSet() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+        val useCase = Preview.Builder().build()
+        camera = CameraUtil.createCameraAndAttachUseCase(
+            context!!,
+            CameraSelector.DEFAULT_BACK_CAMERA, useCase
+        )
+        Truth.assertThat(
+            useCase.currentConfig.containsOption(
+                ImageOutputConfig.OPTION_MAX_RESOLUTION
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun defaultMaxResolutionCanBeRemoved_whenResolutionStrategyIsSet() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+        val useCase = Preview.Builder().setResolutionSelector(
+            ResolutionSelector.Builder()
+                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build()
+        ).build()
+        camera = CameraUtil.createCameraAndAttachUseCase(
+            context!!,
+            CameraSelector.DEFAULT_BACK_CAMERA, useCase
+        )
+        Truth.assertThat(
+            useCase.currentConfig.containsOption(
+                ImageOutputConfig.OPTION_MAX_RESOLUTION
+            )
+        ).isFalse()
     }
 
     private val workExecutorWithNamedThread: Executor
