@@ -55,8 +55,11 @@ internal class MultiWidgetSelectionDelegate(
                         // if final visible line's top is equal to or larger than text layout
                         // result's height, we need to check above lines one by one until we find
                         // a line that fits in boundaries.
-                        while (getLineTop(finalVisibleLine) >= size.height) finalVisibleLine--
-                        finalVisibleLine
+                        while (
+                            finalVisibleLine >= 0 &&
+                            getLineTop(finalVisibleLine) >= size.height
+                        ) finalVisibleLine--
+                        finalVisibleLine.coerceAtLeast(0)
                     }
                 }
                 _previousLastVisibleOffset = getLineEnd(lastVisibleLine, true)
