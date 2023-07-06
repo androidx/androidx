@@ -112,8 +112,25 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             Api16Impl.setPriority(
                     Api16Impl.setUsesChronometer(Api16Impl.setSubText(mBuilder, b.mSubText),
                             b.mUseChronometer), b.mPriority);
-            for (NotificationCompat.Action action : b.mActions) {
-                addAction(action);
+
+            // CallStyle notifications add special actions in pre-specified positions, in addition
+            // to any provided custom actions. Because there's no way to remove Actions once they're
+            // added to Notification.Builder in Versions < 24, we add them here where we have
+            // access to NotificationCompatBuilder, rather than in CallStyle.apply where we have
+            // to add to the Notification.Builder directly.
+            if (Build.VERSION.SDK_INT >= 20
+                    && (b.mStyle instanceof NotificationCompat.CallStyle)) {
+                // Retrieves call style actions, including contextual and system actions.
+                List<NotificationCompat.Action> actionsList =
+                        ((NotificationCompat.CallStyle) b.mStyle).getActionsListWithSystemActions();
+                // Adds the actions to the builder in the proper order.
+                for (NotificationCompat.Action action : actionsList) {
+                    addAction(action);
+                }
+            } else {
+                for (NotificationCompat.Action action : b.mActions) {
+                    addAction(action);
+                }
             }
 
             if (b.mExtras != null) {
