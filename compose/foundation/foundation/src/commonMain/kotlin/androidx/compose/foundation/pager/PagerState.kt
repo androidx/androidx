@@ -229,7 +229,7 @@ abstract class PagerState(
      */
     private var wasScrollingForward = false
 
-    /** Backing state for PagerLayoutInfo **/
+    /** Backing state for PagerLayoutInfo */
     private var pagerLayoutInfoState = mutableStateOf(EmptyLayoutInfo)
 
     internal val layoutInfo: PagerLayoutInfo get() = pagerLayoutInfoState.value

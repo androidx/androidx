@@ -311,7 +311,7 @@ class BottomDrawerState @Deprecated(
 
     /**
      * The current offset, or [Float.NaN] if it has not been initialized yet.
-     **/
+     */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     val offset: Float
         get() = anchoredDraggableState.offset

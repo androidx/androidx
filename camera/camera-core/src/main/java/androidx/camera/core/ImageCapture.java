@@ -1167,7 +1167,7 @@ public final class ImageCapture extends UseCase {
      * {@link ImageCaptureLatencyEstimate#UNDEFINED_CAPTURE_LATENCY}. If the processing
      * latency is not supported then the processing latency component will be
      * {@link ImageCaptureLatencyEstimate#UNDEFINED_PROCESSING_LATENCY}.
-     **/
+     */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate() {

@@ -83,7 +83,7 @@ public final class LegacySurfacePackage {
         };
     }
 
-    /** Empty constructor needed for serializations. **/
+    /** Empty constructor needed for serializations. */
     private LegacySurfacePackage() {
     }
 

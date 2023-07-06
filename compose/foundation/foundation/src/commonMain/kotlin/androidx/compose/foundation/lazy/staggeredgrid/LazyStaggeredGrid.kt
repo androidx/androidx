@@ -128,7 +128,7 @@ private fun ScrollPositionUpdater(
     }
 }
 
-/** Slot configuration of staggered grid **/
+/** Slot configuration of staggered grid */
 internal class LazyStaggeredGridSlots(
     val positions: IntArray,
     val sizes: IntArray

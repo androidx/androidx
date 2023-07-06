@@ -73,7 +73,7 @@ internal object BoringLayoutFactory {
      *
      * @see BoringLayout.isFallbackLineSpacingEnabled
      * @see StaticLayout.Builder.setUseLineSpacingFromFallbacks
-     **/
+     */
     @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun create(
         text: CharSequence,

@@ -58,7 +58,7 @@ public final class MetadataExtras {
      *      + subtitle:                 “Beethoven”                 // Artist
      *      + subtitleLinkMediaId:      “artist:Beethoven”          // Artist ID
      * </pre>
-     **/
+     */
     public static final String KEY_SUBTITLE_LINK_MEDIA_ID =
             "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
 
@@ -90,7 +90,7 @@ public final class MetadataExtras {
      * ╚════+ mediaId:                  “artist:Beethoven”          // ID
      *      + title:                    “Beethoven”                 // Artist
      * </pre>
-     **/
+     */
     public static final String KEY_DESCRIPTION_LINK_MEDIA_ID =
             "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
 }

@@ -99,7 +99,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
      *     <td>Actual package name via {@link Context#getPackageName()}</td>
      *     <td>Actual UID</td></tr>
      * </table>
-     **/
+     */
     public static final class MediaLibrarySession extends MediaSession {
         private final boolean mThrowsWhenInvalidReturn;
 
@@ -335,7 +335,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
             /**
              * Prevents session to be crashed when it returns any invalid return.
              *
-             **/
+             */
             @RestrictTo(LIBRARY)
             @NonNull
             @VisibleForTesting
@@ -587,7 +587,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
          * implementation must return the params with the {@code true} as well.
          *
          * @return {@code true} for offline items. {@code false} otherwise.
-         **/
+         */
         public boolean isOffline() {
             return convertToBoolean(mOffline);
         }
@@ -601,7 +601,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
          * media items is considered ordered by relevance, first being the top suggestion.
          *
          * @return {@code true} for suggested items. {@code false} otherwise
-         **/
+         */
         public boolean isSuggested() {
             return convertToBoolean(mSuggested);
         }

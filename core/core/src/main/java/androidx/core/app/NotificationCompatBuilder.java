@@ -729,7 +729,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
         @DoNotInline
         static Notification.Builder setSound(Notification.Builder builder, Uri sound,
-                Object audioAttributes /** AudioAttributes **/) {
+                Object audioAttributes /** AudioAttributes */) {
             return builder.setSound(sound, (AudioAttributes) audioAttributes);
         }
     }
@@ -751,7 +751,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
         @DoNotInline
         static Notification.Builder setSmallIcon(Notification.Builder builder,
-                Object icon /** Icon **/) {
+                Object icon /** Icon */) {
             return builder.setSmallIcon((Icon) icon);
         }
 
@@ -888,7 +888,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
         @DoNotInline
         static Notification.Builder setLocusId(Notification.Builder builder,
-                Object locusId /** LocusId **/) {
+                Object locusId /** LocusId */) {
             return builder.setLocusId((LocusId) locusId);
         }
 

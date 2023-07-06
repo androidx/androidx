@@ -32,7 +32,7 @@ package androidx.compose.ui.text.font
  *  [CSS font-synthesis](https://www.w3.org/TR/css-fonts-4/#font-synthesis) property.
  *
  *  @sample androidx.compose.ui.text.samples.FontFamilySynthesisSample
- **/
+ */
 @kotlin.jvm.JvmInline
 value class FontSynthesis internal constructor(internal val value: Int) {
 
