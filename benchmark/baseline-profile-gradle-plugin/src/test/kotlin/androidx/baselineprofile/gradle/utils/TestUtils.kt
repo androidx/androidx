@@ -71,13 +71,13 @@ internal fun GradleRunner.buildAndFailAndAssertThatOutput(
 }
 
 internal fun List<String>.requireInOrder(
-    vararg strings: String,
-    evaluate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
+    vararg toFind: String,
+    predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) }
 ): List<String> {
-    val remaining = mutableListOf(*strings)
-    for (string in strings) {
-        val next = remaining.firstOrNull() ?: break
-        if (evaluate(string, next)) remaining.remove(next)
+    var remaining = toFind.filter { it.isNotBlank() }.toMutableList()
+    for (line in this) {
+        val next = remaining.firstOrNull() ?: return emptyList()
+        if (predicate(line, next)) remaining.removeFirst()
     }
     return remaining
 }
@@ -87,13 +87,13 @@ internal fun List<String>.require(
     evaluate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
 ): Set<String> {
     val remaining = mutableSetOf(*strings)
-    for (string in strings) {
-        if (remaining.isEmpty()) break
-        val iter = remaining.iterator()
-        while (iter.hasNext()) iter.next().run {
-            if (evaluate(string, this)) {
-                iter.remove()
-                return@run
+    val iterator = remaining.iterator()
+    while (iterator.hasNext()) {
+        val next = iterator.next()
+        for (string in this) {
+            if (evaluate(string, next)) {
+                iterator.remove()
+                break
             }
         }
     }
