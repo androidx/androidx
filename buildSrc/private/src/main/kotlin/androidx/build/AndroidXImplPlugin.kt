@@ -61,6 +61,7 @@ import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
@@ -77,6 +78,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
@@ -749,24 +751,41 @@ class AndroidXImplPlugin @Inject constructor(
         // this API takes an integer and we are unable to set it to a
         // pre-release SDK.
         defaultConfig.aarMetadata.minCompileSdk = project.defaultAndroidConfig.targetSdk
-        project.configurations.all { config ->
-            val isTestConfig = config.name.lowercase(Locale.US).contains("test")
 
-            config.dependencyConstraints.configureEach { dependencyConstraint ->
-                dependencyConstraint.apply {
-                    // Clear strict constraints on test dependencies and listenablefuture:1.0
-                    // Don't clear non-strict constraints because they might refer to projects,
-                    // and clearing their versions might be unsupported and unnecessary
-                    if (versionConstraint.strictVersion != "") {
-                        if (isTestConfig ||
-                            (group == "com.google.guava" &&
-                            name == "listenablefuture" &&
-                            version == "1.0")
-                        ) {
-                            version { versionConstraint ->
-                                versionConstraint.strictly("")
-                            }
-                        }
+        // The full Guava artifact is very large, so they split off a special artifact containing a
+        // standalone version of the commonly-used ListenableFuture interface. However, they also
+        // structured the artifacts in a way that causes dependency resolution conflicts:
+        // - `com.google.guava:listenablefuture:1.0` contains only ListenableFuture
+        // - `com.google.guava:listenablefuture:9999.0` contains nothing
+        // - `com.google.guava:guava` contains all of Guava, including ListenableFuture
+        // If a transitive dependency includes `guava` as implementation-type and we have a direct
+        // API-type dependency on `listenablefuture:1.0`, then we'll get `listenablefuture:9999.0`
+        // on the compilation classpath -- which does not have the ListenableFuture class. However,
+        // if we tell Gradle to upgrade all LF dependencies to Guava then we'll get `guava` as an
+        // API-type dependency. See b/274621238 for more details.
+        project.dependencies {
+            modules { moduleHandler ->
+                moduleHandler.module("com.google.guava:listenablefuture") { module ->
+                    module.replacedBy("com.google.guava:guava")
+                }
+            }
+        }
+
+        // Gradle inserts strict version constraints to ensure that dependency versions are
+        // identical across main and test source sets. For normal projects, this ensures
+        // that test bytecode is binary- and behavior-compatible with the main source set's
+        // bytecode. For AndroidX, though, we require backward compatibility and therefore
+        // don't need to enforce such constraints.
+        project.configurations.all { configuration ->
+            if (!configuration.isTest()) return@all
+
+            configuration.dependencyConstraints.configureEach { dependencyConstraint ->
+                val strictVersion = dependencyConstraint.versionConstraint.strictVersion
+                if (strictVersion != "") {
+                    // Migrate strict-type version constraints to required-type to allow upgrades.
+                    dependencyConstraint.version { versionConstraint ->
+                        versionConstraint.strictly("")
+                        versionConstraint.require(strictVersion)
                     }
                 }
             }
@@ -955,11 +974,18 @@ class AndroidXImplPlugin @Inject constructor(
                 constraints.add(
                     constraintConfiguration.name,
                     dependencyConstraint
-                )
+                ) {
+                    it.because("${project.name} is in atomic group ${projectGroup.group}")
+                }
             }
 
             // disallow duplicate constraints
             project.configurations.all { config ->
+                // Allow duplicate constraints in test configurations. This is partially a
+                // workaround for duplication due to downgrading strict-type dependencies to
+                // required-type, but also we don't care if tests have duplicate constraints.
+                if (config.isTest()) return@all
+
                 // find all constraints contributed by this Configuration and its ancestors
                 val configurationConstraints: MutableSet<String> = mutableSetOf()
                 config.hierarchy.forEach { parentConfig ->
@@ -1019,6 +1045,11 @@ class AndroidXImplPlugin @Inject constructor(
 
 private const val PROJECTS_MAP_KEY = "projects"
 private const val ACCESSED_PROJECTS_MAP_KEY = "accessedProjectsMap"
+
+/**
+ * Returns whether the configuration is used for testing.
+ */
+private fun Configuration.isTest(): Boolean = name.lowercase().contains("test")
 
 /**
  * Hides a project's Javadoc tasks from the output of `./gradlew tasks` by setting their group to
