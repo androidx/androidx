@@ -17,123 +17,278 @@
 package androidx.build
 
 import com.android.build.api.dsl.Lint
+import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.AndroidLintTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
-import java.util.Locale
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.tooling.core.withClosure
 
-fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
-    apply(mapOf("plugin" to "com.android.lint"))
-
-    // Create fake variant tasks since that is what is invoked by developers.
-    val lintTask = tasks.named("lint")
-    tasks.register("lintDebug") {
-        it.dependsOn(lintTask)
-        it.enabled = false
-    }
-    tasks.register("lintAnalyzeDebug") { it.enabled = false }
-    tasks.register("lintRelease") {
-        it.dependsOn(lintTask)
-        it.enabled = false
-    }
-    addToBuildOnServer(lintTask)
-
-    val lint = extensions.getByType<Lint>()
-    // Support the lint standalone plugin case which, as yet, lacks AndroidComponents finalizeDsl
-    afterEvaluate { configureLint(lint, extension, true) }
-}
-
-fun Project.configureAndroidProjectForLint(
-    lint: Lint,
-    extension: AndroidXExtension,
-    isLibrary: Boolean
-) {
-    project.afterEvaluate {
-        // makes sure that the lintDebug task will exist, so we can find it by name
-        setUpLintDebugIfNeeded()
-    }
-    tasks.register("lintAnalyze") { it.enabled = false }
-    configureLint(lint, extension, isLibrary)
-    tasks.named("lint").configure { task ->
-        // We already run lintDebug, we don't need to run lint which lints the release variant
-        task.enabled = false
-    }
-}
-
-private fun Project.setUpLintDebugIfNeeded() {
-    val variants = project.agpVariants
-    val variantNames = variants.map { v -> v.name }
-    if (!variantNames.contains("debug")) {
-        tasks.register("lintDebug") {
-            for (variantName in variantNames) {
-                if (variantName.lowercase(Locale.US).contains("debug")) {
-                    it.dependsOn(
-                        tasks.named(
-                            "lint${variantName.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                            }}"
-                        )
-                    )
-                }
+/**
+ * Single entry point to Android Lint configuration.
+ */
+fun Project.configureLint() {
+    project.plugins.all { plugin ->
+        when (plugin) {
+            is AppPlugin -> configureAndroidProjectForLint(isLibrary = false)
+            is LibraryPlugin -> configureAndroidProjectForLint(isLibrary = true)
+            // Only configure non-multiplatform Java projects via JavaPlugin. Multiplatform
+            // projects targeting Java (e.g. `jvm { withJava() }`) are configured via
+            // KotlinBasePlugin.
+            is JavaPlugin -> if (project.multiplatformExtension == null) {
+                configureNonAndroidProjectForLint()
+            }
+            // Only configure non-Android multiplatform projects via KotlinBasePlugin.
+            // Multiplatform projects targeting Android (e.g. `id("com.android.library")`) are
+            // configured via AppPlugin or LibraryPlugin.
+            is KotlinBasePlugin -> if (
+                project.multiplatformExtension != null &&
+                !project.plugins.hasPlugin(AppPlugin::class.java) &&
+                !project.plugins.hasPlugin(LibraryPlugin::class.java)
+            ) {
+                configureNonAndroidProjectForLint()
             }
         }
     }
 }
 
 /**
- * Installs AIDL source directories on lint tasks. Adapted from AndroidXComposeImplPlugin's
- * `configureLintForMultiplatformLibrary` extension function. See b/189250111 for feature request.
+ * Android Lint configuration entry point for Android projects.
+ */
+private fun Project.configureAndroidProjectForLint(
+    isLibrary: Boolean
+) = androidExtension.finalizeDsl { extension ->
+    // The lintAnalyze task is used by `androidx-studio-integration-lint.sh`.
+    tasks.register("lintAnalyze") { task -> task.enabled = false }
+
+    configureLint(extension.lint, isLibrary)
+
+    // We already run lintDebug, we don't need to run lint on the release variant.
+    tasks.named("lint").configure { task -> task.enabled = false }
+
+    afterEvaluate {
+        registerLintDebugIfNeededAfterEvaluate()
+
+        if (extension.buildFeatures.aidl == true) {
+            configureLintForAidlAfterEvaluate()
+        }
+    }
+}
+
+/**
+ * Android Lint configuration entry point for non-Android projects.
+ */
+private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
+    // The lint plugin expects certain configurations and source sets which are only added by
+    // the Java and Android plugins. If this is a multiplatform project targeting JVM, we'll
+    // need to manually create these configurations and source sets based on their multiplatform
+    // JVM equivalents.
+    addSourceSetsForMultiplatformAfterEvaluate()
+
+    // For Android projects, the Android Gradle Plugin is responsible for applying the lint plugin;
+    // however, we need to apply it ourselves for non-Android projects.
+    apply(mapOf("plugin" to "com.android.lint"))
+
+    // Create task aliases matching those creates by AGP for Android projects, since those are what
+    // developers expect to invoke. Redirect them to the "real" lint task.
+    val lintTask = tasks.named("lint")
+    tasks.register("lintDebug") {
+        it.dependsOn(lintTask)
+        it.enabled = false
+    }
+    tasks.register("lintRelease") {
+        it.dependsOn(lintTask)
+        it.enabled = false
+    }
+
+    // The lintAnalyzeDebug task is used by `androidx-studio-integration-lint.sh`.
+    tasks.register("lintAnalyzeDebug") { it.enabled = false }
+
+    addToBuildOnServer(lintTask)
+
+    // For Android projects, we can run lint configuration last using `DslLifecycle.finalizeDsl`;
+    // however, we need to run it using `Project.afterEvaluate` for non-Android projects.
+    configureLint(project.extensions.getByType(), isLibrary = true)
+}
+
+/**
+ * Registers the `lintDebug` task if there are debug variants present.
+ *
+ * This method *must* run after evaluation.
+ */
+private fun Project.registerLintDebugIfNeededAfterEvaluate() {
+    val variantNames = project.agpVariants.map { it.name }
+    if (!variantNames.contains("debug")) {
+        tasks.register("lintDebug") { task ->
+            // The lintDebug tasks depends on lint tasks for all debug variants.
+            variantNames
+                .filter { it.contains("debug", ignoreCase = true) }
+                .map { tasks.named("lint${it.camelCase()}") }
+                .forEach { task.dependsOn(it) }
+        }
+    }
+}
+
+private fun String.camelCase() =
+    replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
+/**
+ * If the project is targeting Android and using the AIDL build feature, installs AIDL source
+ * directories on lint tasks.
+ *
+ * Adapted from AndroidXComposeImplPlugin's `configureLintForMultiplatformLibrary` extension
+ * function. See b/189250111 for AGP feature request.
  *
  * The `UnstableAidlAnnotationDetector` check from `lint-checks` requires that _only_ unstable AIDL
  * files are passed to Lint, e.g. files in the AGP-defined `aidl` source set but not files in the
  * Stable AIDL plugin-defined `stableAidl` source set. If we decide to lint Stable AIDL files, we'll
  * need some other way to distinguish stable from unstable AIDL.
+ *
+ * This method *must* run after evaluation.
  */
-fun Project.configureLintForAidl() {
-    afterEvaluate {
-        val extension = project.extensions.findByType<BaseExtension>() ?: return@afterEvaluate
-        if (extension.buildFeatures.aidl != true) return@afterEvaluate
+private fun Project.configureLintForAidlAfterEvaluate() {
+    // BaseExtension needed to access resolved source files on `aidl`.
+    val extension = project.extensions.findByType<BaseExtension>() ?: return
+    val mainAidl = extension.sourceSets.getByName("main").aidl.getSourceFiles()
 
-        val mainAidl = extension.sourceSets.getByName("main").aidl.getSourceFiles()
+    /** Helper function to add the missing sourcesets to this [VariantInputs] */
+    fun VariantInputs.addSourceSets() {
+        // Each variant has a source provider for the variant (such as debug) and the 'main'
+        // variant. The actual files that Lint will run on is both of these providers
+        // combined - so we can just add the dependencies to the first we see.
+        val variantAidl = extension.sourceSets.getByName(name.get()).aidl.getSourceFiles()
+        val sourceProvider = sourceProviders.get().firstOrNull() ?: return
+        sourceProvider.javaDirectories.withChangesAllowed { from(mainAidl, variantAidl) }
+    }
 
-        /** Helper function to add the missing sourcesets to this [VariantInputs] */
-        fun VariantInputs.addSourceSets() {
-            // Each variant has a source provider for the variant (such as debug) and the 'main'
-            // variant. The actual files that Lint will run on is both of these providers
-            // combined - so we can just add the dependencies to the first we see.
-            val variantAidl = extension.sourceSets.getByName(name.get()).aidl.getSourceFiles()
-            val sourceProvider = sourceProviders.get().firstOrNull() ?: return
-            sourceProvider.javaDirectories.withChangesAllowed { from(mainAidl, variantAidl) }
+    // Lint for libraries is split into two tasks - analysis, and reporting. We need to
+    // add the new sources to both, so all parts of the pipeline are aware.
+    project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
+        it.variantInputs.addSourceSets()
+    }
+
+    project.tasks.withType<AndroidLintTask>().configureEach {
+        it.variantInputs.addSourceSets()
+    }
+
+    // Also configure the model writing task, so that we don't run into mismatches between
+    // analyzed sources in one module and a downstream module
+    project.tasks.withType<LintModelWriterTask>().configureEach {
+        it.variantInputs.addSourceSets()
+    }
+}
+
+/**
+ * If the project is using multiplatform, adds configurations and source sets expected by the lint
+ * plugin, which allows it to configure itself when running against a non-Android multiplatform
+ * project.
+ *
+ * The version of lint that we're using does not directly support Kotlin multiplatform, but we can
+ * synthesize the necessary configurations and source sets from existing `jvm` configurations and
+ * `kotlinSourceSets`, respectively.
+ *
+ * This method *must* run after evaluation.
+ */
+private fun Project.addSourceSetsForMultiplatformAfterEvaluate() {
+    val kmpTargets = project.multiplatformExtension?.targets ?: return
+
+    // Synthesize target configurations based on multiplatform configurations.
+    val kmpApiElements = kmpTargets.map { it.apiElementsConfigurationName }
+    val kmpRuntimeElements = kmpTargets.map { it.runtimeElementsConfigurationName }
+    listOf(
+        kmpRuntimeElements to "runtimeElements",
+        kmpApiElements to "apiElements"
+    ).forEach { (kmpConfigNames, targetConfigName) ->
+        project.configurations.maybeCreate(targetConfigName).apply {
+            kmpConfigNames
+                .mapNotNull { configName -> project.configurations.findByName(configName) }
+                .forEach { config -> extendsFrom(config) }
         }
+    }
 
-        // Lint for libraries is split into two tasks - analysis, and reporting. We need to
-        // add the new sources to both, so all parts of the pipeline are aware.
-        project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
-
-        project.tasks.withType<AndroidLintTask>().configureEach { it.variantInputs.addSourceSets() }
-
-        // Also configure the model writing task, so that we don't run into mismatches between
-        // analyzed sources in one module and a downstream module
-        project.tasks.withType<LintModelWriterTask>().configureEach {
-            it.variantInputs.addSourceSets()
+    // Synthesize source sets based on multiplatform source sets.
+    val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)
+        ?: throw GradleException("Failed to find extension of type 'JavaPluginExtension'")
+    listOf(
+        "main" to "main",
+        "test" to "test"
+    ).forEach { (kmpCompilationName, targetSourceSetName) ->
+        javaExtension.sourceSets.maybeCreate(targetSourceSetName).apply {
+            kmpTargets
+                .mapNotNull { target -> target.compilations.findByName(kmpCompilationName) }
+                .flatMap { compilation -> compilation.kotlinSourceSets }
+                .flatMap { sourceSet -> sourceSet.kotlin.srcDirs }
+                .forEach { srcDirs -> java.srcDirs += srcDirs }
         }
     }
 }
 
-fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: Boolean) {
+/**
+ * If the project is using multiplatform targeted to Android, adds source sets directly to lint
+ * tasks, which allows it to run against Android multiplatform projects.
+ *
+ * Lint is not aware of MPP, and MPP doesn't configure Lint. There is no built-in API to adjust the
+ * default Lint task's sources, so we use this hack to manually add sources for MPP source sets. In
+ * the future, with the new Kotlin Project Model (https://youtrack.jetbrains.com/issue/KT-42572) and
+ * an AGP / MPP integration plugin, this will no longer be needed. See also b/195329463.
+ */
+private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
+    val multiplatformExtension = project.multiplatformExtension ?: return
+    multiplatformExtension.targets.findByName("android") ?: return
+
+    val androidMain = multiplatformExtension.sourceSets.findByName("androidMain")
+        ?: throw GradleException("Failed to find source set with name 'androidMain'")
+
+    // Get all the source sets androidMain transitively / directly depends on.
+    val dependencySourceSets = androidMain.withClosure(KotlinSourceSet::dependsOn)
+
+    /**
+     * Helper function to add the missing sourcesets to this [VariantInputs]
+     */
+    fun VariantInputs.addSourceSets() {
+        // Each variant has a source provider for the variant (such as debug) and the 'main'
+        // variant. The actual files that Lint will run on is both of these providers
+        // combined - so we can just add the dependencies to the first we see.
+        val sourceProvider = sourceProviders.get().firstOrNull() ?: return
+        dependencySourceSets.forEach { sourceSet ->
+            sourceProvider.javaDirectories.withChangesAllowed {
+                from(sourceSet.kotlin.sourceDirectories)
+            }
+        }
+    }
+
+    // Lint for libraries is split into two tasks - analysis, and reporting. We need to
+    // add the new sources to both, so all parts of the pipeline are aware.
+    project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
+        it.variantInputs.addSourceSets()
+    }
+
+    project.tasks.withType<AndroidLintTask>().configureEach { it.variantInputs.addSourceSets() }
+
+    // Also configure the model writing task, so that we don't run into mismatches between
+    // analyzed sources in one module and a downstream module
+    project.tasks.withType<LintModelWriterTask>().configureEach {
+        it.variantInputs.addSourceSets()
+    }
+}
+
+private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
+    val extension = project.androidXExtension
+    val isMultiplatform = project.multiplatformExtension != null
     val lintChecksProject =
         project.rootProject.findProject(":lint-checks")
             ?: if (allowMissingLintProject()) {
@@ -144,7 +299,9 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
 
     project.dependencies.add("lintChecks", lintChecksProject)
 
-    project.configureLintForAidl()
+    afterEvaluate {
+        addSourceSetsForAndroidMultiplatformAfterEvaluate()
+    }
 
     // The purpose of this specific project is to test that lint is running, so
     // it contains expected violations that we do not want to trigger a build failure
@@ -196,6 +353,13 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
             disable.add("VisibleForTests")
         } else {
             fatal.add("VisibleForTests")
+        }
+
+        if (isMultiplatform) {
+            // Disable classfile-based checks because lint cannot find the class files for
+            // multiplatform projects and `SourceSet.java.classesDirectory` is not configurable.
+            // This is not ideal, but it's better than having no lint checks at all.
+            disable.add("LintError")
         }
 
         // Reenable after b/238892319 is resolved
@@ -291,46 +455,6 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
 }
 
 /**
- * Lint on multiplatform projects is only applied to Java code and android source sets. To force it
- * to run on JVM code, we add the java source sets that lint looks for, but use the sources
- * directories of the JVM source sets if they exist.
- */
-fun Project.configureLintForMultiplatform(extension: AndroidXExtension) = afterEvaluate {
-    // if lint has been applied through some other mechanism, this step is unnecessary
-    runCatching { project.tasks.named("lint") }
-        .onSuccess {
-            return@afterEvaluate
-        }
-    val jvmTarget =
-        project.multiplatformExtension?.targets?.findByName("jvm") ?: return@afterEvaluate
-    val runtimeConfiguration =
-        project.configurations.findByName("jvmRuntimeElements") ?: return@afterEvaluate
-    val apiConfiguration =
-        project.configurations.findByName("jvmApiElements") ?: return@afterEvaluate
-    val javaExtension =
-        project.extensions.findByType(JavaPluginExtension::class.java) ?: return@afterEvaluate
-    project.configurations.maybeCreate("runtimeElements").apply {
-        extendsFrom(runtimeConfiguration)
-    }
-    project.configurations.maybeCreate("apiElements").apply { extendsFrom(apiConfiguration) }
-    val mainSourceSets = jvmTarget.compilations.getByName("main").kotlinSourceSets
-    val testSourceSets = jvmTarget.compilations.getByName("test").kotlinSourceSets
-    javaExtension.sourceSets.maybeCreate("main").apply {
-        java.setSrcDirs(mainSourceSets.flatMap { it.kotlin.srcDirs })
-        java.classesDirectory
-    }
-    javaExtension.sourceSets.maybeCreate("test").apply {
-        java.srcDirs.addAll(testSourceSets.flatMap { it.kotlin.srcDirs })
-    }
-    project.configureNonAndroidProjectForLint(extension)
-
-    // Disable classfile based checks because lint cannot find the classfiles for multiplatform
-    // projects, and SourceSet.java.classesDirectory is not configurable. This is not ideal, but
-    // better than having no lint checks at all.
-    extensions.getByType<Lint>().disable.add("LintError")
-}
-
-/**
  * Lint uses [ConfigurableFileCollection.disallowChanges] during initialization, which prevents
  * modifying the file collection separately (there is no time to configure it before AGP has
  * initialized and disallowed changes). This uses reflection to temporarily allow changes, and apply
@@ -346,5 +470,5 @@ private fun ConfigurableFileCollection.withChangesAllowed(
     disallowChanges.set(this, true)
 }
 
-val Project.lintBaseline: RegularFileProperty
-    get() = project.objects.fileProperty().fileValue(File(projectDir, "/lint-baseline.xml"))
+private val Project.lintBaseline: RegularFileProperty
+    get() = project.objects.fileProperty().fileValue(File(projectDir, "lint-baseline.xml"))

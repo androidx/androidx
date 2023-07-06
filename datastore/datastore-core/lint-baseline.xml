@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                coordinator.lock {"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                        version = coordinator.getVersion()"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                    coordinator.updateNotifications.conflate().collect {"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `readDataAndUpdateCache` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                            readDataAndUpdateCache(requireLock = true)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                coordinator.lock { block() }"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `readDataFromFileOrDefault` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                    val data = readDataFromFileOrDefault()"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                    Data(data, data.hashCode(), version = coordinator.getVersion())"
+        errorLine2="                                                          ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                    val preLockVersion = coordinator.getVersion()"
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                    coordinator.tryLock { locked ->"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `readDataFromFileOrDefault` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                        val data = readDataFromFileOrDefault()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                        val version = if (locked) coordinator.getVersion() else preLockVersion"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `readDataFromFileOrDefault` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                            newData = readDataFromFileOrDefault()"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `getCoordinator` of class `DataStoreImpl` requires synthetic accessor"
+        errorLine1="                            version = coordinator.getVersion()"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/datastore/core/DataStoreImpl.kt"/>
+    </issue>
+
+</issues>
