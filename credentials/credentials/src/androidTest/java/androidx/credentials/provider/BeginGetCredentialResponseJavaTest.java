@@ -33,6 +33,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 @SdkSuppress(minSdkVersion = 28)
@@ -45,13 +46,39 @@ public class BeginGetCredentialResponseJavaTest {
         new BeginGetCredentialResponse();
     }
 
-    // TODO(b/275416815) - parameterize to account for all individually
     @Test
-    public void constructor_nullList_throws() {
+    public void constructor_nullList_throws_allListsNull() {
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new BeginGetCredentialResponse(
                         null, null, null, constructRemoteEntryDefault())
+        );
+    }
+
+    @Test
+    public void constructor_nullList_throws_credEntriesNull() {
+        assertThrows("Expected null list to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetCredentialResponse(
+                        null, new ArrayList<>(), new ArrayList<>(), constructRemoteEntryDefault())
+        );
+    }
+
+    @Test
+    public void constructor_nullList_throws_actionsNull() {
+        assertThrows("Expected null list to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetCredentialResponse(
+                        new ArrayList<>(), null, new ArrayList<>(), constructRemoteEntryDefault())
+        );
+    }
+
+    @Test
+    public void constructor_nullList_throws_authActionsNull() {
+        assertThrows("Expected null list to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetCredentialResponse(
+                        new ArrayList<>(), new ArrayList<>(), null, constructRemoteEntryDefault())
         );
     }
 
