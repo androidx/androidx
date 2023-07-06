@@ -131,8 +131,7 @@ public class BenchmarkRule internal constructor(
     internal // synthetic access
     var applied = false
 
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val scope: Scope = Scope()
 
     /**

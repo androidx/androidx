@@ -375,8 +375,6 @@ private fun macrobenchmark(
 
 /**
  * Run a macrobenchmark with the specified StartupMode
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun macrobenchmarkWithStartupMode(

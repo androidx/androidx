@@ -110,8 +110,8 @@ class BenchmarkState internal constructor(
      */
     private val simplifiedTimingOnlyMode = phaseConfig.simplifiedTimingOnlyMode
 
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     var traceUniqueName: String = "benchmark"
 
     internal var warmupRepeats = 0 // number of warmup repeats that occurred
