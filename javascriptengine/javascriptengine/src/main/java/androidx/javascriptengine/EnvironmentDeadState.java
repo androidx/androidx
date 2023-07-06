@@ -38,16 +38,6 @@ final class EnvironmentDeadState implements IsolateState {
 
     @NonNull
     @Override
-    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            final String futureDebugMessage = "evaluateJavascript Future";
-            completer.setException(mException);
-            return futureDebugMessage;
-        });
-    }
-
-    @NonNull
-    @Override
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             final String futureDebugMessage = "evaluateJavascript Future";

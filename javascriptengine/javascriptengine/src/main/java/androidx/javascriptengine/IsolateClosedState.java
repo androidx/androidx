@@ -31,13 +31,6 @@ final class IsolateClosedState implements IsolateState {
 
     @NonNull
     @Override
-    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
-        throw new IllegalStateException("Calling evaluateJavaScriptAsync() after closing the"
-                + "Isolate");
-    }
-
-    @NonNull
-    @Override
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
         throw new IllegalStateException("Calling evaluateJavaScriptAsync() after closing the"
                 + "Isolate");
