@@ -26,8 +26,8 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
+import androidx.paging.internal.CopyOnWriteArrayList
 import androidx.paging.internal.appendMediatorStatesIfNotNull
-import co.touchlab.stately.collections.ConcurrentMutableList
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Volatile
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +51,7 @@ public abstract class PagingDataDiffer<T : Any>(
     private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection().apply {
         cachedPagingData?.cachedEvent()?.let { set(it.sourceLoadStates, it.mediatorLoadStates) }
     }
-    private val onPagesUpdatedListeners = ConcurrentMutableList<() -> Unit>()
+    private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
     private val collectFromRunner = SingleRunner()
 

@@ -19,7 +19,7 @@ package androidx.paging
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.PagingSource.LoadParams
-import co.touchlab.stately.concurrency.AtomicBoolean
+import androidx.paging.internal.AtomicBoolean
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -45,7 +45,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     }
 
     val isDetached
-        get() = detached.value
+        get() = detached.get()
 
     private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
         // Listen on the BG thread if the paged source is invalid, since it can be expensive.
@@ -155,7 +155,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     }
 
     fun detach() {
-        detached.value = true
+        detached.set(true)
     }
 
     internal interface PageConsumer<V : Any> {
