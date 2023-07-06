@@ -40,9 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runCurrent
@@ -71,10 +70,8 @@ class FontListFontFamilyTypefaceAdapterTest {
     @Before
     fun setup() {
         cache = AsyncTypefaceCache()
-        val dispatcher = TestCoroutineDispatcher()
-        scope = TestCoroutineScope(dispatcher).also {
-            dispatcher.pauseDispatcher()
-        }
+        val dispatcher = StandardTestDispatcher()
+        scope = TestCoroutineScope(dispatcher)
         val injectedContext = scope.coroutineContext.minusKey(CoroutineExceptionHandler)
         subject = FontListFontFamilyTypefaceAdapter(cache, injectedContext)
         typefaceLoader = AsyncTestTypefaceLoader()
@@ -290,7 +287,10 @@ class FontListFontFamilyTypefaceAdapterTest {
                 assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
             },
             doCompleteAsync = {
-                scope.advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+                scope.testScheduler.apply {
+                    advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+                    runCurrent()
+                }
                 scope.runCurrent()
                 typefaceLoader.completeOne(asyncFontFallback, expected)
             }
@@ -492,9 +492,7 @@ class FontListFontFamilyTypefaceAdapterTest {
         // make another paused dispatcher
         // it's important that this test uses paused dispatchers to allow us control of runtime
         // ordering
-        val newDispatcher = TestCoroutineDispatcher().also {
-            it.pauseDispatcher()
-        }
+        val newDispatcher = StandardTestDispatcher()
 
         subject = FontListFontFamilyTypefaceAdapter(injectedContext = newDispatcher)
 
@@ -510,7 +508,7 @@ class FontListFontFamilyTypefaceAdapterTest {
         )
 
         scope.runCurrent()
-        newDispatcher.runCurrent()
+        newDispatcher.scheduler.runCurrent()
         assertThat(typefaceLoader.pendingRequests()).containsExactly(asyncFont)
         typefaceLoader.completeOne(asyncFont, Typeface.SERIF)
 
@@ -519,7 +517,7 @@ class FontListFontFamilyTypefaceAdapterTest {
         assertThat(result).currentAsyncTypefaceValue(Typeface.DEFAULT)
 
         // correct scope run completes
-        newDispatcher.runCurrent()
+        newDispatcher.scheduler.runCurrent()
         assertThat(finalResult.isActive).isFalse()
         assertThat(result).currentAsyncTypefaceValue(Typeface.SERIF)
         scope.runBlockingTest {

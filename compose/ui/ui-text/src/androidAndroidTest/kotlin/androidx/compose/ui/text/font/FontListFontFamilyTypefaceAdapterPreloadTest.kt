@@ -33,7 +33,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
@@ -194,7 +193,10 @@ class FontListFontFamilyTypefaceAdapterPreloadTest {
             subject.preload(fontFamily, fontLoader)
         }
         assertThat(typefaceLoader.pendingRequests()).containsExactly(asyncFont)
-        scope.advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+        scope.testScheduler.apply {
+            advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+            runCurrent()
+        }
         scope.runBlockingTest {
             preloadJob.await()
         }
