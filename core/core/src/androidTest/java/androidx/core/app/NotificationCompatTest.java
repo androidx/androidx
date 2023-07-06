@@ -572,6 +572,42 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testBuilderFromNotification_withSmallResIdAndLargeBitmap() {
+        int smallIcon = R.drawable.ic_call_answer;
+        Bitmap largeIcon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg);
+        Notification original = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(smallIcon)
+                .setLargeIcon(largeIcon)
+                .build();
+
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
+
+        assertThat(recovered.icon).isEqualTo(smallIcon);
+        assertThat(recovered.largeIcon).isEqualTo(largeIcon);
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBuilderFromNotification_withSmallAndLargeIcons() {
+        IconCompat smallIcon = IconCompat.createWithResource(mContext, R.drawable.ic_call_answer);
+        Icon largeIcon = Icon.createWithResource(mContext, R.drawable.notification_bg);
+        Notification original = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(smallIcon)
+                .setLargeIcon(largeIcon)
+                .build();
+
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
+
+        // Icon doesn't implement equals(), and instances are not identical due to conversion
+        // between Icon & IconCompat, so compare string representation instead.
+        assertThat(recovered.getSmallIcon().toString()).isEqualTo(
+                smallIcon.toIcon(mContext).toString());
+        assertThat(recovered.getLargeIcon().toString()).isEqualTo(largeIcon.toString());
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testBuilderFromNotification_fromMessagingStyledCompat() {
         Person person1 = new Person.Builder()
                 .setName("personName1")
