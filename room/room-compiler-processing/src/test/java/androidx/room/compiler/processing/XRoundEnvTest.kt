@@ -23,8 +23,6 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
-import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.squareup.kotlinpoet.INT
@@ -54,27 +52,24 @@ class XRoundEnvTest {
             val annotatedElementsByClass = testInvocation.roundEnv.getElementsAnnotatedWith(
                 OtherAnnotation::class
             )
-
             val annotatedElementsByName = testInvocation.roundEnv.getElementsAnnotatedWith(
                 OtherAnnotation::class.qualifiedName!!
             )
-
-            val targetElement = testInvocation.processingEnv.requireTypeElement("Baz")
-
-            assertThat(
-                annotatedElementsByClass
-            ).apply {
-                containsExactlyElementsIn(annotatedElementsByName)
-                hasSize(3)
-                contains(targetElement)
-                contains(targetElement.getMethodByJvmName("myFunction"))
-
-                if (testInvocation.isKsp) {
-                    contains(targetElement.getField("myProperty"))
-                } else {
-                    // Javac sees a property annotation on the synthetic function
-                    contains(targetElement.getDeclaredMethodByJvmName("getMyProperty\$annotations"))
-                }
+            assertThat(annotatedElementsByClass).containsExactlyElementsIn(annotatedElementsByName)
+            if (testInvocation.isKsp) {
+                assertThat(annotatedElementsByClass.map { it.name }).containsExactly(
+                    "Baz",
+                    "myProperty",
+                    "myFunction",
+                )
+            } else {
+                assertThat(annotatedElementsByClass.map { it.name }).containsExactly(
+                    "Baz",
+                    // TODO(b/290234031): Fix XRoundEnv to return the property rather than the
+                    //  synthetic "$annotations" method in KAPT
+                    "getMyProperty\$annotations",
+                    "myFunction",
+                )
             }
         }
     }

@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XType
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
@@ -32,11 +33,13 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
     val typeArg: KSTypeArgument,
+    originalKSAnnotations: Sequence<KSAnnotation> = typeArg.annotations,
     scope: KSTypeVarianceResolverScope? = null,
     typeAlias: KSType? = null,
 ) : KspType(
     env = env,
     ksType = typeArg.requireType(),
+    originalKSAnnotations = originalKSAnnotations,
     scope = scope,
     typeAlias = typeAlias,
 ) {
@@ -77,11 +80,13 @@ internal class KspTypeArgumentType(
     override fun copy(
         env: KspProcessingEnv,
         ksType: KSType,
+        originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?
     ) = KspTypeArgumentType(
         env = env,
         typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
+        originalKSAnnotations,
         scope = scope,
         typeAlias = typeAlias
     )

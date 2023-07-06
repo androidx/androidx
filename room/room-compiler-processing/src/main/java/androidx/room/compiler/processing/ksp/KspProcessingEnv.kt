@@ -31,6 +31,7 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -199,6 +200,7 @@ internal class KspProcessingEnv(
         ksType: KSType
     ): KspType {
         return wrap(
+            originalAnnotations = originatingReference.annotations,
             ksType = ksType,
             allowPrimitives = !originatingReference.isTypeParameterReference()
         )
@@ -220,11 +222,16 @@ internal class KspProcessingEnv(
             val declaration = typeRef.resolve().declaration
             // inline classes can't be non-invariant.
             if (declaration.isValueClass()) {
-                return KspValueClassArgumentType(env = this, typeArg = ksTypeArgument)
+                return KspValueClassArgumentType(
+                    env = this,
+                    typeArg = ksTypeArgument,
+                    originalKSAnnotations = ksTypeArgument.annotations
+                )
             }
 
             // fully resolved type argument, return regular type.
             return wrap(
+                ksTypeArgument.annotations,
                 ksType = typeRef.resolve(),
                 allowPrimitives = false
             )
@@ -244,29 +251,39 @@ internal class KspProcessingEnv(
      * decision.
      */
     fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
+        return wrap(ksType.annotations, ksType, allowPrimitives)
+    }
+
+    fun wrap(
+        originalAnnotations: Sequence<KSAnnotation>,
+        ksType: KSType,
+        allowPrimitives: Boolean
+    ): KspType {
         val declaration = ksType.declaration
         if (declaration is KSTypeAlias) {
             return wrap(
+                originalAnnotations = originalAnnotations,
                 ksType = ksType.replaceTypeAliases(resolver),
                 allowPrimitives = allowPrimitives && ksType.nullability == Nullability.NOT_NULL
             ).copyWithTypeAlias(ksType)
         }
         val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
-            return KspTypeVariableType(this, ksType)
+            return KspTypeVariableType(this, ksType, originalAnnotations)
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
-                return KspPrimitiveType(this, ksType)
+                return KspPrimitiveType(this, ksType, originalAnnotations)
             }
             // special case for void
             if (qName == "kotlin.Unit") {
                 return voidType
             }
         }
-        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(this, ksType)
+        return arrayTypeFactory.createIfArray(ksType)
+            ?: DefaultKspType(this, ksType, originalAnnotations)
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {

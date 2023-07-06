@@ -196,7 +196,15 @@ internal sealed class JavacTypeElement(
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {
-        return _declaredMethods
+        return _declaredMethods.filter {
+            it.kotlinMetadata?.isSyntheticMethodForAnnotations() != true
+        }
+    }
+
+    fun getSyntheticMethodsForAnnotations(): List<JavacMethodElement> {
+        return _declaredMethods.filter {
+            it.kotlinMetadata?.isSyntheticMethodForAnnotations() == true
+        }
     }
 
     override fun getConstructors(): List<JavacConstructorElement> {
