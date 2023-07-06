@@ -39,11 +39,11 @@ class CachedPageEventFlowTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun slowFastCollectors_CLOSE_UPSTREAM() = slowFastCollectors(TerminationType.CLOSE_UPSTREAM)
+    fun slowFastCollectors_CloseUpstream() = slowFastCollectors(TerminationType.CloseUpstream)
 
     @Test
-    fun slowFastCollectors_CLOSE_CACHED_EVENT_FLOW() =
-        slowFastCollectors(TerminationType.CLOSE_CACHED_EVENT_FLOW)
+    fun slowFastCollectors_CloseCachedEventFlow() =
+        slowFastCollectors(TerminationType.CloseCachedEventFlow)
 
     private fun slowFastCollectors(terminationType: TerminationType) = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
@@ -115,8 +115,8 @@ class CachedPageEventFlowTest {
         )
         upstream.send(finalAppendEvent)
         when (terminationType) {
-            TerminationType.CLOSE_UPSTREAM -> upstream.close()
-            TerminationType.CLOSE_CACHED_EVENT_FLOW -> subject.close()
+            TerminationType.CloseUpstream -> upstream.close()
+            TerminationType.CloseCachedEventFlow -> subject.close()
         }
         val fullList = listOf(
             refreshEvent,
@@ -145,11 +145,11 @@ class CachedPageEventFlowTest {
     }
 
     @Test
-    fun ensureSharing_CLOSE_UPSTREAM() = ensureSharing(TerminationType.CLOSE_UPSTREAM)
+    fun ensureSharing_CloseUpstream() = ensureSharing(TerminationType.CloseUpstream)
 
     @Test
-    fun ensureSharing_CLOSE_CACHED_EVENT_FLOW() =
-        ensureSharing(TerminationType.CLOSE_CACHED_EVENT_FLOW)
+    fun ensureSharing_CloseCachedEventFlow() =
+        ensureSharing(TerminationType.CloseCachedEventFlow)
 
     private fun ensureSharing(terminationType: TerminationType) = testScope.runTest {
         val refreshEvent = localRefresh(
@@ -236,8 +236,8 @@ class CachedPageEventFlowTest {
         assertThat(collector2.isActive()).isTrue()
         assertThat(collector3.isActive()).isTrue()
         when (terminationType) {
-            TerminationType.CLOSE_UPSTREAM -> upstream.close()
-            TerminationType.CLOSE_CACHED_EVENT_FLOW -> subject.close()
+            TerminationType.CloseUpstream -> upstream.close()
+            TerminationType.CloseCachedEventFlow -> subject.close()
         }
         runCurrent()
         assertThat(collector1.isActive()).isFalse()
@@ -352,7 +352,7 @@ class CachedPageEventFlowTest {
     }
 
     enum class TerminationType {
-        CLOSE_UPSTREAM,
-        CLOSE_CACHED_EVENT_FLOW
+        CloseUpstream,
+        CloseCachedEventFlow,
     }
 }
