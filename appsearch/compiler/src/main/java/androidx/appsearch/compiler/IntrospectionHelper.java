@@ -15,12 +15,13 @@
  */
 package androidx.appsearch.compiler;
 
+import static com.google.auto.common.MoreTypes.asTypeElement;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.google.auto.common.MoreTypes;
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
@@ -237,17 +238,14 @@ class IntrospectionHelper {
      */
     @NonNull
     public static List<TypeElement> generateClassHierarchy(
-            @NonNull TypeElement element, boolean isAutoValueDocument)
-            throws ProcessingException {
+            @NonNull TypeElement element) throws ProcessingException {
         Deque<TypeElement> hierarchy = new ArrayDeque<>();
-        if (isAutoValueDocument) {
+        if (element.getAnnotation(AutoValue.class) != null) {
             // We don't allow classes annotated with both Document and AutoValue to extend classes.
             // Because of how AutoValue is set up, there is no way to add a constructor to
             // populate fields of super classes.
             // There should just be the generated class and the original annotated class
-            TypeElement superClass = MoreTypes.asTypeElement(
-                    MoreTypes.asTypeElement(element.getSuperclass()).getSuperclass());
-
+            TypeElement superClass = asTypeElement(element.getSuperclass());
             if (!superClass.getQualifiedName().contentEquals(Object.class.getCanonicalName())) {
                 throw new ProcessingException(
                         "A class annotated with AutoValue and Document cannot have a superclass",
@@ -289,11 +287,11 @@ class IntrospectionHelper {
         TypeMirror superclass = currentClass.getSuperclass();
         // If currentClass is an interface, then superclass could be NONE.
         if (superclass.getKind() != TypeKind.NONE) {
-            generateClassHierarchyHelper(leafElement, MoreTypes.asTypeElement(superclass),
+            generateClassHierarchyHelper(leafElement, asTypeElement(superclass),
                     hierarchy, visited);
         }
         for (TypeMirror implementedInterface : currentClass.getInterfaces()) {
-            generateClassHierarchyHelper(leafElement, MoreTypes.asTypeElement(implementedInterface),
+            generateClassHierarchyHelper(leafElement, asTypeElement(implementedInterface),
                     hierarchy, visited);
         }
     }

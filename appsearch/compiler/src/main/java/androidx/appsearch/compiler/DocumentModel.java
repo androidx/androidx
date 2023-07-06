@@ -46,7 +46,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
@@ -76,11 +75,10 @@ class DocumentModel {
     // The name of the original class annotated with @Document
     private final String mQualifiedDocumentClassName;
     private String mSchemaName;
-    private Set<TypeElement> mParentTypes = new LinkedHashSet<>();
+    private final Set<TypeElement> mParentTypes = new LinkedHashSet<>();
     // Warning: if you change this to a HashSet, we may choose different getters or setters from
     // run to run, causing the generated code to bounce.
     private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
-    private final boolean mIsAutoValueDocument;
     // Key: Name of the element which is accessed through the getter method.
     // Value: ExecutableElement of the getter method.
     private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
@@ -119,34 +117,16 @@ class DocumentModel {
         mClass = clazz;
         mTypeUtil = env.getTypeUtils();
         mElementUtil = env.getElementUtils();
+        mQualifiedDocumentClassName = generatedAutoValueElement != null
+                ? generatedAutoValueElement.getQualifiedName().toString()
+                : clazz.getQualifiedName().toString();
 
-        if (generatedAutoValueElement != null) {
-            mIsAutoValueDocument = true;
-            // Scan factory methods from AutoValue class.
-            Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
-            for (Element child : ElementFilter.methodsIn(mClass.getEnclosedElements())) {
-                ExecutableElement method = (ExecutableElement) child;
-                if (isFactoryMethod(method)) {
-                    creationMethods.add(method);
-                }
-            }
-            mAllMethods.addAll(
-                    ElementFilter.methodsIn(generatedAutoValueElement.getEnclosedElements()));
-
-            mQualifiedDocumentClassName = generatedAutoValueElement.getQualifiedName().toString();
-            scanFields(generatedAutoValueElement);
-            scanCreationMethods(creationMethods);
-        } else {
-            mIsAutoValueDocument = false;
-            // Scan methods and constructors. We will need this info when processing fields to
-            // make sure the fields can be get and set.
-            Set<ExecutableElement> creationMethods = extractCreationMethods(mClass);
-            addAllMethods(mClass, mAllMethods);
-
-            mQualifiedDocumentClassName = clazz.getQualifiedName().toString();
-            scanFields(mClass);
-            scanCreationMethods(creationMethods);
-        }
+        addAllMethods(mClass, mAllMethods);
+        scanFields(mClass);
+        // Scan methods and constructors. We will need this info when processing fields to
+        // make sure the fields can be get and set.
+        Set<ExecutableElement> potentialCreationMethods = extractCreationMethods(clazz);
+        chooseCreationMethod(potentialCreationMethods);
     }
 
     private Set<ExecutableElement> extractCreationMethods(TypeElement typeElement) {
@@ -298,9 +278,6 @@ class DocumentModel {
     public AnnotationMirror getPropertyAnnotation(@NonNull Element element)
             throws ProcessingException {
         Objects.requireNonNull(element);
-        if (mIsAutoValueDocument) {
-            element = getGetterForElement(element.getSimpleName().toString());
-        }
         Set<String> propertyClassPaths = new HashSet<>();
         for (PropertyClass propertyClass : PropertyClass.values()) {
             propertyClassPaths.add(propertyClass.getClassFullPath());
@@ -334,12 +311,9 @@ class DocumentModel {
     /**
      * Scan the annotations of a field to determine the fields type and handle it accordingly
      *
-     * @param classElements all the field elements of a class, annotated and non-annotated
      * @param childElement the member of class elements currently being scanned
-     * @throws ProcessingException
      */
-    private void scanAnnotatedField(@NonNull List<? extends Element> classElements,
-            @NonNull Element childElement) throws ProcessingException {
+    private void scanAnnotatedField(@NonNull Element childElement) throws ProcessingException {
         String fieldName = childElement.getSimpleName().toString();
 
         // a property field shouldn't be able to override a special field
@@ -355,22 +329,16 @@ class DocumentModel {
             if (!annotationFq.startsWith(DOCUMENT_ANNOTATION_CLASS)) {
                 continue;
             }
-            Element child;
-            if (mIsAutoValueDocument) {
-                child = findFieldForFunctionWithSameName(classElements, childElement);
-            } else {
-                if (childElement.getKind() == ElementKind.CLASS) {
-                    continue;
-                } else {
-                    child = childElement;
-                }
+            if (childElement.getKind() == ElementKind.CLASS) {
+                continue;
             }
 
             switch (annotationFq) {
                 case IntrospectionHelper.ID_CLASS:
                     if (mSpecialFieldNames.containsKey(SpecialField.ID)) {
                         throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Id", child);
+                                "Class hierarchy contains multiple fields annotated @Id",
+                                childElement);
                     }
                     mSpecialFieldNames.put(SpecialField.ID, fieldName);
                     break;
@@ -378,14 +346,14 @@ class DocumentModel {
                     if (mSpecialFieldNames.containsKey(SpecialField.NAMESPACE)) {
                         throw new ProcessingException(
                                 "Class hierarchy contains multiple fields annotated @Namespace",
-                                child);
+                                childElement);
                     }
                     mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
                     break;
                 case IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS:
                     if (mSpecialFieldNames.containsKey(SpecialField.CREATION_TIMESTAMP_MILLIS)) {
                         throw new ProcessingException("Class hierarchy contains multiple fields "
-                                + "annotated @CreationTimestampMillis", child);
+                                + "annotated @CreationTimestampMillis", childElement);
                     }
                     mSpecialFieldNames.put(
                             SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
@@ -394,14 +362,15 @@ class DocumentModel {
                     if (mSpecialFieldNames.containsKey(SpecialField.TTL_MILLIS)) {
                         throw new ProcessingException(
                                 "Class hierarchy contains multiple fields annotated @TtlMillis",
-                                child);
+                                childElement);
                     }
                     mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
                     break;
                 case IntrospectionHelper.SCORE_CLASS:
                     if (mSpecialFieldNames.containsKey(SpecialField.SCORE)) {
                         throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Score", child);
+                                "Class hierarchy contains multiple fields annotated @Score",
+                                childElement);
                     }
                     mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
                     break;
@@ -412,7 +381,7 @@ class DocumentModel {
                         //   1. be unique
                         //   2. override a property from the Java parent while maintaining the same
                         //      AppSearch property name
-                        checkFieldTypeForPropertyAnnotation(child, propertyClass);
+                        checkFieldTypeForPropertyAnnotation(childElement, propertyClass);
                         // It's assumed that parent types, in the context of Java's type system,
                         // are always visited before child types, so existingProperty must come
                         // from the parent type. To make this assumption valid, the result
@@ -420,20 +389,24 @@ class DocumentModel {
                         // types.
                         Element existingProperty = mPropertyElements.get(fieldName);
                         if (existingProperty != null) {
-                            if (!mTypeUtil.isSameType(existingProperty.asType(), child.asType())) {
+                            if (!mTypeUtil.isSameType(
+                                    existingProperty.asType(), childElement.asType())) {
                                 throw new ProcessingException(
-                                        "Cannot override a property with a different type", child);
+                                        "Cannot override a property with a different type",
+                                        childElement);
                             }
-                            if (!getPropertyName(existingProperty).equals(getPropertyName(child))) {
+                            if (!getPropertyName(existingProperty).equals(getPropertyName(
+                                    childElement))) {
                                 throw new ProcessingException(
-                                        "Cannot override a property with a different name", child);
+                                        "Cannot override a property with a different name",
+                                        childElement);
                             }
                         }
-                        mPropertyElements.put(fieldName, child);
+                        mPropertyElements.put(fieldName, childElement);
                     }
             }
 
-            mAllAppSearchElements.put(fieldName, child);
+            mAllAppSearchElements.put(fieldName, childElement);
         }
     }
 
@@ -463,20 +436,12 @@ class DocumentModel {
             }
         }
 
-        List<TypeElement> hierarchy = generateClassHierarchy(element, mIsAutoValueDocument);
+        List<TypeElement> hierarchy = generateClassHierarchy(element);
 
         for (TypeElement clazz : hierarchy) {
             List<? extends Element> enclosedElements = clazz.getEnclosedElements();
-            for (int i = 0; i < enclosedElements.size(); i++) {
-                Element childElement = enclosedElements.get(i);
-
-                // The only fields relevant to @Document in an AutoValue class are the abstract
-                // accessor methods
-                if (mIsAutoValueDocument && childElement.getKind() != ElementKind.METHOD) {
-                    continue;
-                }
-
-                scanAnnotatedField(enclosedElements, childElement);
+            for (Element childElement : enclosedElements) {
+                scanAnnotatedField(childElement);
             }
         }
 
@@ -499,21 +464,6 @@ class DocumentModel {
         for (Element appSearchField : mAllAppSearchElements.values()) {
             chooseAccessKinds(appSearchField);
         }
-    }
-
-    @NonNull
-    private Element findFieldForFunctionWithSameName(
-            @NonNull List<? extends Element> elements,
-            @NonNull Element functionElement) throws ProcessingException {
-        String fieldName = functionElement.getSimpleName().toString();
-        for (Element field : ElementFilter.fieldsIn(elements)) {
-            if (fieldName.equals(field.getSimpleName().toString())) {
-                return field;
-            }
-        }
-        throw new ProcessingException(
-                "Cannot find the corresponding field for the annotated function",
-                functionElement);
     }
 
     /**
@@ -627,7 +577,7 @@ class DocumentModel {
         }
     }
 
-    private void scanCreationMethods(Set<ExecutableElement> creationMethods)
+    private void chooseCreationMethod(Set<ExecutableElement> creationMethods)
             throws ProcessingException {
         // Maps field name to Element.
         // If this is changed to a HashSet, we might report errors to the developer in a different
