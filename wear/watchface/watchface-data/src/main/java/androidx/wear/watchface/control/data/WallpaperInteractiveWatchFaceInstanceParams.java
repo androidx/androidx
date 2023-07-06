@@ -145,6 +145,16 @@ public class WallpaperInteractiveWatchFaceInstanceParams
         mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
     }
 
+    @Nullable
+    public String getAuxiliaryComponentClassName() {
+        return mAuxiliaryComponentClassName;
+    }
+
+    @Nullable
+    public String getAuxiliaryComponentPackageName() {
+        return mAuxiliaryComponentPackageName;
+    }
+
     /**
      * Serializes this WallpaperInteractiveWatchFaceInstanceParams to the specified {@link Parcel}.
      */

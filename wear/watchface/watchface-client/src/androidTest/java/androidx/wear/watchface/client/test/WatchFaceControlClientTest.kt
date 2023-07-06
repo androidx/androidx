@@ -133,7 +133,8 @@ abstract class WatchFaceControlClientTestBase {
             context,
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
-            }
+            },
+            resourceOnlyWatchFacePackageName = null
         )
     }
 
@@ -500,6 +501,44 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         handler.post { wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper }
 
         awaitWithTimeout(deferredExistingInstance)
+    }
+
+    @Test
+    @Suppress("deprecation") // getOrCreateInteractiveWatchFaceClient
+    fun resourceOnlyWatchFacePackageName() {
+        val watchFaceService = TestWatchFaceRuntimeService(context, surfaceHolder)
+        val service = runBlocking {
+            WatchFaceControlClient.createWatchFaceControlClientImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                resourceOnlyWatchFacePackageName = "com.example.watchface"
+            )
+        }
+
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                userStyle = null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers construction of the interactive instance.
+        handler.post {
+            engine = watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertThat(watchFaceService.lastResourceOnlyWatchFacePackageName)
+            .isEqualTo("com.example.watchface")
+
+        interactiveInstance.close()
     }
 
     @Test

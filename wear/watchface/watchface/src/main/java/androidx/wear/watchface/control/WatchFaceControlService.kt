@@ -193,7 +193,8 @@ public open class IWatchFaceInstanceServiceStub(
                 }
                 watchFaceService.onCreate()
                 val engine =
-                    watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+                    watchFaceService.createHeadlessEngine(watchFaceName)
+                        as WatchFaceService.EngineWrapper
                 ServiceAndEngine(watchFaceService, engine)
             } else {
                 null

@@ -249,7 +249,8 @@ public class WatchFace(
                     }
                     .apply { setContext(context) }
 
-            val engine = watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            val engine = watchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
             val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
             return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
         }
@@ -665,11 +666,7 @@ constructor(
     internal var lastDrawTimeMillis: Long = 0
     internal var nextDrawTimeMillis: Long = 0
 
-    internal val componentName =
-        ComponentName(
-            watchFaceHostApi.getContext().packageName,
-            watchFaceHostApi.getContext().javaClass.name
-        )
+    internal val componentName = watchFaceHostApi.getComponentName()
 
     internal fun getWatchFaceStyle() =
         WatchFaceStyle(
