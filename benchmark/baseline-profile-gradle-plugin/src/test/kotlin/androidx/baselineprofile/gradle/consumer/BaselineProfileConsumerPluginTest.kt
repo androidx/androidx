@@ -99,7 +99,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
         gradleRunner.build("generateBaselineProfile") {
             val notFound = it.lines().requireInOrder(
                 "A baseline profile was generated for the variant `release`:",
-                baselineProfileFile("main").absolutePath
+                baselineProfileFile("main").canonicalPath
             )
             assertThat(notFound).isEmpty()
         }
@@ -138,9 +138,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
         gradleRunner.build("generateBaselineProfile") {
             val notFound = it.lines().requireInOrder(
                 "A baseline profile was generated for the variant `release`:",
-                baselineProfileFile("release").absolutePath,
+                baselineProfileFile("release").canonicalPath,
                 "A startup profile was generated for the variant `release`:",
-                startupProfileFile("release").absolutePath
+                startupProfileFile("release").canonicalPath
             )
             assertThat(notFound).isEmpty()
         }
@@ -198,6 +198,8 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
         projectSetup.producer.setupWithFreeAndPaidFlavors(
             freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
             paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+            freeReleaseStartupProfileLines = listOf(Fixtures.CLASS_3_METHOD_1, Fixtures.CLASS_3),
+            paidReleaseStartupProfileLines = listOf(Fixtures.CLASS_4_METHOD_1, Fixtures.CLASS_4),
         )
 
         // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
@@ -211,9 +213,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             val expected = arrayOf("freeRelease", "paidRelease").flatMap { variantName ->
                 listOf(
                     "A baseline profile was generated for the variant `$variantName`:",
-                    baselineProfileFile(variantName).absolutePath,
+                    baselineProfileFile(variantName).canonicalPath,
                     "A startup profile was generated for the variant `$variantName`:",
-                    startupProfileFile(variantName).absolutePath
+                    startupProfileFile(variantName).canonicalPath
                 )
             }
             val notFound = it.lines().requireInOrder(*expected.toTypedArray())
@@ -607,6 +609,8 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
         projectSetup.producer.setupWithFreeAndPaidFlavors(
             freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
             paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+            freeReleaseStartupProfileLines = listOf(Fixtures.CLASS_3_METHOD_1, Fixtures.CLASS_3),
+            paidReleaseStartupProfileLines = listOf(Fixtures.CLASS_4_METHOD_1, Fixtures.CLASS_4),
         )
 
         // Asserts that assembling release triggers generation of profile
