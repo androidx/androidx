@@ -16,4 +16,6 @@
 
 package androidx.paging
 
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
 public expect annotation class MainThread()
