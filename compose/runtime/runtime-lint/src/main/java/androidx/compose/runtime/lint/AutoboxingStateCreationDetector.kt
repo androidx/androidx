@@ -172,7 +172,7 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
                 "specialized primitive state implementation for `Int`, `Long`, `Float`, and " +
                 "`Double` when the state does not need to track null values and does not " +
                 "override the default `SnapshotMutationPolicy`.",
-            category = Category.PERFORMANCE, priority = 3, severity = Severity.WARNING,
+            category = Category.PERFORMANCE, priority = 3, severity = Severity.INFORMATIONAL,
             implementation = Implementation(
                 AutoboxingStateCreationDetector::class.java,
                 EnumSet.of(Scope.JAVA_FILE)
