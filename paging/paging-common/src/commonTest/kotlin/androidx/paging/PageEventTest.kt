@@ -20,7 +20,6 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -28,8 +27,6 @@ import kotlin.test.assertSame
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 internal fun <T : Any> adjacentInsertEvent(
     isPrepend: Boolean,
@@ -275,13 +272,8 @@ class PageEventTest {
         )
     }
 
-    @RunWith(Parameterized::class)
-    class StaticPagingData(
-        private val data: List<String>
-    ) {
+    class StaticPagingData {
         companion object {
-            @JvmStatic
-            @Parameterized.Parameters(name = "data = {0}")
             fun initParameters() = listOf(
                 listOf("a", "b", "c"),
                 emptyList(),
@@ -289,19 +281,14 @@ class PageEventTest {
         }
 
         private val differ = TestPagingDataDiffer<String>(EmptyCoroutineContext)
-        private lateinit var pagingData: PagingData<String>
-
-        @BeforeTest
-        fun init() {
-            pagingData = if (data.isNotEmpty()) {
-                PagingData.from(data)
-            } else {
-                PagingData.empty()
-            }
-        }
 
         @Test
-        fun map() = runTest(UnconfinedTestDispatcher()) {
+        fun map_nonEmpty() = map(PagingData.from(listOf("a", "b", "c")))
+
+        @Test
+        fun map_empty() = map(PagingData.empty())
+
+        private fun map(pagingData: PagingData<String>) = runTest(UnconfinedTestDispatcher()) {
             val transform = { it: String -> it + it }
             differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
@@ -312,7 +299,12 @@ class PageEventTest {
         }
 
         @Test
-        fun flatMap() = runTest(UnconfinedTestDispatcher()) {
+        fun flatMap_nonEmpty() = flatMap(PagingData.from(listOf("a", "b", "c")))
+
+        @Test
+        fun flatMap_empty() = flatMap(PagingData.empty())
+
+        private fun flatMap(pagingData: PagingData<String>) = runTest(UnconfinedTestDispatcher()) {
             val transform = { it: String -> listOf(it, it) }
             differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
@@ -323,7 +315,12 @@ class PageEventTest {
         }
 
         @Test
-        fun filter() = runTest(UnconfinedTestDispatcher()) {
+        fun filter_nonEmpty() = filter(PagingData.from(listOf("a", "b", "c")))
+
+        @Test
+        fun filter_empty() = filter(PagingData.empty())
+
+        private fun filter(pagingData: PagingData<String>) = runTest(UnconfinedTestDispatcher()) {
             val predicate = { it: String -> it != "b" }
             differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
@@ -334,29 +331,35 @@ class PageEventTest {
         }
 
         @Test
-        fun insertSeparators() = runTest(UnconfinedTestDispatcher()) {
-            val transform = { left: String?, right: String? ->
-                if (left == null || right == null) null else "|"
-            }
-            differ.collectFrom(pagingData)
-            val originalItems = differ.snapshot().items
-            val expectedItems = originalItems.flatMapIndexed { index, s ->
-                val result = mutableListOf<String>()
-                if (index == 0) {
-                    transform(null, s)?.let(result::add)
+        fun insertSeparators_nonEmpty() = insertSeparators(PagingData.from(listOf("a", "b", "c")))
+
+        @Test
+        fun insertSeparators_empty() = insertSeparators(PagingData.empty())
+
+        private fun insertSeparators(pagingData: PagingData<String>) =
+            runTest(UnconfinedTestDispatcher()) {
+                val transform = { left: String?, right: String? ->
+                    if (left == null || right == null) null else "|"
                 }
-                result.add(s)
-                transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
-                if (index == originalItems.lastIndex) {
-                    transform(s, null)?.let(result::add)
+                differ.collectFrom(pagingData)
+                val originalItems = differ.snapshot().items
+                val expectedItems = originalItems.flatMapIndexed { index, s ->
+                    val result = mutableListOf<String>()
+                    if (index == 0) {
+                        transform(null, s)?.let(result::add)
+                    }
+                    result.add(s)
+                    transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
+                    if (index == originalItems.lastIndex) {
+                        transform(s, null)?.let(result::add)
+                    }
+                    result
                 }
-                result
+                val transformedPagingData = pagingData.insertSeparators { left, right ->
+                    transform(left, right)
+                }
+                differ.collectFrom(transformedPagingData)
+                assertEquals(expectedItems, differ.snapshot().items)
             }
-            val transformedPagingData = pagingData.insertSeparators { left, right ->
-                transform(left, right)
-            }
-            differ.collectFrom(transformedPagingData)
-            assertEquals(expectedItems, differ.snapshot().items)
-        }
     }
 }

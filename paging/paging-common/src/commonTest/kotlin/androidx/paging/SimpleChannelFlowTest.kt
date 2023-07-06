@@ -42,19 +42,19 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@RunWith(Parameterized::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-class SimpleChannelFlowTest(
-    private val impl: Impl
-) {
+class SimpleChannelFlowTest {
     val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun basic() {
-        val channelFlow = createFlow<Int> {
+    fun basic_CHANNEL_FLOW() = basic(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun basic_SIMPLE_CHANNEL_FLOW() = basic(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun basic(impl: Impl) {
+        val channelFlow = createFlow<Int>(impl) {
             send(1)
             send(2)
         }
@@ -65,8 +65,13 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun emitWithLaunch() {
-        val channelFlow = createFlow<Int> {
+    fun emitWithLaunch_CHANNEL_FLOW() = emitWithLaunch(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun emitWithLaunch_SIMPLE_CHANNEL_FLOW() = emitWithLaunch(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun emitWithLaunch(impl: Impl) {
+        val channelFlow = createFlow<Int>(impl) {
             launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
                 send(1)
                 delay(100)
@@ -81,9 +86,14 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun closedByCollector() {
+    fun closedByCollector_CHANNEL_FLOW() = closedByCollector(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun closedByCollector_SIMPLE_CHANNEL_FLOW() = closedByCollector(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun closedByCollector(impl: Impl) {
         val emittedValues = mutableListOf<Int>()
-        val channelFlow = createFlow<Int> {
+        val channelFlow = createFlow<Int>(impl) {
             repeat(10) {
                 send(it)
                 emittedValues.add(it)
@@ -96,9 +106,15 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun closedByCollector_noBuffer() {
+    fun closedByCollector_noBuffer_CHANNEL_FLOW() = closedByCollector_noBuffer(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun closedByCollector_noBuffer_SIMPLE_CHANNEL_FLOW() =
+        closedByCollector_noBuffer(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun closedByCollector_noBuffer(impl: Impl) {
         val emittedValues = mutableListOf<Int>()
-        val channelFlow = createFlow<Int> {
+        val channelFlow = createFlow<Int>(impl) {
             repeat(10) {
                 send(it)
                 emittedValues.add(it)
@@ -119,9 +135,14 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun awaitClose() {
+    fun awaitClose_CHANNEL_FLOW() = awaitClose(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun awaitClose_SIMPLE_CHANNEL_FLOW() = awaitClose(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun awaitClose(impl: Impl) {
         val lastDispatched = CompletableDeferred<Int>()
-        val channelFlow = createFlow<Int> {
+        val channelFlow = createFlow<Int>(impl) {
             var dispatched = -1
             launch {
                 repeat(10) {
@@ -142,10 +163,15 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun scopeGetsCancelled() {
+    fun scopeGetsCancelled_CHANNEL_FLOW() = scopeGetsCancelled(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun scopeGetsCancelled_SIMPLE_CHANNEL_FLOW() = scopeGetsCancelled(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun scopeGetsCancelled(impl: Impl) {
         var producerException: Throwable? = null
         val dispatched = mutableListOf<Int>()
-        val channelFlow = createFlow<Int> {
+        val channelFlow = createFlow<Int>(impl) {
             try {
                 repeat(20) {
                     send(it)
@@ -171,9 +197,14 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun collectorThrows() {
+    fun collectorThrows_CHANNEL_FLOW() = collectorThrows(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun collectorThrows_SIMPLE_CHANNEL_FLOW() = collectorThrows(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun collectorThrows(impl: Impl) {
         var producerException: Throwable? = null
-        val channelFlow = createFlow<Int> {
+        val channelFlow = createFlow<Int>(impl) {
             try {
                 send(1)
                 delay(1000)
@@ -195,7 +226,12 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun upstreamThrows() {
+    fun upstreamThrows_CHANNEL_FLOW() = upstreamThrows(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun upstreamThrows_SIMPLE_CHANNEL_FLOW() = upstreamThrows(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun upstreamThrows(impl: Impl) {
         var producerException: Throwable? = null
         val upstream = flow<Int> {
             emit(5)
@@ -203,7 +239,7 @@ class SimpleChannelFlowTest(
             emit(13)
         }
         val combinedFlow = upstream.flatMapLatest { upstreamValue ->
-            createFlow<Int> {
+            createFlow<Int>(impl) {
                 try {
                     send(upstreamValue)
                     delay(2000)
@@ -228,8 +264,15 @@ class SimpleChannelFlowTest(
     }
 
     @Test
-    fun cancelingChannelClosesTheFlow() {
-        val flow = createFlow<Int> {
+    fun cancelingChannelClosesTheFlow_CHANNEL_FLOW() =
+        cancelingChannelClosesTheFlow(Impl.CHANNEL_FLOW)
+
+    @Test
+    fun cancelingChannelClosesTheFlow_SIMPLE_CHANNEL_FLOW() =
+        cancelingChannelClosesTheFlow(Impl.SIMPLE_CHANNEL_FLOW)
+
+    private fun cancelingChannelClosesTheFlow(impl: Impl) {
+        val flow = createFlow<Int>(impl) {
             send(1)
             close()
             awaitCancellation()
@@ -240,6 +283,7 @@ class SimpleChannelFlowTest(
     }
 
     private fun <T> createFlow(
+        impl: Impl,
         block: suspend TestProducerScope<T>.() -> Unit
     ): Flow<T> {
         return when (impl) {
@@ -272,12 +316,6 @@ class SimpleChannelFlowTest(
         override suspend fun awaitClose(block: () -> Unit) {
             delegate.awaitClose(block)
         }
-    }
-
-    companion object {
-        @Parameterized.Parameters(name = "impl={0}")
-        @JvmStatic
-        fun params() = Impl.values()
     }
 
     enum class Impl {
