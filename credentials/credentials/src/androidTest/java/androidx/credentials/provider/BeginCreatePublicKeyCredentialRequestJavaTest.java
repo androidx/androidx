@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
 
+import androidx.credentials.internal.FrameworkClassParsingException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -34,80 +35,74 @@ import org.junit.runner.RunWith;
 @SdkSuppress(minSdkVersion = 28)
 @SmallTest
 public class BeginCreatePublicKeyCredentialRequestJavaTest {
+
+    private static final String BUNDLE_KEY_CLIENT_DATA_HASH =
+            "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH";
+    private static final String BUNDLE_KEY_REQUEST_JSON =
+            "androidx.credentials.BUNDLE_KEY_REQUEST_JSON";
+
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
-        assertThrows("Expected empty Json to throw error",
+        assertThrows(
+                "Expected empty Json to throw error",
                 IllegalArgumentException.class,
-                () -> new BeginCreatePublicKeyCredentialRequest(
-                        "",
-                        new CallingAppInfo(
-                                "sample_package_name", new SigningInfo()),
-                        new Bundle()
-                )
-        );
-
+                () ->
+                        new BeginCreatePublicKeyCredentialRequest(
+                                "",
+                                new CallingAppInfo("sample_package_name", new SigningInfo()),
+                                new Bundle()));
     }
 
     @Test
     public void constructor_invalidJson_throwsIllegalArgumentException() {
-        assertThrows("Expected invalid Json to throw error",
+        assertThrows(
+                "Expected invalid Json to throw error",
                 IllegalArgumentException.class,
-                () -> new BeginCreatePublicKeyCredentialRequest(
-                        "invalid",
-                        new CallingAppInfo(
-                                "sample_package_name", new SigningInfo()),
-                        new Bundle()
-                )
-        );
+                () ->
+                        new BeginCreatePublicKeyCredentialRequest(
+                                "invalid",
+                                new CallingAppInfo("sample_package_name", new SigningInfo()),
+                                new Bundle()));
     }
 
     @Test
     public void constructor_nullJson_throwsNullPointerException() {
-        assertThrows("Expected null Json to throw NPE",
+        assertThrows(
+                "Expected null Json to throw NPE",
                 NullPointerException.class,
-                () -> new BeginCreatePublicKeyCredentialRequest(
-                        null,
-                        new CallingAppInfo("sample_package_name",
-                                new SigningInfo()),
-                        new Bundle()
-                )
-        );
+                () ->
+                        new BeginCreatePublicKeyCredentialRequest(
+                                null,
+                                new CallingAppInfo("sample_package_name", new SigningInfo()),
+                                new Bundle()));
     }
 
     @Test
     public void constructor_success() {
         new BeginCreatePublicKeyCredentialRequest(
                 "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                new CallingAppInfo(
-                        "sample_package_name", new SigningInfo()
-                ),
-                new Bundle()
-        );
+                new CallingAppInfo("sample_package_name", new SigningInfo()),
+                new Bundle());
     }
 
     @Test
     public void constructorWithClientDataHash_success() {
         new BeginCreatePublicKeyCredentialRequest(
                 "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                new CallingAppInfo(
-                        "sample_package_name", new SigningInfo()
-                ),
+                new CallingAppInfo("sample_package_name", new SigningInfo()),
                 new Bundle(),
-                "client_data_hash".getBytes()
-        );
+                "client_data_hash".getBytes());
     }
 
     @Test
     public void getter_requestJson_success() {
         String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
 
-        BeginCreatePublicKeyCredentialRequest
-                createPublicKeyCredentialReq = new BeginCreatePublicKeyCredentialRequest(
-                testJsonExpected,
-                new CallingAppInfo(
-                        "sample_package_name", new SigningInfo()),
-                new Bundle()
-        );
+        BeginCreatePublicKeyCredentialRequest createPublicKeyCredentialReq =
+                new BeginCreatePublicKeyCredentialRequest(
+                        testJsonExpected,
+                        new CallingAppInfo("sample_package_name", new SigningInfo()),
+                        new Bundle());
 
         String testJsonActual = createPublicKeyCredentialReq.getRequestJson();
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
@@ -120,13 +115,50 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
         BeginCreatePublicKeyCredentialRequest createPublicKeyCredentialReq =
                 new BeginCreatePublicKeyCredentialRequest(
                         "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                        new CallingAppInfo("sample_package_name",
-                                new SigningInfo()),
+                        new CallingAppInfo("sample_package_name", new SigningInfo()),
                         new Bundle(),
                         testClientDataHashExpected.getBytes());
 
         assertThat(createPublicKeyCredentialReq.getClientDataHash())
                 .isEqualTo(testClientDataHashExpected.getBytes());
     }
-    // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")
+
+    @Test
+    public void constructor_success_createFrom() {
+        Bundle bundle = new Bundle();
+        bundle.putString(BUNDLE_KEY_REQUEST_JSON, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
+        bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, new byte[0]);
+
+        BeginCreatePublicKeyCredentialRequest.createForTest(
+                bundle, new CallingAppInfo("sample_package_name", new SigningInfo()));
+    }
+
+    @Test
+    public void constructor_error_createFrom() {
+        assertThrows(
+                "Expected create from to throw error",
+                FrameworkClassParsingException.class,
+                () ->
+                        BeginCreatePublicKeyCredentialRequest.createForTest(
+                                new Bundle(),
+                                new CallingAppInfo("sample_package_name", new SigningInfo())));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    public void conversion() {
+        String testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+
+        BeginCreatePublicKeyCredentialRequest req =
+                new BeginCreatePublicKeyCredentialRequest(
+                        testJsonExpected,
+                        new CallingAppInfo("sample_package_name", new SigningInfo()),
+                        new Bundle());
+
+        Bundle bundle = BeginCreateCredentialRequest.asBundle(req);
+        assertThat(bundle).isNotNull();
+
+        BeginCreateCredentialRequest converted = BeginCreateCredentialRequest.fromBundle(bundle);
+        assertThat(req.getType()).isEqualTo(converted.getType());
+    }
 }
