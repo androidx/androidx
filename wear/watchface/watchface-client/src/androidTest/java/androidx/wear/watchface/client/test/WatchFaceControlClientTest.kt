@@ -535,6 +535,9 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         // Wait for the instance to be created.
         val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
 
+        // Make sure watch face init has completed.
+        interactiveInstance.complicationSlotsState
+
         assertThat(watchFaceService.lastResourceOnlyWatchFacePackageName)
             .isEqualTo("com.example.watchface")
 
