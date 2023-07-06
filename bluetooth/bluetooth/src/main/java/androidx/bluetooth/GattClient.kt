@@ -16,14 +16,18 @@
 
 package androidx.bluetooth
 
+import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice as FwkDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import android.bluetooth.BluetoothGattDescriptor as FwkDescriptor
 import android.bluetooth.BluetoothGattService as FwkService
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -46,7 +50,28 @@ import kotlinx.coroutines.sync.withLock
 /**
  * A class for handling operations as a GATT client role.
  */
-internal class GattClientImpl {
+internal class GattClient {
+    private interface GattClientImpl {
+        fun connectGatt(
+            context: Context,
+            device: FwkDevice,
+            callback: BluetoothGattCallback
+        ): Boolean
+
+        fun getServices(): List<FwkService>
+        fun getService(uuid: UUID): FwkService?
+        fun readCharacteristic(characteristic: FwkCharacteristic)
+        fun writeCharacteristic(
+            characteristic: FwkCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        )
+
+        fun writeDescriptor(descriptor: FwkDescriptor, value: ByteArray)
+
+        fun setCharacteristicNotification(characteristic: FwkCharacteristic, enable: Boolean)
+    }
+
     private companion object {
         private const val TAG = "GattClientImpl"
 
@@ -56,6 +81,11 @@ internal class GattClientImpl {
         private const val GATT_MAX_MTU = 515
         private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
+
+    @SuppressLint("ObsoleteSdkInt")
+    private val impl: GattClientImpl =
+        if (Build.VERSION.SDK_INT >= 33) GattClientImplApi33()
+        else BaseGattClientImpl()
 
     private sealed interface CallbackResult {
         class OnCharacteristicRead(
@@ -93,6 +123,7 @@ internal class GattClientImpl {
         val services: MutableMap<FwkService, GattService> = mutableMapOf()
         val characteristics: MutableMap<FwkCharacteristic, GattCharacteristic> =
             mutableMapOf()
+
         fun update(services: List<FwkService>) {
             this.services.clear()
             characteristics.clear()
@@ -166,11 +197,11 @@ internal class GattClientImpl {
                 value: ByteArray,
                 status: Int
             ) {
-               attributeMap.fromFwkCharacteristic(characteristic)?.let {
-                   callbackResultsFlow.tryEmit(
-                       CallbackResult.OnCharacteristicRead(it, value, status)
-                   )
-               }
+                attributeMap.fromFwkCharacteristic(characteristic)?.let {
+                    callbackResultsFlow.tryEmit(
+                        CallbackResult.OnCharacteristicRead(it, value, status)
+                    )
+                }
             }
 
             override fun onCharacteristicWrite(
@@ -192,7 +223,8 @@ internal class GattClientImpl {
                 value: ByteArray
             ) {
                 callbackResultsFlow.tryEmit(
-                    CallbackResult.OnDescriptorRead(descriptor, value, status))
+                    CallbackResult.OnDescriptorRead(descriptor, value, status)
+                )
             }
 
             override fun onDescriptorWrite(
@@ -215,7 +247,9 @@ internal class GattClientImpl {
                 }
             }
         }
-        val bluetoothGatt = device.fwkDevice.connectGatt(context, /*autoConnect=*/false, callback)
+        if (!impl.connectGatt(context, device.fwkDevice, callback)) {
+            return@coroutineScope null
+        }
 
         if (!connectResult.await()) {
             Log.w(TAG, "Failed to connect to the remote GATT server")
@@ -223,7 +257,7 @@ internal class GattClientImpl {
         }
         val gattScope = object : BluetoothLe.GattClientScope {
             val taskMutex = Mutex()
-            suspend fun<R> runTask(block: suspend () -> R): R {
+            suspend fun <R> runTask(block: suspend () -> R): R {
                 taskMutex.withLock {
                     return block()
                 }
@@ -234,7 +268,7 @@ internal class GattClientImpl {
             }
 
             override fun getService(uuid: UUID): GattService? {
-                return bluetoothGatt.getService(uuid)?.let { attributeMap.fromFwkService(it) }
+                return impl.getService(uuid)?.let { attributeMap.fromFwkService(it) }
             }
 
             override suspend fun readCharacteristic(characteristic: GattCharacteristic):
@@ -243,9 +277,10 @@ internal class GattClientImpl {
                     return Result.failure(IllegalArgumentException("can't read the characteristic"))
                 }
                 return runTask {
-                    bluetoothGatt.readCharacteristic(characteristic.fwkCharacteristic)
+                    impl.readCharacteristic(characteristic.fwkCharacteristic)
                     val res = takeMatchingResult<CallbackResult.OnCharacteristicRead>(
-                        callbackResultsFlow) {
+                        callbackResultsFlow
+                    ) {
                         it.characteristic == characteristic
                     }
 
@@ -261,13 +296,14 @@ internal class GattClientImpl {
             ): Result<Unit> {
                 if (characteristic.properties and GattCharacteristic.PROPERTY_WRITE == 0) {
                     return Result.failure(
-                        IllegalArgumentException("can't write to the characteristic"))
+                        IllegalArgumentException("can't write to the characteristic")
+                    )
                 }
                 return runTask {
-                    bluetoothGatt.writeCharacteristic(
-                        characteristic.fwkCharacteristic, value, writeType)
+                    impl.writeCharacteristic(characteristic.fwkCharacteristic, value, writeType)
                     val res = takeMatchingResult<CallbackResult.OnCharacteristicWrite>(
-                        callbackResultsFlow) {
+                        callbackResultsFlow
+                    ) {
                         it.characteristic == characteristic
                     }
                     if (res.status == BluetoothGatt.GATT_SUCCESS) Result.success(Unit)
@@ -288,6 +324,7 @@ internal class GattClientImpl {
                         override fun onCharacteristicNotification(value: ByteArray) {
                             trySend(value)
                         }
+
                         override fun finish() {
                             cancel("finished")
                         }
@@ -297,14 +334,14 @@ internal class GattClientImpl {
                     }
 
                     runTask {
-                        bluetoothGatt.setCharacteristicNotification(
-                            characteristic.fwkCharacteristic, /*enable=*/true)
-                        bluetoothGatt.writeDescriptor(
-                            cccd,
-                            FwkDescriptor.ENABLE_NOTIFICATION_VALUE
+                        impl.setCharacteristicNotification(
+                            characteristic.fwkCharacteristic, /*enable=*/true
                         )
+
+                        impl.writeDescriptor(cccd, FwkDescriptor.ENABLE_NOTIFICATION_VALUE)
                         val res = takeMatchingResult<CallbackResult.OnDescriptorWrite>(
-                            callbackResultsFlow) {
+                            callbackResultsFlow
+                        ) {
                             it.descriptor == cccd
                         }
                         if (res.status != BluetoothGatt.GATT_SUCCESS) {
@@ -316,12 +353,11 @@ internal class GattClientImpl {
                         launch {
                             unregisterSubscribeListener(characteristic.fwkCharacteristic)
                         }
-                        bluetoothGatt.setCharacteristicNotification(
-                            characteristic.fwkCharacteristic, /*enable=*/false)
-                        bluetoothGatt.writeDescriptor(
-                            cccd,
-                            FwkDescriptor.DISABLE_NOTIFICATION_VALUE
+                        impl.setCharacteristicNotification(
+                            characteristic.fwkCharacteristic, /*enable=*/false
                         )
+
+                        impl.writeDescriptor(cccd, FwkDescriptor.DISABLE_NOTIFICATION_VALUE)
                     }
                 }
             }
@@ -363,10 +399,82 @@ internal class GattClientImpl {
         gattScope.block()
     }
 
-    private suspend inline fun<reified R : CallbackResult> takeMatchingResult(
+    private suspend inline fun <reified R : CallbackResult> takeMatchingResult(
         flow: SharedFlow<CallbackResult>,
         crossinline predicate: (R) -> Boolean
     ): R {
         return flow.filter { it is R && predicate(it) }.first() as R
+    }
+
+    private open class BaseGattClientImpl : GattClientImpl {
+        var bluetoothGatt: BluetoothGatt? = null
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun connectGatt(
+            context: Context,
+            device: FwkDevice,
+            callback: BluetoothGattCallback
+        ): Boolean {
+            bluetoothGatt = device.connectGatt(context, /*autoConnect=*/false, callback)
+            return bluetoothGatt != null
+        }
+
+        override fun getServices(): List<FwkService> {
+            return bluetoothGatt?.services ?: listOf()
+        }
+
+        override fun getService(uuid: UUID): FwkService? {
+            return bluetoothGatt?.getService(uuid)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun readCharacteristic(characteristic: FwkCharacteristic) {
+            bluetoothGatt?.readCharacteristic(characteristic)
+        }
+
+        @Suppress("DEPRECATION")
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun writeCharacteristic(
+            characteristic: FwkCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        ) {
+            characteristic.value = value
+            bluetoothGatt?.writeCharacteristic(characteristic)
+        }
+
+        @Suppress("DEPRECATION")
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun writeDescriptor(descriptor: FwkDescriptor, value: ByteArray) {
+            descriptor.value = value
+            bluetoothGatt?.writeDescriptor(descriptor)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun setCharacteristicNotification(
+            characteristic: FwkCharacteristic,
+            enable: Boolean
+        ) {
+            bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
+        }
+    }
+
+    private open class GattClientImplApi33 : BaseGattClientImpl() {
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun writeCharacteristic(
+            characteristic: FwkCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        ) {
+            bluetoothGatt?.writeCharacteristic(characteristic, value, writeType)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun writeDescriptor(
+            descriptor: FwkDescriptor,
+            value: ByteArray
+        ) {
+            bluetoothGatt?.writeDescriptor(descriptor, value)
+        }
     }
 }
