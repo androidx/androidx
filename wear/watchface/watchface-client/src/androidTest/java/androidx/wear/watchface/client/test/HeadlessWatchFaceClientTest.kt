@@ -61,7 +61,8 @@ abstract class HeadlessWatchFaceClientTestBase {
             context,
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
-            }
+            },
+            resourceOnlyWatchFacePackageName = null
         )
     }
 

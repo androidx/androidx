@@ -93,6 +93,43 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             )
         }
 
+        /**
+         * Constructs a [WatchFaceMetadataClient] for fetching metadata for the specified resource
+         * only watch face from its runtime. A resource only watch face runtime is a special watch
+         * face that knows how to load watch faces from resources in another package that contains
+         * only resources and no executable code.
+         *
+         * @param context Calling application's [Context].
+         * @param watchFaceName The [ComponentName] of the watch face to fetch meta data from.
+         * @param runtimePackage The package that contains the Resource only Watch Face runtime.
+         * @return The [WatchFaceMetadataClient] if there is one.
+         * @throws [ServiceNotBoundException] if the underlying watch face control service can not
+         *   be bound or a [ServiceStartFailureException] if the watch face dies during startup. If
+         *   the service's manifest contains an
+         *   androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data node then
+         *   [PackageManager.NameNotFoundException] is thrown if [watchFaceName] is invalid.
+         */
+        @Throws(
+            ServiceNotBoundException::class,
+            ServiceStartFailureException::class,
+            PackageManager.NameNotFoundException::class
+        )
+        @SuppressWarnings("MissingJvmstatic") // Can't really call a suspend fun from java.
+        public suspend fun createForRuntime(
+            context: Context,
+            watchFaceName: ComponentName,
+            runtimePackage: String
+        ): WatchFaceMetadataClient {
+            return createImpl(
+                context,
+                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                    setPackage(runtimePackage)
+                },
+                watchFaceName,
+                parserProvider = null
+            )
+        }
+
         @Suppress("DEPRECATION") // getServiceInfo
         internal fun isXmlVersionCompatible(
             context: Context,
@@ -156,10 +193,10 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName,
-            parserProvider: ParserProvider
+            parserProvider: ParserProvider?
         ): WatchFaceMetadataClient {
             // Check if there's static metadata we can read (fast).
-            parserProvider.getParser(context, watchFaceName)?.let {
+            parserProvider?.getParser(context, watchFaceName)?.let {
                 return XmlWatchFaceMetadataClientImpl(
                     XmlSchemaAndComplicationSlotsDefinition.inflate(
                         context.packageManager.getResourcesForApplication(

@@ -394,6 +394,18 @@ package androidx.wear.watchface {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceExperimental {
   }
 
+  public abstract class WatchFaceRuntimeService extends androidx.wear.watchface.WatchFaceService {
+    ctor public WatchFaceRuntimeService();
+    method protected final androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected abstract androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName);
+    method protected final androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    method @WorkerThread protected abstract androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, String resourceOnlyWatchFacePackageName);
+    method protected final androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
+    method @WorkerThread protected abstract androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema(String resourceOnlyWatchFacePackageName);
+    method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+  }
+
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
