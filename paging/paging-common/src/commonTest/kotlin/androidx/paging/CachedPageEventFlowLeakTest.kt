@@ -21,7 +21,6 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +32,6 @@ import kotlinx.coroutines.test.runTest
 /**
  * reproduces b/203594733
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 public class CachedPageEventFlowLeakTest {
     private val gcHelper = GarbageCollectionTestHelper()
 

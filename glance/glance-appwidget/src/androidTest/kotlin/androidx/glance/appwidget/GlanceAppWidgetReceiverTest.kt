@@ -22,6 +22,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
+import android.os.FileObserver
 import android.text.SpannedString
 import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
@@ -103,18 +104,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -126,7 +128,6 @@ const val VERBOSE_LOG = true
 
 const val RECEIVER_TEST_TAG = "GAWRT" // shorten to avoid long tag lint
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 class GlanceAppWidgetReceiverTest {
@@ -147,6 +148,7 @@ class GlanceAppWidgetReceiverTest {
     @After
     fun cleanUp() {
         TestGlanceAppWidget.resetOnDeleteBlock()
+        CompoundButtonActionTest.reset()
     }
 
     @Test
@@ -622,27 +624,28 @@ class GlanceAppWidgetReceiverTest {
         val fileKey = createUniqueRemoteUiName((glanceId as AppWidgetId).appWidgetId)
         val preferencesFile = PreferencesGlanceStateDefinition.getLocation(context, fileKey)
 
-        assertThat(preferencesFile.exists())
-
-        val deleteLatch = CountDownLatch(1)
-        TestGlanceAppWidget.setOnDeleteBlock {
-            deleteLatch.countDown()
+        assertThat(preferencesFile.exists()).isTrue()
+        val fileIsDeleted = CountDownLatch(1)
+        val fileDeletionObserver = object : FileObserver(preferencesFile, DELETE_SELF) {
+            override fun onEvent(event: Int, path: String?) {
+                if (event == DELETE_SELF) {
+                    fileIsDeleted.countDown()
+                }
+            }
         }
-
+        fileDeletionObserver.startWatching()
         mHostRule.removeAppWidget()
-
-        deleteLatch.await(5, TimeUnit.SECONDS)
-        val interval = 200L
-        for (timeout in 0..2000L step interval) {
-            if (!preferencesFile.exists()) return
-            Thread.sleep(interval)
+        try {
+            assertWithMessage("View state file is deleted").that(
+                fileIsDeleted.await(5, TimeUnit.SECONDS)
+            ).isTrue()
+        } finally {
+            fileDeletionObserver.stopWatching()
         }
-        assertWithMessage("View state file exists").that(preferencesFile.exists())
-            .isFalse()
     }
 
     @Test
-    fun updateAll() = runTest {
+    fun updateAll() = runBlocking<Unit> {
         TestGlanceAppWidget.uiDefinition = {
             Text("text")
         }
@@ -655,7 +658,7 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun updateIf() = runTest {
+    fun updateIf() = runBlocking<Unit> {
         val didRun = AtomicBoolean(false)
         TestGlanceAppWidget.uiDefinition = {
             currentState<Preferences>()
@@ -687,7 +690,7 @@ class GlanceAppWidgetReceiverTest {
         didRun.set(false)
 
         // Waiting for the update should timeout since it is never triggered.
-        val exception = assertThrows(IllegalArgumentException::class.java) {
+        val updateResult = runCatching {
             // AppWidgetService may send an APPWIDGET_UPDATE broadcast, which is not relevant to
             // this and should be ignored.
             mHostRule.ignoreBroadcasts {
@@ -700,7 +703,10 @@ class GlanceAppWidgetReceiverTest {
                 }
             }
         }
-        assertThat(exception).hasMessageThat().contains("Timeout before getting RemoteViews")
+        assertThat(updateResult.exceptionOrNull()).apply {
+            isInstanceOf(IllegalArgumentException::class.java)
+            hasMessageThat().contains("Timeout before getting RemoteViews")
+        }
 
         assertThat(didRun.get()).isFalse()
     }
@@ -839,7 +845,7 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun compoundButtonAction() = runTest {
+    fun compoundButtonAction() = runBlocking<Unit> {
         val checkbox = "checkbox"
         val switch = "switch"
         val checkBoxClicked = MutableStateFlow(false)
@@ -938,7 +944,7 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 31)
-    fun lambdaActionCallback() = runTest {
+    fun lambdaActionCallback() = runBlocking<Unit> {
         TestGlanceAppWidget.uiDefinition = {
             val text = remember { mutableStateOf("initial") }
             Button(
@@ -966,7 +972,7 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
-    fun lambdaActionCallback_backportButton() = runTest {
+    fun lambdaActionCallback_backportButton() = runBlocking<Unit> {
         TestGlanceAppWidget.uiDefinition = {
             val text = remember { mutableStateOf("initial") }
             Button(
@@ -993,7 +999,7 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun unsetActionCallback() = runTest {
+    fun unsetActionCallback() = runBlocking<Unit> {
         var enabled by mutableStateOf(true)
         TestGlanceAppWidget.uiDefinition = {
             Text(
@@ -1025,7 +1031,7 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun unsetCompoundButtonActionCallback() = runTest {
+    fun unsetCompoundButtonActionCallback() = runBlocking<Unit> {
         TestGlanceAppWidget.uiDefinition = {
             val enabled = currentState<Preferences>()[testBoolKey] ?: true
             CheckBox(
@@ -1040,15 +1046,12 @@ class GlanceAppWidgetReceiverTest {
         }
 
         mHostRule.startHost()
-
-        CompoundButtonActionTest.received.set(emptyList())
-        CompoundButtonActionTest.latch = CountDownLatch(1)
+        CompoundButtonActionTest.reset()
         mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == "checkbox" })
                 .performCompoundButtonClick()
         }
-        CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)
-        assertThat(CompoundButtonActionTest.received.get()).containsExactly(
+        assertThat(CompoundButtonActionTest.nextValue()).containsExactly(
             "checkbox" to true
         )
 
@@ -1059,14 +1062,13 @@ class GlanceAppWidgetReceiverTest {
             TestGlanceAppWidget.update(context, AppWidgetId(mHostRule.appWidgetId))
         }
 
-        CompoundButtonActionTest.received.set(emptyList())
-        CompoundButtonActionTest.latch = CountDownLatch(1)
+        CompoundButtonActionTest.reset()
         mHostRule.onUnboxedHostView<ViewGroup> { root ->
             checkNotNull(root.findChild<TextView> { it.text.toString() == "checkbox" })
                 .performCompoundButtonClick()
         }
-        assertThat(CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)).isFalse()
-        assertThat(CompoundButtonActionTest.received.get()).isEmpty()
+        delay(5.seconds)
+        assertThat(CompoundButtonActionTest.currentValue).isNull()
     }
 
     @SdkSuppress(minSdkVersion = 31)
@@ -1150,7 +1152,7 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun cancellingContentCoroutineCausesContentToLeaveComposition() = runBlocking {
+    fun cancellingContentCoroutineCausesContentToLeaveComposition() = runBlocking<Unit> {
         val currentEffectState = MutableStateFlow(EffectState.Initial)
         var contentJob: Job? = null
         TestGlanceAppWidget.onProvideGlance = {
@@ -1179,7 +1181,7 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun rootViewIdIsNotReservedId() = runTest {
+    fun rootViewIdIsNotReservedId() = runBlocking<Unit> {
         TestGlanceAppWidget.uiDefinition = {
             Column {}
         }
@@ -1285,13 +1287,17 @@ internal class CompoundButtonActionTest : ActionCallback {
     ) {
         val target = checkNotNull(parameters[key])
         val value = checkNotNull(parameters[ToggleableStateKey])
-        received.update { it + (target to value) }
-        latch.countDown()
+        received.update { (it ?: emptyList()) + (target to value) }
     }
 
     companion object {
-        lateinit var latch: CountDownLatch
-        val received = AtomicReference<List<Pair<String, Boolean>>>(emptyList())
+        private val received = MutableStateFlow<List<Pair<String, Boolean>>?>(null)
         val key = ActionParameters.Key<String>("eventTarget")
+        fun reset() {
+            received.value = null
+        }
+        val currentValue
+            get() = received.value
+        suspend fun nextValue() = received.filterNotNull().first()
     }
 }
