@@ -16,6 +16,10 @@
 
 package androidx.bluetooth
 
+import android.annotation.SuppressLint
+import android.bluetooth.le.ScanFilter as FwkScanFilter
+import android.os.Build
+import android.os.ParcelUuid
 import java.util.UUID
 
 /**
@@ -23,31 +27,31 @@ import java.util.UUID
  * scan results to only those that are of interest to them.
  */
 class ScanFilter(
-    /* The scan filter for the remote device address. Null if filter is not set. */
+    /** The scan filter for the remote device address. {@code null} if filter is not set. */
     val deviceAddress: BluetoothAddress? = null,
 
-    /* The scan filter for manufacturer id. MANUFACTURER_FILTER_NONE if filter is not set. */
+    /** The scan filter for manufacturer id. [MANUFACTURER_FILTER_NONE] if filter is not set. */
     val manufacturerId: Int = MANUFACTURER_FILTER_NONE,
 
-    /* The scan filter for manufacturer data. Null if filter is not set. */
+    /** The scan filter for manufacturer data. {@code null} if filter is not set. */
     val manufacturerData: ByteArray? = null,
 
-    /* The partial filter on manufacturerData. Null if filter is not set. */
+    /** The partial filter on manufacturerData. {@code null} if filter is not set. */
     val manufacturerDataMask: ByteArray? = null,
 
-    /* The scan filter for service data uuid. Null if filter is not set. */
+    /** The scan filter for service data uuid. {@code null} if filter is not set. */
     val serviceDataUuid: UUID? = null,
 
-    /* The scan filter for service data. Null if filter is not set. */
+    /** The scan filter for service data. {@code null} if filter is not set. */
     val serviceData: ByteArray? = null,
 
-    /* The partial filter on service data. Null if filter is not set. */
+    /** The partial filter on service data. {@code null} if filter is not set. */
     val serviceDataMask: ByteArray? = null,
 
-    /* The scan filter for service uuid. Null if filter is not set. */
+    /** The scan filter for service uuid. {@code null} if filter is not set. */
     val serviceUuid: UUID? = null,
 
-    /* The partial filter on service uuid. Null if filter is not set. */
+    /** The partial filter on service uuid. {@code null} if filter is not set. */
     val serviceUuidMask: UUID? = null
 ) {
     companion object {
@@ -85,6 +89,47 @@ class ScanFilter(
 
         if (serviceUuidMask != null && serviceUuid == null) {
             throw IllegalArgumentException("uuid is null while uuidMask is not null")
+        }
+    }
+
+    @delegate:SuppressLint("ObsoleteSdkInt")
+    internal val fwkScanFilter: FwkScanFilter by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        FwkScanFilter.Builder().run {
+            deviceAddress?.let { setDeviceAddress(it.address) }
+
+            if (manufacturerId != MANUFACTURER_FILTER_NONE &&
+                manufacturerData != null) {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    setManufacturerData(
+                        manufacturerId,
+                        manufacturerData,
+                        manufacturerDataMask
+                    )
+                } else {
+                    setManufacturerData(manufacturerId, manufacturerData)
+                }
+            }
+
+            if (serviceDataUuid != null) {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    setServiceData(ParcelUuid(
+                        serviceDataUuid),
+                        serviceData,
+                        serviceDataMask
+                    )
+                } else {
+                    setServiceData(ParcelUuid(serviceDataUuid), serviceData)
+                }
+            }
+
+            serviceUuid?.let {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    setServiceUuid(ParcelUuid(it), ParcelUuid(serviceUuidMask))
+                } else {
+                    setServiceUuid(ParcelUuid(it))
+                }
+            }
+            build()
         }
     }
 }

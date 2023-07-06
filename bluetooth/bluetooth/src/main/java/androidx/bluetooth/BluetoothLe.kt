@@ -21,7 +21,6 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -120,12 +119,12 @@ class BluetoothLe(private val context: Context) {
         }
 
     /**
-     * Returns a cold [Flow] to start Bluetooth LE scanning. Scanning is used to
+     * Returns a _cold_ [Flow] to start Bluetooth LE scanning. Scanning is used to
      * discover advertising devices nearby.
      *
      * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
      *
-     * @return A cold [Flow] of [ScanResult] that matches with the given scan filter.
+     * @return A _cold_ [Flow] of [ScanResult] that matches with the given scan filter.
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
@@ -144,10 +143,10 @@ class BluetoothLe(private val context: Context) {
         val bleScanner = bluetoothAdapter?.bluetoothLeScanner
         val scanSettings = ScanSettings.Builder().build()
 
-        bleScanner?.startScan(filters, scanSettings, callback)
+        val fwkFilters = filters.map { it.fwkScanFilter }
+        bleScanner?.startScan(fwkFilters, scanSettings, callback)
 
         awaitClose {
-            Log.d(TAG, "awaitClose() called")
             bleScanner?.stopScan(callback)
         }
     }
