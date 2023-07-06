@@ -92,7 +92,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core-okio"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -101,7 +101,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.

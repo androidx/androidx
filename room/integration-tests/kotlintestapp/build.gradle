@@ -103,7 +103,7 @@ dependencies {
         exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
-    androidTestImplementation(project(":internal-testutils-kmp"))
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-testing"))
