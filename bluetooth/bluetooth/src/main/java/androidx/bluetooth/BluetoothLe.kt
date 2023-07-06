@@ -230,6 +230,6 @@ class BluetoothLe(private val context: Context) {
         device: BluetoothDevice,
         block: suspend GattClientScope.() -> R
     ): R? {
-        return GattClientImpl().connect(context, device, block)
+        return GattClient().connect(context, device, block)
     }
 }
