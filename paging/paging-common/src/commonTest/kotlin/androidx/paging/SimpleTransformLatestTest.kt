@@ -35,10 +35,10 @@ class SimpleTransformLatestTest {
     private val testScope = TestScope()
 
     @Test
-    fun delayed_TRANSFORM_LATEST() = delayed(Impl.TRANSFORM_LATEST)
+    fun delayed_TransformLatest() = delayed(Impl.TransformLatest)
 
     @Test
-    fun delayed_SIMPLE_TRANSFORM_LATEST() = delayed(Impl.SIMPLE_TRANSFORM_LATEST)
+    fun delayed_SimpleTransformLatest() = delayed(Impl.SimpleTransformLatest)
 
     private fun delayed(impl: Impl) = testScope.runTest {
         assertThat(
@@ -58,10 +58,10 @@ class SimpleTransformLatestTest {
     }
 
     @Test
-    fun allValues_TRANSFORM_LATEST() = allValues(Impl.TRANSFORM_LATEST)
+    fun allValues_TransformLatest() = allValues(Impl.TransformLatest)
 
     @Test
-    fun allValues_SIMPLE_TRANSFORM_LATEST() = allValues(Impl.SIMPLE_TRANSFORM_LATEST)
+    fun allValues_SimpleTransformLatest() = allValues(Impl.SimpleTransformLatest)
 
     private fun allValues(impl: Impl) = testScope.runTest {
         assertThat(
@@ -78,11 +78,11 @@ class SimpleTransformLatestTest {
     }
 
     @Test
-    fun reusePreviousCollector_TRANSFORM_LATEST() = reusePreviousCollector(Impl.TRANSFORM_LATEST)
+    fun reusePreviousCollector_TransformLatest() = reusePreviousCollector(Impl.TransformLatest)
 
     @Test
-    fun reusePreviousCollector_SIMPLE_TRANSFORM_LATEST() =
-        reusePreviousCollector(Impl.SIMPLE_TRANSFORM_LATEST)
+    fun reusePreviousCollector_SimpleTransformLatest() =
+        reusePreviousCollector(Impl.SimpleTransformLatest)
 
     private fun reusePreviousCollector(impl: Impl) = testScope.runTest {
         var prevCollector: FlowCollector<String>? = null
@@ -105,15 +105,15 @@ class SimpleTransformLatestTest {
         transform: suspend FlowCollector<R>.(value: T) -> Unit
     ): Flow<R> {
         return when (impl) {
-            Impl.TRANSFORM_LATEST ->
+            Impl.TransformLatest ->
                 this@testTransformLatest.transformLatest(transform)
-            Impl.SIMPLE_TRANSFORM_LATEST ->
+            Impl.SimpleTransformLatest ->
                 this@testTransformLatest.simpleTransformLatest(transform)
         }
     }
 
     enum class Impl {
-        TRANSFORM_LATEST,
-        SIMPLE_TRANSFORM_LATEST
+        TransformLatest,
+        SimpleTransformLatest,
     }
 }
