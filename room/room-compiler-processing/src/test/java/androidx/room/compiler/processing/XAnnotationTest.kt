@@ -1133,8 +1133,20 @@ class XAnnotationTest(
                     .getAllAnnotations()
                     .map(XAnnotation::typeElement)
             }
-            assertThat(getDeclaredFieldAnnotationElements("valField")).doesNotContain(myAnnotation)
-            assertThat(getDeclaredFieldAnnotationElements("varField")).doesNotContain(myAnnotation)
+            if (!invocation.isKsp && preCompiled) {
+                // KAPT places property annotations without targets on the property, which
+                // then get put onto the synthetic $annotations method in the KAPT stub.
+                // Unfortunately, synthetic methods can only be read when processing the
+                // source so it's missing on precompiled class files:
+                // https://youtrack.jetbrains.com/issue/KT-34684
+                assertThat(getDeclaredFieldAnnotationElements("valField"))
+                    .doesNotContain(myAnnotation)
+                assertThat(getDeclaredFieldAnnotationElements("varField"))
+                    .doesNotContain(myAnnotation)
+            } else {
+                assertThat(getDeclaredFieldAnnotationElements("valField")).contains(myAnnotation)
+                assertThat(getDeclaredFieldAnnotationElements("varField")).contains(myAnnotation)
+            }
         }
     }
 
@@ -1152,14 +1164,16 @@ class XAnnotationTest(
             @Target(AnnotationTarget.TYPE)
             annotation class A
             @Target(
+                AnnotationTarget.CLASS,
                 AnnotationTarget.FUNCTION,
                 AnnotationTarget.FIELD,
                 AnnotationTarget.CONSTRUCTOR,
                 AnnotationTarget.VALUE_PARAMETER,
-                AnnotationTarget.TYPE
+                AnnotationTarget.TYPE,
             )
             annotation class B
             @Target(
+                AnnotationTarget.CLASS,
                 AnnotationTarget.FUNCTION,
                 AnnotationTarget.FIELD,
                 AnnotationTarget.CONSTRUCTOR,
@@ -1168,6 +1182,7 @@ class XAnnotationTest(
             annotation class C
             annotation class D
 
+            @B @C @D
             class Subject @B @C @D constructor(
                 @B @C @D param: @A @B Foo<@A @B Bar>
             ) : @A @B FooImpl<@A @B Bar>(), @A @B Foo<@A @B Bar> {
@@ -1190,7 +1205,7 @@ class XAnnotationTest(
             class FooImpl<T> {}
             class Bar {}
 
-            @Target(ElementType.TYPE_USE)
+            @Target({ElementType.TYPE_USE})
             @interface A {}
             @Target({
                 ElementType.METHOD,
@@ -1205,10 +1220,12 @@ class XAnnotationTest(
                 ElementType.FIELD,
                 ElementType.CONSTRUCTOR,
                 ElementType.PARAMETER,
+                ElementType.TYPE,
             })
             @interface C {}
             @interface D {}
 
+            @B @C @D
             class Subject extends @A @B FooImpl<@A @B Bar> implements @A @B Foo<@A @B Bar> {
                 @A @B @C @D Foo<@A @B Bar> field;
                 @B @C @D Subject(@A @B @C @D Foo<@A @B Bar> param) {}
@@ -1240,36 +1257,51 @@ class XAnnotationTest(
                 val c = invocation.processingEnv.requireTypeElement("foo.bar.C")
                 val d = invocation.processingEnv.requireTypeElement("foo.bar.D")
 
+                // Check that the synthetic annotations method does not appear in the list of
+                // declared methods.
+                if (source == javaSource) {
+                    assertThat(subject.getDeclaredMethods().map { it.name })
+                        .containsExactly("method")
+                } else {
+                    assertThat(subject.getDeclaredMethods().map { it.name })
+                        .containsExactly("getField", "method")
+                        .inOrder()
+                }
+
                 // Check the annotations on the elements
-                if (!invocation.isKsp && source == kotlinSource) {
-                    // KAPT places property annotations without targets on the property, which then
-                    // get put onto the synthetic $annotations method in the KAPT stub.
-                    // Unfortunately, synthetic methods can only be read when processing the source
-                    // so it's missing on precompiled class files:
-                    // https://youtrack.jetbrains.com/issue/KT-34684
-                    // TODO(b/288415136): The following should be fixed for non-precompiled sources
-                    //  where we can get the annotation from the $annotations method in KAPT.
-                    assertThat(field.getAllAnnotationTypeElements()).containsExactly(b, c)
-                } else {
-                    assertThat(field.getAllAnnotationTypeElements()).containsExactly(b, c, d)
+                mapOf(
+                    "class" to subject,
+                    "field" to field,
+                    "method" to method,
+                    "methodParameter" to method.parameters.single(),
+                    "constructor" to constructor,
+                    "constructorParameter" to constructor.parameters.single(),
+                ).forEach { (desc, element) ->
+                    if (element == field &&
+                        !invocation.isKsp && source == kotlinSource && preCompiled) {
+                        // KAPT places property annotations without targets on the property, which
+                        // then get put onto the synthetic $annotations method in the KAPT stub.
+                        // Unfortunately, synthetic methods can only be read when processing the
+                        // source so it's missing on precompiled class files:
+                        // https://youtrack.jetbrains.com/issue/KT-34684
+                        assertWithMessage("$desc element: $element")
+                            .that(element.getAllAnnotationTypeElements())
+                            .containsExactly(b, c)
+                    } else {
+                        assertWithMessage("$desc element: $element")
+                            .that(
+                                // TODO(bcorso): Consider automatically removing kotlin.Metadata
+                                //  annotation so that KAPT and KSP agree, and exposing the metadata
+                                //  explicitly via a property of the type/element.
+                                // Filter out kotlin.Metadata.
+                                element.getAllAnnotationTypeElements()
+                                    .filterNot { it.qualifiedName == "kotlin.Metadata" }
+                            )
+                            .containsExactly(b, c, d)
+                    }
                 }
-                if (invocation.isKsp && source == javaSource && !preCompiled) {
-                    // TODO(b/288413750): The following cases should be fixed in KAPT to match KSP.
-                    //  In particular, type-only annotation, A, should not show up on elements.
-                    assertThat(method.getAllAnnotationTypeElements()).containsExactly(a, b, c, d)
-                } else {
-                    assertThat(method.getAllAnnotationTypeElements()).containsExactly(b, c, d)
-                }
-                assertThat(method.parameters.single().getAllAnnotationTypeElements())
-                    .containsExactly(b, c, d)
-                assertThat(constructor.getAllAnnotationTypeElements()).containsExactly(b, c, d)
-                assertThat(constructor.parameters.single().getAllAnnotationTypeElements())
-                    .containsExactly(b, c, d)
 
-                val isKsp = invocation.isKsp
-                val isJavaSource = source == javaSource
-
-                // Check the annotations on the types
+                // Check the annotations on the types and type arguments
                 mapOf(
                     "superClass" to superClass,
                     "superInterface" to superInterface,
@@ -1278,55 +1310,20 @@ class XAnnotationTest(
                     "methodParameter" to method.parameters.single().type,
                     "constructorParameter" to constructor.parameters.single().type,
                 ).forEach { (desc, type) ->
-                    // We can't see type annotations from precompiled Java classes in JAVAC.
-                    //   https://github.com/google/ksp/issues/1296
-                    if ((!isKsp && source == javaSource && preCompiled) ||
-                        // TODO(b/288415954): The following cases should be fixed in KSP to match
-                        //  KAPT by working around https://github.com/google/ksp/issues/1325.
-                        (isKsp && isJavaSource && preCompiled && desc == "superClass") ||
-                        (isKsp && isJavaSource && preCompiled && desc == "superInterface") ||
-                        (isKsp && isJavaSource && preCompiled && desc == "field") ||
-                        (isKsp && isJavaSource && preCompiled && desc == "methodReturnType") ||
-                        (isKsp && isJavaSource && preCompiled && desc == "methodParameter") ||
-                        (isKsp && isJavaSource && preCompiled && desc == "constructorParameter") ||
-                        (isKsp && !preCompiled && desc == "methodReturnType") ||
-                        (isKsp && !preCompiled && desc == "methodParameter") ||
-                        (isKsp && !preCompiled && desc == "field") ||
-                        (isKsp && !preCompiled && desc == "constructorParameter")
-                    ) {
+                    if (!invocation.isKsp && source == javaSource && preCompiled) {
+                        // We can't see type annotations from precompiled Java classes in JAVAC.
+                        //   https://github.com/google/ksp/issues/1296
                         assertWithMessage("$desc type: $type")
+                            .that(type.getAllAnnotationTypeElements())
+                            .isEmpty()
+                        assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")
                             .that(type.getAllAnnotationTypeElements())
                             .isEmpty()
                     } else {
                         assertWithMessage("$desc type: $type")
                             .that(type.getAllAnnotationTypeElements())
                             .containsExactly(a, b)
-                    }
-                }
-
-                // Check the annotations on the type arguments
-                mapOf(
-                    "superClass" to superClass.typeArguments.single(),
-                    "superInterface" to superInterface.typeArguments.single(),
-                    "field" to field.type.typeArguments.single(),
-                    "methodReturnType" to method.returnType.typeArguments.single(),
-                    "methodParameter" to method.parameters.single().type.typeArguments.single(),
-                    "constructorParameter" to
-                        constructor.parameters.single().type.typeArguments.single(),
-                ).forEach { (desc, type) ->
-                    // We can't see type annotations from precompiled Java classes in JAVAC.
-                    //   https://github.com/google/ksp/issues/1296
-                    if ((!isKsp && isJavaSource && preCompiled) ||
-                        // TODO(b/288415954): The following cases should be fixed in KSP to match
-                        //  KAPT by working around https://github.com/google/ksp/issues/1325.
-                        (isKsp && !preCompiled) ||
-                        (isKsp && isJavaSource && preCompiled)
-                    ) {
-                        assertWithMessage("$desc type-argument: $type")
-                            .that(type.getAllAnnotationTypeElements())
-                            .isEmpty()
-                    } else {
-                        assertWithMessage("$desc type-argument: $type")
+                        assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")
                             .that(type.getAllAnnotationTypeElements())
                             .containsExactly(a, b)
                     }

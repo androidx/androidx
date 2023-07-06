@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -32,11 +33,13 @@ internal class KspValueClassArgumentType(
     env: KspProcessingEnv,
     // Using KSTypeArgument rather than resolved type to indicate do not inline in type name.
     val typeArg: KSTypeArgument,
+    originalKSAnnotations: Sequence<KSAnnotation>,
     scope: KSTypeVarianceResolverScope? = null,
     typeAlias: KSType? = null,
 ) : KspType(
     env = env,
     ksType = typeArg.requireType(),
+    originalKSAnnotations = originalKSAnnotations,
     scope = scope,
     typeAlias = typeAlias,
 ) {
@@ -55,11 +58,13 @@ internal class KspValueClassArgumentType(
     override fun copy(
         env: KspProcessingEnv,
         ksType: KSType,
+        originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?
     ) = KspValueClassArgumentType(
         env = env,
         typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
+        originalKSAnnotations = originalKSAnnotations,
         scope = scope,
         typeAlias = typeAlias
     )

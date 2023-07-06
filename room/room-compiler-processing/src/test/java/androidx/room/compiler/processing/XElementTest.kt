@@ -807,8 +807,25 @@ class XElementTest {
     //  classpath.
     @Test
     fun enclosingElementKotlinCompanion() {
-        runProcessorTestHelper(listOf(enclosingElementKotlinSourceCompanion)) {
-                invocation, precompiled ->
+        runProcessorTestHelper(listOf(Source.kotlin(
+            "Test.kt",
+            """
+            package foo.bar
+            class KotlinClass(val property: String) {
+                companion object {
+                    val companionObjectProperty: String = "hello"
+                    @JvmStatic
+                    val companionObjectPropertyJvmStatic: String = "hello"
+                    @JvmField val companionObjectPropertyJvmField: String = "hello"
+                    lateinit var companionObjectPropertyLateinit: String
+                    const val companionObjectPropertyConst: String = "hello"
+                    fun companionObjectFunction(companionFunctionParam: String) {}
+                    @JvmStatic
+                    fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
+                }
+            }
+            """.trimIndent()
+        ))) { invocation, _ ->
             val enclosingElement =
                 invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass")
             val companionObj = enclosingElement.getEnclosedTypeElements().first {
@@ -880,38 +897,14 @@ class XElementTest {
                 methods.forEach {
                     assertThat(it.enclosingElement).isEqualTo(companionObj)
                 }
-
-                if (invocation.isKsp) {
-                    assertThat(methods.map { it.name }).containsExactly(
-                        "getCompanionObjectProperty",
-                        "getCompanionObjectPropertyJvmStatic",
-                        "getCompanionObjectPropertyLateinit",
-                        "setCompanionObjectPropertyLateinit",
-                        "companionObjectFunction",
-                        "companionObjectFunctionJvmStatic",
-                    )
-                } else {
-                    if (precompiled) {
-                        assertThat(methods.map { it.name }).containsExactly(
-                            "getCompanionObjectProperty",
-                            "getCompanionObjectPropertyJvmStatic",
-                            "getCompanionObjectPropertyLateinit",
-                            "setCompanionObjectPropertyLateinit",
-                            "companionObjectFunction",
-                            "companionObjectFunctionJvmStatic"
-                        )
-                    } else {
-                        assertThat(methods.map { it.name }).containsExactly(
-                            "getCompanionObjectProperty",
-                            "getCompanionObjectPropertyJvmStatic",
-                            "getCompanionObjectPropertyJvmStatic\$annotations",
-                            "getCompanionObjectPropertyLateinit",
-                            "setCompanionObjectPropertyLateinit",
-                            "companionObjectFunction",
-                            "companionObjectFunctionJvmStatic"
-                        )
-                    }
-                }
+                assertThat(methods.map { it.name }).containsExactly(
+                    "getCompanionObjectProperty",
+                    "getCompanionObjectPropertyJvmStatic",
+                    "getCompanionObjectPropertyLateinit",
+                    "setCompanionObjectPropertyLateinit",
+                    "companionObjectFunction",
+                    "companionObjectFunctionJvmStatic"
+                ).inOrder()
             }
         }
     }
@@ -1094,26 +1087,6 @@ class XElementTest {
         object KotlinObject {
             val objectProperty: String = "hello"
             fun objectFunction(objectFunctionParam: String) {}
-        }
-        """.trimIndent()
-    )
-
-    private val enclosingElementKotlinSourceCompanion = Source.kotlin(
-        "Test.kt",
-        """
-        package foo.bar
-        class KotlinClass(val property: String) {
-            companion object {
-                val companionObjectProperty: String = "hello"
-                @JvmStatic
-                val companionObjectPropertyJvmStatic: String = "hello"
-                @JvmField val companionObjectPropertyJvmField: String = "hello"
-                lateinit var companionObjectPropertyLateinit: String
-                const val companionObjectPropertyConst: String = "hello"
-                fun companionObjectFunction(companionFunctionParam: String) {}
-                @JvmStatic
-                fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
-            }
         }
         """.trimIndent()
     )
