@@ -19,6 +19,7 @@ package androidx.datastore.core
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
 /**
  * Common IOException mapped to a custom exception class in native code.
@@ -56,5 +57,4 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
     }
 }
 
-// TODO(b/234049307): Pick a better dispatcher for IO
-internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.Default
+internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
