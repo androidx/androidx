@@ -48,10 +48,10 @@ class SimpleChannelFlowTest {
     val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun basic_CHANNEL_FLOW() = basic(Impl.CHANNEL_FLOW)
+    fun basic_ChannelFlow() = basic(Impl.ChannelFlow)
 
     @Test
-    fun basic_SIMPLE_CHANNEL_FLOW() = basic(Impl.SIMPLE_CHANNEL_FLOW)
+    fun basic_SimpleChannelFlow() = basic(Impl.SimpleChannelFlow)
 
     private fun basic(impl: Impl) {
         val channelFlow = createFlow<Int>(impl) {
@@ -65,10 +65,10 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun emitWithLaunch_CHANNEL_FLOW() = emitWithLaunch(Impl.CHANNEL_FLOW)
+    fun emitWithLaunch_ChannelFlow() = emitWithLaunch(Impl.ChannelFlow)
 
     @Test
-    fun emitWithLaunch_SIMPLE_CHANNEL_FLOW() = emitWithLaunch(Impl.SIMPLE_CHANNEL_FLOW)
+    fun emitWithLaunch_SimpleChannelFlow() = emitWithLaunch(Impl.SimpleChannelFlow)
 
     private fun emitWithLaunch(impl: Impl) {
         val channelFlow = createFlow<Int>(impl) {
@@ -86,10 +86,10 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun closedByCollector_CHANNEL_FLOW() = closedByCollector(Impl.CHANNEL_FLOW)
+    fun closedByCollector_ChannelFlow() = closedByCollector(Impl.ChannelFlow)
 
     @Test
-    fun closedByCollector_SIMPLE_CHANNEL_FLOW() = closedByCollector(Impl.SIMPLE_CHANNEL_FLOW)
+    fun closedByCollector_SimpleChannelFlow() = closedByCollector(Impl.SimpleChannelFlow)
 
     private fun closedByCollector(impl: Impl) {
         val emittedValues = mutableListOf<Int>()
@@ -106,11 +106,11 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun closedByCollector_noBuffer_CHANNEL_FLOW() = closedByCollector_noBuffer(Impl.CHANNEL_FLOW)
+    fun closedByCollector_noBuffer_ChannelFlow() = closedByCollector_noBuffer(Impl.ChannelFlow)
 
     @Test
-    fun closedByCollector_noBuffer_SIMPLE_CHANNEL_FLOW() =
-        closedByCollector_noBuffer(Impl.SIMPLE_CHANNEL_FLOW)
+    fun closedByCollector_noBuffer_SimpleChannelFlow() =
+        closedByCollector_noBuffer(Impl.SimpleChannelFlow)
 
     private fun closedByCollector_noBuffer(impl: Impl) {
         val emittedValues = mutableListOf<Int>()
@@ -123,7 +123,7 @@ class SimpleChannelFlowTest {
         testScope.runTest {
             assertThat(channelFlow.buffer(0).take(4).toList()).containsExactly(0, 1, 2, 3)
             when (impl) {
-                Impl.CHANNEL_FLOW -> {
+                Impl.ChannelFlow -> {
                     assertThat(emittedValues).containsExactly(0, 1, 2, 3)
                 }
                 else -> {
@@ -135,10 +135,10 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun awaitClose_CHANNEL_FLOW() = awaitClose(Impl.CHANNEL_FLOW)
+    fun awaitClose_ChannelFlow() = awaitClose(Impl.ChannelFlow)
 
     @Test
-    fun awaitClose_SIMPLE_CHANNEL_FLOW() = awaitClose(Impl.SIMPLE_CHANNEL_FLOW)
+    fun awaitClose_SimpleChannelFlow() = awaitClose(Impl.SimpleChannelFlow)
 
     private fun awaitClose(impl: Impl) {
         val lastDispatched = CompletableDeferred<Int>()
@@ -163,10 +163,10 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun scopeGetsCancelled_CHANNEL_FLOW() = scopeGetsCancelled(Impl.CHANNEL_FLOW)
+    fun scopeGetsCancelled_ChannelFlow() = scopeGetsCancelled(Impl.ChannelFlow)
 
     @Test
-    fun scopeGetsCancelled_SIMPLE_CHANNEL_FLOW() = scopeGetsCancelled(Impl.SIMPLE_CHANNEL_FLOW)
+    fun scopeGetsCancelled_SimpleChannelFlow() = scopeGetsCancelled(Impl.SimpleChannelFlow)
 
     private fun scopeGetsCancelled(impl: Impl) {
         var producerException: Throwable? = null
@@ -197,10 +197,10 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun collectorThrows_CHANNEL_FLOW() = collectorThrows(Impl.CHANNEL_FLOW)
+    fun collectorThrows_ChannelFlow() = collectorThrows(Impl.ChannelFlow)
 
     @Test
-    fun collectorThrows_SIMPLE_CHANNEL_FLOW() = collectorThrows(Impl.SIMPLE_CHANNEL_FLOW)
+    fun collectorThrows_SimpleChannelFlow() = collectorThrows(Impl.SimpleChannelFlow)
 
     private fun collectorThrows(impl: Impl) {
         var producerException: Throwable? = null
@@ -226,10 +226,10 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun upstreamThrows_CHANNEL_FLOW() = upstreamThrows(Impl.CHANNEL_FLOW)
+    fun upstreamThrows_ChannelFlow() = upstreamThrows(Impl.ChannelFlow)
 
     @Test
-    fun upstreamThrows_SIMPLE_CHANNEL_FLOW() = upstreamThrows(Impl.SIMPLE_CHANNEL_FLOW)
+    fun upstreamThrows_SimpleChannelFlow() = upstreamThrows(Impl.SimpleChannelFlow)
 
     private fun upstreamThrows(impl: Impl) {
         var producerException: Throwable? = null
@@ -264,12 +264,12 @@ class SimpleChannelFlowTest {
     }
 
     @Test
-    fun cancelingChannelClosesTheFlow_CHANNEL_FLOW() =
-        cancelingChannelClosesTheFlow(Impl.CHANNEL_FLOW)
+    fun cancelingChannelClosesTheFlow_ChannelFlow() =
+        cancelingChannelClosesTheFlow(Impl.ChannelFlow)
 
     @Test
-    fun cancelingChannelClosesTheFlow_SIMPLE_CHANNEL_FLOW() =
-        cancelingChannelClosesTheFlow(Impl.SIMPLE_CHANNEL_FLOW)
+    fun cancelingChannelClosesTheFlow_SimpleChannelFlow() =
+        cancelingChannelClosesTheFlow(Impl.SimpleChannelFlow)
 
     private fun cancelingChannelClosesTheFlow(impl: Impl) {
         val flow = createFlow<Int>(impl) {
@@ -287,10 +287,10 @@ class SimpleChannelFlowTest {
         block: suspend TestProducerScope<T>.() -> Unit
     ): Flow<T> {
         return when (impl) {
-            Impl.CHANNEL_FLOW -> channelFlow {
+            Impl.ChannelFlow -> channelFlow {
                 ChannelFlowTestProducerScope(this).block()
             }
-            Impl.SIMPLE_CHANNEL_FLOW -> simpleChannelFlow {
+            Impl.SimpleChannelFlow -> simpleChannelFlow {
                 SimpleChannelFlowTestProducerScope(this).block()
             }
         }
@@ -319,7 +319,7 @@ class SimpleChannelFlowTest {
     }
 
     enum class Impl {
-        CHANNEL_FLOW,
-        SIMPLE_CHANNEL_FLOW
+        ChannelFlow,
+        SimpleChannelFlow,
     }
 }
