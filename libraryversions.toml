@@ -77,6 +77,7 @@ INPUT_MOTIONPREDICTION = "1.0.0-beta02"
 INSPECTION = "1.0.0"
 INTERPOLATOR = "1.1.0-alpha01"
 JAVASCRIPTENGINE = "1.0.0-alpha06"
+KRUTH = "0.1.0-dev01"
 LEANBACK = "1.2.0-alpha03"
 LEANBACK_GRID = "1.0.0-alpha02"
 LEANBACK_PAGING = "1.1.0-alpha10"
@@ -222,6 +223,7 @@ INSPECTION = { group = "androidx.inspection", atomicGroupVersion = "versions.INS
 INSPECTION_EXTENSIONS = { group = "androidx.inspection.extensions", atomicGroupVersion = "versions.SQLITE_INSPECTOR", overrideInclude = [ ":sqlite:sqlite-inspection" ] }
 INTERPOLATOR = { group = "androidx.interpolator", atomicGroupVersion = "versions.INTERPOLATOR" }
 JAVASCRIPTENGINE = { group = "androidx.javascriptengine", atomicGroupVersion = "versions.JAVASCRIPTENGINE" }
+KRUTH = { group = "androidx.kruth", atomicGroupVersion = "versions.KRUTH" }
 LEANBACK = { group = "androidx.leanback" }
 LEGACY = { group = "androidx.legacy" }
 LIBYUV = { group = "libyuv", atomicGroupVersion = "versions.LIBYUV" }

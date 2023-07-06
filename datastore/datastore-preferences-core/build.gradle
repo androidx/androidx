@@ -58,7 +58,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":datastore:datastore-core"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -71,7 +71,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-datastore"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
             }
         }
         if (enableNative) {
@@ -88,7 +88,7 @@ androidXMultiplatform {
                 dependencies {
                     implementation(libs.kotlinTest)
                     implementation(project(":internal-testutils-datastore"))
-                    implementation(project(":internal-testutils-kmp"))
+                    implementation(project(":kruth:kruth"))
                 }
             }
         }
