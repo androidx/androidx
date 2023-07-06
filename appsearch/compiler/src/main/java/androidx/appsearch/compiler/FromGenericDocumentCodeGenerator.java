@@ -92,17 +92,22 @@ class FromGenericDocumentCodeGenerator {
 
         // Create an instance of the document class via the chosen create method.
         TypeElement builderClass = mModel.getBuilderClass();
-        if (mModel.getBuilderClass() != null) {
+        String target;
+        TypeName targetClassType;
+        if (builderClass != null) {
+            target = "builder";
+            targetClassType = TypeName.get(builderClass.asType());
+        } else {
+            target = "document";
+            targetClassType = classType;
+        }
+        if (mModel.getChosenCreationMethod().getKind() == ElementKind.CONSTRUCTOR) {
             methodBuilder.addStatement(
-                    "$T builder = $T.$L($L)", builderClass, classType,
-                    mModel.getChosenCreationMethod().getSimpleName().toString(),
+                    "$T $N = new $T($L)", targetClassType, target, targetClassType,
                     getCreationMethodParams());
-        } else if (mModel.getChosenCreationMethod().getKind() == ElementKind.CONSTRUCTOR) {
-            methodBuilder.addStatement(
-                    "$T document = new $T($L)", classType, classType, getCreationMethodParams());
         } else {
             methodBuilder.addStatement(
-                    "$T document = $T.$L($L)", classType, classType,
+                    "$T $N = $T.$L($L)", targetClassType, target, classType,
                     mModel.getChosenCreationMethod().getSimpleName().toString(),
                     getCreationMethodParams());
         }
