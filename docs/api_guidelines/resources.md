@@ -174,20 +174,5 @@ placeholder `<service>` tags.
   </application>
 ```
 
-```java {.good}
-package androidx.libraryname.featurename;
-
-/**
- * A placeholder service to avoid adding application-level metadata. The service
- * is only used to expose metadata defined in the library's manifest. It is
- * never invoked.
- */
-public final class MetadataHolderService {
-  public MetadataHolderService() {}
-
-  @Override
-  public IBinder onBind(Intent intent) {
-    throw new UnsupportedOperationException();
-  }
-}
-```
+Note: there is no need to provide a definition for the `MetadataHolderService`
+class, as it is merely a placeholder and will never be called.
