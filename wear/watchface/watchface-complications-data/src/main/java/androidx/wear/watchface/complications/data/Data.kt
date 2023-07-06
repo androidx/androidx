@@ -987,7 +987,6 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
             dynamicValue: DynamicFloat,
             fallbackValue: Float,

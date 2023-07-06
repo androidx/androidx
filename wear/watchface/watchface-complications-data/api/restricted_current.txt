@@ -350,6 +350,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class RangedValueComplicationData.Builder {
+    ctor public RangedValueComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float fallbackValue, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData build();
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setColorRamp(androidx.wear.watchface.complications.data.ColorRamp? colorRamp);
