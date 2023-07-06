@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -241,9 +242,14 @@ class UseCaseCameraState @Inject constructor(
         threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
             val request: Request?
-            cameraGraph.acquireSession().use {
+            try {
+                cameraGraph.acquireSession()
+            } catch (e: CancellationException) {
+                Log.debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
+                null
+            }.let { session ->
                 synchronized(lock) {
-                    request = if (currentStreams.isEmpty()) {
+                    request = if (currentStreams.isEmpty() || session == null) {
                         null
                     } else {
                         Request(
@@ -263,18 +269,21 @@ class UseCaseCameraState @Inject constructor(
                     updating = false
                     updateSignal = null
                 }
-
-                if (request == null) {
-                    it.stopRepeating()
-                } else {
-                    result?.let { result ->
-                        synchronized(lock) {
-                            updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
+                session?.use {
+                    if (request == null) {
+                        it.stopRepeating()
+                    } else {
+                        result?.let { result ->
+                            synchronized(lock) {
+                                updateSignals.add(
+                                    RequestSignal(submittedRequestCounter.value, result)
+                                )
+                            }
                         }
+                        Log.debug { "Update RepeatingRequest: $request" }
+                        it.startRepeating(request)
+                        it.update3A(request.parameters)
                     }
-                    Log.debug { "Update RepeatingRequest: $request" }
-                    it.startRepeating(request)
-                    it.update3A(request.parameters)
                 }
             }
 

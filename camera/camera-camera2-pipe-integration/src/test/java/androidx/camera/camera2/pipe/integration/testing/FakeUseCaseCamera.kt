@@ -160,6 +160,9 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         }
     }
 
+    override fun close() {
+    }
+
     data class FocusMeteringParams(
         val aeRegions: List<MeteringRectangle>? = null,
         val afRegions: List<MeteringRectangle>? = null,
