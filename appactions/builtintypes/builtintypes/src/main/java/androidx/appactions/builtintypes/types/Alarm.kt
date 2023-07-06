@@ -51,7 +51,9 @@ public interface Alarm : Thing {
   /**
    * Specifies if the alarm enabled or disabled.
    *
-   * See http://schema.googleapis.com/isAlarmEnabled for more context.
+   * Should be left unset in contexts where there is no notion of enabled/disabled alarms.
+   *
+   * See https://schema.googleapis.com/isAlarmEnabled for more context.
    */
   @get:Document.BooleanProperty @get:Suppress("AutoBoxing") public val isAlarmEnabled: Boolean?
 

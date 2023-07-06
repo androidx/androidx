@@ -408,7 +408,7 @@ package androidx.appactions.builtintypes.types {
     method public final androidx.appactions.builtintypes.properties.Name? getName();
     method public final String? getNamespace();
     method protected abstract String getSelfTypeName();
-    method public final String? getTelephone();
+    method public final String? getTelephoneNumber();
     method public final int hashCode();
     method public final Builder toBuilder();
     method protected abstract Builder toBuilderWithAdditionalPropertiesOnly();
@@ -420,7 +420,7 @@ package androidx.appactions.builtintypes.types {
     property public final androidx.appactions.builtintypes.properties.Name? name;
     property public final String? namespace;
     property protected abstract String selfTypeName;
-    property public final String? telephone;
+    property public final String? telephoneNumber;
   }
 
   public abstract static class AbstractPerson.Builder<Self extends androidx.appactions.builtintypes.types.AbstractPerson.Builder<Self, Built>, Built extends androidx.appactions.builtintypes.types.AbstractPerson<Built, Self>> implements androidx.appactions.builtintypes.types.Person.Builder<Self> {
@@ -436,7 +436,7 @@ package androidx.appactions.builtintypes.types {
     method public final Self setIdentifier(String? text);
     method public final Self setName(androidx.appactions.builtintypes.properties.Name? name);
     method public final Self setNamespace(String? namespace);
-    method public final Self setTelephone(String? text);
+    method public final Self setTelephoneNumber(String? text);
     method public final String toString();
     property protected abstract java.util.Map<java.lang.String,java.lang.Object> additionalProperties;
     property protected abstract String selfTypeName;
@@ -813,17 +813,17 @@ package androidx.appactions.builtintypes.types {
   @androidx.appsearch.annotation.Document(name="bit:Person") public interface Person extends androidx.appactions.builtintypes.types.Thing {
     method public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
     method @androidx.appsearch.annotation.Document.StringProperty public String? getEmail();
-    method @androidx.appsearch.annotation.Document.StringProperty public String? getTelephone();
+    method @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public String? getTelephoneNumber();
     method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
     property @androidx.appsearch.annotation.Document.StringProperty public abstract String? email;
-    property @androidx.appsearch.annotation.Document.StringProperty public abstract String? telephone;
+    property @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public abstract String? telephoneNumber;
     field public static final androidx.appactions.builtintypes.types.Person.Companion Companion;
   }
 
   public static interface Person.Builder<Self extends androidx.appactions.builtintypes.types.Person.Builder<Self>> extends androidx.appactions.builtintypes.types.Thing.Builder<Self> {
     method public androidx.appactions.builtintypes.types.Person build();
     method public Self setEmail(String? text);
-    method public Self setTelephone(String? text);
+    method public Self setTelephoneNumber(String? text);
   }
 
   public static final class Person.Companion {
