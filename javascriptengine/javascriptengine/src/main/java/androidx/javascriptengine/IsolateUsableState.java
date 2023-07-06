@@ -224,34 +224,6 @@ final class IsolateUsableState implements IsolateState {
 
     @NonNull
     @Override
-    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            final String futureDebugMessage = "evaluateJavascript Future";
-            IJsSandboxIsolateSyncCallbackStubWrapper callbackStub =
-                    new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
-            try {
-                // We pass the codeAfd to the separate sandbox process but we still need to
-                // close it on our end to avoid file descriptor leaks.
-                try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
-                        mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor)) {
-                    mJsIsolateStub.evaluateJavascriptWithFd(codeAfd,
-                            callbackStub);
-                }
-                addToPendingCompleterSet(completer);
-            } catch (DeadObjectException e) {
-                // The sandbox process has died.
-                mJsIsolate.maybeSetSandboxDead();
-                completer.setException(new SandboxDeadException());
-            } catch (RemoteException | IOException e) {
-                completer.setException(new RuntimeException(e));
-            }
-            // Debug string.
-            return futureDebugMessage;
-        });
-    }
-
-    @NonNull
-    @Override
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
         if (mJsIsolate.mJsSandbox.isFeatureSupported(
                 JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT)) {
@@ -406,5 +378,32 @@ final class IsolateUsableState implements IsolateState {
         for (CallbackToFutureAdapter.Completer<String> ele : completers) {
             ele.setException(e);
         }
+    }
+
+    @NonNull
+    ListenableFuture<String> evaluateJavaScriptAsync(@NonNull byte[] code) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            final String futureDebugMessage = "evaluateJavascript Future";
+            IJsSandboxIsolateSyncCallbackStubWrapper callbackStub =
+                    new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
+            try {
+                // We pass the codeAfd to the separate sandbox process but we still need to
+                // close it on our end to avoid file descriptor leaks.
+                try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
+                        mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor)) {
+                    mJsIsolateStub.evaluateJavascriptWithFd(codeAfd,
+                            callbackStub);
+                }
+                addToPendingCompleterSet(completer);
+            } catch (DeadObjectException e) {
+                // The sandbox process has died.
+                mJsIsolate.maybeSetSandboxDead();
+                completer.setException(new SandboxDeadException());
+            } catch (RemoteException | IOException e) {
+                completer.setException(new RuntimeException(e));
+            }
+            // Debug string.
+            return futureDebugMessage;
+        });
     }
 }

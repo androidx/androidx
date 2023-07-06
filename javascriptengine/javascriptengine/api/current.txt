@@ -52,7 +52,6 @@ package androidx.javascriptengine {
   public final class JavaScriptIsolate implements java.lang.AutoCloseable {
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void clearConsoleCallback();
     method public void close();
-    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(byte[]);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public boolean provideNamedData(String, byte[]);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setConsoleCallback(androidx.javascriptengine.JavaScriptConsoleCallback);
