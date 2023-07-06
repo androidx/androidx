@@ -77,6 +77,40 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     private val clipMap = mutableMapOf<Component, ClipComponent>()
     private var content: (@Composable () -> Unit)? = null
 
+    /**
+     * Determines whether the Compose state in [ComposePanel] should be disposed
+     * when panel is detached from Swing hierarchy (when [removeNotify] is called).
+     *
+     * If it is set to false, it is developer's responsibility to call [dispose] function
+     * when Compose state and all related to [ComposePanel] resources are no longer needed.
+     * It can be useful for cases when [ComposePanel] can be attached/detached to Swing hierarchy multiple times,
+     * so with [isDisposeOnRemove] = `false` state will be preserved.
+     *
+     * On the other hand, [isDisposeOnRemove] = `true` can be useful for stateless components,
+     * that can be recreated for each attaching to Swing hierarchy.
+     *
+     * @see dispose
+     */
+    @ExperimentalComposeUiApi
+    var isDisposeOnRemove: Boolean = true
+
+    /**
+     * Disposes Compose state and rendering resources.
+     *
+     * Should be called only when [ComposePanel] is detached from Swing hierarchy.
+     * Otherwise, nothing will happen.
+     *
+     * @see isDisposeOnRemove
+     */
+    @ExperimentalComposeUiApi
+    fun dispose() {
+        if (bridge != null) {
+            bridge!!.dispose()
+            super.remove(bridge!!.component)
+            bridge = null
+        }
+    }
+
     override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
         bridge?.component?.setSize(width, height)
         super.setBounds(x, y, width, height)
@@ -144,9 +178,11 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
 
         // After [super.addNotify] is called we can safely initialize the bridge and composable
         // content.
-        bridge = createComposeBridge()
-        initContent()
-        super.add(bridge!!.component, Integer.valueOf(1))
+        if (bridge == null) {
+            bridge = createComposeBridge()
+            initContent()
+            super.add(bridge!!.component, Integer.valueOf(1))
+        }
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -189,13 +225,11 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun removeNotify() {
-        if (bridge != null) {
-            bridge!!.dispose()
-            super.remove(bridge!!.component)
-            bridge = null
+        if (isDisposeOnRemove) {
+            dispose()
         }
-
         super.removeNotify()
     }
 

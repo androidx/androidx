@@ -18,6 +18,7 @@ package androidx.compose.ui.awt
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -25,17 +26,15 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.density
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.skiko.MainUIDispatcher
-import org.junit.Test
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import javax.swing.JFrame
-import org.jetbrains.skiko.ExperimentalSkikoApi
-import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.OS
-import org.jetbrains.skiko.SkiaLayerAnalytics
+import kotlin.test.assertEquals
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.skiko.*
 import org.junit.Assume.assumeFalse
+import org.junit.Test
 
 class ComposePanelTest {
     @Test
@@ -157,6 +156,94 @@ class ComposePanelTest {
                 frame.isVisible = true
                 frame.contentPane.paint(frame.graphics)
                 assertThat(rendererIsCalled).isTrue()
+            } finally {
+                frame.dispose()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun `compose state shouldn't reset on panel remove and add with isDisposeOnRemove = false`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            var initialStateCounter = 0
+            val composePanel = ComposePanel().apply {
+                isDisposeOnRemove = false
+            }
+            composePanel.setContent {
+                var state by remember { mutableStateOf(0) }
+
+                LaunchedEffect(state) {
+                    if (state == 0) {
+                        state++
+                        initialStateCounter++
+                    }
+                }
+            }
+
+            val frame = JFrame()
+            try {
+                frame.contentPane.add(composePanel)
+                frame.isUndecorated = true
+
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.remove(composePanel)
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.add(composePanel)
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+            } finally {
+                frame.dispose()
+                composePanel.dispose()
+            }
+        }
+    }
+
+    @Test
+    fun `compose state should reset on panel remove and add`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            var initialStateCounter = 0
+            val composePanel = ComposePanel()
+            composePanel.setContent {
+                var state by remember { mutableStateOf(0) }
+
+                LaunchedEffect(state) {
+                    if (state == 0) {
+                        state++
+                        initialStateCounter++
+                    }
+                }
+            }
+
+            val frame = JFrame()
+            try {
+                frame.contentPane.add(composePanel)
+                frame.isUndecorated = true
+
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.remove(composePanel)
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.add(composePanel)
+                delay(1000)
+                assertEquals(2, initialStateCounter)
             } finally {
                 frame.dispose()
             }
