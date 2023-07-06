@@ -33,18 +33,19 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(Parameterized::class)
-class CachedPageEventFlowTest(
-    private val terminationType: TerminationType
-) {
+class CachedPageEventFlowTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun slowFastCollectors() = testScope.runTest {
+    fun slowFastCollectors_CLOSE_UPSTREAM() = slowFastCollectors(TerminationType.CLOSE_UPSTREAM)
+
+    @Test
+    fun slowFastCollectors_CLOSE_CACHED_EVENT_FLOW() =
+        slowFastCollectors(TerminationType.CLOSE_CACHED_EVENT_FLOW)
+
+    private fun slowFastCollectors(terminationType: TerminationType) = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),
@@ -144,7 +145,13 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun ensureSharing() = testScope.runTest {
+    fun ensureSharing_CLOSE_UPSTREAM() = ensureSharing(TerminationType.CLOSE_UPSTREAM)
+
+    @Test
+    fun ensureSharing_CLOSE_CACHED_EVENT_FLOW() =
+        ensureSharing(TerminationType.CLOSE_CACHED_EVENT_FLOW)
+
+    private fun ensureSharing(terminationType: TerminationType) = testScope.runTest {
         val refreshEvent = localRefresh(
             listOf(
                 TransformablePage(
@@ -342,12 +349,6 @@ class CachedPageEventFlowTest(
 
         fun isActive() = job?.isActive ?: false
         fun items() = items.toList()
-    }
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun params() = TerminationType.values()
     }
 
     enum class TerminationType {

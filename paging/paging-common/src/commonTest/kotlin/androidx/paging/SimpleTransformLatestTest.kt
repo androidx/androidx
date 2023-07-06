@@ -29,22 +29,22 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@RunWith(Parameterized::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-class SimpleTransformLatestTest(
-    val impl: Impl
-) {
+class SimpleTransformLatestTest {
     private val testScope = TestScope()
 
     @Test
-    fun delayed() = testScope.runTest {
+    fun delayed_TRANSFORM_LATEST() = delayed(Impl.TRANSFORM_LATEST)
+
+    @Test
+    fun delayed_SIMPLE_TRANSFORM_LATEST() = delayed(Impl.SIMPLE_TRANSFORM_LATEST)
+
+    private fun delayed(impl: Impl) = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3)
                 .onEach { delay(100) }
-                .testTransformLatest<Int, String> { value ->
+                .testTransformLatest<Int, String>(impl) { value ->
                     repeat(3) {
                         emit("$value - $it")
                         delay(75)
@@ -58,11 +58,16 @@ class SimpleTransformLatestTest(
     }
 
     @Test
-    fun allValues() = testScope.runTest {
+    fun allValues_TRANSFORM_LATEST() = allValues(Impl.TRANSFORM_LATEST)
+
+    @Test
+    fun allValues_SIMPLE_TRANSFORM_LATEST() = allValues(Impl.SIMPLE_TRANSFORM_LATEST)
+
+    private fun allValues(impl: Impl) = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3)
                 .onEach { delay(1) }
-                .testTransformLatest<Int, String> { value ->
+                .testTransformLatest<Int, String>(impl) { value ->
                     repeat(3) { emit("$value - $it") }
                 }.toList()
         ).containsExactly(
@@ -73,12 +78,18 @@ class SimpleTransformLatestTest(
     }
 
     @Test
-    fun reusePreviousCollector() = testScope.runTest {
+    fun reusePreviousCollector_TRANSFORM_LATEST() = reusePreviousCollector(Impl.TRANSFORM_LATEST)
+
+    @Test
+    fun reusePreviousCollector_SIMPLE_TRANSFORM_LATEST() =
+        reusePreviousCollector(Impl.SIMPLE_TRANSFORM_LATEST)
+
+    private fun reusePreviousCollector(impl: Impl) = testScope.runTest {
         var prevCollector: FlowCollector<String>? = null
         assertThat(
             flowOf(1, 2, 3)
                 .onEach { delay(1) }
-                .testTransformLatest<Int, String> { value ->
+                .testTransformLatest<Int, String>(impl) { value ->
                     if (prevCollector == null) {
                         prevCollector = this
                         awaitCancellation()
@@ -90,6 +101,7 @@ class SimpleTransformLatestTest(
     }
 
     private fun <T, R> Flow<T>.testTransformLatest(
+        impl: Impl,
         transform: suspend FlowCollector<R>.(value: T) -> Unit
     ): Flow<R> {
         return when (impl) {
@@ -98,12 +110,6 @@ class SimpleTransformLatestTest(
             Impl.SIMPLE_TRANSFORM_LATEST ->
                 this@testTransformLatest.simpleTransformLatest(transform)
         }
-    }
-
-    companion object {
-        @Parameterized.Parameters(name = "impl={0}")
-        @JvmStatic
-        fun params() = Impl.values()
     }
 
     enum class Impl {
