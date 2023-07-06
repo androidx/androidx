@@ -17,6 +17,7 @@
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -62,6 +63,8 @@ androidXMultiplatform {
 }
 
 androidx {
+    legacyDisableKotlinStrictApiMode = true // Temporarily enabled to allow API tracking
     publish = Publish.SNAPSHOT_ONLY
+    runApiTasks = new RunApiTasks.Yes() // Used to diff against Google Truth
     type = LibraryType.INTERNAL_TEST_LIBRARY
 }
