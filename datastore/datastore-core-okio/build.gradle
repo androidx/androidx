@@ -46,7 +46,6 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.okio)
-                api(libs.atomicFu)
             }
         }
         jvmMain {

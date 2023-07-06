@@ -19,6 +19,8 @@ package androidx.datastore.core.okio
 import kotlinx.atomicfu.AtomicBoolean as AtomicFuAtomicBoolean
 import kotlinx.atomicfu.AtomicInt as AtomicFuAtomicInt
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 internal actual class AtomicInt actual constructor(initialValue: Int) {
     private var delegate: AtomicFuAtomicInt = atomic(initialValue)
@@ -45,5 +47,17 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
 
     actual fun set(value: Boolean) {
         property = value
+    }
+}
+
+internal actual class Synchronizer {
+    /**
+     * This is public to allow inlining withLock. Since we use it from common, for all
+     * intents and purposes, delegate is not visible. So it is cheaper to do this instead
+     * of forcing an object creation to call withLock.
+     */
+    val delegate = SynchronizedObject()
+    actual inline fun<T> withLock(crossinline block: () -> T): T {
+        return synchronized(delegate, block)
     }
 }
