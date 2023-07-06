@@ -1130,6 +1130,7 @@ internal class ComplicationDataSourceChooserContract :
                 input.instanceId,
                 input.showComplicationDeniedDialogIntent,
                 input.showComplicationRationaleDialogIntent,
+                input.editorSession.userStyle.value.toUserStyleData()
             )
         val complicationState = complicationSlotsState[input.complicationSlotId]!!
         intent.replaceExtras(
