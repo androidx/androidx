@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.tokens.ShapeTokens
 
 /**
  * Defines the border for a TV component.
@@ -35,7 +36,7 @@ import androidx.compose.ui.unit.dp
 class Border(
     val border: BorderStroke,
     val inset: Dp = 0.dp,
-    val shape: Shape = ShapeDefaults.Medium
+    val shape: Shape = ShapeTokens.BorderDefaultShape
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
