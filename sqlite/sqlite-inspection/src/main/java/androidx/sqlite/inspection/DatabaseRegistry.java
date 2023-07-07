@@ -371,7 +371,7 @@ class DatabaseRegistry {
          * This should only be called after removing the object from
          * {@link DatabaseRegistry#mKeepOpenReferences}. Otherwise, the object will get in its
          * own way or releasing its references.
-         **/
+         */
         private void releaseAllReferences() {
             synchronized (mLock) {
                 for (; mAcquiredReferenceCount > 0; mAcquiredReferenceCount--) {

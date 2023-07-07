@@ -39,7 +39,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TabContentsConstraints {
 
-    /** Allow restricted set of templates as contents for a tab **/
+    /** Allow restricted set of templates as contents for a tab */
     @NonNull
     public static final TabContentsConstraints DEFAULT =
             new TabContentsConstraints(Arrays.asList(

@@ -77,13 +77,13 @@ internal fun Pager(
     userScrollEnabled: Boolean,
     /** Number of pages to layout before and after the visible pages */
     beyondBoundsPageCount: Int = 0,
-    /** Space between pages **/
+    /** Space between pages */
     pageSpacing: Dp = 0.dp,
-    /** Allows to change how to calculate the Page size **/
+    /** Allows to change how to calculate the Page size */
     pageSize: PageSize,
-    /** A [NestedScrollConnection] that dictates how this [Pager] behaves with nested lists.  **/
+    /** A [NestedScrollConnection] that dictates how this [Pager] behaves with nested lists.  */
     pageNestedScrollConnection: NestedScrollConnection,
-    /** a stable and unique key representing the Page **/
+    /** a stable and unique key representing the Page */
     key: ((index: Int) -> Any)?,
     /** The alignment to align pages horizontally. Required when isVertical is true */
     horizontalAlignment: Alignment.Horizontal,

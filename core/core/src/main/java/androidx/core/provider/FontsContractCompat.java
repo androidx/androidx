@@ -377,7 +377,7 @@ public class FontsContractCompat {
         /**
          * @deprecated Not being used by any cross library, and should not be used, internal
          * implementation detail.
-         **/
+         */
         // TODO after removing from public API make package private.
         @Deprecated
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -508,7 +508,7 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     **/
+     */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     static final int RESULT_CODE_PROVIDER_NOT_FOUND = -1;
@@ -516,7 +516,7 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     **/
+     */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
@@ -525,7 +525,7 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     **/
+     */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface getFontSync(
@@ -547,7 +547,7 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     **/
+     */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void resetCache() {
@@ -582,7 +582,7 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     **/
+     */
     @Deprecated // unused
     @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP_PREFIX)

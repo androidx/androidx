@@ -38,7 +38,7 @@ class BeginCreateCredentialResponse constructor(
     val remoteEntry: RemoteEntry? = null
 ) {
 
-    /** Builder for [BeginCreateCredentialResponse]. **/
+    /** Builder for [BeginCreateCredentialResponse]. */
     class Builder {
         private var createEntries: MutableList<CreateEntry> = mutableListOf()
         private var remoteEntry: RemoteEntry? = null

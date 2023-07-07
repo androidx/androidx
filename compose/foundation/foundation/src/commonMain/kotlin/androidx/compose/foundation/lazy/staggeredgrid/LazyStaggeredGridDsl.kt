@@ -236,7 +236,7 @@ private class LazyStaggeredGridSlotCache(
     }
 }
 
-/** Dsl marker for [LazyStaggeredGridScope] below **/
+/** Dsl marker for [LazyStaggeredGridScope] below */
 @DslMarker
 internal annotation class LazyStaggeredGridScopeMarker
 

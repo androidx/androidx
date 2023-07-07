@@ -38,12 +38,12 @@ import androidx.fragment.app.DialogFragment;
  */
 public class AppCompatDialogFragment extends DialogFragment {
 
-    /** {@inheritDoc} **/
+    /** {@inheritDoc} */
     public AppCompatDialogFragment() {
         super();
     }
 
-    /** {@inheritDoc} **/
+    /** {@inheritDoc} */
     public AppCompatDialogFragment(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
     }

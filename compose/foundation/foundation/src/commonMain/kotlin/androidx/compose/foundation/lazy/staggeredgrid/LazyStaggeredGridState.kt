@@ -128,7 +128,7 @@ class LazyStaggeredGridState private constructor(
         }
     }
 
-    /** holder for current scroll position **/
+    /** holder for current scroll position */
     internal val scrollPosition = LazyStaggeredGridScrollPosition(
         initialFirstVisibleItems,
         initialFirstVisibleOffsets,
@@ -144,11 +144,11 @@ class LazyStaggeredGridState private constructor(
      */
     val layoutInfo: LazyStaggeredGridLayoutInfo get() = layoutInfoState.value
 
-    /** backing state for [layoutInfo] **/
+    /** backing state for [layoutInfo] */
     private val layoutInfoState: MutableState<LazyStaggeredGridLayoutInfo> =
         mutableStateOf(EmptyLazyStaggeredGridLayoutInfo)
 
-    /** storage for lane assignments for each item for consistent scrolling in both directions **/
+    /** storage for lane assignments for each item for consistent scrolling in both directions */
     internal val laneInfo = LazyStaggeredGridLaneInfo()
 
     override var canScrollForward: Boolean by mutableStateOf(false)
@@ -156,7 +156,7 @@ class LazyStaggeredGridState private constructor(
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
-    /** implementation of [LazyAnimateScrollScope] scope required for [animateScrollToItem] **/
+    /** implementation of [LazyAnimateScrollScope] scope required for [animateScrollToItem] */
     private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)
 
     internal var remeasurement: Remeasurement? = null
@@ -182,28 +182,28 @@ class LazyStaggeredGridState private constructor(
     /*@VisibleForTesting*/
     internal var prefetchingEnabled: Boolean = true
 
-    /** prefetch state used for precomputing items in the direction of scroll **/
+    /** prefetch state used for precomputing items in the direction of scroll */
     internal val prefetchState: LazyLayoutPrefetchState = LazyLayoutPrefetchState()
 
-    /** state controlling the scroll **/
+    /** state controlling the scroll */
     private val scrollableState = ScrollableState { -onScroll(-it) }
 
-    /** scroll to be consumed during next/current layout pass **/
+    /** scroll to be consumed during next/current layout pass */
     internal var scrollToBeConsumed = 0f
         private set
 
     /* @VisibleForTesting */
     internal var measurePassCount = 0
 
-    /** transient information from measure required for prefetching **/
+    /** transient information from measure required for prefetching */
     internal var isVertical = false
     internal var slots: LazyStaggeredGridSlots? = null
     internal var spanProvider: LazyStaggeredGridSpanProvider? = null
-    /** prefetch state **/
+    /** prefetch state */
     private var prefetchBaseIndex: Int = -1
     private val currentItemPrefetchHandles = mutableMapOf<Int, PrefetchHandle>()
 
-    /** state required for implementing [animateScrollScope] **/
+    /** state required for implementing [animateScrollScope] */
     internal var density: Density = Density(1f, 1f)
     internal val laneCount get() = slots?.sizes?.size ?: 0
 
@@ -214,7 +214,7 @@ class LazyStaggeredGridState private constructor(
      */
     val interactionSource get(): InteractionSource = mutableInteractionSource
 
-    /** backing field mutable field for [interactionSource] **/
+    /** backing field mutable field for [interactionSource] */
     internal val mutableInteractionSource = MutableInteractionSource()
 
     /**
@@ -249,7 +249,7 @@ class LazyStaggeredGridState private constructor(
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
-    /** Main scroll callback which adjusts scroll delta and remeasures layout **/
+    /** Main scroll callback which adjusts scroll delta and remeasures layout */
     private fun onScroll(distance: Float): Float {
         if (distance < 0 && !canScrollForward || distance > 0 && !canScrollBackward) {
             return 0f
@@ -343,7 +343,7 @@ class LazyStaggeredGridState private constructor(
     override fun dispatchRawDelta(delta: Float): Float =
         scrollableState.dispatchRawDelta(delta)
 
-    /** Start prefetch of the items based on provided delta **/
+    /** Start prefetch of the items based on provided delta */
     private fun notifyPrefetch(delta: Float) {
         val info = layoutInfoState.value
         if (info.visibleItemsInfo.isNotEmpty()) {
@@ -438,7 +438,7 @@ class LazyStaggeredGridState private constructor(
         }
     }
 
-    /** updates state after measure pass **/
+    /** updates state after measure pass */
     internal fun applyMeasureResult(result: LazyStaggeredGridMeasureResult) {
         scrollToBeConsumed -= result.consumedScroll
         canScrollBackward = result.canScrollBackward

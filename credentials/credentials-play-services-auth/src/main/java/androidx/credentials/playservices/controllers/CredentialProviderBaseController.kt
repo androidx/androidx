@@ -59,7 +59,7 @@ internal open class CredentialProviderBaseController(private val context: Contex
         const val CREATE_INTERRUPTED = "CREATE_INTERRUPTED"
         const val CREATE_UNKNOWN = "CREATE_UNKNOWN"
 
-        /** ---- Data Constants to pass between the controllers and the hidden activity---- **/
+        /** ---- Data Constants to pass between the controllers and the hidden activity---- */
 
         // Key to indicate type sent from controller to hidden activity
         const val TYPE_TAG = "TYPE"

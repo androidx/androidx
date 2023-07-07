@@ -254,7 +254,7 @@ class Transition<S> @PublishedApi internal constructor(
         get() = _animations
 
     // Seeking related
-    /** @suppress **/
+    /** @suppress */
     @InternalAnimationApi
     var isSeeking: Boolean by mutableStateOf(false)
         internal set

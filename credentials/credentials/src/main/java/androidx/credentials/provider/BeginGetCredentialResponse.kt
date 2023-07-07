@@ -46,7 +46,7 @@ class BeginGetCredentialResponse constructor(
     val authenticationActions: List<AuthenticationAction> = listOf(),
     val remoteEntry: RemoteEntry? = null
 ) {
-    /** Builder for [BeginGetCredentialResponse]. **/
+    /** Builder for [BeginGetCredentialResponse]. */
     class Builder {
         private var credentialEntries: MutableList<CredentialEntry> = mutableListOf()
         private var actions: MutableList<Action> = mutableListOf()

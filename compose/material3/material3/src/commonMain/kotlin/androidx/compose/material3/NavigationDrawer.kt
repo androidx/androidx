@@ -615,7 +615,7 @@ object DrawerDefaults {
     /** Default container color for a navigation drawer */
     val containerColor: Color @Composable get() = NavigationDrawerTokens.ContainerColor.toColor()
 
-    /** Default and maximum width of a navigation drawer **/
+    /** Default and maximum width of a navigation drawer */
     val MaximumDrawerWidth = NavigationDrawerTokens.ContainerWidth
 
     /**

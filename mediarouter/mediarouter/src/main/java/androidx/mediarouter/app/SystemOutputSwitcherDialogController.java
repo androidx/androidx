@@ -43,11 +43,11 @@ public final class SystemOutputSwitcherDialogController {
     private static final String PACKAGE_NAME_SYSTEM_UI =
             "com.android.systemui";
 
-    /** Output switcher dialog intent action in Android S. **/
+    /** Output switcher dialog intent action in Android S. */
     private static final String OUTPUT_SWITCHER_INTENT_ACTION_ANDROID_S =
             "com.android.systemui.action.LAUNCH_MEDIA_OUTPUT_DIALOG";
 
-    /** Output switcher dialog intent action in Android R. **/
+    /** Output switcher dialog intent action in Android R. */
     private static final String OUTPUT_SWITCHER_INTENT_ACTION_ANDROID_R =
             "com.android.settings.panel.action.MEDIA_OUTPUT";
 
