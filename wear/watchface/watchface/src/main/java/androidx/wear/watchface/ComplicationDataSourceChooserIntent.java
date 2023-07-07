@@ -110,6 +110,13 @@ public class ComplicationDataSourceChooserIntent {
             "android.support.wearable.complications.EXTRA_PROVIDER_INFO";
 
     /**
+     * Key for an extra that holds the [UserStyleWireFormat].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_USER_STYLE =
+            "androidx.wear.watchface.complications.EXTRA_USER_STYLE";
+
+    /**
      * Returns an intent that may be used to start an activity to allow the user to select a
      * complication data source for the given complication. The activity will show a list of all
      * complication data source that can supply data of at least one of the {@code supportedTypes}.

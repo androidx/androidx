@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.wear.watchface.complications.ComplicationDataSourceUpdateRequesterConstants;
 import androidx.wear.watchface.complications.data.ComplicationType;
+import androidx.wear.watchface.style.UserStyleData;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -383,7 +384,8 @@ public final class ComplicationHelperActivity extends ComponentActivity
             @NonNull Collection<ComplicationType> supportedTypes,
             @Nullable String watchFaceInstanceId,
             @Nullable Intent complicationDenied,
-            @Nullable Intent complicationRationale) {
+            @Nullable Intent complicationRationale,
+            @Nullable UserStyleData userStyleData) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(
@@ -404,6 +406,11 @@ public final class ComplicationHelperActivity extends ComponentActivity
             intent.putExtra(
                     ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
                     complicationRationale);
+        }
+        if (userStyleData != null) {
+            intent.putExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_USER_STYLE,
+                    userStyleData.toWireFormat());
         }
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
