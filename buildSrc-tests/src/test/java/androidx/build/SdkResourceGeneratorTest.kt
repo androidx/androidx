@@ -21,17 +21,24 @@ import java.io.File
 import java.util.Properties
 import net.saff.checkmark.Checkmark.Companion.check
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.provider.Provider
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.junit.Test
 
 class SdkResourceGeneratorTest {
     @Test
     fun `All SDK properties are resolved`() {
         androidx.build.dependencies.agpVersion = "1.2.3"
-        androidx.build.dependencies.kotlinVersion = "2.3.4"
         androidx.build.dependencies.kspVersion = "3.4.5"
 
         val project = ProjectBuilder.builder().build()
+        project.extensions.create(
+            "androidXConfiguration",
+            AndroidXConfigImpl::class.java,
+            project.provider { KotlinVersion.KOTLIN_1_7 },
+            project.provider { "1.7.10" }
+        )
 
         project.setSupportRootFolder(File("files/support"))
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
@@ -57,4 +64,9 @@ class SdkResourceGeneratorTest {
             assertThat(propertyValue.toString()).doesNotMatch("task '.+?' property '.+?'")
         }
     }
+
+    internal open class AndroidXConfigImpl(
+        override val kotlinApiVersion: Provider<KotlinVersion>,
+        override val kotlinBomVersion: Provider<String>
+    ) : AndroidXConfiguration
 }

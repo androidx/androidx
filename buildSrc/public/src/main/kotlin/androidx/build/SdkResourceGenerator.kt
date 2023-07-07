@@ -17,8 +17,6 @@
 package androidx.build
 
 import androidx.build.dependencies.AGP_LATEST
-import androidx.build.dependencies.KOTLIN_STDLIB
-import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.dependencies.KSP_VERSION
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
@@ -70,10 +68,10 @@ abstract class SdkResourceGenerator : DefaultTask() {
     val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0-alpha01"
 
     @get:Input
-    val kotlinStdlib: String = KOTLIN_STDLIB
+    abstract val kotlinStdlib: Property<String>
 
     @get:Input
-    val kotlinVersion: String = KOTLIN_VERSION
+    abstract val kotlinVersion: Property<String>
 
     @get:Input
     val kspVersion: String = KSP_VERSION
@@ -108,11 +106,11 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
             writer.write("agpDependency=$agpDependency\n")
             writer.write("navigationRuntime=$navigationRuntime\n")
-            writer.write("kotlinStdlib=$kotlinStdlib\n")
+            writer.write("kotlinStdlib=${kotlinStdlib.get()}\n")
             writer.write("compileSdkVersion=${compileSdkVersion.get()}\n")
             writer.write("buildToolsVersion=${buildToolsVersion.get()}\n")
             writer.write("minSdkVersion=${minSdkVersion.get()}\n")
-            writer.write("kotlinVersion=$kotlinVersion\n")
+            writer.write("kotlinVersion=${kotlinVersion.get()}\n")
             writer.write("kspVersion=$kspVersion\n")
             writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
         }
@@ -144,6 +142,12 @@ abstract class SdkResourceGenerator : DefaultTask() {
                 )
                 it.minSdkVersion.set(project.defaultAndroidConfig.minSdk)
                 it.compileSdkVersion.set(project.defaultAndroidConfig.compileSdk)
+                it.kotlinStdlib.set(
+                    project.androidXConfiguration.kotlinBomVersion.map { version ->
+                        "org.jetbrains.kotlin:kotlin-stdlib:$version"
+                    }
+                )
+                it.kotlinVersion.set(project.androidXConfiguration.kotlinBomVersion)
                 it.buildSrcOutRelativePath =
                     (project.properties["buildSrcOut"] as File).toRelativeString(project.projectDir)
                 // Copy repositories used for the library project so that it can replicate the same

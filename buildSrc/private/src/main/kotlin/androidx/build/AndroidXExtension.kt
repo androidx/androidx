@@ -27,11 +27,12 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /**
  * Extension for [AndroidXImplPlugin] that's responsible for holding configuration options.
  */
-abstract class AndroidXExtension(val project: Project) : ExtensionAware {
+abstract class AndroidXExtension(val project: Project) : ExtensionAware, AndroidXConfiguration {
 
     @JvmField
     val LibraryVersions: Map<String, Version>
@@ -87,6 +88,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         ) { spec ->
             spec.parameters.settingsFile = settings
         }
+
+        kotlinTarget.set(KotlinTarget.DEFAULT)
     }
 
     var name: Property<String?> = project.objects.property(String::class.java)
@@ -393,6 +396,25 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             project.getFrameworksSupportCommitShaAtHead()
         }
     }
+
+    /**
+     * Specify the version for Kotlin API compatibility mode used during Kotlin compilation.
+     *
+     * Changing this value will force clients to update their Kotlin compiler version, which may be
+     * disruptive. Library developers should only change this value if there is a strong reason to
+     * upgrade their Kotlin API version ahead of the rest of Jetpack.
+     */
+    abstract val kotlinTarget: Property<KotlinTarget>
+
+    override val kotlinApiVersion: Provider<KotlinVersion>
+        get() = kotlinTarget.map {
+            it.apiVersion
+        }
+
+    override val kotlinBomVersion: Provider<String>
+        get() = kotlinTarget.map {
+            project.getVersionByName(it.catalogVersion)
+        }
 
     companion object {
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"

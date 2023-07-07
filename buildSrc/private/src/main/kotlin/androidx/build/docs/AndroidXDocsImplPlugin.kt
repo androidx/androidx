@@ -20,7 +20,6 @@ import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
-import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.getAndroidJar
 import androidx.build.getBuildId
 import androidx.build.getCheckoutRoot
@@ -29,6 +28,7 @@ import androidx.build.getKeystore
 import androidx.build.getLibraryByName
 import androidx.build.metalava.versionMetadataUsage
 import androidx.build.multiplatformUsage
+import androidx.build.versionCatalog
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
@@ -414,11 +414,13 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val docsRuntimeClasspath = project.configurations.create("docs-runtime-classpath") {
             it.setResolveClasspathForUsage(Usage.JAVA_RUNTIME)
         }
+        val kotlinDefaultCatalogVersion = androidx.build.KotlinTarget.DEFAULT.catalogVersion
+        val kotlinLatest = project.versionCatalog.findVersion(kotlinDefaultCatalogVersion).get()
         listOf(docsCompileClasspath, docsRuntimeClasspath).forEach { config ->
             config.resolutionStrategy {
                 it.eachDependency { details ->
                     if (details.requested.group == "org.jetbrains.kotlin") {
-                        details.useVersion(KOTLIN_VERSION)
+                        details.useVersion(kotlinLatest.requiredVersion)
                     }
                 }
             }

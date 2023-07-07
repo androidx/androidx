@@ -24,7 +24,6 @@ import androidx.build.checkapi.JavaApiTaskConfig
 import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
-import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.configurePublicResourcesStub
@@ -84,10 +83,13 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -123,7 +125,7 @@ class AndroidXImplPlugin @Inject constructor(
         }
 
         project.configureKtlint()
-        project.configureKotlinStdlibVersion()
+        project.configureKotlinVersion()
 
         // Configure all Jar-packing tasks for hermetic builds.
         project.tasks.withType(Zip::class.java).configureEach { it.configureForHermeticBuild() }
@@ -287,6 +289,50 @@ class AndroidXImplPlugin @Inject constructor(
         }
     }
 
+    /**
+     * Configures the project to use the Kotlin version specified by `androidx.kotlinTarget`.
+     */
+    private fun Project.configureKotlinVersion() {
+        val kotlinVersionStringProvider = androidXConfiguration.kotlinBomVersion
+
+        // Resolve Kotlin versions to the target version or higher.
+        configurations.all { configuration ->
+            configuration.resolutionStrategy { strategy ->
+                strategy.eachDependency { details ->
+                    if (details.requested.group == "org.jetbrains.kotlin") {
+                        val requestedVersion = if (details.requested.version.isNullOrEmpty()) {
+                            null
+                        } else {
+                            Version(details.requested.version!!)
+                        }
+                        val bomVersion = kotlinVersionStringProvider.get()
+                        if (requestedVersion == null || requestedVersion < Version(bomVersion)) {
+                            details.useVersion(bomVersion)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set the Kotlin compiler's API and language version to ensure bytecode is compatible.
+        val kotlinVersionProvider = kotlinVersionStringProvider.map { version ->
+            KotlinVersion.fromVersion(version.substringBeforeLast('.'))
+        }
+        tasks.configureEach { task ->
+            (task as? KotlinCompilationTask<*>)?.apply {
+                compilerOptions.apiVersion.set(kotlinVersionProvider)
+                compilerOptions.languageVersion.set(kotlinVersionProvider)
+            }
+        }
+
+        // Specify coreLibrariesVersion for consumption by Kotlin Gradle Plugin.
+        afterEvaluate { evaluatedProject ->
+            evaluatedProject.kotlinExtensionOrNull?.let { kotlinExtension ->
+                kotlinExtension.coreLibrariesVersion = kotlinVersionStringProvider.get()
+            }
+        }
+    }
+
     private fun configureWithKotlinPlugin(
         project: Project,
         extension: AndroidXExtension,
@@ -435,20 +481,6 @@ class AndroidXImplPlugin @Inject constructor(
     private fun HasAndroidTest.excludeVersionFilesFromTestApks() {
         androidTest?.packaging?.resources?.apply {
             excludes.add("/META-INF/androidx*.version")
-        }
-    }
-
-    private fun Project.configureKotlinStdlibVersion() {
-        project.configurations.all { configuration ->
-            configuration.resolutionStrategy { strategy ->
-                strategy.eachDependency { details ->
-                    if (details.requested.group == "org.jetbrains.kotlin" &&
-                        (details.requested.name == "kotlin-stdlib-jdk7" ||
-                            details.requested.name == "kotlin-stdlib-jdk8")) {
-                        details.useVersion(KOTLIN_VERSION)
-                    }
-                }
-            }
         }
     }
 
@@ -1091,6 +1123,12 @@ private fun Project.addToProjectMap(extension: AndroidXExtension) {
 
 val Project.multiplatformExtension
     get() = extensions.findByType(KotlinMultiplatformExtension::class.java)
+
+val Project.kotlinExtensionOrNull: KotlinProjectExtension?
+    get() = extensions.findByType()
+
+val Project.androidXExtension: AndroidXExtension
+    get() = extensions.getByType()
 
 @Suppress("UNCHECKED_CAST")
 fun Project.getProjectsMap(): ConcurrentHashMap<String, String> {
