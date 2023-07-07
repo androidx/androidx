@@ -2883,6 +2883,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (flingX != 0 || flingY != 0) {
             flingX = Math.max(-mMaxFlingVelocity, Math.min(flingX, mMaxFlingVelocity));
             flingY = Math.max(-mMaxFlingVelocity, Math.min(flingY, mMaxFlingVelocity));
+            startNestedScrollForType(TYPE_NON_TOUCH);
             mViewFlinger.fling(flingX, flingY);
         }
         if (velocityX == 0 && velocityY == 0) {
@@ -2898,15 +2899,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
 
             if (canScroll) {
-                int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
-                if (canScrollHorizontal) {
-                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
-                }
-                if (canScrollVertical) {
-                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
-                }
-                startNestedScroll(nestedScrollAxis, TYPE_NON_TOUCH);
-
+                startNestedScrollForType(TYPE_NON_TOUCH);
                 velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
                 velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));
                 mViewFlinger.fling(velocityX, velocityY);
@@ -2914,6 +2907,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
         }
         return false;
+    }
+
+    private void startNestedScrollForType(int type) {
+        final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
+        final boolean canScrollVertical = mLayout.canScrollVertically();
+        int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
+        if (canScrollHorizontal) {
+            nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
+        }
+        if (canScrollVertical) {
+            nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
+        }
+        startNestedScroll(nestedScrollAxis, type);
     }
 
     /**
@@ -3730,14 +3736,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 // Clear the nested offsets
                 mNestedOffsets[0] = mNestedOffsets[1] = 0;
 
-                int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
-                if (canScrollHorizontally) {
-                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
-                }
-                if (canScrollVertically) {
-                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
-                }
-                startNestedScroll(nestedScrollAxis, TYPE_TOUCH);
+                startNestedScrollForType(TYPE_TOUCH);
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -3876,14 +3875,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 mInitialTouchX = mLastTouchX = (int) (e.getX() + 0.5f);
                 mInitialTouchY = mLastTouchY = (int) (e.getY() + 0.5f);
 
-                int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
-                if (canScrollHorizontally) {
-                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
-                }
-                if (canScrollVertically) {
-                    nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
-                }
-                startNestedScroll(nestedScrollAxis, TYPE_TOUCH);
+                startNestedScrollForType(TYPE_TOUCH);
             }
             break;
 
