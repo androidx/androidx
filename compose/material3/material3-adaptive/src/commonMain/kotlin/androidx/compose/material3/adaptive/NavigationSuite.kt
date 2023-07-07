@@ -191,7 +191,7 @@ private fun NavigationSuiteLayout(
  * component
  * @param layoutTypeProvider the current [NavigationLayoutTypeProvider] of the [NavigationSuite]
  * @param content the content inside the current navigation component, typically
- * [navigationSuiteItem]s
+ * [NavigationSuiteComponentScope.item]s
  *
  * TODO: Remove "internal".
  */
@@ -381,75 +381,43 @@ internal class NavigationLayoutType constructor(
  * TODO: Remove "internal".
  */
 internal interface NavigationSuiteComponentScope {
+
     /**
      * This function sets the parameters of the default Material navigation item to be used with the
      * Navigation Suite. The item is called in [NavigationSuiteComponent], according to the current
      * [NavigationLayoutType].
+     *
+     * For specifics about each item component, see [NavigationBarItem], [NavigationRailItem], and
+     * [NavigationDrawerItem].
+     *
+     * @param selected whether this item is selected
+     * @param onClick called when this item is clicked
+     * @param icon icon for this item, typically an [Icon]
+     * @param modifier the [Modifier] to be applied to this item
+     * @param enabled controls the enabled state of this item. When `false`, this component will not
+     * respond to user input, and it will appear visually disabled and disabled to accessibility
+     * services. Note: as of now, for [NavigationDrawerItem], this is always `true`.
+     * @param label the text label for this item
+     * @param alwaysShowLabel whether to always show the label for this item. If `false`, the label will
+     * only be shown when this item is selected. Note: for [NavigationDrawerItem] this is always `true`
+     * @param badge optional badge to show on this item
+     * @param colors [NavigationSuiteItemColors] that will be used to resolve the colors used for this
+     * item in different states.
+     * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+     * for this item. You can create and pass in your own `remember`ed instance to observe
+     * [Interaction]s and customize the appearance / behavior of this item in different states
      */
     fun item(
         selected: Boolean,
         onClick: () -> Unit,
         icon: @Composable () -> Unit,
-        modifier: Modifier,
-        enabled: Boolean,
-        label: @Composable (() -> Unit)?,
-        alwaysShowLabel: Boolean,
-        badge: (@Composable () -> Unit)?,
-        colors: NavigationSuiteItemColors?,
-        interactionSource: MutableInteractionSource
-    )
-}
-
-/**
- * This function sets the parameters of the default Material navigation item to be used with the
- * Navigation Suite. The item is called in [NavigationSuiteComponent], according to the current
- * [NavigationLayoutType].
- *
- * For specifics about each item component, see [NavigationBarItem], [NavigationRailItem], and
- * [NavigationDrawerItem].
- *
- * @param selected whether this item is selected
- * @param onClick called when this item is clicked
- * @param icon icon for this item, typically an [Icon]
- * @param modifier the [Modifier] to be applied to this item
- * @param enabled controls the enabled state of this item. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services. Note: as of now, for [NavigationDrawerItem], this is always `true`.
- * @param label the text label for this item
- * @param alwaysShowLabel whether to always show the label for this item. If `false`, the label will
- * only be shown when this item is selected. Note: for [NavigationDrawerItem] this is always `true`
- * @param badge optional badge to show on this item
- * @param colors [NavigationSuiteItemColors] that will be used to resolve the colors used for this
- * item in different states.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this item. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this item in different states
- *
- * TODO: Remove "internal".
- */
-internal fun NavigationSuiteComponentScope.navigationSuiteItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
-    alwaysShowLabel: Boolean = true,
-    badge: (@Composable () -> Unit)? = null,
-    colors: NavigationSuiteItemColors? = null,
-    interactionSource: MutableInteractionSource = MutableInteractionSource()
-) {
-    item(
-        selected = selected,
-        onClick = onClick,
-        icon = icon,
-        modifier = modifier,
-        enabled = enabled,
-        label = label,
-        badge = badge,
-        alwaysShowLabel = alwaysShowLabel,
-        colors = colors,
-        interactionSource = interactionSource
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        label: @Composable (() -> Unit)? = null,
+        alwaysShowLabel: Boolean = true,
+        badge: (@Composable () -> Unit)? = null,
+        colors: NavigationSuiteItemColors? = null,
+        interactionSource: MutableInteractionSource = MutableInteractionSource()
     )
 }
 
@@ -560,17 +528,17 @@ internal constructor(
 )
 
 /**
- * Represents the colors of a [navigationSuiteItem].
+ * Represents the colors of a [NavigationSuiteComponentScope.item].
  *
  * For specifics about each navigation item colors see [NavigationBarItemColors],
  * [NavigationRailItemColors], and [NavigationDrawerItemColors].
  *
  * @param navigationBarItemColors the [NavigationBarItemColors] associated with the
- * [NavigationBarItem] of the [navigationSuiteItem]
+ * [NavigationBarItem] of the [NavigationSuiteComponentScope.item]
  * @param navigationRailItemColors the [NavigationRailItemColors] associated with the
- * [NavigationRailItem] of the [navigationSuiteItem]
+ * [NavigationRailItem] of the [NavigationSuiteComponentScope.item]
  * @param navigationDrawerItemColors the [NavigationDrawerItemColors] associated with the
- * [NavigationDrawerItem] of the [navigationSuiteItem]
+ * [NavigationDrawerItem] of the [NavigationSuiteComponentScope.item]
  *
  * TODO: Remove "internal".
  */
