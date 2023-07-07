@@ -882,7 +882,7 @@ public class ColorRamp(
 public class RangedValueComplicationData
 internal constructor(
     public val value: Float,
-    public val dynamicValue: DynamicFloat?,
+    @get:RequiresApi(Build.VERSION_CODES.TIRAMISU) public val dynamicValue: DynamicFloat?,
     public val min: Float,
     public val max: Float,
     public val monochromaticImage: MonochromaticImage?,
@@ -988,6 +988,7 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public constructor(
             dynamicValue: DynamicFloat,
             fallbackValue: Float,
@@ -1245,7 +1246,7 @@ internal constructor(
 public class GoalProgressComplicationData
 internal constructor(
     public val value: Float,
-    public val dynamicValue: DynamicFloat?,
+    @get:RequiresApi(Build.VERSION_CODES.TIRAMISU) public val dynamicValue: DynamicFloat?,
     public val targetValue: Float,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
@@ -1333,6 +1334,7 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public constructor(
             dynamicValue: DynamicFloat,
             fallbackValue: Float,
