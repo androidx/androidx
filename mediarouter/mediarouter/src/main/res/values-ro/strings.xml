@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Redă într-un grup"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Nu sunt informații disponibile"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Nu sunt disponibile dispozitive"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Verifică dacă celălalt dispozitiv este în aceeași rețea Wi-Fi ca acest telefon"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Verifică dacă celălalt dispozitiv este în aceeași rețea Wi-Fi ca această tabletă"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Verifică dacă celălalt dispozitiv este în aceeași rețea Wi-Fi ca acest televizor"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Verifică dacă celălalt dispozitiv este în aceeași rețea Wi-Fi ca acest ceas"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Verifică dacă celălalt dispozitiv este în aceeași rețea Wi-Fi ca această mașină"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Verifică dacă celălalt dispozitiv este în aceeași rețea Wi-Fi ca acest dispozitiv"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Află mai multe"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Află cum să proiectezi"</string>
 </resources>
