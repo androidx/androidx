@@ -17,11 +17,9 @@
 package androidx.test.uiautomator;
 
 import android.annotation.SuppressLint;
-import android.app.Service;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -331,23 +329,8 @@ public class UiObject2 implements Searchable {
 
     /** Returns the visible bounds of a {@code node}. */
     private Rect getVisibleBounds(AccessibilityNodeInfo node) {
-        Rect screen = new Rect();
-        final int displayId = getDisplayId();
-        if (displayId == Display.DEFAULT_DISPLAY) {
-            screen = new Rect(0, 0, getDevice().getDisplayWidth(), getDevice().getDisplayHeight());
-        } else {
-            final DisplayManager dm =
-                    (DisplayManager) mDevice.getInstrumentation().getContext().getSystemService(
-                            Service.DISPLAY_SERVICE);
-            final Display display = dm.getDisplay(getDisplayId());
-            if (display != null) {
-                final Point size = new Point();
-                display.getRealSize(size);
-                screen = new Rect(0, 0, size.x, size.y);
-            } else {
-                Log.d(TAG, String.format("Unable to get the display with id %d.", displayId));
-            }
-        }
+        Point displaySize = getDevice().getDisplaySize(getDisplayId());
+        Rect screen = new Rect(0, 0, displaySize.x, displaySize.y);
         return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, screen, true);
     }
 

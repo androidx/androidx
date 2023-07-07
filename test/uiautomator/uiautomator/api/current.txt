@@ -175,10 +175,12 @@ package androidx.test.uiautomator {
     method public void freezeRotation() throws android.os.RemoteException;
     method @Deprecated public String! getCurrentActivityName();
     method public String! getCurrentPackageName();
-    method public int getDisplayHeight();
+    method @Px public int getDisplayHeight();
+    method @Px public int getDisplayHeight(int);
     method public int getDisplayRotation();
     method public android.graphics.Point getDisplaySizeDp();
-    method public int getDisplayWidth();
+    method @Px public int getDisplayWidth();
+    method @Px public int getDisplayWidth(int);
     method @Deprecated public static androidx.test.uiautomator.UiDevice getInstance();
     method public static androidx.test.uiautomator.UiDevice getInstance(android.app.Instrumentation);
     method public String! getLastTraversedText();
