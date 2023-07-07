@@ -18,6 +18,7 @@ package androidx.core.app;
 
 import android.app.GrammaticalInflectionManager;
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.DoNotInline;
@@ -26,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -90,7 +90,7 @@ public final class GrammaticalInflectionManagerCompat {
     @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @AnyThread
     public static int getApplicationGrammaticalGender(@NonNull Context context) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.getApplicationGrammaticalGender(context);
         } else {
             return 0;
@@ -108,7 +108,7 @@ public final class GrammaticalInflectionManagerCompat {
     @AnyThread
     public static void setRequestedApplicationGrammaticalGender(
             @NonNull Context context, @GrammaticalGender int grammaticalGender) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             Api34Impl.setRequestedApplicationGrammaticalGender(context, grammaticalGender);
         }
     }

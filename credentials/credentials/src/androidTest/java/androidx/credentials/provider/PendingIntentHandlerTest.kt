@@ -16,12 +16,11 @@
 package androidx.credentials.provider
 
 import android.content.Intent
+import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
-import androidx.credentials.equals
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,7 +37,7 @@ import org.junit.runner.RunWith
 class PendingIntentHandlerTest {
     @Test
     fun test_createCredentialException() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -54,7 +53,7 @@ class PendingIntentHandlerTest {
 
     @Test()
     fun test_createCredentialException_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -64,7 +63,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_credentialException() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -80,7 +79,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_credentialException_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -90,7 +89,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_beginGetResponse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -106,7 +105,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_beginGetResponse_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -116,7 +115,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_credentialResponse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -133,7 +132,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_credentialResponse_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -143,7 +142,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_createCredentialCredentialResponse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 
@@ -159,7 +158,7 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_createCredentialCredentialResponse_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return
         }
 

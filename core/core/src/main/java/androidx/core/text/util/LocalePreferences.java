@@ -26,11 +26,9 @@ import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
-import androidx.core.os.BuildCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -84,7 +82,6 @@ public final class LocalePreferences {
      * {@see HourCycle}, e.g. {@code HourCycle#H11}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @HourCycle.HourCycleTypes
     public static String getHourCycle() {
         return getHourCycle(true);
@@ -96,7 +93,6 @@ public final class LocalePreferences {
      * {@see HourCycle}, e.g. {@code HourCycle#H11}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @HourCycle.HourCycleTypes
     public static String getHourCycle(@NonNull Locale locale) {
         return getHourCycle(locale, true);
@@ -119,7 +115,6 @@ public final class LocalePreferences {
      * {@code HourCycle#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @HourCycle.HourCycleTypes
     public static String getHourCycle(
             boolean resolved) {
@@ -144,7 +139,6 @@ public final class LocalePreferences {
      * {@code HourCycle#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @HourCycle.HourCycleTypes
     public static String getHourCycle(@NonNull Locale locale, boolean resolved) {
         String result = getUnicodeLocaleType(HourCycle.U_EXTENSION_TAG,
@@ -152,7 +146,7 @@ public final class LocalePreferences {
         if (result != null) {
             return result;
         }
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getHourCycle(locale);
         } else {
             return getBaseHourCycle(locale);
@@ -217,7 +211,6 @@ public final class LocalePreferences {
      * {@see CalendarType}, e.g. {@code CalendarType#CHINESE}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @CalendarType.CalendarTypes
     public static String getCalendarType() {
         return getCalendarType(true);
@@ -229,7 +222,6 @@ public final class LocalePreferences {
      * {@see CalendarType}, e.g. {@code CalendarType#CHINESE}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @CalendarType.CalendarTypes
     public static String getCalendarType(@NonNull Locale locale) {
         return getCalendarType(locale, true);
@@ -253,7 +245,6 @@ public final class LocalePreferences {
      * empty string, i.e. {@code CalendarType#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @CalendarType.CalendarTypes
     public static String getCalendarType(boolean resolved) {
         Locale defaultLocale = (Build.VERSION.SDK_INT >= VERSION_CODES.N)
@@ -277,7 +268,6 @@ public final class LocalePreferences {
      * empty string, i.e. {@code CalendarType#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @CalendarType.CalendarTypes
     public static String getCalendarType(@NonNull Locale locale, boolean resolved) {
         String result = getUnicodeLocaleType(CalendarType.U_EXTENSION_TAG,
@@ -326,7 +316,6 @@ public final class LocalePreferences {
      * {@see TemperatureUnit}, e.g. {@code TemperatureUnit#FAHRENHEIT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @TemperatureUnit.TemperatureUnits
     public static String getTemperatureUnit() {
         return getTemperatureUnit(true);
@@ -337,7 +326,6 @@ public final class LocalePreferences {
      * defined in {@see TemperatureUnit}, e.g. {@code TemperatureUnit#FAHRENHEIT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @TemperatureUnit.TemperatureUnits
     public static String getTemperatureUnit(
             @NonNull Locale locale) {
@@ -362,7 +350,6 @@ public final class LocalePreferences {
      * empty string, i.e. {@code TemperatureUnit#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @TemperatureUnit.TemperatureUnits
     public static String getTemperatureUnit(boolean resolved) {
         Locale defaultLocale = (Build.VERSION.SDK_INT >= VERSION_CODES.N)
@@ -387,7 +374,6 @@ public final class LocalePreferences {
      * empty string, i.e. {@code TemperatureUnit#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @TemperatureUnit.TemperatureUnits
     public static String getTemperatureUnit(@NonNull Locale locale, boolean resolved) {
         String result = getUnicodeLocaleType(TemperatureUnit.U_EXTENSION_TAG,
@@ -395,7 +381,7 @@ public final class LocalePreferences {
         if (result != null) {
             return result;
         }
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getResolvedTemperatureUnit(locale);
         } else {
             return getTemperatureHardCoded(locale);
@@ -448,7 +434,6 @@ public final class LocalePreferences {
      * {@see FirstDayOfWeek}, e.g. {@code FirstDayOfWeek#SUNDAY}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @FirstDayOfWeek.Days
     public static String getFirstDayOfWeek() {
         return getFirstDayOfWeek(true);
@@ -460,7 +445,6 @@ public final class LocalePreferences {
      * {@see FirstDayOfWeek}, e.g. {@code FirstDayOfWeek#SUNDAY}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @FirstDayOfWeek.Days
     public static String getFirstDayOfWeek(@NonNull Locale locale) {
         return getFirstDayOfWeek(locale, true);
@@ -484,7 +468,6 @@ public final class LocalePreferences {
      * i.e. {@code FirstDayOfWeek#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @FirstDayOfWeek.Days
     public static String getFirstDayOfWeek(boolean resolved) {
         Locale defaultLocale = (Build.VERSION.SDK_INT >= VERSION_CODES.N)
@@ -510,7 +493,6 @@ public final class LocalePreferences {
      * empty string, i.e. {@code FirstDayOfWeek#DEFAULT}.
      */
     @NonNull
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @FirstDayOfWeek.Days
     public static String getFirstDayOfWeek(
             @NonNull Locale locale, boolean resolved) {

@@ -32,7 +32,6 @@ import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.widget.EdgeEffectCompat;
@@ -613,56 +612,56 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
     @Test
     public void stretchAndAddContentToBottom() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mBottom, true, true);
         }
     }
 
     @Test
     public void doubleStretchBottom() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mBottom, true, true);
         }
     }
 
     @Test
     public void stretchAndAddContentToTop() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mTop, false, true);
         }
     }
 
     @Test
     public void doubleStretchTop() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mTop, false, true);
         }
     }
 
     @Test
     public void stretchAndAddContentToRight() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mRight, true, false);
         }
     }
 
     @Test
     public void doubleStretchRight() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mRight, true, false);
         }
     }
 
     @Test
     public void stretchAndAddContentToLeft() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndAddContent(() -> mFactory.mLeft, false, false);
         }
     }
 
     @Test
     public void doubleStretchLeft() throws Throwable {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             stretchAndStretchMore(() -> mFactory.mLeft, false, false);
         }
     }

@@ -16,7 +16,7 @@
 
 package androidx.credentials.playservices
 
-import androidx.core.os.BuildCompat
+import android.os.Build
 import androidx.credentials.playservices.TestUtils.Companion.ConnectionResultFailureCases
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,7 +36,7 @@ class CredentialProviderPlayServicesImplTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33)
     fun isAvailableOnDevice_apiSuccess_returnsTrue() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return // TODO(b/285651071) : Fix once Mockito fixes mock issue, around these test cases
         }
         val activityScenario = ActivityScenario.launch(
@@ -61,7 +61,7 @@ class CredentialProviderPlayServicesImplTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33)
     fun isAvailableOnDevice_apiNotSuccess_returnsFalse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return // Wait until Mockito fixes 'mock' for API 34
         }
         val activityScenario = ActivityScenario.launch(

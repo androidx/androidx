@@ -26,7 +26,6 @@ import android.util.SparseArray;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 
 import java.io.Serializable;
@@ -65,8 +64,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the list elements' types.
      * </ul>
      *
@@ -74,11 +72,10 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings("deprecation")
     public static <T> void readList(@NonNull Parcel in, @NonNull List<? super T> outVal,
             @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             Api33Impl.readList(in, outVal, loader, clazz);
         } else {
             in.readList(outVal, loader);
@@ -91,8 +88,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the list elements' types.
      * </ul>
      *
@@ -100,13 +96,12 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressLint({"ConcreteCollection", "NullableCollection"})
     @SuppressWarnings({"deprecation", "unchecked"})
     @Nullable
     public static <T> ArrayList<T> readArrayList(@NonNull Parcel in, @Nullable ClassLoader loader,
             @NonNull Class<? extends T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readArrayList(in, loader, clazz);
         } else {
             return in.readArrayList(loader);
@@ -119,8 +114,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -128,13 +122,12 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     @SuppressLint({"ArrayReturn", "NullableCollection"})
     @Nullable
     public static <T> Object[] readArray(@NonNull Parcel in, @Nullable ClassLoader loader,
             @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readArray(in, loader, clazz);
         } else {
             return in.readArray(loader);
@@ -147,8 +140,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -156,12 +148,11 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings("deprecation")
     @Nullable
     public static <T> SparseArray<T> readSparseArray(@NonNull Parcel in,
             @Nullable ClassLoader loader, @NonNull Class<? extends T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readSparseArray(in, loader, clazz);
         } else {
             return in.readSparseArray(loader);
@@ -174,20 +165,18 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the map entries' types.
      * </ul>
      *
      * @throws android.os.BadParcelableException If the item to be deserialized is not an
      * instance of that class or any of its children class.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings("deprecation")
     public static <K, V> void readMap(@NonNull Parcel in, @NonNull Map<? super K, ? super V> outVal,
             @Nullable ClassLoader loader, @NonNull Class<K> clazzKey,
             @NonNull Class<V> clazzValue) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             Api33Impl.readMap(in, outVal, loader, clazzKey, clazzValue);
         } else {
             in.readMap(outVal, loader);
@@ -200,21 +189,19 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the map entries' types.
      * </ul>
      *
      * @throws android.os.BadParcelableException if the item to be deserialized is not an
      * instance of that class or any of its children class.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressLint({"ConcreteCollection", "NullableCollection"})
     @SuppressWarnings({"deprecation", "unchecked"})
     @Nullable
     public static <K, V> HashMap<K, V> readHashMap(@NonNull Parcel in, @Nullable ClassLoader loader,
             @NonNull Class<? extends K> clazzKey, @NonNull Class<? extends V> clazzValue) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readHashMap(in, loader, clazzKey, clazzValue);
         } else {
             return in.readHashMap(loader);
@@ -227,8 +214,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, the object type is checked after deserialization.
      * </ul>
      *
@@ -236,12 +222,11 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings("deprecation")
     @Nullable
     public static <T extends Parcelable> T readParcelable(@NonNull Parcel in,
             @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readParcelable(in, loader, clazz);
         } else {
             T parcelable = in.readParcelable(loader);
@@ -260,8 +245,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the creator's type.
      * </ul>
      *
@@ -269,13 +253,12 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there
      * there was an error trying to read the {@link Parcelable.Creator}.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     @Nullable
     @RequiresApi(30)
     public static <T> Parcelable.Creator<T> readParcelableCreator(@NonNull Parcel in,
             @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readParcelableCreator(in, loader, clazz);
         } else {
             return (Parcelable.Creator<T>) Api30Impl.readParcelableCreator(in, loader);
@@ -288,8 +271,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -300,14 +282,13 @@ public final class ParcelCompat {
      * @deprecated This method incurs a performance penalty on SDK 33 and below. Use
      * {@link #readParcelableArrayTyped} instead.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     @SuppressLint({"ArrayReturn", "NullableCollection"})
     @Nullable
     @Deprecated
     public static <T> T[] readParcelableArray(@NonNull Parcel in, @Nullable ClassLoader loader,
             @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readParcelableArray(in, loader, clazz);
         } else {
             // The array type is always Parcelable[]. Cast to clazz[] for compatibility if needed.
@@ -337,8 +318,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -346,13 +326,12 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation"})
     @SuppressLint({"ArrayReturn", "NullableCollection"})
     @Nullable
     public static <T> Parcelable[] readParcelableArrayTyped(@NonNull Parcel in,
             @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return (Parcelable[]) Api33Impl.readParcelableArray(in, loader, clazz);
         } else {
             return in.readParcelableArray(loader);
@@ -365,8 +344,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the list elements' types.
      * </ul>
      *
@@ -374,13 +352,12 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children classes or there was
      * an error trying to instantiate an element.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @NonNull
     @SuppressWarnings({"deprecation", "unchecked"})
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public static <T> List<T> readParcelableList(@NonNull Parcel in, @NonNull List<T> list,
             @Nullable ClassLoader cl, @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.readParcelableList(in, list, cl, clazz);
         } else {
             return Api29Impl.readParcelableList(in, (List) list, cl);
@@ -394,8 +371,7 @@ public final class ParcelCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>SDK 33 and later, this method matches platform
-     *     behavior.
+     *     <li>SDK 33 and later, this method matches platform behavior.
      *     <li>SDK 32 and below, this method will not check the item's type.
      * </ul>
      *
@@ -403,12 +379,11 @@ public final class ParcelCompat {
      * deserialized is not an instance of that class or any of its children class or there there
      * was an error deserializing the object.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     @Nullable
     public static <T extends Serializable> T readSerializable(@NonNull Parcel in,
             @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.readSerializable(in, loader, clazz);
         } else {
             return (T) in.readSerializable();

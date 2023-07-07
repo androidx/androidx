@@ -31,7 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -85,7 +84,7 @@ public class ChangeScrollTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingScroll() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final TransitionActivity activity = rule.getActivity();
@@ -150,7 +149,7 @@ public class ChangeScrollTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingScrollBeforeStart() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final TransitionActivity activity = rule.getActivity();
@@ -202,7 +201,7 @@ public class ChangeScrollTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void testSeekInterruption() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final View view = new View(rule.getActivity());

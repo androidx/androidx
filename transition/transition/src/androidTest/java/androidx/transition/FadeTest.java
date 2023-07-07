@@ -42,7 +42,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -268,7 +267,7 @@ public class FadeTest extends BaseTest {
 
     @Test
     public void seekingFadeIn() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final TransitionActivity activity = rule.getActivity();
@@ -334,7 +333,7 @@ public class FadeTest extends BaseTest {
 
     @Test
     public void seekingFadeOut() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final TransitionActivity activity = rule.getActivity();
@@ -409,7 +408,7 @@ public class FadeTest extends BaseTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingFadeInBeforeStart() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];

@@ -700,6 +700,7 @@ class CanvasFrontBufferedRendererTest {
         !(Build.MODEL.contains("gphone") &&
             (Build.VERSION.SDK_INT == 33 || Build.VERSION.SDK_INT == 30))
 
+    @OptIn(BuildCompat.PrereleaseSdkCheck::class)
     private fun isSupportedCuttlefish() =
         !(Build.MODEL.contains("Cuttlefish") &&
             (Build.VERSION.SDK_INT == 30 || BuildCompat.isAtLeastV()))

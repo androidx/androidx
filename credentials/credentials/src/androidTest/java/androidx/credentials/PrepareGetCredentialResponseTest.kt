@@ -16,7 +16,6 @@
 
 package androidx.credentials
 
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -25,17 +24,13 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 34)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PrepareGetCredentialResponseTest {
 
     @Test
     fun constructor_throwsNPEWhenMissingInput() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         Assert.assertThrows(
             "Expected null pointer when missing input",
             NullPointerException::class.java
@@ -48,10 +43,6 @@ class PrepareGetCredentialResponseTest {
 
     @Test
     fun test_hasCredentialResults() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         // Construct the test class.
         val response = PrepareGetCredentialResponse.TestBuilder()
             .setCredentialTypeDelegate { option ->
@@ -70,10 +61,6 @@ class PrepareGetCredentialResponseTest {
 
     @Test
     fun test_hasAuthenticationResults() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         // Construct the test class.
         val response = PrepareGetCredentialResponse.TestBuilder()
             .setHasAuthResultsDelegate {
@@ -91,10 +78,6 @@ class PrepareGetCredentialResponseTest {
 
     @Test
     fun test_hasRemoteResults() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         // Construct the test class.
         val response = PrepareGetCredentialResponse.TestBuilder()
             .setHasRemoteResultsDelegate {

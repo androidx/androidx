@@ -17,8 +17,7 @@
 package androidx.graphics.path
 
 import android.graphics.Path
-import androidx.core.os.BuildCompat
-import androidx.core.os.BuildCompat.PrereleaseSdkCheck
+import android.os.Build
 
 /**
  * A path iterator can be used to iterate over all the [segments][PathSegment] that make up
@@ -31,7 +30,6 @@ import androidx.core.os.BuildCompat.PrereleaseSdkCheck
  * [PathIterator], call one of the two [Path.iterator] extension functions.
  */
 @Suppress("NotCloseable", "IllegalExperimentalApiUsage")
-@PrereleaseSdkCheck
 class PathIterator constructor(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
@@ -42,9 +40,7 @@ class PathIterator constructor(
     init {
         implementation =
             when {
-                // TODO: replace isAtLeastU() check with below or similar when U is released
-                // Build.VERSION.SDK_INT >= 34 -> {
-                BuildCompat.isAtLeastU() -> {
+                Build.VERSION.SDK_INT >= 34 -> {
                     PathIteratorApi34Impl(path, conicEvaluation, tolerance)
                 }
                 else -> {
@@ -131,8 +127,6 @@ class PathIterator constructor(
  * conics as quadratics. To preserve conics, use the [Path.iterator] function that takes a
  * [PathIterator.ConicEvaluation] parameter.
  */
-@Suppress("IllegalExperimentalApiUsage")
-@PrereleaseSdkCheck
 operator fun Path.iterator() = PathIterator(this)
 
 /**
@@ -140,7 +134,5 @@ operator fun Path.iterator() = PathIterator(this)
  * conics (not convert them to quadratics), set [conicEvaluation] to
  * [PathIterator.ConicEvaluation.AsConic].
  */
-@Suppress("IllegalExperimentalApiUsage")
-@PrereleaseSdkCheck
 fun Path.iterator(conicEvaluation: PathIterator.ConicEvaluation, tolerance: Float = 0.25f) =
     PathIterator(this, conicEvaluation, tolerance)

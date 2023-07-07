@@ -19,10 +19,8 @@ package androidx.graphics.lowlatency
 import android.graphics.Canvas
 import android.hardware.HardwareBuffer
 import android.os.Build
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.core.os.BuildCompat
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
@@ -70,7 +68,6 @@ internal interface SingleBufferedCanvasRenderer<T> {
 
     companion object {
 
-        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun <T> create(
             width: Int,
             height: Int,
@@ -78,7 +75,7 @@ internal interface SingleBufferedCanvasRenderer<T> {
             executor: Executor,
             bufferReadyListener: RenderCallbacks<T>
         ): SingleBufferedCanvasRenderer<T> {
-            return if (BuildCompat.isAtLeastU()) {
+            return if (Build.VERSION.SDK_INT >= 34) {
                 SingleBufferedCanvasRendererV34(
                     width,
                     height,
