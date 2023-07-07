@@ -73,8 +73,8 @@ public class SearchSpecToProtoConverterTest {
                 new UnlimitedLimitConfig(),
                 mDefaultIcingOptionsConfig,
                 /*initStatsBuilder=*/ null,
-                ALWAYS_OPTIMIZE,
-                /*visibilityChecker=*/null);
+                /*visibilityChecker=*/ null,
+                ALWAYS_OPTIMIZE);
     }
 
     @After
