@@ -164,6 +164,37 @@
         app:layout_constraintTop_toBottomOf="@+id/tab_layout"
         tools:visibility="visible">
 
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_gatt_server_services"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layoutManager="LinearLayoutManager"
+                    tools:itemCount="1"
+                    tools:listitem="@layout/item_gatt_server_service" />
+
+                <Button
+                    android:id="@+id/button_add_service"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="@string/add_service" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
         <Button
             android:id="@+id/button_gatt_server"
             android:layout_width="wrap_content"

@@ -17,6 +17,7 @@
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once Gatt Server API is in place
+// TODO(ofy) Migrate to androidx.bluetooth.GattService
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGattCharacteristic
@@ -44,6 +45,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
@@ -61,7 +64,7 @@ class AdvertiserFragment : Fragment() {
 
     private lateinit var bluetoothLe: BluetoothLe
 
-    // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
+    // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once openGattServer API is in place
     private lateinit var bluetoothLeExperimental: BluetoothLeExperimental
 
     private var advertiseDataAdapter: AdvertiseDataAdapter? = null
@@ -90,6 +93,8 @@ class AdvertiserFragment : Fragment() {
             _binding?.buttonAddData?.isEnabled = !value
             _binding?.viewRecyclerViewOverlay?.isVisible = value
         }
+
+    private var gattServerServicesAdapter: GattServerServicesAdapter? = null
 
     private var isGattServerOpen: Boolean = false
         set(value) {
@@ -181,6 +186,20 @@ class AdvertiserFragment : Fragment() {
                 startAdvertise()
             }
         }
+
+        binding.buttonAddService.setOnClickListener {
+            addGattService()
+        }
+
+        gattServerServicesAdapter =
+            GattServerServicesAdapter(
+                viewModel.gattServerServices,
+                ::addGattCharacteristic
+            )
+        binding.recyclerViewGattServerServices.adapter = gattServerServicesAdapter
+        binding.recyclerViewGattServerServices.addItemDecoration(
+            DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
+        )
 
         binding.buttonGattServer.setOnClickListener {
             if (gattServerJob?.isActive == true) {
@@ -340,26 +359,48 @@ class AdvertiserFragment : Fragment() {
         }
     }
 
-    private fun openGattServer() {
-        Log.d(TAG, "openGattServer() called")
+    private fun addGattService() {
+        // TODO(ofy) Show dialog for Service customization and replace sampleService
 
         val sampleService =
             BluetoothGattService(UUID.randomUUID(), BluetoothGattService.SERVICE_TYPE_PRIMARY)
+
+        viewModel.gattServerAddService(sampleService)
+
+        gattServerServicesAdapter?.notifyItemInserted(viewModel.gattServerServices.size - 1)
+    }
+
+    private fun addGattCharacteristic(bluetoothGattService: BluetoothGattService) {
+        // TODO(ofy) Show dialog for Characteristic customization and replace sampleCharacteristic
+
         val sampleCharacteristic = BluetoothGattCharacteristic(
             UUID.randomUUID(),
             BluetoothGattCharacteristic.PROPERTY_READ,
             BluetoothGattCharacteristic.PERMISSION_READ
         )
-        sampleService.addCharacteristic(sampleCharacteristic)
 
-        val services = listOf(sampleService)
+        bluetoothGattService.addCharacteristic(sampleCharacteristic)
+
+        gattServerServicesAdapter?.notifyItemChanged(
+            viewModel.gattServerServices.indexOf(
+                bluetoothGattService
+            )
+        )
+    }
+
+    private fun openGattServer() {
+        Log.d(TAG, "openGattServer() called")
 
         gattServerJob = gattServerScope.launch {
             isGattServerOpen = true
 
-            bluetoothLeExperimental.openGattServer(services).collect { gattServerCallback ->
-                Log.d(TAG, "openGattServer() called with: gattServerCallback = $gattServerCallback")
-            }
+            bluetoothLeExperimental.openGattServer(viewModel.gattServerServices)
+                .collect { gattServerCallback ->
+                    Log.d(
+                        TAG,
+                        "openGattServer() called with: gattServerCallback = $gattServerCallback"
+                    )
+                }
         }
     }
 }
