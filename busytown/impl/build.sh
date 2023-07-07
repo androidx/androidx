@@ -49,9 +49,7 @@ function run() {
   if eval "$*"; then
     return 0
   else
-    echo >&2
     echo "Gradle command failed:" >&2
-    echo >&2
     # Echo the Gradle command formatted for ease of reading.
     # Put each argument on its own line because some arguments may be long.
     # Also put "\" at the end of non-final lines so the command can be copy-pasted
