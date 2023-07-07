@@ -41,8 +41,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
         mContext = sdkContext
     }
 
-    override fun loadAd(isWebView: Boolean): Bundle {
-        return BannerAd(isWebView).toCoreLibInfo(mContext!!)
+    override fun loadAd(isWebView: Boolean, text: String): Bundle {
+        return BannerAd(isWebView, text).toCoreLibInfo(mContext!!)
     }
 
     private fun isAirplaneModeOn(): Boolean {
@@ -50,7 +50,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
             mContext?.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
     }
 
-    private inner class BannerAd(private val isWebView: Boolean) : SandboxedUiAdapter {
+    private inner class BannerAd(private val isWebView: Boolean, private val text: String) :
+        SandboxedUiAdapter {
         override fun openSession(
             context: Context,
             initialWidth: Int,
@@ -76,7 +77,7 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
                 )
                 adView = webView
             } else {
-                adView = TestView(context)
+                adView = TestView(context, text)
             }
             clientExecutor.execute {
                 client.onSessionOpened(BannerAdSession(adView))
@@ -106,7 +107,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
-    private inner class TestView(context: Context) : View(context) {
+    private inner class TestView(context: Context, private val text: String) : View(context) {
+
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
 
@@ -115,7 +117,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
             canvas.drawColor(
                 Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
             )
-            canvas.drawText("Hey", 75F, 75F, paint)
+
+            canvas.drawText(text, 75F, 75F, paint)
 
             setOnClickListener {
                 Log.i(TAG, "Click on ad detected")
