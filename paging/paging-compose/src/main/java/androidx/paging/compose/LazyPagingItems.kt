@@ -226,11 +226,9 @@ public class LazyPagingItems<T : Any> internal constructor(
                 }
 
                 override fun log(level: Int, message: String, tr: Throwable?) {
-                    when {
-                        tr != null && level == Log.DEBUG -> Log.d(LOG_TAG, message, tr)
-                        tr != null && level == Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
-                        level == Log.DEBUG -> Log.d(LOG_TAG, message)
-                        level == Log.VERBOSE -> Log.v(LOG_TAG, message)
+                    when (level) {
+                        Log.DEBUG -> Log.d(LOG_TAG, message, tr)
+                        Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
                         else -> {
                             throw IllegalArgumentException(
                                 "debug level $level is requested but Paging only supports " +
