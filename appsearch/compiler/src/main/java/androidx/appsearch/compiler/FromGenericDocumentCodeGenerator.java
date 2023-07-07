@@ -39,6 +39,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -90,7 +91,13 @@ class FromGenericDocumentCodeGenerator {
         }
 
         // Create an instance of the document class via the chosen create method.
-        if (mModel.getChosenCreationMethod().getKind() == ElementKind.CONSTRUCTOR) {
+        TypeElement builderClass = mModel.getBuilderClass();
+        if (mModel.getBuilderClass() != null) {
+            methodBuilder.addStatement(
+                    "$T builder = $T.$L($L)", builderClass, classType,
+                    mModel.getChosenCreationMethod().getSimpleName().toString(),
+                    getCreationMethodParams());
+        } else if (mModel.getChosenCreationMethod().getKind() == ElementKind.CONSTRUCTOR) {
             methodBuilder.addStatement(
                     "$T document = new $T($L)", classType, classType, getCreationMethodParams());
         } else {
@@ -107,8 +114,11 @@ class FromGenericDocumentCodeGenerator {
                 methodBuilder.addStatement(fieldWrite);
             }
         }
-
-        methodBuilder.addStatement("return document");
+        if (mModel.getBuilderClass() != null) {
+            methodBuilder.addStatement("return builder.build()");
+        } else {
+            methodBuilder.addStatement("return document");
+        }
         return methodBuilder.build();
     }
 
@@ -803,8 +813,14 @@ class FromGenericDocumentCodeGenerator {
             case FIELD:
                 return CodeBlock.of("document.$N = $NConv", fieldName, fieldName);
             case SETTER:
+                String target;
+                if (mModel.getBuilderClass() == null) {
+                    target = "document";
+                } else {
+                    target = "builder";
+                }
                 String setter = mModel.getSetterForElement(fieldName).getSimpleName().toString();
-                return CodeBlock.of("document.$N($NConv)", setter, fieldName);
+                return CodeBlock.of("$N.$N($NConv)", target, setter, fieldName);
             default:
                 return null;  // Constructor params should already have been set
         }
