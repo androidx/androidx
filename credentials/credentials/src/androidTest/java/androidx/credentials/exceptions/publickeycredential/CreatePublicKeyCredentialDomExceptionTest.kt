@@ -16,9 +16,11 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
+import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.EncodingError
-import com.google.common.truth.Truth
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException.Companion.createFrom
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class CreatePublicKeyCredentialDomExceptionTest {
@@ -39,7 +41,42 @@ class CreatePublicKeyCredentialDomExceptionTest {
 
         val exception = CreatePublicKeyCredentialDomException(expectedDomError, expectedMessage)
 
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
-        Truth.assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun frameworkToJetpackConversion_success() {
+        val expectedMessage = "msg"
+        val expectedDomError = EncodingError()
+        val expectedType = CreatePublicKeyCredentialDomException
+            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + expectedDomError.type
+
+        val exception = CreatePublicKeyCredentialException.createFrom(expectedType,
+            expectedMessage)
+
+        assertThat(exception).isInstanceOf(
+            CreatePublicKeyCredentialDomException::class.java
+        )
+        assertThat((exception as CreatePublicKeyCredentialDomException).domError)
+            .isInstanceOf(EncodingError::class.java)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun frameworkToJetpackConversion_failure_createsCustomException() {
+        val expectedMessage = "CustomMessage"
+        val expectedType =
+            CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
+                "/CustomType"
+
+        val exception = createFrom(expectedType, expectedMessage)
+
+        assertThat(exception).isInstanceOf(
+            CreateCredentialCustomException::class.java
+        )
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.message).isEqualTo(expectedMessage)
     }
 }
