@@ -88,6 +88,10 @@ class AccessibilityNodeInfoDumper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             serializer.attribute("", "hint", safeCharSeqToString(Api26Impl.getHintText(node)));
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            serializer.attribute("", "display-id",
+                    Integer.toString(Api30Impl.getDisplayId(node)));
+        }
         int count = node.getChildCount();
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo child = node.getChild(i);
@@ -210,6 +214,17 @@ class AccessibilityNodeInfoDumper {
         static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
             CharSequence chars = accessibilityNodeInfo.getHintText();
             return chars != null ? chars.toString() : null;
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getWindow().getDisplayId();
         }
     }
 }
