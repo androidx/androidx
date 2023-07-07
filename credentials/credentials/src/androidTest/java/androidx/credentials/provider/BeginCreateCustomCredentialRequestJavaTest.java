@@ -41,11 +41,16 @@ public class BeginCreateCustomCredentialRequestJavaTest {
     }
 
     @Test
-    public void constructor_nullTypeBundle_throws() {
-        // TODO(b/275416815) - parameterize to account for all individually
-        assertThrows("Expected null list to throw NPE",
+    public void constructor_callingappinfo_success() {
+        new BeginCreateCustomCredentialRequest("type", Bundle.EMPTY, new CallingAppInfo(
+                        "package", new SigningInfo()));
+    }
+
+    @Test
+    public void constructor_nullBundleInfo_throws() {
+        assertThrows("Expected null candidateQueryData to throw NPE",
                 NullPointerException.class,
-                () -> new BeginCreateCustomCredentialRequest(null, null,
+                () -> new BeginCreateCustomCredentialRequest("", null,
                         new CallingAppInfo(
                         "package", new SigningInfo()))
         );
