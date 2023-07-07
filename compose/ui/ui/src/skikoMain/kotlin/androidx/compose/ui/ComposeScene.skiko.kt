@@ -577,7 +577,8 @@ class ComposeScene internal constructor(
             PointerEventType.Scroll -> processScroll(event)
         }
 
-        if (!event.buttons.areAnyPressed) {
+        val isAnyPointerDown = event.pointers.fastAny { it.down }
+        if (!isAnyPointerDown) {
             pressOwner = null
         }
     }
