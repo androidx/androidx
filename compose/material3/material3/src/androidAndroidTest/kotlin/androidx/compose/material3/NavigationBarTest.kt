@@ -265,6 +265,27 @@ class NavigationBarTest {
     }
 
     @Test
+    fun navigationBarItem_withLongLabel_automaticallyResizesHeight() {
+        val defaultHeight = NavigationBarTokens.ContainerHeight
+
+        rule.setMaterialContent(lightColorScheme()) {
+            NavigationBar(modifier = Modifier.testTag("TAG")) {
+                repeat(4) { index ->
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        label = { Text("Long\nLabel\nMultiple\nLines") },
+                        selected = index == 0,
+                        onClick = {},
+                    )
+                }
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("TAG").getUnclippedBoundsInRoot().height)
+            .isGreaterThan(defaultHeight)
+    }
+
+    @Test
     fun navigationBarItemContent_withLabel_sizeAndPosition() {
         rule.setMaterialContent(lightColorScheme()) {
             NavigationBar {
