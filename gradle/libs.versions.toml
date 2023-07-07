@@ -36,6 +36,9 @@ guavaJre = "31.1-jre"
 hilt = "2.44"
 incap = "0.2"
 jcodec = "0.2.5"
+kotlin17 = "1.7.10"
+kotlin18 = "1.8.22"
+kotlin19 = "1.9.0-Beta"
 kotlin = "1.8.22"
 kotlinBenchmark = "0.4.8"
 kotlinNative = "1.8.22"
@@ -160,11 +163,11 @@ guavaListenableFuture = { module = "com.google.guava:listenablefuture", version 
 guavaTestlib = { module = "com.google.guava:guava-testlib", version.ref = "guavaJre" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
-kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
+kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable" }
 kotlinBenchmarkRuntime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinBenchmark" }
 kotlinBom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlinCompiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
-kotlinCompilerEmbeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+kotlinCompilerEmbeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable" }
 kotlinCompileTesting = { module = "com.github.tschuchortdev:kotlin-compile-testing", version.ref = "kotlinCompileTesting" }
 kotlinCompileTestingKsp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlinCompileTesting" }
 kotlinCoroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinCoroutines" }
@@ -175,22 +178,22 @@ kotlinCoroutinesPlayServices = { module = "org.jetbrains.kotlinx:kotlinx-corouti
 kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesRx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesRx3 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3", version.ref = "kotlinCoroutines" }
-kotlinDaemonEmbeddable = { module = "org.jetbrains.kotlin:kotlin-daemon-embeddable", version.ref = "kotlin" }
-kotlinKlibCommonizer = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer", version.ref = "kotlin" }
+kotlinDaemonEmbeddable = { module = "org.jetbrains.kotlin:kotlin-daemon-embeddable" }
+kotlinKlibCommonizer = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer" }
 kotlinMetadataJvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version = "0.6.2" }
 kotlinSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinSerialization" }
 kotlinSerializationProtobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinSerialization" }
-kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
-kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
-kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
-kotlinStdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js", version.ref = "kotlin" }
 kotlinGradlePluginz = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
-kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
-kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
-kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }
-kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
+kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
+kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlinStdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js" }
+kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test" }
+kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common" }
+kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common" }
+kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
+kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js" }
+kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.12.0" }
 kotlinPoetJavaPoet = { module = "com.squareup:kotlinpoet-javapoet", version = "1.12.0" }
 kotlinXHtml = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version = "0.7.3" }

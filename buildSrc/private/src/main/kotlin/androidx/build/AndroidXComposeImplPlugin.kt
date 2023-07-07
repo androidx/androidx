@@ -89,15 +89,11 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
     }
 
     companion object {
-        private fun Project.androidxExtension(): AndroidXExtension? {
-            return extensions.findByType(AndroidXExtension::class.java)
-        }
-
         private fun Project.configureAndroidCommonOptions(testedExtension: TestedExtension) {
             testedExtension.defaultConfig.minSdk = 21
 
             extensions.findByType(AndroidComponentsExtension::class.java)!!.finalizeDsl {
-                val isPublished = androidxExtension()?.shouldPublish() ?: false
+                val isPublished = androidXExtension.shouldPublish()
 
                 it.lint {
                     // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
