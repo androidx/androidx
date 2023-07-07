@@ -99,27 +99,35 @@ class DeviceServiceCharacteristicsAdapter(
 
             val properties = characteristic.properties
             val context = itemView.context
-
             val propertiesList = mutableListOf<String>()
-            // TODO(ofy) Update these with BluetoothGattCharacteristic.isReadable, isWriteable, ...
+
+            if (properties.and(GattCharacteristic.PROPERTY_BROADCAST) != 0) {
+                propertiesList.add(context.getString(R.string.broadcast))
+            }
             if (properties.and(GattCharacteristic.PROPERTY_INDICATE) != 0) {
                 propertiesList.add(context.getString(R.string.indicate))
             }
             if (properties.and(GattCharacteristic.PROPERTY_NOTIFY) != 0) {
                 propertiesList.add(context.getString(R.string.notify))
             }
-            val isReadable = properties.and(GattCharacteristic.PROPERTY_READ) != 0
-            if (isReadable) {
+            if (properties.and(GattCharacteristic.PROPERTY_READ) != 0) {
                 propertiesList.add(context.getString(R.string.read))
             }
-            val isWriteable = (properties.and(GattCharacteristic.PROPERTY_WRITE) != 0 ||
-                properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
-                properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0)
-            if (isWriteable) {
+            if (properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0) {
+                propertiesList.add(context.getString(R.string.signed_write))
+            }
+            if (properties.and(GattCharacteristic.PROPERTY_WRITE) != 0) {
                 propertiesList.add(context.getString(R.string.write))
+            }
+            if (properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
+                propertiesList.add(context.getString(R.string.write_no_response))
             }
             textViewProperties.text = propertiesList.joinToString()
 
+            val isReadable = properties.and(GattCharacteristic.PROPERTY_READ) != 0
+            val isWriteable = properties.and(GattCharacteristic.PROPERTY_WRITE) != 0 ||
+                properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
+                properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0
             buttonReadCharacteristic.isVisible = isReadable
             buttonWriteCharacteristic.isVisible = isWriteable
 
