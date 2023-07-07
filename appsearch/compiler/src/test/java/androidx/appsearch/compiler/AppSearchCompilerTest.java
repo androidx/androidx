@@ -2177,6 +2177,367 @@ public class AppSearchCompilerTest {
                 "classSet.add(Gift.class);\n    return classSet;");
     }
 
+    @Test
+    public void testCreationByBuilder() throws Exception {
+        // Once @Document.BuilderProducer is found, AppSearch compiler will no longer consider other
+        // creation method, so "create" will not be used.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.LongProperty public int getPrice();\n"
+                        + "  public static Gift create(String id, String namespace, int price) {\n"
+                        + "    return new GiftImpl(id, namespace, price);\n"
+                        + "  }\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift {\n"
+                        + "  public GiftImpl(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "  public int getPrice() { return price; }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setPrice(int price) {\n"
+                        + "    this.price = price;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new GiftImpl(this.id, this.namespace, this.price);\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "GiftBuilder builder = Gift.getBuilder()");
+        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)");
+        checkResultContains("Gift.java", "builder.setId(getIdConv)");
+        checkResultContains("Gift.java", "builder.setPrice(getPriceConv)");
+        checkResultContains("Gift.java", "builder.build()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testCreationByBuilderWithParameter() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.LongProperty public int getPrice();\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder(int price) {\n"
+                        + "    return new GiftBuilder().setPrice(price);\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift{\n"
+                        + "  public GiftImpl(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "  public int getPrice() { return price; }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setPrice(int price) {\n"
+                        + "    this.price = price;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new GiftImpl(this.id, this.namespace, this.price);\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "GiftBuilder builder = Gift.getBuilder(getPriceConv)");
+        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)");
+        checkResultContains("Gift.java", "builder.setId(getIdConv)");
+        checkResultContains("Gift.java", "builder.build()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testCreationByBuilderOnly() throws Exception {
+        // Once a builder producer is provided, AppSearch will only use the builder pattern, even
+        // if another creation method is available.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty int price;\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setPrice(int price) {\n"
+                        + "    this.price = price;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new Gift();\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java", "GiftBuilder builder = Gift.getBuilder()");
+        checkResultContains("Gift.java", "builder.setNamespace(namespaceConv)");
+        checkResultContains("Gift.java", "builder.setId(idConv)");
+        checkResultContains("Gift.java", "builder.setPrice(priceConv)");
+        checkResultContains("Gift.java", "builder.build()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testCreationByBuilderWithAutoValue() throws IOException {
+        Compilation compilation = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@Document\n"
+                        + "@AutoValue\n"
+                        + "public abstract class Gift {\n"
+                        + "  @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "  @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "  @CopyAnnotations @Document.LongProperty abstract int price();\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setPrice(int price) {\n"
+                        + "    this.price = price;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new AutoValue_Gift(id, namespace, price);\n"
+                        + "  }\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("AutoValue_Gift.java", "GiftBuilder builder = Gift.getBuilder()");
+        checkResultContains("AutoValue_Gift.java", "builder.setNamespace(namespaceConv)");
+        checkResultContains("AutoValue_Gift.java", "builder.setId(idConv)");
+        checkResultContains("AutoValue_Gift.java", "builder.setPrice(priceConv)");
+        checkResultContains("AutoValue_Gift.java", "builder.build()");
+        checkEqualsGolden("AutoValue_Gift.java");
+    }
+
+    @Test
+    public void testCreationByBuilderErrors() throws Exception {
+        // Cannot have multiple builder producer
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder1() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder2() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift{\n"
+                        + "  public GiftImpl(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new GiftImpl(this.id, this.namespace);\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining("Found duplicated builder producer");
+
+        // Builder producer must be static
+        compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.BuilderProducer GiftBuilder getBuilder() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift{\n"
+                        + "  public GiftImpl(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new GiftImpl(this.id, this.namespace);\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining("Builder producer must be static");
+
+        // Builder producer cannot be private
+        compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.BuilderProducer private static GiftBuilder getBuilder() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift{\n"
+                        + "  public GiftImpl(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new GiftImpl(this.id, this.namespace);\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining("Builder producer cannot be private");
+
+        // Builder producer must be a method
+        compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace public String namespace;\n"
+                        + "  @Document.Id public String id;\n"
+                        + "  @Document.BuilderProducer int getBuilder;\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining(
+                "annotation type not applicable to this kind of declaration");
+
+        // Missing a setter in the builder
+        compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty int price;\n"
+                        + "  @Document.BuilderProducer static GiftBuilder getBuilder() {\n"
+                        + "    return new GiftBuilder();\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftBuilder {\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public GiftBuilder setNamespace(String namespace) {\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public GiftBuilder setId(String id) {\n"
+                        + "    this.id = id;\n"
+                        + "    return this;\n"
+                        + "  }\n"
+                        + "  public Gift build() {\n"
+                        + "    return new Gift();\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).hadWarningContaining(
+                "Element cannot be written directly because a builder producer is provided, and "
+                        + "we failed to find a suitable setter");
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }

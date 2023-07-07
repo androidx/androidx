@@ -70,6 +70,8 @@ class IntrospectionHelper {
             "androidx.appsearch.annotation.Document.CreationTimestampMillis";
     static final String TTL_MILLIS_CLASS = "androidx.appsearch.annotation.Document.TtlMillis";
     static final String SCORE_CLASS = "androidx.appsearch.annotation.Document.Score";
+    static final String BUILDER_PRODUCER_CLASS =
+            "androidx.appsearch.annotation.Document.BuilderProducer";
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
     final TypeMirror mStringType;

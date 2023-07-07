@@ -411,4 +411,17 @@ public @interface Document {
          */
         boolean required() default false;
     }
+
+    /**
+     * Marks a method as a builder producer.
+     *
+     * <p>A builder producer is a static method that returns a builder, which contains a "build()"
+     * method to construct the AppSearch document object and setter methods to set field values.
+     * Once a builder producer is specified, AppSearch will be forced to use the builder pattern to
+     * construct the document object.
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.METHOD)
+    @interface BuilderProducer {}
 }
