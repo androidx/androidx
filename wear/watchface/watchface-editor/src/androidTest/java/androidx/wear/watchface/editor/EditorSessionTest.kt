@@ -94,6 +94,7 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import java.lang.IllegalArgumentException
 import java.time.Instant
@@ -1262,15 +1263,16 @@ public class EditorSessionTest {
             assertThat(editorSession.complicationsDataSourceInfo.value[LEFT_COMPLICATION_ID]!!.name)
                 .isEqualTo("TestDataSource3")
 
+            val intent = TestComplicationHelperActivity.lastIntent!!
             assertThat(
-                    TestComplicationHelperActivity.lastIntent
-                        ?.extras
-                        ?.getString(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
+                    intent.extras?.getString(
+                        ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
+                    )
                 )
                 .isEqualTo(testInstanceId.id)
 
             assertThat(
-                    (TestComplicationHelperActivity.lastIntent?.getParcelableExtra(
+                    (intent.getParcelableExtra(
                             ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED
                         ) as Intent?)
                         ?.action
@@ -1278,7 +1280,7 @@ public class EditorSessionTest {
                 .isEqualTo(complicationDeniedDialogIntent.action)
 
             assertThat(
-                    (TestComplicationHelperActivity.lastIntent?.getParcelableExtra(
+                    (intent.getParcelableExtra(
                             ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE
                         ) as Intent?)
                         ?.action
@@ -1289,6 +1291,12 @@ public class EditorSessionTest {
             // it's set up.
             assertThat(editorSession.complicationSlotsState.value[LEFT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(40, 160, 160, 240))
+
+            val userStyleWireFormat =
+                intent.getParcelableExtra(ComplicationDataSourceChooserIntent.EXTRA_USER_STYLE)
+                    as UserStyleWireFormat?
+            assertThat(UserStyleData(userStyleWireFormat!!))
+                .isEqualTo(editorSession.userStyle.value.toUserStyleData())
         }
     }
 
