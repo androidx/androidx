@@ -1,0 +1,168 @@
+// Signature format: 4.0
+package androidx.kruth {
+
+  public final class BooleanSubject extends androidx.kruth.Subject<java.lang.Boolean> {
+    method public void isFalse();
+    method public void isTrue();
+  }
+
+  public class ComparableSubject<T extends java.lang.Comparable<? super T>> extends androidx.kruth.Subject<T> {
+    method public final void isAtLeast(T? other);
+    method public final void isAtMost(T? other);
+    method public final void isEquivalentAccordingToCompareTo(T? expected);
+    method public final void isGreaterThan(T? other);
+    method public final void isLessThan(T? other);
+  }
+
+  public final class DoubleSubject extends androidx.kruth.ComparableSubject<java.lang.Double> {
+    method public void isAtLeast(int other);
+    method public void isAtMost(int other);
+    method public void isFinite();
+    method public void isGreaterThan(int other);
+    method public void isLessThan(int other);
+    method public void isNaN();
+    method public void isNegativeInfinity();
+    method public void isNonZero();
+    method public void isNotNaN();
+    method public androidx.kruth.DoubleSubject.TolerantDoubleComparison isNotWithin(double tolerance);
+    method public void isPositiveInfinity();
+    method public androidx.kruth.DoubleSubject.TolerantDoubleComparison isWithin(double tolerance);
+    method public void isZero();
+  }
+
+  public abstract static class DoubleSubject.TolerantDoubleComparison {
+    method @Deprecated public boolean equals(Object? other);
+    method @Deprecated public int hashCode();
+    method public abstract void of(double expected);
+  }
+
+  public final class FailureMetadata {
+    method public java.util.List<java.lang.String> component1();
+    method public androidx.kruth.FailureMetadata copy(java.util.List<java.lang.String> messagesToPrepend);
+    method public java.util.List<java.lang.String> getMessagesToPrepend();
+    property public final java.util.List<java.lang.String> messagesToPrepend;
+  }
+
+  public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
+    method public final void contains(Object? element);
+    method public final void containsAnyIn(Iterable<?>? expected);
+    method public final void containsAnyIn(Object![]? expected);
+    method public final void containsAnyOf(Object? first, Object? second, java.lang.Object?... rest);
+    method public final androidx.kruth.Ordered containsAtLeast(Object? firstExpected, Object? secondExpected, java.lang.Object?... restOfExpected);
+    method public final androidx.kruth.Ordered containsAtLeastElementsIn(Iterable<?>? expected);
+    method public final androidx.kruth.Ordered containsAtLeastElementsIn(Object![]? expected);
+    method public final androidx.kruth.Ordered containsExactly(java.lang.Object?... expected);
+    method public final androidx.kruth.Ordered containsExactlyElementsIn(Iterable<?>? required);
+    method public final androidx.kruth.Ordered containsExactlyElementsIn(Object![]? expected);
+    method public final void containsNoDuplicates();
+    method public final void containsNoneIn(Iterable<?>? excluded);
+    method public final void containsNoneIn(Object![]? excluded);
+    method public final void containsNoneOf(Object? firstExcluded, Object? secondExcluded, java.lang.Object?... restOfExcluded);
+    method public final void doesNotContain(Object? element);
+    method public final void hasSize(int expectedSize);
+    method public final void isEmpty();
+    method public final void isInOrder();
+    method public final void isInOrder(java.util.Comparator<?>? comparator);
+    method public final void isInStrictOrder();
+    method public final void isInStrictOrder(java.util.Comparator<?>? comparator);
+    method @Deprecated public void isNoneOf(Object? first, Object? second, java.lang.Object?... rest);
+    method public final void isNotEmpty();
+    method @Deprecated public void isNotIn(Iterable<?>? iterable);
+  }
+
+  public final class KruthExtKt {
+    method public static inline <reified T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThrows(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static inline <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThrows(kotlin.reflect.KClass<T> exceptionClass, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public final class KruthKt {
+    method public static <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<T,S> assertAbout(androidx.kruth.Subject.Factory<T,? extends S> subjectFactory);
+    method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
+    method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
+    method public static <T> androidx.kruth.IterableSubject<T> assertThat(Iterable<? extends T>? actual);
+    method public static androidx.kruth.StringSubject assertThat(String? actual);
+    method public static <K, V> androidx.kruth.MapSubject<K,V> assertThat(java.util.Map<K,? extends V>? actual);
+    method public static <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> assertThat(T? actual);
+    method public static <T> androidx.kruth.Subject<T> assertThat(T? actual);
+    method public static <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThat(T? actual);
+    method public static androidx.kruth.StandardSubjectBuilder assertWithMessage(String messageToPrepend);
+  }
+
+  public final class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
+    method public androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends V>... entries);
+    method public androidx.kruth.Ordered containsExactlyEntriesIn(java.util.Map<K,? extends V> expectedMap);
+    method public void containsKey(Object? key);
+    method public void hasSize(int expectedSize);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public interface Ordered {
+    method public void inOrder();
+  }
+
+  public final class SimpleSubjectBuilder<T, S extends androidx.kruth.Subject<? extends T>> {
+    method public S that(T actual);
+  }
+
+  public final class StandardSubjectBuilder {
+    method public <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<T,S> about(androidx.kruth.Subject.Factory<T,? extends S> subjectFactory);
+    method public Void fail();
+    method public androidx.kruth.BooleanSubject that(Boolean? actual);
+    method public androidx.kruth.DoubleSubject that(Double? actual);
+    method public <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
+    method public androidx.kruth.StringSubject that(String? actual);
+    method public <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);
+    method public <T> androidx.kruth.Subject<T> that(T actual);
+    method public <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> that(T? actual);
+    method public <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> that(T? actual);
+    method public androidx.kruth.StandardSubjectBuilder withMessage(String messageToPrepend);
+  }
+
+  public final class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
+    method public void contains(CharSequence charSequence);
+    method public void doesNotContain(CharSequence string);
+    method public void endsWith(String string);
+    method public void hasLength(int expectedLength);
+    method public androidx.kruth.StringSubject.CaseInsensitiveStringComparison ignoringCase();
+    method public void isEmpty();
+    method public void isNotEmpty();
+    method public void startsWith(String string);
+  }
+
+  public final class StringSubject.CaseInsensitiveStringComparison {
+    method public void contains(CharSequence? expected);
+    method public void doesNotContain(CharSequence? expected);
+    method public void isEqualTo(String? expected);
+    method public void isNotEqualTo(String? unexpected);
+  }
+
+  public class Subject<T> {
+    ctor public Subject(T? actual, optional androidx.kruth.FailureMetadata metadata);
+    method protected final Void failWithActual(java.lang.String... messages);
+    method public final T? getActual();
+    method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);
+    method public void isEqualTo(Object? expected);
+    method public void isIn(Iterable<?>? iterable);
+    method public inline <reified V> void isInstanceOf();
+    method public void isNoneOf(Object? first, Object? second, java.lang.Object?... rest);
+    method public void isNotEqualTo(Object? unexpected);
+    method public void isNotIn(Iterable<?>? iterable);
+    method public inline <reified V> void isNotInstanceOf();
+    method public void isNotNull();
+    method public void isNotSameInstanceAs(Object? unexpected);
+    method public void isNull();
+    method public void isSameInstanceAs(Object? expected);
+    property public final T? actual;
+  }
+
+  public static fun interface Subject.Factory<T, S extends androidx.kruth.Subject<? extends T>> {
+    method public S createSubject(androidx.kruth.FailureMetadata metadata, T actual);
+  }
+
+  public final class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
+    method public androidx.kruth.StringSubject hasMessageThat();
+  }
+
+}
+
