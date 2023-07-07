@@ -61,6 +61,9 @@ import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.CacheableRule
+import org.gradle.api.artifacts.ComponentMetadataContext
+import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.file.DuplicatesStrategy
@@ -82,6 +85,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withModule
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -297,20 +301,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun Project.configureKotlinVersion() {
         val kotlinVersionStringProvider = androidXConfiguration.kotlinBomVersion
 
-        // Resolve Kotlin versions to the target version or higher.
+        // Resolve unspecified Kotlin versions to the target version.
         configurations.all { configuration ->
             configuration.resolutionStrategy { strategy ->
                 strategy.eachDependency { details ->
                     if (details.requested.group == "org.jetbrains.kotlin") {
-                        val requestedVersion =
-                            if (details.requested.version.isNullOrEmpty()) {
-                                null
-                            } else {
-                                Version(details.requested.version!!)
-                            }
-                        val bomVersion = kotlinVersionStringProvider.get()
-                        if (requestedVersion == null || requestedVersion < Version(bomVersion)) {
-                            details.useVersion(bomVersion)
+                        if (
+                            details.requested.group == "org.jetbrains.kotlin" &&
+                            details.requested.version == null
+                        ) {
+                            details.useVersion(kotlinVersionStringProvider.get())
                         }
                     }
                 }
@@ -333,6 +333,35 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         afterEvaluate { evaluatedProject ->
             evaluatedProject.kotlinExtensionOrNull?.let { kotlinExtension ->
                 kotlinExtension.coreLibrariesVersion = kotlinVersionStringProvider.get()
+            }
+        }
+
+        // Resolve classpath conflicts caused by kotlin-stdlib-jdk7 and -jdk8 artifacts by amending
+        // the kotlin-stdlib artifact metadata to add same-version constraints.
+        project.dependencies {
+            components { componentMetadata ->
+                componentMetadata.withModule<KotlinStdlibDependenciesRule>(
+                    "org.jetbrains.kotlin:kotlin-stdlib"
+                )
+            }
+        }
+    }
+
+    @CacheableRule
+    internal abstract class KotlinStdlibDependenciesRule : ComponentMetadataRule {
+        override fun execute(context: ComponentMetadataContext) {
+            val module = context.details.id
+            val version = module.version
+            context.details.allVariants { variantMetadata ->
+                variantMetadata.withDependencyConstraints { constraintsMetadata ->
+                    val reason = "${module.name} is in atomic group ${module.group}"
+                    constraintsMetadata.add("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$version") {
+                        it.because(reason)
+                    }
+                    constraintsMetadata.add("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version") {
+                        it.because(reason)
+                    }
+                }
             }
         }
     }
