@@ -18,24 +18,21 @@ package androidx.credentials;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@SdkSuppress(minSdkVersion = 34)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PrepareGetCredentialResponseJavaTest {
 
     @Test
     public void constructor_throwsNPEWhenMissingInput() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         Assert.assertThrows(
                 "Expected null pointer when missing input",
                 NullPointerException.class,
@@ -48,10 +45,6 @@ public class PrepareGetCredentialResponseJavaTest {
 
     @Test
     public void test_hasCredentialResults() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         // Construct the test class.
         PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.TestBuilder()
                 .setCredentialTypeDelegate((val) ->
@@ -68,10 +61,6 @@ public class PrepareGetCredentialResponseJavaTest {
 
     @Test
     public void test_hasAuthenticationResults() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         // Construct the test class.
         PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.TestBuilder()
                 .setHasAuthResultsDelegate(() -> true)
@@ -87,10 +76,6 @@ public class PrepareGetCredentialResponseJavaTest {
 
     @Test
     public void test_hasRemoteResults() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         // Construct the test class.
         PrepareGetCredentialResponse response = new PrepareGetCredentialResponse.TestBuilder()
                 .setHasRemoteResultsDelegate(() -> true)

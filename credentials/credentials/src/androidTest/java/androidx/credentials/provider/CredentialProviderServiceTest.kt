@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.util.Log
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -29,7 +28,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 34)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class CredentialProviderServiceTest {
@@ -38,10 +37,6 @@ class CredentialProviderServiceTest {
 
     @Test
     fun test_createRequest() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         var service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
@@ -64,10 +59,6 @@ class CredentialProviderServiceTest {
 
     @Test
     fun test_getRequest() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         var service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
@@ -90,10 +81,6 @@ class CredentialProviderServiceTest {
 
     @Test
     fun test_clearRequest() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         var service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
