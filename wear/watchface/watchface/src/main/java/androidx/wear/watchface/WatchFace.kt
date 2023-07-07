@@ -22,6 +22,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -1247,7 +1248,16 @@ constructor(
                     )
                 }
 
-                val bounds = it.computeBounds(renderer.screenBounds)
+                // Compute the bounds of the complication based on the display rather than
+                // the headless renderer (which may be smaller).
+                val bounds = it.computeBounds(
+                    Rect(
+                    0,
+                    0,
+                        Resources.getSystem().displayMetrics.widthPixels,
+                        Resources.getSystem().displayMetrics.heightPixels
+                    )
+                )
 
                 var prevData: ComplicationData? = null
                 val screenshotComplicationData = params.complicationData
