@@ -38,6 +38,6 @@ internal expect class AtomicBoolean {
  *
  * @see withLock
  */
-internal expect class Synchronizer {
+internal expect class Synchronizer() {
     inline fun <T> withLock(crossinline block: () -> T): T
 }
