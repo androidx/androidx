@@ -103,10 +103,10 @@ public fun NavGraphBuilder.composable(
             deepLinks.forEach { deepLink ->
                 addDeepLink(deepLink)
             }
-            enterTransition?.let { enterTransitions[route] = enterTransition }
-            exitTransition?.let { exitTransitions[route] = exitTransition }
-            popEnterTransition?.let { popEnterTransitions[route] = popEnterTransition }
-            popExitTransition?.let { popExitTransitions[route] = popExitTransition }
+            this.enterTransition = enterTransition
+            this.exitTransition = exitTransition
+            this.popEnterTransition = popEnterTransition
+            this.popExitTransition = popExitTransition
         }
     )
 }
@@ -186,10 +186,12 @@ public fun NavGraphBuilder.navigation(
             deepLinks.forEach { deepLink ->
                 addDeepLink(deepLink)
             }
-            enterTransition?.let { enterTransitions[route] = enterTransition }
-            exitTransition?.let { exitTransitions[route] = exitTransition }
-            popEnterTransition?.let { popEnterTransitions[route] = popEnterTransition }
-            popExitTransition?.let { popExitTransitions[route] = popExitTransition }
+            if (this is ComposeNavGraphNavigator.ComposeNavGraph) {
+                this.enterTransition = enterTransition
+                this.exitTransition = exitTransition
+                this.popEnterTransition = popEnterTransition
+                this.popExitTransition = popExitTransition
+            }
         }
     )
 }
