@@ -58,8 +58,6 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
 }
 
 private val DisabledRules = listOf(
-    // not useful for our projects
-    "final-newline",
     // TODO: reenable when https://github.com/pinterest/ktlint/issues/1221 is resolved
     "indent",
     // TODO: reenable when 'indent' is also enabled, meanwhile its to keep the status-quo
