@@ -18,14 +18,14 @@ package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionObserver
-import androidx.compose.runtime.CompositionObserverHandle
 import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.observe
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.tooling.CompositionObserver
+import androidx.compose.runtime.tooling.CompositionObserverHandle
+import androidx.compose.runtime.tooling.observe
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
@@ -66,7 +66,7 @@ fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runTest {
             override fun compose(
                 observer: CompositionObserver,
                 block: @Composable () -> Unit
-            ): CompositionObserverHandle {
+            ): CompositionObserverHandle? {
                 check(!composed) { "Compose should only be called once" }
                 composed = true
                 root = View().apply { name = "root" }
@@ -130,7 +130,7 @@ interface CompositionTestScope : CoroutineScope {
     fun compose(
         observer: CompositionObserver,
         block: @Composable () -> Unit
-    ): CompositionObserverHandle
+    ): CompositionObserverHandle?
 
     /**
      * Advance the state which executes any pending compositions, if any. Returns true if

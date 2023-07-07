@@ -21,6 +21,8 @@ import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.runtime.tooling.CompositionObserverHandle
+import androidx.compose.runtime.tooling.RecomposeScopeObserver
 
 /**
  * Represents a recomposable scope or section of the composition hierarchy. Can be used to
@@ -34,13 +36,6 @@ interface RecomposeScope {
      */
     fun invalidate()
 }
-
-/**
- * Observer when this scope recomposes.
- */
-@ExperimentalComposeRuntimeApi
-fun RecomposeScope.observe(observer: RecomposeScopeObserver): CompositionObserverHandle =
-    (this as RecomposeScopeImpl).observe(observer)
 
 private const val changedLowBitMask = 0b001_001_001_001_001_001_001_001_001_001_0
 private const val changedHighBitMask = changedLowBitMask shl 1
