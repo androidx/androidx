@@ -1080,10 +1080,8 @@ public final class Preview extends UseCase {
          * size match to the device's screen resolution, or to 1080p (1920x1080), whichever is
          * smaller. See the
          * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
-         * section in {@link android.hardware.camera2.CameraDevice}'. {@link Preview} has a
-         * default {@link ResolutionStrategy} with the {@code PREVIEW} bound size and
-         * {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_LOWER} to achieve this. Applications
-         * can override this default strategy with a different resolution strategy.
+         * section in {@link android.hardware.camera2.CameraDevice}'. Applications can set any
+         * {@link ResolutionStrategy} to override it.
          *
          * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
          * larger than the default screen resolution on certain devices.
