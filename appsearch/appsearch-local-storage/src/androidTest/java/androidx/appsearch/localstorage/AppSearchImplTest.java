@@ -720,6 +720,200 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testQueryInvalidPackages_withJoin() throws Exception {
+        // Make sure that local queries with joinspecs including package filters don't access
+        // other packages.
+
+        // Create a new mAppSearchImpl with a mock Visibility Checker
+        mAppSearchImpl.close();
+        File tempFolder = mTemporaryFolder.newFolder();
+        // We need to share across packages
+        VisibilityChecker mockVisibilityChecker = new MockVisibilityChecker(true);
+        mAppSearchImpl = AppSearchImpl.create(
+                tempFolder,
+                new UnlimitedLimitConfig(),
+                new DefaultIcingOptionsConfig(),
+                /*initStatsBuilder=*/ null,
+                mockVisibilityChecker,
+                ALWAYS_OPTIMIZE);
+
+        AppSearchSchema.StringPropertyConfig personField =
+                new AppSearchSchema.StringPropertyConfig.Builder("personId")
+                        .setJoinableValueType(
+                                AppSearchSchema.StringPropertyConfig
+                                        .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build();
+
+        // Insert package1 schema
+        List<AppSearchSchema> personAndCallSchema =
+                ImmutableList.of(new AppSearchSchema.Builder("personSchema").build(),
+                new AppSearchSchema.Builder("callSchema")
+                .addProperty(personField).build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package1",
+                "database1",
+                personAndCallSchema,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Insert package2 schema
+        List<AppSearchSchema> callSchema =
+                ImmutableList.of(new AppSearchSchema.Builder("callSchema")
+                        .addProperty(personField).build());
+        internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package2",
+                "database2",
+                callSchema,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ true,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Insert package1 document
+        GenericDocument person = new GenericDocument.Builder<>("namespace", "person",
+                "personSchema")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                person,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+
+        GenericDocument call1 = new GenericDocument.Builder<>("namespace", "id1", "callSchema")
+                .setPropertyString("personId", "package1$database1/namespace#person").build();
+        GenericDocument call2 = new GenericDocument.Builder<>("namespace", "id2", "callSchema")
+                .setPropertyString("personId", "package1$database1/namespace#person").build();
+
+        // Insert package1 action document
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                call1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+
+        // Insert package2 action document
+        mAppSearchImpl.putDocument(
+                "package2",
+                "database2",
+                call2,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+
+        // Invalid parent spec filter
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1", "package2")
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
+                searchSpec, /*logger=*/ null);
+        // Only package1 documents should be returned
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(person);
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(call1);
+
+        // Valid parent spec filter with invalid child spec filter
+        SearchSpec nested = new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .addFilterPackageNames("package1", "package2")
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .build();
+        JoinSpec join = new JoinSpec.Builder("personId").setNestedSearch("", nested).build();
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1")
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setJoinSpec(join)
+                .build();
+        searchResultPage = mAppSearchImpl.query("package1", "database1", "",
+                searchSpec, /*logger=*/ null);
+
+        // Only package1 documents should be returned, for both the outer and nested searches
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(person);
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(call1);
+        SearchResult result = searchResultPage.getResults().get(0);
+        assertThat(result.getJoinedResults()).hasSize(1);
+        assertThat(result.getJoinedResults().get(0).getGenericDocument()).isEqualTo(call1);
+
+        // Valid parent spec, but child spec package filters only contain other packages
+        nested = new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .addFilterPackageNames("package2", "package3")
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .build();
+        join = new JoinSpec.Builder("personId").setNestedSearch("", nested).build();
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1")
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setJoinSpec(join)
+                .build();
+        searchResultPage = mAppSearchImpl.query("package1", "database1", "",
+                searchSpec, /*logger=*/ null);
+
+        // Package1 documents should be returned, but no packages should be joined
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(person);
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(call1);
+        result = searchResultPage.getResults().get(0);
+        assertThat(result.getJoinedResults()).isEmpty();
+
+        // Valid parent spec, empty child spec package filters
+        nested = new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .build();
+        join = new JoinSpec.Builder("personId").setNestedSearch("", nested).build();
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1")
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setJoinSpec(join)
+                .build();
+        searchResultPage = mAppSearchImpl.query("package1", "database1", "",
+                searchSpec, /*logger=*/ null);
+
+        // Only package1 documents should be returned, for both the outer and nested searches
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(person);
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(call1);
+        result = searchResultPage.getResults().get(0);
+        assertThat(result.getJoinedResults()).hasSize(1);
+        assertThat(result.getJoinedResults().get(0).getGenericDocument()).isEqualTo(call1);
+
+        // Valid parent spec filter with valid child spec filter
+        nested = new SearchSpec.Builder().build();
+        join = new JoinSpec.Builder("personId").setNestedSearch("", nested).build();
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .addFilterPackageNames("package1")
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setJoinSpec(join)
+                .build();
+        searchResultPage = mAppSearchImpl.query("package1", "database1", "",
+                searchSpec, /*logger=*/ null);
+        // Should work as expected
+        assertThat(searchResultPage.getResults()).hasSize(2);
+        assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(person);
+        assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(call1);
+        result = searchResultPage.getResults().get(0);
+        assertThat(result.getJoinedResults()).hasSize(1);
+        assertThat(result.getJoinedResults().get(0).getGenericDocument()).isEqualTo(call1);
+    }
+
+    @Test
     public void testSearchSuggestion() throws Exception {
         // Insert schema
         List<AppSearchSchema> schemas = Collections.singletonList(
