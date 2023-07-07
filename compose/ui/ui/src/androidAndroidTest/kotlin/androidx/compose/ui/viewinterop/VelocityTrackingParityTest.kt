@@ -83,25 +83,28 @@ class VelocityTrackingParityTest {
     fun equalDraggable_withEqualSwipes_shouldProduceSimilarVelocity() {
         // Arrange
         createActivity()
-        checkVisibility(composeView, View.VISIBLE)
-        checkVisibility(draggableView, View.GONE)
-
-        // Act
-        swipeView(R.id.compose_view)
-
-        val currentTopInCompose = latestComposeVelocity
-
-        // switch visibility
-        rule.runOnUiThread {
-            composeView.visibility = View.GONE
-            draggableView.visibility = View.VISIBLE
-        }
-
         checkVisibility(composeView, View.GONE)
         checkVisibility(draggableView, View.VISIBLE)
 
+        // Act: Use system to send motion events and collect them.
         swipeView(R.id.draggable_view)
+
         val childAtTheTopOfView = draggableView.latestVelocity.y
+
+        // switch visibility
+        rule.runOnUiThread {
+            composeView.visibility = View.VISIBLE
+            draggableView.visibility = View.GONE
+        }
+
+        checkVisibility(composeView, View.VISIBLE)
+        checkVisibility(draggableView, View.GONE)
+
+        // Inject the same events in compose view
+        for (event in draggableView.motionEvents) {
+            composeView.dispatchTouchEvent(event)
+        }
+        val currentTopInCompose = latestComposeVelocity
 
         // assert
         assertThat(childAtTheTopOfView).isWithin(VelocityDifferenceTolerance)
@@ -154,10 +157,11 @@ private fun ActivityScenario<*>.createActivityWithComposeContent(
         activity.setContentView(layout)
         with(activity.findViewById<ComposeView>(R.id.compose_view)) {
             setContent(content)
+            visibility = View.GONE
         }
 
         activity.findViewById<VelocityTrackingView>(R.id.draggable_view)?.visibility =
-            View.GONE
+            View.VISIBLE
     }
     moveToState(Lifecycle.State.RESUMED)
 }
@@ -169,7 +173,9 @@ private class VelocityTrackingView(context: Context, attributeSet: AttributeSet)
     View(context, attributeSet) {
     private val tracker = VelocityTracker.obtain()
     var latestVelocity: Velocity = Velocity.Zero
+    val motionEvents = mutableListOf<MotionEvent?>()
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        motionEvents.add(MotionEvent.obtain(event))
         when (event?.action) {
             MotionEvent.ACTION_UP -> {
                 tracker.computeCurrentVelocity(1000)
