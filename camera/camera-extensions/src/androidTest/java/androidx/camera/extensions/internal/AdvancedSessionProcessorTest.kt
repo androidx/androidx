@@ -116,6 +116,7 @@ class AdvancedSessionProcessorTest {
 
     @Before
     fun setUp() = runBlocking {
+        ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner()
@@ -229,6 +230,9 @@ class AdvancedSessionProcessorTest {
     @Test
     fun getRealtimeLatencyEstimate_advancedSessionProcessorInvokesSessionProcessorImpl() =
         runBlocking {
+            ExtensionVersion.injectInstance(FakeExtensionVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
             val fakeSessionProcessImpl = object : SessionProcessorImpl by FakeSessionProcessImpl() {
                 override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
             }
