@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -278,6 +279,7 @@ fun Modifier.rsbScroll(
 fun ScalingLazyColumnWithRSB(
     modifier: Modifier = Modifier,
     state: ScalingLazyListState = rememberScalingLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp),
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
     reverseLayout: Boolean = false,
     snap: Boolean = true,
@@ -300,6 +302,7 @@ fun ScalingLazyColumnWithRSB(
             focusRequester = focusRequester
         ),
         state = state,
+        contentPadding = contentPadding,
         reverseLayout = reverseLayout,
         scalingParams = scalingParams,
         flingBehavior = flingBehavior,

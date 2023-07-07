@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,9 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
@@ -126,9 +128,11 @@ fun ScrollAwayScalingLazyColumnChipDemo2() {
     )
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun ColumnCardDemo(offset: Dp) {
     val scrollState = rememberScrollState()
+    val focusRequester = rememberActiveFocusRequester()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -147,6 +151,11 @@ private fun ColumnCardDemo(offset: Dp) {
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
+                .rsbScroll(
+                    scrollableState = scrollState,
+                    flingBehavior = ScrollableDefaults.flingBehavior(),
+                    focusRequester = focusRequester
+                )
         ) {
             val modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 2)
             repeat(3) { i ->
@@ -156,9 +165,11 @@ private fun ColumnCardDemo(offset: Dp) {
     }
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemIndex: Int) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = initialVisibleItemIndex)
+    val focusRequester = rememberActiveFocusRequester()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -174,7 +185,12 @@ private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemInd
         }
     ) {
         LazyColumn(
-            state = scrollState
+            state = scrollState,
+            modifier = Modifier.rsbScroll(
+                scrollableState = scrollState,
+                flingBehavior = ScrollableDefaults.flingBehavior(),
+                focusRequester = focusRequester
+            )
         ) {
             items(5) { i ->
                 val modifier = Modifier.fillParentMaxHeight(0.5f)
@@ -210,7 +226,7 @@ private fun ScalingLazyColumnCardDemo(
             PositionIndicator(scalingLazyListState = scrollState)
         }
     ) {
-        ScalingLazyColumn(
+        ScalingLazyColumnWithRSB(
             contentPadding = PaddingValues(10.dp),
             state = scrollState,
             autoCentering = AutoCenteringParams(itemIndex = 1, itemOffset = 0)
@@ -252,7 +268,7 @@ private fun ScalingLazyColumnChipDemo(
             PositionIndicator(scalingLazyListState = scrollState)
         }
     ) {
-        ScalingLazyColumn(
+        ScalingLazyColumnWithRSB(
             contentPadding = PaddingValues(10.dp),
             state = scrollState,
         ) {
