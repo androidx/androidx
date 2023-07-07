@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.selection.SimpleLayout
@@ -1104,7 +1105,8 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
                 .semantics {
                     this[SelectionHandleInfoKey] = SelectionHandleInfo(
                         handle = Handle.Cursor,
-                        position = position
+                        position = position,
+                        anchor = SelectionHandleAnchor.Middle
                     )
                 },
             content = null

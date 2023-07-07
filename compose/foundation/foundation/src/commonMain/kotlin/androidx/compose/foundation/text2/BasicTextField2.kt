@@ -32,6 +32,8 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.heightInLines
+import androidx.compose.foundation.text.selection.SelectionHandle
+import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.textFieldMinSize
@@ -256,10 +258,16 @@ fun BasicTextField2(
                     )
                 )
 
-                if (enabled && isFocused && !readOnly && textFieldSelectionState.isInTouchMode) {
-                    TextFieldCursorHandle(
+                if (enabled && isFocused && textFieldSelectionState.isInTouchMode) {
+                    TextFieldSelectionHandles(
+                        textFieldState = state,
                         selectionState = textFieldSelectionState
                     )
+                    if (!readOnly) {
+                        TextFieldCursorHandle(
+                            selectionState = textFieldSelectionState
+                        )
+                    }
                 }
             }
         }
@@ -268,19 +276,52 @@ fun BasicTextField2(
 
 @Composable
 internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
-    if (selectionState.cursorHandleVisible) {
+    val cursorHandleState = selectionState.cursorHandle
+    if (cursorHandleState.visible) {
         CursorHandle(
-            handlePosition = selectionState.cursorRect.bottomCenter,
+            handlePosition = cursorHandleState.position,
             modifier = Modifier
                 .semantics {
                     this[SelectionHandleInfoKey] = SelectionHandleInfo(
                         handle = Handle.Cursor,
-                        position = selectionState.cursorRect.bottomCenter
+                        position = cursorHandleState.position,
+                        anchor = SelectionHandleAnchor.Middle
                     )
                 }
                 .pointerInput(selectionState) {
                     with(selectionState) { cursorHandleGestures() }
                 },
+            content = null
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun TextFieldSelectionHandles(
+    textFieldState: TextFieldState,
+    selectionState: TextFieldSelectionState
+) {
+    val startHandleState = selectionState.startSelectionHandle
+    if (startHandleState.visible) {
+        SelectionHandle(
+            position = startHandleState.position,
+            isStartHandle = true,
+            direction = startHandleState.direction,
+            handlesCrossed = textFieldState.text.selectionInChars.reversed,
+            modifier = Modifier,
+            content = null
+        )
+    }
+
+    val endHandleState = selectionState.endSelectionHandle
+    if (endHandleState.visible) {
+        SelectionHandle(
+            position = endHandleState.position,
+            isStartHandle = false,
+            direction = endHandleState.direction,
+            handlesCrossed = textFieldState.text.selectionInChars.reversed,
+            modifier = Modifier,
             content = null
         )
     }

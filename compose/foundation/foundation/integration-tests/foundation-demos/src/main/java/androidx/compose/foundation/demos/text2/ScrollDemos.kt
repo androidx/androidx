@@ -18,6 +18,7 @@ package androidx.compose.foundation.demos.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
+import androidx.compose.foundation.demos.text.fontSize8
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,12 +30,18 @@ import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.material.Button
 import androidx.compose.material.Slider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
@@ -71,6 +78,11 @@ fun ScrollableDemos() {
         item {
             TagLine(tag = "Shared Hoisted ScrollState")
             SharedHoistedScroll()
+        }
+
+        item {
+            TagLine(tag = "Selectable with no interaction")
+            SelectionWithNoInteraction()
         }
     }
 }
@@ -197,6 +209,49 @@ fun SharedHoistedScroll() {
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.fillMaxWidth(),
+            lineLimits = SingleLine
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SelectionWithNoInteraction() {
+    val state =
+        remember { TextFieldState("Hello, World!", initialSelectionInChars = TextRange(1, 5)) }
+    val focusRequester = remember { FocusRequester() }
+    Column {
+        Button(onClick = { focusRequester.requestFocus() }) {
+            Text("Focus")
+        }
+        Button(onClick = {
+            state.edit {
+                selectCharsIn(
+                    TextRange(
+                        state.text.selectionInChars.start - 1,
+                        state.text.selectionInChars.end
+                    ).coerceIn(0, state.text.length)
+                )
+            }
+        }) {
+            Text("Increase Selection to Left")
+        }
+        Button(onClick = {
+            state.edit {
+                selectCharsIn(
+                    TextRange(
+                        state.text.selectionInChars.start,
+                        state.text.selectionInChars.end + 1
+                    ).coerceIn(0, state.text.length)
+                )
+            }
+        }) {
+            Text("Increase Selection to Right")
+        }
+        BasicTextField2(
+            state = state,
+            modifier = demoTextFieldModifiers.focusRequester(focusRequester),
+            textStyle = TextStyle(fontSize = fontSize8),
             lineLimits = SingleLine
         )
     }
