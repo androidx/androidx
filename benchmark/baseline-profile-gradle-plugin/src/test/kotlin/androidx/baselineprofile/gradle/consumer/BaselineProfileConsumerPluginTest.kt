@@ -32,6 +32,7 @@ import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.require
 import androidx.baselineprofile.gradle.utils.requireInOrder
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import org.junit.Rule
 import org.junit.Test
@@ -213,13 +214,24 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             val expected = arrayOf("freeRelease", "paidRelease").flatMap { variantName ->
                 listOf(
                     "A baseline profile was generated for the variant `$variantName`:",
-                    baselineProfileFile(variantName).canonicalPath,
+                    baselineProfileFile(variantName).absolutePath,
                     "A startup profile was generated for the variant `$variantName`:",
-                    startupProfileFile(variantName).canonicalPath
+                    startupProfileFile(variantName).absolutePath
                 )
             }
-            val notFound = it.lines().requireInOrder(*expected.toTypedArray())
-            assertThat(notFound).isEmpty()
+            val notFound = it.lines().requireInOrder(
+                toFind = expected.toTypedArray(),
+                predicate = { line, nextToFind -> nextToFind in line }
+            )
+
+            assertWithMessage("""
+                |Not found the following lines in gradle output:
+                |${notFound.joinToString("\n")}
+                |
+                |Full gradle output:
+                |$it
+            """.trimMargin()
+            ).that(notFound).isEmpty()
         }
 
         assertThat(readBaselineProfileFileContent("freeRelease"))
