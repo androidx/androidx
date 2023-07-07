@@ -16,6 +16,7 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.BySelector descContains(String);
     method public static androidx.test.uiautomator.BySelector descEndsWith(String);
     method public static androidx.test.uiautomator.BySelector descStartsWith(String);
+    method @RequiresApi(30) public static androidx.test.uiautomator.BySelector displayId(int);
     method public static androidx.test.uiautomator.BySelector enabled(boolean);
     method public static androidx.test.uiautomator.BySelector focusable(boolean);
     method public static androidx.test.uiautomator.BySelector focused(boolean);
@@ -60,6 +61,7 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.BySelector descContains(String);
     method public androidx.test.uiautomator.BySelector descEndsWith(String);
     method public androidx.test.uiautomator.BySelector descStartsWith(String);
+    method @RequiresApi(30) public androidx.test.uiautomator.BySelector displayId(int);
     method public androidx.test.uiautomator.BySelector enabled(boolean);
     method public androidx.test.uiautomator.BySelector focusable(boolean);
     method public androidx.test.uiautomator.BySelector focused(boolean);
