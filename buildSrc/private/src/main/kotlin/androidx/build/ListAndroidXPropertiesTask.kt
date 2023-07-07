@@ -20,9 +20,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
-/**
- * Lists recognized properties whose names start with "androidx"
- */
+/** Lists recognized properties whose names start with "androidx" */
 @DisableCachingByDefault(because = "Too many inputs to cache, and runs quickly anyway")
 abstract class ListAndroidXPropertiesTask : DefaultTask() {
     init {

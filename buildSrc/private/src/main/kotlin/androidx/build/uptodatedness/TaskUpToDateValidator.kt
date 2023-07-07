@@ -29,13 +29,12 @@ import org.gradle.tooling.events.OperationCompletionListener
 import org.gradle.tooling.events.task.TaskExecutionResult
 
 /**
- * Validates that all tasks (except a temporary exception list) are considered up-to-date.
- * The expected usage of this is that the user will invoke a build with the
- * TaskUpToDateValidator disabled, and then reinvoke the same build with the TaskUpToDateValidator
- * enabled. If the second build actually runs any tasks, then some tasks don't have the correct
- * inputs/outputs declared and are running more often than necessary.
+ * Validates that all tasks (except a temporary exception list) are considered up-to-date. The
+ * expected usage of this is that the user will invoke a build with the TaskUpToDateValidator
+ * disabled, and then reinvoke the same build with the TaskUpToDateValidator enabled. If the second
+ * build actually runs any tasks, then some tasks don't have the correct inputs/outputs declared and
+ * are running more often than necessary.
  */
-
 const val DISALLOW_TASK_EXECUTION_VAR_NAME = "DISALLOW_TASK_EXECUTION"
 
 private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
@@ -45,129 +44,132 @@ private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
 // (like :core:core:assembleRelease)
 // Entries in this set do still get rerun because they might produce files that are needed by
 // subsequent tasks
-val ALLOW_RERUNNING_TASKS = setOf(
-    "buildOnServer",
-    "checkExternalLicenses",
-    // caching disabled for now while we look for a fix for b/273294710
-    "createAllArchives",
-    // https://youtrack.jetbrains.com/issue/KT-52632
-    "commonizeNativeDistribution",
-    "createDiffArchiveForAll",
-    "externalNativeBuildDebug",
-    "externalNativeBuildRelease",
-    "generateDebugUnitTestConfig",
-    "generateJsonModelDebug",
-    "generateJsonModelRelease",
-    /**
-     * relocateShadowJar is used to configure the ShadowJar hence it does not have any outputs.
-     * https://github.com/johnrengelman/shadow/issues/561
-     */
-    "relocateShadowJar",
-    "testDebugUnitTest",
-    "verifyDependencyVersions",
-    "zipTestConfigsWithApks",
-    "zipHtmlResultsOfTestDebugUnitTest",
-    "zipXmlResultsOfTestDebugUnitTest",
+val ALLOW_RERUNNING_TASKS =
+    setOf(
+        "buildOnServer",
+        "checkExternalLicenses",
+        // caching disabled for now while we look for a fix for b/273294710
+        "createAllArchives",
+        // https://youtrack.jetbrains.com/issue/KT-52632
+        "commonizeNativeDistribution",
+        "createDiffArchiveForAll",
+        "externalNativeBuildDebug",
+        "externalNativeBuildRelease",
+        "generateDebugUnitTestConfig",
+        "generateJsonModelDebug",
+        "generateJsonModelRelease",
+        /**
+         * relocateShadowJar is used to configure the ShadowJar hence it does not have any outputs.
+         * https://github.com/johnrengelman/shadow/issues/561
+         */
+        "relocateShadowJar",
+        "testDebugUnitTest",
+        "verifyDependencyVersions",
+        "zipTestConfigsWithApks",
+        "zipHtmlResultsOfTestDebugUnitTest",
+        "zipXmlResultsOfTestDebugUnitTest",
+        ":camera:integration-tests:camera-testapp-core:mergeLibDexDebug",
+        ":camera:integration-tests:camera-testapp-core:packageDebug",
+        ":camera:integration-tests:camera-testapp-extensions:mergeLibDexDebug",
+        ":camera:integration-tests:camera-testapp-extensions:packageDebug",
+        ":camera:integration-tests:camera-testapp-extensions:" +
+            "GenerateTestConfigurationdebugAndroidTest",
+        ":camera:integration-tests:camera-testapp-uiwidgets:mergeLibDexDebug",
+        ":camera:integration-tests:camera-testapp-uiwidgets:packageDebug",
+        ":camera:integration-tests:camera-testapp-core:GenerateTestConfigurationdebug",
+        ":camera:integration-tests:camera-testapp-core:GenerateTestConfigurationdebugAndroidTest",
+        ":camera:integration-tests:camera-testapp-view:GenerateTestConfigurationdebug",
+        ":camera:integration-tests:camera-testapp-view:GenerateTestConfigurationdebugAndroidTest",
+        ":camera:integration-tests:camera-testapp-view:mergeLibDexDebug",
+        ":camera:integration-tests:camera-testapp-view:packageDebug",
+        "configureCMakeDebug[armeabi-v7a]",
+        "configureCMakeDebug[arm64-v8a]",
+        "configureCMakeDebug[x86]",
+        "configureCMakeDebug[x86_64]",
+        "buildCMakeDebug[armeabi-v7a]",
+        "buildCMakeDebug[arm64-v8a]",
+        "buildCMakeDebug[x86]",
+        "buildCMakeDebug[x86_64]",
+        "configureCMakeRelWithDebInfo[armeabi-v7a]",
+        "configureCMakeRelWithDebInfo[arm64-v8a]",
+        "configureCMakeRelWithDebInfo[x86]",
+        "configureCMakeRelWithDebInfo[x86_64]",
+        "buildCMakeRelWithDebInfo[armeabi-v7a]",
+        "buildCMakeRelWithDebInfo[arm64-v8a]",
+        "buildCMakeRelWithDebInfo[x86]",
+        "buildCMakeRelWithDebInfo[x86_64]",
+        ":appsearch:appsearch-local-storage:buildCMakeDebug[armeabi-v7a][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeDebug[arm64-v8a][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeDebug[x86][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeDebug[x86_64][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[armeabi-v7a][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[arm64-v8a][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[x86][icing]",
+        ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[x86_64][icing]",
+        ":external:libyuv:buildCMakeDebug[armeabi-v7a][yuv]",
+        ":external:libyuv:buildCMakeDebug[arm64-v8a][yuv]",
+        ":external:libyuv:buildCMakeDebug[x86][yuv]",
+        ":external:libyuv:buildCMakeDebug[x86_64][yuv]",
+        ":external:libyuv:buildCMakeRelWithDebInfo[armeabi-v7a][yuv]",
+        ":external:libyuv:buildCMakeRelWithDebInfo[arm64-v8a][yuv]",
+        ":external:libyuv:buildCMakeRelWithDebInfo[x86][yuv]",
+        ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
+        ":hilt:hilt-navigation-compose:kaptGenerateStubsDebugKotlin",
+        ":hilt:hilt-navigation-compose:kaptGenerateStubsReleaseKotlin",
+        ":lint-checks:integration-tests:copyDebugAndroidLintReports",
 
-    ":camera:integration-tests:camera-testapp-core:mergeLibDexDebug",
-    ":camera:integration-tests:camera-testapp-core:packageDebug",
-    ":camera:integration-tests:camera-testapp-extensions:mergeLibDexDebug",
-    ":camera:integration-tests:camera-testapp-extensions:packageDebug",
-    ":camera:integration-tests:camera-testapp-extensions:GenerateTestConfigurationdebugAndroidTest",
-    ":camera:integration-tests:camera-testapp-uiwidgets:mergeLibDexDebug",
-    ":camera:integration-tests:camera-testapp-uiwidgets:packageDebug",
-    ":camera:integration-tests:camera-testapp-core:GenerateTestConfigurationdebug",
-    ":camera:integration-tests:camera-testapp-core:GenerateTestConfigurationdebugAndroidTest",
-    ":camera:integration-tests:camera-testapp-view:GenerateTestConfigurationdebug",
-    ":camera:integration-tests:camera-testapp-view:GenerateTestConfigurationdebugAndroidTest",
-    ":camera:integration-tests:camera-testapp-view:mergeLibDexDebug",
-    ":camera:integration-tests:camera-testapp-view:packageDebug",
-    "configureCMakeDebug[armeabi-v7a]",
-    "configureCMakeDebug[arm64-v8a]",
-    "configureCMakeDebug[x86]",
-    "configureCMakeDebug[x86_64]",
-    "buildCMakeDebug[armeabi-v7a]",
-    "buildCMakeDebug[arm64-v8a]",
-    "buildCMakeDebug[x86]",
-    "buildCMakeDebug[x86_64]",
-    "configureCMakeRelWithDebInfo[armeabi-v7a]",
-    "configureCMakeRelWithDebInfo[arm64-v8a]",
-    "configureCMakeRelWithDebInfo[x86]",
-    "configureCMakeRelWithDebInfo[x86_64]",
-    "buildCMakeRelWithDebInfo[armeabi-v7a]",
-    "buildCMakeRelWithDebInfo[arm64-v8a]",
-    "buildCMakeRelWithDebInfo[x86]",
-    "buildCMakeRelWithDebInfo[x86_64]",
-    ":appsearch:appsearch-local-storage:buildCMakeDebug[armeabi-v7a][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeDebug[arm64-v8a][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeDebug[x86][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeDebug[x86_64][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[armeabi-v7a][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[arm64-v8a][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[x86][icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[x86_64][icing]",
-    ":external:libyuv:buildCMakeDebug[armeabi-v7a][yuv]",
-    ":external:libyuv:buildCMakeDebug[arm64-v8a][yuv]",
-    ":external:libyuv:buildCMakeDebug[x86][yuv]",
-    ":external:libyuv:buildCMakeDebug[x86_64][yuv]",
-    ":external:libyuv:buildCMakeRelWithDebInfo[armeabi-v7a][yuv]",
-    ":external:libyuv:buildCMakeRelWithDebInfo[arm64-v8a][yuv]",
-    ":external:libyuv:buildCMakeRelWithDebInfo[x86][yuv]",
-    ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
-    ":hilt:hilt-navigation-compose:kaptGenerateStubsDebugKotlin",
-    ":hilt:hilt-navigation-compose:kaptGenerateStubsReleaseKotlin",
-    ":lint-checks:integration-tests:copyDebugAndroidLintReports",
+        // https://youtrack.jetbrains.com/issue/KT-49933
+        "generateProjectStructureMetadata",
 
-    // https://youtrack.jetbrains.com/issue/KT-49933
-    "generateProjectStructureMetadata",
-
-    // https://github.com/google/protobuf-gradle-plugin/issues/667
-    ":appactions:interaction:interaction-service-proto:extractIncludeTestProto",
-    ":datastore:datastore-preferences-proto:extractIncludeTestProto",
-    ":glance:glance-appwidget-proto:extractIncludeTestProto",
-    ":health:connect:connect-client-proto:extractIncludeTestProto",
-    ":privacysandbox:tools:tools-core:extractIncludeTestProto",
-    ":test:screenshot:screenshot-proto:extractIncludeTestProto",
-    ":wear:protolayout:protolayout-proto:extractIncludeTestProto",
-    ":wear:tiles:tiles-proto:extractIncludeTestProto"
-)
+        // https://github.com/google/protobuf-gradle-plugin/issues/667
+        ":appactions:interaction:interaction-service-proto:extractIncludeTestProto",
+        ":datastore:datastore-preferences-proto:extractIncludeTestProto",
+        ":glance:glance-appwidget-proto:extractIncludeTestProto",
+        ":health:connect:connect-client-proto:extractIncludeTestProto",
+        ":privacysandbox:tools:tools-core:extractIncludeTestProto",
+        ":test:screenshot:screenshot-proto:extractIncludeTestProto",
+        ":wear:protolayout:protolayout-proto:extractIncludeTestProto",
+        ":wear:tiles:tiles-proto:extractIncludeTestProto"
+    )
 
 // Additional tasks that are expected to be temporarily out-of-date after running once
 // Tasks in this set we don't even try to rerun, because they're known to be unnecessary
-val DONT_TRY_RERUNNING_TASKS = setOf(
-    "listTaskOutputs",
-    "tasks",
+val DONT_TRY_RERUNNING_TASKS =
+    setOf(
+        "listTaskOutputs",
+        "tasks",
 
-    // More information about the fact that these dackka tasks rerun can be found at b/167569304
-    "docs",
+        // More information about the fact that these dackka tasks rerun can be found at b/167569304
+        "docs",
 
-    // We know that these tasks are never up to date due to maven-metadata.xml changing
-    // https://github.com/gradle/gradle/issues/11203
-    "partiallyDejetifyArchive",
-    "stripArchiveForPartialDejetification",
-    "createArchive",
+        // We know that these tasks are never up to date due to maven-metadata.xml changing
+        // https://github.com/gradle/gradle/issues/11203
+        "partiallyDejetifyArchive",
+        "stripArchiveForPartialDejetification",
+        "createArchive",
 
-    // https://github.com/spdx/spdx-gradle-plugin/issues/18
-    "spdxSbomForRelease",
-)
+        // https://github.com/spdx/spdx-gradle-plugin/issues/18
+        "spdxSbomForRelease",
+    )
 
-val DONT_TRY_RERUNNING_TASK_TYPES = setOf(
-    // TODO(aurimas): add back when upgrading to AGP 8.0.0-beta01
-    "com.android.build.gradle.internal.tasks.BundleLibraryJavaRes_Decorated",
-    "com.android.build.gradle.internal.lint.AndroidLintTextOutputTask_Decorated",
-    // lint report tasks
-    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
-    // lint analysis tasks b/223287425
-    "com.android.build.gradle.internal.lint.AndroidLintAnalysisTask_Decorated",
-    // https://github.com/gradle/gradle/issues/11717
-    "org.gradle.api.publish.tasks.GenerateModuleMetadata_Decorated",
-    "org.gradle.api.publish.maven.tasks.GenerateMavenPom_Decorated",
-    // due to GenerateModuleMetadata re-running
-    "androidx.build.GMavenZipTask_Decorated",
-    "org.gradle.api.publish.maven.tasks.PublishToMavenRepository_Decorated",
-    // This task is not cacheable by design due to large number of inputs
-    "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
-)
+val DONT_TRY_RERUNNING_TASK_TYPES =
+    setOf(
+        // TODO(aurimas): add back when upgrading to AGP 8.0.0-beta01
+        "com.android.build.gradle.internal.tasks.BundleLibraryJavaRes_Decorated",
+        "com.android.build.gradle.internal.lint.AndroidLintTextOutputTask_Decorated",
+        // lint report tasks
+        "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
+        // lint analysis tasks b/223287425
+        "com.android.build.gradle.internal.lint.AndroidLintAnalysisTask_Decorated",
+        // https://github.com/gradle/gradle/issues/11717
+        "org.gradle.api.publish.tasks.GenerateModuleMetadata_Decorated",
+        "org.gradle.api.publish.maven.tasks.GenerateMavenPom_Decorated",
+        // due to GenerateModuleMetadata re-running
+        "androidx.build.GMavenZipTask_Decorated",
+        "org.gradle.api.publish.maven.tasks.PublishToMavenRepository_Decorated",
+        // This task is not cacheable by design due to large number of inputs
+        "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
+    )
 
 abstract class TaskUpToDateValidator :
     BuildService<TaskUpToDateValidator.Parameters>, OperationCompletionListener {
@@ -215,17 +217,15 @@ abstract class TaskUpToDateValidator :
         }
 
         /**
-         * Currently, klibs are not reproducible, which means any task that depends on them
-         * might get invalidated at no fault of their own.
+         * Currently, klibs are not reproducible, which means any task that depends on them might
+         * get invalidated at no fault of their own.
          *
          * https://youtrack.jetbrains.com/issue/KT-52741
          */
         private fun isCausedByAKlibChange(result: TaskExecutionResult): Boolean {
             // the actual message looks something like:
             // Input property 'rootSpec$1$3' file <some-path>.klib has changed
-            return result.executionReasons.orEmpty().any {
-                it.contains(".klib has changed")
-            }
+            return result.executionReasons.orEmpty().any { it.contains(".klib has changed") }
         }
 
         private fun isAllowedToRerunTask(taskPath: String): Boolean {
@@ -248,33 +248,34 @@ abstract class TaskUpToDateValidator :
         }
 
         private fun shouldTryRerunningTask(task: Task): Boolean {
-            return !(
-                DONT_TRY_RERUNNING_TASKS.contains(task.name) ||
-                    DONT_TRY_RERUNNING_TASKS.contains(task.path) ||
-                    DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName)
-                )
+            return !(DONT_TRY_RERUNNING_TASKS.contains(task.name) ||
+                DONT_TRY_RERUNNING_TASKS.contains(task.path) ||
+                DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName))
         }
 
         fun setup(rootProject: Project, registry: BuildEventsListenerRegistry) {
             if (!shouldEnable(rootProject)) {
                 return
             }
-            val validate = rootProject.providers
-                .environmentVariable(DISALLOW_TASK_EXECUTION_VAR_NAME).map { true }.orElse(false)
+            val validate =
+                rootProject.providers
+                    .environmentVariable(DISALLOW_TASK_EXECUTION_VAR_NAME)
+                    .map { true }
+                    .orElse(false)
             // create listener for validating that any task that reran was expected to rerun
-            val validatorProvider = rootProject.gradle.sharedServices
-                .registerIfAbsent(
+            val validatorProvider =
+                rootProject.gradle.sharedServices.registerIfAbsent(
                     "TaskUpToDateValidator",
                     TaskUpToDateValidator::class.java
-                ) { spec -> spec.parameters.validate = validate }
+                ) { spec ->
+                    spec.parameters.validate = validate
+                }
             registry.onTaskCompletion(validatorProvider)
 
             // skip rerunning tasks that are known to be unnecessary to rerun
             rootProject.allprojects { subproject ->
                 subproject.tasks.configureEach { task ->
-                    task.onlyIf {
-                        shouldTryRerunningTask(task) || !validate.get()
-                    }
+                    task.onlyIf { shouldTryRerunningTask(task) || !validate.get() }
                 }
             }
         }

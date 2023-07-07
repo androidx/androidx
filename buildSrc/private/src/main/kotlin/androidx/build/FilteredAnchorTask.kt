@@ -31,21 +31,22 @@ import org.gradle.work.DisableCachingByDefault
 abstract class FilteredAnchorTask : DefaultTask() {
     init {
         group = "Help"
-        description = "Runs tasks with a name specified by -P$PROP_TASK_NAME= for projects with " +
-            "a path prefix specified by -P$PROP_PATH_PREFIX="
+        description =
+            "Runs tasks with a name specified by -P$PROP_TASK_NAME= for projects with " +
+                "a path prefix specified by -P$PROP_PATH_PREFIX="
     }
 
-    @get:Input
-    abstract var pathPrefix: String
+    @get:Input abstract var pathPrefix: String
 
-    @get:Input
-    abstract var taskName: String
+    @get:Input abstract var taskName: String
 
     @TaskAction
     fun exec() {
         if (dependsOn.isEmpty()) {
-            throw GradleException("Failed to find any filterable tasks with name \"$taskName\" " +
-                "and path prefixed with \"$pathPrefix\"")
+            throw GradleException(
+                "Failed to find any filterable tasks with name \"$taskName\" " +
+                    "and path prefixed with \"$pathPrefix\""
+            )
         }
     }
 
@@ -57,21 +58,21 @@ abstract class FilteredAnchorTask : DefaultTask() {
 }
 
 /**
- * Offers the specified [taskProviders] to the global [FilteredAnchorTask], adding them if they match
- * the requested path prefix and task name.
+ * Offers the specified [taskProviders] to the global [FilteredAnchorTask], adding them if they
+ * match the requested path prefix and task name.
  */
 internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) {
     if (hasProperty(PROP_PATH_PREFIX) && hasProperty(PROP_TASK_NAME)) {
         val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(",")
         if (pathPrefixes.any { pathPrefix -> relativePathForFiltering().startsWith(pathPrefix) }) {
             val taskName = properties[PROP_TASK_NAME] as String
-            taskProviders.find { taskProvider ->
-                taskName == taskProvider?.name
-            }?.let { taskProvider ->
-                rootProject.tasks.named(GLOBAL_TASK_NAME).configure { task ->
-                    task.dependsOn(taskProvider)
+            taskProviders
+                .find { taskProvider -> taskName == taskProvider?.name }
+                ?.let { taskProvider ->
+                    rootProject.tasks.named(GLOBAL_TASK_NAME).configure { task ->
+                        task.dependsOn(taskProvider)
+                    }
                 }
-            }
         }
     }
 }
@@ -79,8 +80,8 @@ internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) 
 /**
  * Registers the global [FilteredAnchorTask] if the required command-line properties are set.
  *
- * For example, to run `checkApi` for all projects under `core/core/`:
- * ./gradlew filterTasks -Pandroidx.taskName=checkApi -Pandroidx.pathPrefix=core/core/
+ * For example, to run `checkApi` for all projects under `core/core/`: ./gradlew filterTasks
+ * -Pandroidx.taskName=checkApi -Pandroidx.pathPrefix=core/core/
  */
 internal fun Project.maybeRegisterFilterableTask() {
     if (hasProperty(PROP_TASK_NAME) && hasProperty(PROP_PATH_PREFIX)) {

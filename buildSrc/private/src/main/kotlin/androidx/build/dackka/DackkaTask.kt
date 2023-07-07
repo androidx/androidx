@@ -43,17 +43,16 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
-abstract class DackkaTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor,
-    private val objects: ObjectFactory
-) : DefaultTask() {
+abstract class DackkaTask
+@Inject
+constructor(private val workerExecutor: WorkerExecutor, private val objects: ObjectFactory) :
+    DefaultTask() {
 
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     lateinit var projectStructureMetadataFile: File
 
     // Classpath containing Dackka
-    @get:Classpath
-    abstract val dackkaClasspath: ConfigurableFileCollection
+    @get:Classpath abstract val dackkaClasspath: ConfigurableFileCollection
 
     // Classpath containing dependencies of libraries needed to resolve types in docs
     @get:[InputFiles Classpath]
@@ -80,29 +79,22 @@ abstract class DackkaTask @Inject constructor(
     lateinit var docsProjectDir: File
 
     // Location of generated reference docs
-    @get:OutputDirectory
-    lateinit var destinationDir: File
+    @get:OutputDirectory lateinit var destinationDir: File
 
     // Set of packages to exclude for refdoc generation for all languages
-    @Input
-    lateinit var excludedPackages: Set<String>
+    @Input lateinit var excludedPackages: Set<String>
 
     // Set of packages to exclude for Java refdoc generation
-    @Input
-    lateinit var excludedPackagesForJava: Set<String>
+    @Input lateinit var excludedPackagesForJava: Set<String>
 
     // Set of packages to exclude for Kotlin refdoc generation
-    @Input
-    lateinit var excludedPackagesForKotlin: Set<String>
+    @Input lateinit var excludedPackagesForKotlin: Set<String>
 
-    @Input
-    lateinit var annotationsNotToDisplay: List<String>
+    @Input lateinit var annotationsNotToDisplay: List<String>
 
-    @Input
-    lateinit var annotationsNotToDisplayJava: List<String>
+    @Input lateinit var annotationsNotToDisplayJava: List<String>
 
-    @Input
-    lateinit var annotationsNotToDisplayKotlin: List<String>
+    @Input lateinit var annotationsNotToDisplayKotlin: List<String>
 
     @InputFiles
     @PathSensitive(PathSensitivity.NONE)
@@ -114,50 +106,48 @@ abstract class DackkaTask @Inject constructor(
 
     // The base URL to create source links for classes, as a format string with placeholders for the
     // file path and qualified class name.
-    @Input
-    lateinit var baseSourceLink: String
+    @Input lateinit var baseSourceLink: String
 
     private fun sourceSets(): List<DokkaInputModels.SourceSet> {
-        val externalDocs = externalLinks.map { (name, url) ->
-            DokkaInputModels.GlobalDocsLink(
-                url = url,
-                packageListUrl =
-                    "file://${docsProjectDir.toPath()}/package-lists/$name/package-list"
-            )
-        }
-        val gson = GsonBuilder().create()
-        val multiplatformSourceSets = projectStructureMetadataFile
-            .takeIf { it.exists() }
-            ?.let { metadataFile ->
-                val metadata = gson.fromJson(
-                    metadataFile.readText(),
-                    ProjectStructureMetadata::class.java
+        val externalDocs =
+            externalLinks.map { (name, url) ->
+                DokkaInputModels.GlobalDocsLink(
+                    url = url,
+                    packageListUrl =
+                        "file://${docsProjectDir.toPath()}/package-lists/$name/package-list"
                 )
-                metadata.sourceSets.map { sourceSet ->
-                    val analysisPlatform = DokkaAnalysisPlatform.valueOf(
-                        sourceSet.analysisPlatform.uppercase()
-                    )
-                    val sourceDir = multiplatformSourcesDir.resolve(sourceSet.name)
-                    DokkaInputModels.SourceSet(
-                        id = sourceSetIdForSourceSet(sourceSet.name),
-                        displayName = sourceSet.name,
-                        analysisPlatform = analysisPlatform.jsonName,
-                        sourceRoots = objects.fileCollection().from(sourceDir),
-                        samples = objects.fileCollection(),
-                        includes = objects.fileCollection().from(includesFiles(sourceDir)),
-                        classpath = dependenciesClasspath,
-                        externalDocumentationLinks = externalDocs,
-                        dependentSourceSets = sourceSet.dependencies.map {
-                            sourceSetIdForSourceSet(it)
-                        },
-                        noJdkLink = !analysisPlatform.androidOrJvm(),
-                        noAndroidSdkLink = analysisPlatform != DokkaAnalysisPlatform.ANDROID,
-                        noStdlibLink = false,
-                        // Dackka source link configuration doesn't use the Dokka version
-                        sourceLinks = emptyList()
-                    )
+            }
+        val gson = GsonBuilder().create()
+        val multiplatformSourceSets =
+            projectStructureMetadataFile
+                .takeIf { it.exists() }
+                ?.let { metadataFile ->
+                    val metadata =
+                        gson.fromJson(metadataFile.readText(), ProjectStructureMetadata::class.java)
+                    metadata.sourceSets.map { sourceSet ->
+                        val analysisPlatform =
+                            DokkaAnalysisPlatform.valueOf(sourceSet.analysisPlatform.uppercase())
+                        val sourceDir = multiplatformSourcesDir.resolve(sourceSet.name)
+                        DokkaInputModels.SourceSet(
+                            id = sourceSetIdForSourceSet(sourceSet.name),
+                            displayName = sourceSet.name,
+                            analysisPlatform = analysisPlatform.jsonName,
+                            sourceRoots = objects.fileCollection().from(sourceDir),
+                            samples = objects.fileCollection(),
+                            includes = objects.fileCollection().from(includesFiles(sourceDir)),
+                            classpath = dependenciesClasspath,
+                            externalDocumentationLinks = externalDocs,
+                            dependentSourceSets =
+                                sourceSet.dependencies.map { sourceSetIdForSourceSet(it) },
+                            noJdkLink = !analysisPlatform.androidOrJvm(),
+                            noAndroidSdkLink = analysisPlatform != DokkaAnalysisPlatform.ANDROID,
+                            noStdlibLink = false,
+                            // Dackka source link configuration doesn't use the Dokka version
+                            sourceLinks = emptyList()
+                        )
+                    }
                 }
-        } ?: emptyList()
+                ?: emptyList()
         return listOf(
             DokkaInputModels.SourceSet(
                 id = sourceSetIdForSourceSet("main"),
@@ -185,37 +175,43 @@ abstract class DackkaTask @Inject constructor(
     private fun computeArguments(): File {
         val gson = DokkaUtils.createGson()
         val linksConfiguration = ""
-        val jsonMap = mapOf(
-            "moduleName" to "",
-            "outputDir" to destinationDir.path,
-            "globalLinks" to linksConfiguration,
-            "sourceSets" to sourceSets(),
-            "offlineMode" to "true",
-            "noJdkLink" to "true",
-            "pluginsConfiguration" to listOf(
-                mapOf(
-                    "fqPluginName" to "com.google.devsite.DevsitePlugin",
-                    "serializationFormat" to "JSON",
-                    // values is a JSON string
-                    "values" to gson.toJson(
+        val jsonMap =
+            mapOf(
+                "moduleName" to "",
+                "outputDir" to destinationDir.path,
+                "globalLinks" to linksConfiguration,
+                "sourceSets" to sourceSets(),
+                "offlineMode" to "true",
+                "noJdkLink" to "true",
+                "pluginsConfiguration" to
+                    listOf(
                         mapOf(
-                            "projectPath" to "androidx",
-                            "javaDocsPath" to "",
-                            "kotlinDocsPath" to "kotlin",
-                            "excludedPackages" to excludedPackages,
-                            "excludedPackagesForJava" to excludedPackagesForJava,
-                            "excludedPackagesForKotlin" to excludedPackagesForKotlin,
-                            "libraryMetadataFilename" to libraryMetadataFile.get().toString(),
-                            "baseSourceLink" to baseSourceLink,
-                            "annotationsNotToDisplay" to annotationsNotToDisplay,
-                            "annotationsNotToDisplayJava" to annotationsNotToDisplayJava,
-                            "annotationsNotToDisplayKotlin" to annotationsNotToDisplayKotlin,
-                            "versionMetadataFilenames" to checkVersionMetadataFiles()
+                            "fqPluginName" to "com.google.devsite.DevsitePlugin",
+                            "serializationFormat" to "JSON",
+                            // values is a JSON string
+                            "values" to
+                                gson.toJson(
+                                    mapOf(
+                                        "projectPath" to "androidx",
+                                        "javaDocsPath" to "",
+                                        "kotlinDocsPath" to "kotlin",
+                                        "excludedPackages" to excludedPackages,
+                                        "excludedPackagesForJava" to excludedPackagesForJava,
+                                        "excludedPackagesForKotlin" to excludedPackagesForKotlin,
+                                        "libraryMetadataFilename" to
+                                            libraryMetadataFile.get().toString(),
+                                        "baseSourceLink" to baseSourceLink,
+                                        "annotationsNotToDisplay" to annotationsNotToDisplay,
+                                        "annotationsNotToDisplayJava" to
+                                            annotationsNotToDisplayJava,
+                                        "annotationsNotToDisplayKotlin" to
+                                            annotationsNotToDisplayKotlin,
+                                        "versionMetadataFilenames" to checkVersionMetadataFiles()
+                                    )
+                                )
                         )
                     )
-                )
             )
-        )
 
         val json = gson.toJson(jsonMap)
         val outputFile = File.createTempFile("dackkaArgs", ".json")
@@ -225,9 +221,9 @@ abstract class DackkaTask @Inject constructor(
     }
 
     /**
-     * Return the list of version metadata files after checking if they're all JSON.
-     * If version metadata does not exist for a project, it's possible that a configuration which
-     * isn't an exact match of the version metadata attributes to be selected as version metadata.
+     * Return the list of version metadata files after checking if they're all JSON. If version
+     * metadata does not exist for a project, it's possible that a configuration which isn't an
+     * exact match of the version metadata attributes to be selected as version metadata.
      */
     private fun checkVersionMetadataFiles(): List<File> {
         val (json, nonJson) = versionMetadataFiles.get().partition { it.extension == "json" }
@@ -254,30 +250,34 @@ abstract class DackkaTask @Inject constructor(
     }
 
     companion object {
-        private val externalLinks = mapOf(
-            "coroutinesCore" to "https://kotlinlang.org/api/kotlinx.coroutines/",
-            "android" to "https://developer.android.com/reference",
-            "guava" to "https://guava.dev/releases/18.0/api/docs/",
-            "kotlin" to "https://kotlinlang.org/api/latest/jvm/stdlib/",
-            "junit" to "https://junit.org/junit4/javadoc/4.12/",
-            "okio" to "https://square.github.io/okio/3.x/okio/",
-            "protobuf" to "https://protobuf.dev/reference/java/api-docs/",
-            "kotlinpoet" to "https://square.github.io/kotlinpoet/1.x/kotlinpoet/",
-            "skiko" to "https://jetbrains.github.io/skiko/",
-            "reactivex" to "https://reactivex.io/RxJava/2.x/javadoc/",
-            "reactivex-rxjava3" to "http://reactivex.io/RxJava/3.x/javadoc/",
-            "grpc" to "https://grpc.github.io/grpc-java/javadoc/",
-            // From developer.android.com/reference/com/google/android/play/core/package-list
-            "play" to "https://developer.android.com/reference/",
-            // From developer.android.com/reference/com/google/android/material/package-list
-            "material" to "https://developer.android.com/reference",
-            // All package-lists below were created manually
-            "mlkit" to "https://developers.google.com/android/reference/",
-            "dagger" to "https://dagger.dev/api/latest/",
-            "reactivestreams" to "https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc/",
-            "jetbrains-annotations" to "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
-            "auto-value" to "https://www.javadoc.io/doc/com.google.auto.value/auto-value/latest/",
-        )
+        private val externalLinks =
+            mapOf(
+                "coroutinesCore" to "https://kotlinlang.org/api/kotlinx.coroutines/",
+                "android" to "https://developer.android.com/reference",
+                "guava" to "https://guava.dev/releases/18.0/api/docs/",
+                "kotlin" to "https://kotlinlang.org/api/latest/jvm/stdlib/",
+                "junit" to "https://junit.org/junit4/javadoc/4.12/",
+                "okio" to "https://square.github.io/okio/3.x/okio/",
+                "protobuf" to "https://protobuf.dev/reference/java/api-docs/",
+                "kotlinpoet" to "https://square.github.io/kotlinpoet/1.x/kotlinpoet/",
+                "skiko" to "https://jetbrains.github.io/skiko/",
+                "reactivex" to "https://reactivex.io/RxJava/2.x/javadoc/",
+                "reactivex-rxjava3" to "http://reactivex.io/RxJava/3.x/javadoc/",
+                "grpc" to "https://grpc.github.io/grpc-java/javadoc/",
+                // From developer.android.com/reference/com/google/android/play/core/package-list
+                "play" to "https://developer.android.com/reference/",
+                // From developer.android.com/reference/com/google/android/material/package-list
+                "material" to "https://developer.android.com/reference",
+                // All package-lists below were created manually
+                "mlkit" to "https://developers.google.com/android/reference/",
+                "dagger" to "https://dagger.dev/api/latest/",
+                "reactivestreams" to
+                    "https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc/",
+                "jetbrains-annotations" to
+                    "https://javadoc.io/doc/org.jetbrains/annotations/latest/",
+                "auto-value" to
+                    "https://www.javadoc.io/doc/com.google.auto.value/auto-value/latest/",
+            )
     }
 }
 
@@ -298,9 +298,8 @@ fun runDackkaWithArgs(
     }
 }
 
-abstract class DackkaWorkAction @Inject constructor(
-    private val execOperations: ExecOperations
-) : WorkAction<DackkaParams> {
+abstract class DackkaWorkAction @Inject constructor(private val execOperations: ExecOperations) :
+    WorkAction<DackkaParams> {
     override fun execute() {
         execOperations.javaexec {
             it.mainClass.set("org.jetbrains.dokka.MainKt")
@@ -311,9 +310,7 @@ abstract class DackkaWorkAction @Inject constructor(
 }
 
 private fun includesFiles(sourceRoot: File): List<File> {
-    return sourceRoot.walkTopDown().filter {
-        it.name.endsWith("documentation.md")
-    }.toList()
+    return sourceRoot.walkTopDown().filter { it.name.endsWith("documentation.md") }.toList()
 }
 
 private fun sourceSetIdForSourceSet(name: String): DokkaInputModels.SourceSetId {

@@ -40,8 +40,8 @@ import org.gradle.work.DisableCachingByDefault
 
 /**
  * Base task with common logic for updating and launching studio in both the frameworks/support
- * project and playground projects. Project-specific configuration is provided by
- * [RootStudioTask] and [PlaygroundStudioTask].
+ * project and playground projects. Project-specific configuration is provided by [RootStudioTask]
+ * and [PlaygroundStudioTask].
  */
 @DisableCachingByDefault(because = "the purpose of this task is to launch Studio")
 abstract class StudioTask : DefaultTask() {
@@ -58,38 +58,28 @@ abstract class StudioTask : DefaultTask() {
         StudioPlatformUtilities.get(projectRoot, studioInstallationDir)
     }
 
-    @get:Inject
-    abstract val execOperations: ExecOperations
+    @get:Inject abstract val execOperations: ExecOperations
 
     /**
-     * If `true`, checks for `ANDROIDX_PROJECTS` environment variable to decide which
-     * projects need to be loaded.
+     * If `true`, checks for `ANDROIDX_PROJECTS` environment variable to decide which projects need
+     * to be loaded.
      */
-    @get:Internal
-    protected open val requiresProjectList: Boolean = true
+    @get:Internal protected open val requiresProjectList: Boolean = true
 
-    @get:Internal
-    protected val projectRoot: File = project.rootDir
+    @get:Internal protected val projectRoot: File = project.rootDir
 
-    @get:Internal
-    protected open val installParentDir: File = project.rootDir
+    @get:Internal protected open val installParentDir: File = project.rootDir
 
-    private val studioVersion by lazy {
-        project.getVersionByName("androidStudio")
-    }
+    private val studioVersion by lazy { project.getVersionByName("androidStudio") }
 
-    /**
-     * Directory name (not path) that Studio will be unzipped into.
-     */
+    /** Directory name (not path) that Studio will be unzipped into. */
     private val studioDirectoryName: String
         get() {
             val osName = StudioPlatformUtilities.osName
             return "android-studio-$studioVersion-$osName"
         }
 
-    /**
-     * Filename (not path) of the Studio archive
-     */
+    /** Filename (not path) of the Studio archive */
     private val studioArchiveName: String
         get() = studioDirectoryName + platformUtilities.archiveExtension
 
@@ -103,44 +93,29 @@ abstract class StudioTask : DefaultTask() {
         File(installParentDir, "studio/$studioDirectoryName")
     }
 
-    /**
-     * Absolute path of the Studio archive
-     */
+    /** Absolute path of the Studio archive */
     private val studioArchivePath: String by lazy {
         File(studioInstallationDir.parentFile, studioArchiveName).absolutePath
     }
 
-    /**
-     * The idea.properties file that we want to tell Studio to use
-     */
-    @get:Internal
-    protected abstract val ideaProperties: File
+    /** The idea.properties file that we want to tell Studio to use */
+    @get:Internal protected abstract val ideaProperties: File
 
-    /**
-     * The studio.vmoptions file that we want to start Studio with
-     */
+    /** The studio.vmoptions file that we want to start Studio with */
     @get:Internal
     open val vmOptions = File(project.getSupportRootFolder(), "development/studio/studio.vmoptions")
 
-    /**
-     * The path to the SDK directory used by Studio.
-     */
-    @get:Internal
-    open val localSdkPath = project.getSdkPath()
+    /** The path to the SDK directory used by Studio. */
+    @get:Internal open val localSdkPath = project.getSdkPath()
 
-    /**
-     * List of additional environment variables to pass into the Studio application.
-     */
-    @get:Internal
-    open val additionalEnvironmentProperties: Map<String, String> = emptyMap()
+    /** List of additional environment variables to pass into the Studio application. */
+    @get:Internal open val additionalEnvironmentProperties: Map<String, String> = emptyMap()
 
     private val licenseAcceptedFile: File by lazy {
         File("$studioInstallationDir/STUDIOW_LICENSE_ACCEPTED")
     }
 
-    /**
-     * Ensure that we can launch Studio without issue.
-     */
+    /** Ensure that we can launch Studio without issue. */
     private fun validateEnvironment() {
         if (System.getenv().containsKey("SSH_CLIENT") && !System.getenv().containsKey("DISPLAY")) {
             throw GradleException(
@@ -149,14 +124,13 @@ abstract class StudioTask : DefaultTask() {
 
                 Could not read DISPLAY environment variable.  If you are using SSH into a remote
                 machine, consider using either ssh -X or switching to Chrome Remote Desktop.
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
         }
     }
 
-    /**
-     * Install Studio and removes any old installation files if they exist.
-     */
+    /** Install Studio and removes any old installation files if they exist. */
     private fun install() {
         val successfulInstallFile = File("$studioInstallationDir/INSTALL_SUCCESSFUL")
         if (!licenseAcceptedFile.exists() && !successfulInstallFile.exists()) {
@@ -178,9 +152,7 @@ abstract class StudioTask : DefaultTask() {
         }
     }
 
-    /**
-     * Attempts to symlink the system-images and emulator SDK directories to a canonical SDK.
-     */
+    /** Attempts to symlink the system-images and emulator SDK directories to a canonical SDK. */
     private fun setupSymlinksIfNeeded() {
         val paths = listOf("system-images", "emulator")
         if (!localSdkPath.exists()) {
@@ -188,14 +160,15 @@ abstract class StudioTask : DefaultTask() {
             return
         }
 
-        val relativeSdkPath = when (val osType = getOperatingSystem()) {
-            OperatingSystem.MAC -> "Library/Android/sdk"
-            OperatingSystem.LINUX -> "Android/Sdk"
-            else -> {
-                println("Failed to locate canonical SDK, unsupported operating system: $osType")
-                return
+        val relativeSdkPath =
+            when (val osType = getOperatingSystem()) {
+                OperatingSystem.MAC -> "Library/Android/sdk"
+                OperatingSystem.LINUX -> "Android/Sdk"
+                else -> {
+                    println("Failed to locate canonical SDK, unsupported operating system: $osType")
+                    return
+                }
             }
-        }
 
         val canonicalSdkPath = File(File(System.getProperty("user.home")).parent, relativeSdkPath)
         if (!canonicalSdkPath.exists()) {
@@ -216,15 +189,14 @@ abstract class StudioTask : DefaultTask() {
         }
     }
 
-    /**
-     * Launches Studio if the user accepts / has accepted the license agreement.
-     */
+    /** Launches Studio if the user accepts / has accepted the license agreement. */
     private fun launch() {
         if (checkLicenseAgreement(services)) {
-            if (requiresProjectList &&
-                !System.getenv().containsKey("ANDROIDX_PROJECTS") &&
-                !System.getenv().containsKey("PROJECT_PREFIX")
-                ) {
+            if (
+                requiresProjectList &&
+                    !System.getenv().containsKey("ANDROIDX_PROJECTS") &&
+                    !System.getenv().containsKey("PROJECT_PREFIX")
+            ) {
                 throw GradleException(
                     """
                     Please specify which set of projects you'd like to open in studio
@@ -232,7 +204,8 @@ abstract class StudioTask : DefaultTask() {
                     or PROJECT_PREFIX=:room: ./gradlew studio
 
                     For possible options see settings.gradle
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
 
@@ -262,19 +235,24 @@ abstract class StudioTask : DefaultTask() {
             redirectError(logFile)
             with(platformUtilities) { command(launchCommandArguments) }
 
-            val additionalStudioEnvironmentProperties = mapOf(
-                // These environment variables are used to set up AndroidX's default configuration.
-                "STUDIO_PROPERTIES" to ideaProperties.canonicalPath,
-                "STUDIO_VM_OPTIONS" to vmOptions.canonicalPath,
-                // This environment variable prevents Studio from showing IDE inspection warnings
-                // for nullability issues, if the context is deprecated. This environment variable
-                // is consumed by InteroperabilityDetector.kt
-                "ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED" to "true",
-                // This environment variable is read by AndroidXRootImplPlugin to ensure that
-                // Studio-initiated Gradle tasks are run against the same version of AGP that was
-                // used to start Studio, which prevents version mismatch after repo sync.
-                "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION
-            ) + additionalEnvironmentProperties
+            val additionalStudioEnvironmentProperties =
+                mapOf(
+                    // These environment variables are used to set up AndroidX's default
+                    // configuration.
+                    "STUDIO_PROPERTIES" to ideaProperties.canonicalPath,
+                    "STUDIO_VM_OPTIONS" to vmOptions.canonicalPath,
+                    // This environment variable prevents Studio from showing IDE inspection
+                    // warnings
+                    // for nullability issues, if the context is deprecated. This environment
+                    // variable
+                    // is consumed by InteroperabilityDetector.kt
+                    "ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED" to "true",
+                    // This environment variable is read by AndroidXRootImplPlugin to ensure that
+                    // Studio-initiated Gradle tasks are run against the same version of AGP that
+                    // was
+                    // used to start Studio, which prevents version mismatch after repo sync.
+                    "EXPECTED_AGP_VERSION" to ANDROID_GRADLE_PLUGIN_VERSION
+                ) + additionalEnvironmentProperties
 
             // Append to the existing environment variables set by gradlew and the user.
             environment().putAll(additionalStudioEnvironmentProperties)
@@ -288,10 +266,11 @@ abstract class StudioTask : DefaultTask() {
             val licensePath = with(platformUtilities) { licensePath }
 
             val userInput = services.get(UserInputHandler::class.java)
-            val acceptAgreement = userInput.askYesNoQuestion(
-                "Do you accept the license agreement at $licensePath?",
-                /* default answer*/ false
-            )
+            val acceptAgreement =
+                userInput.askYesNoQuestion(
+                    "Do you accept the license agreement at $licensePath?",
+                    /* default answer*/ false
+                )
             if (!acceptAgreement) {
                 return false
             }
@@ -335,41 +314,45 @@ abstract class StudioTask : DefaultTask() {
         private const val STUDIO_TASK = "studio"
 
         fun Project.registerStudioTask() {
-            val studioTask = when (ProjectLayoutType.from(this)) {
-                ProjectLayoutType.ANDROIDX -> RootStudioTask::class.java
-                ProjectLayoutType.PLAYGROUND -> PlaygroundStudioTask::class.java
-            }
+            val studioTask =
+                when (ProjectLayoutType.from(this)) {
+                    ProjectLayoutType.ANDROIDX -> RootStudioTask::class.java
+                    ProjectLayoutType.PLAYGROUND -> PlaygroundStudioTask::class.java
+                }
             tasks.register(STUDIO_TASK, studioTask)
         }
     }
 }
 
-/**
- * Task for launching studio in the frameworks/support project
- */
+/** Task for launching studio in the frameworks/support project */
 @DisableCachingByDefault(because = "the purpose of this task is to launch Studio")
 abstract class RootStudioTask : StudioTask() {
-    override val ideaProperties get() = projectRoot.resolve("development/studio/idea.properties")
+    override val ideaProperties
+        get() = projectRoot.resolve("development/studio/idea.properties")
 }
 
-/**
- * Task for launching studio in a playground project
- */
+/** Task for launching studio in a playground project */
 @DisableCachingByDefault(because = "the purpose of this task is to launch Studio")
 abstract class PlaygroundStudioTask : RootStudioTask() {
     @get:Internal
-    val supportRootFolder = (project.rootProject.property("ext") as ExtraPropertiesExtension)
-        .let { it.get("supportRootFolder") as File }
+    val supportRootFolder =
+        (project.rootProject.property("ext") as ExtraPropertiesExtension).let {
+            it.get("supportRootFolder") as File
+        }
 
-    /**
-     * Playground projects have only 1 setup so there is no need to specify the project list.
-     */
-    override val requiresProjectList get() = false
-    override val installParentDir get() = supportRootFolder
+    /** Playground projects have only 1 setup so there is no need to specify the project list. */
+    override val requiresProjectList
+        get() = false
+
+    override val installParentDir
+        get() = supportRootFolder
+
     override val additionalEnvironmentProperties: Map<String, String>
         get() = mapOf("ALLOW_PUBLIC_REPOS" to "true")
+
     override val ideaProperties
         get() = supportRootFolder.resolve("playground-common/idea.properties")
+
     override val vmOptions
         get() = supportRootFolder.resolve("playground-common/studio.vmoptions")
 }

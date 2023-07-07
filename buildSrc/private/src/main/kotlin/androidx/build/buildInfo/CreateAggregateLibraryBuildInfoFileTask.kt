@@ -30,9 +30,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
-/**
- * Task for a json file of all dependencies for each artifactId
- */
+/** Task for a json file of all dependencies for each artifactId */
 @DisableCachingByDefault(because = "Not worth caching")
 abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
     init {
@@ -41,26 +39,19 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
     }
 
     /** List of each build_info.txt file for each project. */
-    @get:Input
-    abstract val libraryBuildInfoFiles: ListProperty<File>
+    @get:Input abstract val libraryBuildInfoFiles: ListProperty<File>
 
     @OutputFile
-    val outputFile = File(
-        project.getDistributionDirectory(),
-        getAndroidxAggregateBuildInfoFilename()
-    )
+    val outputFile =
+        File(project.getDistributionDirectory(), getAndroidxAggregateBuildInfoFilename())
 
     private fun getAndroidxAggregateBuildInfoFilename(): String {
         return "androidx_aggregate_build_info.txt"
     }
 
-    private data class AllLibraryBuildInfoFiles(
-        val artifacts: ArrayList<LibraryBuildInfoFile>
-    )
+    private data class AllLibraryBuildInfoFiles(val artifacts: ArrayList<LibraryBuildInfoFile>)
 
-    /**
-     * Reads in file and checks that json is valid
-     */
+    /** Reads in file and checks that json is valid */
     private fun jsonFileIsValid(jsonFile: File, artifactList: MutableList<String>): Boolean {
         if (!jsonFile.exists()) {
             return false
@@ -78,10 +69,10 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
     }
 
     /**
-     * Create the output file to contain the final complete AndroidX project build info graph
-     * file.  Iterate through the list of project-specific build info files, and collects
-     * all dependencies as a JSON string. Finally, write this complete dependency graph to a text
-     * file as a json list of every project's build information
+     * Create the output file to contain the final complete AndroidX project build info graph file.
+     * Iterate through the list of project-specific build info files, and collects all dependencies
+     * as a JSON string. Finally, write this complete dependency graph to a text file as a json list
+     * of every project's build information
      */
     @TaskAction
     fun createAndroidxAggregateBuildInfoFile() {
@@ -91,8 +82,9 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
         output.append("{ \"artifacts\": [\n")
         val artifactList = mutableListOf<String>()
         for (infoFile in libraryBuildInfoFiles.get()) {
-            if ((infoFile.isFile and (infoFile.name != outputFile.name))
-                and (infoFile.name.contains("_build_info.txt"))
+            if (
+                (infoFile.isFile and (infoFile.name != outputFile.name)) and
+                    (infoFile.name.contains("_build_info.txt"))
             ) {
                 val fileText: String = infoFile.readText(Charsets.UTF_8)
                 output.append("$fileText,")
@@ -113,9 +105,7 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
     }
 }
 
-fun Project.addTaskToAggregateBuildInfoFileTask(
-    task: Provider<CreateLibraryBuildInfoFileTask>
-) {
+fun Project.addTaskToAggregateBuildInfoFileTask(task: Provider<CreateLibraryBuildInfoFileTask>) {
     rootProject.tasks.named(CREATE_AGGREGATE_BUILD_INFO_FILES_TASK).configure {
         val aggregateLibraryBuildInfoFileTask = it as CreateAggregateLibraryBuildInfoFileTask
         aggregateLibraryBuildInfoFileTask.libraryBuildInfoFiles.add(

@@ -26,9 +26,7 @@ import org.dom4j.io.SAXReader
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 
-/**
- * Parses an xml string
- */
+/** Parses an xml string */
 @Throws(DocumentException::class)
 internal fun parseXml(text: String, namespaceUris: Map<String, String>): Document {
     val docFactory = DocumentFactory()

@@ -36,8 +36,11 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.getByType
 
 sealed class ApiTaskConfig
+
 data class LibraryApiTaskConfig(val library: LibraryExtension) : ApiTaskConfig()
+
 object JavaApiTaskConfig : ApiTaskConfig()
+
 object KmpApiTaskConfig : ApiTaskConfig()
 
 fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
@@ -65,7 +68,9 @@ fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
         }
         is RunApiTasks.Yes -> {
             // API behavior is default for type; not overridden
-            if (type.checkApi is RunApiTasks.Yes) { return true }
+            if (type.checkApi is RunApiTasks.Yes) {
+                return true
+            }
             // API behavior for type is overridden
             (runApiTasks as RunApiTasks.Yes).reason?.let { reason ->
                 project.logger.info(
@@ -107,6 +112,7 @@ fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
 
 /**
  * Returns whether the project should write versioned API files, e.g. `1.1.0-alpha01.txt`.
+ *
  * <p>
  * When set to `true`, the `updateApi` task will write the current API surface to both `current.txt`
  * and `<version>.txt`. When set to `false`, only `current.txt` will be written. The default value
@@ -120,9 +126,8 @@ private fun Project.shouldWriteVersionedApiFile(): Boolean {
 
     // Policy: Don't write versioned files for non-final API surfaces, ex. dev or alpha, or for
     // versions that should only exist in dead-end release branches, ex. rc or stable.
-    if (!project.version().isFinalApi() ||
-        project.version().isRC() ||
-        project.version().isStable()
+    if (
+        !project.version().isFinalApi() || project.version().isRC() || project.version().isStable()
     ) {
         return false
     }
@@ -130,10 +135,7 @@ private fun Project.shouldWriteVersionedApiFile(): Boolean {
     return true
 }
 
-fun Project.configureProjectForApiTasks(
-    config: ApiTaskConfig,
-    extension: AndroidXExtension
-) {
+fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: AndroidXExtension) {
     // afterEvaluate required to read extension properties
     afterEvaluate {
         if (!extension.shouldConfigureApiTasks()) {
@@ -143,34 +145,36 @@ fun Project.configureProjectForApiTasks(
         val builtApiLocation = project.getBuiltApiLocation()
         val versionedApiLocation = project.getVersionedApiLocation()
         val currentApiLocation = project.getCurrentApiLocation()
-        val outputApiLocations = if (project.shouldWriteVersionedApiFile()) {
-            listOf(
-                versionedApiLocation,
-                currentApiLocation
-            )
-        } else {
-            listOf(
-                currentApiLocation
-            )
-        }
+        val outputApiLocations =
+            if (project.shouldWriteVersionedApiFile()) {
+                listOf(versionedApiLocation, currentApiLocation)
+            } else {
+                listOf(currentApiLocation)
+            }
 
         val javaInputs: JavaCompileInputs
         val processManifest: ProcessLibraryManifest?
         when (config) {
             is LibraryApiTaskConfig -> {
-                val variant = config.library.libraryVariants.find {
-                    it.name == Release.DEFAULT_PUBLISH_CONFIG
-                } ?: return@afterEvaluate
+                val variant =
+                    config.library.libraryVariants.find {
+                        it.name == Release.DEFAULT_PUBLISH_CONFIG
+                    }
+                        ?: return@afterEvaluate
 
-                javaInputs = JavaCompileInputs.fromLibraryVariant(
-                    variant,
-                    project,
-                    // Note, in addition to androidx, bootClasspath will also include stub jars
-                    // from android { useLibrary "android.foo" } block.
-                    files(config.library.bootClasspath)
-                )
-                processManifest = config.library.buildOutputs.getByName(variant.name)
-                    .processManifestProvider.get() as ProcessLibraryManifest
+                javaInputs =
+                    JavaCompileInputs.fromLibraryVariant(
+                        variant,
+                        project,
+                        // Note, in addition to androidx, bootClasspath will also include stub jars
+                        // from android { useLibrary "android.foo" } block.
+                        files(config.library.bootClasspath)
+                    )
+                processManifest =
+                    config.library.buildOutputs
+                        .getByName(variant.name)
+                        .processManifestProvider
+                        .get() as ProcessLibraryManifest
             }
             is KmpApiTaskConfig -> {
                 javaInputs = JavaCompileInputs.fromKmpJvmTarget(project)
@@ -187,8 +191,13 @@ fun Project.configureProjectForApiTasks(
         val baselinesApiLocation = ApiBaselinesLocation.fromApiLocation(currentApiLocation)
 
         MetalavaTasks.setupProject(
-            project, javaInputs, extension, processManifest, baselinesApiLocation,
-            builtApiLocation, outputApiLocations
+            project,
+            javaInputs,
+            extension,
+            processManifest,
+            baselinesApiLocation,
+            builtApiLocation,
+            outputApiLocations
         )
 
         if (extension.type == LibraryType.PUBLISHED_NATIVE_LIBRARY) {
@@ -203,8 +212,10 @@ fun Project.configureProjectForApiTasks(
 
         if (config is LibraryApiTaskConfig) {
             ResourceTasks.setupProject(
-                project, Release.DEFAULT_PUBLISH_CONFIG,
-                builtApiLocation, outputApiLocations
+                project,
+                Release.DEFAULT_PUBLISH_CONFIG,
+                builtApiLocation,
+                outputApiLocations
             )
         }
     }

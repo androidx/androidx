@@ -33,41 +33,52 @@ class ConfigBuilder {
     val additionalApkKeys = mutableListOf<String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
+
     fun appApkName(appApkName: String) = apply { this.appApkName = appApkName }
+
     fun appApkSha256(appApkSha256: String) = apply { this.appApkSha256 = appApkSha256 }
+
     fun applicationId(applicationId: String) = apply { this.applicationId = applicationId }
+
     fun isBenchmark(isBenchmark: Boolean) = apply { this.isBenchmark = isBenchmark }
+
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
+
     fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
+
     fun tag(tag: String) = apply { this.tags.add(tag) }
+
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
+
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
+
     fun testApkSha256(testApkSha256: String) = apply { this.testApkSha256 = testApkSha256 }
+
     fun testRunner(testRunner: String) = apply { this.testRunner = testRunner }
 
     fun buildJson(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs = if (isBenchmark && !isPostsubmit) {
-            listOf(
-                InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
-                InstrumentationArg("androidx.benchmark.dryRunMode.enable", "true"),
+        val instrumentationArgs =
+            if (isBenchmark && !isPostsubmit) {
+                listOf(
+                    InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
+                    InstrumentationArg("androidx.benchmark.dryRunMode.enable", "true"),
+                )
+            } else {
+                listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"))
+            }
+        val values =
+            mapOf(
+                "name" to configName,
+                "minSdkVersion" to minSdk,
+                "testSuiteTags" to tags,
+                "testApk" to testApkName,
+                "testApkSha256" to testApkSha256,
+                "appApk" to appApkName,
+                "appApkSha256" to appApkSha256,
+                "instrumentationArgs" to instrumentationArgs,
+                "additionalApkKeys" to additionalApkKeys
             )
-        } else {
-            listOf(
-                InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")
-            )
-        }
-        val values = mapOf(
-            "name" to configName,
-            "minSdkVersion" to minSdk,
-            "testSuiteTags" to tags,
-            "testApk" to testApkName,
-            "testApkSha256" to testApkSha256,
-            "appApk" to appApkName,
-            "appApkSha256" to appApkSha256,
-            "instrumentationArgs" to instrumentationArgs,
-            "additionalApkKeys" to additionalApkKeys
-        )
         return gson.toJson(values)
     }
 
@@ -76,9 +87,7 @@ class ConfigBuilder {
         sb.append(XML_HEADER_AND_LICENSE)
         sb.append(CONFIGURATION_OPEN)
             .append(MIN_API_LEVEL_CONTROLLER_OBJECT.replace("MIN_SDK", minSdk))
-        tags.forEach { tag ->
-            sb.append(TEST_SUITE_TAG_OPTION.replace("TEST_SUITE_TAG", tag))
-        }
+        tags.forEach { tag -> sb.append(TEST_SUITE_TAG_OPTION.replace("TEST_SUITE_TAG", tag)) }
         sb.append(MODULE_METADATA_TAG_OPTION.replace("APPLICATION_ID", applicationId))
             .append(WIFI_DISABLE_OPTION)
             .append(FLAKY_TEST_OPTION)
@@ -136,40 +145,36 @@ fun buildMediaJson(
 ): String {
     val gson = GsonBuilder().setPrettyPrinting().create()
     val instrumentationArgs =
-        listOf(
-            InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")
-        ) + mediaInstrumentationArgsForJson(
-            isClientPrevious = isClientPrevious,
-            isServicePrevious = isServicePrevious
+        listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")) +
+            mediaInstrumentationArgsForJson(
+                isClientPrevious = isClientPrevious,
+                isServicePrevious = isServicePrevious
+            )
+    val values =
+        mapOf(
+            "name" to configName,
+            "minSdkVersion" to minSdk,
+            "testSuiteTags" to tags,
+            "testApk" to if (forClient) clientApkName else serviceApkName,
+            "testApkSha256" to if (forClient) clientApkSha256 else serviceApkSha256,
+            "appApk" to if (forClient) serviceApkName else clientApkName,
+            "appApkSha256" to if (forClient) serviceApkSha256 else clientApkSha256,
+            "instrumentationArgs" to instrumentationArgs,
+            "additionalApkKeys" to listOf<String>()
         )
-    val values = mapOf(
-        "name" to configName,
-        "minSdkVersion" to minSdk,
-        "testSuiteTags" to tags,
-        "testApk" to if (forClient) clientApkName else serviceApkName,
-        "testApkSha256" to if (forClient) clientApkSha256 else serviceApkSha256,
-        "appApk" to if (forClient) serviceApkName else clientApkName,
-        "appApkSha256" to if (forClient) serviceApkSha256 else clientApkSha256,
-        "instrumentationArgs" to instrumentationArgs,
-        "additionalApkKeys" to listOf<String>()
-    )
     return gson.toJson(values)
 }
 
-private data class InstrumentationArg(
-    val key: String,
-    val value: String
-)
+private data class InstrumentationArg(val key: String, val value: String)
 
 /**
- * These constants are the building blocks of the xml configs, but
- * they aren't very readable as separate chunks. Look to
- * the golden examples at the bottom of
- * {@link androidx.build.testConfiguration.XmlTestConfigVerificationTest}
- * for examples of what the full xml will look like.
+ * These constants are the building blocks of the xml configs, but they aren't very readable as
+ * separate chunks. Look to the golden examples at the bottom of {@link
+ * androidx.build.testConfiguration.XmlTestConfigVerificationTest} for examples of what the full xml
+ * will look like.
  */
-
-private val XML_HEADER_AND_LICENSE = """
+private val XML_HEADER_AND_LICENSE =
+    """
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Copyright (C) 2020 The Android Open Source Project
     Licensed under the Apache License, Version 2.0 (the "License")
@@ -182,98 +187,133 @@ private val XML_HEADER_AND_LICENSE = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val CONFIGURATION_OPEN = """
+private val CONFIGURATION_OPEN =
+    """
     <configuration description="Runs tests for the module">
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val CONFIGURATION_CLOSE = """
+private val CONFIGURATION_CLOSE =
+    """
     </configuration>
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val MIN_API_LEVEL_CONTROLLER_OBJECT = """
+private val MIN_API_LEVEL_CONTROLLER_OBJECT =
+    """
     <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
     <option name="min-api-level" value="MIN_SDK" />
     </object>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TEST_SUITE_TAG_OPTION = """
+private val TEST_SUITE_TAG_OPTION =
+    """
     <option name="test-suite-tag" value="TEST_SUITE_TAG" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val MODULE_METADATA_TAG_OPTION = """
+private val MODULE_METADATA_TAG_OPTION =
+    """
     <option name="config-descriptor:metadata" key="applicationId" value="APPLICATION_ID" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val WIFI_DISABLE_OPTION = """
+private val WIFI_DISABLE_OPTION =
+    """
     <option name="wifi:disable" value="true" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val SETUP_INCLUDE = """
+private val SETUP_INCLUDE =
+    """
     <include name="google/unbundled/common/setup" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
 /**
  * Specify the following options on the APK installer:
  * - Pass the -t argument when installing APKs. This allows testonly APKs to be installed, which
  *   includes all APKs built against a pre-release SDK. See b/205571374.
  */
-private val TARGET_PREPARER_OPEN = """
+private val TARGET_PREPARER_OPEN =
+    """
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="CLEANUP_APKS" />
     <option name="install-arg" value="-t" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TARGET_PREPARER_CLOSE = """
+private val TARGET_PREPARER_CLOSE =
+    """
     </target_preparer>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val APK_INSTALL_OPTION = """
+private val APK_INSTALL_OPTION =
+    """
     <option name="test-file-name" value="APK_NAME" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TEST_BLOCK_OPEN = """
+private val TEST_BLOCK_OPEN =
+    """
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TEST_BLOCK_CLOSE = """
+private val TEST_BLOCK_CLOSE =
+    """
     </test>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val RUNNER_OPTION = """
+private val RUNNER_OPTION =
+    """
     <option name="runner" value="TEST_RUNNER"/>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val PACKAGE_OPTION = """
+private val PACKAGE_OPTION =
+    """
     <option name="package" value="APPLICATION_ID" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val BENCHMARK_PRESUBMIT_OPTION = """
+private val BENCHMARK_PRESUBMIT_OPTION =
+    """
     <option name="instrumentation-arg" key="androidx.benchmark.dryRunMode.enable" value="true" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val BENCHMARK_POSTSUBMIT_OPTIONS = """
+private val BENCHMARK_POSTSUBMIT_OPTIONS =
+    """
     <option name="instrumentation-arg" key="androidx.benchmark.output.enable" value="true" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val FLAKY_TEST_OPTION = """
+private val FLAKY_TEST_OPTION =
+    """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
 
-""".trimIndent()
+"""
+        .trimIndent()

@@ -31,11 +31,9 @@ import org.gradle.api.tasks.bundling.Zip
 
 @CacheableTask
 abstract class ModuleInfoGenerator : DefaultTask() {
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 
-    @get:Internal
-    val testModules: MutableList<TestModule> = mutableListOf()
+    @get:Internal val testModules: MutableList<TestModule> = mutableListOf()
 
     @Input
     fun getSerialized(): String {
@@ -52,9 +50,9 @@ abstract class ModuleInfoGenerator : DefaultTask() {
 }
 
 /**
- * Register two tasks needed to generate information for Android test owners service.
- * One task zips all the OWNERS files in frameworks/support, and second task creates a
- * module-info.json that links test modules to paths.
+ * Register two tasks needed to generate information for Android test owners service. One task zips
+ * all the OWNERS files in frameworks/support, and second task creates a module-info.json that links
+ * test modules to paths.
  */
 internal fun Project.registerOwnersServiceTasks() {
     tasks.register("zipOwnersFiles", Zip::class.java) { task ->
@@ -72,7 +70,4 @@ internal fun Project.registerOwnersServiceTasks() {
     }
 }
 
-data class TestModule(
-    val name: String,
-    val path: List<String>
-)
+data class TestModule(val name: String, val path: List<String>)

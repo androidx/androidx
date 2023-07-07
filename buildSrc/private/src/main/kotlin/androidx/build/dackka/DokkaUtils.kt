@@ -29,21 +29,15 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 internal object DokkaUtils {
-    /**
-     * Creates a GSON instance that can be used to serialize Dokka CLI json models.
-     */
-    fun createGson(): Gson = GsonBuilder().setPrettyPrinting()
-        .registerTypeAdapter(
-            File::class.java, CanonicalFileSerializer()
-        ).registerTypeAdapter(
-            FileCollection::class.java,
-            FileCollectionSerializer()
-        )
-        .create()
+    /** Creates a GSON instance that can be used to serialize Dokka CLI json models. */
+    fun createGson(): Gson =
+        GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(File::class.java, CanonicalFileSerializer())
+            .registerTypeAdapter(FileCollection::class.java, FileCollectionSerializer())
+            .create()
 
-    /**
-     * Serializer for Gradle's [FileCollection]
-     */
+    /** Serializer for Gradle's [FileCollection] */
     private class FileCollectionSerializer : JsonSerializer<FileCollection> {
         override fun serialize(
             src: FileCollection,
@@ -81,11 +75,12 @@ enum class DokkaAnalysisPlatform(val jsonName: String) {
     fun androidOrJvm() = this == JVM || this == ANDROID
 }
 
-fun KotlinTarget.docsPlatform() = when (platformType) {
-    KotlinPlatformType.common -> DokkaAnalysisPlatform.COMMON
-    KotlinPlatformType.jvm -> DokkaAnalysisPlatform.JVM
-    KotlinPlatformType.js -> DokkaAnalysisPlatform.JS
-    KotlinPlatformType.wasm -> DokkaAnalysisPlatform.JS
-    KotlinPlatformType.androidJvm -> DokkaAnalysisPlatform.ANDROID
-    KotlinPlatformType.native -> DokkaAnalysisPlatform.NATIVE
-}
+fun KotlinTarget.docsPlatform() =
+    when (platformType) {
+        KotlinPlatformType.common -> DokkaAnalysisPlatform.COMMON
+        KotlinPlatformType.jvm -> DokkaAnalysisPlatform.JVM
+        KotlinPlatformType.js -> DokkaAnalysisPlatform.JS
+        KotlinPlatformType.wasm -> DokkaAnalysisPlatform.JS
+        KotlinPlatformType.androidJvm -> DokkaAnalysisPlatform.ANDROID
+        KotlinPlatformType.native -> DokkaAnalysisPlatform.NATIVE
+    }

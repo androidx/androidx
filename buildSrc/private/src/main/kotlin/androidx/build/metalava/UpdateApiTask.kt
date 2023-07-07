@@ -34,15 +34,14 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Updates API signature text files.
- * In practice, the values they will be updated to will match the APIs defined by the source code.
+ * Updates API signature text files. In practice, the values they will be updated to will match the
+ * APIs defined by the source code.
  */
 @CacheableTask
 abstract class UpdateApiTask : DefaultTask() {
 
     /** Text file from which API signatures will be read. */
-    @get:Input
-    abstract val inputApiLocation: Property<ApiLocation>
+    @get:Input abstract val inputApiLocation: Property<ApiLocation>
 
     /** Text files to which API signatures will be written. */
     @get:Internal // outputs are declared in getTaskOutputs()
@@ -52,11 +51,7 @@ abstract class UpdateApiTask : DefaultTask() {
     @PathSensitive(PathSensitivity.RELATIVE)
     fun getTaskInputs(): List<File> {
         val inputApi = inputApiLocation.get()
-        return listOf(
-            inputApi.publicApiFile,
-            inputApi.restrictedApiFile,
-            inputApi.removedApiFile
-        )
+        return listOf(inputApi.publicApiFile, inputApi.restrictedApiFile, inputApi.removedApiFile)
     }
 
     @Suppress("unused")
@@ -75,16 +70,8 @@ abstract class UpdateApiTask : DefaultTask() {
     fun exec() {
         for (outputApi in outputApiLocations.get()) {
             val inputApi = inputApiLocation.get()
-            copy(
-                source = inputApi.publicApiFile,
-                dest = outputApi.publicApiFile,
-                logger = logger
-            )
-            copy(
-                source = inputApi.removedApiFile,
-                dest = outputApi.removedApiFile,
-                logger = logger
-            )
+            copy(source = inputApi.publicApiFile, dest = outputApi.publicApiFile, logger = logger)
+            copy(source = inputApi.removedApiFile, dest = outputApi.removedApiFile, logger = logger)
             copy(
                 source = inputApi.restrictedApiFile,
                 dest = outputApi.restrictedApiFile,
@@ -94,37 +81,36 @@ abstract class UpdateApiTask : DefaultTask() {
     }
 }
 
-fun copy(
-    source: File,
-    dest: File,
-    permitOverwriting: Boolean = true,
-    logger: Logger? = null
-) {
+fun copy(source: File, dest: File, permitOverwriting: Boolean = true, logger: Logger? = null) {
     if (!permitOverwriting) {
-        val sourceText = if (source.exists()) {
-            source.readText()
-        } else {
-            ""
-        }
+        val sourceText =
+            if (source.exists()) {
+                source.readText()
+            } else {
+                ""
+            }
         val overwriting = (dest.exists() && sourceText != dest.readText())
         val changing = overwriting || (dest.exists() != source.exists())
         if (changing) {
             if (overwriting) {
                 val diff = summarizeDiff(source, dest, maxDiffLines + 1)
-                val diffMsg = if (compareLineCount(diff, maxDiffLines) > 0) {
-                    "Diff is greater than $maxDiffLines lines, use diff tool to compare.\n\n"
-                } else {
-                    "Diff:\n$diff\n\n"
-                }
-                val message = "Modifying the API definition for a previously released artifact " +
-                    "having a final API version (version not ending in '-alpha') is not " +
-                    "allowed.\n\n" +
-                    "Previously declared definition is $dest\n" +
-                    "Current generated   definition is $source\n\n" +
-                    diffMsg +
-                    "Did you mean to increment the library version first?\n\n" +
-                    "If you have a valid reason to override Semantic Versioning policy, see " +
-                    "go/androidx/versioning#beta-api-change for information on obtaining approval."
+                val diffMsg =
+                    if (compareLineCount(diff, maxDiffLines) > 0) {
+                        "Diff is greater than $maxDiffLines lines, use diff tool to compare.\n\n"
+                    } else {
+                        "Diff:\n$diff\n\n"
+                    }
+                val message =
+                    "Modifying the API definition for a previously released artifact " +
+                        "having a final API version (version not ending in '-alpha') is not " +
+                        "allowed.\n\n" +
+                        "Previously declared definition is $dest\n" +
+                        "Current generated   definition is $source\n\n" +
+                        diffMsg +
+                        "Did you mean to increment the library version first?\n\n" +
+                        "If you have a valid reason to override Semantic Versioning policy, see " +
+                        "go/androidx/versioning#beta-api-change for information on obtaining " +
+                        "approval."
                 throw GradleException(message)
             }
         }

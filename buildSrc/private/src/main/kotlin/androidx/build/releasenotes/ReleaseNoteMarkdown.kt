@@ -21,12 +21,11 @@ import androidx.build.gitclient.CommitType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-/**
- * Classes for generating androidx release note specific markdown
- */
+/** Classes for generating androidx release note specific markdown */
 
 /**
  * Markdown class for a Library Header in the format:
+ *
  * ### Version <version> {:#<version>}
  */
 class LibraryHeader(groupId: String, version: String) : MarkdownHeader() {
@@ -40,25 +39,18 @@ class LibraryHeader(groupId: String, version: String) : MarkdownHeader() {
  * Generates the markdown list of commits with sections defined by enum [CommitType], in the format:
  *
  * **New Features**
- *
  * - <[Commit.summary]> <[getChangeIdAOSPLink]> <[getBuganizerLink] 1> <[getBuganizerLink] 2>...
  *
  * **API Changes**
- *
  * - <[Commit.summary]> <[getChangeIdAOSPLink]> <[getBuganizerLink] 1> <[getBuganizerLink] 2>...
  *
  * **Bug Fixes**
- *
  * - <[Commit.summary]> <[getChangeIdAOSPLink]> <[getBuganizerLink] 1> <[getBuganizerLink] 2>...
  *
  * **External Contribution**
- *
  * - <[Commit.summary]> <[getChangeIdAOSPLink]> <[getBuganizerLink] 1> <[getBuganizerLink] 2>...
- *
  */
-class CommitMarkdownList(
-    private var includeAllCommits: Boolean = false
-) {
+class CommitMarkdownList(private var includeAllCommits: Boolean = false) {
     private var commits: MutableList<Commit> = mutableListOf()
 
     fun add(commit: Commit) {
@@ -70,32 +62,34 @@ class CommitMarkdownList(
     }
 
     private fun makeReleaseNotesSection(sectionCommitType: CommitType): String {
-        var sectionHeader: MarkdownBoldText = MarkdownBoldText(
-            CommitType.getTitle(sectionCommitType)
-        )
+        var sectionHeader: MarkdownBoldText =
+            MarkdownBoldText(CommitType.getTitle(sectionCommitType))
         var markdownStringSection: String = ""
-        commits.filter { commit ->
-            commit.type == sectionCommitType
-        }.forEach { commit ->
-            // While we are choosing to ignore Release Note field
-            val commitString: String = getListItemStr() + if (commit.releaseNote.isNotEmpty())
-                commit.getReleaseNoteString() else commit.toString()
-            if (includeAllCommits || commit.releaseNote.isNotEmpty()) {
-                markdownStringSection = markdownStringSection + commitString
-                if (markdownStringSection.last() != '\n') {
-                    markdownStringSection += '\n'
+        commits
+            .filter { commit -> commit.type == sectionCommitType }
+            .forEach { commit ->
+                // While we are choosing to ignore Release Note field
+                val commitString: String =
+                    getListItemStr() +
+                        if (commit.releaseNote.isNotEmpty()) commit.getReleaseNoteString()
+                        else commit.toString()
+                if (includeAllCommits || commit.releaseNote.isNotEmpty()) {
+                    markdownStringSection = markdownStringSection + commitString
+                    if (markdownStringSection.last() != '\n') {
+                        markdownStringSection += '\n'
+                    }
                 }
+                /* If we are not ignoring Release Note fields (meaning we are respecting it) and
+                 * the commit does not contain a Release Note field, then don't include the commit
+                 * in the release notes.
+                 */
             }
-            /* If we are not ignoring Release Note fields (meaning we are respecting it) and
-             * the commit does not contain a Release Note field, then don't include the commit
-             * in the release notes.
-             */
-        }
-        markdownStringSection = if (markdownStringSection.isEmpty()) {
-            "\n${MarkdownComment(sectionHeader.toString())}\n\n$markdownStringSection"
-        } else {
-            "\n$sectionHeader\n\n$markdownStringSection"
-        }
+        markdownStringSection =
+            if (markdownStringSection.isEmpty()) {
+                "\n${MarkdownComment(sectionHeader.toString())}\n\n$markdownStringSection"
+            } else {
+                "\n$sectionHeader\n\n$markdownStringSection"
+            }
         return markdownStringSection
     }
 
@@ -117,7 +111,6 @@ class CommitMarkdownList(
  * @param startSHA the SHA at which to start the diff log (exclusive)
  * @param endSHA the last SHA to include in the diff log (inclusive)
  * @param projectDir the local directory of the project, in relation to frameworks/support
- *
  * @return A [MarkdownLink] to the public Gitiles diff log
  */
 fun getGitilesDiffLogLink(startSHA: String, endSHA: String, projectDir: String): MarkdownLink {
@@ -173,12 +166,10 @@ fun getBuganizerLink(bugId: Int): MarkdownLink {
  * Data class to contain an array of LibraryReleaseNotes when serializing collections of release
  * notes
  */
-data class LibraryReleaseNotesList(
-    val list: MutableList<LibraryReleaseNotes> = mutableListOf()
-)
+data class LibraryReleaseNotesList(val list: MutableList<LibraryReleaseNotes> = mutableListOf())
 
 /**
- * Structured release notes class, that connects all parts of the release notes.  Create release
+ * Structured release notes class, that connects all parts of the release notes. Create release
  * notes in the format:
  * <pre>
  * <[LibraryHeader]>
@@ -190,21 +181,21 @@ data class LibraryReleaseNotesList(
  *  <[CommitMarkdownList]>
  * </pre>
  *
+ * @param includeAllCommits Set to true to include all commits, both with and without a release note
+ *   field in the commit message. Defaults to false, which means only commits with a release note
+ *   field are included in the release notes.
  * @property groupId Library GroupId.
  * @property artifactIds List of ArtifactIds included in these release notes.
  * @property version Version of the library, assuming all artifactIds have the same version.
- * @property releaseDate Date the release will go live.  Defaults to the current date.
+ * @property releaseDate Date the release will go live. Defaults to the current date.
  * @property fromSHA The oldest SHA to include in the release notes.
  * @property untilSHA The newest SHA to be included in the release notes.
  * @property projectDir The filepath relative to the parent directory of the .git directory.
- * @property commitList The initial list of Commits to include in these release notes.  Defaults to an
- *           empty list.  Users can always add more commits with [LibraryReleaseNotes.addCommit]
+ * @property commitList The initial list of Commits to include in these release notes. Defaults to
+ *   an empty list. Users can always add more commits with [LibraryReleaseNotes.addCommit]
  * @property requiresSameVersion True if the groupId of this module requires the same version for
- *           all artifactIds in the groupId.  When true, uses the GroupId for the release notes
- *           header.  When false, uses the list of artifactIds for the header.
- * @param includeAllCommits Set to true to include all commits, both with and without a
- *          release note field in the commit message.  Defaults to false, which means only commits
- *          with a release note field are included in the release notes.
+ *   all artifactIds in the groupId. When true, uses the GroupId for the release notes header. When
+ *   false, uses the list of artifactIds for the header.
  */
 class LibraryReleaseNotes(
     val groupId: String,
@@ -235,16 +226,15 @@ class LibraryReleaseNotes(
         if (fromSHA == "" || untilSHA == "") {
             throw RuntimeException("Tried to create Library Release Notes with an empty SHA!")
         }
-        header = if (requiresSameVersion) {
-            LibraryHeader(groupId, version)
-        } else {
-            LibraryHeader(artifactIds.joinToString(), version)
-        }
+        header =
+            if (requiresSameVersion) {
+                LibraryHeader(groupId, version)
+            } else {
+                LibraryHeader(artifactIds.joinToString(), version)
+            }
         diffLogLink = getGitilesDiffLogLink(fromSHA, untilSHA, projectDir)
         if (commitList.isNotEmpty()) {
-            commitList.forEach { commit ->
-                addCommit(commit)
-            }
+            commitList.forEach { commit -> addCommit(commit) }
         }
     }
 
@@ -284,9 +274,7 @@ class LibraryReleaseNotes(
     }
 
     fun addCommit(newCommit: Commit) {
-        newCommit.bugs.forEach { bug ->
-            bugsFixed.add(bug)
-        }
+        newCommit.bugs.forEach { bug -> bugsFixed.add(bug) }
         commits.add(newCommit)
         commitMarkdownList.add(newCommit)
     }

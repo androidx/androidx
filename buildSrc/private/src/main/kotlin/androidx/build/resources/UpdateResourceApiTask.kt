@@ -30,17 +30,13 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Task for updating the public Android resource surface, e.g. `public.xml`.
- */
+/** Task for updating the public Android resource surface, e.g. `public.xml`. */
 @CacheableTask
 abstract class UpdateResourceApiTask : DefaultTask() {
     /** Generated resource API file (in build output). */
-    @get:Internal
-    abstract val apiLocation: Property<ApiLocation>
+    @get:Internal abstract val apiLocation: Property<ApiLocation>
 
-    @get:Input
-    abstract val forceUpdate: Property<Boolean>
+    @get:Input abstract val forceUpdate: Property<Boolean>
 
     @InputFile
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -55,9 +51,7 @@ abstract class UpdateResourceApiTask : DefaultTask() {
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         return outputApiLocations.get().flatMap { outputApiLocation ->
-            listOf(
-                outputApiLocation.resourceFile
-            )
+            listOf(outputApiLocation.resourceFile)
         }
     }
 
@@ -66,9 +60,11 @@ abstract class UpdateResourceApiTask : DefaultTask() {
         var permitOverwriting = true
         for (outputApi in outputApiLocations.get()) {
             val version = outputApi.version()
-            if (version != null && version.isFinalApi() &&
-                outputApi.publicApiFile.exists() &&
-                !forceUpdate.get()
+            if (
+                version != null &&
+                    version.isFinalApi() &&
+                    outputApi.publicApiFile.exists() &&
+                    !forceUpdate.get()
             ) {
                 permitOverwriting = false
             }

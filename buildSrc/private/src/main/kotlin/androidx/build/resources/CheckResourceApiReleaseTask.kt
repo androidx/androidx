@@ -29,9 +29,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Task for verifying changes in the public Android resource surface, e.g. `public.xml`.
- */
+/** Task for verifying changes in the public Android resource surface, e.g. `public.xml`. */
 @CacheableTask
 abstract class CheckResourceApiReleaseTask : DefaultTask() {
     /** Reference resource API file (in source control). */
@@ -40,8 +38,7 @@ abstract class CheckResourceApiReleaseTask : DefaultTask() {
     abstract val referenceApiFile: Property<File>
 
     /** Generated resource API file (in build output). */
-    @get:Internal
-    abstract val apiLocation: Property<ApiLocation>
+    @get:Internal abstract val apiLocation: Property<ApiLocation>
 
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -55,11 +52,12 @@ abstract class CheckResourceApiReleaseTask : DefaultTask() {
         val apiFile = apiLocation.get().resourceFile
 
         // Read the current API surface, if any, into memory.
-        val newApiSet = if (apiFile.exists()) {
-            apiFile.readLines().toSet()
-        } else {
-            emptySet()
-        }
+        val newApiSet =
+            if (apiFile.exists()) {
+                apiFile.readLines().toSet()
+            } else {
+                emptySet()
+            }
 
         // Read the reference API surface into memory.
         val referenceApiSet = referenceApiFile.readLines().toSet()
@@ -72,7 +70,8 @@ abstract class CheckResourceApiReleaseTask : DefaultTask() {
                 removed += "$e\n"
             }
 
-            val errorMessage = """Public resources have been removed since the previous revision
+            val errorMessage =
+                """Public resources have been removed since the previous revision
 
 Previous definition is ${referenceApiFile.canonicalPath}
 Current  definition is ${apiFile.canonicalPath}

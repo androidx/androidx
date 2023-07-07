@@ -43,24 +43,25 @@ fun runMetalavaWithArgs(
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
 ) {
-    val allArgs = args + listOf(
-        "--hide",
-        "HiddenSuperclass", // We allow having a hidden parent class
-        "--hide",
-        // Removing final from a method does not cause compatibility issues for AndroidX.
-        "RemovedFinalStrict",
+    val allArgs =
+        args +
+            listOf(
+                "--hide",
+                "HiddenSuperclass", // We allow having a hidden parent class
+                "--hide",
+                // Removing final from a method does not cause compatibility issues for AndroidX.
+                "RemovedFinalStrict",
+                "--error",
+                "UnresolvedImport",
+                "--delete-empty-removed-signatures",
 
-        "--error",
-        "UnresolvedImport",
-
-        "--delete-empty-removed-signatures",
-
-        // Metalava arguments to suppress compatibility checks for experimental API surfaces.
-        "--suppress-compatibility-meta-annotation",
-        "androidx.annotation.RequiresOptIn",
-        "--suppress-compatibility-meta-annotation",
-        "kotlin.RequiresOptIn",
-    )
+                // Metalava arguments to suppress compatibility checks for experimental API
+                // surfaces.
+                "--suppress-compatibility-meta-annotation",
+                "androidx.annotation.RequiresOptIn",
+                "--suppress-compatibility-meta-annotation",
+                "kotlin.RequiresOptIn",
+            )
     val workQueue = workerExecutor.processIsolation()
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
         parameters.args.set(allArgs)
@@ -75,26 +76,21 @@ interface MetalavaParams : WorkParameters {
     val k2UastEnabled: Property<Boolean>
 }
 
-abstract class MetalavaWorkAction @Inject constructor(
-    private val execOperations: ExecOperations
-) : WorkAction<MetalavaParams> {
+abstract class MetalavaWorkAction @Inject constructor(private val execOperations: ExecOperations) :
+    WorkAction<MetalavaParams> {
     override fun execute() {
         val outputStream = ByteArrayOutputStream()
         var successful = false
-        val k2UastArg = listOfNotNull(
-            // Enable Android Lint infrastructure used by Metalava to use K2 UAST
-            // (also historically known as FIR) when running Metalava for this module.
-            "--Xuse-k2-uast".takeIf {
-                parameters.k2UastEnabled.get()
-            }
-        )
+        val k2UastArg =
+            listOfNotNull(
+                // Enable Android Lint infrastructure used by Metalava to use K2 UAST
+                // (also historically known as FIR) when running Metalava for this module.
+                "--Xuse-k2-uast".takeIf { parameters.k2UastEnabled.get() }
+            )
         try {
             execOperations.javaexec {
                 // Intellij core reflects into java.util.ResourceBundle
-                it.jvmArgs = listOf(
-                    "--add-opens",
-                    "java.base/java.util=ALL-UNNAMED"
-                )
+                it.jvmArgs = listOf("--add-opens", "java.base/java.util=ALL-UNNAMED")
                 it.classpath(parameters.metalavaClasspath.get())
                 it.mainClass.set("com.android.tools.metalava.Driver")
                 it.args = parameters.args.get() + k2UastArg
@@ -111,68 +107,74 @@ abstract class MetalavaWorkAction @Inject constructor(
 }
 
 fun Project.getMetalavaClasspath(): FileCollection {
-    val configuration = configurations.findByName("metalava") ?: configurations.create("metalava") {
-        it.dependencies.add(dependencies.create(getLibraryByName("metalava")))
-    }
+    val configuration =
+        configurations.findByName("metalava")
+            ?: configurations.create("metalava") {
+                it.dependencies.add(dependencies.create(getLibraryByName("metalava")))
+            }
     return project.files(configuration)
 }
 
 fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
-    val args = mutableListOf(
-        "--api-lint",
-        "--hide",
-        listOf(
-            // The list of checks that are hidden as they are not useful in androidx
-            "Enum", // Enums are allowed to be use in androidx
-            "CallbackInterface", // With target Java 8, we have default methods
-            "ProtectedMember", // We allow using protected members in androidx
-            "ManagerLookup", // Managers in androidx are not the same as platform services
-            "ManagerConstructor",
-            "RethrowRemoteException", // This check is for calls into system_server
-            "PackageLayering", // This check is not relevant to androidx.* code.
-            "UserHandle", // This check is not relevant to androidx.* code.
-            "ParcelableList", // This check is only relevant to android platform that has managers.
+    val args =
+        mutableListOf(
+            "--api-lint",
+            "--hide",
+            listOf(
+                    // The list of checks that are hidden as they are not useful in androidx
+                    "Enum", // Enums are allowed to be use in androidx
+                    "CallbackInterface", // With target Java 8, we have default methods
+                    "ProtectedMember", // We allow using protected members in androidx
+                    "ManagerLookup", // Managers in androidx are not the same as platform services
+                    "ManagerConstructor",
+                    "RethrowRemoteException", // This check is for calls into system_server
+                    "PackageLayering", // This check is not relevant to androidx.* code.
+                    "UserHandle", // This check is not relevant to androidx.* code.
+                    "ParcelableList", // This check is only relevant to android platform that has
+                    // managers.
 
-            // List of checks that have bugs, but should be enabled once fixed.
-            "StaticUtils", // b/135489083
-            "StartWithLower", // b/135710527
+                    // List of checks that have bugs, but should be enabled once fixed.
+                    "StaticUtils", // b/135489083
+                    "StartWithLower", // b/135710527
 
-            // The list of checks that are API lint warnings and are yet to be enabled
-            "SamShouldBeLast",
+                    // The list of checks that are API lint warnings and are yet to be enabled
+                    "SamShouldBeLast",
 
-            // We should only treat these as warnings
-            "IntentBuilderName",
-            "OnNameExpected",
-            "UserHandleName"
-        ).joinToString(),
-        "--error",
-        listOf(
-            "AllUpper",
-            "GetterSetterNames",
-            "MinMaxConstant",
-            "TopLevelBuilder",
-            "BuilderSetStyle",
-            "MissingBuildMethod",
-            "SetterReturnsThis",
-            "OverlappingConstants",
-            "IllegalStateException",
-            "ListenerLast",
-            "ExecutorRegistration",
-            "StreamFiles",
-            "AbstractInner",
-            "NotCloseable",
-            "MethodNameTense",
-            "UseIcu",
-            "NoByteOrShort",
-            "CommonArgsFirst",
-            "GetterOnBuilder",
-            "CallbackMethodName",
-            "StaticFinalBuilder",
-            "MissingGetterMatchingBuilder",
-            "HiddenSuperclass",
-            "KotlinOperator"
-        ).joinToString()
-    )
+                    // We should only treat these as warnings
+                    "IntentBuilderName",
+                    "OnNameExpected",
+                    "UserHandleName"
+                )
+                .joinToString(),
+            "--error",
+            listOf(
+                    "AllUpper",
+                    "GetterSetterNames",
+                    "MinMaxConstant",
+                    "TopLevelBuilder",
+                    "BuilderSetStyle",
+                    "MissingBuildMethod",
+                    "SetterReturnsThis",
+                    "OverlappingConstants",
+                    "IllegalStateException",
+                    "ListenerLast",
+                    "ExecutorRegistration",
+                    "StreamFiles",
+                    "AbstractInner",
+                    "NotCloseable",
+                    "MethodNameTense",
+                    "UseIcu",
+                    "NoByteOrShort",
+                    "CommonArgsFirst",
+                    "GetterOnBuilder",
+                    "CallbackMethodName",
+                    "StaticFinalBuilder",
+                    "MissingGetterMatchingBuilder",
+                    "HiddenSuperclass",
+                    "KotlinOperator"
+                )
+                .joinToString()
+        )
     if (targetsJavaConsumers) {
         args.addAll(listOf("--error", "MissingJvmstatic", "--error", "ArrayReturn"))
     } else {
@@ -181,9 +183,7 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
     return args
 }
 
-/**
- * Returns the args needed to generate a version history JSON from the previous API files.
- */
+/** Returns the args needed to generate a version history JSON from the previous API files. */
 internal fun getGenerateApiLevelsArgs(
     apiFiles: List<File>,
     currentVersion: Version,
@@ -191,34 +191,33 @@ internal fun getGenerateApiLevelsArgs(
 ): List<String> {
     val versions = getVersionsForApiLevels(apiFiles) + currentVersion
 
-    val args = listOf(
-        "--generate-api-version-history",
-        outputLocation.absolutePath,
-        "--api-version-names",
-        versions.joinToString(" ")
-    )
+    val args =
+        listOf(
+            "--generate-api-version-history",
+            outputLocation.absolutePath,
+            "--api-version-names",
+            versions.joinToString(" ")
+        )
 
     return if (apiFiles.isEmpty()) {
         args
     } else {
-        args + listOf(
-            "--api-version-signature-files",
-            apiFiles.joinToString(":")
-        )
+        args + listOf("--api-version-signature-files", apiFiles.joinToString(":"))
     }
 }
 
 sealed class GenerateApiMode {
     object PublicApi : GenerateApiMode()
+
     object AllRestrictedApis : GenerateApiMode()
+
     object RestrictToLibraryGroupPrefixApis : GenerateApiMode()
 }
 
 sealed class ApiLintMode {
-    class CheckBaseline(
-        val apiLintBaseline: File,
-        val targetsJavaConsumers: Boolean
-    ) : ApiLintMode()
+    class CheckBaseline(val apiLintBaseline: File, val targetsJavaConsumers: Boolean) :
+        ApiLintMode()
+
     object Skip : ApiLintMode()
 }
 
@@ -280,10 +279,17 @@ private fun generateApi(
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null
 ) {
-    val args = getGenerateApiArgs(
-        bootClasspath, dependencyClasspath, sourcePaths, outputLocation, generateApiMode,
-        apiLintMode, apiLevelsArgs, pathToManifest
-    )
+    val args =
+        getGenerateApiArgs(
+            bootClasspath,
+            dependencyClasspath,
+            sourcePaths,
+            outputLocation,
+            generateApiMode,
+            apiLintMode,
+            apiLevelsArgs,
+            pathToManifest
+        )
     runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, workerExecutor)
 }
 
@@ -302,21 +308,18 @@ fun getGenerateApiArgs(
     pathToManifest: String? = null
 ): List<String> {
     // generate public API txt
-    val args = mutableListOf(
-        "--classpath",
-        (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator),
+    val args =
+        mutableListOf(
+            "--classpath",
+            (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator),
+            "--source-path",
+            sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+            "--format=v4",
+            "--output-kotlin-nulls=yes",
+            "--warnings-as-errors"
+        )
 
-        "--source-path",
-        sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
-
-        "--format=v4",
-        "--output-kotlin-nulls=yes",
-        "--warnings-as-errors"
-    )
-
-    pathToManifest?.let {
-        args += listOf("--manifest", pathToManifest)
-    }
+    pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
 
     if (outputLocation != null) {
         when (generateApiMode) {
@@ -335,40 +338,42 @@ fun getGenerateApiArgs(
 
     when (generateApiMode) {
         is GenerateApiMode.PublicApi -> {
-            args += listOf(
-                "--hide-annotation", "androidx.annotation.RestrictTo"
-            )
+            args += listOf("--hide-annotation", "androidx.annotation.RestrictTo")
             args += listOf("--show-unannotated")
         }
-        is GenerateApiMode.AllRestrictedApis, GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
+        is GenerateApiMode.AllRestrictedApis,
+        GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
             // Despite being hidden we still track the following:
             // * @RestrictTo(Scope.LIBRARY_GROUP_PREFIX): inter-library APIs
             // * @PublishedApi: needs binary stability for inline methods
             // * @RestrictTo(Scope.LIBRARY_GROUP): APIs between libraries in non-atomic groups
-            args += listOf(
-                // hide RestrictTo(LIBRARY), use --show-annotation for RestrictTo with
-                // specific arguments
-                "--hide-annotation",
-                "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)",
-                "--show-annotation",
-                "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                    "LIBRARY_GROUP_PREFIX)",
-                "--show-annotation",
-                "kotlin.PublishedApi",
-                "--show-unannotated"
-            )
-            if (generateApiMode is GenerateApiMode.AllRestrictedApis) {
-                args += listOf(
+            args +=
+                listOf(
+                    // hide RestrictTo(LIBRARY), use --show-annotation for RestrictTo with
+                    // specific arguments
+                    "--hide-annotation",
+                    "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)",
                     "--show-annotation",
                     "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                        "LIBRARY_GROUP)"
+                        "LIBRARY_GROUP_PREFIX)",
+                    "--show-annotation",
+                    "kotlin.PublishedApi",
+                    "--show-unannotated"
                 )
+            if (generateApiMode is GenerateApiMode.AllRestrictedApis) {
+                args +=
+                    listOf(
+                        "--show-annotation",
+                        "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
+                            "LIBRARY_GROUP)"
+                    )
             } else {
-                args += listOf(
-                    "--hide-annotation",
-                    "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                        "LIBRARY_GROUP)"
-                )
+                args +=
+                    listOf(
+                        "--hide-annotation",
+                        "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
+                            "LIBRARY_GROUP)"
+                    )
             }
         }
     }

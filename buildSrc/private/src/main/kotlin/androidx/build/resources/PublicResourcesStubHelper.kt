@@ -25,13 +25,11 @@ import org.gradle.api.tasks.Copy
 fun Project.configurePublicResourcesStub(extension: LibraryExtension) {
     val targetResFolder = File(project.buildDir, "generated/res/public-stub")
 
-    val generatePublicResourcesTask = tasks.register(
-        "generatePublicResourcesStub",
-        Copy::class.java
-    ) { task ->
-        task.from(File(project.getSupportRootFolder(), "buildSrc/res"))
-        task.into(targetResFolder)
-    }
+    val generatePublicResourcesTask =
+        tasks.register("generatePublicResourcesStub", Copy::class.java) { task ->
+            task.from(File(project.getSupportRootFolder(), "buildSrc/res"))
+            task.into(targetResFolder)
+        }
 
     extension.libraryVariants.all { variant ->
         variant.registerGeneratedResFolders(

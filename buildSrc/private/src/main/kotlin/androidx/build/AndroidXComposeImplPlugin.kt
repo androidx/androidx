@@ -54,26 +54,24 @@ const val composeReportsOption =
 const val enableMetricsArg = "androidx.enableComposeCompilerMetrics"
 const val enableReportsArg = "androidx.enableComposeCompilerReports"
 
-/**
- * Plugin to apply common configuration for Compose projects.
- */
+/** Plugin to apply common configuration for Compose projects. */
 class AndroidXComposeImplPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val extension = project.extensions.create<AndroidXComposeExtension>(
-            "androidxCompose",
-            project
-        )
+        val extension =
+            project.extensions.create<AndroidXComposeExtension>("androidxCompose", project)
         project.plugins.all { plugin ->
             when (plugin) {
                 is LibraryPlugin -> {
-                    val library = project.extensions.findByType(LibraryExtension::class.java)
-                        ?: throw Exception("Failed to find Android extension")
+                    val library =
+                        project.extensions.findByType(LibraryExtension::class.java)
+                            ?: throw Exception("Failed to find Android extension")
 
                     project.configureAndroidCommonOptions(library)
                 }
                 is AppPlugin -> {
-                    val app = project.extensions.findByType(AppExtension::class.java)
-                        ?: throw Exception("Failed to find Android extension")
+                    val app =
+                        project.extensions.findByType(AppExtension::class.java)
+                            ?: throw Exception("Failed to find Android extension")
 
                     project.configureAndroidCommonOptions(app)
                 }
@@ -96,10 +94,12 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 val isPublished = androidXExtension.shouldPublish()
 
                 it.lint {
-                    // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
+                    // Too many Kotlin features require synthetic accessors - we want to rely on R8
+                    // to
                     // remove these accessors
                     disable.add("SyntheticAccessor")
-                    // These lint checks are normally a warning (or lower), but we ignore (in AndroidX)
+                    // These lint checks are normally a warning (or lower), but we ignore (in
+                    // AndroidX)
                     // warnings in Lint, so we make it an error here so it will fail the build.
                     // Note that this causes 'UnknownIssueId' lint warnings in the build log when
                     // Lint tries to apply this rule to modules that do not have this lint check, so
@@ -110,27 +110,24 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     // Paths we want to enable ListIterator checks for - for higher level
                     // libraries it won't have a noticeable performance impact, and we don't want
                     // developers reading high level library code to worry about this.
-                    val listIteratorPaths = listOf(
-                        "compose:foundation",
-                        "compose:runtime",
-                        "compose:ui",
-                        "text"
-                    )
+                    val listIteratorPaths =
+                        listOf("compose:foundation", "compose:runtime", "compose:ui", "text")
 
                     // Paths we want to disable ListIteratorChecks for - these are not runtime
                     // libraries and so Iterator allocation is not relevant.
-                    val ignoreListIteratorFilter = listOf(
-                        "compose:ui:ui-test",
-                        "compose:ui:ui-tooling",
-                        "compose:ui:ui-inspection",
-                    )
+                    val ignoreListIteratorFilter =
+                        listOf(
+                            "compose:ui:ui-test",
+                            "compose:ui:ui-tooling",
+                            "compose:ui:ui-inspection",
+                        )
 
                     // Disable ListIterator if we are not in a matching path, or we are in an
                     // unpublished project
                     if (
                         listIteratorPaths.none { path.contains(it) } ||
-                        ignoreListIteratorFilter.any { path.contains(it) } ||
-                        !isPublished
+                            ignoreListIteratorFilter.any { path.contains(it) } ||
+                            !isPublished
                     ) {
                         disable.add("ListIterator")
                     }
@@ -154,18 +151,21 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
 
         /**
          * General configuration for MPP projects. In the future, these workarounds should either be
-         * generified and added to AndroidXPlugin, or removed as/when the underlying issues have been
-         * resolved.
+         * generified and added to AndroidXPlugin, or removed as/when the underlying issues have
+         * been resolved.
          */
         private fun Project.configureForMultiplatform() {
             // This is to allow K/N not matching the kotlinVersion
-            (this.rootProject.property("ext") as ExtraPropertiesExtension)
-                .set("kotlin.native.version", KOTLIN_NATIVE_VERSION)
+            (this.rootProject.property("ext") as ExtraPropertiesExtension).set(
+                "kotlin.native.version",
+                KOTLIN_NATIVE_VERSION
+            )
 
-            val multiplatformExtension = checkNotNull(multiplatformExtension) {
-                "Unable to configureForMultiplatform() when " +
-                    "multiplatformExtension is null (multiplatform plugin not enabled?)"
-            }
+            val multiplatformExtension =
+                checkNotNull(multiplatformExtension) {
+                    "Unable to configureForMultiplatform() when " +
+                        "multiplatformExtension is null (multiplatform plugin not enabled?)"
+                }
 
             /*
             The following configures source sets - note:
@@ -184,9 +184,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             */
             multiplatformExtension.sourceSets.all {
                 // Allow all experimental APIs, since MPP projects are themselves experimental
-                it.languageSettings.apply {
-                    optIn("kotlin.ExperimentalMultiplatform")
-                }
+                it.languageSettings.apply { optIn("kotlin.ExperimentalMultiplatform") }
             }
 
             configureLintForMultiplatformLibrary(multiplatformExtension)
@@ -205,16 +203,14 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
 
 private const val COMPILER_PLUGIN_CONFIGURATION = "kotlinPlugin"
 
-private fun configureComposeCompilerPlugin(
-    project: Project,
-    extension: AndroidXComposeExtension
-) {
+private fun configureComposeCompilerPlugin(project: Project, extension: AndroidXComposeExtension) {
     project.afterEvaluate {
         // If a project has opted-out of Compose compiler plugin, don't add it
         if (!extension.composeCompilerPluginEnabled) return@afterEvaluate
 
-        val androidXExtension = project.extensions.findByType(AndroidXExtension::class.java)
-            ?: throw Exception("You have applied AndroidXComposePlugin without AndroidXPlugin")
+        val androidXExtension =
+            project.extensions.findByType(AndroidXExtension::class.java)
+                ?: throw Exception("You have applied AndroidXComposePlugin without AndroidXPlugin")
         val shouldPublish = androidXExtension.shouldPublish()
 
         // Create configuration that we'll use to load Compose compiler plugin
@@ -232,14 +228,17 @@ private fun configureComposeCompilerPlugin(
                 project.rootProject.resolveProject(":compose:compiler:compiler")
             }
         )
-        val kotlinPlugin = configuration.incoming.artifactView { view ->
-            view.attributes { attributes ->
-                attributes.attribute(
-                    Attribute.of("artifactType", String::class.java),
-                    ArtifactTypeDefinition.JAR_TYPE
-                )
-            }
-        }.files
+        val kotlinPlugin =
+            configuration.incoming
+                .artifactView { view ->
+                    view.attributes { attributes ->
+                        attributes.attribute(
+                            Attribute.of("artifactType", String::class.java),
+                            ArtifactTypeDefinition.JAR_TYPE
+                        )
+                    }
+                }
+                .files
 
         val enableMetricsProvider = project.providers.gradleProperty(enableMetricsArg)
         val enableReportsProvider = project.providers.gradleProperty(enableReportsArg)
@@ -248,7 +247,8 @@ private fun configureComposeCompilerPlugin(
         val libraryReportsDirectory = project.rootProject.getLibraryReportsDirectory()
         project.tasks.withType(KotlinCompile::class.java).configureEach { compile ->
             // Append inputs to KotlinCompile so tasks get invalidated if any of these values change
-            compile.inputs.files({ kotlinPlugin })
+            compile.inputs
+                .files({ kotlinPlugin })
                 .withPropertyName("composeCompilerExtension")
                 .withNormalizer(ClasspathNormalizer::class.java)
             compile.inputs.property("composeMetricsEnabled", enableMetricsProvider).optional(true)
@@ -262,22 +262,15 @@ private fun configureComposeCompilerPlugin(
                 if (enableMetricsProvider.orNull == "true") {
                     val metricsDest = File(libraryMetricsDirectory, "compose")
                     compile.kotlinOptions.freeCompilerArgs +=
-                        listOf(
-                            "-P",
-                            "$composeMetricsOption=${metricsDest.absolutePath}"
-                        )
+                        listOf("-P", "$composeMetricsOption=${metricsDest.absolutePath}")
                 }
                 if ((enableReportsProvider.orNull == "true")) {
                     val reportsDest = File(libraryReportsDirectory, "compose")
                     compile.kotlinOptions.freeCompilerArgs +=
-                        listOf(
-                            "-P",
-                            "$composeReportsOption=${reportsDest.absolutePath}"
-                        )
+                        listOf("-P", "$composeReportsOption=${reportsDest.absolutePath}")
                 }
                 if (shouldPublish) {
-                    compile.kotlinOptions.freeCompilerArgs +=
-                        listOf("-P", composeSourceOption)
+                    compile.kotlinOptions.freeCompilerArgs += listOf("-P", composeSourceOption)
                 }
             }
         }
@@ -287,12 +280,11 @@ private fun configureComposeCompilerPlugin(
 /**
  * Adds missing MPP sourcesets (such as commonMain) to the Lint tasks
  *
- * TODO: b/195329463
- * Lint is not aware of MPP, and MPP doesn't configure Lint. There is no built-in
- * API to adjust the default Lint task's sources, so we use this hack to manually
- * add sources for MPP source sets. In the future with the new Kotlin Project Model
- * (https://youtrack.jetbrains.com/issue/KT-42572) and an AGP / MPP integration
- * plugin this will no longer be needed.
+ * TODO: b/195329463 Lint is not aware of MPP, and MPP doesn't configure Lint. There is no built-in
+ *   API to adjust the default Lint task's sources, so we use this hack to manually add sources for
+ *   MPP source sets. In the future with the new Kotlin Project Model
+ *   (https://youtrack.jetbrains.com/issue/KT-42572) and an AGP / MPP integration plugin this will
+ *   no longer be needed.
  */
 private fun Project.configureLintForMultiplatformLibrary(
     multiplatformExtension: KotlinMultiplatformExtension
@@ -301,16 +293,13 @@ private fun Project.configureLintForMultiplatformLibrary(
         // This workaround only works for libraries (apps would require changes to a different
         // task). Given that we currently do not have any MPP app projects, this should never
         // happen.
-        project.extensions.findByType<LibraryExtension>()
-            ?: return@afterEvaluate
-        val androidMain = multiplatformExtension.sourceSets.findByName("androidMain")
-            ?: return@afterEvaluate
+        project.extensions.findByType<LibraryExtension>() ?: return@afterEvaluate
+        val androidMain =
+            multiplatformExtension.sourceSets.findByName("androidMain") ?: return@afterEvaluate
         // Get all the sourcesets androidMain transitively / directly depends on
         val dependencies = androidMain.withClosure(KotlinSourceSet::dependsOn)
 
-        /**
-         * Helper function to add the missing sourcesets to this [VariantInputs]
-         */
+        /** Helper function to add the missing sourcesets to this [VariantInputs] */
         fun VariantInputs.addSourceSets() {
             // Each variant has a source provider for the variant (such as debug) and the 'main'
             // variant. The actual files that Lint will run on is both of these providers
@@ -329,9 +318,7 @@ private fun Project.configureLintForMultiplatformLibrary(
             it.variantInputs.addSourceSets()
         }
 
-        project.tasks.withType<AndroidLintTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
+        project.tasks.withType<AndroidLintTask>().configureEach { it.variantInputs.addSourceSets() }
 
         // Also configure the model writing task, so that we don't run into mismatches between
         // analyzed sources in one module and a downstream module
@@ -344,8 +331,8 @@ private fun Project.configureLintForMultiplatformLibrary(
 /**
  * Lint uses [ConfigurableFileCollection.disallowChanges] during initialization, which prevents
  * modifying the file collection separately (there is no time to configure it before AGP has
- * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
- * apply [block].
+ * initialized and disallowed changes). This uses reflection to temporarily allow changes, and apply
+ * [block].
  */
 private fun ConfigurableFileCollection.withChangesAllowed(
     block: ConfigurableFileCollection.() -> Unit

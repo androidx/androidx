@@ -46,8 +46,7 @@ import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
-    @get:javax.inject.Inject
-    abstract val registry: BuildEventsListenerRegistry
+    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
 
     override fun apply(project: Project) {
         if (!project.isRoot) {
@@ -80,15 +79,13 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                     Expected AGP version \"$expectedAgpVersion\" does not match actual AGP version
                     \"$ANDROID_GRADLE_PLUGIN_VERSION\". This happens when AGP is updated while
                     Studio is running and can be fixed by restarting Studio.
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
         }
 
-        val buildOnServerTask = tasks.create(
-            BUILD_ON_SERVER_TASK,
-            BuildOnServerTask::class.java
-        )
+        val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java)
         buildOnServerTask.cacheEvenIfNoOutputs()
         buildOnServerTask.distributionDirectory = getDistributionDirectory()
         buildOnServerTask.dependsOn(
@@ -97,9 +94,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 CreateAggregateLibraryBuildInfoFileTask::class.java
             )
         )
-        buildOnServerTask.dependsOn(
-            tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK)
-        )
+        buildOnServerTask.dependsOn(tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK))
 
         VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)?.let {
             buildOnServerTask.dependsOn(it)
@@ -108,8 +103,9 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         extra.set("projects", ConcurrentHashMap<String, String>())
         subprojects { project ->
             project.afterEvaluate {
-                if (project.plugins.hasPlugin(LibraryPlugin::class.java) ||
-                    project.plugins.hasPlugin(AppPlugin::class.java)
+                if (
+                    project.plugins.hasPlugin(LibraryPlugin::class.java) ||
+                        project.plugins.hasPlugin(AppPlugin::class.java)
                 ) {
 
                     buildOnServerTask.dependsOn("${project.path}:assembleRelease")
@@ -118,7 +114,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                             // in AndroidX, release and debug variants are essentially the same,
                             // so we don't run the lintRelease task on the build server
                             if (!variant.name.lowercase(Locale.getDefault()).contains("release")) {
-                                val taskName = "lint${variant.name.replaceFirstChar {
+                                val taskName =
+                                    "lint${variant.name.replaceFirstChar {
                                     if (it.isLowerCase()) {
                                         it.titlecase(Locale.getDefault())
                                     } else {
@@ -138,9 +135,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         // NOTE: this task is used by the Github CI as well. If you make any changes here,
         // please update the .github/workflows files as well, if necessary.
-        project.tasks.register(
-            ZIP_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
-        ) {
+        project.tasks.register(ZIP_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java) {
             it.destinationDirectory.set(project.getDistributionDirectory())
             it.archiveFileName.set("androidTest.zip")
             it.from(project.getTestConfigDirectory())
@@ -169,19 +164,18 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             val projectModules = getProjectsMap()
             subprojects { subproject ->
                 // TODO(153485458) remove most of these exceptions
-                if (!subproject.name.contains("hilt") &&
-                    subproject.name != "docs-public" &&
-                    subproject.name != "docs-tip-of-tree" &&
-                    subproject.name != "camera-testapp-timing" &&
-                    subproject.name != "room-testapp" &&
-                    !(
-                        subproject.path.contains
-                        ("media2:media2-session:version-compat-tests:client-previous")
-                        ) &&
-                    !(
-                        subproject.path.contains
-                        ("media2:media2-session:version-compat-tests:service-previous")
-                        )
+                if (
+                    !subproject.name.contains("hilt") &&
+                        subproject.name != "docs-public" &&
+                        subproject.name != "docs-tip-of-tree" &&
+                        subproject.name != "camera-testapp-timing" &&
+                        subproject.name != "room-testapp" &&
+                        !(subproject.path.contains(
+                            "media2:media2-session:version-compat-tests:client-previous"
+                        )) &&
+                        !(subproject.path.contains(
+                            "media2:media2-session:version-compat-tests:service-previous"
+                        ))
                 ) {
                     subproject.configurations.all { configuration ->
                         configuration.resolutionStrategy.dependencySubstitution.apply {
@@ -208,9 +202,13 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             task.setOutput(File(project.getDistributionDirectory(), "task_outputs.txt"))
             task.removePrefix(project.getCheckoutRoot().path)
         }
-        tasks.matching { it.name == "commonizeNativeDistribution" }.configureEach {
-            it.notCompatibleWithConfigurationCache("https://youtrack.jetbrains.com/issue/KT-54627")
-        }
+        tasks
+            .matching { it.name == "commonizeNativeDistribution" }
+            .configureEach {
+                it.notCompatibleWithConfigurationCache(
+                    "https://youtrack.jetbrains.com/issue/KT-54627"
+                )
+            }
     }
 
     private fun Project.setDependencyVersions() {

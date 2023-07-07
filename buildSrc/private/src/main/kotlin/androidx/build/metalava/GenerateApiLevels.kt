@@ -28,24 +28,24 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.named
 
 /**
- * Returns the API files that should be used to generate the API levels metadata.
- * This will not include the current version because the source is used as the current version.
+ * Returns the API files that should be used to generate the API levels metadata. This will not
+ * include the current version because the source is used as the current version.
  */
-fun getFilesForApiLevels(
-    apiFiles: Collection<File>,
-    currentVersion: Version
-): List<File> {
+fun getFilesForApiLevels(apiFiles: Collection<File>, currentVersion: Version): List<File> {
     // Create a map from known versions of the library to signature files
-    val versionToFileMap = apiFiles.mapNotNull { file ->
-        // Resource API files are not included
-        if (ApiLocation.isResourceApiFilename(file.name)) return@mapNotNull null
-        val version = Version.parseFilenameOrNull(file.name)
-        if (version != null) {
-            version to file
-        } else {
-            null
-        }
-    }.toMap()
+    val versionToFileMap =
+        apiFiles
+            .mapNotNull { file ->
+                // Resource API files are not included
+                if (ApiLocation.isResourceApiFilename(file.name)) return@mapNotNull null
+                val version = Version.parseFilenameOrNull(file.name)
+                if (version != null) {
+                    version to file
+                } else {
+                    null
+                }
+            }
+            .toMap()
 
     val filteredVersions = filterVersions(versionToFileMap, currentVersion)
     return filteredVersions.map { versionToFileMap.getValue(it) }
@@ -60,10 +60,10 @@ fun getVersionsForApiLevels(apiFiles: List<File>): List<Version> {
 }
 
 /**
- * From the full set of versions, generates a sorted list of the versions to use when generating
- * the API levels metadata. For previous major-minor version cycles, this only includes the
- * latest signature file, because we only want one file per stable release. Does not include any
- * files for the current major-minor version cycle.
+ * From the full set of versions, generates a sorted list of the versions to use when generating the
+ * API levels metadata. For previous major-minor version cycles, this only includes the latest
+ * signature file, because we only want one file per stable release. Does not include any files for
+ * the current major-minor version cycle.
  */
 private fun filterVersions(
     versionToFileMap: Map<Version, File>,
@@ -87,31 +87,21 @@ private fun filterVersions(
     return filteredVersions
 }
 
-private fun sameMajorMinor(v1: Version, v2: Version) =
-    v1.major == v2.major && v1.minor == v2.minor
+private fun sameMajorMinor(v1: Version, v2: Version) = v1.major == v2.major && v1.minor == v2.minor
 
 private fun Version.roundUp() = Version(this.major, this.minor, this.patch)
 
-/**
- * Usage attribute to specify the version metadata component.
- */
+/** Usage attribute to specify the version metadata component. */
 internal val Project.versionMetadataUsage: Usage
     get() = objects.named("library-version-metadata")
 
-/**
- * Creates a component for the version metadata JSON and registers it for publishing.
- */
-fun Project.registerVersionMetadataComponent(
-    generateApiTask: TaskProvider<GenerateApiTask>
-) {
+/** Creates a component for the version metadata JSON and registers it for publishing. */
+fun Project.registerVersionMetadataComponent(generateApiTask: TaskProvider<GenerateApiTask>) {
     configurations.create("libraryVersionMetadata") { configuration ->
         configuration.isVisible = false
         configuration.isCanBeResolved = false
 
-        configuration.attributes.attribute(
-            Usage.USAGE_ATTRIBUTE,
-            project.versionMetadataUsage
-        )
+        configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.versionMetadataUsage)
         configuration.attributes.attribute(
             Category.CATEGORY_ATTRIBUTE,
             objects.named<Category>(Category.DOCUMENTATION)
@@ -122,14 +112,11 @@ fun Project.registerVersionMetadataComponent(
         )
 
         // The generate API task has many output files, only add the version metadata as an artifact
-        val levelsFile = generateApiTask.map { task ->
-            task.apiLocation.map { location ->
-                location.apiLevelsFile
+        val levelsFile =
+            generateApiTask.map { task ->
+                task.apiLocation.map { location -> location.apiLevelsFile }
             }
-        }
-        configuration.outgoing.artifact(levelsFile) {
-            it.classifier = "versionMetadata"
-        }
+        configuration.outgoing.artifact(levelsFile) { it.classifier = "versionMetadata" }
 
         registerAsComponentForPublishing(configuration)
     }

@@ -41,59 +41,60 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
 
 val bundlingAttribute: Attribute<String> =
-    Attribute.of(
-        "org.gradle.dependency.bundling",
-        String::class.java
-    )
+    Attribute.of("org.gradle.dependency.bundling", String::class.java)
 
 private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
     return files(
-        configurations.findByName("ktlint") ?: configurations.create("ktlint") {
-            val version = getVersionByName("ktlint")
-            val dependency = dependencies.create("com.pinterest:ktlint:$version")
-            it.dependencies.add(dependency)
-            it.attributes.attribute(bundlingAttribute, "external")
-        }
+        configurations.findByName("ktlint")
+            ?: configurations.create("ktlint") {
+                val version = getVersionByName("ktlint")
+                val dependency = dependencies.create("com.pinterest:ktlint:$version")
+                it.dependencies.add(dependency)
+                it.attributes.attribute(bundlingAttribute, "external")
+            }
     )
 }
 
-private val DisabledRules = listOf(
-    // TODO: reenable when https://github.com/pinterest/ktlint/issues/1221 is resolved
-    "indent",
-    // TODO: reenable when 'indent' is also enabled, meanwhile its to keep the status-quo
-    //       see: https://github.com/pinterest/ktlint/releases/tag/0.45.0
-    "wrapping",
-    // Upgrade to 0.49.1 introduced new checks. TODO: fix and re-enable them.
-    "trailing-comma-on-call-site",
-    "trailing-comma-on-declaration-site",
-    "argument-list-wrapping",
-    "kdoc-wrapping",
-    "comment-wrapping",
-    "property-wrapping",
-    "no-empty-first-line-in-method-block",
-    "multiline-if-else",
-    "annotation",
-    "spacing-between-declarations-with-annotations",
-    "spacing-between-declarations-with-comments",
-    "spacing-around-angle-brackets",
-    "annotation-spacing",
-    "modifier-list-spacing",
-    "double-colon-spacing",
-    "fun-keyword-spacing",
-    "function-return-type-spacing",
-    "unary-op-spacing",
-    "function-type-reference-spacing",
-    "block-comment-initial-star-alignment",
-    "package-name",
-    "class-naming",
-    "no-semi",
-    "filename",
-).joinToString(",")
+private val DisabledRules =
+    listOf(
+            // TODO: reenable when https://github.com/pinterest/ktlint/issues/1221 is resolved
+            "indent",
+            // TODO: reenable when 'indent' is also enabled, meanwhile its to keep the status-quo
+            //       see: https://github.com/pinterest/ktlint/releases/tag/0.45.0
+            "wrapping",
+            // Upgrade to 0.49.1 introduced new checks. TODO: fix and re-enable them.
+            "trailing-comma-on-call-site",
+            "trailing-comma-on-declaration-site",
+            "argument-list-wrapping",
+            "kdoc-wrapping",
+            "comment-wrapping",
+            "property-wrapping",
+            "no-empty-first-line-in-method-block",
+            "multiline-if-else",
+            "annotation",
+            "spacing-between-declarations-with-annotations",
+            "spacing-between-declarations-with-comments",
+            "spacing-around-angle-brackets",
+            "annotation-spacing",
+            "modifier-list-spacing",
+            "double-colon-spacing",
+            "fun-keyword-spacing",
+            "function-return-type-spacing",
+            "unary-op-spacing",
+            "function-type-reference-spacing",
+            "block-comment-initial-star-alignment",
+            "package-name",
+            "class-naming",
+            "no-semi",
+            "filename",
+        )
+        .joinToString(",")
 
-private val ExcludedDirectories = listOf(
-    "test-data",
-    "external",
-)
+private val ExcludedDirectories =
+    listOf(
+        "test-data",
+        "external",
+    )
 
 private val ExcludedDirectoryGlobs = ExcludedDirectories.map { "**/$it/**/*.kt" }
 private const val MainClass = "com.pinterest.ktlint.Main"
@@ -102,10 +103,11 @@ private const val IncludedFiles = "**/*.kt"
 
 fun Project.configureKtlint() {
     val outputDir = "${buildDir.relativeTo(projectDir)}/reports/ktlint/"
-    val lintProvider = tasks.register("ktlint", KtlintCheckTask::class.java) { task ->
-        task.report = File("${outputDir}ktlint-checkstyle-report.xml")
-        task.ktlintClasspath.from(getKtlintConfiguration())
-    }
+    val lintProvider =
+        tasks.register("ktlint", KtlintCheckTask::class.java) { task ->
+            task.report = File("${outputDir}ktlint-checkstyle-report.xml")
+            task.ktlintClasspath.from(getKtlintConfiguration())
+        }
     tasks.register("ktlintFormat", KtlintFormatTask::class.java) { task ->
         task.report = File("${outputDir}ktlint-format-checkstyle-report.xml")
         task.ktlintClasspath.from(getKtlintConfiguration())
@@ -123,14 +125,11 @@ fun Project.configureKtlint() {
 
 @CacheableTask
 abstract class BaseKtlintTask : DefaultTask() {
-    @get:Inject
-    abstract val execOperations: ExecOperations
+    @get:Inject abstract val execOperations: ExecOperations
 
-    @get:Classpath
-    abstract val ktlintClasspath: ConfigurableFileCollection
+    @get:Classpath abstract val ktlintClasspath: ConfigurableFileCollection
 
-    @get:Inject
-    abstract val objects: ObjectFactory
+    @get:Inject abstract val objects: ObjectFactory
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getInputFiles(): FileTree? {
@@ -144,27 +143,20 @@ abstract class BaseKtlintTask : DefaultTask() {
             }
         }
         return objects.fileTree().setDir(projectDirectory).apply {
-            subdirectories.forEach {
-                include("$it/src/**/*.kt")
-            }
+            subdirectories.forEach { include("$it/src/**/*.kt") }
         }
     }
 
-    /**
-     * Allows overriding to use a custom directory instead of default [Project.getProjectDir].
-     */
-    @get:Internal
-    var overrideDirectory: File? = null
+    /** Allows overriding to use a custom directory instead of default [Project.getProjectDir]. */
+    @get:Internal var overrideDirectory: File? = null
 
     /**
-     * Used together with [overrideDirectory] to specify which specific subdirectories should
-     * be analyzed.
+     * Used together with [overrideDirectory] to specify which specific subdirectories should be
+     * analyzed.
      */
-    @get:Internal
-    var overrideSubdirectories: List<String>? = null
+    @get:Internal var overrideSubdirectories: List<String>? = null
 
-    @get:OutputFile
-    lateinit var report: File
+    @get:OutputFile lateinit var report: File
 
     protected fun getArgsList(shouldFormat: Boolean): List<String> {
         val arguments = mutableListOf("--code-style=android_studio")
@@ -179,7 +171,8 @@ abstract class BaseKtlintTask : DefaultTask() {
             val subdirectories = overrideSubdirectories
             if (subdirectories.isNullOrEmpty()) return@let
             subdirectories.map { arguments.add("$it/$InputDir/$IncludedFiles") }
-        } ?: arguments.add("$InputDir/$IncludedFiles")
+        }
+            ?: arguments.add("$InputDir/$IncludedFiles")
 
         ExcludedDirectoryGlobs.mapTo(arguments) { "!$InputDir/$it" }
         return arguments
@@ -193,26 +186,28 @@ abstract class KtlintCheckTask : BaseKtlintTask() {
         group = "Verification"
     }
 
-    @get:Internal
-    val projectPath: String = project.path
+    @get:Internal val projectPath: String = project.path
 
     @TaskAction
     fun runCheck() {
-        val result = execOperations.javaexec { javaExecSpec ->
-            javaExecSpec.mainClass.set(MainClass)
-            javaExecSpec.classpath = ktlintClasspath
-            javaExecSpec.args = getArgsList(shouldFormat = false)
-            overrideDirectory?.let { javaExecSpec.workingDir = it }
-            javaExecSpec.isIgnoreExitValue = true
-        }
+        val result =
+            execOperations.javaexec { javaExecSpec ->
+                javaExecSpec.mainClass.set(MainClass)
+                javaExecSpec.classpath = ktlintClasspath
+                javaExecSpec.args = getArgsList(shouldFormat = false)
+                overrideDirectory?.let { javaExecSpec.workingDir = it }
+                javaExecSpec.isIgnoreExitValue = true
+            }
         if (result.exitValue != 0) {
-            println("""
+            println(
+                """
 
                 ********************************************************************************
                 ${TERMINAL_RED}You can attempt to automatically fix these issues with:
                 ./gradlew $projectPath:ktlintFormat$TERMINAL_RESET
                 ********************************************************************************
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             result.assertNormalExitValue()
         }
@@ -248,60 +243,60 @@ abstract class KtlintCheckFileTask : DefaultTask() {
     @get:Input
     @set:Option(
         option = "file",
-        description = "File to check. This option can be used multiple times: --file file1.kt " +
-            "--file file2.kt"
+        description =
+            "File to check. This option can be used multiple times: --file file1.kt " +
+                "--file file2.kt"
     )
     var files: List<String> = emptyList()
 
     @get:Input
     @set:Option(
         option = "format",
-        description = "Use --format to auto-correct style violations (if some errors cannot be " +
-            "fixed automatically they will be printed to stderr)"
+        description =
+            "Use --format to auto-correct style violations (if some errors cannot be " +
+                "fixed automatically they will be printed to stderr)"
     )
     var format = false
 
-    @get:Inject
-    abstract val execOperations: ExecOperations
+    @get:Inject abstract val execOperations: ExecOperations
 
-    @get:Classpath
-    abstract val ktlintClasspath: ConfigurableFileCollection
+    @get:Classpath abstract val ktlintClasspath: ConfigurableFileCollection
 
     @TaskAction
     fun runKtlint() {
         if (files.isEmpty()) throw StopExecutionException()
-        val kotlinFiles = files.filter { file ->
-            val isKotlinFile = file.endsWith(".kt") || file.endsWith(".ktx")
-            val inExcludedDir =
-                Paths.get(file).any { subPath ->
-                    ExcludedDirectories.contains(subPath.toString())
-                }
+        val kotlinFiles =
+            files.filter { file ->
+                val isKotlinFile = file.endsWith(".kt") || file.endsWith(".ktx")
+                val inExcludedDir =
+                    Paths.get(file).any { subPath ->
+                        ExcludedDirectories.contains(subPath.toString())
+                    }
 
-            isKotlinFile && !inExcludedDir
-        }
+                isKotlinFile && !inExcludedDir
+            }
         if (kotlinFiles.isEmpty()) throw StopExecutionException()
-        val result = execOperations.javaexec { javaExecSpec ->
-            javaExecSpec.mainClass.set(MainClass)
-            javaExecSpec.classpath = ktlintClasspath
-            val args = mutableListOf(
-                "--android",
-                "--disabled_rules",
-                DisabledRules
-            )
-            args.addAll(kotlinFiles)
-            if (format) args.add("-F")
+        val result =
+            execOperations.javaexec { javaExecSpec ->
+                javaExecSpec.mainClass.set(MainClass)
+                javaExecSpec.classpath = ktlintClasspath
+                val args = mutableListOf("--android", "--disabled_rules", DisabledRules)
+                args.addAll(kotlinFiles)
+                if (format) args.add("-F")
 
-            javaExecSpec.args = args
-            javaExecSpec.isIgnoreExitValue = true
-        }
+                javaExecSpec.args = args
+                javaExecSpec.isIgnoreExitValue = true
+            }
         if (result.exitValue != 0) {
-            println("""
+            println(
+                """
 
                 ********************************************************************************
                 ${TERMINAL_RED}You can attempt to automatically fix these issues with:
                 ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString { "--file $it" }}$TERMINAL_RESET
                 ********************************************************************************
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             result.assertNormalExitValue()
         }

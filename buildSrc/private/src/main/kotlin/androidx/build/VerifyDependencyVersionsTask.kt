@@ -31,8 +31,8 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.setProperty
 
 /**
- * Task for verifying the androidx dependency-stability-suffix rule
- * (A library is only as stable as its least stable dependency)
+ * Task for verifying the androidx dependency-stability-suffix rule (A library is only as stable as
+ * its least stable dependency)
  */
 @CacheableTask
 abstract class VerifyDependencyVersionsTask : DefaultTask() {
@@ -42,8 +42,7 @@ abstract class VerifyDependencyVersionsTask : DefaultTask() {
         description = "Task for verifying the androidx dependency-stability-suffix rule"
     }
 
-    @get:Input
-    abstract val version: Property<String>
+    @get:Input abstract val version: Property<String>
 
     @get:Input
     val androidXDependencySet: SetProperty<AndroidXDependency> = project.objects.setProperty()
@@ -57,34 +56,28 @@ abstract class VerifyDependencyVersionsTask : DefaultTask() {
      */
     @TaskAction
     fun verifyDependencyVersions() {
-        androidXDependencySet.get().forEach { dependency ->
-            verifyDependencyVersion(dependency)
-        }
+        androidXDependencySet.get().forEach { dependency -> verifyDependencyVersion(dependency) }
     }
 
     private fun verifyDependencyVersion(dependency: AndroidXDependency) {
         // If the version is unspecified then treat as an alpha version. If the depending project's
         // version is unspecified then it won't matter, and if the dependency's version is
         // unspecified then any non alpha project won't be able to depend on it to ensure safety.
-        val projectVersionExtra = if (version.get() ==
-            AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION
-        ) {
-            "-alpha01"
-        } else {
-            Version(version.get()).extra ?: ""
-        }
-        val dependencyVersionExtra = if (dependency.version ==
-            AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION
-        ) {
-            "-alpha01"
-        } else {
-            Version(dependency.version).extra ?: ""
-        }
+        val projectVersionExtra =
+            if (version.get() == AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION) {
+                "-alpha01"
+            } else {
+                Version(version.get()).extra ?: ""
+            }
+        val dependencyVersionExtra =
+            if (dependency.version == AndroidXExtension.DEFAULT_UNSPECIFIED_VERSION) {
+                "-alpha01"
+            } else {
+                Version(dependency.version).extra ?: ""
+            }
         val projectReleasePhase = releasePhase(projectVersionExtra)
         if (projectReleasePhase < 0) {
-            throw GradleException(
-                "Project has unexpected release phase $projectVersionExtra"
-            )
+            throw GradleException("Project has unexpected release phase $projectVersionExtra")
         }
         val dependencyReleasePhase = releasePhase(dependencyVersionExtra)
         if (dependencyReleasePhase < 0) {
@@ -111,8 +104,10 @@ abstract class VerifyDependencyVersionsTask : DefaultTask() {
             3
         } else if (versionExtra.startsWith("-beta")) {
             2
-        } else if (versionExtra.startsWith("-alpha") || versionExtra.startsWith("-qpreview") ||
-            versionExtra.startsWith("-dev")
+        } else if (
+            versionExtra.startsWith("-alpha") ||
+                versionExtra.startsWith("-qpreview") ||
+                versionExtra.startsWith("-dev")
         ) {
             1
         } else {
@@ -142,31 +137,32 @@ internal fun Project.createVerifyDependencyVersionsTask():
         return null
     }
 
-    val taskProvider = tasks.register(
-        "verifyDependencyVersions",
-        VerifyDependencyVersionsTask::class.java
-    ) { task ->
-        task.version.set(project.version.toString())
-        task.androidXDependencySet.set(project.provider {
-            val dependencies = mutableSetOf<AndroidXDependency>()
-            project.configurations.filter(::shouldVerifyConfiguration).forEach { configuration ->
-                configuration.allDependencies.filter(
-                    ::shouldVerifyDependency
-                ).forEach { dependency ->
-                    dependencies.add(
-                        AndroidXDependency(
-                            dependency.group!!,
-                            dependency.name,
-                            dependency.version!!,
-                            configuration.name
-                        )
-                    )
+    val taskProvider =
+        tasks.register("verifyDependencyVersions", VerifyDependencyVersionsTask::class.java) { task
+            ->
+            task.version.set(project.version.toString())
+            task.androidXDependencySet.set(
+                project.provider {
+                    val dependencies = mutableSetOf<AndroidXDependency>()
+                    project.configurations.filter(::shouldVerifyConfiguration).forEach {
+                        configuration ->
+                        configuration.allDependencies.filter(::shouldVerifyDependency).forEach {
+                            dependency ->
+                            dependencies.add(
+                                AndroidXDependency(
+                                    dependency.group!!,
+                                    dependency.name,
+                                    dependency.version!!,
+                                    configuration.name
+                                )
+                            )
+                        }
+                    }
+                    dependencies
                 }
-            }
-            dependencies
-        })
-        task.cacheEvenIfNoOutputs()
-    }
+            )
+            task.cacheEvenIfNoOutputs()
+        }
     addToBuildOnServer(taskProvider)
     return taskProvider
 }

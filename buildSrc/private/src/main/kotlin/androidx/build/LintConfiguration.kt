@@ -42,9 +42,7 @@ fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
         it.dependsOn(lintTask)
         it.enabled = false
     }
-    tasks.register("lintAnalyzeDebug") {
-        it.enabled = false
-    }
+    tasks.register("lintAnalyzeDebug") { it.enabled = false }
     tasks.register("lintRelease") {
         it.dependsOn(lintTask)
         it.enabled = false
@@ -65,9 +63,7 @@ fun Project.configureAndroidProjectForLint(
         // makes sure that the lintDebug task will exist, so we can find it by name
         setUpLintDebugIfNeeded()
     }
-    tasks.register("lintAnalyze") {
-        it.enabled = false
-    }
+    tasks.register("lintAnalyze") { it.enabled = false }
     configureLint(lint, extension, isLibrary)
     tasks.named("lint").configure { task ->
         // We already run lintDebug, we don't need to run lint which lints the release variant
@@ -111,18 +107,14 @@ fun Project.configureLintForAidl() {
 
         val mainAidl = extension.sourceSets.getByName("main").aidl.getSourceFiles()
 
-        /**
-         * Helper function to add the missing sourcesets to this [VariantInputs]
-         */
+        /** Helper function to add the missing sourcesets to this [VariantInputs] */
         fun VariantInputs.addSourceSets() {
             // Each variant has a source provider for the variant (such as debug) and the 'main'
             // variant. The actual files that Lint will run on is both of these providers
             // combined - so we can just add the dependencies to the first we see.
             val variantAidl = extension.sourceSets.getByName(name.get()).aidl.getSourceFiles()
             val sourceProvider = sourceProviders.get().firstOrNull() ?: return
-            sourceProvider.javaDirectories.withChangesAllowed {
-                from(mainAidl, variantAidl)
-            }
+            sourceProvider.javaDirectories.withChangesAllowed { from(mainAidl, variantAidl) }
         }
 
         // Lint for libraries is split into two tasks - analysis, and reporting. We need to
@@ -131,9 +123,7 @@ fun Project.configureLintForAidl() {
             it.variantInputs.addSourceSets()
         }
 
-        project.tasks.withType<AndroidLintTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
+        project.tasks.withType<AndroidLintTask>().configureEach { it.variantInputs.addSourceSets() }
 
         // Also configure the model writing task, so that we don't run into mismatches between
         // analyzed sources in one module and a downstream module
@@ -144,12 +134,13 @@ fun Project.configureLintForAidl() {
 }
 
 fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: Boolean) {
-    val lintChecksProject = project.rootProject.findProject(":lint-checks")
-        ?: if (allowMissingLintProject()) {
-            return
-        } else {
-            throw GradleException("Project :lint-checks does not exist")
-        }
+    val lintChecksProject =
+        project.rootProject.findProject(":lint-checks")
+            ?: if (allowMissingLintProject()) {
+                return
+            } else {
+                throw GradleException("Project :lint-checks does not exist")
+            }
 
     project.dependencies.add("lintChecks", lintChecksProject)
 
@@ -246,8 +237,8 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
             // Some Kotlin projects may wish to disable this.
             if (
                 isLibrary &&
-                !disable.contains("SyntheticAccessor") &&
-                extension.type != LibraryType.SAMPLES
+                    !disable.contains("SyntheticAccessor") &&
+                    extension.type != LibraryType.SAMPLES
             ) {
                 fatal.add("SyntheticAccessor")
             }
@@ -284,11 +275,12 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
 
         // If the project has not overridden the lint config, set the default one.
         if (lintConfig == null) {
-            val lintXmlPath = if (extension.type == LibraryType.SAMPLES) {
-                "buildSrc/lint_samples.xml"
-            } else {
-                "buildSrc/lint.xml"
-            }
+            val lintXmlPath =
+                if (extension.type == LibraryType.SAMPLES) {
+                    "buildSrc/lint_samples.xml"
+                } else {
+                    "buildSrc/lint.xml"
+                }
             // suppress warnings more specifically than issue-wide severity (regexes)
             // Currently suppresses warnings from baseline files working as intended
             lintConfig = File(project.getSupportRootFolder(), lintXmlPath)
@@ -299,35 +291,30 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
 }
 
 /**
- * Lint on multiplatform  projects is only applied to Java code and android source sets. To force it
+ * Lint on multiplatform projects is only applied to Java code and android source sets. To force it
  * to run on JVM code, we add the java source sets that lint looks for, but use the sources
  * directories of the JVM source sets if they exist.
  */
 fun Project.configureLintForMultiplatform(extension: AndroidXExtension) = afterEvaluate {
     // if lint has been applied through some other mechanism, this step is unnecessary
-    runCatching { project.tasks.named("lint") }.onSuccess { return@afterEvaluate }
-    val jvmTarget = project.multiplatformExtension?.targets?.findByName("jvm")
-        ?: return@afterEvaluate
-    val runtimeConfiguration = project.configurations.findByName("jvmRuntimeElements")
-        ?: return@afterEvaluate
-    val apiConfiguration = project.configurations.findByName("jvmApiElements")
-        ?: return@afterEvaluate
-    val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)
-        ?: return@afterEvaluate
+    runCatching { project.tasks.named("lint") }
+        .onSuccess {
+            return@afterEvaluate
+        }
+    val jvmTarget =
+        project.multiplatformExtension?.targets?.findByName("jvm") ?: return@afterEvaluate
+    val runtimeConfiguration =
+        project.configurations.findByName("jvmRuntimeElements") ?: return@afterEvaluate
+    val apiConfiguration =
+        project.configurations.findByName("jvmApiElements") ?: return@afterEvaluate
+    val javaExtension =
+        project.extensions.findByType(JavaPluginExtension::class.java) ?: return@afterEvaluate
     project.configurations.maybeCreate("runtimeElements").apply {
         extendsFrom(runtimeConfiguration)
     }
-    project.configurations.maybeCreate("apiElements").apply {
-        extendsFrom(apiConfiguration)
-    }
-    val mainSourceSets = jvmTarget
-        .compilations
-        .getByName("main")
-        .kotlinSourceSets
-    val testSourceSets = jvmTarget
-        .compilations
-        .getByName("test")
-        .kotlinSourceSets
+    project.configurations.maybeCreate("apiElements").apply { extendsFrom(apiConfiguration) }
+    val mainSourceSets = jvmTarget.compilations.getByName("main").kotlinSourceSets
+    val testSourceSets = jvmTarget.compilations.getByName("test").kotlinSourceSets
     javaExtension.sourceSets.maybeCreate("main").apply {
         java.setSrcDirs(mainSourceSets.flatMap { it.kotlin.srcDirs })
         java.classesDirectory
@@ -346,8 +333,8 @@ fun Project.configureLintForMultiplatform(extension: AndroidXExtension) = afterE
 /**
  * Lint uses [ConfigurableFileCollection.disallowChanges] during initialization, which prevents
  * modifying the file collection separately (there is no time to configure it before AGP has
- * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
- * apply [block].
+ * initialized and disallowed changes). This uses reflection to temporarily allow changes, and apply
+ * [block].
  */
 private fun ConfigurableFileCollection.withChangesAllowed(
     block: ConfigurableFileCollection.() -> Unit
@@ -359,5 +346,5 @@ private fun ConfigurableFileCollection.withChangesAllowed(
     disallowChanges.set(this, true)
 }
 
-val Project.lintBaseline: RegularFileProperty get() =
-    project.objects.fileProperty().fileValue(File(projectDir, "/lint-baseline.xml"))
+val Project.lintBaseline: RegularFileProperty
+    get() = project.objects.fileProperty().fileValue(File(projectDir, "/lint-baseline.xml"))

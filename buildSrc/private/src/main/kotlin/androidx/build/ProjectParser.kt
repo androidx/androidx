@@ -23,13 +23,10 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
 abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
-    @Transient
-    val cache: MutableMap<File, ParsedProject> = ConcurrentHashMap()
+    @Transient val cache: MutableMap<File, ParsedProject> = ConcurrentHashMap()
 
     fun get(buildFile: File): ParsedProject {
-        return cache.getOrPut(
-            key = buildFile
-        ) {
+        return cache.getOrPut(key = buildFile) {
             val text = buildFile.readLines()
             parseProject(text)
         }
@@ -40,12 +37,9 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
         var publish: String? = null
         var specifiesVersion = false
         fileLines.forEach { line ->
-            if (libraryType == null)
-                libraryType = line.extractVariableValue(" type = LibraryType.")
-            if (publish == null)
-                publish = line.extractVariableValue(" publish = Publish.")
-            if (line.contains("mavenVersion ="))
-                specifiesVersion = true
+            if (libraryType == null) libraryType = line.extractVariableValue(" type = LibraryType.")
+            if (publish == null) publish = line.extractVariableValue(" publish = Publish.")
+            if (line.contains("mavenVersion =")) specifiesVersion = true
         }
         val libraryTypeEnum = libraryType?.let { LibraryType.valueOf(it) } ?: LibraryType.UNSET
         val publishEnum = publish?.let { Publish.valueOf(it) } ?: Publish.UNSET
@@ -86,8 +80,7 @@ private fun String.extractVariableValue(prefix: String): String? {
     if (declarationIndex >= 0) {
         val suffix = this.substring(declarationIndex + prefix.length)
         val spaceIndex = suffix.indexOf(" ")
-        if (spaceIndex > 0)
-            return suffix.substring(0, spaceIndex)
+        if (spaceIndex > 0) return suffix.substring(0, spaceIndex)
         return suffix
     }
     return null
@@ -104,11 +97,11 @@ fun Project.parseBuildFile(buildFile: File): ProjectParser.ParsedProject {
             File(buildFile.parentFile.parentFile, "material-icons-extended/generate.gradle")
         )
     }
-    val parserProvider = project.rootProject.gradle.sharedServices.registerIfAbsent(
-        "ProjectParser",
-        ProjectParser::class.java
-    ) {
-    }
+    val parserProvider =
+        project.rootProject.gradle.sharedServices.registerIfAbsent(
+            "ProjectParser",
+            ProjectParser::class.java
+        ) {}
     val parser = parserProvider.get()
     return parser.get(buildFile)
 }

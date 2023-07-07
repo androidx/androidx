@@ -22,30 +22,35 @@ import androidx.stableaidl.withStableAidlPlugin
 import java.io.File
 import org.gradle.api.Project
 
-fun Project.setupWithStableAidlPlugin() = this.withStableAidlPlugin { ext ->
-    ext.checkAction.apply {
-        before(project.tasks.named("check"))
-        before(project.tasks.named(BUILD_ON_SERVER_TASK))
-        before(project.tasks.register("checkAidlApi") { task ->
-            task.group = "API"
-            task.description = "Checks that the API surface generated Stable AIDL sources " +
-                "matches the checked in API surface"
-        })
+fun Project.setupWithStableAidlPlugin() =
+    this.withStableAidlPlugin { ext ->
+        ext.checkAction.apply {
+            before(project.tasks.named("check"))
+            before(project.tasks.named(BUILD_ON_SERVER_TASK))
+            before(
+                project.tasks.register("checkAidlApi") { task ->
+                    task.group = "API"
+                    task.description =
+                        "Checks that the API surface generated Stable AIDL sources " +
+                            "matches the checked in API surface"
+                }
+            )
+        }
+
+        ext.updateAction.apply {
+            before(project.tasks.named("updateApi"))
+            before(
+                project.tasks.register("updateAidlApi") { task ->
+                    task.group = "API"
+                    task.description =
+                        "Updates the checked in API surface based on Stable AIDL sources"
+                }
+            )
+        }
+
+        // Don't show tasks added by the Stable AIDL plugin.
+        ext.taskGroup = null
+
+        // Use a single top-level directory for shadow framework definitions.
+        ext.addStaticImportDirs(File(project.getSupportRootFolder(), "buildSrc/stableAidlImports"))
     }
-
-    ext.updateAction.apply {
-        before(project.tasks.named("updateApi"))
-        before(project.tasks.register("updateAidlApi") { task ->
-            task.group = "API"
-            task.description = "Updates the checked in API surface based on Stable AIDL sources"
-        })
-    }
-
-    // Don't show tasks added by the Stable AIDL plugin.
-    ext.taskGroup = null
-
-    // Use a single top-level directory for shadow framework definitions.
-    ext.addStaticImportDirs(
-        File(project.getSupportRootFolder(), "buildSrc/stableAidlImports")
-    )
-}

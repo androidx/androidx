@@ -28,11 +28,9 @@ import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Doesn't benefit from cache")
 open class SingleFileCopy : DefaultTask() {
-    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE)
-    lateinit var sourceFile: File
+    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) lateinit var sourceFile: File
 
-    @OutputFile
-    lateinit var destinationFile: File
+    @OutputFile lateinit var destinationFile: File
 
     @TaskAction
     fun copyFile() {
