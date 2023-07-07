@@ -631,6 +631,10 @@ constructor(
                     ":profileinstaller:integration-tests:" +
                         "profile-verification-sample-no-initializer",
                     ":benchmark:integration-tests:baselineprofile-consumer",
+                ),
+                setOf(
+                    ":window:integration-tests:macrobenchmark",
+                    ":window:integration-tests:macrobenchmark-target",
                 )
             )
 
