@@ -66,7 +66,7 @@ private val buildGradle = """
     """.trimIndent()
 
 @RunWith(Parameterized::class)
-class BaselineProfileAppTargetPluginTest(agpVersion: String) {
+class BaselineProfileAppTargetPluginTest(agpVersion: String?) {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion)
