@@ -55,8 +55,7 @@ public final class BundleCompat {
      * <p>
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and above, this method matches platform behavior.
      *     <li>SDK 33 and below, the object type is checked after deserialization.
      * </ul>
      *
@@ -70,7 +69,8 @@ public final class BundleCompat {
     @SuppressWarnings({"deprecation", "unchecked"})
     public static <T> T getParcelable(@NonNull Bundle in, @Nullable String key,
             @NonNull Class<T> clazz) {
-        if (Build.VERSION.SDK_INT >= 33) {
+        // Even though API was introduced in 33, we use 34 as 33 is bugged in some scenarios.
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getParcelable(in, key, clazz);
         } else {
             T parcelable = in.getParcelable(key);
@@ -92,8 +92,7 @@ public final class BundleCompat {
      * <p>
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and above, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -107,7 +106,8 @@ public final class BundleCompat {
     @SuppressLint({"ArrayReturn", "NullableCollection"})
     public static Parcelable[] getParcelableArray(@NonNull Bundle in, @Nullable String key,
             @NonNull Class<? extends Parcelable> clazz) {
-        if (Build.VERSION.SDK_INT >= 33) {
+        // Even though API was introduced in 33, we use 34 as 33 is bugged in some scenarios.
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getParcelableArray(in, key, clazz);
         } else {
             return in.getParcelableArray(key);
@@ -128,8 +128,7 @@ public final class BundleCompat {
      * <p>
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and above, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the list elements' types.
      * </ul>
      *
@@ -144,7 +143,8 @@ public final class BundleCompat {
     @SuppressLint({"ConcreteCollection", "NullableCollection"})
     public static  <T> ArrayList<T> getParcelableArrayList(@NonNull Bundle in, @Nullable String key,
             @NonNull Class<? extends T> clazz) {
-        if (Build.VERSION.SDK_INT >= 33) {
+        // Even though API was introduced in 33, we use 34 as 33 is bugged in some scenarios.
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getParcelableArrayList(in, key, clazz);
         } else {
             return (ArrayList<T>) in.getParcelableArrayList(key);
@@ -161,8 +161,7 @@ public final class BundleCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and above, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -176,7 +175,7 @@ public final class BundleCompat {
     @Nullable
     public static <T> SparseArray<T> getSparseParcelableArray(@NonNull Bundle in,
             @Nullable String key, @NonNull Class<? extends T> clazz) {
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getSparseParcelableArray(in, key, clazz);
         } else {
             return (SparseArray<T>) in.getSparseParcelableArray(key);
