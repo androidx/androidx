@@ -29,17 +29,23 @@ import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.ClearCredentialUnsupportedException
 import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialCustomException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialUnsupportedException
 import androidx.credentials.exceptions.NoCredentialException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialException
 import androidx.credentials.internal.FrameworkImplHelper
 import java.util.concurrent.Executor
 
@@ -275,6 +281,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
     internal fun convertToJetpackGetException(error: android.credentials.GetCredentialException):
         GetCredentialException {
+
         return when (error.type) {
             android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL ->
                 NoCredentialException(error.message)
@@ -285,7 +292,16 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             android.credentials.GetCredentialException.TYPE_INTERRUPTED ->
                 GetCredentialInterruptedException(error.message)
 
-            else -> GetCredentialUnknownException(error.message)
+            android.credentials.GetCredentialException.TYPE_UNKNOWN ->
+                GetCredentialUnknownException(error.message)
+
+            else -> {
+                if (error.type.startsWith(GET_DOM_EXCEPTION_PREFIX)) {
+                    GetPublicKeyCredentialException.createFrom(error.type, error.message)
+                } else {
+                    GetCredentialCustomException(error.type, error.message)
+                }
+            }
         }
     }
 
@@ -302,7 +318,16 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             android.credentials.CreateCredentialException.TYPE_INTERRUPTED ->
                 CreateCredentialInterruptedException(error.message)
 
-            else -> CreateCredentialUnknownException(error.message)
+            android.credentials.CreateCredentialException.TYPE_UNKNOWN ->
+                CreateCredentialUnknownException(error.message)
+
+            else -> {
+                if (error.type.startsWith(CREATE_DOM_EXCEPTION_PREFIX)) {
+                    CreatePublicKeyCredentialException.createFrom(error.type, error.message)
+                } else {
+                    CreateCredentialCustomException(error.type, error.message)
+                }
+            }
         }
     }
 
@@ -373,5 +398,10 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
     private companion object {
         private const val TAG = "CredManProvService"
+
+        private const val GET_DOM_EXCEPTION_PREFIX =
+            GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
+        private const val CREATE_DOM_EXCEPTION_PREFIX =
+            CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
     }
 }
