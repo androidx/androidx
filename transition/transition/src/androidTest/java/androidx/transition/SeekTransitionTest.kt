@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.LinearLayout
-import androidx.core.os.BuildCompat
 import androidx.core.util.Consumer
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.MediumTest
@@ -70,7 +69,7 @@ class SeekTransitionTest : BaseTest() {
     @Test(expected = IllegalArgumentException::class)
     @UiThreadTest
     fun onlySeekingTransitions() {
-        if (!BuildCompat.isAtLeastU()) throw IllegalArgumentException()
+        if (Build.VERSION.SDK_INT < 34) throw IllegalArgumentException()
         transition = object : Visibility() {}
         TransitionManager.controlDelayedTransition(root, transition)
         fail("Expected IllegalArgumentException")
@@ -78,7 +77,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun waitForReady() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         @Suppress("UNCHECKED_CAST")
@@ -100,7 +99,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun waitForReadyNoChange() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         @Suppress("UNCHECKED_CAST")
@@ -121,7 +120,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun addListenerAfterReady() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         @Suppress("UNCHECKED_CAST")
@@ -149,7 +148,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekTransition() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -189,7 +188,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animationDoesNotTakeOverSeek() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -232,7 +231,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekCannotTakeOverAnimation() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -272,7 +271,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekCannotTakeOverSeek() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController1: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -318,7 +317,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekReplacesSeek() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController1: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -361,7 +360,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToEnd() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -388,7 +387,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToStart() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -429,7 +428,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToStartAfterAnimateToEnd() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -459,7 +458,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToEndAfterAnimateToStart() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -489,7 +488,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test(expected = IllegalStateException::class)
     fun seekAfterAnimate() {
-        if (!BuildCompat.isAtLeastU()) throw IllegalStateException("Not supported before U")
+        if (Build.VERSION.SDK_INT < 34) throw IllegalStateException("Not supported before U")
         lateinit var seekController: TransitionSeekController
         transition.duration = 5000
 
@@ -510,7 +509,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekTransitionSet() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -580,7 +579,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToEndTransitionSet() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -630,7 +629,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToStartTransitionSet() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -696,7 +695,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun cancelPartOfTransitionSet() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -764,7 +763,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun onTransitionCallsForwardAndReversed() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         val listener = spy(TransitionListenerAdapter())
         transition = Fade()
         transition.addListener(listener)
@@ -793,7 +792,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun onTransitionCallsForwardAndReversedTransitionSet() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         val fadeOut = Fade(Fade.MODE_OUT)
         val outListener = spy(TransitionListenerAdapter())
         fadeOut.addListener(outListener)
@@ -882,7 +881,7 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun pauseResumeOnSeek() {
-        if (!BuildCompat.isAtLeastU()) return
+        if (Build.VERSION.SDK_INT < 34) return
         var pauseCount = 0
         var resumeCount = 0
         var setPauseCount = 0

@@ -17,6 +17,7 @@
 package androidx.transition;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +25,8 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 
 import java.lang.ref.WeakReference;
@@ -442,20 +441,19 @@ public class TransitionManager {
      * @param transition The transition to use for this change.
      * @return a {@link TransitionSeekController} that can be used control the animation to the
      * destination scene. {@code null} is returned when seeking is not supported on the scene,
-     * either because it is running on {@link android.os.Build.VERSION_CODES.TIRAMISU} or earlier,
+     * either because it is running on {@link android.os.Build.VERSION_CODES#TIRAMISU} or earlier,
      * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
      * had a layout yet.
      * @throws IllegalArgumentException if {@code transition} returns {@code false} from
      * {@link Transition#isSeekingSupported()}.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static TransitionSeekController controlDelayedTransition(
             @NonNull final ViewGroup sceneRoot,
             @NonNull Transition transition
     ) {
         if (sPendingTransitions.contains(sceneRoot) || !ViewCompat.isLaidOut(sceneRoot)
-                || !BuildCompat.isAtLeastU()) {
+                || Build.VERSION.SDK_INT < 34) {
             return null;
         }
         if (!transition.isSeekingSupported()) {

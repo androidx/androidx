@@ -48,13 +48,11 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.view.ViewCompat;
 
@@ -744,7 +742,6 @@ public abstract class Transition implements Cloneable {
      * TransitionSet subclass overrides this method and delegates it to
      * each of its children in succession.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     void createAnimators(@NonNull ViewGroup sceneRoot, @NonNull TransitionValuesMaps startValues,
             @NonNull TransitionValuesMaps endValues,
             @NonNull ArrayList<TransitionValues> startValuesList,
@@ -1863,7 +1860,6 @@ public abstract class Transition implements Cloneable {
      * createAnimators() to set things up and create all of the animations and then
      * runAnimations() to actually start the animations.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     void playTransition(@NonNull ViewGroup sceneRoot) {
         mStartValuesList = new ArrayList<>();
         mEndValuesList = new ArrayList<>();
@@ -1922,7 +1918,7 @@ public abstract class Transition implements Cloneable {
         createAnimators(sceneRoot, mStartValues, mEndValues, mStartValuesList, mEndValuesList);
         if (mSeekController == null) {
             runAnimators();
-        } else if (BuildCompat.isAtLeastU()) {
+        } else if (Build.VERSION.SDK_INT >= 34) {
             prepareAnimatorsForSeeking();
             mSeekController.setCurrentPlayTimeMillis(0);
             mSeekController.ready();

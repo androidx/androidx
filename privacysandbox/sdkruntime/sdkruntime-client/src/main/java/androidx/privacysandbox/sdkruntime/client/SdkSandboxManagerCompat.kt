@@ -21,14 +21,13 @@ import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
-import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
@@ -477,9 +476,8 @@ class SdkSandboxManagerCompat private constructor(
 
     private object PlatformApiFactory {
         @SuppressLint("NewApi", "ClassVerificationFailure")
-        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(context: Context): PlatformApi {
-            return if (BuildCompat.isAtLeastU() || AdServicesInfo.isDeveloperPreview()) {
+            return if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
                 ApiAdServicesUDCImpl(context)
             } else if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(context)

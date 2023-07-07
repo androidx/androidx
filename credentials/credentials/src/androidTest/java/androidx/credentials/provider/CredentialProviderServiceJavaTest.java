@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.OutcomeReceiver;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -35,15 +34,11 @@ import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 34)
 public class CredentialProviderServiceJavaTest {
 
     @Test
     public void test_createRequest() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         CredentialProviderServiceTestImpl service = new CredentialProviderServiceTestImpl();
         service.setTestMode(true);
 
@@ -72,10 +67,6 @@ public class CredentialProviderServiceJavaTest {
 
     @Test
     public void test_getRequest() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         CredentialProviderServiceTestImpl service = new CredentialProviderServiceTestImpl();
         service.setTestMode(true);
 
@@ -104,10 +95,6 @@ public class CredentialProviderServiceJavaTest {
 
     @Test
     public void test_clearRequest() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         CredentialProviderServiceTestImpl service = new CredentialProviderServiceTestImpl();
         service.setTestMode(true);
 
