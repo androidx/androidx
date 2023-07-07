@@ -246,6 +246,7 @@ public class BufferedAudioStream implements AudioStream {
             // Pop audio data when the queue size exceeds the limit.
             while (mAudioDataQueue.size() > queueMaxSize) {
                 mAudioDataQueue.poll();
+                Logger.w(TAG, "Drop audio data due to full of queue.");
             }
         }
 
