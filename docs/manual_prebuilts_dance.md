@@ -1,8 +1,8 @@
-# The Manual Prebuilts Dance™
+# Manually updating prebuilts
 
-NOTE There is also a
-[script](/company/teams/androidx/releasing_detailed.md#the-prebuilts-dance™)
-that automates this step.
+NOTE Most updates to internal AndroidX prebuilts should occur via the scripted
+[The Prebuilts Dance™](/company/teams/androidx/releasing_prebuilts_dance.md#the-prebuilts-dance™)
+process.
 
 Public-facing Jetpack library docs are built from prebuilts to reconcile our
 monolithic docs update process with our independently-versioned library release
