@@ -30,14 +30,12 @@ import static org.mockito.Mockito.verify;
 import android.app.Instrumentation;
 import android.app.UiAutomation;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -51,6 +49,8 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UiDeviceTest {
 
@@ -81,36 +81,35 @@ public class UiDeviceTest {
     }
 
     @Test
-    public void testGetDisplaySizeDp() {
-        DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
-                .getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(dm);
-        assertEquals(Math.round(dm.widthPixels / dm.density), mDevice.getDisplaySizeDp().x);
-        assertEquals(Math.round(dm.heightPixels / dm.density), mDevice.getDisplaySizeDp().y);
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    public void testGetDisplayMetrics() throws IOException {
+        String densityCmdOutput = mDevice.executeShellCommand("wm density");
+        Pattern densityPattern = Pattern.compile("^Physical\\sdensity:\\s(\\d+)\\D+.*");
+        Matcher densityMatcher = densityPattern.matcher(densityCmdOutput);
+        assertTrue(densityMatcher.find());
+        String densityDpi = densityMatcher.group(1);
+        assertNotNull(densityDpi);
+        float density = Float.parseFloat(densityDpi) / DisplayMetrics.DENSITY_DEFAULT;
+
+        try {
+            int width = 800;
+            int height = 400;
+            mDevice.executeShellCommand(String.format("wm size %dx%d", width, height));
+
+            Point expectedSizeDp = new Point(Math.round(width / density),
+                    Math.round(height / density));
+
+            assertEquals(width, mDevice.getDisplayWidth());
+            assertEquals(height, mDevice.getDisplayHeight());
+            assertEquals(expectedSizeDp, mDevice.getDisplaySizeDp());
+        } finally {
+            mDevice.executeShellCommand("wm size reset");
+        }
     }
 
     @Test
     public void testGetProductName() {
         assertEquals(Build.PRODUCT, mDevice.getProductName());
-    }
-
-    @Test
-    public void testGetDisplayWidth() {
-        DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
-                .getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(dm);
-        assertEquals(dm.widthPixels, mDevice.getDisplayWidth());
-    }
-
-    @Test
-    public void testGetDisplayHeight() {
-        DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) mDevice.getUiContext(Display.DEFAULT_DISPLAY)
-                .getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(dm);
-        assertEquals(dm.heightPixels, mDevice.getDisplayHeight());
     }
 
     @Test

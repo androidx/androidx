@@ -39,6 +39,7 @@ import androidx.test.uiautomator.Until;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -108,6 +109,24 @@ public class MultiDisplayTest extends BaseTest {
                 mDevice.findObject(By.hasAncestor(validAncestorSelector).displayId(
                         secondaryDisplayId).textContains("4"));
         assertEquals("tree_N4", validDescendant.getText());
+    }
+
+    @Test
+    public void testMultiDisplay_displayMetrics() throws IOException {
+        int secondaryDisplayId = getSecondaryDisplayId();
+
+        try {
+            int width = 800;
+            int height = 400;
+            mDevice.executeShellCommand(
+                    String.format("wm size %dx%d -d %d", width, height, secondaryDisplayId));
+
+            assertEquals(width, mDevice.getDisplayWidth(secondaryDisplayId));
+            assertEquals(height, mDevice.getDisplayHeight(secondaryDisplayId));
+        } finally {
+            mDevice.executeShellCommand(
+                    String.format("wm size reset -d %d", secondaryDisplayId));
+        }
     }
 
     // Helper to launch an activity on a specific display.
