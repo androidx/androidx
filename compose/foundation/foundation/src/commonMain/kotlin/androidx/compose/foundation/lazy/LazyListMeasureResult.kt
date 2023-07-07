@@ -35,7 +35,7 @@ internal class LazyListMeasureResult(
     val consumedScroll: Float,
     /** MeasureResult defining the layout.*/
     measureResult: MeasureResult,
-    /** The amount of scroll-back that happened due to reaching the end of the list. **/
+    /** The amount of scroll-back that happened due to reaching the end of the list. */
     val scrollBackAmount: Float,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyListLayoutInfo.visibleItemsInfo] */

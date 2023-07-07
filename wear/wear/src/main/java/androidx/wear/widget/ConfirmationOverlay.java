@@ -101,10 +101,10 @@ public class ConfirmationOverlay {
         void onAnimationFinished();
     }
 
-    /** Default animation duration in ms. **/
+    /** Default animation duration in ms. */
     public static final int DEFAULT_ANIMATION_DURATION_MS = 1000;
 
-    /** Default animation duration in ms. **/
+    /** Default animation duration in ms. */
     private static final int A11Y_ANIMATION_DURATION_MS = 5000;
 
     /** Types of animations to display in the overlay. */

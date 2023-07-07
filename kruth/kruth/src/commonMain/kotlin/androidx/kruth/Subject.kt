@@ -67,7 +67,7 @@ open class Subject<out T>(
 
     /**
      * Fails if the subject is null.
-     **/
+     */
     open fun isNotNull() {
         actual.standardIsNotEqualTo(null)
     }
@@ -134,7 +134,7 @@ open class Subject<out T>(
 
     /**
      * Fails if the subject is an instance of the given class.
-     **/
+     */
     inline fun <reified V> isNotInstanceOf() {
         if (actual is V) {
             doFail("Expected $actual to be not an instance of ${typeOf<V>()} but it was")

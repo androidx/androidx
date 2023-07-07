@@ -37,7 +37,7 @@ import com.google.common.collect.ImmutableSet;
 @ExperimentalCarApi
 @RequiresCarApi(7)
 public class ContentTemplateConstraints {
-    /** Allowed templates for Map with Content Templates **/
+    /** Allowed templates for Map with Content Templates */
     @NonNull
     public static final ContentTemplateConstraints MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(
@@ -45,7 +45,7 @@ public class ContentTemplateConstraints {
                     MessageTemplate.class
             ));
 
-    /** Allowed templates for TabContents **/
+    /** Allowed templates for TabContents */
     @NonNull
     public static final ContentTemplateConstraints TAB_CONTENTS_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(

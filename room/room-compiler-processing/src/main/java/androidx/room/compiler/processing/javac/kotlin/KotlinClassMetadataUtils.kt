@@ -201,9 +201,9 @@ internal class KmClassContainer(
 }
 
 internal interface KmFunctionContainer : KmFlags {
-    /** Name of the function in source code **/
+    /** Name of the function in source code */
     val name: String
-    /** Name of the function in byte code **/
+    /** Name of the function in byte code */
     val jvmName: String
     val descriptor: String
     val typeParameters: List<KmTypeParameterContainer>

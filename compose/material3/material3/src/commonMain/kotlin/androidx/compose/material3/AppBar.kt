@@ -981,10 +981,10 @@ class TopAppBarColors constructor(
 /** Contains default values used for the bottom app bar implementations. */
 object BottomAppBarDefaults {
 
-    /** Default color used for [BottomAppBar] container **/
+    /** Default color used for [BottomAppBar] container */
     val containerColor: Color @Composable get() = BottomAppBarTokens.ContainerColor.toColor()
 
-    /** Default elevation used for [BottomAppBar] **/
+    /** Default elevation used for [BottomAppBar] */
     val ContainerElevation: Dp = BottomAppBarTokens.ContainerElevation
 
     /**

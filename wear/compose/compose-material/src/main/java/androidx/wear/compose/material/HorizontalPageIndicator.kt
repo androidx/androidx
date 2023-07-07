@@ -82,7 +82,7 @@ import kotlin.math.abs
  * @param spacing The spacing between indicator items in [Dp]
  * @param indicatorShape The shape of each [HorizontalPageIndicator] item.
  * Defaults to [CircleShape]
- **/
+ */
 @Composable
 public fun HorizontalPageIndicator(
     pageIndicatorState: PageIndicatorState,

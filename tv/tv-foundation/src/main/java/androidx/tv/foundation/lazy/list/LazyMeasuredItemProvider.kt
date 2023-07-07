@@ -53,7 +53,7 @@ internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
+     */
     val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
 }
 

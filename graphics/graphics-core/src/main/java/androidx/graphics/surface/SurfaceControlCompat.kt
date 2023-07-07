@@ -520,7 +520,7 @@ class SurfaceControlCompat internal constructor(
          *
          * Must be finite && >= 1.0f
          * @return this
-         **/
+         */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         fun setExtendedRangeBrightness(
             surfaceControl: SurfaceControlCompat,
