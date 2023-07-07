@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Lejátszás eszközcsoportban"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Nincs információ"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Nincs rendelkezésre álló eszköz"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Gondoskodjon arról, hogy a másik eszköz ugyanahhoz a Wi-Fi-hálózathoz csatlakozzon, mint ez a telefon."</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Gondoskodjon arról, hogy a másik eszköz ugyanahhoz a Wi-Fi-hálózathoz csatlakozzon, mint ez a táblagép."</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Gondoskodjon arról, hogy a másik eszköz ugyanahhoz a Wi-Fi-hálózathoz csatlakozzon, mint ez a tévé."</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Gondoskodjon arról, hogy a másik eszköz ugyanahhoz a Wi-Fi-hálózathoz csatlakozzon, mint ez az óra."</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Gondoskodjon arról, hogy a másik eszköz ugyanahhoz a Wi-Fi-hálózathoz csatlakozzon, mint ez az autó."</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Gondoskodjon arról, hogy a másik eszköz ugyanahhoz a Wi-Fi-hálózathoz csatlakozzon, mint ez az eszköz."</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"További információ"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"A tartalomátküldés elsajátítása"</string>
 </resources>

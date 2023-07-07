@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Reproducir en un grupo"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"No hay información disponible"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"No hay dispositivos disponibles"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Asegúrate de que el otro dispositivo esté conectado a la misma red Wi-Fi que este teléfono"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Asegúrate de que el otro dispositivo esté conectado a la misma red Wi-Fi que esta tablet"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Asegúrate de que el otro dispositivo esté conectado a la misma red Wi-Fi que esta televisión"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Asegúrate de que el otro dispositivo esté conectado a la misma red Wi-Fi que este reloj"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Asegúrate de que el otro dispositivo esté conectado a la misma red Wi-Fi que este coche"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Asegúrate de que el otro dispositivo esté conectado a la misma red Wi-Fi que este dispositivo"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Más información"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Consulta cómo enviar contenido"</string>
 </resources>
