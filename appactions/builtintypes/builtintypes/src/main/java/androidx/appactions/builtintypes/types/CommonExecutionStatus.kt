@@ -52,7 +52,9 @@ public interface CommonExecutionStatus : ExecutionStatus {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**

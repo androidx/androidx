@@ -52,7 +52,9 @@ public interface ExecutionStatus : Intangible {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ExecutionStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = ExecutionStatusImpl.Builder()
   }
 
   /**

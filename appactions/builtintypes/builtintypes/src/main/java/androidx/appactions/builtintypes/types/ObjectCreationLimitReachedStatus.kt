@@ -53,7 +53,9 @@ public interface ObjectCreationLimitReachedStatus : ExecutionStatus {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ObjectCreationLimitReachedStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = ObjectCreationLimitReachedStatusImpl.Builder()
   }
 
   /**

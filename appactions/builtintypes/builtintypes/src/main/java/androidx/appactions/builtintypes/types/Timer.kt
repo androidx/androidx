@@ -56,7 +56,7 @@ public interface Timer : Thing {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = TimerImpl.Builder()
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = TimerImpl.Builder()
   }
 
   /**
