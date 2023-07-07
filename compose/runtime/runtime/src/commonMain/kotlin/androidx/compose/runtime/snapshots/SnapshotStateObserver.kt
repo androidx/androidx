@@ -362,6 +362,11 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
          */
         private val invalidated = IdentityArraySet<Any>()
 
+        /**
+         * Reusable vector for re-recording states inside [recordInvalidation]
+         */
+        private val statesToReread = mutableVectorOf<DerivedState<*>>()
+
         // derived state handling
 
         /**
@@ -555,7 +560,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                             }
                         } else {
                             // Re-read state to ensure its dependencies are up-to-date
-                            rereadDerivedState(derivedState)
+                            statesToReread.add(derivedState)
                         }
                     }
                 }
@@ -564,6 +569,13 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                     invalidated.add(scope)
                     hasValues = true
                 }
+            }
+
+            if (statesToReread.isNotEmpty()) {
+                statesToReread.forEach {
+                    rereadDerivedState(it)
+                }
+                statesToReread.clear()
             }
 
             return hasValues
