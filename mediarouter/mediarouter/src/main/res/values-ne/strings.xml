@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"कुनै समूहमा प्ले गर्नुहोस्"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"कुनै पनि जानकारी उपलब्ध छैन"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"कुनै पनि डिभाइस उपलब्ध छैन"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"यो फोन जुन Wi-Fi नेटवर्कमा कनेक्ट गरिएको छ अर्को डिभाइस पनि उही नेटवर्कमा कनेक्ट गरिएको छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"यो ट्याब्लेट जुन Wi-Fi नेटवर्कमा कनेक्ट गरिएको छ अर्को डिभाइस पनि उही नेटवर्कमा कनेक्ट गरिएको छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"यो टिभी जुन Wi-Fi नेटवर्कमा कनेक्ट गरिएको छ अर्को डिभाइस पनि उही नेटवर्कमा कनेक्ट गरिएको छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"यो स्मार्ट वाच जुन Wi-Fi नेटवर्कमा कनेक्ट गरिएको छ अर्को डिभाइस पनि उही नेटवर्कमा कनेक्ट गरिएको छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"यो कार जुन Wi-Fi नेटवर्कमा कनेक्ट गरिएको छ अर्को डिभाइस पनि उही नेटवर्कमा कनेक्ट गरिएको छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"यो डिभाइस जुन Wi-Fi नेटवर्कमा कनेक्ट गरिएको छ अर्को डिभाइस पनि उही नेटवर्कमा कनेक्ट गरिएको छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"थप जान्नुहोस्"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"कास्ट गर्ने तरिका सिक्नुहोस्"</string>
 </resources>

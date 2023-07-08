@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"గ్రూప్‌లో ప్లే చేయండి"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"సమాచారం అందుబాటులో లేదు"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"పరికరాలు ఏవీ అందుబాటులో లేవు"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"మరొక పరికరం ఈ ఫోన్ లాగా అదే Wi-Fi నెట్‌వర్క్‌లో ఉందని నిర్ధారించుకోండి"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"మరొక పరికరం ఈ టాబ్లెట్ లాగా అదే Wi-Fi నెట్‌వర్క్‌లో ఉందని నిర్ధారించుకోండి"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"మరొక పరికరం ఈ టీవీ లాగా అదే Wi-Fi నెట్‌వర్క్‌లో ఉందని నిర్ధారించుకోండి"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"మరొక పరికరం ఈ వాచ్ లాగా అదే Wi-Fi నెట్‌వర్క్‌లో ఉందని నిర్ధారించుకోండి"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"మరొక పరికరం ఈ కారు లాగా అదే Wi-Fi నెట్‌వర్క్‌లో ఉందని నిర్ధారించుకోండి"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"మరొక పరికరం ఈ పరికరం లాగా అదే Wi-Fi నెట్‌వర్క్‌లో ఉందని నిర్ధారించుకోండి"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"మరింత తెలుసుకోండి"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"ఎలా ప్రసారం చేయాలో తెలుసుకోండి"</string>
 </resources>
