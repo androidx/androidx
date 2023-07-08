@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Spila í hóp"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Engar upplýsingar í boði"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Engin tæki í boði"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Passaðu að hitt tækið sé tengt sama WiFi-neti og þessi sími"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Passaðu að hitt tækið sé tengt sama WiFi-neti og þessi spjaldtölva"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Passaðu að hitt tækið sé tengt sama WiFi-neti og þetta sjónvarp"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Passaðu að hitt tækið sé tengt sama WiFi-neti og þetta úr"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Passaðu að hitt tækið sé tengt sama WiFi-neti og þessi bíll"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Passaðu að hitt tækið sé tengt sama WiFi-neti og þetta tæki"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Nánar"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Kynntu þér hvernig þú varpar"</string>
 </resources>

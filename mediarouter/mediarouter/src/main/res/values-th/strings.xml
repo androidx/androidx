@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"เล่นในกลุ่ม"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ไม่มีข้อมูล"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"ไม่มีอุปกรณ์ที่ใช้ได้"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"ตรวจสอบว่าอุปกรณ์อื่นๆ อยู่ในเครือข่าย Wi-Fi เดียวกันกับโทรศัพท์เครื่องนี้"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"ตรวจสอบว่าอุปกรณ์อื่นๆ อยู่ในเครือข่าย Wi-Fi เดียวกันกับแท็บเล็ตเครื่องนี้"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"ตรวจสอบว่าอุปกรณ์อื่นๆ อยู่ในเครือข่าย Wi-Fi เดียวกันกับทีวีเครื่องนี้"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"ตรวจสอบว่าอุปกรณ์อื่นๆ อยู่ในเครือข่าย Wi-Fi เดียวกันกับนาฬิกาเรือนนี้"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"ตรวจสอบว่าอุปกรณ์อื่นๆ อยู่ในเครือข่าย Wi-Fi เดียวกันกับรถคันนี้"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"ตรวจสอบว่าอุปกรณ์อื่นๆ อยู่ในเครือข่าย Wi-Fi เดียวกันกับอุปกรณ์เครื่องนี้"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"ดูข้อมูลเพิ่มเติม"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"ดูวิธีแคสต์"</string>
 </resources>

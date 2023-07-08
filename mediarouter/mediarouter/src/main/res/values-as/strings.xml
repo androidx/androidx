@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"কোনো এটা গোটত প্লে’ কৰক"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"কোনো তথ্য নাই"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"কোনো ডিভাইচ উপলব্ধ নহয়"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"আনটো ডিভাইচ এই ফ’নটোৰ সৈতে একেটা ৱাই-ফাই নেটৱৰ্কতে থকাটো নিশ্চিত কৰক"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"আনটো ডিভাইচ এই টেবলেটটোৰ সৈতে একেটা ৱাই-ফাই নেটৱৰ্কতে থকাটো নিশ্চিত কৰক"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"আনটো ডিভাইচ এই টিভিটোৰ সৈতে একেটা ৱাই-ফাই নেটৱৰ্কতে থকাটো নিশ্চিত কৰক"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"আনটো ডিভাইচ এই ঘড়ীটোৰ সৈতে একেটা ৱাই-ফাই নেটৱৰ্কতে থকাটো নিশ্চিত কৰক"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"আনটো ডিভাইচ এই গাড়ীখনৰ সৈতে একেটা ৱাই-ফাই নেটৱৰ্কতে থকাটো নিশ্চিত কৰক"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"আনটো ডিভাইচ এই ডিভাইচটোৰ সৈতে একেটা ৱাই-ফাই নেটৱৰ্কতে থকাটো নিশ্চিত কৰক"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"অধিক জানক"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"কেনেকৈ কাষ্ট কৰিব লাগে জানক"</string>
 </resources>

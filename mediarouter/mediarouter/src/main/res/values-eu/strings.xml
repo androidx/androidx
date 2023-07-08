@@ -43,18 +43,12 @@
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Erreproduzitu talde batean"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Ez dago informaziorik"</string>
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Ez dago gailurik"</string>
-    <!-- no translation found for mr_chooser_wifi_warning_description_phone (2555886884770958244) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tablet (6038748488793588164) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_tv (5845921667085074878) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_watch (5255021372884233706) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_car (2998902945608081567) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description_unknown (3459891599800041449) -->
-    <skip />
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Ziurtatu beste gailua telefonoaren wifi-sare berera konektatuta dagoela"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Ziurtatu beste gailua tabletaren wifi-sare berera konektatuta dagoela"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Ziurtatu beste gailua telebistaren wifi-sare berera konektatuta dagoela"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Ziurtatu beste gailua erlojuaren wifi-sare berera konektatuta dagoela"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Ziurtatu beste gailua autoaren wifi-sare berera konektatuta dagoela"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Ziurtatu beste gailua gailu honen wifi-sare berera konektatuta dagoela"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Lortu informazio gehiago"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Ikasi edukia igortzen"</string>
 </resources>
