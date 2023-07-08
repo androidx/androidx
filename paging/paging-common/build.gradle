@@ -17,7 +17,6 @@
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import androidx.build.Publish
 
 plugins {
@@ -48,15 +47,20 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
+        commonJvmAndroidMain {
             dependsOn(commonMain)
+
             dependencies {
                 api("androidx.arch.core:core-common:2.2.0")
             }
         }
 
+        jvmMain {
+            dependsOn(commonJvmAndroidMain)
+        }
+
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmAndroidMain)
         }
 
         commonTest {
@@ -68,7 +72,9 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
+        commonJvmAndroidTest {
+            kotlin.srcDir("src/commonJvmAndroidTest/kotlin")
+
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)
@@ -78,8 +84,12 @@ androidXMultiplatform {
             }
         }
 
+        jvmTest {
+            dependsOn(commonJvmAndroidTest)
+        }
+
         androidAndroidTest {
-            dependsOn(jvmTest)
+            dependsOn(commonJvmAndroidTest)
         }
 
         if (enableNative) {
