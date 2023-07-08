@@ -16,7 +16,6 @@
 
 package androidx.paging.compose
 
-import android.util.Log
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,11 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.paging.CombinedLoadStates
 import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
-import androidx.paging.LOGGER
-import androidx.paging.LOG_TAG
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
-import androidx.paging.Logger
 import androidx.paging.NullPaddedList
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
@@ -208,38 +204,6 @@ public class LazyPagingItems<T : Any> internal constructor(
     internal suspend fun collectPagingData() {
         flow.collectLatest {
             pagingDataDiffer.collectFrom(it)
-        }
-    }
-
-    private companion object {
-        init {
-            /**
-             * Implements the Logger interface from paging-common and injects it into the LOGGER
-             * global var stored within Pager.
-             *
-             * Checks for null LOGGER because other runtime entry points to paging can also
-             * inject a Logger
-             */
-            LOGGER = LOGGER ?: object : Logger {
-                override fun isLoggable(level: Int): Boolean {
-                    return Log.isLoggable(LOG_TAG, level)
-                }
-
-                override fun log(level: Int, message: String, tr: Throwable?) {
-                    when {
-                        tr != null && level == Log.DEBUG -> Log.d(LOG_TAG, message, tr)
-                        tr != null && level == Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
-                        level == Log.DEBUG -> Log.d(LOG_TAG, message)
-                        level == Log.VERBOSE -> Log.v(LOG_TAG, message)
-                        else -> {
-                            throw IllegalArgumentException(
-                                "debug level $level is requested but Paging only supports " +
-                                    "default logging for level 2 (DEBUG) or level 3 (VERBOSE)"
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }
