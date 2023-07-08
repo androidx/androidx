@@ -217,7 +217,6 @@ package androidx.compose.runtime {
     method @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext getRecomposeCoroutineContext(androidx.compose.runtime.ControlledComposition);
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.CompositionObserverHandle observe(androidx.compose.runtime.Composition, androidx.compose.runtime.CompositionObserver observer);
   }
 
   @androidx.compose.runtime.Stable public abstract sealed class CompositionLocal<T> {
@@ -246,13 +245,11 @@ package androidx.compose.runtime {
     property public final androidx.compose.runtime.CompositionLocalMap Empty;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserver {
-    method public void onBeginComposition(androidx.compose.runtime.Composition composition, java.util.Map<androidx.compose.runtime.RecomposeScope,? extends java.util.Set<?>> invalidationMap);
-    method public void onEndComposition(androidx.compose.runtime.Composition composition);
+  public interface CompositionServiceKey<T> {
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserverHandle {
-    method public void dispose();
+  public interface CompositionServices {
+    method public <T> T? getCompositionService(androidx.compose.runtime.CompositionServiceKey<T> key);
   }
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public interface CompositionTracer {
@@ -470,16 +467,6 @@ package androidx.compose.runtime {
 
   public interface RecomposeScope {
     method public void invalidate();
-  }
-
-  public final class RecomposeScopeImplKt {
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.CompositionObserverHandle observe(androidx.compose.runtime.RecomposeScope, androidx.compose.runtime.RecomposeScopeObserver observer);
-  }
-
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface RecomposeScopeObserver {
-    method public void onBeginScopeComposition(androidx.compose.runtime.RecomposeScope scope);
-    method public void onEndScopeComposition(androidx.compose.runtime.RecomposeScope scope);
-    method public void onScopeDisposed(androidx.compose.runtime.RecomposeScope scope);
   }
 
   public final class Recomposer extends androidx.compose.runtime.CompositionContext {
@@ -1038,9 +1025,29 @@ package androidx.compose.runtime.tooling {
     property public abstract String? sourceInfo;
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserver {
+    method public void onBeginComposition(androidx.compose.runtime.Composition composition, java.util.Map<androidx.compose.runtime.RecomposeScope,? extends java.util.Set<?>> invalidationMap);
+    method public void onEndComposition(androidx.compose.runtime.Composition composition);
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface CompositionObserverHandle {
+    method public void dispose();
+  }
+
+  public final class CompositionObserverKt {
+    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.tooling.CompositionObserverHandle? observe(androidx.compose.runtime.Composition, androidx.compose.runtime.tooling.CompositionObserver observer);
+    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.tooling.CompositionObserverHandle observe(androidx.compose.runtime.RecomposeScope, androidx.compose.runtime.tooling.RecomposeScopeObserver observer);
+  }
+
   public final class InspectionTablesKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>> getLocalInspectionTables();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>> LocalInspectionTables;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface RecomposeScopeObserver {
+    method public void onBeginScopeComposition(androidx.compose.runtime.RecomposeScope scope);
+    method public void onEndScopeComposition(androidx.compose.runtime.RecomposeScope scope);
+    method public void onScopeDisposed(androidx.compose.runtime.RecomposeScope scope);
   }
 
 }

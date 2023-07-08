@@ -21,6 +21,9 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.validate
+import androidx.compose.runtime.tooling.CompositionObserver
+import androidx.compose.runtime.tooling.RecomposeScopeObserver
+import androidx.compose.runtime.tooling.observe
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -215,7 +218,7 @@ class CompositionObserverTests {
         assertEquals(2, beginCount)
         assertEquals(2, endCount)
 
-        handle.dispose()
+        handle?.dispose()
 
         data++
         expectChanges()
@@ -314,7 +317,7 @@ class CompositionObserverTests {
         assertEquals(2, compositionsSeen.size)
         val lastBeginCount = beginCount
         val lastEndCount = endCount
-        handle.dispose()
+        handle?.dispose()
 
         data++
         expectChanges()
@@ -446,7 +449,7 @@ class CompositionObserverTests {
         val firstBeginCountTwo = beginCountTwo
 
         val middleCountOne = beginCountOne
-        handle.dispose()
+        handle?.dispose()
         data++
         expectChanges()
 
@@ -471,7 +474,7 @@ class CompositionObserverTests {
         val lastCountTwo = beginCountTwo
 
         // Dispose the subcompose observer
-        subcomposeHandle.dispose()
+        subcomposeHandle?.dispose()
         data++
         expectChanges()
 
@@ -482,7 +485,7 @@ class CompositionObserverTests {
         assertTrue(beginCountOne >= penultimateCountOne + 3)
         val lastCountOne = beginCountOne
 
-        handle2.dispose()
+        handle2?.dispose()
         data++
         expectChanges()
 
@@ -539,7 +542,7 @@ class CompositionObserverTests {
             }
             expectChanges()
             assertTrue(validatedSomething)
-            handle.dispose()
+            handle?.dispose()
         }
 
         changes(0)
