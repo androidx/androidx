@@ -620,6 +620,8 @@ public class MainActivity extends AppCompatActivity {
 
         return new OneTimeWorkRequest.Builder(RemoteWorker.class)
                 .setInputData(data)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build();
     }
 }
