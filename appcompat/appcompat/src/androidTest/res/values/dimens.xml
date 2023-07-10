@@ -27,4 +27,7 @@
     <dimen name="textview_firstBaselineToTopHeight">100dp</dimen>
     <dimen name="textview_lastBaselineToBottomHeight">30dp</dimen>
     <dimen name="textview_lineHeight">60dp</dimen>
+
+    <dimen name="textview_fontScaling_textSize">20sp</dimen>
+    <dimen name="textview_fontScaling_lineHeight">60sp</dimen>
 </resources>
