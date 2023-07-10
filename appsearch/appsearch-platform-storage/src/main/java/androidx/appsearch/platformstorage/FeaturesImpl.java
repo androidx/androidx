@@ -71,6 +71,9 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.SCHEMA_ADD_PARENT_TYPE:
                 // TODO(b/269295094) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // TODO(b/289150947) : Update when feature is ready in service-appsearch.
                 return false;
             default:
                 return false;

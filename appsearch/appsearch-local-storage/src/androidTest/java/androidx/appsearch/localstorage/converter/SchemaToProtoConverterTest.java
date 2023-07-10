@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema;
 
+import com.google.android.icing.proto.DocumentIndexingConfig;
 import com.google.android.icing.proto.JoinableConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -186,5 +187,55 @@ public class SchemaToProtoConverterTest {
                 .isEqualTo(schema);
         assertThat(SchemaToProtoConverter.toAppSearchSchema(alternativeExpectedSchemaProto))
                 .isEqualTo(schema);
+    }
+
+    @Test
+    public void testGetProto_DocumentIndexingConfig() {
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("name")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("worksFor",
+                        "Organization")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("orgName", "notes")
+                        .build())
+                .build();
+
+        DocumentIndexingConfig documentIndexingConfig = DocumentIndexingConfig.newBuilder()
+                .setIndexNestedProperties(false)
+                .addIndexableNestedPropertiesList("orgName")
+                .addIndexableNestedPropertiesList("notes")
+                .build();
+
+        SchemaTypeConfigProto expectedPersonProto = SchemaTypeConfigProto.newBuilder()
+                .setSchemaType("Person")
+                .setVersion(0)
+                .addProperties(
+                        PropertyConfigProto.newBuilder()
+                                .setPropertyName("name")
+                                .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                                .setCardinality(PropertyConfigProto.Cardinality.Code.REQUIRED)
+                                .setStringIndexingConfig(StringIndexingConfig.newBuilder()
+                                        .setTermMatchType(TermMatchType.Code.PREFIX)
+                                        .setTokenizerType(
+                                                StringIndexingConfig.TokenizerType.Code.PLAIN)))
+                .addProperties(
+                        PropertyConfigProto.newBuilder()
+                                .setPropertyName("worksFor")
+                                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
+                                .setSchemaType("Organization")
+                                .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
+                                .setDocumentIndexingConfig(documentIndexingConfig))
+                .build();
+
+        assertThat(SchemaToProtoConverter.toSchemaTypeConfigProto(personSchema, /*version=*/0))
+                .isEqualTo(expectedPersonProto);
+        assertThat(SchemaToProtoConverter.toAppSearchSchema(expectedPersonProto))
+                .isEqualTo(personSchema);
     }
 }

@@ -22,9 +22,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
@@ -190,9 +192,15 @@ public class AppSearchSchemaCtsTest {
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .build())
                 .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                        "document", AppSearchEmail.SCHEMA_TYPE)
+                        "document1", AppSearchEmail.SCHEMA_TYPE)
                         .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
                         .setShouldIndexNestedProperties(true)
+                        .build())
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "document2", AppSearchEmail.SCHEMA_TYPE)
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("path1", "path2", "path3")
                         .build())
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId1")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
@@ -206,7 +214,7 @@ public class AppSearchSchemaCtsTest {
 
         assertThat(schema.getSchemaType()).isEqualTo("Test");
         List<PropertyConfig> properties = schema.getProperties();
-        assertThat(properties).hasSize(9);
+        assertThat(properties).hasSize(10);
 
         assertThat(properties.get(0).getName()).isEqualTo("string");
         assertThat(properties.get(0).getCardinality())
@@ -243,7 +251,7 @@ public class AppSearchSchemaCtsTest {
                 .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
         assertThat(properties.get(5)).isInstanceOf(AppSearchSchema.BytesPropertyConfig.class);
 
-        assertThat(properties.get(6).getName()).isEqualTo("document");
+        assertThat(properties.get(6).getName()).isEqualTo("document1");
         assertThat(properties.get(6).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
         assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(6)).getSchemaType())
@@ -251,16 +259,26 @@ public class AppSearchSchemaCtsTest {
         assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(6))
                 .shouldIndexNestedProperties()).isEqualTo(true);
 
-        assertThat(properties.get(7).getName()).isEqualTo("qualifiedId1");
+        assertThat(properties.get(7).getName()).isEqualTo("document2");
         assertThat(properties.get(7).getCardinality())
+                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(7)).getSchemaType())
+                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(7))
+                .shouldIndexNestedProperties()).isEqualTo(false);
+        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(7))
+                .getIndexableNestedProperties()).containsExactly("path1", "path2", "path3");
+
+        assertThat(properties.get(8).getName()).isEqualTo("qualifiedId1");
+        assertThat(properties.get(8).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(((StringPropertyConfig) properties.get(7)).getJoinableValueType())
+        assertThat(((StringPropertyConfig) properties.get(8)).getJoinableValueType())
                 .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
 
-        assertThat(properties.get(8).getName()).isEqualTo("qualifiedId2");
-        assertThat(properties.get(8).getCardinality())
+        assertThat(properties.get(9).getName()).isEqualTo("qualifiedId2");
+        assertThat(properties.get(9).getCardinality())
                 .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(((StringPropertyConfig) properties.get(8)).getJoinableValueType())
+        assertThat(((StringPropertyConfig) properties.get(9)).getJoinableValueType())
                 .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
     }
 
@@ -282,6 +300,61 @@ public class AppSearchSchemaCtsTest {
                 .build();
         assertThat(schema.getParentTypes()).containsExactly("Email", "Message");
     }
+
+    @Test
+    public void testDocumentPropertyConfig_indexableNestedPropertyStrings() {
+        DocumentPropertyConfig documentPropertyConfig =
+                new DocumentPropertyConfig.Builder("property", "Schema")
+                        .addIndexableNestedProperties("prop1", "prop2", "prop1.prop2")
+                        .build();
+        assertThat(documentPropertyConfig.getIndexableNestedProperties())
+                .containsExactly("prop1", "prop2", "prop1.prop2");
+    }
+
+    @Test
+    public void testDocumentPropertyConfig_indexableNestedPropertyPropertyPaths() {
+        DocumentPropertyConfig documentPropertyConfig =
+                new DocumentPropertyConfig.Builder("property", "Schema")
+                        .addIndexableNestedPropertyPaths(new PropertyPath("prop1"),
+                                new PropertyPath("prop1.prop2"))
+                        .build();
+        assertThat(documentPropertyConfig.getIndexableNestedProperties())
+                .containsExactly("prop1", "prop1.prop2");
+    }
+
+    @Test
+    public void testDocumentPropertyConfig_indexableNestedPropertyProperty_duplicatePaths() {
+        DocumentPropertyConfig documentPropertyConfig =
+                new DocumentPropertyConfig.Builder("property", "Schema")
+                        .addIndexableNestedPropertyPaths(new PropertyPath("prop1"),
+                                new PropertyPath("prop1.prop2"))
+                        .addIndexableNestedProperties("prop1")
+                        .build();
+        assertThat(documentPropertyConfig.getIndexableNestedProperties())
+                .containsExactly("prop1", "prop1.prop2");
+    }
+
+    @Test
+    public void testDocumentPropertyConfig_reusingBuilderDoesNotAffectPreviouslyBuiltConfigs() {
+        DocumentPropertyConfig.Builder builder =
+                new DocumentPropertyConfig.Builder("property", "Schema")
+                        .addIndexableNestedProperties("prop1");
+        DocumentPropertyConfig config1 = builder.build();
+        assertThat(config1.getIndexableNestedProperties()).containsExactly("prop1");
+
+        builder.addIndexableNestedProperties("prop2");
+        DocumentPropertyConfig config2 = builder.build();
+        assertThat(config2.getIndexableNestedProperties()).containsExactly("prop1", "prop2");
+        assertThat(config1.getIndexableNestedProperties()).containsExactly("prop1");
+
+        builder.addIndexableNestedPropertyPaths(new PropertyPath("prop3"));
+        DocumentPropertyConfig config3 = builder.build();
+        assertThat(config3.getIndexableNestedProperties()).containsExactly("prop1", "prop2",
+                "prop3");
+        assertThat(config2.getIndexableNestedProperties()).containsExactly("prop1", "prop2");
+        assertThat(config1.getIndexableNestedProperties()).containsExactly("prop1");
+    }
+
 
     @Test
     public void testInvalidStringPropertyConfigsTokenizerNone() {
@@ -369,6 +442,26 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    public void testInvalidDocumentPropertyConfig_indexableNestedProperties() {
+        // Adding indexableNestedProperties with shouldIndexNestedProperties=true should fail.
+        DocumentPropertyConfig.Builder builder =
+                new DocumentPropertyConfig.Builder("prop1", "Schema1")
+                        .setShouldIndexNestedProperties(true)
+                        .addIndexableNestedProperties("prop1");
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.build());
+        assertThat(e).hasMessageThat().contains(
+                "DocumentIndexingConfig#shouldIndexNestedProperties is required to be false when "
+                        + "one or more indexableNestedProperties are provided.");
+
+        builder.addIndexableNestedPropertyPaths(new PropertyPath("prop1.prop2"));
+        e = assertThrows(IllegalArgumentException.class, () -> builder.build());
+        assertThat(e).hasMessageThat().contains(
+                "DocumentIndexingConfig#shouldIndexNestedProperties is required to be false when "
+                        + "one or more indexableNestedProperties are provided.");
+    }
+
+    @Test
     public void testAppSearchSchema_toString() {
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
                 .addProperty(new StringPropertyConfig.Builder("string1")
@@ -446,6 +539,7 @@ public class AppSearchSchemaCtsTest {
                 + "    {\n"
                 + "      name: \"document\",\n"
                 + "      shouldIndexNestedProperties: true,\n"
+                + "      indexableNestedProperties: [],\n"
                 + "      schemaType: \"builtin:Email\",\n"
                 + "      cardinality: CARDINALITY_REPEATED,\n"
                 + "      dataType: DATA_TYPE_DOCUMENT,\n"
