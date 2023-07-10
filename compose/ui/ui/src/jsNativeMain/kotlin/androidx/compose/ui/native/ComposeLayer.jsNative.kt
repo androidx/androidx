@@ -145,7 +145,6 @@ internal class ComposeLayer(
     }
 
     fun getActiveFocusRect(): DpRect? {
-        // TODO: [1.4 Update] Check that new solution is valid
         val focusRect = scene.mainOwner?.focusOwner?.getFocusRect() ?: return null
         return focusRect.toDpRect(density)
     }

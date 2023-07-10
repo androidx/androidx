@@ -38,6 +38,7 @@ import kotlinx.cinterop.useContents
 import org.jetbrains.skiko.SkikoUIView
 import org.jetbrains.skiko.TextActions
 import platform.CoreGraphics.CGPointMake
+import platform.CoreGraphics.CGRectMake
 import platform.Foundation.*
 import platform.UIKit.*
 import platform.darwin.NSObject
@@ -61,28 +62,23 @@ private val uiContentSizeCategoryToFontScaleMap = mapOf(
 )
 
 fun ComposeUIViewController(content: @Composable () -> Unit): UIViewController =
+    ComposeUIViewController(configure = {}, content = content)
+
+fun ComposeUIViewController(
+    configure: ComposeUIViewControllerConfiguration.() -> Unit = {},
+    content: @Composable () -> Unit
+): UIViewController =
     ComposeWindow().apply {
+        configuration = ComposeUIViewControllerConfiguration()
+            .apply(configure)
         setContent(content)
     }
-
-// The only difference with macos' Window is that
-// it has return type of UIViewController rather than unit.
-@Deprecated(
-    "use ComposeUIViewController instead",
-    replaceWith = ReplaceWith(
-        "ComposeUIViewController(content = content)",
-        "androidx.compose.ui.window"
-    )
-)
-fun Application(
-    title: String = "JetpackNativeWindow",
-    content: @Composable () -> Unit = { }
-): UIViewController = ComposeUIViewController(content)
 
 @OptIn(InternalComposeApi::class)
 @ExportObjCClass
 internal actual class ComposeWindow : UIViewController {
 
+    internal lateinit var configuration: ComposeUIViewControllerConfiguration
     private val keyboardOverlapHeightState = mutableStateOf(0f)
     private val safeAreaState = mutableStateOf(IOSInsets())
     private val layoutMarginsState = mutableStateOf(IOSInsets())
@@ -156,12 +152,57 @@ internal actual class ComposeWindow : UIViewController {
             if (bottomIndent < keyboardHeight) {
                 keyboardOverlapHeightState.value = (keyboardHeight - bottomIndent).toFloat()
             }
+
+            if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
+                val focusedRect = layer.getActiveFocusRect()
+                if (focusedRect != null) {
+                    updateViewBounds(
+                        offsetY = calcFocusedLiftingY(focusedRect, keyboardHeight)
+                    )
+                }
+            }
         }
 
         @Suppress("unused")
         @ObjCAction
         fun keyboardDidHide(arg: NSNotification) {
             keyboardOverlapHeightState.value = 0f
+            if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
+                updateViewBounds(offsetY = 0.0)
+            }
+        }
+
+        private fun calcFocusedLiftingY(focusedRect: DpRect, keyboardHeight: Double): Double {
+            val hiddenPartOfFocusedElement: Double =
+                keyboardHeight - layer.layer.height + focusedRect.bottom.value
+            return if (hiddenPartOfFocusedElement > 0) {
+                // If focused element is partially hidden by the keyboard, we need to lift it upper
+                val focusedTopY = focusedRect.top.value
+                val isFocusedElementRemainsVisible = hiddenPartOfFocusedElement < focusedTopY
+                if (isFocusedElementRemainsVisible) {
+                    // We need to lift focused element to be fully visible
+                    hiddenPartOfFocusedElement
+                } else {
+                    // In this case focused element height is bigger than remain part of the screen after showing the keyboard.
+                    // Top edge of focused element should be visible. Same logic on Android.
+                    maxOf(focusedTopY, 0f).toDouble()
+                }
+            } else {
+                // Focused element is not hidden by the keyboard.
+                0.0
+            }
+        }
+
+        private fun updateViewBounds(offsetX: Double = 0.0, offsetY: Double = 0.0) {
+            val (width, height) = getViewFrameSize()
+            view.layer.setBounds(
+                CGRectMake(
+                    x = offsetX,
+                    y = offsetY,
+                    width = width.toDouble(),
+                    height = height.toDouble()
+                )
+            )
         }
     }
 
@@ -197,6 +238,7 @@ internal actual class ComposeWindow : UIViewController {
         ).load()
         val rootView = UIView() // rootView needs to interop with UIKit
         rootView.backgroundColor = UIColor.whiteColor
+        rootView.setClipsToBounds(true)
 
         skikoUIView.translatesAutoresizingMaskIntoConstraints = false
         rootView.addSubview(skikoUIView)
