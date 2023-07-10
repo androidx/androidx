@@ -58,13 +58,17 @@ import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -1668,6 +1672,33 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                 expectedProcessingLatencyMillis
             )
         }
+
+    @Test
+    fun resolutionSelectorConfigCorrectlyMerged_afterBindToLifecycle() = runBlocking {
+        val resolutionFilter = ResolutionFilter { supportedSizes, _ -> supportedSizes }
+        val useCase = ImageCapture.Builder().setResolutionSelector(
+            ResolutionSelector.Builder().setResolutionFilter(resolutionFilter)
+                .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE).build()
+        ).build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+        val resolutionSelector = useCase.currentConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR)
+        // The default 4:3 AspectRatioStrategy is kept
+        assertThat(resolutionSelector!!.aspectRatioStrategy).isEqualTo(
+            AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY
+        )
+        // The default highest available ResolutionStrategy is kept
+        assertThat(resolutionSelector.resolutionStrategy).isEqualTo(
+            ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY
+        )
+        // The set resolutionFilter is kept
+        assertThat(resolutionSelector.resolutionFilter).isEqualTo(resolutionFilter)
+        // The set allowedResolutionMode is kept
+        assertThat(resolutionSelector.allowedResolutionMode).isEqualTo(
+            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+        )
+    }
 
     private fun capturedImage_withHighResolutionEnabled(
         preview: Preview? = null,
