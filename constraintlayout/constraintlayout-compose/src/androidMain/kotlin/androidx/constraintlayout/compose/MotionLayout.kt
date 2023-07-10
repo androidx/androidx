@@ -25,7 +25,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -579,7 +579,7 @@ internal fun MotionLayoutCore(
             end = end,
             layoutDirection = layoutDirection,
             transition = transitionImpl,
-            progress = motionProgress.currentProgress
+            progress = motionProgress.floatValue
         )
         true // Remember is required to return a non-Unit value
     }
@@ -640,7 +640,7 @@ internal fun MotionLayoutCore(
 @LayoutScopeMarker
 class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constructor(
     private val measurer: MotionMeasurer,
-    private val motionProgress: MotionProgress
+    private val motionProgress: MutableFloatState
 ) {
     /**
      * Invokes [onBoundsChanged] whenever the Start or End bounds may have changed for the
@@ -738,7 +738,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
          * Returns [Color.Unspecified] if the property does not exist.
          */
         fun color(name: String): Color {
-            return measurer.getCustomColor(id, name, motionProgress.currentProgress)
+            return measurer.getCustomColor(id, name, motionProgress.floatValue)
         }
 
         /**
@@ -747,7 +747,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
          * Returns [Color.Unspecified] if the property does not exist.
          */
         fun float(name: String): Float {
-            return measurer.getCustomFloat(id, name, motionProgress.currentProgress)
+            return measurer.getCustomFloat(id, name, motionProgress.floatValue)
         }
 
         /**
@@ -756,7 +756,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
          * Returns `0` if the property does not exist.
          */
         fun int(name: String): Int {
-            return measurer.getCustomFloat(id, name, motionProgress.currentProgress).toInt()
+            return measurer.getCustomFloat(id, name, motionProgress.floatValue).toInt()
         }
 
         /**
@@ -765,7 +765,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
          * Returns [Dp.Unspecified] if the property does not exist.
          */
         fun distance(name: String): Dp {
-            return measurer.getCustomFloat(id, name, motionProgress.currentProgress).dp
+            return measurer.getCustomFloat(id, name, motionProgress.floatValue).dp
         }
 
         /**
@@ -774,7 +774,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
          * Returns [TextUnit.Unspecified] if the property does not exist.
          */
         fun fontSize(name: String): TextUnit {
-            return measurer.getCustomFloat(id, name, motionProgress.currentProgress).sp
+            return measurer.getCustomFloat(id, name, motionProgress.floatValue).sp
         }
     }
 
@@ -795,23 +795,23 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
         }
 
         fun color(name: String): Color {
-            return measurer.getCustomColor(myId, name, motionProgress.currentProgress)
+            return measurer.getCustomColor(myId, name, motionProgress.floatValue)
         }
 
         fun float(name: String): Float {
-            return measurer.getCustomFloat(myId, name, motionProgress.currentProgress)
+            return measurer.getCustomFloat(myId, name, motionProgress.floatValue)
         }
 
         fun int(name: String): Int {
-            return measurer.getCustomFloat(myId, name, motionProgress.currentProgress).toInt()
+            return measurer.getCustomFloat(myId, name, motionProgress.floatValue).toInt()
         }
 
         fun distance(name: String): Dp {
-            return measurer.getCustomFloat(myId, name, motionProgress.currentProgress).dp
+            return measurer.getCustomFloat(myId, name, motionProgress.floatValue).dp
         }
 
         fun fontSize(name: String): TextUnit {
-            return measurer.getCustomFloat(myId, name, motionProgress.currentProgress).sp
+            return measurer.getCustomFloat(myId, name, motionProgress.floatValue).sp
         }
     }
 
@@ -834,27 +834,27 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
 
     @Deprecated("Deprecated for naming consistency", ReplaceWith("customColor(id, name)"))
     fun motionColor(id: String, name: String): Color {
-        return measurer.getCustomColor(id, name, motionProgress.currentProgress)
+        return measurer.getCustomColor(id, name, motionProgress.floatValue)
     }
 
     @Deprecated("Deprecated for naming consistency", ReplaceWith("customFloat(id, name)"))
     fun motionFloat(id: String, name: String): Float {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress)
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue)
     }
 
     @Deprecated("Deprecated for naming consistency", ReplaceWith("customInt(id, name)"))
     fun motionInt(id: String, name: String): Int {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).toInt()
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue).toInt()
     }
 
     @Deprecated("Deprecated for naming consistency", ReplaceWith("customDistance(id, name)"))
     fun motionDistance(id: String, name: String): Dp {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).dp
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue).dp
     }
 
     @Deprecated("Deprecated for naming consistency", ReplaceWith("customFontSize(id, name)"))
     fun motionFontSize(id: String, name: String): TextUnit {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).sp
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue).sp
     }
 
     /**
@@ -878,7 +878,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * This is a short version of: `customProperties(id).color(name)`.
      */
     fun customColor(id: String, name: String): Color {
-        return measurer.getCustomColor(id, name, motionProgress.currentProgress)
+        return measurer.getCustomColor(id, name, motionProgress.floatValue)
     }
 
     /**
@@ -891,7 +891,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * This is a short version of: `customProperties(id).float(name)`.
      */
     fun customFloat(id: String, name: String): Float {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress)
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue)
     }
 
     /**
@@ -904,7 +904,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * This is a short version of: `customProperties(id).int(name)`.
      */
     fun customInt(id: String, name: String): Int {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).toInt()
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue).toInt()
     }
 
     /**
@@ -917,7 +917,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * This is a short version of: `customProperties(id).distance(name)`.
      */
     fun customDistance(id: String, name: String): Dp {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).dp
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue).dp
     }
 
     /**
@@ -930,7 +930,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * This is a short version of: `customProperties(id).fontSize(name)`.
      */
     fun customFontSize(id: String, name: String): TextUnit {
-        return measurer.getCustomFloat(id, name, motionProgress.currentProgress).sp
+        return measurer.getCustomFloat(id, name, motionProgress.floatValue).sp
     }
 }
 
@@ -940,7 +940,7 @@ internal fun motionLayoutMeasurePolicy(
     constraintSetStart: ConstraintSet,
     constraintSetEnd: ConstraintSet,
     @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
-    motionProgress: MotionProgress,
+    motionProgress: MutableFloatState,
     measurer: MotionMeasurer,
     optimizationLevel: Int,
 ): MeasurePolicy =
@@ -957,7 +957,7 @@ internal fun motionLayoutMeasurePolicy(
             transition,
             measurables,
             optimizationLevel,
-            motionProgress.currentProgress,
+            motionProgress.floatValue,
             compositionSource.value ?: CompositionSource.Unknown
         )
         compositionSource.value = CompositionSource.Unknown // Reset after measuring
@@ -972,17 +972,17 @@ internal fun motionLayoutMeasurePolicy(
 /**
  * Updates [motionProgress] from changes in [LayoutInformationReceiver.getForcedProgress].
  *
- * User changes, (reflected in [MotionProgress.currentProgress]) take priority.
+ * User changes, (reflected in [MutableFloatState.floatValue]) take priority.
  */
 @Composable
 internal fun UpdateWithForcedIfNoUserChange(
-    motionProgress: MotionProgress,
+    motionProgress: MutableFloatState,
     informationReceiver: LayoutInformationReceiver?
 ) {
     if (informationReceiver == null) {
         return
     }
-    val currentUserProgress = motionProgress.currentProgress
+    val currentUserProgress = motionProgress.floatValue
     val forcedProgress = informationReceiver.getForcedProgress()
 
     // Save the initial progress
@@ -990,7 +990,7 @@ internal fun UpdateWithForcedIfNoUserChange(
 
     if (!forcedProgress.isNaN() && lastUserProgress.value == currentUserProgress) {
         // Use the forced progress if the user progress hasn't changed
-        motionProgress.updateProgress(forcedProgress)
+        motionProgress.floatValue = forcedProgress
     } else {
         informationReceiver.resetForcedProgress()
     }
@@ -998,22 +998,22 @@ internal fun UpdateWithForcedIfNoUserChange(
 }
 
 /**
- * Creates a [MotionProgress] that may be manipulated internally, but can also be updated by user
+ * Creates a [MutableFloatState] that may be manipulated internally, but can also be updated by user
  * calls with different [progress] values.
  *
- * @param progress User progress, if changed, updates the underlying [MotionProgress]
- * @return A [MotionProgress] instance that may change from internal or external calls
+ * @param progress User progress, if changed, updates the underlying [MutableFloatState]
+ * @return A [MutableFloatState] instance that may change from internal or external calls
  */
 @Composable
-internal fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
+internal fun createAndUpdateMotionProgress(progress: Float): MutableFloatState {
     val motionProgress = remember {
-        MotionProgress.fromMutableState(mutableFloatStateOf(progress))
+        mutableFloatStateOf(progress)
     }
     val last = remember { Ref<Float>().apply { value = progress } }
     if (last.value != progress) {
         // Update on progress change
         last.value = progress
-        motionProgress.updateProgress(progress)
+        motionProgress.floatValue = progress
     }
     return motionProgress
 }
@@ -1053,7 +1053,8 @@ internal fun Modifier.motionDebug(
  */
 @PublishedApi
 internal enum class CompositionSource {
-    // TODO: Add an explicit option for Composition initiated internally
+    // TODO: Consider adding an explicit option for Composition initiated internally, in case we
+    //  need to differentiate them
 
     Unknown,
 
@@ -1062,36 +1063,6 @@ internal enum class CompositionSource {
      * states.
      */
     Content
-}
-
-/**
- * Internal representation to read and set values for the progress.
- */
-internal interface MotionProgress {
-    // TODO: Since this class has no other uses anymore, consider to substitute it with a simple
-    //  MutableState<Float>
-
-    val currentProgress: Float
-
-    fun updateProgress(newProgress: Float)
-
-    companion object {
-        fun fromMutableState(mutableProgress: MutableState<Float>): MotionProgress =
-            fromState(mutableProgress) { mutableProgress.value = it }
-
-        fun fromState(
-            progressState: State<Float>,
-            onUpdate: (newProgress: Float) -> Unit
-        ): MotionProgress =
-            object : MotionProgress {
-                override val currentProgress: Float
-                    get() = progressState.value
-
-                override fun updateProgress(newProgress: Float) {
-                    onUpdate(newProgress)
-                }
-            }
-    }
 }
 
 /**

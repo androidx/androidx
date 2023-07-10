@@ -16,6 +16,7 @@
 
 package androidx.constraintlayout.compose
 
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Velocity
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.Velocity
  */
 internal class TransitionHandler(
     private val motionMeasurer: MotionMeasurer,
-    private val motionProgress: MotionProgress
+    private val motionProgress: MutableFloatState
 ) {
     private val transition: androidx.constraintlayout.core.state.Transition
         get() = motionMeasurer.transition
@@ -36,15 +37,15 @@ internal class TransitionHandler(
      */
     fun updateProgressOnDrag(dragAmount: Offset) {
         val progressDelta = transition.dragToProgress(
-            motionProgress.currentProgress,
+            motionProgress.floatValue,
             motionMeasurer.layoutCurrentWidth,
             motionMeasurer.layoutCurrentHeight,
             dragAmount.x,
             dragAmount.y
         )
-        var newProgress = motionProgress.currentProgress + progressDelta
+        var newProgress = motionProgress.floatValue + progressDelta
         newProgress = newProgress.coerceIn(0f, 1f)
-        motionProgress.updateProgress(newProgress)
+        motionProgress.floatValue = newProgress
     }
 
     /**
@@ -53,7 +54,7 @@ internal class TransitionHandler(
      */
     suspend fun onTouchUp(velocity: Velocity) {
         withFrameNanos { timeNanos ->
-            transition.setTouchUp(motionProgress.currentProgress, timeNanos, velocity.x, velocity.y)
+            transition.setTouchUp(motionProgress.floatValue, timeNanos, velocity.x, velocity.y)
         }
     }
 
@@ -65,13 +66,13 @@ internal class TransitionHandler(
         val newProgress = withFrameNanos { timeNanos ->
             transition.getTouchUpProgress(timeNanos)
         }
-        motionProgress.updateProgress(newProgress)
+        motionProgress.floatValue = newProgress
     }
 
     /**
      * Returns true if the progress is still expected to be updated by [updateProgressWhileTouchUp].
      */
     fun pendingProgressWhileTouchUp(): Boolean {
-        return transition.isTouchNotDone(motionProgress.currentProgress)
+        return transition.isTouchNotDone(motionProgress.floatValue)
     }
 }
