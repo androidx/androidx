@@ -66,18 +66,16 @@ package androidx.graphics.shapes {
 
   public final class Morph {
     ctor public Morph(androidx.graphics.shapes.RoundedPolygon start, androidx.graphics.shapes.RoundedPolygon end);
-    method public java.util.List<androidx.graphics.shapes.Cubic> asCubics();
-    method public android.graphics.Path asPath();
+    method public java.util.List<androidx.graphics.shapes.Cubic> asCubics(float progress);
+    method public android.graphics.Path asPath(float progress);
+    method public android.graphics.Path asPath(float progress, optional android.graphics.Path path);
     method public android.graphics.RectF getBounds();
-    method public float getProgress();
-    method public void setProgress(float);
     method public void transform(android.graphics.Matrix matrix);
     property public final android.graphics.RectF bounds;
-    property public final float progress;
   }
 
   public final class MorphKt {
-    method public static void drawMorph(android.graphics.Canvas, androidx.graphics.shapes.Morph morph, android.graphics.Paint paint);
+    method public static void drawMorph(android.graphics.Canvas, androidx.graphics.shapes.Morph morph, android.graphics.Paint paint, optional float progress);
   }
 
   public final class RoundedPolygon {

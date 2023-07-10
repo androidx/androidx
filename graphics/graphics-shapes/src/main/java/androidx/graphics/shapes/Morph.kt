@@ -50,7 +50,12 @@ class Morph(
     private var morphMatch = match(start, end)
 
     // path is used to draw the object
+    // It is cached to avoid recalculating it if the progress has not changed
     private val path = Path()
+
+    // last value for which the cached path was constructed. We cache this and the path
+    // to avoid recreating the path for the same progress value
+    private var currentPathProgress: Float = Float.MIN_VALUE
 
     // These temp anchor/control points are used when progress changes to hold interpolated values
     // Using these structures avoids allocations during morph animation
@@ -67,7 +72,6 @@ class Morph(
 
     init {
         calculateBounds(bounds)
-        updatePath()
     }
 
     /**
@@ -123,26 +127,13 @@ class Morph(
     }
 
     /**
-     * The progress of a [Morph] object is a value from 0 to 1 that determines its current
-     * shape, between the start and end shapes provided at construction time. A value of 0 results
-     * in the start shape, a value of 1 results in the end shape, and any value in between
-     * results in a shape which is a linear interpolation between those two shapes.
-     *
-     * The range is generally [0..1] and values outside could result in undefined shapes, but
-     * values close to (but outside) the range can be used to get an exaggerated effect
-     * (e.g., for a bounce or overshoot animation).
-     */
-    var progress: Float = 0.0f
-        set(value) {
-            field = value
-            updatePath()
-        }
-
-    /**
      * This function updates the [path] object which holds the rendering information for the
      * morph shape, using the current [progress] property for the morph.
      */
-    private fun updatePath() {
+    private fun getPath(progress: Float): Path {
+        // Noop if we have already
+        if (progress == currentPathProgress) return path
+
         // In a future release, Path interpolation may be possible through the Path API
         // itself. Until then, we have to rewind and repopulate with the new/interpolated
         // values
@@ -161,6 +152,8 @@ class Morph(
             interpolate(element.first.p3, element.second.p3, tempA1, progress)
             path.cubicTo(tempC0.x, tempC0.y, tempC1.x, tempC1.y, tempA1.x, tempA1.y)
         }
+        currentPathProgress = progress
+        return path
     }
 
     /**
@@ -177,7 +170,8 @@ class Morph(
             pair.second.transform(matrix)
         }
         calculateBounds(bounds)
-        updatePath()
+        // Reset cached progress value to force recalculation due to transform change
+        currentPathProgress = Float.MIN_VALUE
     }
 
     /**
@@ -185,17 +179,38 @@ class Morph(
      * retrieved for use outside of this class. Note that this function returns a copy of
      * the internal [Path] to maintain immutability, thus there is some overhead in retrieving
      * the path with this function.
+     *
+     * @param progress a value from 0 to 1 that determines the morph's current
+     * shape, between the start and end shapes provided at construction time. A value of 0 results
+     * in the start shape, a value of 1 results in the end shape, and any value in between
+     * results in a shape which is a linear interpolation between those two shapes.
+     * The range is generally [0..1] and values outside could result in undefined shapes, but
+     * values close to (but outside) the range can be used to get an exaggerated effect
+     * (e.g., for a bounce or overshoot animation).
+     * @param path optional Path object to be used to hold the resulting Path data. If provided,
+     * that Path's data will be replaced with the internal Path data for the Morph. If none
+     * is provided, new Path object will be created and used instead.
      */
-    fun asPath(): Path {
-        return Path(path)
+    @JvmOverloads
+    fun asPath(progress: Float, path: Path = Path()): Path {
+        path.set(getPath(progress))
+        return path
     }
 
     /**
-     * Returns a view of the current state of this morph as a list of Cubics.
+     * Returns a representation of the morph object at a given [progress] value as a list of Cubics.
      * Note that this function causes a new list to be created and populated, so there is some
      * overhead.
+     *
+     * @param progress a value from 0 to 1 that determines the morph's current
+     * shape, between the start and end shapes provided at construction time. A value of 0 results
+     * in the start shape, a value of 1 results in the end shape, and any value in between
+     * results in a shape which is a linear interpolation between those two shapes.
+     * The range is generally [0..1] and values outside could result in undefined shapes, but
+     * values close to (but outside) the range can be used to get an exaggerated effect
+     * (e.g., for a bounce or overshoot animation).
      */
-    fun asCubics() =
+    fun asCubics(progress: Float) =
         mutableListOf<Cubic>().apply {
             clear()
             for (pair in morphMatch) {
@@ -346,7 +361,8 @@ class Morph(
      * Draws the Morph object. This is called by the public extension function
      * [Canvas.drawMorph]. By default, it simply calls [Canvas.drawPath].
      */
-    internal fun draw(canvas: Canvas, paint: Paint) {
+    internal fun draw(canvas: Canvas, paint: Paint, progress: Float) {
+        val path = getPath(progress)
         canvas.drawPath(path, paint)
     }
 }
@@ -358,10 +374,17 @@ class Morph(
  * path. This extension function avoids that overhead when rendering).
  *
  * @param morph The object to be drawn
- * @param paint The attributes
+ * @param paint The drawing attributes to be used when rendering the morph object
+ * @param progress a value from 0 to 1 that determines the morph's current
+ * shape, between the start and end shapes provided at construction time. A value of 0 results
+ * in the start shape, a value of 1 results in the end shape, and any value in between
+ * results in a shape which is a linear interpolation between those two shapes.
+ * The range is generally [0..1] and values outside could result in undefined shapes, but
+ * values close to (but outside) the range can be used to get an exaggerated effect
+ * (e.g., for a bounce or overshoot animation).
  */
-fun Canvas.drawMorph(morph: Morph, paint: Paint) {
-    morph.draw(this, paint)
+fun Canvas.drawMorph(morph: Morph, paint: Paint, progress: Float = 0f) {
+    morph.draw(this, paint, progress)
 }
 
 private val LOG_TAG = "Morph"
