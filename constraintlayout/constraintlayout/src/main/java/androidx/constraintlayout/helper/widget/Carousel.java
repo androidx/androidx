@@ -138,6 +138,25 @@ public class Carousel extends MotionHelper {
     }
 
     /**
+     * A setter method for whether it should be a infinite Carousel.
+     * Remember to call {@link #refresh} after calling this method.
+     *
+     * @param infiniteCarousel true if it should be a infinite Carousel, otherwise, false
+     */
+    public void setInfinite(boolean infiniteCarousel) {
+        this.mInfiniteCarousel = infiniteCarousel;
+    }
+
+    /**
+     * Returns whether it's a infinite Carousel
+     *
+     * @return true if it's a infinite Carousel, otherwise, false.
+     */
+    public boolean isInfinite() {
+        return this.mInfiniteCarousel;
+    }
+
+    /**
      * Returns the number of elements in the Carousel
      *
      * @return number of elements
