@@ -925,7 +925,7 @@ internal class BasicTextField2Test {
 
         rule.onNodeWithTag(Tag).performTouchInput {
             // swipe through
-            swipeRight(endX = right + 200, durationMillis = 1000)
+            swipeRight(endX = right + 200, durationMillis = 100)
         }
         rule.onNodeWithTag(Tag).assertIsNotFocused()
     }

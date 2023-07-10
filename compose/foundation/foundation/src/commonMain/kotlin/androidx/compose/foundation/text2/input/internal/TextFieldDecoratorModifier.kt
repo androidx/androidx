@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -72,7 +71,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -148,22 +146,15 @@ internal class TextFieldDecoratorModifierNode(
     CompositionLocalConsumerModifierNode {
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        coroutineScope {
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                with(textFieldSelectionState) { detectTouchMode() }
-            }
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                detectTapAndPress(onTap = { offset ->
-                    if (!isFocused) {
-                        requestFocus()
-                    }
-
-                    if (enabled && !readOnly && isFocused) {
-                        requireKeyboardController().show()
-                        textFieldSelectionState.onTapTextField(offset)
-                    }
-                })
-            }
+        with(textFieldSelectionState) {
+            textFieldGestures(
+                requestFocus = {
+                    if (!isFocused) requestFocus()
+                },
+                showKeyboard = {
+                    requireKeyboardController().show()
+                }
+            )
         }
     })
 
@@ -358,6 +349,7 @@ internal class TextFieldDecoratorModifierNode(
             return
         }
         isFocused = focusState.isFocused
+        textFieldSelectionState.isFocused = focusState.isFocused
 
         if (focusState.isFocused) {
             startInputSession()
