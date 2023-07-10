@@ -92,7 +92,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "contains multiple fields annotated @Id");
+                "Duplicate member annotated with @Id");
     }
 
     @Test
@@ -166,7 +166,8 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "}\n");
         assertThat(specialFieldReassigned).hadErrorContaining(
-                "Non-annotated field overriding special annotated fields named: id");
+                "Property type must stay consistent when overriding annotated "
+                        + "members but changed from @Id -> @StringProperty");
 
         Compilation nonAnnotatedFieldHasSameName = compile(
                 "@Document\n"
@@ -211,7 +212,7 @@ public class AppSearchCompilerTest {
                         + "  public boolean getBadId() { return badId; }\n"
                         + "}\n");
         assertThat(idCollision).hadErrorContaining(
-                "Class hierarchy contains multiple fields annotated @Id");
+                "Duplicate member annotated with @Id");
 
         Compilation nsCollision = compile(
                 "@Document\n"
@@ -232,7 +233,7 @@ public class AppSearchCompilerTest {
                         + "  }\n"
                         + "}\n");
         assertThat(nsCollision).hadErrorContaining(
-                "Class hierarchy contains multiple fields annotated @Namespace");
+                "Duplicate member annotated with @Namespace");
     }
 
     @Test
@@ -456,7 +457,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "contains multiple fields annotated @CreationTimestampMillis");
+                "Duplicate member annotated with @CreationTimestampMillis");
     }
 
     @Test
@@ -482,7 +483,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "contains multiple fields annotated @Namespace");
+                "Duplicate member annotated with @Namespace");
     }
 
     @Test
@@ -497,7 +498,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "contains multiple fields annotated @TtlMillis");
+                "Duplicate member annotated with @TtlMillis");
     }
 
     @Test
@@ -512,7 +513,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "contains multiple fields annotated @Score");
+                "Duplicate member annotated with @Score");
     }
 
     @Test
@@ -1223,7 +1224,6 @@ public class AppSearchCompilerTest {
                         + "  @BooleanProperty Boolean[] arrBoxBoolean;\n"   // 2a
                         + "  @BooleanProperty boolean[] arrUnboxBoolean;\n" // 2b
                         + "  @BytesProperty byte[][] arrUnboxByteArr;\n"  // 2b
-                        + "  @BytesProperty Byte[] boxByteArr;\n"         // 2a
                         + "  @StringProperty String[] arrString;\n"        // 2b
                         + "  @DocumentProperty Gift[] arrGift;\n"            // 2c
                         + "\n"
@@ -1259,8 +1259,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Property Annotation androidx.appsearch.annotation.Document.BooleanProperty "
-                        + "doesn't accept the data type of property field arrString");
+                "@BooleanProperty must only be placed on a getter/field of type or array or "
+                        + "collection of boolean|java.lang.Boolean");
     }
 
     @Test
@@ -1271,10 +1271,11 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
                         + "  @Id String id;\n"
-                        + "  @BytesProperty Collection<Byte[]> collectBoxByteArr;\n" // 1x
+                        + "  @BytesProperty Collection<Byte[]> collectBoxByteArr;\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "Unhandled out property type (1x): java.util.Collection<java.lang.Byte[]>");
+                "@BytesProperty must only be placed on a getter/field of type or array or "
+                        + "collection of byte[]");
 
         compilation = compile(
                 "import java.util.*;\n"
@@ -1282,10 +1283,11 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
                         + "  @Id String id;\n"
-                        + "  @BytesProperty Collection<Byte> collectByte;\n" // 1x
+                        + "  @BytesProperty Collection<Byte> collectByte;\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "Unhandled out property type (1x): java.util.Collection<java.lang.Byte>");
+                "@BytesProperty must only be placed on a getter/field of type or array or "
+                        + "collection of byte[]");
 
         compilation = compile(
                 "import java.util.*;\n"
@@ -1293,10 +1295,11 @@ public class AppSearchCompilerTest {
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
                         + "  @Id String id;\n"
-                        + "  @BytesProperty Byte[][] arrBoxByteArr;\n" // 2x
+                        + "  @BytesProperty Byte[][] arrBoxByteArr;\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "Unhandled out property type (2x): java.lang.Byte[][]");
+                "@BytesProperty must only be placed on a getter/field of type or array or "
+                        + "collection of byte[]");
     }
 
     @Test
@@ -1614,7 +1617,8 @@ public class AppSearchCompilerTest {
                         + "note2;\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "Cannot override a property with a different name");
+                "Property name within the annotation must stay consistent when "
+                        + "overriding annotated members but changed from 'note2' -> 'note2_new'");
 
         // Overridden properties cannot change the types.
         compilation = compile(
@@ -1637,7 +1641,8 @@ public class AppSearchCompilerTest {
                         + "  @LongProperty Long note2;\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "Cannot override a property with a different type");
+                "Property type must stay consistent when overriding annotated "
+                        + "members but changed from @StringProperty -> @LongProperty");
     }
 
     @Test
@@ -1953,18 +1958,10 @@ public class AppSearchCompilerTest {
                         + "  @Document.LongProperty(name=\"price2\")\n"
                         + "  public int price;\n"
                         + "}\n");
-        assertThat(compilation).succeededWithoutWarnings();
-        checkResultContains("Gift.java",
-                "new AppSearchSchema.LongPropertyConfig.Builder(\"price1\")");
-        checkResultContains("Gift.java",
-                "new AppSearchSchema.LongPropertyConfig.Builder(\"price2\")");
-        checkResultContains("Gift.java", "document.setPrice(getPriceConv)");
-        checkResultContains("Gift.java", "document.price = priceConv");
-        checkResultContains("Gift.java",
-                "builder.setPropertyLong(\"price1\", document.getPrice())");
-        checkResultContains("Gift.java",
-                "builder.setPropertyLong(\"price2\", document.price)");
-        checkEqualsGolden("Gift.java");
+        assertThat(compilation).hadErrorContaining(
+                "Normalized name \"price\" is already taken up by pre-existing "
+                        + "int Gift#getPrice(). "
+                        + "Please rename this getter/field to something else.");
     }
 
     @Test
@@ -1984,50 +1981,6 @@ public class AppSearchCompilerTest {
                 "Failed to find a suitable getter for element \"getPrice\"");
         assertThat(compilation).hadWarningContaining(
                 "Getter cannot be used: private visibility");
-    }
-
-    @Test
-    public void testSameNameGetterAndFieldAnnotatingBothWithDifferentType() throws Exception {
-        Compilation compilation = compile(
-                "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Document.Namespace String namespace;\n"
-                        + "  @Document.Id String id;\n"
-                        + "  @Document.DoubleProperty(name=\"price1\")\n"
-                        + "  public double getPrice() { return 0.2; }\n"
-                        + "  public void setPrice(double price) {}\n"
-                        + "  @Document.LongProperty(name=\"price2\")\n"
-                        + "  public int price;\n"
-                        + "}\n");
-        assertThat(compilation).succeededWithoutWarnings();
-        checkResultContains("Gift.java",
-                "new AppSearchSchema.DoublePropertyConfig.Builder(\"price1\")");
-        checkResultContains("Gift.java",
-                "new AppSearchSchema.LongPropertyConfig.Builder(\"price2\")");
-        checkResultContains("Gift.java", "document.setPrice(getPriceConv)");
-        checkResultContains("Gift.java", "document.price = priceConv");
-        checkResultContains("Gift.java",
-                "builder.setPropertyDouble(\"price1\", document.getPrice())");
-        checkResultContains("Gift.java",
-                "builder.setPropertyLong(\"price2\", document.price)");
-        checkEqualsGolden("Gift.java");
-    }
-
-    @Test
-    public void testSameNameGetterAndFieldAnnotatingBothWithoutSetter() throws Exception {
-        Compilation compilation = compile(
-                "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Document.Namespace String namespace;\n"
-                        + "  @Document.Id String id;\n"
-                        + "  @Document.LongProperty(name=\"price1\")\n"
-                        + "  public int getPrice() { return 0; }\n"
-                        + "  @Document.LongProperty(name=\"price2\")\n"
-                        + "  public int price;\n"
-                        + "}\n");
-        // Cannot find a setter method for the price1 field.
-        assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods");
     }
 
     @Test
@@ -2145,11 +2098,12 @@ public class AppSearchCompilerTest {
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
                         + "  @Document.StringProperty\n"
-                        + "  private int getPrice() { return 0; }\n"
+                        + "  public int getPrice() { return 0; }\n"
                         + "  public void setPrice(int price) {}\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "Document.StringProperty doesn't accept the data type of property field getPrice");
+                "@StringProperty must only be placed on a getter/field of type or array or "
+                        + "collection of java.lang.String");
     }
 
     public void testCyclicalSchema() throws Exception {

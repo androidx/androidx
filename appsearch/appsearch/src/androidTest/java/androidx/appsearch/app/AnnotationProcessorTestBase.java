@@ -159,8 +159,6 @@ public abstract class AnnotationProcessorTestBase {
         boolean[] mArrUnboxBoolean; // 2b
         @Document.BytesProperty
         byte[][] mArrUnboxByteArr;  // 2b
-        @Document.BytesProperty
-        Byte[] mBoxByteArr;         // 2a
         @Document.StringProperty
         String[] mArrString;        // 2b
         @Document.DocumentProperty
@@ -211,7 +209,6 @@ public abstract class AnnotationProcessorTestBase {
             assertThat(otherGift.mArrBoxLong).isEqualTo(this.mArrBoxLong);
             assertThat(otherGift.mArrBoxInteger).isEqualTo(this.mArrBoxInteger);
             assertThat(otherGift.mArrString).isEqualTo(this.mArrString);
-            assertThat(otherGift.mBoxByteArr).isEqualTo(this.mBoxByteArr);
             assertThat(otherGift.mArrUnboxBoolean).isEqualTo(this.mArrUnboxBoolean);
             assertThat(otherGift.mArrUnboxByteArr).isEqualTo(this.mArrUnboxByteArr);
             assertThat(otherGift.mArrUnboxDouble).isEqualTo(this.mArrUnboxDouble);
@@ -265,7 +262,6 @@ public abstract class AnnotationProcessorTestBase {
             gift.mArrBoxInteger = new Integer[]{4, 5};
             gift.mArrBoxLong = new Long[]{6L, 7L};
             gift.mArrString = new String[]{"cat", "dog"};
-            gift.mBoxByteArr = new Byte[]{8, 9};
             gift.mArrUnboxBoolean = new boolean[]{false, true};
             gift.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
             gift.mArrUnboxDouble = new double[]{1.0, 0.0};
@@ -339,8 +335,9 @@ public abstract class AnnotationProcessorTestBase {
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @Document annotation
-        mSession.setSchemaAsync(
-                new SetSchemaRequest.Builder().addDocumentClasses(Card.class, Gift.class).build())
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                        .addDocumentClasses(Card.class, Gift.class)
+                        .build())
                 .get();
 
         // Create a Gift object and assign values.
