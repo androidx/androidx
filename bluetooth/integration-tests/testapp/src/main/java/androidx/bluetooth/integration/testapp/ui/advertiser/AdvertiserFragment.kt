@@ -401,10 +401,6 @@ class AdvertiserFragment : Fragment() {
         val checkBoxPropertiesWriteNoResponse =
             view.findViewById<CheckBox>(R.id.check_box_properties_write_no_response)
 
-        val checkBoxPermissionsRead = view.findViewById<CheckBox>(R.id.check_box_permissions_read)
-        val checkBoxPermissionsWrite =
-            view.findViewById<CheckBox>(R.id.check_box_permissions_write)
-
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.add_characteristic))
             .setView(view)
@@ -412,6 +408,7 @@ class AdvertiserFragment : Fragment() {
                 val uuidText = editTextUuid.text.toString()
 
                 var properties = 0
+                var permissions = 0
                 if (checkBoxPropertiesBroadcast.isChecked) {
                     properties = properties or BluetoothGattCharacteristic.PROPERTY_BROADCAST
                 }
@@ -423,23 +420,19 @@ class AdvertiserFragment : Fragment() {
                 }
                 if (checkBoxPropertiesRead.isChecked) {
                     properties = properties or BluetoothGattCharacteristic.PROPERTY_READ
+                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
                 }
                 if (checkBoxPropertiesSignedWrite.isChecked) {
                     properties = properties or BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED
                 }
                 if (checkBoxPropertiesWrite.isChecked) {
                     properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE
+                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
                 }
                 if (checkBoxPropertiesWriteNoResponse.isChecked) {
                     properties =
                         properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
-                }
-
-                var permissions = 0
-                if (checkBoxPermissionsRead.isChecked) {
-                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
-                }
-                if (checkBoxPermissionsWrite.isChecked) {
                     permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
                 }
 
