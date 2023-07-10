@@ -23,6 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.test.core.app.ApplicationProvider;
 
+import io.reactivex.Completable;
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,11 +35,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import io.reactivex.Completable;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
 
 public class RxDataStoreBuilderTest {
     @Rule
@@ -67,6 +67,8 @@ public class RxDataStoreBuilderTest {
     public void testConstructWithContextAndName() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         String name = "my_data_store";
+        // make sure we cleanup before starting the test, in case a previous test left it dirty.
+        new File(context.getFilesDir(), "datastore/" + name).delete();
         RxDataStore<Byte> dataStore =
                 new RxDataStoreBuilder<Byte>(context, name, new TestingSerializer())
                         .build();
@@ -91,6 +93,8 @@ public class RxDataStoreBuilderTest {
                 )
                         .build();
         assertThat(dataStore.data().blockingFirst()).isEqualTo(1);
+        dataStore.dispose();
+        dataStore.shutdownComplete().blockingAwait();
     }
 
     @Test
@@ -166,5 +170,18 @@ public class RxDataStoreBuilderTest {
                 .setCorruptionHandler(replaceFileCorruptionHandler)
                 .build();
         assertThat(dataStore.data().blockingFirst()).isEqualTo(99);
+    }
+
+    @Test
+    public void isDisposed() {
+        TestingSerializer testingSerializer = new TestingSerializer();
+        testingSerializer.setFailReadWithCorruptionException(true);
+        RxDataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
+                () -> tempFolder.newFile(),
+                testingSerializer)
+                .build();
+        assertThat(dataStore.isDisposed()).isFalse();
+        dataStore.dispose();
+        assertThat(dataStore.isDisposed()).isTrue();
     }
 }
