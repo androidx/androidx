@@ -90,6 +90,7 @@ package androidx.wear.watchface.complications {
     field public static final int DATA_SOURCE_TIME_AND_DATE = 3; // 0x3
     field public static final int DATA_SOURCE_UNREAD_NOTIFICATION_COUNT = 7; // 0x7
     field public static final int DATA_SOURCE_WATCH_BATTERY = 1; // 0x1
+    field @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static final int DATA_SOURCE_WEATHER = 17; // 0x11
     field public static final int DATA_SOURCE_WORLD_CLOCK = 5; // 0x5
     field public static final int NO_DATA_SOURCE = -1; // 0xffffffff
   }

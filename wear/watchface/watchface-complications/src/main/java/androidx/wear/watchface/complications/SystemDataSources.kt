@@ -15,7 +15,9 @@
  */
 package androidx.wear.watchface.complications
 
+import android.os.Build
 import androidx.annotation.IntDef
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
 
@@ -25,7 +27,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
  */
 public class SystemDataSources private constructor() {
     public companion object {
-        // NEXT AVAILABLE DATA SOURCE ID: 17
+        // NEXT AVAILABLE DATA SOURCE ID: 18
 
         /** Specifies that no complication data source should be used. */
         public const val NO_DATA_SOURCE: Int = -1
@@ -177,6 +179,29 @@ public class SystemDataSources private constructor() {
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
         public const val DATA_SOURCE_DAY_AND_DATE: Int = 16
+
+        /**
+         * Id for the 'weather' complication complication data source.
+         *
+         * This is a safe complication data source, so if a watch face uses this as a default it
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
+         *
+         * This complication data source supports the following types:
+         * [ComplicationType.SHORT_TEXT], [ComplicationType.LONG_TEXT],
+         * [ComplicationType.SMALL_IMAGE].
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        public const val DATA_SOURCE_WEATHER: Int = 17
+
+        /** Checks if the given data source is implemented by the device. */
+        internal fun isAllowedOnDevice(@DataSourceId systemDataSourceFallback: Int): Boolean {
+            return when {
+                systemDataSourceFallback == DATA_SOURCE_WEATHER &&
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> false
+                else -> true
+            }
+        }
     }
 
     /** System complication data source id as defined in [SystemDataSources]. */
@@ -193,7 +218,8 @@ public class SystemDataSources private constructor() {
         DATA_SOURCE_SUNRISE_SUNSET,
         DATA_SOURCE_DAY_OF_WEEK,
         DATA_SOURCE_FAVORITE_CONTACT,
-        DATA_SOURCE_DAY_AND_DATE
+        DATA_SOURCE_DAY_AND_DATE,
+        DATA_SOURCE_WEATHER,
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)

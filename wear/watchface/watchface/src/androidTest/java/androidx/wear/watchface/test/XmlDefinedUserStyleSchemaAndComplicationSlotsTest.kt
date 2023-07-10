@@ -59,9 +59,11 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalArgumentException
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -81,13 +83,14 @@ private const val INTERACTIVE_INSTANCE_ID = "InteractiveTestInstance"
 
 class TestXmlWatchFaceService(
     testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
+    private var surfaceHolderOverride: SurfaceHolder,
+    private var xmlWatchFaceResourceId: Int,
 ) : WatchFaceService() {
     init {
         attachBaseContext(testContext)
     }
 
-    override fun getXmlWatchFaceResourceId() = R.xml.xml_watchface
+    override fun getXmlWatchFaceResourceId() = xmlWatchFaceResourceId
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
@@ -155,7 +158,7 @@ class TestXmlWatchFaceService(
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
+class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
 
@@ -168,26 +171,26 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
     @Suppress("DEPRECATION") // b/251211092
     @Before
-    public fun setUp() {
+    fun setUp() {
         Assume.assumeTrue("This test suite assumes API 29", Build.VERSION.SDK_INT >= 29)
         MockitoAnnotations.initMocks(this)
     }
 
     @After
-    public fun tearDown() {
+    fun tearDown() {
         InteractiveInstanceManager.setParameterlessEngine(null)
         if (this::interactiveWatchFaceInstance.isInitialized) {
             interactiveWatchFaceInstance.release()
         }
     }
 
-    private fun setPendingWallpaperInteractiveWatchFaceInstance() {
+    private fun setPendingWallpaperInteractiveWatchFaceInstance(instanceId: String) {
         val existingInstance =
             InteractiveInstanceManager
                 .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                     InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                         WallpaperInteractiveWatchFaceInstanceParams(
-                            INTERACTIVE_INSTANCE_ID,
+                            instanceId,
                             DeviceConfig(false, false, 0, 0),
                             WatchUiState(false, 0),
                             UserStyleWireFormat(emptyMap()),
@@ -216,13 +219,14 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         assertThat(existingInstance).isNull()
     }
 
-    @Test
-    @Suppress("Deprecation", "NewApi") // userStyleSettings
-    public fun staticSchemaAndComplicationsRead() {
+    private fun createAndMountTestService(
+        xmlWatchFaceResourceId: Int = R.xml.xml_watchface,
+    ): WatchFaceService.EngineWrapper {
         val service =
             TestXmlWatchFaceService(
-                ApplicationProvider.getApplicationContext<Context>(),
-                surfaceHolder
+                ApplicationProvider.getApplicationContext(),
+                surfaceHolder,
+                xmlWatchFaceResourceId
             )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
@@ -231,10 +235,20 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
         Mockito.`when`(surface.isValid).thenReturn(false)
 
-        setPendingWallpaperInteractiveWatchFaceInstance()
+        setPendingWallpaperInteractiveWatchFaceInstance(
+            "${INTERACTIVE_INSTANCE_ID}_$xmlWatchFaceResourceId"
+        )
 
         val wrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
+        return wrapper
+    }
+
+    @Test
+    @Suppress("Deprecation", "NewApi") // userStyleSettings
+    fun staticSchemaAndComplicationsRead() {
+        val wrapper = createAndMountTestService()
 
         runBlocking {
             val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
@@ -391,6 +405,44 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                         "secondary(null, null), " +
                         "system(16, SHORT_TEXT)]}]"
                 )
+        }
+    }
+
+    @Test
+    fun staticSchemaAndComplicationsRead_invalidXml() {
+        // test that when the xml cannot be parsed, the error is propagated and that
+        // the deferred values of the engine wrapper do not hang indefinitely
+        val wrapper = createAndMountTestService(R.xml.xml_watchface_invalid)
+        runBlocking {
+            val exception =
+                assertFailsWith<IllegalArgumentException> { wrapper.deferredValidation.await() }
+            assertThat(exception.message).contains("must have a systemDataSourceFallback attribute")
+            assertThat(wrapper.deferredWatchFaceImpl.isCancelled)
+        }
+    }
+
+    @Test
+    fun readsComplicationWithWeatherDefaultOnApi34() {
+        Assume.assumeTrue("This test runs only on API >= 34", Build.VERSION.SDK_INT >= 34)
+        val wrapper = createAndMountTestService(R.xml.xml_watchface_weather)
+        runBlocking {
+            val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
+            val complicationSlot = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
+            assertThat(complicationSlot.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WEATHER)
+        }
+    }
+
+    @Test
+    fun throwsExceptionOnReadingComplicationWithWeatherDefaultOnApiBelow34() {
+        Assume.assumeTrue("This test runs only on API < 34", Build.VERSION.SDK_INT < 34)
+        val wrapper = createAndMountTestService(R.xml.xml_watchface_weather)
+
+        runBlocking {
+            val exception =
+                assertFailsWith<IllegalArgumentException> { wrapper.deferredValidation.await() }
+            assertThat(exception.message)
+                .contains("cannot have the supplied systemDataSourceFallback value")
         }
     }
 }
