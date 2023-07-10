@@ -7,9 +7,11 @@ package androidx.constraintlayout.helper.widget {
     ctor public Carousel(android.content.Context!, android.util.AttributeSet!, int);
     method public int getCount();
     method public int getCurrentIndex();
+    method public boolean isInfinite();
     method public void jumpToIndex(int);
     method public void refresh();
     method public void setAdapter(androidx.constraintlayout.helper.widget.Carousel.Adapter!);
+    method public void setInfinite(boolean);
     method public void transitionToIndex(int, int);
     field public static final int TOUCH_UP_CARRY_ON = 2; // 0x2
     field public static final int TOUCH_UP_IMMEDIATE_STOP = 1; // 0x1
