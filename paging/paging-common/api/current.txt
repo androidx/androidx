@@ -144,9 +144,9 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType REFRESH;
   }
 
-  public interface Logger {
-    method public boolean isLoggable(int level);
-    method public void log(int level, String message, optional Throwable? tr);
+  @Deprecated public interface Logger {
+    method @Deprecated public boolean isLoggable(int level);
+    method @Deprecated public void log(int level, String message, optional Throwable? tr);
   }
 
   @Deprecated public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {

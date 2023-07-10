@@ -17,11 +17,11 @@
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
@@ -31,6 +31,7 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    android()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -46,12 +47,20 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
+        commonJvmAndroidMain {
             dependsOn(commonMain)
+
             dependencies {
                 api("androidx.arch.core:core-common:2.2.0")
-
             }
+        }
+
+        jvmMain {
+            dependsOn(commonJvmAndroidMain)
+        }
+
+        androidMain {
+            dependsOn(commonJvmAndroidMain)
         }
 
         commonTest {
@@ -63,7 +72,9 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
+        commonJvmAndroidTest {
+            kotlin.srcDir("src/commonJvmAndroidTest/kotlin")
+
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)
@@ -71,6 +82,14 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-common"))
                 implementation(project(":internal-testutils-ktx"))
             }
+        }
+
+        jvmTest {
+            dependsOn(commonJvmAndroidTest)
+        }
+
+        androidAndroidTest {
+            dependsOn(commonJvmAndroidTest)
         }
 
         if (enableNative) {
@@ -106,4 +125,8 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Common"
+}
+
+android {
+    namespace "androidx.paging.common"
 }

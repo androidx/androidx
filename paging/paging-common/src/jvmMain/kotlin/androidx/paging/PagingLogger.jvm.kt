@@ -16,4 +16,17 @@
 
 package androidx.paging
 
-public expect annotation class MainThread()
+import androidx.annotation.RestrictTo
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public actual object PagingLogger {
+
+    public actual fun isLoggable(level: Int): Boolean {
+        return true
+    }
+
+    // consider using java.util.logging APIs instead
+    public actual fun log(level: Int, message: String, tr: Throwable?) {
+        print("\n$message")
+    }
+}
