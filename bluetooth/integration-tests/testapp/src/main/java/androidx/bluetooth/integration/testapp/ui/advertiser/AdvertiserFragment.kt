@@ -30,6 +30,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
@@ -360,32 +361,110 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun addGattService() {
-        // TODO(ofy) Show dialog for Service customization and replace sampleService
+        val editTextUuid = EditText(requireActivity())
+        editTextUuid.hint = getString(R.string.service_uuid)
 
-        val sampleService =
-            BluetoothGattService(UUID.randomUUID(), BluetoothGattService.SERVICE_TYPE_PRIMARY)
-
-        viewModel.gattServerAddService(sampleService)
-
-        gattServerServicesAdapter?.notifyItemInserted(viewModel.gattServerServices.size - 1)
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.add_service))
+            .setViewEditText(editTextUuid)
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
+                val editTextInput = editTextUuid.text.toString()
+                try {
+                    val uuid = UUID.fromString(editTextInput)
+                    val service =
+                        BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+                    viewModel.gattServerAddService(service)
+                    gattServerServicesAdapter
+                        ?.notifyItemInserted(viewModel.gattServerServices.size - 1)
+                } catch (e: Exception) {
+                    toast(getString(R.string.invalid_uuid)).show()
+                }
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+            .show()
     }
 
     private fun addGattCharacteristic(bluetoothGattService: BluetoothGattService) {
-        // TODO(ofy) Show dialog for Characteristic customization and replace sampleCharacteristic
+        val view = layoutInflater.inflate(R.layout.dialog_add_characteristic, null)
+        val editTextUuid = view.findViewById<EditText>(R.id.edit_text_uuid)
 
-        val sampleCharacteristic = BluetoothGattCharacteristic(
-            UUID.randomUUID(),
-            BluetoothGattCharacteristic.PROPERTY_READ,
-            BluetoothGattCharacteristic.PERMISSION_READ
-        )
+        val checkBoxPropertiesBroadcast =
+            view.findViewById<CheckBox>(R.id.check_box_properties_broadcast)
+        val checkBoxPropertiesIndicate =
+            view.findViewById<CheckBox>(R.id.check_box_properties_indicate)
+        val checkBoxPropertiesNotify = view.findViewById<CheckBox>(R.id.check_box_properties_notify)
+        val checkBoxPropertiesRead = view.findViewById<CheckBox>(R.id.check_box_properties_read)
+        val checkBoxPropertiesSignedWrite =
+            view.findViewById<CheckBox>(R.id.check_box_properties_signed_write)
+        val checkBoxPropertiesWrite = view.findViewById<CheckBox>(R.id.check_box_properties_write)
+        val checkBoxPropertiesWriteNoResponse =
+            view.findViewById<CheckBox>(R.id.check_box_properties_write_no_response)
 
-        bluetoothGattService.addCharacteristic(sampleCharacteristic)
+        val checkBoxPermissionsRead = view.findViewById<CheckBox>(R.id.check_box_permissions_read)
+        val checkBoxPermissionsWrite =
+            view.findViewById<CheckBox>(R.id.check_box_permissions_write)
 
-        gattServerServicesAdapter?.notifyItemChanged(
-            viewModel.gattServerServices.indexOf(
-                bluetoothGattService
-            )
-        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.add_characteristic))
+            .setView(view)
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
+                val uuidText = editTextUuid.text.toString()
+
+                var properties = 0
+                if (checkBoxPropertiesBroadcast.isChecked) {
+                    properties = properties or BluetoothGattCharacteristic.PROPERTY_BROADCAST
+                }
+                if (checkBoxPropertiesIndicate.isChecked) {
+                    properties = properties or BluetoothGattCharacteristic.PROPERTY_INDICATE
+                }
+                if (checkBoxPropertiesNotify.isChecked) {
+                    properties = properties or BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                }
+                if (checkBoxPropertiesRead.isChecked) {
+                    properties = properties or BluetoothGattCharacteristic.PROPERTY_READ
+                }
+                if (checkBoxPropertiesSignedWrite.isChecked) {
+                    properties = properties or BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+                }
+                if (checkBoxPropertiesWrite.isChecked) {
+                    properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE
+                }
+                if (checkBoxPropertiesWriteNoResponse.isChecked) {
+                    properties =
+                        properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+                }
+
+                var permissions = 0
+                if (checkBoxPermissionsRead.isChecked) {
+                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
+                }
+                if (checkBoxPermissionsWrite.isChecked) {
+                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+                }
+
+                try {
+                    val uuid = UUID.fromString(uuidText)
+                    val sampleCharacteristic = BluetoothGattCharacteristic(
+                        uuid,
+                        properties,
+                        permissions
+                    )
+
+                    bluetoothGattService.addCharacteristic(sampleCharacteristic)
+
+                    gattServerServicesAdapter?.notifyItemChanged(
+                        viewModel.gattServerServices.indexOf(
+                            bluetoothGattService
+                        )
+                    )
+                } catch (e: Exception) {
+                    toast(getString(R.string.invalid_uuid)).show()
+                }
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+            .show()
     }
 
     private fun openGattServer() {

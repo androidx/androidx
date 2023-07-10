@@ -36,13 +36,19 @@
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
     <string name="generic_attribute">Generic Attribute</string>
-    <string name="uuid">uuid</string>
-    <string name="properties">Properties</string>
+
+    <!-- Service & Characteristic -->
     <string name="primary_service">Primary Service</string>
+    <string name="uuid">Uuid</string>
+    <string name="permissions">Permissions</string>
+    <string name="properties">Properties</string>
+    <string name="broadcast">Broadcast</string>
     <string name="indicate">Indicate</string>
     <string name="notify">Notify</string>
     <string name="read">Read</string>
+    <string name="signed_write">Signed Write</string>
     <string name="write">Write</string>
+    <string name="write_no_response">Write No Response</string>
     <string name="value">Value</string>
 
     <!-- Advertiser -->
@@ -72,4 +78,5 @@
     <string name="add_descriptor">Add Descriptor</string>
     <string name="open_gatt_server">Open Gatt Server</string>
     <string name="stop_gatt_server">Stop Gatt Server</string>
+    <string name="invalid_uuid">Invalid UUID</string>
 </resources>
