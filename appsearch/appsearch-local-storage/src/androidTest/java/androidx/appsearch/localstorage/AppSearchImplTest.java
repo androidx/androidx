@@ -727,14 +727,15 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
         // We need to share across packages
-        VisibilityChecker mockVisibilityChecker = new MockVisibilityChecker(true);
+        VisibilityChecker mockVisibilityChecker =
+                (callerAccess, packageName, prefixedSchema, visibilityStore) -> true;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
                 new UnlimitedLimitConfig(),
                 new DefaultIcingOptionsConfig(),
                 /*initStatsBuilder=*/ null,
-                mockVisibilityChecker,
-                ALWAYS_OPTIMIZE);
+                ALWAYS_OPTIMIZE,
+                mockVisibilityChecker);
 
         AppSearchSchema.StringPropertyConfig personField =
                 new AppSearchSchema.StringPropertyConfig.Builder("personId")
