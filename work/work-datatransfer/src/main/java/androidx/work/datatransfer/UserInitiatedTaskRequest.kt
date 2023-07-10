@@ -25,6 +25,21 @@ import java.util.UUID
 class UserInitiatedTaskRequest constructor(
     private val task: Class<out UserInitiatedTask>,
     /**
+     * The foreground service which will be used as a fallback solution on Android 14- devices.
+     *
+     * <p>
+     * Upon scheduling the task request, the library will call [Context.startForegroundService] with
+     * [ACTION_UIT_SCHEDULE] on the given service here.
+     * The app needs to call [android.app.Service.startForeground] within a certain amount of time,
+     * otherwise it will crash with a [android.app.ForegroundServiceDidNotStartInTimeException].
+     */
+    private val service: Class<out AbstractUitService>,
+    /**
+     * [ForegroundServiceOnTaskFinishPolicy] indicating what should occur when the task is finished.
+     */
+    private val onTaskFinishPolicy: ForegroundServiceOnTaskFinishPolicy =
+        ForegroundServiceOnTaskFinishPolicy.FOREGROUND_SERVICE_STOP_FOREGROUND,
+    /**
      * [Constraints] required for this task to run.
      * The default value assumes a requirement of any internet.
      */
@@ -71,6 +86,25 @@ class UserInitiatedTaskRequest constructor(
 
     suspend fun cancel() {
         // TODO: update impl
+    }
+
+    companion object {
+        const val ACTION_UIT_SCHEDULE =
+            "androidx.work.datatransfer.UserInitiatedTaskRequest.SCHEDULE"
+    }
+
+    enum class ForegroundServiceOnTaskFinishPolicy {
+        /**
+         * This indicates that the foreground service should be stopped when the job is done.
+         * This is the default behavior.
+         */
+        FOREGROUND_SERVICE_STOP_FOREGROUND,
+
+        /**
+         * This indicates that the foreground service should be left as is when the job is done
+         * and the app will manage its lifecycle.
+         */
+        FOREGROUND_SERVICE_DETACH,
     }
 
     /**
