@@ -27,9 +27,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
-import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,21 +122,7 @@ public class AppSearchTestUtils {
     @NonNull
     public static VisibilityChecker createMockVisibilityChecker(
             @NonNull Set<String> visiblePrefixedSchemas) {
-        return new VisibilityChecker() {
-            @Override
-            public boolean isSchemaSearchableByCaller(
-                    @NonNull CallerAccess callerAccess,
-                    @NonNull String packageName,
-                    @NonNull String prefixedSchema,
-                    @NonNull VisibilityStore visibilityStore) {
-                return visiblePrefixedSchemas.contains(prefixedSchema);
-            }
-
-            @Override
-            public boolean doesCallerHaveSystemAccess(
-                    @NonNull String callerPackageName) {
-                return false;
-            }
-        };
+        return (callerAccess, packageName, prefixedSchema, visibilityStore) ->
+                visiblePrefixedSchemas.contains(prefixedSchema);
     }
 }
