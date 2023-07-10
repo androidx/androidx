@@ -24,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -184,7 +186,20 @@ class Encoding {
         return out.toByteArray();
     }
 
-    static void writeAll(@NonNull InputStream is, @NonNull OutputStream os) throws IOException {
+    static void writeAll(@NonNull InputStream is,
+            @NonNull OutputStream os,
+            @NonNull FileChannel fileChannel,
+            @Nullable FileLock lock) throws IOException {
+
+        boolean isValid = lock != null && lock.isValid();
+        if (!isValid) {
+            throw new IOException("Unable to acquire a lock on the underlying file channel.");
+        }
+        if (fileChannel.position() > 0) {
+            // Only write to the cur profile, when it is empty.
+            throw new IOException("Unable to write profile, given one already exists.");
+        }
+
         byte[] buf = new byte[512];
         int length;
         while ((length = is.read(buf)) > 0) {
