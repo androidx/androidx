@@ -24,9 +24,7 @@ import com.android.build.gradle.LibraryExtension
 import java.io.File
 import org.gradle.api.Project
 
-/**
- * Adds native API generation / updating / checking tasks to a project.
- */
+/** Adds native API generation / updating / checking tasks to a project. */
 object NativeApiTasks {
     private const val apiGroup = "API"
 
@@ -35,54 +33,56 @@ object NativeApiTasks {
         builtApiLocation: File,
         outputApiLocations: List<File>,
     ) {
-        val artifactNames = project.extensions.getByType(
-            LibraryExtension::class.java
-        ).prefab.filterNot { it.headerOnly }.map { it.name }
+        val artifactNames =
+            project.extensions
+                .getByType(LibraryExtension::class.java)
+                .prefab
+                .filterNot { it.headerOnly }
+                .map { it.name }
 
         // Generates API files from source in the build directory
-        val generateNativeApi = project.tasks.register(
-            "generateNativeApi",
-            GenerateNativeApiTask::class.java
-        ) { task ->
-            task.group = apiGroup
-            task.description = "Generates API files from native source"
-            task.projectRootDir.set(project.rootDir)
-            task.prefabDirectory.set(
-                project.buildDir.resolve("intermediates/prefab_package/release/prefab")
-            )
-            task.artifactNames.set(artifactNames)
-            task.apiLocation.set(builtApiLocation)
-            task.dependsOn("prefabReleasePackage")
-        }
+        val generateNativeApi =
+            project.tasks.register("generateNativeApi", GenerateNativeApiTask::class.java) { task ->
+                task.group = apiGroup
+                task.description = "Generates API files from native source"
+                task.projectRootDir.set(project.rootDir)
+                task.prefabDirectory.set(
+                    project.buildDir.resolve("intermediates/prefab_package/release/prefab")
+                )
+                task.artifactNames.set(artifactNames)
+                task.apiLocation.set(builtApiLocation)
+                task.dependsOn("prefabReleasePackage")
+            }
 
         // Checks that there are no breaking changes since the last (non alpha) release
         val requiredCompatibilityApiLocation = project.getRequiredCompatibilityApiLocation()
-        val checkNativeApiRelease = requiredCompatibilityApiLocation?.let { lastReleasedApiFile ->
-            project.tasks.register(
-                "checkNativeApiRelease",
-                CheckNativeApiCompatibilityTask::class.java
-            ) { task ->
-                task.group = apiGroup
-                task.description = "Checks that the API generated from native sources is  " +
-                    "compatible with the last released API file"
-                task.artifactNames.set(artifactNames)
-                task.builtApiLocation.set(builtApiLocation)
-                task.currentApiLocation.set(lastReleasedApiFile.nativeApiDirectory)
-                // only check for breaking changes here
-                task.strict.set(false)
-                task.dependsOn(generateNativeApi)
+        val checkNativeApiRelease =
+            requiredCompatibilityApiLocation?.let { lastReleasedApiFile ->
+                project.tasks.register(
+                    "checkNativeApiRelease",
+                    CheckNativeApiCompatibilityTask::class.java
+                ) { task ->
+                    task.group = apiGroup
+                    task.description =
+                        "Checks that the API generated from native sources is  " +
+                            "compatible with the last released API file"
+                    task.artifactNames.set(artifactNames)
+                    task.builtApiLocation.set(builtApiLocation)
+                    task.currentApiLocation.set(lastReleasedApiFile.nativeApiDirectory)
+                    // only check for breaking changes here
+                    task.strict.set(false)
+                    task.dependsOn(generateNativeApi)
+                }
             }
-        }
 
         // Checks that API present in source matches that of the current generated API files
         val checkNativeApi =
-            project.tasks.register(
-                "checkNativeApi",
-                CheckNativeApiEquivalenceTask::class.java
-            ) { task ->
+            project.tasks.register("checkNativeApi", CheckNativeApiEquivalenceTask::class.java) {
+                task ->
                 task.group = apiGroup
-                task.description = "Checks that the API generated from native sources matches " +
-                    "the checked in API file"
+                task.description =
+                    "Checks that the API generated from native sources matches " +
+                        "the checked in API file"
                 task.artifactNames.set(artifactNames)
                 task.builtApi.set(builtApiLocation)
                 task.checkedInApis.set(outputApiLocations)
@@ -95,8 +95,7 @@ object NativeApiTasks {
 
         // Update the native API files if there are no breaking changes since the last (non-alpha)
         // release.
-        project.tasks.register("updateNativeApi", UpdateNativeApi::class.java) {
-                task ->
+        project.tasks.register("updateNativeApi", UpdateNativeApi::class.java) { task ->
             task.group = apiGroup
             task.description = "Updates the checked in API files to match source code API"
             task.artifactNames.set(artifactNames)

@@ -33,14 +33,10 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     private lateinit var rootProject: Project
 
-    /**
-     * List of snapshot repositories to fetch AndroidX artifacts
-     */
+    /** List of snapshot repositories to fetch AndroidX artifacts */
     private lateinit var repos: PlaygroundRepositories
 
-    /**
-     * The configuration for the plugin read from the gradle properties
-     */
+    /** The configuration for the plugin read from the gradle properties */
     private lateinit var config: PlaygroundProperties
 
     override fun apply(target: Project) {
@@ -57,9 +53,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         repos = PlaygroundRepositories(config)
         rootProject.repositories.addPlaygroundRepositories()
         GradleTransformWorkaround.maybeApply(rootProject)
-        rootProject.subprojects {
-            configureSubProject(it)
-        }
+        rootProject.subprojects { configureSubProject(it) }
     }
 
     private fun configureSubProject(project: Project) {
@@ -78,14 +72,13 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     /**
      * Finds the snapshot version from the AndroidX snapshot repository.
      *
-     * This is initially done by reading the maven-metadata from the snapshot repository.
-     * The result of that query is cached in the build file so that subsequent build requests will
-     * not need to access the network.
+     * This is initially done by reading the maven-metadata from the snapshot repository. The result
+     * of that query is cached in the build file so that subsequent build requests will not need to
+     * access the network.
      */
     private fun findSnapshotVersion(group: String, module: String): String {
-        val snapshotVersionCache = rootProject.buildDir.resolve(
-            "snapshot-version-cache/${config.snapshotBuildId}"
-        )
+        val snapshotVersionCache =
+            rootProject.buildDir.resolve("snapshot-version-cache/${config.snapshotBuildId}")
         val groupPath = group.replace('.', '/')
         val modulePath = module.replace('.', '/')
         val metadataCacheFile = snapshotVersionCache.resolve("$groupPath/$modulePath/version.txt")
@@ -134,31 +127,35 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         gradlePluginPortal()
     }
 
-    private class PlaygroundRepositories(
-        props: PlaygroundProperties
-    ) {
-        val sonatypeSnapshot = PlaygroundRepository(
-            url = "https://oss.sonatype.org/content/repositories/snapshots",
-            includeGroupRegex = """com\.pinterest.*""",
-            includeModuleRegex = """ktlint.*"""
-        )
-        val snapshots = PlaygroundRepository(
-            "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts/repository",
-            includeGroupRegex = """androidx\..*"""
-        )
-        val metalava = PlaygroundRepository(
-            "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +
-                "/repo/m2repository",
-            includeGroupRegex = """com\.android\.tools\.metalava"""
-        )
-        val prebuilts = PlaygroundRepository(
-            INTERNAL_PREBUILTS_REPO_URL,
-            includeGroupRegex = """androidx\..*"""
-        )
-        val dokka = PlaygroundRepository(
-            "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev",
-            includeGroupRegex = """org\.jetbrains\.dokka"""
-        )
+    private class PlaygroundRepositories(props: PlaygroundProperties) {
+        val sonatypeSnapshot =
+            PlaygroundRepository(
+                url = "https://oss.sonatype.org/content/repositories/snapshots",
+                includeGroupRegex = """com\.pinterest.*""",
+                includeModuleRegex = """ktlint.*"""
+            )
+        val snapshots =
+            PlaygroundRepository(
+                "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts" +
+                    "/repository",
+                includeGroupRegex = """androidx\..*"""
+            )
+        val metalava =
+            PlaygroundRepository(
+                "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +
+                    "/repo/m2repository",
+                includeGroupRegex = """com\.android\.tools\.metalava"""
+            )
+        val prebuilts =
+            PlaygroundRepository(
+                INTERNAL_PREBUILTS_REPO_URL,
+                includeGroupRegex = """androidx\..*"""
+            )
+        val dokka =
+            PlaygroundRepository(
+                "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev",
+                includeGroupRegex = """org\.jetbrains\.dokka"""
+            )
         val all = listOf(sonatypeSnapshot, snapshots, metalava, dokka, prebuilts)
     }
 
@@ -182,8 +179,9 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
 
             private fun Project.requireProperty(name: String): String {
                 return checkNotNull(findProperty(name)) {
-                    "missing $name property. It must be defined in the gradle.properties file"
-                }.toString()
+                        "missing $name property. It must be defined in the gradle.properties file"
+                    }
+                    .toString()
             }
         }
     }
@@ -195,8 +193,8 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
          * This can be used for optional dependencies in the playground settings.gradle files.
          *
          * @param path The project path
-         * @return A Project instance if it exists or coordinates of the artifact if the project is not
-         *         included in this build.
+         * @return A Project instance if it exists or coordinates of the artifact if the project is
+         *   not included in this build.
          */
         fun projectOrArtifact(rootProject: Project, path: String): Any {
             val requested = rootProject.findProject(path)
@@ -213,18 +211,20 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
 
                 // Typically androidx projects have 3 sections, compose has 4.
                 if (sections.size >= 3) {
-                    val group = sections
-                        // Filter empty sections as many declarations start with ':'
-                        .filter { it.isNotBlank() }
-                        // Last element is the artifact.
-                        .dropLast(1)
-                        .joinToString(".")
+                    val group =
+                        sections
+                            // Filter empty sections as many declarations start with ':'
+                            .filter { it.isNotBlank() }
+                            // Last element is the artifact.
+                            .dropLast(1)
+                            .joinToString(".")
                     return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
                 }
 
                 throw GradleException("projectOrArtifact cannot find/replace project $path")
             }
         }
+
         const val SNAPSHOT_MARKER = "REPLACE_WITH_SNAPSHOT"
         const val INTERNAL_PREBUILTS_REPO_URL =
             "https://androidx.dev/storage/prebuilts/androidx/internal/repository"

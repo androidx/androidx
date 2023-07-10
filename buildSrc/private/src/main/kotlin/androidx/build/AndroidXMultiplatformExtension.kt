@@ -34,10 +34,10 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 /**
- *  [AndroidXMultiplatformExtension] is an extension that wraps specific functionality of the Kotlin
- *  multiplatform extension, and applies the Kotlin multiplatform plugin when it is used. The
- *  purpose of wrapping is to prevent targets from being added when the platform has not been
- *  enabled. e.g. the `macosX64` target is gated on a `project.enableMac` check.
+ * [AndroidXMultiplatformExtension] is an extension that wraps specific functionality of the Kotlin
+ * multiplatform extension, and applies the Kotlin multiplatform plugin when it is used. The purpose
+ * of wrapping is to prevent targets from being added when the platform has not been enabled. e.g.
+ * the `macosX64` target is gated on a `project.enableMac` check.
  */
 open class AndroidXMultiplatformExtension(val project: Project) {
 
@@ -65,44 +65,48 @@ open class AndroidXMultiplatformExtension(val project: Project) {
      * have requested `mac()` but this is not available when building on Linux.
      */
     val targetPlatforms: List<String>
-        get() = if (kotlinExtensionDelegate.isInitialized()) {
-            kotlinExtension.targets.mapNotNull {
-                if (it.targetName != "metadata") {
-                    it.targetName
-                } else {
-                    null
+        get() =
+            if (kotlinExtensionDelegate.isInitialized()) {
+                kotlinExtension.targets.mapNotNull {
+                    if (it.targetName != "metadata") {
+                        it.targetName
+                    } else {
+                        null
+                    }
                 }
+            } else {
+                throw GradleException("Kotlin multi-platform extension has not been initialized")
             }
-        } else {
-            throw GradleException("Kotlin multi-platform extension has not been initialized")
-        }
 
     /**
      * Default platform identifier used for specifying POM dependencies.
      *
      * This platform will be added as a dependency to the multi-platform anchor artifact's POM
-     * publication. For example, if the anchor artifact is `collection` and the default platform
-     * is `jvm`, then the POM for `collection` will express a dependency on `collection-jvm`. This
+     * publication. For example, if the anchor artifact is `collection` and the default platform is
+     * `jvm`, then the POM for `collection` will express a dependency on `collection-jvm`. This
      * ensures that developers who are silently upgrade to KMP artifacts but are not using Gradle
      * still see working artifacts.
      *
-     * If no default was specified and a single platform is requested (ex. using [jvm]), returns
-     * the identifier for that platform.
+     * If no default was specified and a single platform is requested (ex. using [jvm]), returns the
+     * identifier for that platform.
      */
     var defaultPlatform: String? = null
         get() = field ?: requestedPlatforms.singleOrNull()?.id
-
         set(value) {
             if (value != null) {
                 if (requestedPlatforms.none { it.id == value }) {
-                    throw GradleException("Platform $value has not been requested as a target. " +
-                        "Available platforms are: " +
-                        requestedPlatforms.joinToString(", ") { it.id })
+                    throw GradleException(
+                        "Platform $value has not been requested as a target. " +
+                            "Available platforms are: " +
+                            requestedPlatforms.joinToString(", ") { it.id }
+                    )
                 }
                 if (targetPlatforms.none { it == value }) {
-                    throw GradleException("Platform $value is not available in this build " +
-                        "environment. Available platforms are: " +
-                        targetPlatforms.joinToString(", "))
+                    throw GradleException(
+                        "Platform $value is not available in this build " +
+                            "environment. Available platforms are: " +
+                            targetPlatforms.joinToString(", ")
+                    )
                 }
             }
             field = value
@@ -110,15 +114,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>>
         get() = kotlinExtension.presets
+
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
 
     internal fun hasNativeTarget(): Boolean {
         // it is important to check initialized here not to trigger initialization
-        return kotlinExtensionDelegate.isInitialized() && targets.any {
-            it.platformType == KotlinPlatformType.native
-        }
+        return kotlinExtensionDelegate.isInitialized() &&
+            targets.any { it.platformType == KotlinPlatformType.native }
     }
+
     fun sourceSets(closure: Closure<*>) {
         if (kotlinExtensionDelegate.isInitialized()) {
             kotlinExtension.sourceSets.configure(closure)
@@ -139,9 +144,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun jvm(
-        block: Action<KotlinJvmTarget>? = null
-    ): KotlinJvmTarget? {
+    fun jvm(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
         requestedPlatforms.add(PlatformIdentifier.JVM)
         return if (project.enableJvm()) {
             kotlinExtension.jvm {
@@ -153,149 +156,115 @@ open class AndroidXMultiplatformExtension(val project: Project) {
                     withJava()
                 }
             }
-        } else { null }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun android(
-        block: Action<KotlinAndroidTarget>? = null
-    ): KotlinAndroidTarget? {
+    fun android(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
         requestedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
-            kotlinExtension.android {
-                block?.execute(this)
-            }
-        } else { null }
+            kotlinExtension.android { block?.execute(this) }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun desktop(
-        block: Action<KotlinJvmTarget>? = null
-    ): KotlinJvmTarget? {
+    fun desktop(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
         requestedPlatforms.add(PlatformIdentifier.DESKTOP)
         return if (project.enableDesktop()) {
-            kotlinExtension.jvm("desktop") {
-                block?.execute(this)
-            }
-        } else { null }
+            kotlinExtension.jvm("desktop") { block?.execute(this) }
+        } else {
+            null
+        }
     }
 
-    /**
-     * Configures all mac targets supported by AndroidX.
-     */
+    /** Configures all mac targets supported by AndroidX. */
     @JvmOverloads
-    fun mac(
-        block: Action<KotlinNativeTarget>? = null
-    ): List<KotlinNativeTarget> {
-        return listOfNotNull(
-            macosX64(block),
-            macosArm64(block)
-        )
+    fun mac(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
+        return listOfNotNull(macosX64(block), macosArm64(block))
     }
 
     @JvmOverloads
-    fun macosX64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTargetWithHostTests? {
+    fun macosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
         requestedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
         return if (project.enableMac()) {
-            kotlinExtension.macosX64().also {
-                block?.execute(it)
-            }
-        } else { null }
+            kotlinExtension.macosX64().also { block?.execute(it) }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun macosArm64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTargetWithHostTests? {
+    fun macosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
         requestedPlatforms.add(PlatformIdentifier.MAC_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.macosArm64().also {
-                block?.execute(it)
-            }
-        } else { null }
+            kotlinExtension.macosArm64().also { block?.execute(it) }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun iosArm64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTarget? {
+    fun iosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         requestedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.iosArm64().also {
-                block?.execute(it)
-            }
-        } else { null }
+            kotlinExtension.iosArm64().also { block?.execute(it) }
+        } else {
+            null
+        }
     }
 
-    /**
-     * Configures all ios targets supported by AndroidX.
-     */
+    /** Configures all ios targets supported by AndroidX. */
     @JvmOverloads
-    fun ios(
-        block: Action<KotlinNativeTarget>? = null
-    ): List<KotlinNativeTarget> {
-        return listOfNotNull(
-            iosX64(block),
-            iosArm64(block),
-            iosSimulatorArm64(block)
-        )
+    fun ios(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
+        return listOfNotNull(iosX64(block), iosArm64(block), iosSimulatorArm64(block))
     }
+
     @JvmOverloads
-    fun iosX64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTarget? {
+    fun iosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         requestedPlatforms.add(PlatformIdentifier.IOS_X_64)
         return if (project.enableMac()) {
-            kotlinExtension.iosX64().also {
-                block?.execute(it)
-            }
-        } else { null }
+            kotlinExtension.iosX64().also { block?.execute(it) }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun iosSimulatorArm64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTarget? {
+    fun iosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         requestedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.iosSimulatorArm64().also {
-                block?.execute(it)
-            }
-        } else { null }
+            kotlinExtension.iosSimulatorArm64().also { block?.execute(it) }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun linux(
-        block: Action<KotlinNativeTarget>? = null
-    ): List<KotlinNativeTarget> {
+    fun linux(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
         return listOfNotNull(
             linuxX64(block),
         )
     }
 
     @JvmOverloads
-    fun linuxX64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTargetWithHostTests? {
+    fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
         requestedPlatforms.add(PlatformIdentifier.LINUX_64)
         return if (project.enableLinux()) {
-            kotlinExtension.linuxX64().also {
-                block?.execute(it)
-            }
-        } else { null }
+            kotlinExtension.linuxX64().also { block?.execute(it) }
+        } else {
+            null
+        }
     }
 
     @JvmOverloads
-    fun js(
-        block: Action<KotlinJsTargetDsl>? = null
-    ): KotlinJsTargetDsl? {
+    fun js(block: Action<KotlinJsTargetDsl>? = null): KotlinJsTargetDsl? {
         requestedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
-            kotlinExtension.js().also {
-                block?.execute(it)
-            }
+            kotlinExtension.js().also { block?.execute(it) }
         } else {
             null
         }
@@ -310,17 +279,20 @@ open class AndroidXMultiplatformExtension(val project: Project) {
  * Returns a provider that is set to true if and only if this project has at least 1 kotlin native
  * target (mac, linux, ios).
  */
-internal fun Project.hasKotlinNativeTarget(): Provider<Boolean> = project.provider {
-    project.extensions.getByType(AndroidXMultiplatformExtension::class.java).hasNativeTarget()
-}
+internal fun Project.hasKotlinNativeTarget(): Provider<Boolean> =
+    project.provider {
+        project.extensions.getByType(AndroidXMultiplatformExtension::class.java).hasNativeTarget()
+    }
 
 fun Project.validatePublishedMultiplatformHasDefault() {
     val extension = project.extensions.getByType(AndroidXMultiplatformExtension::class.java)
     if (extension.defaultPlatform == null && extension.requestedPlatforms.isNotEmpty()) {
-        throw GradleException("Project is published and multiple platforms are requested. You " +
-            "must explicitly specify androidXMultiplatform.defaultPlatform as one of: " +
-            extension.targetPlatforms.joinToString(", ") {
-                "PlatformIdentifier.${PlatformIdentifier.fromId(it)!!.name}"
-            })
+        throw GradleException(
+            "Project is published and multiple platforms are requested. You " +
+                "must explicitly specify androidXMultiplatform.defaultPlatform as one of: " +
+                extension.targetPlatforms.joinToString(", ") {
+                    "PlatformIdentifier.${PlatformIdentifier.fromId(it)!!.name}"
+                }
+        )
     }
 }

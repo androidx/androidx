@@ -38,87 +38,86 @@ object ResourceTasks {
         builtApiLocation: ApiLocation,
         outputApiLocations: List<ApiLocation>
     ) {
-        val packageResTask = project.tasks
-            .named(
+        val packageResTask =
+            project.tasks.named(
                 "package${variantName.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
                 }}Resources"
             )
-        val builtApiFile = packageResTask.flatMap { task ->
-            (task as com.android.build.gradle.tasks.MergeResources).publicFile
-        }
+        val builtApiFile =
+            packageResTask.flatMap { task ->
+                (task as com.android.build.gradle.tasks.MergeResources).publicFile
+            }
 
-        val outputApiFiles = outputApiLocations.map { location ->
-            location.resourceFile
-        }
+        val outputApiFiles = outputApiLocations.map { location -> location.resourceFile }
 
-        val generateResourceApi = project.tasks.register(
-            GENERATE_RESOURCE_API_TASK,
-            GenerateResourceApiTask::class.java
-        ) { task ->
-            task.group = "API"
-            task.description = "Generates resource API files from source"
-            task.builtApi.set(builtApiFile)
-            task.apiLocation.set(builtApiLocation)
-        }
+        val generateResourceApi =
+            project.tasks.register(
+                GENERATE_RESOURCE_API_TASK,
+                GenerateResourceApiTask::class.java
+            ) { task ->
+                task.group = "API"
+                task.description = "Generates resource API files from source"
+                task.builtApi.set(builtApiFile)
+                task.apiLocation.set(builtApiLocation)
+            }
 
         // Policy: If the artifact has previously been released, e.g. has a beta or later API file
         // checked in, then we must verify "release compatibility" against the work-in-progress
         // API file.
-        val checkResourceApiRelease = project.getRequiredCompatibilityApiLocation()?.let {
-            lastReleasedApiFile ->
-            project.tasks.register(
-                CHECK_RESOURCE_API_RELEASE_TASK,
-                CheckResourceApiReleaseTask::class.java
-            ) { task ->
-                task.referenceApiFile.set(lastReleasedApiFile.resourceFile)
-                task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })
-                // Since apiLocation isn't a File, we have to manually set up the dependency.
-                task.dependsOn(generateResourceApi)
-                task.cacheEvenIfNoOutputs()
+        val checkResourceApiRelease =
+            project.getRequiredCompatibilityApiLocation()?.let { lastReleasedApiFile ->
+                project.tasks.register(
+                    CHECK_RESOURCE_API_RELEASE_TASK,
+                    CheckResourceApiReleaseTask::class.java
+                ) { task ->
+                    task.referenceApiFile.set(lastReleasedApiFile.resourceFile)
+                    task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })
+                    // Since apiLocation isn't a File, we have to manually set up the dependency.
+                    task.dependsOn(generateResourceApi)
+                    task.cacheEvenIfNoOutputs()
+                }
             }
-        }
 
         // Policy: All changes to API surfaces for which compatibility is enforced must be
         // explicitly confirmed by running the updateApi task. To enforce this, the implementation
         // checks the "work-in-progress" built API file against the checked in current API file.
-        val checkResourceApi = project.tasks.register(
-            CHECK_RESOURCE_API_TASK,
-            CheckResourceApiTask::class.java
-        ) { task ->
-            task.group = TASK_GROUP_API
-            task.description = "Checks that the resource API generated from source matches the " +
-                "checked in resource API file"
-            task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })
-            // Since apiLocation isn't a File, we have to manually set up the dependency.
-            task.dependsOn(generateResourceApi)
-            task.cacheEvenIfNoOutputs()
-            task.checkedInApiFiles.set(outputApiFiles)
-            checkResourceApiRelease?.let {
-                task.dependsOn(it)
+        val checkResourceApi =
+            project.tasks.register(CHECK_RESOURCE_API_TASK, CheckResourceApiTask::class.java) { task
+                ->
+                task.group = TASK_GROUP_API
+                task.description =
+                    "Checks that the resource API generated from source matches the " +
+                        "checked in resource API file"
+                task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })
+                // Since apiLocation isn't a File, we have to manually set up the dependency.
+                task.dependsOn(generateResourceApi)
+                task.cacheEvenIfNoOutputs()
+                task.checkedInApiFiles.set(outputApiFiles)
+                checkResourceApiRelease?.let { task.dependsOn(it) }
             }
-        }
 
-        val updateResourceApi = project.tasks.register(
-            UPDATE_RESOURCE_API_TASK,
-            UpdateResourceApiTask::class.java
-        ) { task ->
-            task.group = TASK_GROUP_API
-            task.description = "Updates the checked in resource API files to match source code API"
-            task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })
-            // Since apiLocation isn't a File, we have to manually set up the dependency.
-            task.dependsOn(generateResourceApi)
-            task.outputApiLocations.set(outputApiLocations)
-            task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
-            checkResourceApiRelease?.let {
-                // If a developer (accidentally) makes a non-backwards compatible change to an
-                // API, the developer will want to be informed of it as soon as possible.
-                // So, whenever a developer updates an API, if backwards compatibility checks are
-                // enabled in the library, then we want to check that the changes are backwards
-                // compatible
-                task.dependsOn(it)
+        val updateResourceApi =
+            project.tasks.register(UPDATE_RESOURCE_API_TASK, UpdateResourceApiTask::class.java) {
+                task ->
+                task.group = TASK_GROUP_API
+                task.description =
+                    "Updates the checked in resource API files to match source code API"
+                task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })
+                // Since apiLocation isn't a File, we have to manually set up the dependency.
+                task.dependsOn(generateResourceApi)
+                task.outputApiLocations.set(outputApiLocations)
+                task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
+                checkResourceApiRelease?.let {
+                    // If a developer (accidentally) makes a non-backwards compatible change to an
+                    // API, the developer will want to be informed of it as soon as possible.
+                    // So, whenever a developer updates an API, if backwards compatibility checks
+                    // are
+                    // enabled in the library, then we want to check that the changes are backwards
+                    // compatible
+                    task.dependsOn(it)
+                }
             }
-        }
 
         // Ensure that this task runs as part of "updateApi" task from MetalavaTasks.
         project.tasks.withType(UpdateApiTask::class.java).configureEach { task ->

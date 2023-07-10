@@ -64,15 +64,12 @@ abstract class PrintProjectCoordinatesTask : DefaultTask() {
             }
 
         val groupExplanation = groupExplanation!!
-        val lines = mutableListOf(
-            listOf("filepath: $projectDir/build.gradle ", "(from settings.gradle)")
-        )
+        val lines =
+            mutableListOf(listOf("filepath: $projectDir/build.gradle ", "(from settings.gradle)"))
         // put each component of the explanation on its own line
         groupExplanation.forEachIndexed { i, component ->
-            if (i == 0)
-                lines.add(listOf("group   : ${projectGroup?.group} ", component))
-            else
-                lines.add(listOf("", component))
+            if (i == 0) lines.add(listOf("group   : ${projectGroup?.group} ", component))
+            else lines.add(listOf("", component))
         }
         lines.add(listOf("artifact: $projectName ", "(from project name)"))
         lines.add(listOf("version : $version ", "(from $versionFrom)"))
@@ -92,10 +89,7 @@ abstract class PrintProjectCoordinatesTask : DefaultTask() {
             val word = line[i]
             val columnSize = columnSizes[i]
             // only have to pad columns before the last column
-            result += if (i != line.size - 1)
-                word.padEnd(columnSize)
-            else
-                word
+            result += if (i != line.size - 1) word.padEnd(columnSize) else word
         }
         return result
     }
@@ -105,10 +99,8 @@ abstract class PrintProjectCoordinatesTask : DefaultTask() {
         for (line in lines) {
             for (i in line.indices) {
                 val word = line[i]
-                if (maxLengths.size <= i)
-                    maxLengths.add(0)
-                if (maxLengths[i] < word.length)
-                    maxLengths[i] = word.length
+                if (maxLengths.size <= i) maxLengths.add(0)
+                if (maxLengths[i] < word.length) maxLengths[i] = word.length
             }
         }
         return maxLengths

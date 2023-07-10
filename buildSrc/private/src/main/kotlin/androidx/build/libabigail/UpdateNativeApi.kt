@@ -37,46 +37,31 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class UpdateNativeApi : DefaultTask() {
 
-    @get:Internal
-    abstract val artifactNames: ListProperty<String>
+    @get:Internal abstract val artifactNames: ListProperty<String>
 
-    @get:Internal
-    abstract val inputApiLocation: Property<File>
+    @get:Internal abstract val inputApiLocation: Property<File>
 
-    @get:Internal
-    abstract val outputApiLocations: ListProperty<File>
+    @get:Internal abstract val outputApiLocations: ListProperty<File>
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getTaskInputs(): List<File> {
-        return getLocationsForArtifacts(
-            inputApiLocation.get(),
-            artifactNames.get()
-        )
+        return getLocationsForArtifacts(inputApiLocation.get(), artifactNames.get())
     }
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         return outputApiLocations.get().flatMap { outputApiLocation ->
-            getLocationsForArtifacts(
-                outputApiLocation,
-                artifactNames.get()
-            )
+            getLocationsForArtifacts(outputApiLocation, artifactNames.get())
         }
     }
 
     @TaskAction
     fun exec() {
         if (getOperatingSystem() != OperatingSystem.LINUX) {
-            logger.warn(
-                "Native API checking is currently not supported on non-linux devices"
-            )
+            logger.warn("Native API checking is currently not supported on non-linux devices")
             return
         }
-        outputApiLocations.get().forEach { dir ->
-            dir.listFiles()?.forEach {
-                it.delete()
-            }
-        }
+        outputApiLocations.get().forEach { dir -> dir.listFiles()?.forEach { it.delete() } }
         outputApiLocations.get().forEach { outputLocation ->
             inputApiLocation.get().copyRecursively(target = outputLocation, overwrite = true)
         }

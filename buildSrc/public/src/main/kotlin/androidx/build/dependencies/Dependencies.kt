@@ -17,13 +17,17 @@
 package androidx.build.dependencies
 
 lateinit var guavaVersion: String
-val GUAVA_VERSION get() = guavaVersion
+val GUAVA_VERSION
+    get() = guavaVersion
 
 lateinit var kspVersion: String
-val KSP_VERSION get() = kspVersion
+val KSP_VERSION
+    get() = kspVersion
 
 lateinit var kotlinNativeVersion: String
-val KOTLIN_NATIVE_VERSION get() = kotlinNativeVersion
+val KOTLIN_NATIVE_VERSION
+    get() = kotlinNativeVersion
 
 lateinit var agpVersion: String
-val AGP_LATEST get() = "com.android.tools.build:gradle:$agpVersion"
+val AGP_LATEST
+    get() = "com.android.tools.build:gradle:$agpVersion"

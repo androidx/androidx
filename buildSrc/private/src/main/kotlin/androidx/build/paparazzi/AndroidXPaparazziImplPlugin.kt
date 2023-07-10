@@ -39,12 +39,10 @@ import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.process.JavaForkOptions
 
-/**
- * Configures screenshot testing using Paparazzi for AndroidX projects.
- */
-class AndroidXPaparazziImplPlugin @Inject constructor(
-    private val fileSystemOperations: FileSystemOperations
-) : Plugin<Project> {
+/** Configures screenshot testing using Paparazzi for AndroidX projects. */
+class AndroidXPaparazziImplPlugin
+@Inject
+constructor(private val fileSystemOperations: FileSystemOperations) : Plugin<Project> {
     override fun apply(project: Project) {
         val paparazziNative = project.createUnzippedPaparazziNativeDependency()
         project.afterEvaluate { it.addTestUtilsDependency() }
@@ -58,8 +56,8 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
     }
 
     /**
-     * Add project's golden directory and the unzipped native Paparazzi location as task inputs,
-     * and set system properties for the test library to consume at runtime.
+     * Add project's golden directory and the unzipped native Paparazzi location as task inputs, and
+     * set system properties for the test library to consume at runtime.
      */
     private fun Test.configureTestTask(paparazziNative: FileCollection) {
         val compileSdkVersion = project.defaultAndroidConfig.compileSdk
@@ -67,23 +65,23 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
         val cachedGoldenRootDirectory = project.goldenRootDirectory
         val cachedReportDirectory = reportDirectory
         val android = project.the<BaseExtension>()
-        val packageName = requireNotNull(android.namespace) {
-            "android.namespace must be set for Paparazzi"
-        }
+        val packageName =
+            requireNotNull(android.namespace) { "android.namespace must be set for Paparazzi" }
 
         // Attach unzipped Paparazzi native directory as a task input
-        inputs.files(paparazziNative)
+        inputs
+            .files(paparazziNative)
             .withPathSensitivity(PathSensitivity.NONE)
             .withPropertyName("paparazziNative")
 
         // Attach golden directory to task inputs to invalidate tests when updating goldens
-        inputs.dir(project.goldenDirectory)
+        inputs
+            .dir(project.goldenDirectory)
             .withPathSensitivity(PathSensitivity.RELATIVE)
             .withPropertyName("goldenDirectory")
 
         // Mark report directory as an output directory
-        outputs.dir(reportDirectory)
-            .withPropertyName("paparazziReportDir")
+        outputs.dir(reportDirectory).withPropertyName("paparazziReportDir")
 
         // Clean the contents of the report directory before each test run
         doFirst { fileSystemOperations.delete { it.delete(cachedReportDirectory.listFiles()) } }
@@ -136,14 +134,15 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
      * Paparazzi native layoutlib dependency, using the version in `libs.versions.toml`.
      */
     private fun Project.createUnzippedPaparazziNativeDependency(): FileCollection {
-        val platformSuffix = when (val os = getOperatingSystem()) {
-            OperatingSystem.LINUX -> "LinuxX64"
-            OperatingSystem.MAC -> {
-                val arch = System.getProperty("os.arch")
-                if (arch.startsWith("x86", ignoreCase = true)) "MacOsX64" else "MacOsArm64"
+        val platformSuffix =
+            when (val os = getOperatingSystem()) {
+                OperatingSystem.LINUX -> "LinuxX64"
+                OperatingSystem.MAC -> {
+                    val arch = System.getProperty("os.arch")
+                    if (arch.startsWith("x86", ignoreCase = true)) "MacOsX64" else "MacOsArm64"
+                }
+                else -> error("Unsupported operating system $os for Paparazzi")
             }
-            else -> error("Unsupported operating system $os for Paparazzi")
-        }
 
         dependencies.registerTransform(UnzipPaparazziNativeTransform::class.java) { spec ->
             spec.from.attribute(ARTIFACT_TYPE_ATTRIBUTE, JAR_TYPE)
@@ -155,9 +154,11 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
             dependencies.create(getLibraryByName("paparazziNative$platformSuffix"))
         )
 
-        return configuration.incoming.artifactView {
-            it.attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, UNZIPPED_PAPARAZZI_NATIVE)
-        }.files
+        return configuration.incoming
+            .artifactView {
+                it.attributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, UNZIPPED_PAPARAZZI_NATIVE)
+            }
+            .files
     }
 
     /** The golden image directory for this project. */
@@ -178,9 +179,9 @@ class AndroidXPaparazziImplPlugin @Inject constructor(
 
     /** Add a testImplementation dependency on the wrapper test utils library. */
     private fun Project.addTestUtilsDependency() {
-        configurations["testImplementation"].dependencies.add(
-            dependencies.create(project(TEST_UTILS_PROJECT))
-        )
+        configurations["testImplementation"]
+            .dependencies
+            .add(dependencies.create(project(TEST_UTILS_PROJECT)))
     }
 
     private companion object {

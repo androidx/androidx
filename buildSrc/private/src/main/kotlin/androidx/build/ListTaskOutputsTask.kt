@@ -27,20 +27,14 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Finds the outputs of every task and saves this mapping into a file
- */
+/** Finds the outputs of every task and saves this mapping into a file */
 @CacheableTask
 abstract class ListTaskOutputsTask : DefaultTask() {
-    @OutputFile
-    val outputFile: Property<File> = project.objects.property(File::class.java)
-    @Input
-    val removePrefixes: MutableList<String> = mutableListOf()
-    @Input
-    val tasks: MutableList<Task> = mutableListOf()
+    @OutputFile val outputFile: Property<File> = project.objects.property(File::class.java)
+    @Input val removePrefixes: MutableList<String> = mutableListOf()
+    @Input val tasks: MutableList<Task> = mutableListOf()
 
-    @get:Input
-    val outputText by lazy { computeOutputText() }
+    @get:Input val outputText by lazy { computeOutputText() }
 
     init {
         group = "Help"
@@ -82,11 +76,12 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         val components = mutableListOf<String>()
         var textLength = 0
         for (column in columns) {
-            val roundedTextLength = if (textLength == 0) {
-                textLength
-            } else {
-                ((textLength / 32) + 1) * 32
-            }
+            val roundedTextLength =
+                if (textLength == 0) {
+                    textLength
+                } else {
+                    ((textLength / 32) + 1) * 32
+                }
             val extraSpaces = " ".repeat(roundedTextLength - textLength)
             components.add(extraSpaces)
             textLength = roundedTextLength
@@ -109,15 +104,16 @@ abstract class ListTaskOutputsTask : DefaultTask() {
 }
 
 // TODO(149103692): remove all elements of this set
-val taskNamesKnownToDuplicateOutputs = setOf(
-    "kotlinSourcesJar",
-    "releaseSourcesJar",
-    "sourceJarRelease",
-    "sourceJar",
-    // The following tests intentionally have the same output of golden images
-    "updateGoldenDesktopTest",
-    "updateGoldenDebugUnitTest"
-)
+val taskNamesKnownToDuplicateOutputs =
+    setOf(
+        "kotlinSourcesJar",
+        "releaseSourcesJar",
+        "sourceJarRelease",
+        "sourceJar",
+        // The following tests intentionally have the same output of golden images
+        "updateGoldenDesktopTest",
+        "updateGoldenDebugUnitTest"
+    )
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
     if (!task.enabled) {
@@ -126,14 +122,13 @@ fun shouldValidateTaskOutput(task: Task): Boolean {
     return !taskNamesKnownToDuplicateOutputs.contains(task.name)
 }
 
-// For this project and all subprojects, collects all tasks and creates a map keyed by their output files
+// For this project and all subprojects, collects all tasks and creates a map keyed by their output
+// files
 fun Project.findAllTasksByOutput(): Map<File, Task> {
     // find list of all tasks
     val allTasks = mutableListOf<Task>()
     project.allprojects { otherProject ->
-        otherProject.tasks.forEach { task ->
-            allTasks.add(task)
-        }
+        otherProject.tasks.forEach { task -> allTasks.add(task) }
     }
 
     // group tasks by their outputs
@@ -144,13 +139,18 @@ fun Project.findAllTasksByOutput(): Map<File, Task> {
             if (existingTask != null) {
                 if (shouldValidateTaskOutput(existingTask) && shouldValidateTaskOutput(otherTask)) {
                     throw GradleException(
-                        "Output file " + otherTaskOutput + " was declared as an output of " +
-                            "multiple tasks: " + otherTask + " and " + existingTask
+                        "Output file " +
+                            otherTaskOutput +
+                            " was declared as an output of " +
+                            "multiple tasks: " +
+                            otherTask +
+                            " and " +
+                            existingTask
                     )
                 }
-                // if there is an exempt conflict, keep the alphabetically earlier task to ensure consistency
-                if (existingTask.path > otherTask.path)
-                  continue
+                // if there is an exempt conflict, keep the alphabetically earlier task to ensure
+                // consistency
+                if (existingTask.path > otherTask.path) continue
             }
             tasksByOutput[otherTaskOutput] = otherTask
         }

@@ -19,9 +19,7 @@ package androidx.build
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-/**
- * Plugin to apply common configuration for Compose projects.
- */
+/** Plugin to apply common configuration for Compose projects. */
 class AndroidXComposePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val supportRoot = project.getSupportRootFolder()

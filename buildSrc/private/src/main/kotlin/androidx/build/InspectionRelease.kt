@@ -25,8 +25,8 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Sync
 
 /**
- * Copies artifacts prepared by InspectionPlugin into $destDir/inspection
- * and $destDir/inspection-nondexed
+ * Copies artifacts prepared by InspectionPlugin into $destDir/inspection and
+ * $destDir/inspection-nondexed
  */
 fun Project.publishInspectionArtifacts() {
     publishInspectionConfiguration(
@@ -55,10 +55,11 @@ internal fun Project.publishInspectionConfiguration(
         }
     }
 
-    val sync = tasks.register(name, Sync::class.java) {
-        it.dependsOn(configuration)
-        it.from(configuration)
-        it.destinationDir = File(getDistributionDirectory(), dirName)
-    }
+    val sync =
+        tasks.register(name, Sync::class.java) {
+            it.dependsOn(configuration)
+            it.from(configuration)
+            it.destinationDir = File(getDistributionDirectory(), dirName)
+        }
     addToBuildOnServer(sync)
 }

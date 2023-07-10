@@ -24,24 +24,19 @@ import org.gradle.api.GradleException
 /**
  * A git client based on changeinfo files and manifest files created by the build server.
  *
- * For sample changeinfo config files, see:
- * ChangeInfoGitClientTest.kt
+ * For sample changeinfo config files, see: ChangeInfoGitClientTest.kt
  * https://android-build.googleplex.com/builds/pending/P28356101/androidx_incremental/latest/incremental/P28356101-changeInfo
  *
  * For more information, see b/171569941
  */
 class ChangeInfoGitClient(
-    /**
-     * The file containing the information about which changes are new in this build
-     */
+    /** The file containing the information about which changes are new in this build */
     changeInfoText: String,
-    /**
-     * The file containing version information
-     */
+    /** The file containing version information */
     private val versionInfo: String,
     /**
-     * The project directory relative to the root of the checkout
-     * The repository is derived from this value
+     * The project directory relative to the root of the checkout The repository is derived from
+     * this value
      */
     private val projectPath: String
 ) : GitClient {
@@ -49,22 +44,18 @@ class ChangeInfoGitClient(
     /**
      * The name of the current git repository. In many cases this is 'platform/frameworks/support'
      */
-    private val projectName: String by lazy {
-        computeProjectName(versionInfo)
-    }
+    private val projectName: String by lazy { computeProjectName(versionInfo) }
 
     private fun computeProjectName(config: String): String {
         val document = parseXml(config, mapOf())
         val projectIterator = document.rootElement.elementIterator()
         while (projectIterator.hasNext()) {
-          val project = projectIterator.next()
+            val project = projectIterator.next()
             val repositoryPath = project.attributeValue("path")
             if (repositoryPath != null) {
                 if (pathContains(repositoryPath, projectPath)) {
                     val name = project.attributeValue("name")
-                    check(name != null) {
-                        "Could not get name for project $project"
-                    }
+                    check(name != null) { "Could not get name for project $project" }
                     return name
                 }
             }
@@ -74,29 +65,19 @@ class ChangeInfoGitClient(
         )
     }
 
-    /**
-     * Object representing changes
-     */
+    /** Object representing changes */
     private val changeInfo: ChangeInfo by lazy {
         val gson = Gson()
         gson.fromJson(changeInfoText, ChangeInfo::class.java)
     }
 
-    private data class ChangeInfo(
-        val changes: List<ChangeEntry>?
-    )
-    private data class ChangeEntry(
-        val project: String,
-        val revisions: List<Revisions>?
-    )
-    private data class Revisions(
-        val fileInfos: List<FileInfo>?
-    )
-    private data class FileInfo(
-        val path: String?,
-        val oldPath: String?,
-        val status: String
-    )
+    private data class ChangeInfo(val changes: List<ChangeEntry>?)
+
+    private data class ChangeEntry(val project: String, val revisions: List<Revisions>?)
+
+    private data class Revisions(val fileInfos: List<FileInfo>?)
+
+    private data class FileInfo(val path: String?, val oldPath: String?, val status: String)
 
     private val changesInThisRepo: List<ChangeEntry>
         get() {
@@ -118,9 +99,7 @@ class ChangeInfoGitClient(
         )
     }
 
-    /**
-     * Finds changed file paths
-     */
+    /** Finds changed file paths */
     override fun findChangedFilesSince(
         sha: String, // unused in this implementation, the data file knows what is new
         top: String, // unused in this implementation, the data file knows what is new
@@ -158,9 +137,8 @@ class ChangeInfoGitClient(
     }
 
     /**
-     * Unused
-     * If this were supported, it would:
-     * Finds the most recently submitted change before any pending changes being tested
+     * Unused If this were supported, it would: Finds the most recently submitted change before any
+     * pending changes being tested
      */
     override fun findPreviousSubmittedChange(): String {
         // findChangedFilesSince doesn't need this information, so
@@ -169,9 +147,7 @@ class ChangeInfoGitClient(
         return ""
     }
 
-    /**
-     * Finds the commits in a certain range
-     */
+    /** Finds the commits in a certain range */
     override fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
@@ -188,12 +164,7 @@ class ChangeInfoGitClient(
                     "not ${gitCommitRange.untilInclusive}"
             )
         }
-        return listOf(
-            Commit(
-                "_CommitSHA:${extractVersion(versionInfo)}",
-                projectPath
-            )
-        )
+        return listOf(Commit("_CommitSHA:${extractVersion(versionInfo)}", projectPath))
     }
 }
 

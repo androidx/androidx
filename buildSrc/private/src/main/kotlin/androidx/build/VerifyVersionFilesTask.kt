@@ -27,15 +27,11 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Task for verifying version files in Androidx artifacts
- *
- */
+/** Task for verifying version files in Androidx artifacts */
 @CacheableTask
 open class VerifyVersionFilesTask : DefaultTask() {
 
-    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
-    lateinit var repositoryDirectory: File
+    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE) lateinit var repositoryDirectory: File
 
     @TaskAction
     fun verifyVersionFilesPresent() {
@@ -53,8 +49,9 @@ open class VerifyVersionFilesTask : DefaultTask() {
                         val classesJarInputStream = ZipInputStream(aarFileInputStream)
                         var jarEntry = classesJarInputStream.nextEntry
                         while (jarEntry != null) {
-                            if (jarEntry.name.startsWith("META-INF/$expectedPrefix.") &&
-                                jarEntry.name.endsWith(".version")
+                            if (
+                                jarEntry.name.startsWith("META-INF/$expectedPrefix.") &&
+                                    jarEntry.name.endsWith(".version")
                             ) {
                                 foundVersionFile = true
                                 break
@@ -64,7 +61,7 @@ open class VerifyVersionFilesTask : DefaultTask() {
                         if (!foundVersionFile) {
                             throw Exception(
                                 "Missing classes.jar/META-INF/$expectedPrefix.*version " +
-                                "file in ${file.absolutePath}"
+                                    "file in ${file.absolutePath}"
                             )
                         }
                         break

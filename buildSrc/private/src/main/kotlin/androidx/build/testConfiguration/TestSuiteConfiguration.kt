@@ -48,8 +48,8 @@ import org.gradle.kotlin.dsl.named
 
 /**
  * Creates and configures the test config generation task for a project. Configuration includes
- * populating the task with relevant data from the first 4 params, and setting whether the task
- * is enabled.
+ * populating the task with relevant data from the first 4 params, and setting whether the task is
+ * enabled.
  */
 fun Project.createTestConfigurationGenerationTask(
     variantName: String,
@@ -68,34 +68,35 @@ fun Project.createTestConfigurationGenerationTask(
             )
         )
     }
-    val generateTestConfigurationTask = tasks.register(
-        "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName",
-        GenerateTestConfigurationTask::class.java
-    ) { task ->
-        val androidXExtension = extensions.getByType<AndroidXExtension>()
+    val generateTestConfigurationTask =
+        tasks.register(
+            "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName",
+            GenerateTestConfigurationTask::class.java
+        ) { task ->
+            val androidXExtension = extensions.getByType<AndroidXExtension>()
 
-        task.testFolder.set(artifacts.get(SingleArtifact.APK))
-        task.testLoader.set(artifacts.getBuiltArtifactsLoader())
-        task.outputTestApk.set(
-            File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
-        )
-        task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
-        task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
-        task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
-        task.outputJson.fileValue(File(getTestConfigDirectory(), jsonName))
-        task.presubmit.set(isPresubmitBuild())
-        // Disable work tests on < API 18: b/178127496
-        if (path.startsWith(":work:")) {
-            task.minSdk.set(maxOf(18, minSdk))
-        } else {
-            task.minSdk.set(minSdk)
+            task.testFolder.set(artifacts.get(SingleArtifact.APK))
+            task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+            task.outputTestApk.set(
+                File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
+            )
+            task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
+            task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
+            task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
+            task.outputJson.fileValue(File(getTestConfigDirectory(), jsonName))
+            task.presubmit.set(isPresubmitBuild())
+            // Disable work tests on < API 18: b/178127496
+            if (path.startsWith(":work:")) {
+                task.minSdk.set(maxOf(18, minSdk))
+            } else {
+                task.minSdk.set(minSdk)
+            }
+            val hasBenchmarkPlugin = hasBenchmarkPlugin()
+            task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
+            task.testRunner.set(testRunner)
+            task.testProjectPath.set(path)
+            AffectedModuleDetector.configureTaskGuard(task)
         }
-        val hasBenchmarkPlugin = hasBenchmarkPlugin()
-        task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
-        task.testRunner.set(testRunner)
-        task.testProjectPath.set(path)
-        AffectedModuleDetector.configureTaskGuard(task)
-    }
     // Disable xml generation for projects that have no test sources
     // or explicitly don't want to run device tests
     afterEvaluate {
@@ -104,7 +105,8 @@ fun Project.createTestConfigurationGenerationTask(
             it.enabled = androidXExtension.deviceTests.enabled && hasAndroidTestSourceCode()
         }
     }
-    rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
+    rootProject.tasks
+        .findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
         .dependsOn(generateTestConfigurationTask)
 }
 
@@ -153,22 +155,19 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                 "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}${variant.name}",
                 GenerateTestConfigurationTask::class.java
             ) { task ->
-                task.appLoader.set(
-                    variant.artifacts.getBuiltArtifactsLoader()
-                )
+                task.appLoader.set(variant.artifacts.getBuiltArtifactsLoader())
 
                 // The target app path is defined in the targetProjectPath field in the android
                 // extension of the test module
-                val targetProjectPath = project
-                    .extensions
-                    .getByType(TestExtension::class.java)
-                    .targetProjectPath
-                    ?: throw IllegalStateException("""
+                val targetProjectPath =
+                    project.extensions.getByType(TestExtension::class.java).targetProjectPath
+                        ?: throw IllegalStateException(
+                            """
                         Module `$path` does not have a targetProjectPath defined.
-                    """.trimIndent())
-                task.outputAppApk.set(
-                    outputAppApkFile(variant, targetProjectPath, path)
-                )
+                    """
+                                .trimIndent()
+                        )
+                task.outputAppApk.set(outputAppApkFile(variant, targetProjectPath, path))
 
                 task.appFileCollection.from(
                     configurations
@@ -194,26 +193,23 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
     // and targetAppProjectVariantForInstrumentationTest.
     extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.apply {
         onVariants(selector().withBuildType("debug")) { variant ->
-
             val targetAppProject =
                 androidXExtension.deviceTests.targetAppProject ?: return@onVariants
-            val targetAppProjectVariant =
-                androidXExtension.deviceTests.targetAppVariant
+            val targetAppProjectVariant = androidXExtension.deviceTests.targetAppVariant
 
             // Recreate the same configuration existing for test modules to pull the artifact
             // from the application module specified in the deviceTests extension.
             @Suppress("UnstableApiUsage") // Incubating dependencyFactory APIs
-            val configuration = configurations.create("${variant.name}TestedApks") { config ->
-                config.isCanBeResolved = true
-                config.isCanBeConsumed = false
-                config.attributes {
-                    it.attribute(VariantAttr.ATTRIBUTE, objects.named(targetAppProjectVariant))
-                    it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+            val configuration =
+                configurations.create("${variant.name}TestedApks") { config ->
+                    config.isCanBeResolved = true
+                    config.isCanBeConsumed = false
+                    config.attributes {
+                        it.attribute(VariantAttr.ATTRIBUTE, objects.named(targetAppProjectVariant))
+                        it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                    }
+                    config.dependencies.add(project.dependencyFactory.create(targetAppProject))
                 }
-                config
-                    .dependencies
-                    .add(project.dependencyFactory.create(targetAppProject))
-            }
 
             tasks.named(
                 "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}${variant.name}AndroidTest",
@@ -222,51 +218,57 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                 task.appLoader.set(variant.artifacts.getBuiltArtifactsLoader())
 
                 // The target app path is defined in the androidx extension
-                task.outputAppApk.set(
-                    outputAppApkFile(variant, targetAppProject.path, path)
-                )
+                task.outputAppApk.set(outputAppApkFile(variant, targetAppProject.path, path))
 
                 task.appFileCollection.from(
-                    configuration.incoming.artifactView { view ->
-                        view.attributes {
-                            it.attribute(AndroidArtifacts.ARTIFACT_TYPE, ArtifactType.APK.type)
+                    configuration.incoming
+                        .artifactView { view ->
+                            view.attributes {
+                                it.attribute(AndroidArtifacts.ARTIFACT_TYPE, ArtifactType.APK.type)
+                            }
                         }
-                    }.files
+                        .files
                 )
             }
         }
     }
 }
 
-private fun getOrCreateMediaTestConfigTask(project: Project, isMedia2: Boolean):
-    TaskProvider<GenerateMediaTestConfigurationTask> {
-        val mediaPrefix = getMediaConfigTaskPrefix(isMedia2)
-        val parentProject = project.parent!!
-        if (!parentProject.tasks.withType(GenerateMediaTestConfigurationTask::class.java)
-            .names.contains(
-                    "support-$mediaPrefix-test${
+private fun getOrCreateMediaTestConfigTask(
+    project: Project,
+    isMedia2: Boolean
+): TaskProvider<GenerateMediaTestConfigurationTask> {
+    val mediaPrefix = getMediaConfigTaskPrefix(isMedia2)
+    val parentProject = project.parent!!
+    if (
+        !parentProject.tasks
+            .withType(GenerateMediaTestConfigurationTask::class.java)
+            .names
+            .contains(
+                "support-$mediaPrefix-test${
                     AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK
                     }"
-                )
-        ) {
-            val task = parentProject.tasks.register(
+            )
+    ) {
+        val task =
+            parentProject.tasks.register(
                 "support-$mediaPrefix-test${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}",
                 GenerateMediaTestConfigurationTask::class.java
             ) { task ->
                 AffectedModuleDetector.configureTaskGuard(task)
             }
-            project.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
-                .dependsOn(task)
-            return task
-        } else {
-            return parentProject.tasks.withType(GenerateMediaTestConfigurationTask::class.java)
-                .named(
-                    "support-$mediaPrefix-test${
+        project.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)
+        return task
+    } else {
+        return parentProject.tasks
+            .withType(GenerateMediaTestConfigurationTask::class.java)
+            .named(
+                "support-$mediaPrefix-test${
                     AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK
                     }"
-                )
-        }
+            )
     }
+}
 
 private fun getMediaConfigTaskPrefix(isMedia2: Boolean): String {
     return if (isMedia2) "media2" else "media"

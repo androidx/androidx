@@ -46,35 +46,24 @@ import org.gradle.workers.WorkerExecutor
 @CacheableTask
 abstract class CheckNativeApiCompatibilityTask : DefaultTask() {
 
-    @get:Inject
-    abstract val workerExecutor: WorkerExecutor
+    @get:Inject abstract val workerExecutor: WorkerExecutor
 
-    @get:Internal
-    abstract val artifactNames: ListProperty<String>
+    @get:Internal abstract val artifactNames: ListProperty<String>
 
-    @get:Internal
-    abstract val builtApiLocation: Property<File>
+    @get:Internal abstract val builtApiLocation: Property<File>
 
-    @get:Internal
-    abstract val currentApiLocation: Property<File>
+    @get:Internal abstract val currentApiLocation: Property<File>
 
-    @get:Input
-    abstract val strict: Property<Boolean>
+    @get:Input abstract val strict: Property<Boolean>
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getTaskInputs(): List<File> {
-        return getLocationsForArtifacts(
-            builtApiLocation.get(),
-            artifactNames.get()
-        )
+        return getLocationsForArtifacts(builtApiLocation.get(), artifactNames.get())
     }
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
-        return getLocationsForArtifacts(
-            currentApiLocation.get(),
-            artifactNames.get()
-        )
+        return getLocationsForArtifacts(currentApiLocation.get(), artifactNames.get())
     }
 
     @TaskAction
@@ -91,18 +80,22 @@ abstract class CheckNativeApiCompatibilityTask : DefaultTask() {
         // Unless this is the first time we've generated these files, a difference in the number of
         // API files indicates that a library has been added / removed and the API has changed.
         if (currentApiFiles.isNotEmpty() && builtApiFiles.size != currentApiFiles.size) {
-            throw AbiDiffException("Number of built artifacts has changed, expected " +
-                "${currentApiFiles.size} but was ${builtApiFiles.size}")
+            throw AbiDiffException(
+                "Number of built artifacts has changed, expected " +
+                    "${currentApiFiles.size} but was ${builtApiFiles.size}"
+            )
         }
         val workQueue = workerExecutor.processIsolation()
         builtApiLocation.get().listFiles().forEach { archDir ->
             archDir.listFiles().forEach { apiFile ->
                 workQueue.submit(AbiDiffWorkAction::class.java) { parameters ->
                     // the current API file of the same name as the one in the built location
-                    parameters.pathToPreviousLib = currentApiLocation.get()
-                        .resolve(archDir.name)
-                        .resolve(apiFile.name)
-                        .toString()
+                    parameters.pathToPreviousLib =
+                        currentApiLocation
+                            .get()
+                            .resolve(archDir.name)
+                            .resolve(apiFile.name)
+                            .toString()
                     // the newly built API file we want to check
                     parameters.pathToCurrentLib = apiFile.toString()
                     // necessary to locate `abidiff`
@@ -124,18 +117,14 @@ interface AbiDiffParameters : WorkParameters {
 }
 
 /**
- * The exit value from `abidiff` is an 8-bit field, the specific bits have meaning.The exit codes
- * we are about are:
+ * The exit value from `abidiff` is an 8-bit field, the specific bits have meaning.The exit codes we
+ * are about are:
  *
- * 0000 (0) -> success
- * 0001 (1) -> tool error
- * 0010 (2) -> user error (bad flags etc)
- * 0100 (4) -> ABI changed
- * 1100 (12) -> ABI changed + incompatible changes
+ * 0000 (0) -> success 0001 (1) -> tool error 0010 (2) -> user error (bad flags etc) 0100 (4) -> ABI
+ * changed 1100 (12) -> ABI changed + incompatible changes
  *
- * Remaining bits unused for now, so we should indeed error if we encounter them until we know
- * their meaning.
- * https://sourceware.org/libabigail/manual/abidiff.html#return-values
+ * Remaining bits unused for now, so we should indeed error if we encounter them until we know their
+ * meaning. https://sourceware.org/libabigail/manual/abidiff.html#return-values
  */
 enum class AbiDiffExitCode(val value: Int) {
     SUCCESS(0),
@@ -144,39 +133,41 @@ enum class AbiDiffExitCode(val value: Int) {
     ABI_CHANGE(4),
     ABI_INCOMPATIBLE_CHANGE(12),
     UNKNOWN(-1);
+
     companion object {
         fun fromInt(value: Int): AbiDiffExitCode = values().find { it.value == value } ?: UNKNOWN
     }
 }
 
-abstract class AbiDiffWorkAction @Inject constructor(
-    private val execOperations: ExecOperations
-) : WorkAction<AbiDiffParameters> {
+abstract class AbiDiffWorkAction @Inject constructor(private val execOperations: ExecOperations) :
+    WorkAction<AbiDiffParameters> {
     override fun execute() {
         val outputStream = ByteArrayOutputStream()
-        val result = execOperations.exec {
-            it.executable = LibabigailPaths.Linux.abidiffPath(parameters.rootDir)
-            it.args = listOf(
-                parameters.pathToPreviousLib,
-                parameters.pathToCurrentLib
-            )
-            it.standardOutput = outputStream
-            it.isIgnoreExitValue = true
-        }
+        val result =
+            execOperations.exec {
+                it.executable = LibabigailPaths.Linux.abidiffPath(parameters.rootDir)
+                it.args = listOf(parameters.pathToPreviousLib, parameters.pathToCurrentLib)
+                it.standardOutput = outputStream
+                it.isIgnoreExitValue = true
+            }
         outputStream.close()
         val exitValue = result.exitValue
         val output = outputStream.toString()
         when (AbiDiffExitCode.fromInt(exitValue)) {
             AbiDiffExitCode.ABI_INCOMPATIBLE_CHANGE -> {
-                throw AbiDiffException("Incompatible API changes found! Please make sure these " +
-                    "are intentional and if so update the API file by " +
-                    "running 'ignoreBreakingChangesAndUpdateNativeApi'\n\n$output")
+                throw AbiDiffException(
+                    "Incompatible API changes found! Please make sure these " +
+                        "are intentional and if so update the API file by " +
+                        "running 'ignoreBreakingChangesAndUpdateNativeApi'\n\n$output"
+                )
             }
             AbiDiffExitCode.TOOL_ERROR,
             AbiDiffExitCode.USER_ERROR,
             AbiDiffExitCode.UNKNOWN -> {
-                throw AbiDiffException("Encountered an error while executing 'abidiff', " +
-                    "this is likely a bug.\n\n$output")
+                throw AbiDiffException(
+                    "Encountered an error while executing 'abidiff', " +
+                        "this is likely a bug.\n\n$output"
+                )
             }
             AbiDiffExitCode.ABI_CHANGE, // non breaking changes are okay
             AbiDiffExitCode.SUCCESS -> Unit
