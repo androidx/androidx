@@ -17,6 +17,9 @@
 package androidx.navigation.compose
 
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavBackStackEntry
@@ -97,6 +100,18 @@ public class ComposeNavigator : Navigator<Destination>() {
             navigator: ComposeNavigator,
             content: @Composable (NavBackStackEntry) -> @JvmSuppressWildcards Unit
         ) : this(navigator, content = { entry -> content(entry) })
+
+        internal var enterTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+
+        internal var exitTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+
+        internal var popEnterTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+
+        internal var popExitTransition: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
     }
 
     internal companion object {
