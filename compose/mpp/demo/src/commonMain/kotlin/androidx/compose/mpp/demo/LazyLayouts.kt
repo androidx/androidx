@@ -21,18 +21,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameMillis
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
@@ -41,6 +43,7 @@ val LazyLayouts = Screen.Selection(
     Screen.Example("LazyColumn") { ExampleLazyColumn() },
     Screen.Example("LazyGrid") { ExampleLazyGrid() },
     Screen.Example("StaggeredGrid") { ExampleStaggeredGrid() },
+    Screen.Example("TwoDirectionsAndRTL") { ExampleTwoDirectionsAndRTL() }
 )
 
 @Composable
@@ -84,6 +87,53 @@ private fun ExampleStaggeredGrid() {
                     .height(remember { Random.nextInt(100, 200).dp })
                     .background(remember { Color(Random.nextInt()) })
             )
+        }
+    }
+}
+
+@Composable
+private fun ExampleTwoDirectionsAndRTL() {
+    val colors = listOf(
+        Color.Black,
+        Color.LightGray,
+        Color.DarkGray,
+        Color.Gray
+    )
+
+    val rows = 20
+    val columns = 20
+
+    val rowHeight = 200.dp
+
+    var layoutDirection by remember { mutableStateOf(LayoutDirection.Ltr) }
+
+    CompositionLocalProvider(
+        LocalLayoutDirection provides layoutDirection
+    ) {
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = {
+                layoutDirection = when (layoutDirection) {
+                    LayoutDirection.Ltr -> LayoutDirection.Rtl
+                    LayoutDirection.Rtl -> LayoutDirection.Ltr
+                }
+            }) {
+                Text("Toggle layout direction")
+            }
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(rows) {row ->
+                    LazyRow(Modifier.height(rowHeight)) {
+                        items(columns) {col ->
+                            val color = colors[(row + col) % colors.size]
+
+                            Box(
+                                Modifier
+                                    .size(200.dp, rowHeight)
+                                    .background(color)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

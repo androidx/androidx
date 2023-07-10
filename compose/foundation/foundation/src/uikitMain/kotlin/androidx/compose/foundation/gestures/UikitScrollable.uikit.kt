@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
@@ -27,9 +28,22 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal actual fun platformScrollConfig(): ScrollConfig = UiKitConfig
+internal actual fun platformScrollConfig(): ScrollConfig = UiKitScrollConfig
 
-private object UiKitConfig : ScrollConfig {
+/**
+ * Opt out of the Cupertino overscroll behavior (rubber banding and spring effect).
+ *
+ * This method should be called before any @Composable function using this effect is executed
+ * (so as early as possible, e.g. during app start up).
+ */
+@ExperimentalFoundationApi
+fun optOutOfCupertinoOverscroll() {
+    UiKitScrollConfig.isRubberBandingOverscrollEnabled = false
+}
+
+internal object UiKitScrollConfig : ScrollConfig {
+    var isRubberBandingOverscrollEnabled: Boolean = true
+
     /*
      * There are no scroll events produced on iOS,
      * so in reality this function should not be ever called.

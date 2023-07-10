@@ -22,11 +22,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MutatePriority
-import androidx.compose.foundation.OverscrollEffect
-import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberOverscrollEffect
@@ -70,7 +66,6 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -198,12 +193,7 @@ object ScrollableDefaults {
      * Create and remember default [FlingBehavior] that will represent natural fling curve.
      */
     @Composable
-    fun flingBehavior(): FlingBehavior {
-        val flingSpec = rememberSplineBasedDecay<Float>()
-        return remember(flingSpec) {
-            DefaultFlingBehavior(flingSpec)
-        }
-    }
+    fun flingBehavior(): FlingBehavior = rememberFlingBehavior()
 
     /**
      * Create and remember default [OverscrollEffect] that will be used for showing over scroll
@@ -412,7 +402,7 @@ private suspend fun ScrollingLogic.animatedDispatchScroll(
     tryReceiveNext()?.let {
         target += it
     }
-    if (target.isAboutZero()) {
+    if (target.isLowScrollingDelta()) {
         return
     }
     scrollableState.scroll {
@@ -433,9 +423,9 @@ private suspend fun ScrollingLogic.animatedDispatchScroll(
                 sequentialAnimation = true
             ) {
                 val delta = value - lastValue
-                if (!delta.isAboutZero()) {
+                if (!delta.isLowScrollingDelta()) {
                     val consumedDelta = scrollBy(delta)
-                    if (!(delta - consumedDelta).isAboutZero()) {
+                    if (!(delta - consumedDelta).isLowScrollingDelta()) {
                         cancelAnimation()
                         return@animateTo
                     }
@@ -443,7 +433,7 @@ private suspend fun ScrollingLogic.animatedDispatchScroll(
                 }
                 tryReceiveNext()?.let {
                     target += it
-                    requiredAnimation = !(target - lastValue).isAboutZero()
+                    requiredAnimation = !(target - lastValue).isLowScrollingDelta()
                     cancelAnimation()
                 }
             }
@@ -471,7 +461,12 @@ private fun Modifier.mouseWheelInput(
 
 private inline val PointerEvent.isConsumed: Boolean get() = changes.fastAny { it.isConsumed }
 private inline fun PointerEvent.consume() = changes.fastForEach { it.consume() }
-private inline fun Float.isAboutZero(): Boolean = abs(this) < 0.5f
+
+/*
+ * Returns true, if the value is too low for visible change in scroll (consumed delta, animation-based change, etc),
+ * false otherwise
+ */
+private inline fun Float.isLowScrollingDelta(): Boolean = abs(this) < 0.5f
 
 private suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
     var event: PointerEvent
@@ -491,6 +486,7 @@ private class ScrollingLogic(
     val overscrollEffect: OverscrollEffect?
 ) {
     private val isNestedFlinging = mutableStateOf(false)
+
     fun Float.toOffset(): Offset = when {
         this == 0f -> Offset.Zero
         orientation == Horizontal -> Offset(this, 0f)
@@ -571,49 +567,61 @@ private class ScrollingLogic(
 
         val availableVelocity = initialVelocity.singleAxisVelocity()
 
-        val performFling: suspend (Velocity) -> Velocity = { velocity ->
-            val preConsumedByParent = nestedScrollDispatcher
-                .value.dispatchPreFling(velocity)
-            val available = velocity - preConsumedByParent
-            val velocityLeft = doFlingAnimation(available)
-            val consumedPost =
-                nestedScrollDispatcher.value.dispatchPostFling(
-                    (available - velocityLeft),
-                    velocityLeft
-                )
-            val totalLeft = velocityLeft - consumedPost
-            velocity - totalLeft
-        }
+        scrollableState.scroll {
+            val performFling: suspend (Velocity) -> Velocity = { velocity ->
+                val preConsumedByParent = nestedScrollDispatcher
+                    .value.dispatchPreFling(velocity)
+                val available = velocity - preConsumedByParent
+                val velocityLeft = doFlingAnimation(available)
+                val consumedPost =
+                    nestedScrollDispatcher.value.dispatchPostFling(
+                        (available - velocityLeft),
+                        velocityLeft
+                    )
+                val totalLeft = velocityLeft - consumedPost
+                velocity - totalLeft
+            }
 
-        if (overscrollEffect != null && shouldDispatchOverscroll) {
-            overscrollEffect.applyToFling(availableVelocity, performFling)
-        } else {
-            performFling(availableVelocity)
+            if (overscrollEffect != null && shouldDispatchOverscroll) {
+                overscrollEffect.applyToFling(availableVelocity, performFling)
+            } else {
+                performFling(availableVelocity)
+            }
         }
 
         // Self stopped flinging, reset
         registerNestedFling(false)
     }
 
-    suspend fun doFlingAnimation(available: Velocity): Velocity {
+    suspend fun ScrollScope.doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
-        scrollableState.scroll {
-            val outerScopeScroll: (Offset) -> Offset = { delta ->
-                dispatchScroll(delta.reverseIfNeeded(), Fling).reverseIfNeeded()
-            }
-            val scope = object : ScrollScope {
-                override fun scrollBy(pixels: Float): Float {
-                    return outerScopeScroll.invoke(pixels.toOffset()).toFloat()
-                }
-            }
-            with(scope) {
-                with(flingBehavior) {
-                    result = result.update(
-                        performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
-                    )
-                }
+
+        val outerScopeScroll: (Offset) -> Offset = { delta ->
+            dispatchScroll(delta.reverseIfNeeded(), Fling).reverseIfNeeded()
+        }
+        val scope = object : ScrollScope {
+            override fun scrollBy(pixels: Float): Float {
+                return outerScopeScroll.invoke(pixels.toOffset()).toFloat()
             }
         }
+        with(scope) {
+            with(flingBehavior) {
+                result = result.update(
+                    performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
+                )
+            }
+        }
+
+        return result
+    }
+
+    suspend fun doFlingAnimationInNewScrollScope(available: Velocity): Velocity {
+        var result: Velocity = available
+
+        scrollableState.scroll {
+            result = doFlingAnimation(available)
+        }
+
         return result
     }
 
@@ -683,7 +691,7 @@ private fun scrollableNestedScrollConnection(
         available: Velocity
     ): Velocity {
         return if (enabled) {
-            val velocityLeft = scrollLogic.value.doFlingAnimation(available)
+            val velocityLeft = scrollLogic.value.doFlingAnimationInNewScrollScope(available)
             available - velocityLeft
         } else {
             Velocity.Zero
