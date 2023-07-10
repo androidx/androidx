@@ -16,7 +16,6 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * A class that encapsulates all features that are only supported in certain cases (e.g. only on
@@ -143,12 +142,8 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers setting schemas with
-     * circular references for {@link AppSearchSession#setSchemaAsync}
-     *
-     * @exportToFramework:hide
-     * TODO(b/280698121): Unhide and request jetpack API approval after this is synced to framework.
+     * circular references for {@link AppSearchSession#setSchemaAsync}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     String SET_SCHEMA_CIRCULAR_REFERENCES = "SET_SCHEMA_CIRCULAR_REFERENCES";
 
     /**
@@ -156,6 +151,13 @@ public interface Features {
      * {@link AppSearchSchema.Builder#addParentType}.
      */
     String SCHEMA_ADD_PARENT_TYPE = "SCHEMA_ADD_PARENT_TYPE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link
+     * AppSearchSchema.DocumentPropertyConfig.Builder#addIndexableNestedProperties(String...)}
+     */
+    String SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES = "SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the

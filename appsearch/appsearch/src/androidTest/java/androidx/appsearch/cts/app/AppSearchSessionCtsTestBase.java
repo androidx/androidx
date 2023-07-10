@@ -343,6 +343,521 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(exception).hasMessageThat().containsMatch("Invalid cycle|Infinite loop");
     }
 
+    @Test
+    public void testSetSchema_indexableNestedPropsList() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name")
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("notes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema)
+                        .build()).get();
+
+        // Test that properties in Person's indexable_nested_properties_list are indexed and
+        // searchable
+        GenericDocument org1 = new GenericDocument.Builder<>("namespace", "org1", "Organization")
+                .setPropertyString("name", "Org1")
+                .setPropertyString("notes", "Some notes")
+                .build();
+        GenericDocument person1 = new GenericDocument.Builder<>("namespace", "person1", "Person")
+                .setPropertyString("name", "Jane")
+                .setPropertyDocument("worksFor", org1)
+                .build();
+
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(person1, org1)
+                                .build()));
+        assertThat(putResult.getSuccesses()).containsExactly("person1", null, "org1", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("person1", "org1")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person1, org1);
+
+        // Both org1 and person should be returned for query "Org1"
+        // For org1 this matches the 'name' property and for person1 this matches the
+        // 'worksFor.name' property.
+        SearchResults searchResults = mDb1.search("Org1", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person1, org1);
+
+        // Only org1 should be returned for query "notes", since 'worksFor.notes' is not indexed
+        // for the Person-type.
+        searchResults = mDb1.search("notes", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(org1);
+    }
+
+    @Test
+    public void testSetSchema_indexableNestedPropsList_notSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name")
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("notes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+
+        SetSchemaRequest setSchemaRequest = new SetSchemaRequest.Builder()
+                .addSchemas(personSchema, organizationSchema)
+                .build();
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.setSchemaAsync(setSchemaRequest).get());
+        assertThat(e).hasMessageThat().contains(
+                "DocumentPropertyConfig.addIndexableNestedProperties is not supported on this "
+                        + "AppSearch implementation.");
+    }
+
+    @Test
+    public void testSetSchema_indexableNestedPropsList_nonIndexableProp() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name")
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("notes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_NONE)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_NONE)
+                        .build())
+                .build();
+
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema)
+                        .build()).get();
+
+        // Test that Person's nested properties are indexed correctly.
+        GenericDocument org1 = new GenericDocument.Builder<>("namespace", "org1", "Organization")
+                .setPropertyString("name", "Org1")
+                .setPropertyString("notes", "Some notes")
+                .build();
+        GenericDocument person1 = new GenericDocument.Builder<>("namespace", "person1", "Person")
+                .setPropertyString("name", "Jane")
+                .setPropertyDocument("worksFor", org1)
+                .build();
+
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(person1, org1)
+                                .build()));
+        assertThat(putResult.getSuccesses()).containsExactly("person1", null, "org1", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("person1", "org1")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person1, org1);
+
+        // Both org1 and person should be returned for query "Org1"
+        // For org1 this matches the 'name' property and for person1 this matches the
+        // 'worksFor.name' property.
+        SearchResults searchResults = mDb1.search("Org1", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person1, org1);
+
+        // No documents should match for "notes", since both 'Organization:notes'
+        // and 'Person:worksFor.notes' are non-indexable.
+        searchResults = mDb1.search("notes", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(0);
+    }
+
+    @Test
+    public void testSetSchema_indexableNestedPropsList_multipleNestedLevels() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("subject")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("sender", "Person")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name", "worksFor.name", "worksFor.notes")
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("recipient", "Person")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("age")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name", "id")
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("notes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("id")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(emailSchema, personSchema, organizationSchema)
+                        .build()).get();
+
+        // Test that Email and Person's nested properties are indexed correctly.
+        GenericDocument org1 = new GenericDocument.Builder<>("namespace", "org1", "Organization")
+                .setPropertyString("name", "Org1")
+                .setPropertyString("notes", "Some notes")
+                .setPropertyString("id", "1234")
+                .build();
+        GenericDocument person1 = new GenericDocument.Builder<>("namespace", "person1", "Person")
+                .setPropertyString("name", "Jane")
+                .setPropertyString("age", "20")
+                .setPropertyDocument("worksFor", org1)
+                .build();
+        GenericDocument person2 = new GenericDocument.Builder<>("namespace", "person2", "Person")
+                .setPropertyString("name", "John")
+                .setPropertyString("age", "30")
+                .setPropertyDocument("worksFor", org1)
+                .build();
+        GenericDocument email1 = new GenericDocument.Builder<>("namespace", "email1", "Email")
+                .setPropertyString("subject", "Greetings!")
+                .setPropertyDocument("sender", person1)
+                .setPropertyDocument("recipient", person2)
+                .build();
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(person1, org1, person2, email1)
+                                .build()));
+        assertThat(putResult.getSuccesses()).containsExactly("person1", null, "org1", null,
+                "person2", null, "email1", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("person1", "org1", "person2", "email1")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(4);
+        assertThat(outDocuments).containsExactly(person1, org1, person2, email1);
+
+        // Indexed properties:
+        // Email: 'subject', 'sender.name', 'sender.worksFor.name', 'sender.worksFor.notes',
+        //        'recipient.name', 'recipient.age', 'recipient.worksFor.name',
+        //        'recipient.worksFor.id'
+        //        (Email:recipient sets index_nested_props=true, so it follows the same indexing
+        //         configs as the next schema-type level (person))
+        // Person: 'name', 'age', 'worksFor.name', 'worksFor.id'
+        // Organization: 'name', 'notes', 'id'
+        //
+        // All documents should be returned for query 'Org1' because all schemaTypes index the
+        // 'Organization:name' property.
+        SearchResults searchResults = mDb1.search("Org1", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(4);
+        assertThat(outDocuments).containsExactly(person1, org1, person2, email1);
+
+        // org1 and email1 should be returned for query 'notes'
+        searchResults = mDb1.search("notes", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(org1, email1);
+
+        // all docs should be returned for query "1234"
+        searchResults = mDb1.search("1234", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(4);
+        assertThat(outDocuments).containsExactly(person1, org1, person2, email1);
+
+        // email1 should be returned for query "30", but not for "20" since sender.age is not
+        // indexed, but recipient.age is.
+        // For query "30", person2 should also be returned
+        // For query "20, person1 should be returned.
+        searchResults = mDb1.search("30", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person2, email1);
+
+        searchResults = mDb1.search("20", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(person1);
+    }
+
+    @Test
+    public void testSetSchema_indexableNestedPropsList_circularRefs() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
+
+        // Create schema with valid cycle: Person -> Organization -> Person...
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("address")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name", "notes", "funder.name")
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("notes")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("funder", "Person")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(false)
+                        .addIndexableNestedProperties("name", "worksFor.name",
+                                "worksFor.funder.address", "worksFor.funder.worksFor.notes")
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema)
+                        .build()).get();
+
+        // Test that documents following the circular schema are indexed correctly, and that its
+        // sections are searchable
+        GenericDocument person1 = new GenericDocument.Builder<>("namespace", "person1", "Person")
+                .setPropertyString("name", "Person1")
+                .setPropertyString("address", "someAddress")
+                .build();
+        GenericDocument org1 = new GenericDocument.Builder<>("namespace", "org1", "Organization")
+                .setPropertyString("name", "Org1")
+                .setPropertyString("notes", "someNote")
+                .setPropertyDocument("funder", person1)
+                .build();
+        GenericDocument person2 = new GenericDocument.Builder<>("namespace", "person2", "Person")
+                .setPropertyString("name", "Person2")
+                .setPropertyString("address", "anotherAddress")
+                .setPropertyDocument("worksFor", org1)
+                .build();
+        GenericDocument org2 = new GenericDocument.Builder<>("namespace", "org2", "Organization")
+                .setPropertyString("name", "Org2")
+                .setPropertyString("notes", "anotherNote")
+                .setPropertyDocument("funder", person2)
+                .build();
+
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(
+                        mDb1.putAsync(new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(person1, org1, person2, org2)
+                                .build()));
+        assertThat(putResult.getSuccesses()).containsExactly("person1", null, "org1", null,
+                "person2", null, "org2", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("person1", "person2", "org1", "org2")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(4);
+        assertThat(outDocuments).containsExactly(person1, person2, org1, org2);
+
+        // Indexed properties:
+        // Person: 'name', 'address', 'worksFor.name', 'worksFor.notes', 'worksFor.funder.name'
+        // Organization: 'name', 'notes', 'funder.name', 'funder.worksFor.name',
+        //               'funder.worksFor.funder.address', 'funder.worksFor.funder.worksFor.notes'
+        //
+        // "Person1" should match person1 (name), org1 (funder.name) and person2
+        // (worksFor.funder.name)
+        SearchResults searchResults = mDb1.search("Person1",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(3);
+        assertThat(outDocuments).containsExactly(person1, org1, person2);
+
+        // "someAddress" should match person1 (address) and org2 (funder.worksFor.funder.address)
+        searchResults = mDb1.search("someAddress",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person1, org2);
+
+        // "Org1" should match org1 (name), person2 (worksFor.name) and org2 (funder.worksFor.name)
+        searchResults = mDb1.search("Org1",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(3);
+        assertThat(outDocuments).containsExactly(org1, person2, org2);
+
+        // "someNote" should match org1 (notes) and person2 (worksFor.notes)
+        searchResults = mDb1.search("someNote",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(org1, person2);
+
+        // "Person2" should match person2 (name), org2 (funder.name)
+        searchResults = mDb1.search("Person2",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(2);
+        assertThat(outDocuments).containsExactly(person2, org2);
+
+        // "anotherAddress" should match only person2 (address)
+        searchResults = mDb1.search("anotherAddress",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(person2);
+
+        // "Org2" and "anotherNote" should both match only org2 (name, notes)
+        searchResults = mDb1.search("Org2",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(org2);
+
+        searchResults = mDb1.search("anotherNote",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(org2);
+    }
+
 // @exportToFramework:startStrip()
 
     @Test

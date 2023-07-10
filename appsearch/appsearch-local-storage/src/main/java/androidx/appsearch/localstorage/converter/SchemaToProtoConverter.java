@@ -119,8 +119,11 @@ public final class SchemaToProtoConverter {
             builder
                     .setSchemaType(documentProperty.getSchemaType())
                     .setDocumentIndexingConfig(
-                            DocumentIndexingConfig.newBuilder().setIndexNestedProperties(
-                                    documentProperty.shouldIndexNestedProperties()));
+                            DocumentIndexingConfig.newBuilder()
+                                    .setIndexNestedProperties(
+                                            documentProperty.shouldIndexNestedProperties())
+                                    .addAllIndexableNestedPropertiesList(
+                                            documentProperty.getIndexableNestedProperties()));
         } else if (property instanceof AppSearchSchema.LongPropertyConfig) {
             AppSearchSchema.LongPropertyConfig longProperty =
                     (AppSearchSchema.LongPropertyConfig) property;
@@ -210,12 +213,18 @@ public final class SchemaToProtoConverter {
     @NonNull
     private static AppSearchSchema.DocumentPropertyConfig toDocumentPropertyConfig(
             @NonNull PropertyConfigProto proto) {
-        return new AppSearchSchema.DocumentPropertyConfig.Builder(
-                proto.getPropertyName(), proto.getSchemaType())
-                .setCardinality(proto.getCardinality().getNumber())
-                .setShouldIndexNestedProperties(
-                        proto.getDocumentIndexingConfig().getIndexNestedProperties())
-                .build();
+        AppSearchSchema.DocumentPropertyConfig.Builder builder =
+                new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                proto.getPropertyName(), proto.getSchemaType())
+                        .setCardinality(proto.getCardinality().getNumber())
+                        .setShouldIndexNestedProperties(
+                                proto.getDocumentIndexingConfig().getIndexNestedProperties());
+        List<String> indexableNestedPropertiesList =
+                proto.getDocumentIndexingConfig().getIndexableNestedPropertiesListList();
+        for (int i = 0; i < indexableNestedPropertiesList.size(); i++) {
+            builder.addIndexableNestedProperties(indexableNestedPropertiesList.get(i));
+        }
+        return builder.build();
     }
 
     @NonNull
