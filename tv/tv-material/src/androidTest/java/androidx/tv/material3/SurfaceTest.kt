@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.LocalFocusManager
@@ -1161,6 +1163,65 @@ class SurfaceTest {
 
         // blue border shouldn't be visible
         rootEl.captureToImage().assertDoesNotContainColor(Color.Blue)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun surfaceBorderShapeShouldDefaultToElementShape() {
+        val containerTag = "container"
+        val surfaceTag = "surface"
+
+        rule.setContent {
+            val border = Border(
+                border = BorderStroke(
+                    width = 5.dp,
+                    color = Color.Red,
+                )
+            )
+
+            Box(modifier = Modifier.background(Color.White).testTag(containerTag)) {
+                Surface(
+                    onClick = { },
+                    modifier = Modifier
+                        .size(200.dp, 100.dp)
+                        .testTag(surfaceTag),
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Blue,
+                        focusedContainerColor = Color.Blue,
+                    ),
+                    shape = ClickableSurfaceDefaults.shape(
+                        shape = RoundedCornerShape(50),
+                        focusedShape = RectangleShape,
+                    ),
+                    scale = ClickableSurfaceScale.None,
+                    border = ClickableSurfaceDefaults.border(
+                        border = border,
+                        focusedBorder = border,
+                    )
+                ) {}
+            }
+        }
+
+        // The shape is rounded so the border should not be there on the top left corner
+        assert(
+            rule
+                .onNodeWithTag(containerTag)
+                .captureToImage()
+                .toPixelMap(0, 0, 1, 1)
+                .get(0, 0) == Color.White
+        )
+
+        rule.onNodeWithTag(surfaceTag).requestFocus()
+        rule.waitForIdle()
+
+        // The shape is rectangle so the border should be there on the top left corner
+        assert(
+            rule
+                .onNodeWithTag(containerTag)
+                .captureToImage()
+                .toPixelMap(0, 0, 1, 1)
+                .get(0, 0) == Color.Red
+        )
     }
 }
 

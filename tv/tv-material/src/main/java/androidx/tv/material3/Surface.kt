@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.tokens.Elevation
+import androidx.tv.material3.tokens.ShapeTokens
 import kotlinx.coroutines.launch
 
 /**
@@ -386,7 +387,12 @@ private fun SurfaceImpl(
                     if (border != Border.None) {
                         Modifier.indication(
                             interactionSource = interactionSource,
-                            indication = remember(border) { BorderIndication(border = border) }
+                            indication = remember(border, shape) {
+                                val borderShape =
+                                    if (border.shape == ShapeTokens.BorderDefaultShape) shape
+                                    else border.shape
+                                BorderIndication(border = border.copy(shape = borderShape))
+                            }
                         )
                     } else Modifier
                 )
@@ -477,12 +483,12 @@ private fun Modifier.tvToggleable(
     onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource,
 ) = handleDPadEnter(
-        enabled = enabled,
-        interactionSource = interactionSource,
-        checked = checked,
-        onCheckedChanged = onCheckedChange,
-        onLongClick = onLongClick
-    )
+    enabled = enabled,
+    interactionSource = interactionSource,
+    checked = checked,
+    onCheckedChanged = onCheckedChange,
+    onLongClick = onLongClick
+)
     // We are not using "toggleable" modifier here because if we set "enabled" to false
     // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
     // should be focusable
