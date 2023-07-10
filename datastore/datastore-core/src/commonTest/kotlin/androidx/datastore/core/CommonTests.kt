@@ -24,3 +24,5 @@ class DataMigrationInitializerTestOkioTest :
     DataMigrationInitializerTest<OkioPath, IOException>(OkioTestIO())
 
 class SingleProcessDataStoreOkioTest : SingleProcessDataStoreTest<OkioPath>(OkioTestIO())
+
+class CloseDownstreamOnCloseOkioTest : CloseDownstreamOnCloseTest<OkioPath>(OkioTestIO())
