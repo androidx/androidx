@@ -169,6 +169,7 @@ package androidx.test.uiautomator {
     method public void dumpWindowHierarchy(java.io.File) throws java.io.IOException;
     method public void dumpWindowHierarchy(java.io.OutputStream) throws java.io.IOException;
     method @Deprecated public void dumpWindowHierarchy(String);
+    method @Discouraged(message="Can be useful for simple commands, but lacks support for proper error handling, input data, or complex commands (quotes, pipes) that can be obtained from UiAutomation#executeShellCommandRwe or similar utilities.") @RequiresApi(21) public String executeShellCommand(String) throws java.io.IOException;
     method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.UiObject findObject(androidx.test.uiautomator.UiSelector);
     method public java.util.List<androidx.test.uiautomator.UiObject2!> findObjects(androidx.test.uiautomator.BySelector);
