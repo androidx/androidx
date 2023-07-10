@@ -17,6 +17,7 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
+import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -87,6 +88,35 @@ class BeginCreatePublicKeyCredentialRequestTest {
     }
 
     @Test
+    fun constructor_success_createFrom() {
+        val bundle = Bundle()
+        bundle.putString(BUNDLE_KEY_REQUEST_JSON, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}")
+        bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, byteArrayOf())
+
+        BeginCreatePublicKeyCredentialRequest.createForTest(
+            bundle,
+            CallingAppInfo(
+                "sample_package_name", SigningInfo()
+            )
+        )
+    }
+
+    @Test
+    fun constructor_error_createFrom() {
+        Assert.assertThrows(
+            "Expected create from to throw error",
+            FrameworkClassParsingException::class.java
+        ) {
+            BeginCreatePublicKeyCredentialRequest.createForTest(
+                Bundle(),
+                CallingAppInfo(
+                    "sample_package_name", SigningInfo()
+                )
+            )
+        }
+    }
+
+    @Test
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
 
@@ -118,5 +148,30 @@ class BeginCreatePublicKeyCredentialRequestTest {
         val testClientDataHashActual = createPublicKeyCredentialReq.clientDataHash
         assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected)
     }
-    // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun conversion() {
+        val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+
+        val req = BeginCreatePublicKeyCredentialRequest(
+            testJsonExpected,
+            CallingAppInfo(
+                "sample_package_name", SigningInfo()
+            ),
+            Bundle()
+        )
+
+        val bundle = BeginCreateCredentialRequest.asBundle(req)
+        assertThat(bundle).isNotNull()
+
+        var converted = BeginCreateCredentialRequest.fromBundle(bundle)
+        assertThat(req.type).isEqualTo(converted!!.type)
+    }
+
+    internal companion object {
+        internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
+            "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
+        internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+    }
 }
