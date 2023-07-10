@@ -27,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
@@ -64,7 +66,7 @@ fun Example1() {
                 .width(100.dp).height(100.dp)
                 .clickable {
                     println("Red box: clicked")
-                }
+                }.pointerHoverIcon(PointerIcon.Text)
         ) {
             Box(
                 modifier = Modifier
@@ -73,7 +75,7 @@ fun Example1() {
                     .width(20.dp).height(20.dp)
                     .clickable {
                         println("Small box: clicked")
-                    }
+                    }.pointerHoverIcon(PointerIcon.Hand)
             )
         }
         Spacer(

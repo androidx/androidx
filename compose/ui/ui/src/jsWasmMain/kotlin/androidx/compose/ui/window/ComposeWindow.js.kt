@@ -21,6 +21,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.createSkiaLayer
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.BrowserCursor
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.JSTextInputService
 import androidx.compose.ui.platform.Platform
@@ -53,6 +55,12 @@ internal actual class ComposeWindow(val canvasId: String)  {
             override val doubleTapTimeoutMillis: Long = 300
             override val doubleTapMinTimeMillis: Long = 40
             override val touchSlop: Float get() = with(density) { 18.dp.toPx() }
+        }
+
+        override fun setPointerIcon(pointerIcon: PointerIcon) {
+            if (pointerIcon is BrowserCursor) {
+                setCursor(canvasId, pointerIcon.id)
+            }
         }
     }
     private val layer = ComposeLayer(
@@ -160,3 +168,6 @@ fun CanvasBasedWindow(
         }
     }
 }
+
+private fun setCursor(elementId: String, value: String): Unit =
+    js("document.getElementById(elementId).style.cursor = value")
