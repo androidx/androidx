@@ -22,13 +22,15 @@ import androidx.compose.runtime.Immutable
 /**
  * This class collects window info that affects adaptation decisions. An adaptive layout is supposed
  * to use the info from this class to decide how the layout is supposed to be adapted.
+ *
+ * @constructor create an instance of [WindowAdaptiveInfo]
+ * @param windowSizeClass [WindowSizeClass] of the current window.
+ * @param posture [Posture] of the current window.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class WindowAdaptiveInfo(
-    /** [WindowSizeClass] of the current window. */
     val windowSizeClass: WindowSizeClass,
-    /** [Posture] of the current window. */
     val posture: Posture
 ) {
     override fun equals(other: Any?): Boolean {

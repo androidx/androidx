@@ -142,12 +142,13 @@ fun calculateDenseAdaptiveLayoutDirective(
  * Top-level directives about how an adaptive layout should be arranged and spaced, like how many
  * partitions the layout can be split into and what should be the gutter size.
  *
+ * @constructor create an instance of [AdaptiveLayoutDirective]
  * @param maxHorizontalPartitions the max number of partitions along the horizontal axis the layout
  *        can be split into.
  * @param gutterSizes the gutter sizes between panes the layout should preserve.
  * @param maxVerticalPartitions the max number of partitions along the vertical axis the layout can
  *        be split into.
- * @param excludedBounds The bounds of all areas in the window that the layout needs to avoid
+ * @param excludedBounds the bounds of all areas in the window that the layout needs to avoid
  *        displaying anything upon it. Usually these bounds represent where physical hinges are.
  */
 @ExperimentalMaterial3AdaptiveApi
@@ -181,10 +182,11 @@ class AdaptiveLayoutDirective(
  * ([outerVertical] and [outerHorizontal]). Usually we will expect larger gutter sizes to be set
  * when the layout is larger and more panes are shown in the layout.
  *
+ * @constructor create an instance of [GutterSizes]
  * @param outerVertical Size of the outer vertical gutters. It's similar to left/right paddings of
  *        a normal layout.
  * @param innerVertical Size of the inner vertical gutters. It's similar to left/right margins of
- *        a layout's children.
+ *        the layout's children.
  * @param outerHorizontal Size of the outer horizontal gutters. It's similar to top/bottom paddings
  *        of a normal layout.
  * @param innerHorizontal Size of the inner horizontal gutters. It's similar to top/bottom margins
