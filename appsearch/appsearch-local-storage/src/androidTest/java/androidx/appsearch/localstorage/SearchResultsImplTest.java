@@ -53,9 +53,8 @@ public class SearchResultsImplTest {
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
                 new DefaultIcingOptionsConfig(),
-                /*initStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                ALWAYS_OPTIMIZE);
+                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
+                /*visibilityChecker=*/null);
     }
 
     @After
