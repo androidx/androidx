@@ -92,28 +92,6 @@
             android:layout_marginTop="16dp"
             android:text="@string/write_no_response" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/permissions"
-            android:textColor="@color/black"
-            android:textStyle="bold" />
-
-        <CheckBox
-            android:id="@+id/check_box_permissions_read"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/read" />
-
-        <CheckBox
-            android:id="@+id/check_box_permissions_write"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/write" />
-
     </LinearLayout>
 
 </ScrollView>
