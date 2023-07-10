@@ -27,7 +27,8 @@ import androidx.graphics.shapes.Cubic
 import androidx.graphics.shapes.CubicShape
 import androidx.graphics.shapes.Morph
 
-internal fun DrawScope.debugDraw(morph: Morph) = debugDraw(morph.asCubics(), morph.asPath())
+internal fun DrawScope.debugDraw(morph: Morph, progress: Float) =
+    debugDraw(morph.asCubics(progress), morph.asPath(progress))
 
 internal fun DrawScope.debugDraw(cubicShape: CubicShape) =
     debugDraw(cubicShape.cubics, cubicShape.toPath())

@@ -53,7 +53,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.graphics.shapes.Morph
@@ -69,13 +68,10 @@ fun PolygonComposable(polygon: RoundedPolygon, modifier: Modifier = Modifier) =
 @Composable
 private fun MorphComposable(
     sizedMorph: SizedMorph,
-    progress: () -> Float,
+    progress: Float,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false
-) =
-    MorphComposableImpl(sizedMorph, modifier, isDebug) {
-        sizedMorph.morph.progress = progress()
-    }
+) = MorphComposableImpl(sizedMorph, modifier, isDebug, progress)
 
 internal fun calculateMatrix(bounds: RectF, width: Float, height: Float): Matrix {
     val originalWidth = bounds.right - bounds.left
@@ -123,19 +119,18 @@ private fun MorphComposableImpl(
     sizedMorph: SizedMorph,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false,
-    prep: ContentDrawScope.() -> Unit
+    progress: Float
 ) {
     Box(
         modifier
             .fillMaxSize()
             .drawWithContent {
-                prep()
                 drawContent()
                 sizedMorph.resizeMaybe(size.width, size.height)
                 if (isDebug) {
-                    debugDraw(sizedMorph.morph)
+                    debugDraw(sizedMorph.morph, progress = progress)
                 } else {
-                    drawPath(sizedMorph.morph.asPath().asComposePath(), Color.White)
+                    drawPath(sizedMorph.morph.asPath(progress).asComposePath(), Color.White)
                 }
             })
 }
@@ -369,7 +364,7 @@ fun MorphScreen(
         Slider(value = progress.value.coerceIn(0f, 1f), onValueChange = {
             scope.launch { progress.snapTo(it) }
         })
-        MorphComposable(morphed, { progress.value },
+        MorphComposable(morphed, progress.value,
             Modifier
                 .fillMaxSize()
                 .clickable(
