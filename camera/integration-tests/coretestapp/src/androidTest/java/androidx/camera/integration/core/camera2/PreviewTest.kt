@@ -565,6 +565,7 @@ class PreviewTest(
         val resolutionSelector =
             ResolutionSelector.Builder()
                 .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
                 .setResolutionFilter { _, _ ->
                     listOf(maxHighResolutionOutputSize)
                 }
