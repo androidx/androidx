@@ -146,8 +146,11 @@ private class BinderAdapterDelegate(
             }
 
             override fun close() {
-                session.close()
-                surfaceControlViewHost.release()
+                val mHandler = Handler(Looper.getMainLooper())
+                mHandler.post {
+                    session.close()
+                    surfaceControlViewHost.release()
+                }
             }
         }
     }
