@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.audio
 
+import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.os.Build
@@ -33,7 +34,6 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -63,11 +63,11 @@ class AudioSourceTest {
         }
     }
 
-    @Ignore("b/289918974")
     @Test
     fun canStartAndStopAudioSource() {
         // Arrange.
-        val audioStream = createAudioStream()
+        val audioDataProvider = createAudioDataProvider(audioRecordingDelayMillis = 1)
+        val audioStream = createAudioStream(audioDataProvider = audioDataProvider)
         val bufferProvider = createBufferProvider()
         val audioSource = createAudioSource(
             audioStreamFactory = { _, _ -> audioStream },
@@ -376,9 +376,18 @@ class AudioSourceTest {
         exceptionOnStartMaxTimes = exceptionOnStartMaxTimes
     )
 
-    private fun createAudioDataProvider(): (Int) -> FakeAudioStream.AudioData = { index ->
+    @SuppressLint("BanThreadSleep") // Needed to simulate the audio recording delays.
+    private fun createAudioDataProvider(
+        audioRecordingDelayMillis: Long = 0
+    ): (Int) -> FakeAudioStream.AudioData = { index ->
         val byteBuffer = ByteBuffer.allocate(BYTE_BUFFER_CAPACITY).put(0, index.toByte())
         val timestampNs = index.toLong()
+
+        // Simulate the audio recording delays.
+        if (audioRecordingDelayMillis > 0) {
+            Thread.sleep(audioRecordingDelayMillis)
+        }
+
         FakeAudioStream.AudioData(byteBuffer, timestampNs)
     }
 
