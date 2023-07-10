@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,45 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.paging
+
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 
-/**
- * Stores an instance of the Logger interface implementation which is to be injected by
- * paging-runtime during runtime. This allows paging-common to add logs with
- * android.util.log as a non-android artifact
- */
-public var LOGGER: Logger? = null
-
 public const val LOG_TAG: String = "Paging"
 
-/**
- */
-public interface Logger {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public expect object PagingLogger {
     public fun isLoggable(level: Int): Boolean
     public fun log(level: Int, message: String, tr: Throwable? = null)
 }
 
-/**
- */
 public inline fun log(
     @IntRange(from = VERBOSE.toLong(), to = DEBUG.toLong()) level: Int,
     tr: Throwable? = null,
     block: () -> String
 ) {
-    val logger = LOGGER
-    if (logger?.isLoggable(level) == true) {
+    val logger = PagingLogger
+    if (logger.isLoggable(level)) {
         logger.log(level, block(), tr)
     }
 }
 
-/**
- */
 public const val VERBOSE: Int = 2
-
-/**
- */
 public const val DEBUG: Int = 3

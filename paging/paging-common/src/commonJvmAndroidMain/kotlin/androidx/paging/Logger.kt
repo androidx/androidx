@@ -13,7 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.paging
 
-public actual annotation class MainThread()
+import androidx.annotation.RestrictTo
+
+@Deprecated("Logger interface is no longer supported.")
+public interface Logger {
+    public fun isLoggable(level: Int): Boolean
+    public fun log(level: Int, message: String, tr: Throwable? = null)
+}
