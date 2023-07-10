@@ -127,9 +127,10 @@ fun UnderlinedIndicatorTabRow(
     TabRow(
         selectedTabIndex = selectedTabIndex,
         separator = { Spacer(modifier = Modifier.width(12.dp)) },
-        indicator = { tabPositions ->
+        indicator = { tabPositions, isActivated ->
             TabRowDefaults.UnderlinedIndicator(
-                currentTabPosition = tabPositions[selectedTabIndex]
+                currentTabPosition = tabPositions[selectedTabIndex],
+                isActivated = isActivated,
             )
         },
         modifier = Modifier

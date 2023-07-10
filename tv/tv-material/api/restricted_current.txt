@@ -638,19 +638,19 @@ package androidx.tv.material3 {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabDefaults {
-    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors pillIndicatorTabColors(optional long activeContentColor, optional long contentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledActiveContentColor, optional long disabledContentColor, optional long disabledSelectedContentColor);
-    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors underlinedIndicatorTabColors(optional long activeContentColor, optional long contentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledActiveContentColor, optional long disabledContentColor, optional long disabledSelectedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors pillIndicatorTabColors(optional long contentColor, optional long inactiveContentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledContentColor, optional long disabledInactiveContentColor, optional long disabledSelectedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors underlinedIndicatorTabColors(optional long contentColor, optional long inactiveContentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledContentColor, optional long disabledInactiveContentColor, optional long disabledSelectedContentColor);
     field public static final androidx.tv.material3.TabDefaults INSTANCE;
   }
 
   public final class TabKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional boolean enabled, optional androidx.tv.material3.TabColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Tab(androidx.tv.material3.TabRowScope, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional boolean enabled, optional androidx.tv.material3.TabColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabRowDefaults {
-    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, boolean isActivated, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
     method @androidx.compose.runtime.Composable public void TabSeparator();
-    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, boolean isActivated, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
     method @androidx.compose.runtime.Composable public long contentColor();
     method public long getContainerColor();
     property public final long ContainerColor;
@@ -658,7 +658,12 @@ package androidx.tv.material3 {
   }
 
   public final class TabRowKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> separator, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.ui.unit.DpRect>,kotlin.Unit> indicator, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> separator, optional kotlin.jvm.functions.Function2<? super java.util.List<androidx.compose.ui.unit.DpRect>,? super java.lang.Boolean,kotlin.Unit> indicator, kotlin.jvm.functions.Function1<? super androidx.tv.material3.TabRowScope,kotlin.Unit> tabs);
+  }
+
+  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public interface TabRowScope {
+    method public boolean isActivated();
+    property public abstract boolean isActivated;
   }
 
   public final class TextKt {

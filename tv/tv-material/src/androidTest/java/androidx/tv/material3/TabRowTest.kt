@@ -169,17 +169,19 @@ class TabRowTest {
                     buildTabPanel = @Composable { index, _ ->
                         BasicText(text = "Panel ${index + 1}")
                     },
-                    indicator = @Composable { tabPositions ->
+                    indicator = @Composable { tabPositions, isActivated ->
                         // FocusedTab's indicator
                         TabRowDefaults.PillIndicator(
                             currentTabPosition = tabPositions[focusedTabIndex],
+                            isActivated = isActivated,
                             activeColor = Color.Blue.copy(alpha = 0.4f),
                             inactiveColor = Color.Transparent,
                         )
 
                         // SelectedTab's indicator
                         TabRowDefaults.PillIndicator(
-                            currentTabPosition = tabPositions[activeTabIndex]
+                            currentTabPosition = tabPositions[activeTabIndex],
+                            isActivated = isActivated,
                         )
                     }
                 )
@@ -203,6 +205,7 @@ class TabRowTest {
         rule.onNodeWithText(secondPanel).assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalTvMaterial3Api::class)
     private fun setContent(
         tabs: List<String>,
         contentBuilder: @Composable () -> Unit = {
@@ -235,15 +238,16 @@ private fun TabRowSample(
     modifier: Modifier = Modifier,
     onFocus: (index: Int) -> Unit = {},
     onClick: (index: Int) -> Unit = onFocus,
-    buildTab: @Composable ((index: Int, tab: String) -> Unit) = @Composable { index, tab ->
-        TabSample(
-            selected = selectedTabIndex == index,
-            onFocus = { onFocus(index) },
-            onClick = { onClick(index) },
-            modifier = Modifier.testTag(tab),
-        )
-    },
-    indicator: @Composable ((tabPositions: List<DpRect>) -> Unit)? = null,
+    buildTab: @Composable (TabRowScope.(index: Int, tab: String) -> Unit) =
+        @Composable { index, tab ->
+            TabSample(
+                selected = selectedTabIndex == index,
+                onFocus = { onFocus(index) },
+                onClick = { onClick(index) },
+                modifier = Modifier.testTag(tab),
+            )
+        },
+    indicator: @Composable ((tabPositions: List<DpRect>, isTabRowActive: Boolean) -> Unit)? = null,
     buildTabPanel: @Composable ((index: Int, tab: String) -> Unit) = @Composable { _, tab ->
         BasicText(text = tab)
     },
@@ -294,7 +298,7 @@ private fun TabRowSample(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun TabSample(
+private fun TabRowScope.TabSample(
     selected: Boolean,
     modifier: Modifier = Modifier,
     onFocus: () -> Unit = {},
