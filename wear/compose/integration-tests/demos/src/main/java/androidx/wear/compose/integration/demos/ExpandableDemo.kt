@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,7 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 
@@ -117,6 +119,7 @@ fun ExpandableMultipleItems() {
 @Composable
 fun ExpandableText() {
     val state = rememberExpandableState()
+    val state2 = rememberExpandableState()
 
     ContainingScalingLazyColumn {
         expandableItem(state) { expanded ->
@@ -132,6 +135,22 @@ fun ExpandableText() {
             )
         }
         expandButton(state, outline = false)
+
+        demoSeparator()
+        item {
+            ListHeader {
+                Text("Inline expandable.")
+            }
+        }
+        expandableItem(state2) { expanded ->
+            Row(verticalAlignment = CenterVertically) {
+                Text(if (expanded) "Expanded" else "Collapsed")
+                Spacer(Modifier.width(10.dp))
+                Button(onClick = { state2.expanded = !expanded }) {
+                    Text(if (expanded) "-" else "+")
+                }
+            }
+        }
     }
 }
 

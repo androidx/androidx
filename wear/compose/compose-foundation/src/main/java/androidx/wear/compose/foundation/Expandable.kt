@@ -199,8 +199,14 @@ private fun ScalingLazyListScope.expandableItemImpl(
             val off1 = (width - placeables[1].width) / 2
 
             layout(width, height) {
-                placeables[0].placeWithLayer(off0, 0) { alpha = 1 - progress }
-                placeables[1].placeWithLayer(off1, 0) { alpha = progress }
+                if (progress < 1f) {
+                    placeables[0].placeWithLayer(off0, 0, zIndex = 1 - progress) {
+                        alpha = 1 - progress
+                    }
+                }
+                if (progress > 0f) {
+                    placeables[1].placeWithLayer(off1, 0, zIndex = progress) { alpha = progress }
+                }
             }
         }
     }
