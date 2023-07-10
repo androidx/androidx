@@ -245,7 +245,7 @@ public class PerfettoSdkHandshake(
              * Provides means to sideload Perfetto SDK native binaries with a library AAR used as
              * a source
              *
-             * @param aarFile either an AAR or an APK containing `libtracing_perfetto.so`
+             * @param aarFile an AAR file containing `libtracing_perfetto.so`
              * @param tempDirectory a directory directly accessible to the caller process (used for
              * extraction of the binaries from the zip)
              * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file
@@ -264,7 +264,7 @@ public class PerfettoSdkHandshake(
              * Provides means to sideload Perfetto SDK native binaries with an APK containing
              * the library used as a source
              *
-             * @param apkFile either an AAR or an APK containing `libtracing_perfetto.so`
+             * @param apkFile an APK file containing `libtracing_perfetto.so`
              * @param tempDirectory a directory directly accessible to the caller process (used for
              * extraction of the binaries from the zip)
              * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file
