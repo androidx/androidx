@@ -208,4 +208,12 @@ internal fun Colors.updateColorsFrom(other: Colors) {
     onError = other.onError
 }
 
+/**
+ * Convert given color to disabled color.
+ * @param disabledContentAlpha Alpha used to represent disabled content colors.
+ */
+@Composable
+internal fun Color.toDisabledColor(disabledContentAlpha: Float = ContentAlpha.disabled) =
+    this.copy(alpha = disabledContentAlpha)
+
 internal val LocalColors = staticCompositionLocalOf<Colors> { Colors() }
