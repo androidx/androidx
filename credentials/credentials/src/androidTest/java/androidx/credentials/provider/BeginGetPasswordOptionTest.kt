@@ -60,20 +60,7 @@ class BeginGetPasswordOptionTest {
             ArrayList(expectedAllowedUserIds)
         )
 
-        var option = BeginGetPasswordOption.createFrom(bundle, "id")
-        assertThat(option.id).isEqualTo("id")
-    }
-
-    @Test
-    fun createFromEntrySlice_success() {
-        val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
-        val bundle = Bundle()
-        bundle.putStringArrayList(
-            GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
-            ArrayList(expectedAllowedUserIds)
-        )
-
-        var option = BeginGetPasswordOption.createFromEntrySlice(bundle, "id")
+        var option = BeginGetPasswordOption.createForTest(bundle, "id")
         assertThat(option.id).isEqualTo("id")
     }
 }
