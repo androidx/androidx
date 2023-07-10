@@ -246,7 +246,8 @@ constructor(
         }
 
         /**
-         * Sets the complication's fallback, used in case any dynamic value has been invalidated.
+         * Sets the complication's fallback, used in case any dynamic value cannot be evaluated,
+         * e.g. when a data source is not available.
          *
          * IMPORTANT: This is only used when the system supports dynamic values. See each dynamic
          * value field's fallback companion field for the situation where the system does not
@@ -976,8 +977,8 @@ internal constructor(
          *   semantic meaning of value can be specified via [setValueType].
          *
          *   IMPORTANT: This is only used when the system does not support dynamic values _at all_.
-         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value has
-         *   been invalidated.
+         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value
+         *   cannot be evaluated, e.g. when a data source is not available.
          *
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
          * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
@@ -1324,8 +1325,8 @@ internal constructor(
          *   systems that don't support dynamic values, and should be >= 0.
          *
          *   IMPORTANT: This is only used when the system does not support dynamic values _at all_.
-         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value has
-         *   been invalidated.
+         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value
+         *   cannot be evaluated, e.g. when a data source is not available.
          *
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
          * @param contentDescription Defines localized text that briefly describes content of the
