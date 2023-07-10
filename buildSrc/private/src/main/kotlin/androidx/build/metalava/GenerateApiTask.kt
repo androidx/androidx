@@ -41,9 +41,8 @@ import org.gradle.workers.WorkerExecutor
  * file from the previous API signature files.
  */
 @CacheableTask
-abstract class GenerateApiTask @Inject constructor(
-    workerExecutor: WorkerExecutor
-) : MetalavaTask(workerExecutor) {
+abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecutor) :
+    MetalavaTask(workerExecutor) {
     @get:Internal // already expressed by getApiLintBaseline()
     abstract val baselines: Property<ApiBaselinesLocation>
 
@@ -55,11 +54,9 @@ abstract class GenerateApiTask @Inject constructor(
         return if (baseline.exists()) baseline else null
     }
 
-    @get:Input
-    var targetsJavaConsumers: Boolean = true
+    @get:Input var targetsJavaConsumers: Boolean = true
 
-    @get:Input
-    var generateRestrictToLibraryGroupAPIs = true
+    @get:Input var generateRestrictToLibraryGroupAPIs = true
 
     /** Collection of text files to which API signatures will be written. */
     @get:Internal // already expressed by getTaskOutputs()
@@ -76,19 +73,15 @@ abstract class GenerateApiTask @Inject constructor(
         )
     }
 
-    @get:Internal
-    abstract val currentVersion: Property<Version>
+    @get:Internal abstract val currentVersion: Property<Version>
 
     /**
      * The directory where past API files are stored. Not all files in the directory are used, they
      * are filtered in [getPastApiFiles].
      */
-    @get:Internal
-    abstract var projectApiDirectory: Directory
+    @get:Internal abstract var projectApiDirectory: Directory
 
-    /**
-     * An ordered list of the API files to use in generating the API level metadata JSON.
-     */
+    /** An ordered list of the API files to use in generating the API level metadata JSON. */
     @InputFiles
     @PathSensitive(PathSensitivity.NONE)
     fun getPastApiFiles(): List<File> {
@@ -100,17 +93,14 @@ abstract class GenerateApiTask @Inject constructor(
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
         check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
 
-        val inputs = JavaCompileInputs(
-            sourcePaths,
-            dependencyClasspath,
-            bootClasspath
-        )
+        val inputs = JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
 
-        val levelsArgs = getGenerateApiLevelsArgs(
-            getPastApiFiles(),
-            currentVersion.get(),
-            apiLocation.get().apiLevelsFile
-        )
+        val levelsArgs =
+            getGenerateApiLevelsArgs(
+                getPastApiFiles(),
+                currentVersion.get(),
+                apiLocation.get().apiLevelsFile
+            )
 
         generateApi(
             metalavaClasspath,

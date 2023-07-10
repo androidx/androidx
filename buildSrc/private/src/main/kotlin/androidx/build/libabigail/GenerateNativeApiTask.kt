@@ -46,35 +46,26 @@ internal val architectures = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
 @CacheableTask
 abstract class GenerateNativeApiTask : DefaultTask() {
 
-    @get:Inject
-    abstract val workerExecutor: WorkerExecutor
+    @get:Inject abstract val workerExecutor: WorkerExecutor
 
     @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
     abstract val prefabDirectory: Property<File>
 
-    @get:Internal
-    abstract val projectRootDir: Property<File>
+    @get:Internal abstract val projectRootDir: Property<File>
 
-    @get:Internal
-    abstract val apiLocation: Property<File>
+    @get:Internal abstract val apiLocation: Property<File>
 
-    @get:Internal
-    abstract val artifactNames: ListProperty<String>
+    @get:Internal abstract val artifactNames: ListProperty<String>
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
-        return getLocationsForArtifacts(
-            apiLocation.get(),
-            artifactNames.get()
-        )
+        return getLocationsForArtifacts(apiLocation.get(), artifactNames.get())
     }
 
     @TaskAction
     fun exec() {
         if (getOperatingSystem() != OperatingSystem.LINUX) {
-            logger.warn(
-                "Native API checking is currently not supported on non-linux devices"
-            )
+            logger.warn("Native API checking is currently not supported on non-linux devices")
             return
         }
         val destinationDir = apiLocation.get()
@@ -91,14 +82,15 @@ abstract class GenerateNativeApiTask : DefaultTask() {
             if (!module.exists()) {
                 throw GradleException(
                     "Expected prefab directory to include path $module, but it does not exist. " +
-                    "Check value of 'prefab.$moduleName.name' configuration in build.gradle."
+                        "Check value of 'prefab.$moduleName.name' configuration in build.gradle."
                 )
             }
             module.listFiles().forEach { archDir ->
-                val artifacts = archDir.listFiles().filter {
-                    // skip abi.json
-                    it.extension == "a" || it.extension == "so"
-                }
+                val artifacts =
+                    archDir.listFiles().filter {
+                        // skip abi.json
+                        it.extension == "a" || it.extension == "so"
+                    }
                 val nameCounts = artifacts.groupingBy { it.nameWithoutExtension }.eachCount()
                 nameCounts.forEach { (name, count) ->
                     if (count > 1) {
@@ -109,11 +101,8 @@ abstract class GenerateNativeApiTask : DefaultTask() {
                 }
                 artifacts.forEach { artifact ->
                     val arch = archDir.name.removePrefix(ARCH_PREFIX)
-                    val outputFilePath = getLocationForArtifact(
-                        destinationDir,
-                        arch,
-                        artifact.nameWithoutExtension
-                    )
+                    val outputFilePath =
+                        getLocationForArtifact(destinationDir, arch, artifact.nameWithoutExtension)
                     outputFilePath.parentFile.mkdirs()
                     workQueue.submit(AbiDwWorkAction::class.java) { parameters ->
                         parameters.rootDir = projectRootDir.get().toString()
@@ -138,38 +127,38 @@ abstract class AbiDwWorkAction @Inject constructor(private val execOperations: E
         val tempFile = File.createTempFile("abi", null)
         execOperations.exec {
             it.executable = LibabigailPaths.Linux.abidwPath(parameters.rootDir)
-            it.args = listOf(
-                "--drop-private-types",
-                "--no-show-locs",
-                "--short-locs",
-                "--no-comp-dir-path",
-                "--no-corpus-path",
-                "--out-file",
-                tempFile.toString(),
-                parameters.pathToLib
-            )
+            it.args =
+                listOf(
+                    "--drop-private-types",
+                    "--no-show-locs",
+                    "--short-locs",
+                    "--no-comp-dir-path",
+                    "--no-corpus-path",
+                    "--out-file",
+                    tempFile.toString(),
+                    parameters.pathToLib
+                )
         }
         execOperations.exec {
             it.executable = LibabigailPaths.Linux.abitidyPath(parameters.rootDir)
-            it.args = listOf(
-                "--input",
-                tempFile.toString(),
-                "--output",
-                parameters.outputFilePath,
-                "--abort-on-untyped-symbols",
-                "--eliminate-duplicates",
-                "--sort",
-                "--prune-unreachable"
-            )
+            it.args =
+                listOf(
+                    "--input",
+                    tempFile.toString(),
+                    "--output",
+                    parameters.outputFilePath,
+                    "--abort-on-untyped-symbols",
+                    "--eliminate-duplicates",
+                    "--sort",
+                    "--prune-unreachable"
+                )
         }
     }
 }
 
 internal fun getLocationsForArtifacts(baseDir: File, artifactNames: List<String>): List<File> {
     return artifactNames.flatMap { artifactName ->
-        architectures.map { arch ->
-            getLocationForArtifact(baseDir, arch, artifactName)
-        }
+        architectures.map { arch -> getLocationForArtifact(baseDir, arch, artifactName) }
     }
 }
 

@@ -47,26 +47,22 @@ abstract class FtlRunner : DefaultTask() {
         description = "Runs devices tests in Firebase Test Lab filtered by --className"
     }
 
-    @get:Inject
-    abstract val execOperations: ExecOperations
+    @get:Inject abstract val execOperations: ExecOperations
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val testFolder: DirectoryProperty
 
-    @get:Internal
-    abstract val testLoader: Property<BuiltArtifactsLoader>
+    @get:Internal abstract val testLoader: Property<BuiltArtifactsLoader>
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:Optional
     abstract val appFolder: DirectoryProperty
 
-    @get:Internal
-    abstract val appLoader: Property<BuiltArtifactsLoader>
+    @get:Internal abstract val appLoader: Property<BuiltArtifactsLoader>
 
-    @get:Input
-    abstract val apkPackageName: Property<String>
+    @get:Input abstract val apkPackageName: Property<String>
 
     @get:Optional
     @get:Input
@@ -91,40 +87,44 @@ abstract class FtlRunner : DefaultTask() {
     )
     abstract val instrumentationArgs: Property<String>
 
-    @get:Input
-    abstract val device: Property<String>
+    @get:Input abstract val device: Property<String>
 
     @TaskAction
     fun execThings() {
         if (!System.getenv().containsKey("GOOGLE_APPLICATION_CREDENTIALS")) {
-            throw Exception("Running tests in FTL requires credentials, you have not set up " +
-                "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-dev#remote-build-cache")
+            throw Exception(
+                "Running tests in FTL requires credentials, you have not set up " +
+                    "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-dev#remote-build-cache"
+            )
         }
-        val testApk = testLoader.get().load(testFolder.get())
-            ?: throw RuntimeException("Cannot load required APK for task: $name")
-        val testApkPath = testApk.elements.single().outputFile
-        val appApkPath = if (appLoader.isPresent) {
-            val appApk = appLoader.get().load(appFolder.get())
+        val testApk =
+            testLoader.get().load(testFolder.get())
                 ?: throw RuntimeException("Cannot load required APK for task: $name")
-            appApk.elements.single().outputFile
-        } else {
-            "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                "37728671722adb4f49b23ed2f0edb0b4def51c841b0735fdd1648942ff1e9090.apk"
-        }
-        try {
-            execOperations.exec {
-                    it.commandLine("gcloud", "--version")
+        val testApkPath = testApk.elements.single().outputFile
+        val appApkPath =
+            if (appLoader.isPresent) {
+                val appApk =
+                    appLoader.get().load(appFolder.get())
+                        ?: throw RuntimeException("Cannot load required APK for task: $name")
+                appApk.elements.single().outputFile
+            } else {
+                "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
+                    "37728671722adb4f49b23ed2f0edb0b4def51c841b0735fdd1648942ff1e9090.apk"
             }
+        try {
+            execOperations.exec { it.commandLine("gcloud", "--version") }
         } catch (exception: Exception) {
             throw Exception(
                 "Missing gcloud, please follow go/androidx-dev#remote-build-cache to set it up"
             )
         }
         val hasFilters = className.isPresent || packageName.isPresent
-        val filters = listOfNotNull(
-            if (className.isPresent) "class ${className.get()}" else null,
-            if (packageName.isPresent) "package ${packageName.get()}" else null,
-        ).joinToString(separator = ",")
+        val filters =
+            listOfNotNull(
+                    if (className.isPresent) "class ${className.get()}" else null,
+                    if (packageName.isPresent) "package ${packageName.get()}" else null,
+                )
+                .joinToString(separator = ",")
 
         val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
 
@@ -162,13 +162,14 @@ abstract class FtlRunner : DefaultTask() {
     }
 }
 
-private val devicesToRunOn = listOf(
-    "ftlpixel2api33" to "Pixel2.arm,version=33",
-    "ftlpixel2api30" to "Pixel2.arm,version=30",
-    "ftlpixel2api28" to "Pixel2.arm,version=28",
-    "ftlpixel2api26" to "Pixel2.arm,version=26",
-    "ftlnexus4api21" to "Nexus4,version=21",
-)
+private val devicesToRunOn =
+    listOf(
+        "ftlpixel2api33" to "Pixel2.arm,version=33",
+        "ftlpixel2api30" to "Pixel2.arm,version=30",
+        "ftlpixel2api28" to "Pixel2.arm,version=28",
+        "ftlpixel2api26" to "Pixel2.arm,version=26",
+        "ftlnexus4api21" to "Nexus4,version=21",
+    )
 
 fun Project.configureFtlRunner() {
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
@@ -182,7 +183,6 @@ fun Project.configureFtlRunner() {
                     artifacts = variant.androidTest?.artifacts
                     apkPackageName = variant.androidTest?.namespace
                 }
-
                 project.plugins.hasPlugin("com.android.test") -> {
                     name = variant.name
                     artifacts = variant.artifacts

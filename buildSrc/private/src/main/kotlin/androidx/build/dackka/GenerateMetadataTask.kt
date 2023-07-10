@@ -38,24 +38,16 @@ import org.gradle.internal.component.external.model.DefaultModuleComponentIdenti
 @CacheableTask
 abstract class GenerateMetadataTask : DefaultTask() {
 
-    /**
-     * List of artifacts to convert to JSON
-     */
-    @Input
-    abstract fun getArtifactIds(): ListProperty<ComponentArtifactIdentifier>
+    /** List of artifacts to convert to JSON */
+    @Input abstract fun getArtifactIds(): ListProperty<ComponentArtifactIdentifier>
 
-    /**
-     * List of files corresponding to artifacts in [getArtifactIds]
-     */
+    /** List of files corresponding to artifacts in [getArtifactIds] */
     @InputFiles
     @PathSensitive(PathSensitivity.NONE)
     abstract fun getArtifactFiles(): ListProperty<File>
 
-    /**
-     * Location of the generated JSON file
-     */
-    @get:OutputFile
-    abstract val destinationFile: RegularFileProperty
+    /** Location of the generated JSON file */
+    @get:OutputFile abstract val destinationFile: RegularFileProperty
 
     @TaskAction
     fun generate() {
@@ -80,20 +72,22 @@ abstract class GenerateMetadataTask : DefaultTask() {
             // Fetch the list of files contained in the .jar file
             val fileList = ZipFile(file).entries().toList().map { it.name }
 
-            val entry = MetadataEntry(
-                groupId = componentId.group,
-                artifactId = componentId.module,
-                releaseNotesUrl = generateReleaseNotesUrl(componentId.group),
-                jarContents = fileList
-            )
+            val entry =
+                MetadataEntry(
+                    groupId = componentId.group,
+                    artifactId = componentId.module,
+                    releaseNotesUrl = generateReleaseNotesUrl(componentId.group),
+                    jarContents = fileList
+                )
             entries.add(entry)
         }
 
-        val gson = if (DEBUG) {
-            GsonBuilder().setPrettyPrinting().create()
-        } else {
-            Gson()
-        }
+        val gson =
+            if (DEBUG) {
+                GsonBuilder().setPrettyPrinting().create()
+            } else {
+                Gson()
+            }
         val writer = FileWriter(destinationFile.get().toString())
         gson.toJson(entries, writer)
         writer.close()

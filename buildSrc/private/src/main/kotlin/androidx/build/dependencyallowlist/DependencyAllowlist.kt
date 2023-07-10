@@ -21,16 +21,16 @@ import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 
 /**
- * @param verificationMetadataXml A string containing the entire content of a file that would
- * live at
- * [gradle/verification-metadata.xml](https://docs.gradle.org/current/userguide/dependency_verification.html#sub:enabling-verification)
- *
- * @return a list of strings that are English descriptions of problems with the dependencies
- * (At this point, merely checksum dependency components that do not link to bugs that track
- * asking them to be signed)
+ * @param verificationMetadataXml A string containing the entire content of a file that would live
+ *   at
+ *   [gradle/verification-metadata.xml](https://docs.gradle.org/current/userguide/dependency_verification.html#sub:enabling-verification)
+ * @return a list of strings that are English descriptions of problems with the dependencies (At
+ *   this point, merely checksum dependency components that do not link to bugs that track asking
+ *   them to be signed)
  */
 fun allowlistWarnings(verificationMetadataXml: String): List<String> {
-    return verificationMetadataComponents(verificationMetadataXml).filter { !it.hasValidReason() }
+    return verificationMetadataComponents(verificationMetadataXml)
+        .filter { !it.hasValidReason() }
         .map {
             val componentName = it.attributes.getNamedItem("group").textContent
             "Add androidx:reason for unsigned component '$componentName'" +
@@ -40,16 +40,18 @@ fun allowlistWarnings(verificationMetadataXml: String): List<String> {
 
 /**
  * @param verificationMetadataXml see [allowlistWarnings]
- *
- * @return a list of [Node]s representing all of the components needing
- *         validation in the file.
+ * @return a list of [Node]s representing all of the components needing validation in the file.
  */
 private fun verificationMetadataComponents(verificationMetadataXml: String): List<Node> {
     // Throw exception if there is not a single <components> element in the file.
     val singleComponentsNode =
-        DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder()
-            .parse(verificationMetadataXml.byteInputStream()).getElementsByTagName("components")
-            .toList().single()
+        DocumentBuilderFactory.newInstance()
+            .apply { isNamespaceAware = true }
+            .newDocumentBuilder()
+            .parse(verificationMetadataXml.byteInputStream())
+            .getElementsByTagName("components")
+            .toList()
+            .single()
 
     val componentsChildNodes = singleComponentsNode.childNodes.toList()
     return componentsChildNodes.filter {
@@ -64,7 +66,6 @@ private fun Node.hasValidReason(): Boolean {
     return reason?.textContent?.containsBug() == true
 }
 
-private fun String.containsBug() =
-    contains("b/") || contains("github.com") && contains("issues")
+private fun String.containsBug() = contains("b/") || contains("github.com") && contains("issues")
 
 private fun NodeList.toList() = (0 until length).map { item(it) }

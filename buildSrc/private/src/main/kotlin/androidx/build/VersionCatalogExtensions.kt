@@ -23,9 +23,7 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
 val Project.versionCatalog: VersionCatalog
-    get() = project.extensions.getByType(
-        VersionCatalogsExtension::class.java
-    ).find("libs").get()
+    get() = project.extensions.getByType(VersionCatalogsExtension::class.java).find("libs").get()
 
 fun Project.getLibraryByName(name: String): MinimalExternalModuleDependency {
     val library = versionCatalog.findLibrary(name)

@@ -18,28 +18,29 @@ package androidx.build
 
 /**
  * These lint checks are normally a warning (or lower), but in AndroidX we ignore warnings in Lint.
- * We want these errors to be reported, so they'll be promoted from a warning to an error in
- * modules that use the [AndroidXComposeImplPlugin].
+ * We want these errors to be reported, so they'll be promoted from a warning to an error in modules
+ * that use the [AndroidXComposeImplPlugin].
  */
-internal val ComposeLintWarningIdsToTreatAsErrors = listOf(
-    "ComposableNaming",
-    "ComposableLambdaParameterNaming",
-    "ComposableLambdaParameterPosition",
-    "CompositionLocalNaming",
-    "ComposableModifierFactory",
-    "AutoboxingStateCreation",
-    "AutoboxingStateValueProperty",
-    "InvalidColorHexValue",
-    "MissingColorAlphaChannel",
-    "ModifierFactoryReturnType",
-    "ModifierFactoryExtensionFunction",
-    "ModifierNodeInspectableProperties",
-    "ModifierParameter",
-    "MutableCollectionMutableState",
-    "OpaqueUnitKey",
-    "UnnecessaryComposedModifier",
-    "FrequentlyChangedStateReadInComposition",
-    "ReturnFromAwaitPointerEventScope",
-    "UseOfNonLambdaOffsetOverload",
-    "MultipleAwaitPointerEventScopes",
-)
+internal val ComposeLintWarningIdsToTreatAsErrors =
+    listOf(
+        "ComposableNaming",
+        "ComposableLambdaParameterNaming",
+        "ComposableLambdaParameterPosition",
+        "CompositionLocalNaming",
+        "ComposableModifierFactory",
+        "AutoboxingStateCreation",
+        "AutoboxingStateValueProperty",
+        "InvalidColorHexValue",
+        "MissingColorAlphaChannel",
+        "ModifierFactoryReturnType",
+        "ModifierFactoryExtensionFunction",
+        "ModifierNodeInspectableProperties",
+        "ModifierParameter",
+        "MutableCollectionMutableState",
+        "OpaqueUnitKey",
+        "UnnecessaryComposedModifier",
+        "FrequentlyChangedStateReadInComposition",
+        "ReturnFromAwaitPointerEventScope",
+        "UseOfNonLambdaOffsetOverload",
+        "MultipleAwaitPointerEventScopes",
+    )

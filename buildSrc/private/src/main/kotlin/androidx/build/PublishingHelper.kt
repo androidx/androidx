@@ -24,11 +24,11 @@ internal fun Project.registerAsComponentForPublishing(gradleVariant: Configurati
     // Android Library project 'release' component
     val release = components.findByName("release")
     if (release is AdhocComponentWithVariants) {
-        release.addVariantsFromConfiguration(gradleVariant) { }
+        release.addVariantsFromConfiguration(gradleVariant) {}
     }
     // Java Library project 'java' component
     val javaComponent = components.findByName("java")
     if (javaComponent is AdhocComponentWithVariants) {
-        javaComponent.addVariantsFromConfiguration(gradleVariant) { }
+        javaComponent.addVariantsFromConfiguration(gradleVariant) {}
     }
 }

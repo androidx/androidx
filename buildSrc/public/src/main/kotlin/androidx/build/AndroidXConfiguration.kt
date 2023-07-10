@@ -20,9 +20,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
-/**
- * Public-facing interface for the `androidx` configuration DSL.
- */
+/** Public-facing interface for the `androidx` configuration DSL. */
 interface AndroidXConfiguration {
     /**
      * Target Kotlin API version passed to the Kotlin compiler.
@@ -39,19 +37,15 @@ interface AndroidXConfiguration {
     val kotlinBomVersion: Provider<String>
 }
 
-enum class KotlinTarget(
-    val apiVersion: KotlinVersion,
-    val catalogVersion: String
-) {
+enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {
     KOTLIN_1_7(KotlinVersion.KOTLIN_1_7, "kotlin17"),
     KOTLIN_1_8(KotlinVersion.KOTLIN_1_8, "kotlin18"),
     KOTLIN_1_9(KotlinVersion.KOTLIN_1_9, "kotlin19"),
     DEFAULT(KOTLIN_1_8);
 
-    constructor(kotlinTarget: KotlinTarget) : this(
-        kotlinTarget.apiVersion,
-        kotlinTarget.catalogVersion
-    )
+    constructor(
+        kotlinTarget: KotlinTarget
+    ) : this(kotlinTarget.apiVersion, kotlinTarget.catalogVersion)
 }
 
 val Project.androidXConfiguration: AndroidXConfiguration

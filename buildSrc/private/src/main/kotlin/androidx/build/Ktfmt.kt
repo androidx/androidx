@@ -41,15 +41,14 @@ import org.intellij.lang.annotations.Language
 
 fun Project.configureKtfmt() {
     tasks.register("ktFormat", KtfmtFormatTask::class.java)
-    tasks.register("ktCheck", KtfmtCheckTask::class.java) { task ->
-        task.cacheEvenIfNoOutputs()
-    }
+    tasks.register("ktCheck", KtfmtCheckTask::class.java) { task -> task.cacheEvenIfNoOutputs() }
 }
 
-private val ExcludedDirectories = listOf(
-    "test-data",
-    "external",
-)
+private val ExcludedDirectories =
+    listOf(
+        "test-data",
+        "external",
+    )
 
 private val ExcludedDirectoryGlobs = ExcludedDirectories.map { "**/$it/**/*.kt" }
 private const val InputDir = "src"
@@ -57,8 +56,7 @@ private const val IncludedFiles = "**/*.kt"
 
 @CacheableTask
 abstract class BaseKtfmtTask : DefaultTask() {
-    @get:Inject
-    abstract val objects: ObjectFactory
+    @get:Inject abstract val objects: ObjectFactory
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getInputFiles(): FileTree {
@@ -72,37 +70,27 @@ abstract class BaseKtfmtTask : DefaultTask() {
             }
         }
         return objects.fileTree().setDir(projectDirectory).apply {
-            subdirectories.forEach {
-                include("$it/src/**/*.kt")
-            }
+            subdirectories.forEach { include("$it/src/**/*.kt") }
         }
     }
 
-    /**
-     * Allows overriding to use a custom directory instead of default [Project.getProjectDir].
-     */
-    @get:Internal
-    var overrideDirectory: File? = null
+    /** Allows overriding to use a custom directory instead of default [Project.getProjectDir]. */
+    @get:Internal var overrideDirectory: File? = null
 
     /**
-     * Used together with [overrideDirectory] to specify which specific subdirectories should
-     * be analyzed.
+     * Used together with [overrideDirectory] to specify which specific subdirectories should be
+     * analyzed.
      */
-    @get:Internal
-    var overrideSubdirectories: List<String>? = null
+    @get:Internal var overrideSubdirectories: List<String>? = null
 
     protected fun runKtfmt(format: Boolean) {
         if (getInputFiles().files.isEmpty()) return
         runBlocking(Dispatchers.IO) {
             val result = processInputFiles()
-            val incorrectlyFormatted = result.filter {
-                !it.isCorrectlyFormatted
-            }
+            val incorrectlyFormatted = result.filter { !it.isCorrectlyFormatted }
             if (incorrectlyFormatted.isNotEmpty()) {
                 if (format) {
-                    incorrectlyFormatted.forEach {
-                        it.input.writeText(it.formattedCode)
-                    }
+                    incorrectlyFormatted.forEach { it.input.writeText(it.formattedCode) }
                 } else {
                     error(
                         "Found ${incorrectlyFormatted.size} files that are not correctly " +
@@ -114,21 +102,15 @@ abstract class BaseKtfmtTask : DefaultTask() {
         }
     }
 
-    /**
-     * Run ktfmt on all the files in [getInputFiles] in parallel.
-     */
+    /** Run ktfmt on all the files in [getInputFiles] in parallel. */
     private suspend fun processInputFiles(): List<KtfmtResult> {
-        return coroutineScope {
-            getInputFiles().files.map { async { processFile(it) } }.awaitAll()
-        }
+        return coroutineScope { getInputFiles().files.map { async { processFile(it) } }.awaitAll() }
     }
 
-    /**
-     * Run ktfmt on the [input] file.
-     */
+    /** Run ktfmt on the [input] file. */
     private fun processFile(input: File): KtfmtResult {
         // To hack around https://github.com/facebook/ktfmt/issues/406 we rewrite all the
-        // @sample tags to ####### so that ktfmt would not move them around. We then
+        // @sample tags to @sample so that ktfmt would not move them around. We then
         // rewrite it back when returning the formatted code.
         val originCode = input.readText().replace(SAMPLE, PLACEHOLDER)
         val formattedCode = format(Formatter.KOTLINLANG_FORMAT, originCode)
@@ -142,7 +124,7 @@ abstract class BaseKtfmtTask : DefaultTask() {
 
 // Keep two of them the same length to make sure line wrapping works as expected
 private const val SAMPLE = "@sample"
-private const val PLACEHOLDER = "#######"
+private const val PLACEHOLDER = "@sample"
 
 internal data class KtfmtResult(
     val input: File,
@@ -158,8 +140,7 @@ abstract class KtfmtFormatTask : BaseKtfmtTask() {
     }
 
     // Format task rewrites inputs, so the outputs are the same as inputs.
-    @OutputFiles
-    fun getRewrittenFiles(): FileTree = getInputFiles()
+    @OutputFiles fun getRewrittenFiles(): FileTree = getInputFiles()
 
     @TaskAction
     fun runFormat() {
