@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom
+package androidx.core.telecom.test
 
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallAudioState
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.test.filters.SdkSuppress
 import java.util.UUID

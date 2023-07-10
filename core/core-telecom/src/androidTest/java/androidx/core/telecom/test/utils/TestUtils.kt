@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom.utils
+package androidx.core.telecom.test.utils
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build.VERSION_CODES
+import android.os.UserHandle
+import android.os.UserManager
 import android.telecom.Call
 import android.telecom.DisconnectCause
 import android.telecom.PhoneAccountHandle
@@ -44,6 +47,7 @@ object TestUtils {
     const val COMMAND_SET_DEFAULT_DIALER = "telecom set-default-dialer " // DO NOT REMOVE SPACE
     const val COMMAND_GET_DEFAULT_DIALER = "telecom get-default-dialer"
     const val COMMAND_CLEANUP_STUCK_CALLS = "cleanup-stuck-calls"
+    const val COMMAND_ENABLE_PHONE_ACCOUNT = "telecom set-phone-account-enabled "
     const val COMMAND_DUMP_TELECOM = "dumpsys telecom"
     const val TEST_CALL_ATTRIB_NAME = "Elon Musk"
     const val OUTGOING_NAME = "Larry Page"
@@ -221,6 +225,24 @@ object TestUtils {
         )
     }
 
+    fun enablePhoneAccountHandle(context: Context, phoneAccountHandle: PhoneAccountHandle) {
+        val pn = phoneAccountHandle.componentName.packageName
+        val cn = phoneAccountHandle.componentName.className
+        val userHandleId = getCurrentUserSerialNumber(context, phoneAccountHandle.userHandle)
+        Log.i(
+            LOG_TAG,
+            "enable phoneAccountHandle=[$phoneAccountHandle], success=[${
+                runShellCommand(
+                    (COMMAND_ENABLE_PHONE_ACCOUNT +
+                        pn + "/" + cn + " " + phoneAccountHandle.id + " " + userHandleId)
+                )
+            }]"
+        )
+    }
+    private fun getCurrentUserSerialNumber(context: Context, userHandle: UserHandle): Long {
+        val userManager = context.getSystemService(UserManager::class.java)
+        return userManager.getSerialNumberForUser(userHandle)
+    }
     fun getDefaultDialer(): String {
         val s = runShellCommand(COMMAND_GET_DEFAULT_DIALER)
         return s.replace("\n", "")
