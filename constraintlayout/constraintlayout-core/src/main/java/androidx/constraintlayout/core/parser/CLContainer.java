@@ -358,7 +358,9 @@ public class CLContainer extends CLElement {
         CLContainer clone = (CLContainer) super.clone();
         ArrayList<CLElement> clonedArray = new ArrayList<>(mElements.size());
         for (CLElement element: mElements) {
-            clonedArray.add(element.clone());
+            CLElement elementClone = element.clone();
+            elementClone.setContainer(clone);
+            clonedArray.add(elementClone);
         }
         clone.mElements = clonedArray;
         return clone;
