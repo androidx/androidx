@@ -116,39 +116,6 @@ internal class GattClient {
         fun finish()
     }
 
-    /**
-     * A mapping from framework instances to BluetoothX instances.
-     */
-    private class AttributeMap {
-        val services: MutableMap<FwkService, GattService> = mutableMapOf()
-        val characteristics: MutableMap<FwkCharacteristic, GattCharacteristic> =
-            mutableMapOf()
-
-        fun update(services: List<FwkService>) {
-            this.services.clear()
-            characteristics.clear()
-
-            services.forEach { serv ->
-                this.services[serv] = GattService(serv)
-                serv.characteristics.forEach { char ->
-                    characteristics[char] = GattCharacteristic(char)
-                }
-            }
-        }
-
-        fun getServices(): List<GattService> {
-            return services.values.toList()
-        }
-
-        fun fromFwkService(service: FwkService): GattService? {
-            return services[service]
-        }
-
-        fun fromFwkCharacteristic(characteristic: FwkCharacteristic): GattCharacteristic? {
-            return characteristics[characteristic]
-        }
-    }
-
     @SuppressLint("MissingPermission")
     suspend fun <R> connect(
         context: Context,
@@ -186,7 +153,7 @@ internal class GattClient {
 
             override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
                 gatt?.let {
-                    attributeMap.update(it.services)
+                    attributeMap.updateWithFrameworkServices(it.services)
                 }
                 connectResult.complete(status == BluetoothGatt.GATT_SUCCESS)
             }

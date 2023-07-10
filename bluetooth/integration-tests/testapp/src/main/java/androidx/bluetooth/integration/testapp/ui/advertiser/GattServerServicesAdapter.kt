@@ -16,18 +16,18 @@
 
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
-import android.bluetooth.BluetoothGattService
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.bluetooth.GattService
 import androidx.bluetooth.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
 class GattServerServicesAdapter(
-    private val services: List<BluetoothGattService>,
-    private val onClickAddCharacteristic: (BluetoothGattService) -> Unit
+    private val services: List<GattService>,
+    private val onClickAddCharacteristic: (GattService) -> Unit
 ) : RecyclerView.Adapter<GattServerServicesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -53,21 +53,21 @@ class GattServerServicesAdapter(
         private val recyclerViewServiceCharacteristic: RecyclerView =
             itemView.findViewById(R.id.recycler_view_service_characteristic)
 
-        private var currentBluetoothGattService: BluetoothGattService? = null
+        private var currentGattService: GattService? = null
 
         init {
             buttonAddCharacteristic.setOnClickListener {
-                currentBluetoothGattService?.let(onClickAddCharacteristic)
+                currentGattService?.let(onClickAddCharacteristic)
             }
         }
 
-        fun bind(bluetoothGattService: BluetoothGattService) {
-            currentBluetoothGattService = bluetoothGattService
+        fun bind(gattService: GattService) {
+            currentGattService = gattService
 
-            textViewUuid.text = bluetoothGattService.uuid.toString()
+            textViewUuid.text = gattService.uuid.toString()
 
             recyclerViewServiceCharacteristic.adapter = GattServerCharacteristicsAdapter(
-                bluetoothGattService.characteristics
+                gattService.characteristics
             )
         }
     }

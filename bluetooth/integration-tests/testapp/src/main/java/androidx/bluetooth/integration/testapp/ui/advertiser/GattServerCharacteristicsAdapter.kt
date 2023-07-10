@@ -16,7 +16,6 @@
 
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
-import android.bluetooth.BluetoothGattCharacteristic
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,7 @@ import androidx.bluetooth.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
 class GattServerCharacteristicsAdapter(
-    private val characteristics: List<BluetoothGattCharacteristic>
+    private val characteristics: List<GattCharacteristic>
 ) : RecyclerView.Adapter<GattServerCharacteristicsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,7 +47,7 @@ class GattServerCharacteristicsAdapter(
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
         private val textViewProperties: TextView = itemView.findViewById(R.id.text_view_properties)
 
-        fun bind(characteristic: BluetoothGattCharacteristic) {
+        fun bind(characteristic: GattCharacteristic) {
             textViewUuid.text = characteristic.uuid.toString()
 
             val properties = characteristic.properties

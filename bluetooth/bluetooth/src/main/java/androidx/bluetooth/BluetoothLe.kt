@@ -48,6 +48,7 @@ class BluetoothLe(private val context: Context) {
 
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val serverImpl = GattServerImpl(context)
     /**
      * Returns a [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
      * the operation status [AdvertiseResult] will be delivered via the
@@ -120,12 +121,12 @@ class BluetoothLe(private val context: Context) {
         }
 
     /**
-     * Returns a cold [Flow] to start Bluetooth LE scanning. Scanning is used to
+     * Returns a _cold_ [Flow] to start Bluetooth LE scanning. Scanning is used to
      * discover advertising devices nearby.
      *
      * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
      *
-     * @return A cold [Flow] of [ScanResult] that matches with the given scan filter.
+     * @return A _cold_ [Flow] of [ScanResult] that matches with the given scan filter.
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
@@ -177,7 +178,7 @@ class BluetoothLe(private val context: Context) {
          * Reads the characteristic value from the server.
          *
          * @param characteristic a remote [GattCharacteristic] to read
-         * @return The value of the characteristic
+         * @return the value of the characteristic
          *
          * @throws IllegalArgumentException If [GattCharacteristic#PROPERTY_READ] is not set
          * for the characteristic.
@@ -231,5 +232,81 @@ class BluetoothLe(private val context: Context) {
         block: suspend GattClientScope.() -> R
     ): R? {
         return GattClient().connect(context, device, block)
+    }
+
+    /**
+     * Represents a client connection request from a remote device.
+     *
+     * @property device The remote device connecting to the server.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    class GattServerConnectionRequest internal constructor(
+        val device: BluetoothDevice,
+        private val serverImpl: GattServerImpl,
+        internal val session: GattServerImpl.Session,
+    ) {
+        /**
+         * Accepts the connection request and handles incoming requests after that.
+         *
+         * Requests before calling this should be saved.
+         *
+         * @see GattServerScope
+         */
+        suspend fun accept(block: GattServerScope.() -> Unit) {
+            return serverImpl.acceptConnection(this, block)
+        }
+
+        /**
+         * Rejects the connection request.
+         */
+        fun reject() {
+            return serverImpl.rejectConnection(this)
+        }
+    }
+
+    /**
+     * A scope for operations as a GATT server role.
+     *
+     * Collect [requests] to respond with requests from the client.
+     *
+     * @see GattServerConnectionRequest#accept()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    interface GattServerScope {
+        /**
+         * A client device connected to the server.
+         */
+        val device: BluetoothDevice
+
+        /**
+         * A _hot_ [Flow] of incoming requests from the client.
+         *
+         * A request is either [GattServerRequest.ReadCharacteristicRequest] or
+         * [GattServerRequest.WriteCharacteristicRequest]
+         */
+        val requests: Flow<GattServerRequest>
+
+        /**
+         * Notifies a client of a characteristic value change.
+         *
+         * @param characteristic the updated characteristic.
+         * @param value the new value of the characteristic.
+         */
+        fun notify(characteristic: GattCharacteristic, value: ByteArray)
+    }
+
+    /**
+     * Opens a GATT server.
+     *
+     * It returns a _cold_ [Flow] of connection requests.
+     * If the flow is cancelled, the server will be closed.
+     *
+     * Only one server at a time can be opened.
+     *
+     * @see GattServerConnectionRequest
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun openGattServer(services: List<GattService>): Flow<GattServerConnectionRequest> {
+        return serverImpl.open(services)
     }
 }
