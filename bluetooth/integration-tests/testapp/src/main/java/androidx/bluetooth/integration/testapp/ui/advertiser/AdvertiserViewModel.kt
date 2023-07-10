@@ -16,9 +16,9 @@
 
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
-// TODO(ofy) Migrate to androidx.bluetooth.GattService
-import android.bluetooth.BluetoothGattService
 import androidx.bluetooth.AdvertiseParams
+import androidx.bluetooth.GattCharacteristic
+import androidx.bluetooth.GattService
 import androidx.lifecycle.ViewModel
 import java.util.UUID
 
@@ -62,7 +62,8 @@ class AdvertiserViewModel : ViewModel() {
             serviceUuids
         )
 
-    val gattServerServices = mutableListOf<BluetoothGattService>()
+    private val _gattServerServices = mutableListOf<GattService>()
+    val gattServerServices: List<GattService> = _gattServerServices
 
     fun removeAdvertiseDataAtIndex(index: Int) {
         val manufacturerDataSize = manufacturerDatas.size
@@ -77,7 +78,17 @@ class AdvertiserViewModel : ViewModel() {
         }
     }
 
-    fun gattServerAddService(bluetoothGattService: BluetoothGattService) {
-        gattServerServices.add(bluetoothGattService)
+    fun addGattService(gattService: GattService) {
+        _gattServerServices.add(gattService)
+    }
+
+    fun addGattCharacteristic(service: GattService, characteristic: GattCharacteristic) {
+        val index = _gattServerServices.indexOf(service)
+        if (index < 0) return;
+        _gattServerServices[index] = GattService(service.uuid,
+            service.characteristics.toMutableList().apply {
+                add(characteristic)
+            }
+        )
     }
 }

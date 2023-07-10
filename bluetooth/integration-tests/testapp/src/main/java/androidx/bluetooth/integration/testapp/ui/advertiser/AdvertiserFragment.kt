@@ -16,12 +16,8 @@
 
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once Gatt Server API is in place
-// TODO(ofy) Migrate to androidx.bluetooth.GattService
 import android.Manifest
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -36,9 +32,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.bluetooth.AdvertiseResult
 import androidx.bluetooth.BluetoothLe
+import androidx.bluetooth.GattCharacteristic
+import androidx.bluetooth.GattCharacteristic.Companion.PERMISSION_READ
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_READ
+import androidx.bluetooth.GattServerRequest
+import androidx.bluetooth.GattService
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentAdvertiserBinding
-import androidx.bluetooth.integration.testapp.experimental.BluetoothLe as BluetoothLeExperimental
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.setViewEditText
 import androidx.bluetooth.integration.testapp.ui.common.toast
@@ -49,6 +49,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
+import java.nio.ByteBuffer
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,9 +65,6 @@ class AdvertiserFragment : Fragment() {
     }
 
     private lateinit var bluetoothLe: BluetoothLe
-
-    // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once openGattServer API is in place
-    private lateinit var bluetoothLeExperimental: BluetoothLeExperimental
 
     private var advertiseDataAdapter: AdvertiseDataAdapter? = null
 
@@ -142,8 +140,6 @@ class AdvertiserFragment : Fragment() {
     ): View {
         bluetoothLe = BluetoothLe(requireContext())
 
-        bluetoothLeExperimental = BluetoothLeExperimental(requireContext())
-
         _binding = FragmentAdvertiserBinding.inflate(inflater, container, false)
 
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
@@ -189,13 +185,13 @@ class AdvertiserFragment : Fragment() {
         }
 
         binding.buttonAddService.setOnClickListener {
-            addGattService()
+            onAddGattService()
         }
 
         gattServerServicesAdapter =
             GattServerServicesAdapter(
                 viewModel.gattServerServices,
-                ::addGattCharacteristic
+                ::onAddGattCharacteristic
             )
         binding.recyclerViewGattServerServices.adapter = gattServerServicesAdapter
         binding.recyclerViewGattServerServices.addItemDecoration(
@@ -360,7 +356,7 @@ class AdvertiserFragment : Fragment() {
         }
     }
 
-    private fun addGattService() {
+    private fun onAddGattService() {
         val editTextUuid = EditText(requireActivity())
         editTextUuid.hint = getString(R.string.service_uuid)
 
@@ -370,13 +366,19 @@ class AdvertiserFragment : Fragment() {
             .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val editTextInput = editTextUuid.text.toString()
                 try {
-                    val uuid = UUID.fromString(editTextInput)
-                    val service =
-                        BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY)
-                    viewModel.gattServerAddService(service)
+                    val uuid = UUID.fromString(
+                        when (editTextInput.length) {
+                            4 -> "0000$editTextInput-0000-1000-8000-00805F9B34FB"
+                            8 -> "$editTextInput-0000-1000-8000-00805F9B34FB"
+                            else -> editTextInput
+                        }
+                    )
+                    val service = GattService(uuid, listOf())
+                    viewModel.addGattService(service)
                     gattServerServicesAdapter
                         ?.notifyItemInserted(viewModel.gattServerServices.size - 1)
                 } catch (e: Exception) {
+                    Log.d(TAG, e.toString())
                     toast(getString(R.string.invalid_uuid)).show()
                 }
             }
@@ -385,7 +387,7 @@ class AdvertiserFragment : Fragment() {
             .show()
     }
 
-    private fun addGattCharacteristic(bluetoothGattService: BluetoothGattService) {
+    private fun onAddGattCharacteristic(bluetoothGattService: GattService) {
         val view = layoutInflater.inflate(R.layout.dialog_add_characteristic, null)
         val editTextUuid = view.findViewById<EditText>(R.id.edit_text_uuid)
 
@@ -410,47 +412,49 @@ class AdvertiserFragment : Fragment() {
                 var properties = 0
                 var permissions = 0
                 if (checkBoxPropertiesBroadcast.isChecked) {
-                    properties = properties or BluetoothGattCharacteristic.PROPERTY_BROADCAST
+                    properties = properties or GattCharacteristic.PROPERTY_BROADCAST
                 }
                 if (checkBoxPropertiesIndicate.isChecked) {
-                    properties = properties or BluetoothGattCharacteristic.PROPERTY_INDICATE
+                    properties = properties or GattCharacteristic.PROPERTY_INDICATE
                 }
                 if (checkBoxPropertiesNotify.isChecked) {
-                    properties = properties or BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                    properties = properties or GattCharacteristic.PROPERTY_NOTIFY
                 }
                 if (checkBoxPropertiesRead.isChecked) {
-                    properties = properties or BluetoothGattCharacteristic.PROPERTY_READ
-                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_READ
+                    properties = properties or GattCharacteristic.PROPERTY_READ
+                    permissions = permissions or GattCharacteristic.PERMISSION_READ
                 }
                 if (checkBoxPropertiesSignedWrite.isChecked) {
-                    properties = properties or BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
-                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED
+                    properties = properties or GattCharacteristic.PROPERTY_SIGNED_WRITE
+                    permissions = permissions or GattCharacteristic.PERMISSION_WRITE_SIGNED
                 }
                 if (checkBoxPropertiesWrite.isChecked) {
-                    properties = properties or BluetoothGattCharacteristic.PROPERTY_WRITE
-                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+                    properties = properties or GattCharacteristic.PROPERTY_WRITE
+                    permissions = permissions or GattCharacteristic.PERMISSION_WRITE
                 }
                 if (checkBoxPropertiesWriteNoResponse.isChecked) {
-                    properties =
-                        properties or BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
-                    permissions = permissions or BluetoothGattCharacteristic.PERMISSION_WRITE
+                    properties = properties or GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+                    permissions = permissions or GattCharacteristic.PERMISSION_WRITE
                 }
 
                 try {
-                    val uuid = UUID.fromString(uuidText)
-                    val sampleCharacteristic = BluetoothGattCharacteristic(
+                    val uuid = UUID.fromString(
+                        when (uuidText.length) {
+                            4 -> "0000$uuidText-0000-1000-8000-00805F9B34FB"
+                            8 -> "$uuidText-0000-1000-8000-00805F9B34FB"
+                            else -> uuidText
+                        }
+                    )
+                    val sampleCharacteristic = GattCharacteristic(
                         uuid,
                         properties,
                         permissions
                     )
 
-                    bluetoothGattService.addCharacteristic(sampleCharacteristic)
+                    val index = viewModel.gattServerServices.indexOf(bluetoothGattService)
+                    viewModel.addGattCharacteristic(bluetoothGattService, sampleCharacteristic)
 
-                    gattServerServicesAdapter?.notifyItemChanged(
-                        viewModel.gattServerServices.indexOf(
-                            bluetoothGattService
-                        )
-                    )
+                    gattServerServicesAdapter?.notifyItemChanged(index)
                 } catch (e: Exception) {
                     toast(getString(R.string.invalid_uuid)).show()
                 }
@@ -466,13 +470,26 @@ class AdvertiserFragment : Fragment() {
         gattServerJob = gattServerScope.launch {
             isGattServerOpen = true
 
-            bluetoothLeExperimental.openGattServer(viewModel.gattServerServices)
-                .collect { gattServerCallback ->
-                    Log.d(
-                        TAG,
-                        "openGattServer() called with: gattServerCallback = $gattServerCallback"
-                    )
+            bluetoothLe.openGattServer(viewModel.gattServerServices).collect {
+                launch {
+                    it.accept {
+                        launch {
+                            requests.collect {
+                                when (it) {
+                                    is GattServerRequest.ReadCharacteristicRequest ->
+                                        it.sendResponse(/*success=*/true,
+                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array())
+
+                                    is GattServerRequest.WriteCharacteristicRequest ->
+                                        it.sendResponse(/*success=*/true)
+
+                                    else -> throw NotImplementedError("unknown request")
+                                }
+                            }
+                        }
+                    }
                 }
+            }
         }
     }
 }
