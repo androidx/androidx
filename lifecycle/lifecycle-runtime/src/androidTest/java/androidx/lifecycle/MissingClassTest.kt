@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import android.app.PictureInPictureParams
+import android.os.Build
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
+import org.junit.Test
+import org.junit.runner.RunWith
 
-import android.app.PictureInPictureParams;
-import android.os.Build;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidJUnit4::class)
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
 @SmallTest
-@SuppressWarnings("deprecation")
-public class MissingClassTest {
-    public static class ObserverWithMissingClasses {
-        @SuppressWarnings("unused")
-        public void newApiMethod(PictureInPictureParams params) {}
+@Suppress("DEPRECATION")
+class MissingClassTest {
+    @Suppress("UNUSED")
+    class ObserverWithMissingClasses {
+        @Suppress("UNUSED_PARAMETER")
+        fun newApiMethod(params: PictureInPictureParams?) {
+        }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        public void onResume() {}
+        fun onResume() {
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMissingApi() {
-        new ReflectiveGenericLifecycleObserver(new ObserverWithMissingClasses());
+    @Test(expected = IllegalArgumentException::class)
+    fun testMissingApi() {
+        ReflectiveGenericLifecycleObserver(ObserverWithMissingClasses())
     }
 }
