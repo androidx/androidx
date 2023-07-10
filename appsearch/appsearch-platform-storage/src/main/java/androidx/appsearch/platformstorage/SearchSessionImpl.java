@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
 import android.app.appsearch.AppSearchResult;
 import android.os.Build;
 
@@ -215,6 +216,7 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     @NonNull
     public ListenableFuture<Void> removeAsync(
