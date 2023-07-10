@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom
+package androidx.core.telecom.test
 
 import android.os.Build.VERSION_CODES
 import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.utils.Utils
-import androidx.core.telecom.utils.BaseTelecomTest
-import androidx.core.telecom.utils.TestUtils
+import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

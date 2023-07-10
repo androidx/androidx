@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom
+package androidx.core.telecom.test
 
 import android.os.Build.VERSION_CODES
 import android.telecom.Connection
 import android.telecom.ConnectionRequest
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
-import androidx.core.telecom.utils.BaseTelecomTest
-import androidx.core.telecom.utils.TestUtils
-import androidx.core.telecom.utils.TestUtils.TEST_CALL_ATTRIB_NAME
-import androidx.core.telecom.utils.TestUtils.TEST_PHONE_NUMBER_9001
+import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.test.utils.TestUtils.TEST_CALL_ATTRIB_NAME
+import androidx.core.telecom.test.utils.TestUtils.TEST_PHONE_NUMBER_9001
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
