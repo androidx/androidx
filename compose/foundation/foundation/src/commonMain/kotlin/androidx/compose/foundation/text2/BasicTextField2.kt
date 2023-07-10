@@ -158,6 +158,8 @@ fun BasicTextField2(
 
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+
     val textLayoutState = remember { TextLayoutState() }
 
     val textFieldSelectionState = remember(state, textLayoutState) {
@@ -166,7 +168,8 @@ fun BasicTextField2(
             textLayoutState = textLayoutState,
             textEditFilter = filter,
             density = density,
-            editable = enabled && !readOnly
+            editable = enabled && !readOnly,
+            isFocused = isFocused
         )
     }
     textFieldSelectionState.hapticFeedBack = LocalHapticFeedback.current
@@ -209,8 +212,6 @@ fun BasicTextField2(
             interactionSource = interactionSource,
             enabled = enabled && scrollState.maxValue > 0
         )
-
-    val isFocused = interactionSource.collectIsFocusedAsState().value
 
     Box(decorationModifiers, propagateMinConstraints = true) {
         decorationBox {
