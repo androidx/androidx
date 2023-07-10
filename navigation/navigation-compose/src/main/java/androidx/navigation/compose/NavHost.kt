@@ -252,11 +252,11 @@ public fun NavHost(
 
             if (composeNavigator.isPop.value) {
                 targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
-                    popEnterTransitions[destination.route]?.invoke(this)
+                    destination.createPopEnterTransition(this)
                 } ?: popEnterTransition.invoke(this)
             } else {
                 targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
-                    enterTransitions[destination.route]?.invoke(this)
+                    destination.createEnterTransition(this)
                 } ?: enterTransition.invoke(this)
             }
         }
@@ -266,11 +266,11 @@ public fun NavHost(
 
             if (composeNavigator.isPop.value) {
                 initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
-                    popExitTransitions[destination.route]?.invoke(this)
+                    destination.createPopExitTransition(this)
                 } ?: popExitTransition.invoke(this)
             } else {
                 initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
-                    exitTransitions[destination.route]?.invoke(this)
+                    destination.createExitTransition(this)
                 } ?: exitTransition.invoke(this)
             }
         }
@@ -337,18 +337,33 @@ public fun NavHost(
     DialogHost(dialogNavigator)
 }
 
-internal val enterTransitions =
-    mutableMapOf<String?,
-        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?>()
+private fun NavDestination.createEnterTransition(
+    scope: AnimatedContentTransitionScope<NavBackStackEntry>
+): EnterTransition? = when (this) {
+    is ComposeNavigator.Destination -> this.enterTransition?.invoke(scope)
+    is ComposeNavGraphNavigator.ComposeNavGraph -> this.enterTransition?.invoke(scope)
+    else -> null
+}
 
-internal val exitTransitions =
-    mutableMapOf<String?,
-        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?>()
+private fun NavDestination.createExitTransition(
+    scope: AnimatedContentTransitionScope<NavBackStackEntry>
+): ExitTransition? = when (this) {
+    is ComposeNavigator.Destination -> this.exitTransition?.invoke(scope)
+    is ComposeNavGraphNavigator.ComposeNavGraph -> this.exitTransition?.invoke(scope)
+    else -> null
+}
 
-internal val popEnterTransitions =
-    mutableMapOf<String?,
-        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?>()
-
-internal val popExitTransitions =
-    mutableMapOf<String?,
-        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?>()
+private fun NavDestination.createPopEnterTransition(
+    scope: AnimatedContentTransitionScope<NavBackStackEntry>
+): EnterTransition? = when (this) {
+    is ComposeNavigator.Destination -> this.popEnterTransition?.invoke(scope)
+    is ComposeNavGraphNavigator.ComposeNavGraph -> this.popEnterTransition?.invoke(scope)
+    else -> null
+}
+private fun NavDestination.createPopExitTransition(
+    scope: AnimatedContentTransitionScope<NavBackStackEntry>
+): ExitTransition? = when (this) {
+    is ComposeNavigator.Destination -> this.popExitTransition?.invoke(scope)
+    is ComposeNavGraphNavigator.ComposeNavGraph -> this.popExitTransition?.invoke(scope)
+    else -> null
+}
