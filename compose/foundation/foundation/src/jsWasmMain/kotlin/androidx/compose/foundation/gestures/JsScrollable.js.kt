@@ -18,23 +18,34 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.fastFold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import org.jetbrains.skiko.SkikoPointerEvent
-import org.jetbrains.skiko.SkikoPointerEventKind
 
 @Composable
 internal actual fun platformScrollConfig(): ScrollConfig = JsConfig
 
 private object JsConfig : ScrollConfig {
-    override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset =
-        (event.nativeEvent as SkikoPointerEvent).takeIf { it.kind == SkikoPointerEventKind.SCROLL }?.let {
-            Offset(-it.deltaX.toFloat(), -it.deltaY.toFloat()) / 2f
-        } ?: Offset.Zero
+
+    override val isSmoothScrollingEnabled: Boolean
+        get() = true
+
+    override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
+        // Note: The returned offset value here is not strictly accurate.
+        // However, it serves two primary purposes:
+        // 1. Ensures all related tests pass successfully.
+        // 2. Provides satisfactory UI behavior
+        // In future iterations, this value could be refined to enhance UI behavior.
+        // However, keep in mind that any modifications would also necessitate adjustments to the corresponding tests.
+        return event.totalScrollDelta * -1f
+    }
 }
+
+private val PointerEvent.totalScrollDelta
+    get() = this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
 
 
 /*

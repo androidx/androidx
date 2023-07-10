@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -53,7 +54,9 @@ private fun ExampleLazyColumn() {
     }
     LazyColumn(Modifier.fillMaxSize(), state = state) {
         items(100) {
-            Box(Modifier.size(100.dp).background(remember { Color(Random.nextInt()) }))
+            Box(Modifier.size(100.dp).background(remember { Color(Random.nextInt()) })) {
+                Text("I = $it")
+            }
         }
     }
 }

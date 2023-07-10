@@ -21,7 +21,6 @@ import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.focus.focusRect
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
@@ -30,16 +29,11 @@ import androidx.compose.ui.platform.Platform
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.CoroutineDispatcher
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkiaLayer
-import org.jetbrains.skiko.SkikoView
-import org.jetbrains.skiko.SkikoKeyboardEvent
-import org.jetbrains.skiko.SkikoPointerEvent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.toDpRect
 import org.jetbrains.skia.Point
-import org.jetbrains.skiko.SkikoInput
-import org.jetbrains.skiko.currentNanoTime
+import org.jetbrains.skiko.*
 
 internal class ComposeLayer(
     internal val layer: SkiaLayer,
@@ -101,6 +95,7 @@ internal class ComposeLayer(
             val scale = density.density
             scene.sendPointerEvent(
                 eventType = event.kind.toCompose(),
+                scrollDelta = event.getScrollDelta(),
                 position = Offset(
                     x = event.x.toFloat() * scale,
                     y = event.y.toFloat() * scale
@@ -190,3 +185,11 @@ private fun currentMillis() = (currentNanoTime() / 1E6).toLong()
 
 
 internal expect val supportsMultitouch: Boolean
+
+internal fun SkikoPointerEvent.getScrollDelta(): Offset {
+    return this.takeIf {
+        it.kind == SkikoPointerEventKind.SCROLL
+    }?.let {
+        Offset(it.deltaX.toFloat(), it.deltaY.toFloat())
+    } ?: Offset.Zero
+}
