@@ -88,6 +88,7 @@ val WearFoundationDemos = DemoCategory(
             "Expandables",
             listOf(
                 ComposableDemo("Items in SLC") { ExpandableListItems() },
+                ComposableDemo("Multiple Items") { ExpandableMultipleItems() },
                 ComposableDemo("Expandable Text") { ExpandableText() },
                 ComposableDemo("Items Sample") { ExpandableWithItemsSample() },
                 ComposableDemo("Text Sample") { ExpandableTextSample() },
