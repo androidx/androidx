@@ -29,9 +29,9 @@ import androidx.work.ListenableWorker;
 import androidx.work.Logger;
 import androidx.work.ProgressUpdater;
 import androidx.work.WorkerParameters;
-import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableInterruptRequest;
 import androidx.work.multiprocess.parcelable.ParcelableRemoteWorkRequest;
 import androidx.work.multiprocess.parcelable.ParcelableResult;
 import androidx.work.multiprocess.parcelable.ParcelableWorkerParameters;
@@ -50,7 +50,7 @@ import java.util.concurrent.ExecutionException;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
     // Synthetic access
-    static final String TAG = Logger.tagWithPrefix("ListenableWorkerImpl");
+    static final String TAG = Logger.tagWithPrefix("WM-RemoteWorker ListenableWorkerImpl");
     // Synthetic access
     static byte[] sEMPTY = new byte[0];
     // Synthetic access
@@ -67,7 +67,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
     // Synthetic access
     final ForegroundUpdater mForegroundUpdater;
     // Synthetic access
-    final Map<String, ListenableFuture<ListenableWorker.Result>> mFutureMap;
+    final Map<String, RemoteWorkerWrapper> mRemoteWorkerWrapperMap;
 
     ListenableWorkerImpl(@NonNull Context context) {
         mContext = context.getApplicationContext();
@@ -76,7 +76,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
         mTaskExecutor = remoteInfo.getTaskExecutor();
         mProgressUpdater = remoteInfo.getProgressUpdater();
         mForegroundUpdater = remoteInfo.getForegroundUpdater();
-        mFutureMap = new HashMap<>();
+        mRemoteWorkerWrapperMap = new HashMap<>();
     }
 
     @Override
@@ -122,7 +122,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                         reportFailure(callback, cancellationException);
                     } finally {
                         synchronized (sLock) {
-                            mFutureMap.remove(id);
+                            mRemoteWorkerWrapperMap.remove(id);
                         }
                     }
                 }
@@ -137,23 +137,21 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             @NonNull final byte[] request,
             @NonNull final IWorkManagerImplCallback callback) {
         try {
-            ParcelableWorkerParameters parcelableWorkerParameters =
-                    ParcelConverters.unmarshall(request, ParcelableWorkerParameters.CREATOR);
-            final String id = parcelableWorkerParameters.getId().toString();
+            ParcelableInterruptRequest interruptRequest =
+                    ParcelConverters.unmarshall(request, ParcelableInterruptRequest.CREATOR);
+            final String id = interruptRequest.getId();
+            final int stopReason = interruptRequest.getStopReason();
             Logger.get().debug(TAG, "Interrupting work with id (" + id + ")");
 
-            final ListenableFuture<ListenableWorker.Result> future;
+            final RemoteWorkerWrapper remoteWorker;
             synchronized (sLock) {
-                future = mFutureMap.remove(id);
+                remoteWorker = mRemoteWorkerWrapperMap.remove(id);
             }
-            if (future != null) {
+            if (remoteWorker != null) {
                 mTaskExecutor.getSerialTaskExecutor()
-                        .execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                future.cancel(true);
-                                reportSuccess(callback, sEMPTY);
-                            }
+                        .execute(() -> {
+                            remoteWorker.interrupt(stopReason);
+                            reportSuccess(callback, sEMPTY);
                         });
             } else {
                 // Nothing to do.
@@ -170,39 +168,14 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             @NonNull String workerClassName,
             @NonNull WorkerParameters workerParameters) {
 
-        final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
-        Logger.get().debug(TAG, "Tracking execution of " + id + " (" + workerClassName + ")");
+        RemoteWorkerWrapper remoteWorker = RemoteWorkerWrapperKt.create(
+                mContext, mConfiguration, workerClassName, workerParameters, mTaskExecutor
+        );
 
         synchronized (sLock) {
-            mFutureMap.put(id, future);
+            mRemoteWorkerWrapperMap.put(id, remoteWorker);
         }
-        mTaskExecutor.getMainThreadExecutor().execute(() -> {
-            try {
-                ListenableWorker worker = mConfiguration.getWorkerFactory()
-                        .createWorkerWithDefaultFallback(mContext, workerClassName,
-                                workerParameters);
-                if (worker == null) {
-                    String message = "Unable to create an instance of " + workerClassName;
-                    Logger.get().error(TAG, message);
-                    future.setException(new IllegalStateException(message));
-                    return;
-                }
 
-                if (!(worker instanceof RemoteListenableWorker)) {
-                    String message = workerClassName + " does not extend "
-                            + RemoteListenableWorker.class.getName();
-                    Logger.get().error(TAG, message);
-                    future.setException(new IllegalStateException(message));
-                    return;
-                }
-
-                RemoteListenableWorker remoteListenableWorker = (RemoteListenableWorker) worker;
-                future.setFuture(remoteListenableWorker.startRemoteWork());
-            } catch (Throwable throwable) {
-                future.setException(throwable);
-            }
-        });
-
-        return future;
+        return remoteWorker.getFuture();
     }
 }
