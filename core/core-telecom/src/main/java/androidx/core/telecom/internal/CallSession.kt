@@ -219,7 +219,8 @@ internal class CallSession(coroutineContext: CoroutineContext) {
      */
     class CallControlScopeImpl(
         private val session: CallSession,
-        callChannels: CallChannels
+        callChannels: CallChannels,
+        override val coroutineContext: CoroutineContext
     ) : CallControlScope {
         //  handle actionable/handshake events that originate in the platform
         //  and require a response from the client
