@@ -77,8 +77,8 @@ public final class SearchSpecToPlatformConverter {
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
-            // TODO(b/258715421): Add Build.VERSION.SDK_INT condition once
-            // SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA is supported on Android U.
+            // TODO(b/258715421): Add Build.VERSION.SDK_INT condition once there is an extservices
+            // sdk that includes SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA.
             if (true) {
                 if ((jetpackSearchSpec.getResultGroupingTypeFlags()
                         & SearchSpec.GROUPING_TYPE_PER_SCHEMA) != 0) {
