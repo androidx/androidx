@@ -27,12 +27,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
-import com.google.common.collect.ImmutableSet;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
@@ -42,21 +41,40 @@ public class BeginGetPasswordOptionJavaTest {
     private static final String BUNDLE_ID_KEY =
             "android.service.credentials.BeginGetCredentialOption.BUNDLE_ID_KEY";
     private static final String BUNDLE_ID = "id";
+    private static final Set<String> EXPECTED_ALLOWED_USER_IDS = generateExpectedAllowedUserIds();
 
     @Test
     public void constructor_success() {
-        Set<String> expectedAllowedUserIds = ImmutableSet.of("id1", "id2", "id3");
         Bundle bundle = new Bundle();
-        bundle.putStringArrayList(GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
-                new ArrayList<>(expectedAllowedUserIds));
+        bundle.putStringArrayList(
+                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
+                new ArrayList<>(EXPECTED_ALLOWED_USER_IDS));
 
-        BeginGetPasswordOption option = new BeginGetPasswordOption(expectedAllowedUserIds,
-                bundle, BUNDLE_ID);
+        BeginGetPasswordOption option =
+                new BeginGetPasswordOption(EXPECTED_ALLOWED_USER_IDS, bundle, BUNDLE_ID);
 
         bundle.putString(BUNDLE_ID_KEY, BUNDLE_ID);
         assertThat(option.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), bundle)).isTrue();
-        assertThat(option.getAllowedUserIds())
-                .containsExactlyElementsIn(expectedAllowedUserIds);
+        assertThat(option.getAllowedUserIds()).containsExactlyElementsIn(EXPECTED_ALLOWED_USER_IDS);
+    }
+
+    @Test
+    public void createFrom_success() {
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList(
+                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
+                new ArrayList<>(EXPECTED_ALLOWED_USER_IDS));
+
+        BeginGetPasswordOption option = BeginGetPasswordOption.createForTest(bundle, "id");
+        assertThat(option.getId()).isEqualTo("id");
+    }
+
+    private static Set<String> generateExpectedAllowedUserIds() {
+        Set<String> ids = new HashSet<>();
+        ids.add("id1");
+        ids.add("id2");
+        ids.add("id3");
+        return ids;
     }
 }

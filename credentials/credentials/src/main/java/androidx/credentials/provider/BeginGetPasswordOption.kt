@@ -18,6 +18,7 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import android.service.credentials.BeginGetCredentialResponse
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 
@@ -46,14 +47,12 @@ class BeginGetPasswordOption constructor(
 
     internal companion object {
         @JvmStatic
-        internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
-            val allowUserIdList = data.getStringArrayList(
-                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS)
-            return BeginGetPasswordOption(allowUserIdList?.toSet() ?: emptySet(), data, id)
+        @VisibleForTesting
+        fun createForTest(data: Bundle, id: String): BeginGetPasswordOption {
+            return createFrom(data, id)
         }
 
-        @JvmStatic
-        internal fun createFromEntrySlice(data: Bundle, id: String): BeginGetPasswordOption {
+        internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
             val allowUserIdList = data.getStringArrayList(
                 GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS)
             return BeginGetPasswordOption(allowUserIdList?.toSet() ?: emptySet(), data, id)
