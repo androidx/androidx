@@ -260,7 +260,7 @@ public final class AppSearchImpl implements Closeable {
      * <p>Instead, logger instance needs to be passed to each individual method, like create, query
      * and putDocument.
      *
-     * @param initStatsBuilder  collects stats for initialization if provided.
+     * @param initStatsBuilder collects stats for initialization if provided.
      * @param visibilityChecker The {@link VisibilityChecker} that check whether the caller has
      *                          access to aa specific schema. Pass null will lost that ability and
      *                          global querier could only get their own data.
@@ -271,8 +271,8 @@ public final class AppSearchImpl implements Closeable {
             @NonNull LimitConfig limitConfig,
             @NonNull IcingOptionsConfig icingOptionsConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
-            @Nullable VisibilityChecker visibilityChecker,
-            @NonNull OptimizeStrategy optimizeStrategy)
+            @NonNull OptimizeStrategy optimizeStrategy,
+            @Nullable VisibilityChecker visibilityChecker)
             throws AppSearchException {
         return new AppSearchImpl(icingDir, limitConfig, icingOptionsConfig, initStatsBuilder,
                 optimizeStrategy, visibilityChecker);
