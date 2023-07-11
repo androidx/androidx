@@ -159,6 +159,7 @@ private fun ColumnScope.FullScreenButton(
             .clickable(
                 interactionSource, null, onClick = onClick, enabled = enabled, role = Role.Button
             )
+            .repeatableClickable(enabled = enabled, onClick = onClick)
             .wrapContentWidth()
             .indication(interactionSource, rememberRipple(bounded = false))
             .padding(paddingValues),
