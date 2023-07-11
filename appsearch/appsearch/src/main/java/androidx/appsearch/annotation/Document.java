@@ -16,6 +16,7 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.annotation;
 
+import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema;
 
 import java.lang.annotation.Documented;
@@ -253,6 +254,47 @@ public @interface Document {
                 default AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
 
         /**
+         * Configures how a property should be converted to and from a {@link String}.
+         *
+         * <p>Useful for representing properties using rich types that boil down to simple string
+         * values in the database.
+         *
+         * <p>The referenced class must satisfy the following:
+         *
+         * <ol>
+         *     <li>
+         *         Have a static method called {@code serialize} that converts the property's Java
+         *         type to a {@link String}.
+         *     </li>
+         *     <li>
+         *         Have a static method called {@code deserialize} that converts a {@link String} to
+         *         the property's Java type or returns null if deserialization failed.
+         *     </li>
+         * </ol>
+         *
+         * <p>For example:
+         *
+         * <pre>
+         * {@code
+         * @Document("Entity")
+         * public final class MyEntity {
+         *
+         *     @Document.StringProperty(serializer = SomeRichTypeSerializer.class)
+         *     public SomeRichType getMyProperty();
+         *
+         *     public final class SomeRichTypeSerializer {
+         *       public static String serialize(SomeRichType instance) {...}
+         *
+         *       @Nullable
+         *       public static SomeRichType deserialize(String string) {...}
+         *     }
+         * }
+         * }
+         * </pre>
+         */
+        Class<?> serializer() default DefaultSerializer.class;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -262,6 +304,20 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
+
+        final class DefaultSerializer {
+            private DefaultSerializer() {}
+
+            @NonNull
+            public static String serialize(@NonNull String value) {
+                return value;
+            }
+
+            @NonNull
+            public static String deserialize(@NonNull String string) {
+                return string;
+            }
+        }
     }
 
     /**
@@ -326,6 +382,29 @@ public @interface Document {
                 default AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
 
         /**
+         * Configures how a property should be converted to and from a {@link Long}.
+         *
+         * <p>Useful for representing properties using rich types that boil down to simple 64-bit
+         * integer values in the database.
+         *
+         * <p>The referenced class must satisfy the following:
+         *
+         * <ol>
+         *     <li>
+         *         Have a static method called {@code serialize} that converts the property's Java
+         *         type to a {@link Long}.
+         *     </li>
+         *     <li>
+         *         Have a static method called {@code deserialize} that converts a {@link Long} to
+         *         the property's Java type or returns null if deserialization failed.
+         *     </li>
+         * </ol>
+         *
+         * <p>See {@link StringProperty#serializer()} for an example of a serializer.
+         */
+        Class<?> serializer() default DefaultSerializer.class;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -335,6 +414,18 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
+
+        final class DefaultSerializer {
+            private DefaultSerializer() {}
+
+            public static long serialize(long value) {
+                return value;
+            }
+
+            public static long deserialize(long l) {
+                return l;
+            }
+        }
     }
 
     /**
@@ -353,6 +444,29 @@ public @interface Document {
         String name() default "";
 
         /**
+         * Configures how a property should be converted to and from a {@link Double}.
+         *
+         * <p>Useful for representing properties using rich types that boil down to simple
+         * double-precision decimal values in the database.
+         *
+         * <p>The referenced class must satisfy the following:
+         *
+         * <ol>
+         *     <li>
+         *         Have a static method called {@code serialize} that converts the property's Java
+         *         type to a {@link Double}.
+         *     </li>
+         *     <li>
+         *         Have a static method called {@code deserialize} that converts a {@link Double} to
+         *         the property's Java type or returns null if deserialization failed.
+         *     </li>
+         * </ol>
+         *
+         * <p>See {@link StringProperty#serializer()} for an example of a serializer.
+         */
+        Class<?> serializer() default DefaultSerializer.class;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -362,6 +476,18 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
+
+        final class DefaultSerializer {
+            private DefaultSerializer() {}
+
+            public static double serialize(double value) {
+                return value;
+            }
+
+            public static double deserialize(double d) {
+                return d;
+            }
+        }
     }
 
     /** Configures a boolean member field of a class as a property known to AppSearch. */
