@@ -54,6 +54,7 @@ public fun InlineSliderButton(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = LocalIndication.current,
             )
+            .repeatableClickable(enabled = enabled, onClick = onClick)
             .then(modifier),
         contentAlignment = contentAlignment
     ) {
