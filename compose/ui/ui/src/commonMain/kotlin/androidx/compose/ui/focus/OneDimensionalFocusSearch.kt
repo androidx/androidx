@@ -71,9 +71,10 @@ private fun FocusTargetModifierNode.backwardFocusSearch(
 
         // Unlike forwardFocusSearch, backwardFocusSearch visits the children before the parent.
         when (focusedChild.focusStateImpl) {
-            ActiveParent -> focusedChild.backwardFocusSearch(onFound) ||
+            ActiveParent ->
+                focusedChild.backwardFocusSearch(onFound) ||
                 generateAndSearchChildren(focusedChild, Previous, onFound) ||
-                (focusedChild.fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
+                (fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
 
             // Since this item "is focused", it means we already visited all its children.
             // So just search among its siblings.
