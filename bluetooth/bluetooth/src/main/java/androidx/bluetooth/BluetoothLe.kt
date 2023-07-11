@@ -47,78 +47,77 @@ class BluetoothLe(private val context: Context) {
     }
 
     private val bluetoothManager =
-        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
+    private val bluetoothAdapter = bluetoothManager?.adapter
     private val serverImpl = GattServerImpl(context)
     /**
-     * Returns a [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
+     * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
      * the operation status [AdvertiseResult] will be delivered via the
      * flow [kotlinx.coroutines.channels.Channel].
      *
      * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
-     * @return A [Flow] with [AdvertiseResult] status in the data stream.
+     * @return A _cold_ [Flow] with [AdvertiseResult] status in the data stream.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    fun advertise(advertiseParams: AdvertiseParams): Flow<Int> =
-        callbackFlow {
-            val callback = object : AdvertiseCallback() {
-                override fun onStartFailure(errorCode: Int) {
-                    Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
+    fun advertise(advertiseParams: AdvertiseParams): Flow<Int> = callbackFlow {
+        val callback = object : AdvertiseCallback() {
+            override fun onStartFailure(errorCode: Int) {
+                Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
 
-                    when (errorCode) {
-                        AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
+                when (errorCode) {
+                    AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
 
-                        AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
+                    AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
 
-                        AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
+                    AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
 
-                        AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
-                    }
-                }
-
-                override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                    Log.d(TAG, "onStartSuccess() called with: settingsInEffect = $settingsInEffect")
-
-                    trySend(AdvertiseResult.ADVERTISE_STARTED)
+                    AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                 }
             }
 
-            val bluetoothAdapter = bluetoothManager.adapter
-            val bleAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
+            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+                Log.d(TAG, "onStartSuccess() called with: settingsInEffect = $settingsInEffect")
 
-            val advertiseSettings = with(AdvertiseSettings.Builder()) {
-                advertiseParams.isConnectable.let { setConnectable(it) }
-                advertiseParams.timeoutMillis.let { setTimeout(it) }
-                // TODO(ofy) Add when AndroidX is targeting Android U
-//                advertiseParams.isDiscoverable.let { setDiscoverable(it) }
-                build()
-            }
-
-            val advertiseData = with(AdvertiseData.Builder()) {
-                advertiseParams.shouldIncludeDeviceName.let { setIncludeDeviceName(it) }
-                advertiseParams.serviceData.forEach {
-                    addServiceData(ParcelUuid(it.key), it.value)
-                }
-                advertiseParams.manufacturerData.forEach {
-                    addManufacturerData(it.key, it.value)
-                }
-                advertiseParams.serviceUuids.forEach {
-                    addServiceUuid(ParcelUuid(it))
-                }
-                build()
-            }
-
-            Log.d(TAG, "bleAdvertiser.startAdvertising($advertiseSettings, $advertiseData) called")
-            bleAdvertiser.startAdvertising(advertiseSettings, advertiseData, callback)
-
-            awaitClose {
-                Log.d(TAG, "bleAdvertiser.stopAdvertising() called")
-                bleAdvertiser.stopAdvertising(callback)
+                trySend(AdvertiseResult.ADVERTISE_STARTED)
             }
         }
+
+        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
+
+        val advertiseSettings = with(AdvertiseSettings.Builder()) {
+            setConnectable(advertiseParams.isConnectable)
+            setTimeout(advertiseParams.timeoutMillis)
+            // TODO(b/290697177) Add when AndroidX is targeting Android U
+//            setDiscoverable(advertiseParams.isDiscoverable)
+            build()
+        }
+
+        val advertiseData = with(AdvertiseData.Builder()) {
+            setIncludeDeviceName(advertiseParams.shouldIncludeDeviceName)
+            advertiseParams.serviceData.forEach {
+                addServiceData(ParcelUuid(it.key), it.value)
+            }
+            advertiseParams.manufacturerData.forEach {
+                addManufacturerData(it.key, it.value)
+            }
+            advertiseParams.serviceUuids.forEach {
+                addServiceUuid(ParcelUuid(it))
+            }
+            build()
+        }
+
+        Log.d(TAG, "bleAdvertiser.startAdvertising($advertiseSettings, $advertiseData) called")
+        bleAdvertiser?.startAdvertising(advertiseSettings, advertiseData, callback)
+
+        awaitClose {
+            Log.d(TAG, "bleAdvertiser.stopAdvertising() called")
+            bleAdvertiser?.stopAdvertising(callback)
+        }
+    }
 
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE scanning. Scanning is used to
@@ -141,7 +140,6 @@ class BluetoothLe(private val context: Context) {
             }
         }
 
-        val bluetoothAdapter = bluetoothManager.adapter
         val bleScanner = bluetoothAdapter?.bluetoothLeScanner
         val scanSettings = ScanSettings.Builder().build()
 
