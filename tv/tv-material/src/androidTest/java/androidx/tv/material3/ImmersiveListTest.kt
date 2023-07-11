@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -48,17 +47,18 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
 class ImmersiveListTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Test
     fun immersiveList_scroll_backgroundChanges() {
         rule.setContent {
@@ -255,7 +255,6 @@ class ImmersiveListTest {
         rule.runOnIdle { focusRequester.requestFocus() }
     }
 
-    @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Composable
     private fun TestImmersiveList(focusRequesterList: List<FocusRequester>) {
         val frList = remember { focusRequesterList }
