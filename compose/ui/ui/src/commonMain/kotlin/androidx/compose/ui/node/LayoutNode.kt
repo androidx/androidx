@@ -422,7 +422,6 @@ internal class LayoutNode(
         forEachCoordinatorIncludingInner { it.onLayoutNodeAttach() }
         onAttach?.invoke(owner)
 
-        layoutDelegate.updateParentData()
         invalidateFocusOnAttach()
     }
 
@@ -1378,8 +1377,6 @@ internal class LayoutNode(
         } else {
             resetModifierState()
         }
-        // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
-        nodes.attach(true)
     }
 
     override fun onDeactivate() {
