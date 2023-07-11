@@ -1263,9 +1263,17 @@ class XAnnotationTest(
                     assertThat(subject.getDeclaredMethods().map { it.name })
                         .containsExactly("method")
                 } else {
-                    assertThat(subject.getDeclaredMethods().map { it.name })
-                        .containsExactly("getField", "method")
-                        .inOrder()
+                    if (invocation.isKsp || preCompiled) {
+                        assertThat(subject.getDeclaredMethods().map { it.name })
+                            .containsExactly("getField", "method")
+                            .inOrder()
+                    } else {
+                        // TODO(b/290800523): Remove the synthetic annotations method from the list
+                        //  of declared methods so that KAPT matches KSP.
+                        assertThat(subject.getDeclaredMethods().map { it.name })
+                            .containsExactly("getField", "getField\$annotations", "method")
+                            .inOrder()
+                    }
                 }
 
                 // Check the annotations on the elements
