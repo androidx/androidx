@@ -20,8 +20,10 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 
+internal actual fun getPagingPlaceholderKey(index: Int): Any = PagingPlaceholderKey(index)
+
 @SuppressLint("BanParcelableUsage")
-internal data class PagingPlaceholderKey(private val index: Int) : Parcelable {
+private data class PagingPlaceholderKey(private val index: Int) : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(index)
     }
@@ -42,5 +44,3 @@ internal data class PagingPlaceholderKey(private val index: Int) : Parcelable {
             }
     }
 }
-
-internal object PagingPlaceholderContentType
