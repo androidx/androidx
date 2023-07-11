@@ -22,8 +22,8 @@ import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
+import androidx.datastore.testing.TestMessageProto.FooProto
 import androidx.test.core.app.ApplicationProvider
-import androidx.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ExtensionRegistryLite
 import java.io.File
