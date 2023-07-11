@@ -30,6 +30,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -247,8 +248,8 @@ fun SearchBar(
                     .offset(vertical = -animatedTopPadding))
                 layout(width, height) {
                     placeable.placeRelative(0, animatedTopPadding)
+                }
             }
-        }
     ) {
         Column {
             val animatedInputFieldPadding = remember {
@@ -281,8 +282,10 @@ fun SearchBar(
         }
     }
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
     LaunchedEffect(active) {
-        if (!active) {
+        if (shouldClearFocus) {
             // Not strictly needed according to the motion spec, but since the animation already has
             // a delay, this works around b/261632544.
             delay(AnimationDelayMillis.toLong())
@@ -408,8 +411,10 @@ fun DockedSearchBar(
         }
     }
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
     LaunchedEffect(active) {
-        if (!active) {
+        if (shouldClearFocus) {
             // Not strictly needed according to the motion spec, but since the animation already has
             // a delay, this works around b/261632544.
             delay(AnimationDelayMillis.toLong())
