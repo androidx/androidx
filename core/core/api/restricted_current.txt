@@ -2814,7 +2814,6 @@ package androidx.core.util {
   public class TypedValueCompat {
     method public static float deriveDimension(int, float, android.util.DisplayMetrics);
     method public static float dpToPx(float, android.util.DisplayMetrics);
-    method public static int getUnitFromComplexDimension(int);
     method public static float pxToDp(float, android.util.DisplayMetrics);
     method public static float pxToSp(float, android.util.DisplayMetrics);
     method public static float spToPx(float, android.util.DisplayMetrics);
@@ -4659,7 +4658,6 @@ package androidx.core.widget {
     method public static void setFirstBaselineToTopHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setLastBaselineToBottomHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setLineHeight(android.widget.TextView, @IntRange(from=0) @Px int);
-    method public static void setLineHeight(android.widget.TextView, int, @FloatRange(from=0) float);
     method public static void setPrecomputedText(android.widget.TextView, androidx.core.text.PrecomputedTextCompat);
     method public static void setTextAppearance(android.widget.TextView, @StyleRes int);
     method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);

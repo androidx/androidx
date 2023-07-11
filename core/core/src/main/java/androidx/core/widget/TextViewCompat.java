@@ -54,7 +54,6 @@ import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -807,7 +806,6 @@ public final class TextViewCompat {
      * Sets an explicit line height for this TextView. This is equivalent to the vertical distance
      * between subsequent baselines in the TextView.
      *
-     * @param textView the TextView to modify
      * @param lineHeight the line height in pixels
      *
      * @see TextView#setLineSpacing(float, float)
@@ -825,38 +823,6 @@ public final class TextViewCompat {
         if (lineHeight != fontHeight) {
             // Set lineSpacingExtra by the difference of lineSpacing with lineHeight
             textView.setLineSpacing(lineHeight - fontHeight, 1f);
-        }
-    }
-
-    /**
-     * Sets an explicit line height to a given unit and value for the TextView. This is equivalent
-     * to the vertical distance between subsequent baselines in the TextView. See {@link
-     * TypedValue} for the possible dimension units.
-     *
-     * @param textView the TextView to modify
-     * @param unit The desired dimension unit. SP units are strongly recommended so that line height
-     *             stays proportional to the text size when fonts are scaled up for accessibility.
-     * @param lineHeight The desired line height in the given units.
-     *
-     * @see TextView#setLineSpacing(float, float)
-     * @see TextView#getLineSpacingExtra()
-     *
-     * @attr ref android.R.styleable#TextView_lineHeight
-     */
-    public static void setLineHeight(
-            @NonNull TextView textView,
-            int unit,
-            @FloatRange(from = 0) float lineHeight
-    ) {
-        if (Build.VERSION.SDK_INT >= 34) {
-            Api34Impl.setLineHeight(textView, unit, lineHeight);
-        } else {
-            float lineHeightPx = TypedValue.applyDimension(
-                    unit,
-                    lineHeight,
-                    textView.getResources().getDisplayMetrics()
-            );
-            setLineHeight(textView, Math.round(lineHeightPx));
         }
     }
 
@@ -1315,22 +1281,6 @@ public final class TextViewCompat {
         @DoNotInline
         static DecimalFormatSymbols getInstance(Locale locale) {
             return DecimalFormatSymbols.getInstance(locale);
-        }
-    }
-
-    @RequiresApi(34)
-    static class Api34Impl {
-        private Api34Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        public static void setLineHeight(
-                @NonNull TextView textView,
-                int unit,
-                @FloatRange(from = 0) float lineHeight
-        ) {
-            textView.setLineHeight(unit, lineHeight);
         }
     }
 }
