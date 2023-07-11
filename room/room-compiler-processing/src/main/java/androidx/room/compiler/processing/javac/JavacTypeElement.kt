@@ -196,9 +196,9 @@ internal sealed class JavacTypeElement(
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {
-        return _declaredMethods.filter {
-            it.kotlinMetadata?.isSyntheticMethodForAnnotations() != true
-        }
+        // TODO(b/290800523): Remove the synthetic annotations method from the list
+        //  of declared methods so that KAPT matches KSP.
+        return _declaredMethods
     }
 
     fun getSyntheticMethodsForAnnotations(): List<JavacMethodElement> {

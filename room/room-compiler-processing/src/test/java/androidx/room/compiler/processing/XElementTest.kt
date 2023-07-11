@@ -825,7 +825,7 @@ class XElementTest {
                 }
             }
             """.trimIndent()
-        ))) { invocation, _ ->
+        ))) { invocation, precompiled ->
             val enclosingElement =
                 invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass")
             val companionObj = enclosingElement.getEnclosedTypeElements().first {
@@ -897,14 +897,28 @@ class XElementTest {
                 methods.forEach {
                     assertThat(it.enclosingElement).isEqualTo(companionObj)
                 }
-                assertThat(methods.map { it.name }).containsExactly(
-                    "getCompanionObjectProperty",
-                    "getCompanionObjectPropertyJvmStatic",
-                    "getCompanionObjectPropertyLateinit",
-                    "setCompanionObjectPropertyLateinit",
-                    "companionObjectFunction",
-                    "companionObjectFunctionJvmStatic"
-                ).inOrder()
+                if (invocation.isKsp || precompiled) {
+                    assertThat(methods.map { it.name }).containsExactly(
+                        "getCompanionObjectProperty",
+                        "getCompanionObjectPropertyJvmStatic",
+                        "getCompanionObjectPropertyLateinit",
+                        "setCompanionObjectPropertyLateinit",
+                        "companionObjectFunction",
+                        "companionObjectFunctionJvmStatic"
+                    ).inOrder()
+                } else {
+                    // TODO(b/290800523): Remove the synthetic annotations method from the list
+                    //  of declared methods so that KAPT matches KSP.
+                    assertThat(methods.map { it.name }).containsExactly(
+                        "getCompanionObjectProperty",
+                        "getCompanionObjectPropertyJvmStatic",
+                        "getCompanionObjectPropertyJvmStatic\$annotations",
+                        "getCompanionObjectPropertyLateinit",
+                        "setCompanionObjectPropertyLateinit",
+                        "companionObjectFunction",
+                        "companionObjectFunctionJvmStatic"
+                    ).inOrder()
+                }
             }
         }
     }
