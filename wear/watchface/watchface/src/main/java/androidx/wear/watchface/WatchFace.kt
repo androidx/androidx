@@ -406,8 +406,7 @@ public class WatchFace(
      * This class allows the watch face to configure the status overlay which is rendered by the
      * system on top of the watch face.
      *
-     * Note: While the plumbing was built, the System UI side of the this feature was never
-     * implemented, and this method will be removed.
+     * Note: This is not a supported API and will be removed.
      */
     @Deprecated("OverlayStyle will be removed in a future release.")
     public class OverlayStyle(
