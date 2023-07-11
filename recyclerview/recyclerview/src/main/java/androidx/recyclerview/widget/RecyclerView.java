@@ -749,6 +749,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 }
             };
 
+    private final DifferentialMotionFlingHelper.DifferentialMotionFlingTarget
+            mGenericMotionFlingTarget =
+            new DifferentialMotionFlingHelper.DifferentialMotionFlingTarget() {
+                @Override
+                public boolean startDifferentialMotionFling(int velocity) {
+                    // TODO(b/290680625): implement logic to start generic motion fling.
+                    return false;
+                }
+
+                @Override
+                public void stopDifferentialMotionFling() {
+                    // TODO(b/290680625): implement logic to stop generic motion fling.
+                }
+            };
+
+    private final DifferentialMotionFlingHelper mGenericMotionFlingHelper =
+            new DifferentialMotionFlingHelper(mGenericMotionFlingTarget);
     public RecyclerView(@NonNull Context context) {
         this(context, null);
     }
@@ -4029,6 +4046,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return false;
         }
 
+        int flingAxis = 0;
         boolean useSmoothScroll = false;
         if (event.getAction() == MotionEvent.ACTION_SCROLL) {
             final float vScroll, hScroll;
@@ -4062,6 +4080,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 // Use smooth scrolling for low resolution rotary encoders to avoid the visible
                 // pixel jumps that would be caused by doing regular scrolling.
                 useSmoothScroll = mLowResRotaryEncoderFeature;
+                // Support fling for rotary encoders.
+                flingAxis = MotionEventCompat.AXIS_SCROLL;
             } else {
                 vScroll = 0f;
                 hScroll = 0f;
@@ -4078,6 +4098,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         UNDEFINED_DURATION, /* withNestedScrolling= */ true);
             } else {
                 nestedScrollByInternal(scaledHScroll, scaledVScroll, event, TYPE_NON_TOUCH);
+            }
+
+            if (flingAxis != 0) {
+                mGenericMotionFlingHelper.onMotionEvent(event, flingAxis);
             }
         }
         return false;
