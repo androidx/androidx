@@ -75,6 +75,7 @@ internal class SingleBufferedCanvasRendererV29<T>(
         mRenderNode,
         bufferTransformer.glWidth,
         bufferTransformer.glHeight,
+        usage = FrontBufferUtils.obtainHardwareBufferUsageFlags(),
         maxImages = 1
     )
 
@@ -99,8 +100,8 @@ internal class SingleBufferedCanvasRendererV29<T>(
             canvasOperations(canvas)
             mRenderNode.endRecording()
             mPendingDraw = true
-            mBufferedRenderer.renderFrame(executor) { hardwareBuffer ->
-                callbacks.onBufferReady(hardwareBuffer, null)
+            mBufferedRenderer.renderFrame(executor) { hardwareBuffer, fence ->
+                callbacks.onBufferReady(hardwareBuffer, fence)
                 mPendingDraw = false
                 onDrawComplete.invoke()
             }
@@ -136,6 +137,10 @@ internal class SingleBufferedCanvasRendererV29<T>(
     private fun isPendingDraw() = mPendingDraw || mPendingParams.isNotEmpty()
 
     override var isVisible: Boolean = false
+        set(value) {
+            mBufferedRenderer.preserveContents = isVisible
+            field = value
+        }
 
     @WorkerThread // Executor thread
     private fun tearDown() {

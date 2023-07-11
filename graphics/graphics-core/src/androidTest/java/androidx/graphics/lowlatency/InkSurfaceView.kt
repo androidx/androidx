@@ -120,6 +120,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     val renderCount = AtomicInteger(0)
 
     init {
+        setZOrderOnTop(true)
         setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
