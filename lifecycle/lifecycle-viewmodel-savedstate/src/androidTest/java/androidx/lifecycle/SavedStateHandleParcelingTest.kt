@@ -13,58 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import android.os.Bundle;
-import android.os.Parcel;
-
-import androidx.test.annotation.UiThreadTest;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Arrays;
+import android.os.Bundle
+import android.os.Bundle.CREATOR
+import android.os.Parcel.obtain
+import androidx.lifecycle.SavedStateHandle.Companion.createHandle
+import androidx.test.annotation.UiThreadTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import java.util.Arrays.equals
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
-public class SavedStateHandleParcelingTest {
-
+@RunWith(AndroidJUnit4::class)
+class SavedStateHandleParcelingTest {
     @UiThreadTest
     @Test
-    public void test() {
-        SavedStateHandle handle = new SavedStateHandle();
-        handle.<String>getLiveData("livedata").setValue("para");
-        handle.set("notlive", 261);
-        handle.set("array", new int[]{2, 3, 9});
-        Bundle savedState = handle.savedStateProvider().saveState();
-        Parcel parcel = Parcel.obtain();
-        savedState.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-        Bundle newBundle = Bundle.CREATOR.createFromParcel(parcel);
-        SavedStateHandle newHandle = SavedStateHandle.createHandle(newBundle, null);
-        assertThat(newHandle.<String>get("livedata"), is("para"));
-        assertThat(newHandle.<Integer>get("notlive"), is(261));
-        assertThat(Arrays.equals(newHandle.<int[]>get("array"), new int[]{2, 3, 9}), is(true));
+    fun test() {
+        val handle = SavedStateHandle()
+        handle.getLiveData<String>("livedata").value = "para"
+        handle["notlive"] = 261
+        handle["array"] = intArrayOf(2, 3, 9)
+        val savedState = handle.savedStateProvider().saveState()
+        val parcel = obtain()
+        savedState.writeToParcel(parcel, 0)
+        parcel.setDataPosition(0)
+        val newBundle = CREATOR.createFromParcel(parcel)
+        val newHandle: SavedStateHandle = createHandle(newBundle, null)
+        assertThat<String>(newHandle["livedata"], `is`("para"))
+        assertThat<Int>(newHandle["notlive"], `is`(261))
+        assertThat(
+            equals(
+                newHandle["array"],
+                intArrayOf(2, 3, 9)
+            ),
+            `is`(true)
+        )
     }
 
     @UiThreadTest
     @Test
-    public void testRemoveFromDefault() {
-        Bundle defaultState = new Bundle();
-        defaultState.putString("string", "default");
-        SavedStateHandle handle = SavedStateHandle.createHandle(null, defaultState);
-        assertThat(handle.contains("string"), is(true));
-        handle.remove("string");
-        assertThat(handle.contains("string"), is(false));
-
-        Bundle savedState = handle.savedStateProvider().saveState();
-        SavedStateHandle newHandle = SavedStateHandle.createHandle(savedState, defaultState);
-        assertThat(newHandle.contains("string"), is(false));
+    fun testRemoveFromDefault() {
+        val defaultState = Bundle()
+        defaultState.putString("string", "default")
+        val handle = createHandle(null, defaultState)
+        assertThat(handle.contains("string"), `is`(true))
+        handle.remove<Any>("string")
+        assertThat(handle.contains("string"), `is`(false))
+        val savedState = handle.savedStateProvider().saveState()
+        val newHandle = createHandle(savedState, defaultState)
+        assertThat(newHandle.contains("string"), `is`(false))
     }
 }
