@@ -19,6 +19,9 @@ package androidx.build
 import androidx.build.gradle.isRoot
 import java.io.File
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 
 /**
  * @return build id string for current build
@@ -74,7 +77,12 @@ fun Project.getBuildInfoDirectory(): File = File(getDistributionDirectory(), "bu
  * Directory for android test configuration files that get consumed by Tradefed in CI. These configs
  * cause all the tests to be run, except in cases where buildSrc changes.
  */
-fun Project.getTestConfigDirectory(): File = File(rootProject.buildDir, "test-xml-configs")
+fun Project.getTestConfigDirectory(): Provider<Directory> =
+    rootProject.layout.buildDirectory.dir("test-xml-configs")
+
+/** A file within [getTestConfigDirectory] */
+fun Project.getFileInTestConfigDirectory(name: String): Provider<RegularFile> =
+    getTestConfigDirectory().map { it.file(name) }
 
 /** Directory to put release note files for generate release note tasks. */
 fun Project.getReleaseNotesDirectory(): File = File(getDistributionDirectory(), "release-notes")

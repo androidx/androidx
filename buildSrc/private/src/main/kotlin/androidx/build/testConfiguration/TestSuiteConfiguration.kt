@@ -21,8 +21,8 @@ import androidx.build.AndroidXImplPlugin
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
+import androidx.build.getFileInTestConfigDirectory
 import androidx.build.getSupportRootFolder
-import androidx.build.getTestConfigDirectory
 import androidx.build.hasAndroidTestSourceCode
 import androidx.build.hasBenchmarkPlugin
 import androidx.build.isPresubmitBuild
@@ -39,9 +39,10 @@ import com.android.build.gradle.TestExtension
 import com.android.build.gradle.internal.attributes.VariantAttr
 import com.android.build.gradle.internal.publishing.AndroidArtifacts
 import com.android.build.gradle.internal.publishing.AndroidArtifacts.ArtifactType
-import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.attributes.Usage
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
@@ -78,12 +79,12 @@ fun Project.createTestConfigurationGenerationTask(
             task.testFolder.set(artifacts.get(SingleArtifact.APK))
             task.testLoader.set(artifacts.getBuiltArtifactsLoader())
             task.outputTestApk.set(
-                File(getTestConfigDirectory(), "${path.asFilenamePrefix()}-$variantName.apk")
+                getFileInTestConfigDirectory("${path.asFilenamePrefix()}-$variantName.apk")
             )
             task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
             task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
-            task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
-            task.outputJson.fileValue(File(getTestConfigDirectory(), jsonName))
+            task.outputXml.set(getFileInTestConfigDirectory(xmlName))
+            task.outputJson.set(getFileInTestConfigDirectory(jsonName))
             task.presubmit.set(isPresubmitBuild())
             // Disable work tests on < API 18: b/178127496
             if (path.startsWith(":work:")) {
@@ -121,13 +122,13 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
         variant: Variant,
         appProjectPath: String,
         instrumentationProjectPath: String?
-    ): File {
+    ): Provider<RegularFile> {
         var filename = appProjectPath.asFilenamePrefix()
         if (instrumentationProjectPath != null) {
             filename += "_for_${instrumentationProjectPath.asFilenamePrefix()}"
         }
         filename += "-${variant.name}.apk"
-        return File(getTestConfigDirectory(), filename)
+        return getFileInTestConfigDirectory(filename)
     }
 
     // For application modules, the instrumentation apk is generated in the module itself
@@ -302,53 +303,45 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
                 it.serviceToTLoader.set(artifacts.getBuiltArtifactsLoader())
             }
         }
-        it.jsonClientPreviousServiceToTClientTests.fileValue(
-            File(
-                this.getTestConfigDirectory(),
+        it.jsonClientPreviousServiceToTClientTests.set(
+            getFileInTestConfigDirectory(
                 "_${mediaPrefix}ClientPreviousServiceToTClientTests$variantName.json"
             )
         )
-        it.jsonClientPreviousServiceToTServiceTests.fileValue(
-            File(
-                this.getTestConfigDirectory(),
+        it.jsonClientPreviousServiceToTServiceTests.set(
+            getFileInTestConfigDirectory(
                 "_${mediaPrefix}ClientPreviousServiceToTServiceTests$variantName.json"
             )
         )
-        it.jsonClientToTServicePreviousClientTests.fileValue(
-            File(
-                this.getTestConfigDirectory(),
+        it.jsonClientToTServicePreviousClientTests.set(
+            getFileInTestConfigDirectory(
                 "_${mediaPrefix}ClientToTServicePreviousClientTests$variantName.json"
             )
         )
-        it.jsonClientToTServicePreviousServiceTests.fileValue(
-            File(
-                this.getTestConfigDirectory(),
+        it.jsonClientToTServicePreviousServiceTests.set(
+            getFileInTestConfigDirectory(
                 "_${mediaPrefix}ClientToTServicePreviousServiceTests$variantName.json"
             )
         )
-        it.jsonClientToTServiceToTClientTests.fileValue(
-            File(
-                this.getTestConfigDirectory(),
+        it.jsonClientToTServiceToTClientTests.set(
+            getFileInTestConfigDirectory(
                 "_${mediaPrefix}ClientToTServiceToTClientTests$variantName.json"
             )
         )
-        it.jsonClientToTServiceToTServiceTests.fileValue(
-            File(
-                this.getTestConfigDirectory(),
+        it.jsonClientToTServiceToTServiceTests.set(
+            getFileInTestConfigDirectory(
                 "_${mediaPrefix}ClientToTServiceToTServiceTests$variantName.json"
             )
         )
-        it.totClientApk.fileValue(
-            File(getTestConfigDirectory(), "${mediaPrefix}ClientToT$variantName.apk")
+        it.totClientApk.set(getFileInTestConfigDirectory("${mediaPrefix}ClientToT$variantName.apk"))
+        it.previousClientApk.set(
+            getFileInTestConfigDirectory("${mediaPrefix}ClientPrevious$variantName.apk")
         )
-        it.previousClientApk.fileValue(
-            File(getTestConfigDirectory(), "${mediaPrefix}ClientPrevious$variantName.apk")
+        it.totServiceApk.set(
+            getFileInTestConfigDirectory("${mediaPrefix}ServiceToT$variantName.apk")
         )
-        it.totServiceApk.fileValue(
-            File(getTestConfigDirectory(), "${mediaPrefix}ServiceToT$variantName.apk")
-        )
-        it.previousServiceApk.fileValue(
-            File(getTestConfigDirectory(), "${mediaPrefix}ServicePrevious$variantName.apk")
+        it.previousServiceApk.set(
+            getFileInTestConfigDirectory("${mediaPrefix}ServicePrevious$variantName.apk")
         )
         it.minSdk.set(minSdk)
         it.testRunner.set(testRunner)

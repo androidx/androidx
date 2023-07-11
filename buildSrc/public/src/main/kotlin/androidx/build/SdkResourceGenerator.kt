@@ -118,7 +118,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
         @VisibleForTesting
         fun registerSdkResourceGeneratorTask(project: Project): TaskProvider<SdkResourceGenerator> {
-            val generatedDirectory = File(project.buildDir, "generated/resources")
+            val generatedDirectory = project.layout.buildDirectory.dir("generated/resources")
             return project.tasks.register(TASK_NAME, SdkResourceGenerator::class.java) {
                 it.tipOfTreeMavenRepoRelativePath =
                     project.getRepositoryDirectory().toRelativeString(project.projectDir)

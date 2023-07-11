@@ -17,7 +17,6 @@
 package androidx.build
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
@@ -221,7 +220,7 @@ object BundleInsideHelper {
                 }
                 archiveBaseName.set("repackaged")
                 archiveVersion.set("")
-                destinationDirectory.set(File(buildDir, "repackaged"))
+                destinationDirectory.set(layout.buildDirectory.dir("repackaged"))
             }
         }
     }
