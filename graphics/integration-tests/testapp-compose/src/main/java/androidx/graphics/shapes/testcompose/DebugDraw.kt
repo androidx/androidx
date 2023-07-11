@@ -38,17 +38,19 @@ internal fun DrawScope.debugDraw(cubics: List<Cubic>, path: Path) {
 
     for (bezier in cubics) {
         // Draw red circles for start and end.
-        drawCircle(bezier.p0, 6f, Color.Red, strokeWidth = 2f)
-        drawCircle(bezier.p3, 8f, Color.Magenta, strokeWidth = 2f)
+        drawCircle(bezier.anchorX0, bezier.anchorY0, 6f, Color.Red, strokeWidth = 2f)
+        drawCircle(bezier.anchorX1, bezier.anchorY1, 8f, Color.Magenta, strokeWidth = 2f)
         // Draw a circle for the first control point, and a line from start to it.
         // The curve will start in this direction
 
-        drawLine(bezier.p0, bezier.p1, Color.Yellow, strokeWidth = 0f)
-        drawCircle(bezier.p1, 4f, Color.Yellow, strokeWidth = 2f)
+        drawLine(bezier.anchorX0, bezier.anchorY0, bezier.controlX0, bezier.controlY0, Color.Yellow,
+            strokeWidth = 0f)
+        drawCircle(bezier.controlX0, bezier.controlY0, 4f, Color.Yellow, strokeWidth = 2f)
         // Draw a circle for the second control point, and a line from it to the end.
         // The curve will end in this direction
-        drawLine(bezier.p2, bezier.p3, Color.Yellow, strokeWidth = 0f)
-        drawCircle(bezier.p2, 4f, Color.Yellow, strokeWidth = 2f)
+        drawLine(bezier.controlX1, bezier.controlY1, bezier.anchorX1, bezier.anchorY1, Color.Yellow,
+            strokeWidth = 0f)
+        drawCircle(bezier.controlX1, bezier.controlY1, 4f, Color.Yellow, strokeWidth = 2f)
     }
 }
 
@@ -65,6 +67,28 @@ private fun DrawScope.drawCircle(
 ) {
     drawCircle(color, radius, center.asOffset(), style = Stroke(strokeWidth))
 }
+
+private fun DrawScope.drawCircle(
+    centerX: Float,
+    centerY: Float,
+    radius: Float,
+    color: Color,
+    strokeWidth: Float = 2f
+) {
+    drawCircle(color, radius, Offset(centerX, centerY), style = Stroke(strokeWidth))
+}
+
 private fun DrawScope.drawLine(start: PointF, end: PointF, color: Color, strokeWidth: Float = 2f) {
     drawLine(color, start.asOffset(), end.asOffset(), strokeWidth = strokeWidth)
+}
+
+private fun DrawScope.drawLine(
+    startX: Float,
+    startY: Float,
+    endX: Float,
+    endY: Float,
+    color: Color,
+    strokeWidth: Float = 2f
+) {
+    drawLine(color, Offset(startX, startY), Offset(endX, endY), strokeWidth = strokeWidth)
 }
