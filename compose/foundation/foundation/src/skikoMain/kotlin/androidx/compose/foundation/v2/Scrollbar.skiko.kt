@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("Scrollbar_desktopKt")
 
 package androidx.compose.foundation.v2
 
@@ -27,9 +28,11 @@ import androidx.compose.foundation.text.TextFieldScrollState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Offset
+import kotlin.js.JsName
+import kotlin.jvm.JvmName
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
 
 
 /**
@@ -104,7 +107,7 @@ internal class ScrollableScrollbarAdapter(
  * Base class for [LazyListScrollbarAdapter] and [LazyGridScrollbarAdapter],
  * and in the future maybe other lazy widgets that lay out their content in lines.
  */
-internal abstract class LazyLineContentAdapter: ScrollbarAdapter{
+internal abstract class LazyLineContentAdapter: ScrollbarAdapter {
 
     // Implement the adapter in terms of "lines", which means either rows,
     // (for a vertically scrollable widget) or columns (for a horizontally
@@ -152,6 +155,7 @@ internal abstract class LazyLineContentAdapter: ScrollbarAdapter{
      */
     protected abstract val lineSpacing: Int
 
+    @JsName("averageVisibleLineSizeProperty")
     private val averageVisibleLineSize by derivedStateOf {
         if (totalLineCount() == 0)
             0.0
@@ -390,7 +394,7 @@ internal class LazyGridScrollbarAdapter(
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldScrollbarAdapter(
     private val scrollState: TextFieldScrollState
-): ScrollbarAdapter{
+): ScrollbarAdapter {
 
     override val scrollOffset: Double
         get() = scrollState.offset.toDouble()
@@ -438,7 +442,7 @@ internal class SliderAdapter(
     private var rawPosition: Double
         get() = scrollScale * adapter.scrollOffset
         set(value) {
-            runBlocking {
+            runBlockingIfPossible {
                 adapter.scrollTo(value / scrollScale)
             }
         }
@@ -479,3 +483,7 @@ internal class SliderAdapter(
     }
 
 }
+
+
+// Because k/js and k/wasm don't have runBlocking
+internal expect fun runBlockingIfPossible(block: suspend CoroutineScope.() -> Unit)
