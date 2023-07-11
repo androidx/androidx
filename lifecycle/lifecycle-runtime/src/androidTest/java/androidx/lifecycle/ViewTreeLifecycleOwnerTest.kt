@@ -13,65 +13,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import android.view.View
+import android.widget.FrameLayout
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+import org.junit.runner.RunWith
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-
-import androidx.annotation.NonNull;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidJUnit4::class)
 @SmallTest
-public class ViewTreeLifecycleOwnerTest {
+class ViewTreeLifecycleOwnerTest {
     /**
      * Tests that a direct set/get on a single view survives a round trip
      */
     @Test
-    public void setGetSameView() {
-        final View v = new View(InstrumentationRegistry.getInstrumentation().getContext());
-        final LifecycleOwner fakeOwner = new FakeLifecycleOwner();
-
-        assertNull("initial LifecycleOwner expects null", ViewTreeLifecycleOwner.get(v));
-
-        ViewTreeLifecycleOwner.set(v, fakeOwner);
-
-        assertEquals("get the LifecycleOwner set directly", fakeOwner,
-                ViewTreeLifecycleOwner.get(v));
+    fun setGetSameView() {
+        val v = View(getInstrumentation().context)
+        val fakeOwner = FakeLifecycleOwner()
+        assertNull("initial LifecycleOwner expects null", v.findViewTreeLifecycleOwner())
+        v.setViewTreeLifecycleOwner(fakeOwner)
+        assertEquals(
+            "get the LifecycleOwner set directly",
+            fakeOwner,
+            v.findViewTreeLifecycleOwner()
+        )
     }
 
     /**
-     * Tests that the owner set on a root of a subhierarchy is seen by both direct children
+     * Tests that the owner set on a root of a sub-hierarchy is seen by both direct children
      * and other descendants
      */
     @Test
-    public void getAncestorOwner() {
-        final Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        final ViewGroup root = new FrameLayout(context);
-        final ViewGroup parent = new FrameLayout(context);
-        final View child = new View(context);
-        root.addView(parent);
-        parent.addView(child);
-
-        assertNull("initial LifecycleOwner expects null", ViewTreeLifecycleOwner.get(child));
-
-        final LifecycleOwner fakeOwner = new FakeLifecycleOwner();
-        ViewTreeLifecycleOwner.set(root, fakeOwner);
-
-        assertEquals("root sees owner", fakeOwner, ViewTreeLifecycleOwner.get(root));
-        assertEquals("direct child sees owner", fakeOwner, ViewTreeLifecycleOwner.get(parent));
-        assertEquals("grandchild sees owner", fakeOwner, ViewTreeLifecycleOwner.get(child));
+    fun getAncestorOwner() {
+        val context = getInstrumentation().context
+        val root = FrameLayout(context)
+        val parent = FrameLayout(context)
+        val child = View(context)
+        root.addView(parent)
+        parent.addView(child)
+        assertNull(
+            "initial LifecycleOwner expects null",
+            child.findViewTreeLifecycleOwner()
+        )
+        val fakeOwner = FakeLifecycleOwner()
+        root.setViewTreeLifecycleOwner(fakeOwner)
+        assertEquals(
+            "root sees owner",
+            fakeOwner,
+            root.findViewTreeLifecycleOwner()
+        )
+        assertEquals(
+            "direct child sees owner",
+            fakeOwner,
+            parent.findViewTreeLifecycleOwner()
+        )
+        assertEquals(
+            "grandchild sees owner",
+            fakeOwner,
+            child.findViewTreeLifecycleOwner()
+        )
     }
 
     /**
@@ -79,33 +84,46 @@ public class ViewTreeLifecycleOwnerTest {
      * instead of the root value
      */
     @Test
-    public void shadowedOwner() {
-        final Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        final ViewGroup root = new FrameLayout(context);
-        final ViewGroup parent = new FrameLayout(context);
-        final View child = new View(context);
-        root.addView(parent);
-        parent.addView(child);
-
-        assertNull("initial LifecycleOwner expects null", ViewTreeLifecycleOwner.get(child));
-
-        final LifecycleOwner rootFakeOwner = new FakeLifecycleOwner();
-        ViewTreeLifecycleOwner.set(root, rootFakeOwner);
-
-        final LifecycleOwner parentFakeOwner = new FakeLifecycleOwner();
-        ViewTreeLifecycleOwner.set(parent, parentFakeOwner);
-
-        assertEquals("root sees owner", rootFakeOwner, ViewTreeLifecycleOwner.get(root));
-        assertEquals("direct child sees owner", parentFakeOwner,
-                ViewTreeLifecycleOwner.get(parent));
-        assertEquals("grandchild sees owner", parentFakeOwner, ViewTreeLifecycleOwner.get(child));
+    fun shadowedOwner() {
+        val context = getInstrumentation().context
+        val root = FrameLayout(context)
+        val parent = FrameLayout(context)
+        val child = View(context)
+        root.addView(parent)
+        parent.addView(child)
+        assertNull(
+            "initial LifecycleOwner expects null",
+            child.findViewTreeLifecycleOwner()
+        )
+        val rootFakeOwner = FakeLifecycleOwner()
+        root.setViewTreeLifecycleOwner(rootFakeOwner)
+        val parentFakeOwner = FakeLifecycleOwner()
+        parent.setViewTreeLifecycleOwner(parentFakeOwner)
+        assertEquals(
+            "root sees owner",
+            rootFakeOwner,
+            root.findViewTreeLifecycleOwner()
+        )
+        assertEquals(
+            "direct child sees owner",
+            parentFakeOwner,
+            parent.findViewTreeLifecycleOwner()
+        )
+        assertEquals(
+            "grandchild sees owner",
+            parentFakeOwner,
+            child.findViewTreeLifecycleOwner()
+        )
     }
 
-    static class FakeLifecycleOwner implements LifecycleOwner {
-        @NonNull
-        @Override
-        public Lifecycle getLifecycle() {
-            throw new UnsupportedOperationException("not a real LifecycleOwner");
-        }
+    internal class FakeLifecycleOwner : LifecycleOwner {
+        override val lifecycle = NoOpLifecycle()
+    }
+
+    internal class NoOpLifecycle : Lifecycle() {
+        override fun addObserver(observer: LifecycleObserver) {}
+        override fun removeObserver(observer: LifecycleObserver) {}
+        // use arbitrary State
+        override val currentState = State.RESUMED
     }
 }
