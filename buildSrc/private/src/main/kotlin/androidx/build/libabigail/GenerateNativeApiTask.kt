@@ -22,6 +22,7 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
@@ -49,7 +50,7 @@ abstract class GenerateNativeApiTask : DefaultTask() {
     @get:Inject abstract val workerExecutor: WorkerExecutor
 
     @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
-    abstract val prefabDirectory: Property<File>
+    abstract val prefabDirectory: DirectoryProperty
 
     @get:Internal abstract val projectRootDir: Property<File>
 
@@ -75,7 +76,7 @@ abstract class GenerateNativeApiTask : DefaultTask() {
             destinationDir.deleteRecursively()
             destinationDir.mkdirs()
         }
-        val prefabDir = prefabDirectory.get()
+        val prefabDir = prefabDirectory.get().asFile
         val workQueue = workerExecutor.processIsolation()
         artifactNames.get().forEach { moduleName ->
             val module = prefabDir.resolve("modules/$moduleName/libs")

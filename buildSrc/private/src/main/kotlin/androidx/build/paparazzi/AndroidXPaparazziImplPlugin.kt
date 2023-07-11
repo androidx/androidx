@@ -28,8 +28,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.JAR_TYPE
+import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.Test
@@ -84,7 +86,11 @@ constructor(private val fileSystemOperations: FileSystemOperations) : Plugin<Pro
         outputs.dir(reportDirectory).withPropertyName("paparazziReportDir")
 
         // Clean the contents of the report directory before each test run
-        doFirst { fileSystemOperations.delete { it.delete(cachedReportDirectory.listFiles()) } }
+        doFirst {
+            fileSystemOperations.delete {
+                it.delete(cachedReportDirectory.get().asFile.listFiles())
+            }
+        }
 
         // Set non-path system properties at configuration time, so that changes invalidate caching
         prefixedSystemProperties(
@@ -103,7 +109,7 @@ constructor(private val fileSystemOperations: FileSystemOperations) : Plugin<Pro
                 "platformDir" to platformDirectory.canonicalPath,
                 "assetsDir" to ".", // TODO: Merged assets dirs? (needed for compose?)
                 "resDir" to ".", // TODO: Merged resource dirs? (needed for compose?)
-                "reportDir" to cachedReportDirectory.canonicalPath,
+                "reportDir" to cachedReportDirectory.get().asFile.canonicalPath,
                 "goldenRootDir" to cachedGoldenRootDirectory.canonicalPath,
             )
         }
@@ -174,8 +180,8 @@ constructor(private val fileSystemOperations: FileSystemOperations) : Plugin<Pro
         get() = path.replace(':', '/').trim('/')
 
     /** Output directory for storing reports and images. */
-    private val Test.reportDirectory
-        get() = project.buildDir.resolve("paparazzi").resolve(name)
+    private val Test.reportDirectory: Provider<Directory>
+        get() = project.layout.buildDirectory.dir("paparazzi/$name")
 
     /** Add a testImplementation dependency on the wrapper test utils library. */
     private fun Project.addTestUtilsDependency() {
