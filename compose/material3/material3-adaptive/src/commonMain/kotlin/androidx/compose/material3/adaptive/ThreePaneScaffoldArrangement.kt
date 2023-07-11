@@ -58,6 +58,22 @@ class ThreePaneScaffoldArrangement(
     }
 }
 
+@ExperimentalMaterial3AdaptiveApi
+internal inline fun ThreePaneScaffoldArrangement.forEach(action: (ThreePaneScaffoldRole) -> Unit) {
+    action(firstPane)
+    action(secondPane)
+    action(thirdPane)
+}
+
+@ExperimentalMaterial3AdaptiveApi
+internal inline fun ThreePaneScaffoldArrangement.forEachIndexed(
+    action: (Int, ThreePaneScaffoldRole) -> Unit
+) {
+    action(0, firstPane)
+    action(1, secondPane)
+    action(2, thirdPane)
+}
+
 /**
  * The set of the available pane roles of [ThreePaneScaffold].
  */
