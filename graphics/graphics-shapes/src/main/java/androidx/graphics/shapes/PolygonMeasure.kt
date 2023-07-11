@@ -18,7 +18,6 @@ package androidx.graphics.shapes
 
 import android.graphics.PointF
 import androidx.annotation.FloatRange
-import androidx.core.graphics.minus
 import kotlin.math.abs
 
 internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
@@ -103,7 +102,7 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
          */
         fun cutAtProgress(cutOutlineProgress: Float): Pair<MeasuredCubic, MeasuredCubic> {
             val outlineProgressSize = endOutlineProgress - startOutlineProgress
-            val progressFromStart = positiveModule(cutOutlineProgress - startOutlineProgress, 1f)
+            val progressFromStart = positiveModulo(cutOutlineProgress - startOutlineProgress, 1f)
             // progressFromStart should be in the [0 .. outlineProgressSize] range.
             // If it's not, cap to that range.
             val mid = if (progressFromStart > (1 + outlineProgressSize) / 2)
@@ -211,14 +210,14 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
                 cubics.size + 1 -> 1f
                 else -> {
                     val cubicIndex = (targetIndex + index - 1) % cubics.size
-                    positiveModule(cubics[cubicIndex].endOutlineProgress - cuttingPoint, 1f)
+                    positiveModulo(cubics[cubicIndex].endOutlineProgress - cuttingPoint, 1f)
                 }
             }
         }.asList()
 
         // Shift the feature's outline progress too.
         val newFeatures = features.map { (outlineProgress, feature) ->
-            positiveModule(outlineProgress - cuttingPoint, 1f) to feature
+            positiveModulo(outlineProgress - cuttingPoint, 1f) to feature
         }
 
         // Filter out all empty cubics (i.e. start and end anchor are (almost) the same point.)
@@ -297,14 +296,19 @@ internal interface Measurer {
  * no concept of a center, or the angles computed for an arbitrary center point might not be
  * consistent enough across the curves to work for general measurement.
  */
-internal class AngleMeasurer(val center: PointF) : Measurer {
+internal class AngleMeasurer(val centerX: Float, val centerY: Float) : Measurer {
+
+    // Holds temporary pointOnCurve result, avoids re-allocations
+    private val tempPoint = PointF()
+
     /**
      * The measurement for a given cubic is the difference in angles between the start
      * and end points (first and last anchors) of the cubic.
      */
     override fun measureCubic(c: Cubic) =
-        positiveModule(
-            (c.p3 - center).angle() - (c.p0 - center).angle(),
+        positiveModulo(
+            angle(c.anchorX1 - centerX, c.anchorY1 - centerY) -
+                angle(c.anchorX0 - centerX, c.anchorY0 - centerY),
             TwoPi
         ).let {
             // Avoid an empty cubic to measure almost TwoPi
@@ -312,10 +316,12 @@ internal class AngleMeasurer(val center: PointF) : Measurer {
         }
 
     override fun findCubicCutPoint(c: Cubic, m: Float): Float {
-        val angle0 = (c.p0 - center).angle()
+        val angle0 = angle(c.anchorX0 - centerX, c.anchorY0 - centerY)
         // TODO: use binary search.
         return findMinimum(0f, 1f, tolerance = 1e-5f) { t ->
-            abs(positiveModule((c.pointOnCurve(t) - center).angle() - angle0, TwoPi) - m)
+            val curvePoint = c.pointOnCurve(t, tempPoint)
+            val angle = angle(curvePoint.x - centerX, curvePoint.y - centerY)
+            abs(positiveModulo(angle - angle0, TwoPi) - m)
         }
     }
 }

@@ -57,13 +57,6 @@ class Morph(
     // to avoid recreating the path for the same progress value
     private var currentPathProgress: Float = Float.MIN_VALUE
 
-    // These temp anchor/control points are used when progress changes to hold interpolated values
-    // Using these structures avoids allocations during morph animation
-    private val tempA0 = PointF()
-    private val tempC0 = PointF()
-    private val tempC1 = PointF()
-    private val tempA1 = PointF()
-
     /**
      * The bounds of the morph object are estimated by control and anchor points of all cubic curves
      * representing the shape.
@@ -85,43 +78,36 @@ class Morph(
         var maxX = Float.MIN_VALUE
         var maxY = Float.MIN_VALUE
         for (pair in morphMatch) {
-            with(pair.first.p0) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.second.p0) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.first.p1) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.second.p1) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.first.p2) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.second.p2) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            // Skip p3 since every p3 is the next curve's p0
+            if (pair.first.anchorX0 < minX) minX = pair.first.anchorX0
+            if (pair.first.anchorY0 < minY) minY = pair.first.anchorY0
+            if (pair.first.anchorX0 > maxX) maxX = pair.first.anchorX0
+            if (pair.first.anchorY0 > maxY) maxY = pair.first.anchorY0
+
+            if (pair.second.anchorX0 < minX) minX = pair.second.anchorX0
+            if (pair.second.anchorY0 < minY) minY = pair.second.anchorY0
+            if (pair.second.anchorX0 > maxX) maxX = pair.second.anchorX0
+            if (pair.second.anchorY0 > maxY) maxY = pair.second.anchorY0
+
+            if (pair.first.controlX0 < minX) minX = pair.first.controlX0
+            if (pair.first.controlY0 < minY) minY = pair.first.controlY0
+            if (pair.first.controlX0 > maxX) maxX = pair.first.controlX0
+            if (pair.first.controlY0 > maxY) maxY = pair.first.controlY0
+
+            if (pair.second.controlX0 < minX) minX = pair.second.controlX0
+            if (pair.second.controlY0 < minY) minY = pair.second.controlY0
+            if (pair.second.controlX0 > maxX) maxX = pair.second.controlX0
+            if (pair.second.controlY0 > maxY) maxY = pair.second.controlY0
+
+            if (pair.first.controlX1 < minX) minX = pair.first.controlX1
+            if (pair.first.controlY1 < minY) minY = pair.first.controlY1
+            if (pair.first.controlX1 > maxX) maxX = pair.first.controlX1
+            if (pair.first.controlY1 > maxY) maxY = pair.first.controlY1
+
+            if (pair.second.controlX1 < minX) minX = pair.second.controlX1
+            if (pair.second.controlY1 < minY) minY = pair.second.controlY1
+            if (pair.second.controlX1 > maxX) maxX = pair.second.controlX1
+            if (pair.second.controlY1 > maxY) maxY = pair.second.controlY1
+            // Skip x3/y3 since every last point is the next curve's first point
         }
         bounds.set(minX, minY, maxX, maxY)
     }
@@ -141,17 +127,25 @@ class Morph(
 
         // If the list is not empty, do an initial moveTo using the first element of the match.
         morphMatch.firstOrNull()?. let { first ->
-            interpolate(first.first.p0, first.second.p0, tempA0, progress)
-            path.moveTo(tempA0.x, tempA0.y)
+            path.moveTo(
+                interpolate(first.first.anchorX0, first.second.anchorX0, progress),
+                interpolate(first.first.anchorY0, first.second.anchorY0, progress)
+            )
         }
 
         // And one cubicTo for each element, including the first.
-        for (element in morphMatch) {
-            interpolate(element.first.p1, element.second.p1, tempC0, progress)
-            interpolate(element.first.p2, element.second.p2, tempC1, progress)
-            interpolate(element.first.p3, element.second.p3, tempA1, progress)
-            path.cubicTo(tempC0.x, tempC0.y, tempC1.x, tempC1.y, tempA1.x, tempA1.y)
+        for (i in 0..morphMatch.lastIndex) {
+            val element = morphMatch[i]
+            path.cubicTo(
+                interpolate(element.first.controlX0, element.second.controlX0, progress),
+                interpolate(element.first.controlY0, element.second.controlY0, progress),
+                interpolate(element.first.controlX1, element.second.controlX1, progress),
+                interpolate(element.first.controlY1, element.second.controlY1, progress),
+                interpolate(element.first.anchorX1, element.second.anchorX1, progress),
+                interpolate(element.first.anchorY1, element.second.anchorY1, progress),
+            )
         }
+        path.close()
         currentPathProgress = progress
         return path
     }
@@ -254,8 +248,10 @@ class Morph(
 
             // Measure polygons, returns lists of measured cubics for each polygon, which
             // we then use to match start/end curves
-            val measuredPolygon1 = MeasuredPolygon.measurePolygon(AngleMeasurer(p1.center), p1)
-            val measuredPolygon2 = MeasuredPolygon.measurePolygon(AngleMeasurer(p2.center), p2)
+            val measuredPolygon1 = MeasuredPolygon.measurePolygon(
+                AngleMeasurer(p1.centerX, p1.centerY), p1)
+            val measuredPolygon2 = MeasuredPolygon.measurePolygon(
+                AngleMeasurer(p2.centerX, p2.centerY), p2)
 
             // features1 and 2 will contain the list of corners (just the inner circular curve)
             // along with the progress at the middle of those corners. These measurement values
@@ -310,7 +306,7 @@ class Morph(
                 // b1a, b2a are ending progress values of current measured cubics in [0,1] range
                 val b1a = if (i1 == bs1.size) 1f else b1.endOutlineProgress
                 val b2a = if (i2 == bs2.size) 1f else doubleMapper.mapBack(
-                    positiveModule(b2.endOutlineProgress + polygon2CutPoint, 1f)
+                    positiveModulo(b2.endOutlineProgress + polygon2CutPoint, 1f)
                 )
                 val minb = min(b1a, b2a)
                 debugLog(LOG_TAG) { "$b1a $b2a | $minb" }
@@ -325,7 +321,7 @@ class Morph(
                 }
                 val (seg2, newb2) = if (b2a > minb + AngleEpsilon) {
                     debugLog(LOG_TAG) { "Cut 2" }
-                    b2.cutAtProgress(positiveModule(doubleMapper.map(minb) - polygon2CutPoint, 1f))
+                    b2.cutAtProgress(positiveModulo(doubleMapper.map(minb) - polygon2CutPoint, 1f))
                 } else {
                     b2 to bs2.getOrNull(i2++)
                 }
@@ -344,11 +340,12 @@ class Morph(
                 repeat(2) { listIx ->
                     val points = ret.map { if (listIx == 0) it.first else it.second }
                     debugLog(LOG_TAG) {
-                        "M " + showPoint(points.first().p0) + " " +
+                        "M " + showPoint(PointF(points.first().anchorX0,
+                            points.first().anchorY0)) + " " +
                             points.joinToString(" ") {
-                                "C " + showPoint(it.p1) + ", " +
-                                    showPoint(it.p2) + ", " +
-                                    showPoint(it.p3)
+                                "C " + showPoint(PointF(it.controlX0, it.controlY0)) + ", " +
+                                    showPoint(PointF(it.controlX1, it.controlY1)) + ", " +
+                                    showPoint(PointF(it.anchorX1, it.anchorY1))
                             } + " Z"
                     }
                 }
