@@ -293,6 +293,13 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  * not be inflated from XML.
  *
  * Note it is an error to define a XmlSchemaAndComplicationSlotsDefinition and not use it.
+ *
+ * As of Wear OS 4, complications can provide data using dynamic values, that the platform evaluates
+ * continuously and sends the evaluated results to the watch face. Privileged watch faces that can
+ * utilize the unevaluated dynamic values, can include the privileged permission
+ * `com.google.wear.permission.GET_COMPLICATION_DYNAMIC_VALUE` in their manifest, which will tell
+ * the system to avoid pruning them from the [ComplicationData], where they will show up in the
+ * relevant fields next to the evaluated values.
  */
 public abstract class WatchFaceService : WallpaperService() {
 
