@@ -30,7 +30,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.runtime:runtime-saveable:1.0.1")
     api(projectOrArtifact(":activity:activity-ktx"))
-    api("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     api("androidx.compose.ui:ui:1.0.1")
 
     // Need the dependency below to resolve conflict with compose deps using older lifecycle
