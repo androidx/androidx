@@ -52,10 +52,13 @@ import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.Property
@@ -121,7 +124,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 distributionDirectory = project.getDistributionDirectory()
             }
 
-        val unzippedSamplesSources = File(project.buildDir, "unzippedSampleSources")
+        val unzippedSamplesSources = project.layout.buildDirectory.dir("unzippedSampleSources")
         val unzipSamplesTask =
             configureUnzipTask(
                 project,
@@ -130,11 +133,13 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 samplesSourcesConfiguration
             )
 
-        val unzippedJvmSourcesDirectory = File(project.buildDir, "unzippedJvmSources")
+        val unzippedJvmSourcesDirectory = project.layout.buildDirectory.dir("unzippedJvmSources")
         val unzippedMultiplatformSourcesDirectory =
-            File(project.buildDir, "unzippedMultiplatformSources")
+            project.layout.buildDirectory.dir("unzippedMultiplatformSources")
         val mergedProjectMetadata =
-            File(project.buildDir, "project_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME")
+            project.layout.buildDirectory.file(
+                "project_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME"
+            )
         val unzipJvmSourcesTask =
             configureUnzipJvmSourcesTasks(
                 project,
@@ -171,7 +176,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
     private fun configureUnzipTask(
         project: Project,
         taskName: String,
-        destinationDirectory: File,
+        destinationDirectory: Provider<Directory>,
         docsConfiguration: Configuration
     ): TaskProvider<Sync> {
         return project.tasks.register(taskName, Sync::class.java) { task ->
@@ -210,7 +215,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
      */
     private fun configureUnzipJvmSourcesTasks(
         project: Project,
-        destinationDirectory: File,
+        destinationDirectory: Provider<Directory>,
         docsConfiguration: Configuration
     ): TaskProvider<Sync> {
         return project.tasks.register("unzipJvmSources", Sync::class.java) { task ->
@@ -239,12 +244,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
      */
     private fun configureMultiplatformInputsTasks(
         project: Project,
-        unzippedMultiplatformSourcesDirectory: File,
+        unzippedMultiplatformSourcesDirectory: Provider<Directory>,
         multiplatformDocsSourcesConfiguration: Configuration,
-        mergedProjectMetadata: File
+        mergedProjectMetadata: Provider<RegularFile>
     ): TaskProvider<MergeMultiplatformMetadataTask> {
         val tempMultiplatformMetadataDirectory =
-            File(project.buildDir, "tmp/multiplatformMetadataFiles")
+            project.layout.buildDirectory.dir("tmp/multiplatformMetadataFiles")
         // unzip the sources into source folder and metadata files into folders per project
         val unzipMultiplatformSources =
             project.tasks.register(
@@ -254,8 +259,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 it.inputJars.set(
                     multiplatformDocsSourcesConfiguration.incoming.artifactView {}.files
                 )
-                it.metadataOutput = tempMultiplatformMetadataDirectory
-                it.sourceOutput = unzippedMultiplatformSourcesDirectory
+                it.metadataOutput.set(tempMultiplatformMetadataDirectory)
+                it.sourceOutput.set(unzippedMultiplatformSourcesDirectory)
             }
         // merge all the metadata files from the individual project dirs
         return project.tasks.register(
@@ -263,8 +268,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             MergeMultiplatformMetadataTask::class.java
         ) {
             it.dependsOn(unzipMultiplatformSources)
-            it.mergedProjectMetadata = mergedProjectMetadata
-            it.inputDirectory = tempMultiplatformMetadataDirectory
+            it.mergedProjectMetadata.set(mergedProjectMetadata)
+            it.inputDirectory.set(tempMultiplatformMetadataDirectory)
         }
     }
 
@@ -439,18 +444,18 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
 
     private fun configureDackka(
         project: Project,
-        unzippedJvmSourcesDirectory: File,
-        unzippedMultiplatformSourcesDirectory: File,
+        unzippedJvmSourcesDirectory: Provider<Directory>,
+        unzippedMultiplatformSourcesDirectory: Provider<Directory>,
         unzipJvmSourcesTask: TaskProvider<Sync>,
         configureMultiplatformSourcesTask: TaskProvider<MergeMultiplatformMetadataTask>,
-        unzippedSamplesSources: File,
+        unzippedSamplesSources: Provider<Directory>,
         unzipSamplesTask: TaskProvider<Sync>,
         dependencyClasspath: FileCollection,
         buildOnServer: TaskProvider<*>,
         docsConfiguration: Configuration,
-        mergedProjectMetadata: File
+        mergedProjectMetadata: Provider<RegularFile>
     ) {
-        val generatedDocsDir = project.file("${project.buildDir}/docs")
+        val generatedDocsDir = project.layout.buildDirectory.dir("docs")
 
         val dackkaConfiguration =
             project.configurations.create("dackka").apply {
@@ -465,8 +470,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 task.destinationFile.set(getMetadataRegularFile(project))
             }
 
-        val metricsDirectory = project.buildDir
-        val metricsFile = File(metricsDirectory, "build-metrics.json")
+        val metricsFile = project.layout.buildDirectory.file("build-metrics.json")
         val projectName = project.name
 
         val dackkaTask =
@@ -484,11 +488,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     group = JavaBasePlugin.DOCUMENTATION_GROUP
 
                     dackkaClasspath.from(project.files(dackkaConfiguration))
-                    destinationDir = generatedDocsDir
+                    destinationDir.set(generatedDocsDir)
                     frameworkSamplesDir = File(project.rootDir, "samples")
-                    samplesDir = unzippedSamplesSources
-                    jvmSourcesDir = unzippedJvmSourcesDirectory
-                    multiplatformSourcesDir = unzippedMultiplatformSourcesDirectory
+                    samplesDir.set(unzippedSamplesSources)
+                    jvmSourcesDir.set(unzippedJvmSourcesDirectory)
+                    multiplatformSourcesDir.set(unzippedMultiplatformSourcesDirectory)
                     docsProjectDir = File(project.rootDir, "docs-public")
                     dependenciesClasspath =
                         dependencyClasspath +
@@ -498,7 +502,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     excludedPackagesForJava = hiddenPackagesJava
                     excludedPackagesForKotlin = emptySet()
                     libraryMetadataFile.set(getMetadataRegularFile(project))
-                    projectStructureMetadataFile = mergedProjectMetadata
+                    projectStructureMetadataFile.set(mergedProjectMetadata)
                     // See go/dackka-source-link for details on this link.
                     baseSourceLink = "https://cs.android.com/search?" + "q=file:%s+class:%s"
                     annotationsNotToDisplay = hiddenAnnotations
@@ -512,10 +516,10 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     task.doLast {
                         val taskEndTime = LocalDateTime.now()
                         val duration = Duration.between(taskStartTime, taskEndTime).toMillis()
-                        metricsDirectory.mkdirs()
-                        metricsFile.writeText(
-                            "{ \"${projectName}_docs_execution_duration\": $duration }"
-                        )
+                        metricsFile
+                            .get()
+                            .asFile
+                            .writeText("{ \"${projectName}_docs_execution_duration\": $duration }")
                     }
                 }
             }
@@ -699,9 +703,9 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
 
     @get:Classpath abstract val inputJars: Property<FileCollection>
 
-    @OutputDirectory lateinit var metadataOutput: File
+    @get:OutputDirectory abstract val metadataOutput: DirectoryProperty
 
-    @OutputDirectory lateinit var sourceOutput: File
+    @get:OutputDirectory abstract val sourceOutput: DirectoryProperty
 
     @get:Inject abstract val fileSystemOperations: FileSystemOperations
     @get:Inject abstract val archiveOperations: ArchiveOperations
@@ -718,7 +722,7 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
         sources.forEach { (name, fileTree) ->
             fileSystemOperations.sync {
                 it.from(fileTree)
-                it.into(metadataOutput.resolve(name))
+                it.into(metadataOutput.file(name))
                 it.include("META-INF/*")
             }
         }
@@ -727,15 +731,19 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
 
 /** Merges multiplatform metadata files created by [CreateMultiplatformMetadata] */
 @CacheableTask
-abstract class MergeMultiplatformMetadataTask() : DefaultTask() {
+abstract class MergeMultiplatformMetadataTask : DefaultTask() {
 
-    @get:InputFiles @get:PathSensitive(PathSensitivity.RELATIVE) lateinit var inputDirectory: File
-    @OutputFile lateinit var mergedProjectMetadata: File
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val inputDirectory: DirectoryProperty
+    @get:OutputFile abstract val mergedProjectMetadata: RegularFileProperty
 
     @TaskAction
     fun execute() {
         val mergedMetadata = ProjectStructureMetadata(sourceSets = listOf())
         inputDirectory
+            .get()
+            .asFile
             .walkTopDown()
             .filter { file -> file.name == PROJECT_STRUCTURE_METADATA_FILENAME }
             .forEach { metaFile ->
@@ -746,7 +754,7 @@ abstract class MergeMultiplatformMetadataTask() : DefaultTask() {
             }
         val gson = GsonBuilder().setPrettyPrinting().create()
         val json = gson.toJson(mergedMetadata)
-        mergedProjectMetadata.apply {
+        mergedProjectMetadata.get().asFile.apply {
             parentFile.mkdirs()
             createNewFile()
             writeText(json)
