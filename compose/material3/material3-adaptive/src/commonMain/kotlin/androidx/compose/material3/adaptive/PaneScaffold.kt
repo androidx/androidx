@@ -38,7 +38,7 @@ interface PaneScaffoldScope {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private object PaneScaffoldScopeInstance : PaneScaffoldScope {
+internal abstract class PaneScaffoldScopeImpl : PaneScaffoldScope {
     override fun Modifier.preferredWidth(width: Dp): Modifier {
         require(width == Dp.Unspecified || width > 0.dp) { "invalid width" }
         return this.then(PreferredWidthElement(width))
@@ -83,6 +83,6 @@ private class PreferredWidthNode(var width: Dp) : ParentDataModifierNode, Modifi
         }
 }
 
-private data class PaneScaffoldParentData(
+internal data class PaneScaffoldParentData(
     var preferredWidth: Float = Float.NaN,
 )
