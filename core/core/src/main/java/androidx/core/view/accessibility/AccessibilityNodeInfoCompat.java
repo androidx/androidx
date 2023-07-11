@@ -37,6 +37,7 @@ import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
@@ -107,12 +108,22 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that gives input focus to the node.
+         * <p>The focus request sends an event of {@link AccessibilityEvent#TYPE_VIEW_FOCUSED}
+         * if successful. In the View system, this is handled by {@link View#requestFocus}.
+         *
+         * <p>The node that is focused should return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isFocused()}.
+         *
+         * @see #ACTION_ACCESSIBILITY_FOCUS for the difference between system focus and
+         * accessibility focus.
          */
         public static final AccessibilityActionCompat ACTION_FOCUS =
                 new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
 
         /**
          * Action that clears input focus of the node.
+         * <p>The node that is cleared should return {@code false} for
+         * {@link AccessibilityNodeInfoCompat#isFocused()}.
          */
         public static final AccessibilityActionCompat ACTION_CLEAR_FOCUS =
                 new AccessibilityActionCompat(
@@ -134,12 +145,29 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that clicks on the node info.
+         *
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_CLICKED} event. In the View system,
+         * the default handling of this action when performed by a service is to call
+         * {@link View#performClick()}, and setting a
+         * {@link View#setOnClickListener(View.OnClickListener)} automatically adds this action.
+         *
+         * <p>{@link #isClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_CLICK =
                 new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_CLICK, null);
 
         /**
          * Action that long clicks on the node.
+         *
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_LONG_CLICKED} event. In the View system,
+         * the default handling of this action when performed by a service is to call
+         * {@link View#performLongClick()}, and setting a
+         * {@link View#setOnLongClickListener(View.OnLongClickListener)} automatically adds this
+         * action.
+         *
+         * <p>{@link #isLongClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_LONG_CLICK =
                 new AccessibilityActionCompat(
@@ -147,6 +175,16 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that gives accessibility focus to the node.
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_ACCESSIBILITY_FOCUSED} event
+         * if successful. The node that is focused should return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isAccessibilityFocused()}.
+         *
+         * <p>This is intended to be used by screen readers to assist with user navigation. Apps
+         * changing focus can confuse screen readers, so the resulting behavior can vary by device
+         * and screen reader version.
+         * <p>This is distinct from {@link #ACTION_FOCUS}, which refers to system focus. System
+         * focus is typically used to convey targets for keyboard navigation.
          */
         public static final AccessibilityActionCompat ACTION_ACCESSIBILITY_FOCUS =
                 new AccessibilityActionCompat(
@@ -154,6 +192,10 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that clears accessibility focus of the node.
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED} event if successful. The
+         * node that is cleared should return {@code false} for
+         * {@link AccessibilityNodeInfoCompat#isAccessibilityFocused()}.
          */
         public static final AccessibilityActionCompat ACTION_CLEAR_ACCESSIBILITY_FOCUS =
                 new AccessibilityActionCompat(
@@ -351,6 +393,11 @@ public class AccessibilityNodeInfoCompat {
          * </code></pre></p>
          * </p>
          *
+         * <p> If this is a text selection, the UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_TEXT_SELECTION_CHANGED} event if its selection is
+         * updated. This element should also return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isTextSelectable()}.
+         *
          * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_START_INT
          *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_START_INT
          * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_END_INT
@@ -397,6 +444,10 @@ public class AccessibilityNodeInfoCompat {
          *       "android");
          *  info.performAction(AccessibilityActionCompat.ACTION_SET_TEXT.getId(), arguments);
          * </code></pre></p>
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_TEXT_CHANGED} event if its text is updated.
+         * This element should also return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isEditable()}.
          */
         public static final AccessibilityActionCompat ACTION_SET_TEXT =
                 new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_SET_TEXT, null,
@@ -500,6 +551,18 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that context clicks the node.
+         *
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_CONTEXT_CLICKED} event. In the View system,
+         * the default handling of this action when performed by a service is to call
+         * {@link View#performContextClick()}, and setting a
+         * {@link View#setOnContextClickListener(View.OnContextClickListener)} automatically adds
+         * this action.
+         *
+         * <p>A context click usually occurs from a mouse pointer right-click or a stylus button
+         * press.
+         *
+         * <p>{@link #isContextClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
                 new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
@@ -1410,31 +1473,37 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Action that focuses the node.
+     * @see AccessibilityActionCompat#ACTION_FOCUS
      */
     public static final int ACTION_FOCUS = 0x00000001;
 
     /**
      * Action that unfocuses the node.
+     * @see AccessibilityActionCompat#ACTION_CLEAR_FOCUS
      */
     public static final int ACTION_CLEAR_FOCUS = 0x00000002;
 
     /**
      * Action that selects the node.
+     * @see AccessibilityActionCompat#ACTION_SELECT
      */
     public static final int ACTION_SELECT = 0x00000004;
 
     /**
      * Action that unselects the node.
+     * @see AccessibilityActionCompat#ACTION_CLEAR_SELECTION
      */
     public static final int ACTION_CLEAR_SELECTION = 0x00000008;
 
     /**
      * Action that clicks on the node info.
+     * @see AccessibilityActionCompat#ACTION_CLICK
      */
     public static final int ACTION_CLICK = 0x00000010;
 
     /**
      * Action that long clicks on the node.
+     * @see AccessibilityActionCompat#ACTION_LONG_CLICK
      */
     public static final int ACTION_LONG_CLICK = 0x00000020;
 
@@ -1442,6 +1511,7 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Action that gives accessibility focus to the node.
+     * @see AccessibilityActionCompat#ACTION_ACCESSIBILITY_FOCUS
      */
     public static final int ACTION_ACCESSIBILITY_FOCUS = 0x00000040;
 
@@ -1479,6 +1549,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #MOVEMENT_GRANULARITY_LINE
      * @see #MOVEMENT_GRANULARITY_PARAGRAPH
      * @see #MOVEMENT_GRANULARITY_PAGE
+     * @see AccessibilityActionCompat#ACTION_NEXT_AT_MOVEMENT_GRANULARITY
      */
     public static final int ACTION_NEXT_AT_MOVEMENT_GRANULARITY = 0x00000100;
 
@@ -1512,6 +1583,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #MOVEMENT_GRANULARITY_LINE
      * @see #MOVEMENT_GRANULARITY_PARAGRAPH
      * @see #MOVEMENT_GRANULARITY_PAGE
+     * @see AccessibilityActionCompat#ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
      */
     public static final int ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY = 0x00000200;
 
@@ -1527,6 +1599,7 @@ public class AccessibilityNodeInfoCompat {
      *   info.performAction(AccessibilityNodeInfo.ACTION_NEXT_HTML_ELEMENT, arguments);
      * </code></pre></p>
      * </p>
+     * @see AccessibilityActionCompat#ACTION_NEXT_HTML_ELEMENT
      */
     public static final int ACTION_NEXT_HTML_ELEMENT = 0x00000400;
 
@@ -1542,16 +1615,20 @@ public class AccessibilityNodeInfoCompat {
      *   info.performAction(AccessibilityNodeInfo.ACTION_PREVIOUS_HTML_ELEMENT, arguments);
      * </code></pre></p>
      * </p>
+     *
+     * @see AccessibilityActionCompat#ACTION_PREVIOUS_HTML_ELEMENT
      */
     public static final int ACTION_PREVIOUS_HTML_ELEMENT = 0x00000800;
 
     /**
      * Action to scroll the node content forward.
+     * @see AccessibilityActionCompat#ACTION_SCROLL_FORWARD
      */
     public static final int ACTION_SCROLL_FORWARD = 0x00001000;
 
     /**
      * Action to scroll the node content backward.
+     * @see AccessibilityActionCompat#ACTION_SCROLL_BACKWARD
      */
     public static final int ACTION_SCROLL_BACKWARD = 0x00002000;
 
@@ -1559,16 +1636,19 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Action to copy the current selection to the clipboard.
+     * @see AccessibilityActionCompat#ACTION_COPY
      */
     public static final int ACTION_COPY = 0x00004000;
 
     /**
      * Action to paste the current clipboard content.
+     * @see AccessibilityActionCompat#ACTION_PASTE
      */
     public static final int ACTION_PASTE = 0x00008000;
 
     /**
      * Action to cut the current selection and place it to the clipboard.
+     * @see AccessibilityActionCompat#ACTION_CUT
      */
     public static final int ACTION_CUT = 0x00010000;
 
@@ -1589,21 +1669,25 @@ public class AccessibilityNodeInfoCompat {
      *
      * @see #ACTION_ARGUMENT_SELECTION_START_INT
      * @see #ACTION_ARGUMENT_SELECTION_END_INT
+     * @see AccessibilityActionCompat#ACTION_SET_SELECTION
      */
     public static final int ACTION_SET_SELECTION = 0x00020000;
 
     /**
      * Action to expand an expandable node.
+     * @see AccessibilityActionCompat#ACTION_EXPAND
      */
     public static final int ACTION_EXPAND = 0x00040000;
 
     /**
      * Action to collapse an expandable node.
+     * @see AccessibilityActionCompat#ACTION_COLLAPSE
      */
     public static final int ACTION_COLLAPSE = 0x00080000;
 
     /**
-     * Action to dismiss a dismissable node.
+     * Action to dismiss a dismissible node.
+     * @see AccessibilityActionCompat#ACTION_DISMISS
      */
     public static final int ACTION_DISMISS = 0x00100000;
 
@@ -1620,6 +1704,7 @@ public class AccessibilityNodeInfoCompat {
      *       "android");
      *   info.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
      * </code></pre></p>
+     * @see AccessibilityActionCompat#ACTION_SET_TEXT
      */
     public static final int ACTION_SET_TEXT = 0x00200000;
 
@@ -1640,8 +1725,8 @@ public class AccessibilityNodeInfoCompat {
      * Argument for which HTML element to get moving to the next/previous HTML element.
      * <p>
      * <strong>Type:</strong> String<br>
-     * <strong>Actions:</strong> {@link #ACTION_NEXT_HTML_ELEMENT},
-     *         {@link #ACTION_PREVIOUS_HTML_ELEMENT}
+     * <strong>Actions:</strong> {@link AccessibilityActionCompat#ACTION_NEXT_HTML_ELEMENT},
+     *         {@link AccessibilityActionCompat#ACTION_PREVIOUS_HTML_ELEMENT}
      * </p>
      */
     public static final String ACTION_ARGUMENT_HTML_ELEMENT_STRING =
@@ -1656,8 +1741,8 @@ public class AccessibilityNodeInfoCompat {
      * {@link #ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY}
      * </p>
      *
-     * @see #ACTION_NEXT_AT_MOVEMENT_GRANULARITY
-     * @see #ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
+     * @see AccessibilityActionCompat#ACTION_NEXT_AT_MOVEMENT_GRANULARITY
+     * @see AccessibilityActionCompat#ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
      */
     public static final String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN =
             "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
@@ -1669,7 +1754,7 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Actions:</strong> {@link #ACTION_SET_SELECTION}
      * </p>
      *
-     * @see #ACTION_SET_SELECTION
+     * @see AccessibilityActionCompat#ACTION_SET_SELECTION
      */
     public static final String ACTION_ARGUMENT_SELECTION_START_INT =
             "ACTION_ARGUMENT_SELECTION_START_INT";
@@ -1681,7 +1766,7 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Actions:</strong> {@link #ACTION_SET_SELECTION}
      * </p>
      *
-     * @see #ACTION_SET_SELECTION
+     * @see AccessibilityActionCompat#ACTION_SET_SELECTION
      */
     public static final String ACTION_ARGUMENT_SELECTION_END_INT =
             "ACTION_ARGUMENT_SELECTION_END_INT";
@@ -1693,7 +1778,7 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Actions:</strong> {@link #ACTION_SET_TEXT}
      * </p>
      *
-     * @see #ACTION_SET_TEXT
+     * @see AccessibilityActionCompat#ACTION_SET_TEXT
      */
     public static final String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE =
             "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";

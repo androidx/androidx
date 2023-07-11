@@ -56,6 +56,7 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityRecord;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.view.autofill.AutofillId;
@@ -635,9 +636,12 @@ public class ViewCompat {
     /**
      * Called from {@link View#dispatchPopulateAccessibilityEvent(AccessibilityEvent)}
      * giving a chance to this View to populate the accessibility event with its
-     * text content. While this method is free to modify event
-     * attributes other than text content, doing so should normally be performed in
-     * {@link View#onInitializeAccessibilityEvent(AccessibilityEvent)}.
+     * text content.
+     * <p>
+     * <b>Note:</b> This method should only be used with {@link AccessibilityRecord#getText()}.
+     * Avoid mutating other event state in this method. Instead, follow the practices described in
+     * {@link #dispatchPopulateAccessibilityEvent(AccessibilityEvent)}. In general, put UI
+     * metadata in the node for services to easily query, than in events.
      * <p>
      * Example: Adding formatted date string to an accessibility event in addition
      *          to the text added by the super implementation:
@@ -1472,6 +1476,11 @@ public class ViewCompat {
      * {@link AccessibilityDelegateCompat#performAccessibilityAction(View, int, Bundle)}
      * is responsible for handling this call.
      * </p>
+     * <p>
+     * <b>Note:</b> Avoid setting accessibility focus with
+     * {@link AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_ACCESSIBILITY_FOCUS}.
+     * This is intended to be controlled by screen readers. Apps changing focus can confuse
+     * screen readers, and the resulting behavior can vary by device and screen reader version.
      *
      * @param action The action to perform.
      * @param arguments Optional action arguments.
@@ -1703,10 +1712,22 @@ public class ViewCompat {
      *   {@link android.accessibilityservice.AccessibilityService}.
      *   This class is made immutable before being delivered to an AccessibilityService.
      * </p>
+     * <p>
+     * State refers to a frequently changing property of the View, such as an enabled/disabled
+     * state of a button or the audio level of a volume slider.
+     *
+     * <p>
+     * This should omit role or content. Role refers to the kind of user-interface element the
+     * View is, such as a Button or Checkbox. Content is the meaningful text and graphics that
+     * should be described by {@link View#setContentDescription(CharSequence)} or
+     * {@code android:contentDescription}. It is expected that a content description mostly
+     * remains constant, while a state description updates from time to time.
      *
      * @param stateDescription the state description of this node.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
+     * @see View#setStateDescription(CharSequence)
+     * @see View#setContentDescription(CharSequence)
      */
     @UiThread
     public static void setStateDescription(@NonNull View view,
@@ -1736,6 +1757,20 @@ public class ViewCompat {
 
     /**
      * Allow accessibility services to find and activate clickable spans in the application.
+     *
+     * <p>
+     * {@link android.text.style.ClickableSpan} is automatically supported from
+     * API 26. For compatibility back to API 19, this should be enabled.
+     * <p>
+     * {@link android.text.style.URLSpan}, a subclass of ClickableSpans, is
+     * automatically supported and does not need this enabled.
+     * <p>
+     * Do not put ClickableSpans in {@link View#setContentDescription(CharSequence)} or
+     * {@link View#setStateDescription(CharSequence)}.
+     * These links are only visible to accessibility services in
+     * {@link AccessibilityNodeInfoCompat#getText()}, which should be
+     * modifiable using helper methods on UI elements. For example, use
+     * {@link android.widget.TextView#setText(CharSequence)} to modify the text of TextViews.
      *
      * @param view The view
      * <p>
@@ -2129,24 +2164,36 @@ public class ViewCompat {
     }
 
     /**
-     * Sets the live region mode for the specified view. This indicates to
-     * accessibility services whether they should automatically notify the user
-     * about changes to the view's content description or text, or to the
-     * content descriptions or text of the view's children (where applicable).
+     * Sets the live region mode for this view. This indicates to accessibility
+     * services whether they should automatically notify the user about changes
+     * to the view's content description or text, or to the content descriptions
+     * or text of the view's children (where applicable).
      * <p>
-     * For example, in a login screen with a TextView that displays an "incorrect
-     * password" notification, that view should be marked as a live region with
-     * mode {@link #ACCESSIBILITY_LIVE_REGION_POLITE}.
+     * To indicate that the user should be notified of changes, use
+     * {@link #ACCESSIBILITY_LIVE_REGION_POLITE}. Announcements from this region are queued and
+     * do not disrupt ongoing speech.
+     * <p>
+     * For example, selecting an option in a dropdown menu may update a panel below with the updated
+     * content. This panel may be marked as a live region with
+     * {@link #ACCESSIBILITY_LIVE_REGION_POLITE} to notify users of the change.
+     * <p>
+     * For notifying users about errors, such as in a login screen with text that displays an
+     * "incorrect password" notification, that view should send an AccessibilityEvent of type
+     * {@link AccessibilityEvent#CONTENT_CHANGE_TYPE_ERROR} and set
+     * {@link AccessibilityNodeInfo#setError(CharSequence)} instead. Custom widgets should expose
+     * error-setting methods that support accessibility automatically. For example, instead of
+     * explicitly sending this event when using a TextView, use
+     * {@link android.widget.TextView#setError(CharSequence)}.
      * <p>
      * To disable change notifications for this view, use
      * {@link #ACCESSIBILITY_LIVE_REGION_NONE}. This is the default live region
      * mode for most views.
      * <p>
-     * To indicate that the user should be notified of changes, use
-     * {@link #ACCESSIBILITY_LIVE_REGION_POLITE}.
-     * <p>
      * If the view's changes should interrupt ongoing speech and notify the user
-     * immediately, use {@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}.
+     * immediately, use {@link #ACCESSIBILITY_LIVE_REGION_ASSERTIVE}. This may result in disruptive
+     * announcements from an accessibility service, so it should generally be used only to convey
+     * information that is time-sensitive or critical for use of the application. Examples may
+     * include an incoming call or an emergency alert.
      *
      * @param view The view on which to set the live region mode
      * @param mode The live region mode for this view, one of:
@@ -4519,6 +4566,10 @@ public class ViewCompat {
      * <p>
      * Note: this is similar to using <a href="#attr_android:focusable">{@code android:focusable},
      * but does not impact input focus behavior.
+     * <p>This can be used to
+     * <a href="{@docRoot}guide/topics/ui/accessibility/principles#content-groups">group related
+     * content.</a>
+     * </p>
      *
      * @param view The view whose title should be set
      * @param screenReaderFocusable Whether the view should be treated as a unit by screen reader
@@ -4579,11 +4630,20 @@ public class ViewCompat {
 
     /**
      * Visually distinct portion of a window with window-like semantics are considered panes for
-     * accessibility purposes. One example is the content view of a fragment that is replaced.
+     * accessibility purposes. One example is the content view of a large fragment that is replaced.
      * In order for accessibility services to understand a pane's window-like behavior, panes
-     * should have descriptive titles. Views with pane titles produce {@link AccessibilityEvent}s
-     * when they appear, disappear, or change title.
+     * should have descriptive titles. Views with pane titles produce
+     * {@link AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED}s when they appear, disappear, or change
+     * title.
      *
+     * <p>
+     * When transitioning from one Activity to another, instead of using
+     * setAccessibilityPaneTitle(), set a descriptive title for your activity's window by using
+     * {@code android:label} for the matching <activity> entry in your application’s manifest  or
+     * updating the title at runtime with {@link android.app.Activity#setTitle(CharSequence)}.
+     *
+     * <p>
+     * To set the pane title in xml, use {@code android:accessibilityPaneTitle}.
      * @param view The view whose pane title should be set.
      * @param accessibilityPaneTitle The pane's title. Setting to {@code null} indicates that this
      *                               View is not a pane.
