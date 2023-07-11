@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("Scrollbar_desktopKt")
+
 package androidx.compose.foundation
 
 import androidx.compose.animation.animateColorAsState

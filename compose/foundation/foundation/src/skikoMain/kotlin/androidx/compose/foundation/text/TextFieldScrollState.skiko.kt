@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("TextFieldScrollState_desktop_ktKt")
+
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,6 +25,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import kotlin.jvm.JvmName
 
 
 /**
