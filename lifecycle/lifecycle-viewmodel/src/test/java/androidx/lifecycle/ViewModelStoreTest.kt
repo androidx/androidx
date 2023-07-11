@@ -13,49 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
-public class ViewModelStoreTest {
-
+@RunWith(JUnit4::class)
+class ViewModelStoreTest {
     @Test
-    public void testClear() {
-        ViewModelStore store = new ViewModelStore();
-        TestViewModel viewModel1 = new TestViewModel();
-        TestViewModel viewModel2 = new TestViewModel();
-        TestViewModel mockViewModel = mock(TestViewModel.class);
-        store.put("a", viewModel1);
-        store.put("b", viewModel2);
-        store.put("mock", mockViewModel);
-        assertThat(viewModel1.mCleared, is(false));
-        assertThat(viewModel2.mCleared, is(false));
-        store.clear();
-        assertThat(viewModel1.mCleared, is(true));
-        assertThat(viewModel2.mCleared, is(true));
-        verify(mockViewModel).onCleared();
-        verifyNoMoreInteractions(mockViewModel);
-        assertThat(store.get("a"), nullValue());
-        assertThat(store.get("b"), nullValue());
+    fun testClear() {
+        val store = ViewModelStore()
+        val viewModel1 = TestViewModel()
+        val viewModel2 = TestViewModel()
+        val mockViewModel = mock(TestViewModel::class.java)
+        store.put("a", viewModel1)
+        store.put("b", viewModel2)
+        store.put("mock", mockViewModel)
+        assertThat(viewModel1.cleared, `is`(false))
+        assertThat(viewModel2.cleared, `is`(false))
+        store.clear()
+        assertThat(viewModel1.cleared, `is`(true))
+        assertThat(viewModel2.cleared, `is`(true))
+        verify(mockViewModel).onCleared()
+        verifyNoMoreInteractions(mockViewModel)
+        assertThat(store["a"], nullValue())
+        assertThat(store["b"], nullValue())
     }
 
-    static class TestViewModel extends ViewModel {
-        boolean mCleared = false;
-
-        @Override
-        protected void onCleared() {
-            mCleared = true;
+    internal open class TestViewModel : ViewModel() {
+        var cleared = false
+        public override fun onCleared() {
+            cleared = true
         }
     }
 }
