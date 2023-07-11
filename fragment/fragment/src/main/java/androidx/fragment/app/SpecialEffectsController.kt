@@ -530,6 +530,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         var isStarted = false
             private set
 
+        val effects = mutableListOf<Effect>()
+
         init {
             // Connect the CancellationSignal to our own
             cancellationSignal.setOnCancelListener { cancel() }
@@ -746,6 +748,14 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             fragment.mTransitioning = false
             fragmentStateManager.moveToExpectedState()
         }
+    }
+
+    internal open class Effect {
+        open fun onStart(container: ViewGroup) { }
+
+        open fun onCommit(container: ViewGroup) { }
+
+        open fun onCancel(container: ViewGroup) { }
     }
 
     companion object {
