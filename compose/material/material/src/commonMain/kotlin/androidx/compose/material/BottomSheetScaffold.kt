@@ -46,8 +46,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMaxBy
 import kotlin.jvm.JvmName
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -492,28 +490,24 @@ private fun BottomSheetScaffoldLayout(
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-
-        val sheetPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Sheet) {
+        val sheetPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Sheet) {
             bottomSheet(layoutHeight)
-        }.map { it.measure(looseConstraints) }
+        }[0].measure(looseConstraints)
         val sheetOffsetY = sheetOffset().roundToInt()
-
-        val topBarPlaceables = topBar?.let {
-            subcompose(BottomSheetScaffoldLayoutSlot.TopBar, topBar)
-                .map { it.measure(looseConstraints) }
+        val topBarPlaceable = topBar?.let {
+            subcompose(BottomSheetScaffoldLayoutSlot.TopBar) { topBar() }[0]
+                .measure(looseConstraints)
         }
-        val topBarHeight = topBarPlaceables?.fastMaxBy { it.height }?.height ?: 0
-
+        val topBarHeight = topBarPlaceable?.height ?: 0
         val bodyConstraints = looseConstraints.copy(maxHeight = layoutHeight - topBarHeight)
-        val bodyPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Body) {
+        val bodyPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Body) {
             body(PaddingValues(bottom = sheetPeekHeight))
-        }.map { it.measure(bodyConstraints) }
-
+        }[0].measure(bodyConstraints)
         val fabPlaceable = floatingActionButton?.let { fab ->
-            subcompose(BottomSheetScaffoldLayoutSlot.Fab, fab).map { it.measure(looseConstraints) }
+            subcompose(BottomSheetScaffoldLayoutSlot.Fab, fab)[0].measure(looseConstraints)
         }
-        val fabWidth = fabPlaceable?.fastMaxBy { it.width }?.width ?: 0
-        val fabHeight = fabPlaceable?.fastMaxBy { it.height }?.height ?: 0
+        val fabWidth = fabPlaceable?.width ?: 0
+        val fabHeight = fabPlaceable?.height ?: 0
         val fabOffsetX = when (floatingActionButtonPosition) {
             FabPosition.Center -> (layoutWidth - fabWidth) / 2
             else -> layoutWidth - fabWidth - FabSpacing.roundToPx()
@@ -522,23 +516,20 @@ private fun BottomSheetScaffoldLayout(
         val fabOffsetY = if (sheetPeekHeight.toPx() < fabHeight / 2) {
             sheetOffsetY - fabHeight - FabSpacing.roundToPx()
         } else sheetOffsetY - (fabHeight / 2)
-
-        val snackbarPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)
-            .map { it.measure(looseConstraints) }
-        val snackbarWidth = snackbarPlaceables.fastMaxBy { it.width }?.width ?: 0
-        val snackbarHeight = snackbarPlaceables.fastMaxBy { it.height }?.height ?: 0
-        val snackbarOffsetX = (layoutWidth - snackbarWidth) / 2
+        val snackbarPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)[0]
+            .measure(looseConstraints)
+        val snackbarOffsetX = (layoutWidth - snackbarPlaceable.width) / 2
         val snackbarOffsetY = when (sheetState.currentValue) {
-            Collapsed -> fabOffsetY - snackbarHeight
-            Expanded -> layoutHeight - snackbarHeight
+            Collapsed -> fabOffsetY - snackbarPlaceable.height
+            Expanded -> layoutHeight - snackbarPlaceable.height
         }
         layout(layoutWidth, layoutHeight) {
             // Placement order is important for elevation
-            bodyPlaceables.fastForEach { it.placeRelative(0, topBarHeight) }
-            topBarPlaceables?.fastForEach { it.placeRelative(0, 0) }
-            sheetPlaceables.fastForEach { it.placeRelative(0, sheetOffsetY) }
-            fabPlaceable?.fastForEach { it.placeRelative(fabOffsetX, fabOffsetY) }
-            snackbarPlaceables.fastForEach { it.placeRelative(snackbarOffsetX, snackbarOffsetY) }
+            bodyPlaceable.placeRelative(0, topBarHeight)
+            topBarPlaceable?.placeRelative(0, 0)
+            sheetPlaceable.placeRelative(0, sheetOffsetY)
+            fabPlaceable?.placeRelative(fabOffsetX, fabOffsetY)
+            snackbarPlaceable.placeRelative(snackbarOffsetX, snackbarOffsetY)
         }
     }
 }
