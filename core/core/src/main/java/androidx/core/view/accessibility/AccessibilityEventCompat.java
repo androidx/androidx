@@ -120,11 +120,13 @@ public final class AccessibilityEventCompat {
 
     /**
      * Represents the event of gaining accessibility focus.
+     * @see AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_ACCESSIBILITY_FOCUS
      */
     public static final int TYPE_VIEW_ACCESSIBILITY_FOCUSED = 0x00008000;
 
     /**
      * Represents the event of clearing accessibility focus.
+     * @see AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_CLEAR_ACCESSIBILITY_FOCUS
      */
     public static final int TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = 0x00010000;
 
@@ -200,6 +202,7 @@ public final class AccessibilityEventCompat {
     /**
      * Change type for {@link AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED} event:
      * The node's pane title changed.
+     * @see androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)
      */
     public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 0x00000008;
 
@@ -207,6 +210,7 @@ public final class AccessibilityEventCompat {
      * Change type for {@link AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED} event:
      * The node has a pane title, and either just appeared or just was assigned a title when it
      * had none before.
+     * @see androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)
      */
     public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 0x00000010;
 
@@ -218,6 +222,7 @@ public final class AccessibilityEventCompat {
      * No source will be returned if the node is no longer on the screen. To make the change more
      * clear for the user, the first entry in {@link AccessibilityRecord#getText()} can return the
      * value that would have been returned by {@code getSource().getPaneTitle()}.
+     * @see androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)
      */
     public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 0x00000020;
 
