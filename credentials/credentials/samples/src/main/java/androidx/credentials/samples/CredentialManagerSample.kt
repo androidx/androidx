@@ -82,7 +82,9 @@ fun callGetCredential(
 val yourCoroutineScope = MainScope()
 
 fun generateGetPasskeyRequestJsonFromServer(): String {
-    TODO("Server call to generate the passkey request option json")
+    throw NotImplementedError("Apps using this sample code should " +
+         "add a call here to generate the passkey request json from " +
+         "their own server")
 }
 
 const val TAG: String = "TAG"
