@@ -73,8 +73,7 @@ androidXMultiplatform {
         }
 
         commonJvmAndroidTest {
-            kotlin.srcDir("src/commonJvmAndroidTest/kotlin")
-
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)
@@ -90,6 +89,10 @@ androidXMultiplatform {
 
         androidAndroidTest {
             dependsOn(commonJvmAndroidTest)
+            dependencies {
+                implementation(libs.testRunner)
+                implementation(libs.mockitoAndroid)
+            }
         }
 
         if (enableNative) {
