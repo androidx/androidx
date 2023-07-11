@@ -16,19 +16,12 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.BackspaceCommand
-import androidx.compose.ui.text.input.CommitTextCommand
-import androidx.compose.ui.text.input.EditCommand
-import androidx.compose.ui.text.input.FinishComposingTextCommand
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.SetComposingRegionCommand
-import androidx.compose.ui.text.input.SetComposingTextCommand
-import androidx.compose.ui.text.input.SetSelectionCommand
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.*
 import kotlin.math.min
 import org.jetbrains.skiko.SkikoInput
+import org.jetbrains.skiko.ios.SkikoUITextInputTraits
+
+import platform.UIKit.*
 
 internal class UIKitTextInputService(
     showSoftwareKeyboard: () -> Unit,
@@ -48,6 +41,7 @@ internal class UIKitTextInputService(
     private val _showSoftwareKeyboard: () -> Unit = showSoftwareKeyboard
     private val _hideSoftwareKeyboard: () -> Unit = hideSoftwareKeyboard
     private var currentInput: CurrentInput? = null
+    private var currentImeOptions: ImeOptions? = null
 
     /**
      * Workaround to fix voice dictation.
@@ -66,11 +60,13 @@ internal class UIKitTextInputService(
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         currentInput = CurrentInput(value, onEditCommand)
+        currentImeOptions = imeOptions
         showSoftwareKeyboard()
     }
 
     override fun stopInput() {
         currentInput = null
+        currentImeOptions = null
         hideSoftwareKeyboard()
     }
 
@@ -247,6 +243,78 @@ internal class UIKitTextInputService(
         override fun unmarkText() {
             sendEditCommand(FinishComposingTextCommand())
         }
+
+    }
+
+    val skikoUITextInputTraits = object : SkikoUITextInputTraits {
+        override fun keyboardType(): UIKeyboardType =
+            when (currentImeOptions?.keyboardType) {
+                KeyboardType.Text -> UIKeyboardTypeDefault
+                KeyboardType.Ascii -> UIKeyboardTypeASCIICapable
+                KeyboardType.Number -> UIKeyboardTypeNumberPad
+                KeyboardType.Phone -> UIKeyboardTypePhonePad
+                KeyboardType.Uri -> UIKeyboardTypeURL
+                KeyboardType.Email -> UIKeyboardTypeEmailAddress
+                KeyboardType.Password -> UIKeyboardTypeASCIICapable // TODO Correct?
+                KeyboardType.NumberPassword -> UIKeyboardTypeNumberPad // TODO Correct?
+                KeyboardType.Decimal -> UIKeyboardTypeDecimalPad
+                else -> UIKeyboardTypeDefault
+            }
+
+        override fun keyboardAppearance(): UIKeyboardAppearance = UIKeyboardAppearanceDefault
+        override fun returnKeyType(): UIReturnKeyType =
+            when (currentImeOptions?.imeAction) {
+                ImeAction.Default -> UIReturnKeyType.UIReturnKeyDefault
+                ImeAction.None -> UIReturnKeyType.UIReturnKeyDefault
+                ImeAction.Go -> UIReturnKeyType.UIReturnKeyGo
+                ImeAction.Search -> UIReturnKeyType.UIReturnKeySearch
+                ImeAction.Send -> UIReturnKeyType.UIReturnKeySend
+                ImeAction.Previous -> UIReturnKeyType.UIReturnKeyDefault
+                ImeAction.Next -> UIReturnKeyType.UIReturnKeyNext
+                ImeAction.Done -> UIReturnKeyType.UIReturnKeyDone
+                else -> UIReturnKeyType.UIReturnKeyDefault
+            }
+
+        override fun textContentType(): UITextContentType? =
+            when (currentImeOptions?.keyboardType) {
+                KeyboardType.Password, KeyboardType.NumberPassword -> UITextContentTypePassword
+                KeyboardType.Email -> UITextContentTypeEmailAddress
+                KeyboardType.Phone -> UITextContentTypeTelephoneNumber
+                else -> null
+            }
+
+        override fun isSecureTextEntry(): Boolean =
+            when (currentImeOptions?.keyboardType) {
+                KeyboardType.Password, KeyboardType.NumberPassword -> true
+                else -> false
+            }
+
+        override fun enablesReturnKeyAutomatically(): Boolean = false
+
+        override fun autocapitalizationType(): UITextAutocapitalizationType =
+            when (currentImeOptions?.capitalization) {
+                KeyboardCapitalization.None ->
+                    UITextAutocapitalizationType.UITextAutocapitalizationTypeNone
+
+                KeyboardCapitalization.Characters ->
+                    UITextAutocapitalizationType.UITextAutocapitalizationTypeAllCharacters
+
+                KeyboardCapitalization.Words ->
+                    UITextAutocapitalizationType.UITextAutocapitalizationTypeWords
+
+                KeyboardCapitalization.Sentences ->
+                    UITextAutocapitalizationType.UITextAutocapitalizationTypeSentences
+
+                else ->
+                    UITextAutocapitalizationType.UITextAutocapitalizationTypeNone
+            }
+
+        override fun autocorrectionType(): UITextAutocorrectionType =
+            when (currentImeOptions?.autoCorrect) {
+                true -> UITextAutocorrectionType.UITextAutocorrectionTypeYes
+                false -> UITextAutocorrectionType.UITextAutocorrectionTypeNo
+                else -> UITextAutocorrectionType.UITextAutocorrectionTypeDefault
+            }
 
     }
 

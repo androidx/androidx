@@ -37,6 +37,7 @@ import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
 import org.jetbrains.skiko.SkikoUIView
 import org.jetbrains.skiko.TextActions
+import org.jetbrains.skiko.ios.SkikoUITextInputTraits
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.*
@@ -102,9 +103,10 @@ internal actual class ComposeWindow : UIViewController {
             // Flag for checking which API to use
             // Modern: https://developer.apple.com/documentation/uikit/uiwindowscene/3198088-interfaceorientation?language=objc
             // Deprecated: https://developer.apple.com/documentation/uikit/uiapplication/1623026-statusbarorientation?language=objc
-            val supportsWindowSceneApi = NSProcessInfo.processInfo.operatingSystemVersion.useContents {
-                majorVersion >= 13
-            }
+            val supportsWindowSceneApi =
+                NSProcessInfo.processInfo.operatingSystemVersion.useContents {
+                    majorVersion >= 13
+                }
 
             return if (supportsWindowSceneApi) {
                 view.window?.windowScene?.interfaceOrientation?.let {
@@ -134,6 +136,7 @@ internal actual class ComposeWindow : UIViewController {
 
     private lateinit var layer: ComposeLayer
     private lateinit var content: @Composable () -> Unit
+    private var _skikoUITextInputTraits: SkikoUITextInputTraits? = null
 
     private val keyboardVisibilityListener = object : NSObject() {
         @Suppress("unused")
@@ -235,6 +238,7 @@ internal actual class ComposeWindow : UIViewController {
             pointInside = { point, _ ->
                 !layer.hitInteropView(point, isTouchEvent = true)
             },
+            skikoUITextInputTrains = DelegateSkikoUITextInputTraits { _skikoUITextInputTraits }
         ).load()
         val rootView = UIView() // rootView needs to interop with UIKit
         rootView.backgroundColor = UIColor.whiteColor
@@ -268,6 +272,7 @@ internal actual class ComposeWindow : UIViewController {
             selectionWillChange = { skikoUIView.selectionWillChange() },
             selectionDidChange = { skikoUIView.selectionDidChange() },
         )
+        _skikoUITextInputTraits = uiKitTextInputService.skikoUITextInputTraits
         val uiKitPlatform = object : Platform by Platform.Empty {
             override val textInputService: PlatformTextInputService = uiKitTextInputService
             override val viewConfiguration =

@@ -16,10 +16,8 @@
 
 package androidx.compose.mpp.demo.textfield
 
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.TextField
 import androidx.compose.mpp.demo.Screen
 import androidx.compose.mpp.demo.textfield.android.CapitalizationAutoCorrectDemo
@@ -42,6 +40,12 @@ val TextFields = Screen.Selection(
     },
     Screen.Example("Android Keyboard Types") {
         KeyboardTypeDemo()
+    },
+    Screen.Example("Keyboard Actions") {
+        KeyboardActionsExample()
+    },
+    Screen.Example("Password Textfield Example") {
+        PasswordTextfieldExample()
     },
     Screen.Example("Hide keyboard on click outside") {
         HideKeyboardOnClickOutside()
