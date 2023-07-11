@@ -164,6 +164,9 @@ val WearFoundationDemos = DemoCategory(
                 },
                 ComposableDemo("Swipe To Reveal - Expandable") {
                     SwipeToRevealWithExpandables()
+                },
+                ComposableDemo("Swipe To Reveal - Undo") {
+                    SwipeToRevealWithDifferentUndo()
                 }
             )
         )
