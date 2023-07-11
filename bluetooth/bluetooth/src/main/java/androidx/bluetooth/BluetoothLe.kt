@@ -176,10 +176,7 @@ class BluetoothLe(private val context: Context) {
          * Reads the characteristic value from the server.
          *
          * @param characteristic a remote [GattCharacteristic] to read
-         * @return the value of the characteristic
-         *
-         * @throws IllegalArgumentException If [GattCharacteristic#PROPERTY_READ] is not set
-         * for the characteristic.
+         * @return The value of the characteristic
          */
         suspend fun readCharacteristic(characteristic: GattCharacteristic):
             Result<ByteArray>
@@ -193,9 +190,6 @@ class BluetoothLe(private val context: Context) {
          * [GattCharacteristic.WRITE_TYPE_NO_RESPONSE], or
          * [GattCharacteristic.WRITE_TYPE_SIGNED].
          * @return the result of the write operation
-         *
-         * @throws IllegalArgumentException If [GattCharacteristic#PROPERTY_WRITE] is not set
-         * for the characteristic.
          */
         suspend fun writeCharacteristic(
             characteristic: GattCharacteristic,
@@ -223,12 +217,16 @@ class BluetoothLe(private val context: Context) {
      *
      * @param device a [BluetoothDevice] to connect to
      * @param block a block of code that is invoked after the connection is made.
+     *
+     * @return a result returned by the given block if the connection was successfully finished
+     *         or an failure with the corresponding reason.
+     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     suspend fun <R> connectGatt(
         device: BluetoothDevice,
         block: suspend GattClientScope.() -> R
-    ): R? {
+    ): Result<R> {
         return GattClient().connect(context, device, block)
     }
 
