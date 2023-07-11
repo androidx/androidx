@@ -21,6 +21,7 @@ import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.domerrors.DomError
 import androidx.credentials.exceptions.domerrors.UnknownError
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -37,7 +38,7 @@ class CreatePublicKeyCredentialDomException @JvmOverloads constructor(
     val domError: DomError,
     errorMessage: CharSequence? = null
 ) : CreatePublicKeyCredentialException(
-    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + domError.type,
+    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
     errorMessage) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
@@ -45,7 +46,7 @@ class CreatePublicKeyCredentialDomException @JvmOverloads constructor(
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         fun createFrom(type: String, msg: String?): CreateCredentialException {
-            val prefix = TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
+            val prefix = "$TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION$SEPARATOR"
             return try {
                 DomExceptionUtils.generateDomException(type, prefix, msg,
                     CreatePublicKeyCredentialDomException(UnknownError()))

@@ -16,6 +16,8 @@
 
 package androidx.credentials.exceptions.publickeycredential;
 
+import static androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.SEPARATOR;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.credentials.exceptions.CreateCredentialCustomException;
@@ -53,7 +55,7 @@ public class CreatePublicKeyCredentialDomExceptionJavaTest {
         DomError expectedDomError = new EncodingError();
         String expectedType =
                 CreatePublicKeyCredentialDomException
-                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
+                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR
                         + expectedDomError.getType();
 
         CreatePublicKeyCredentialDomException exception = new
@@ -69,7 +71,8 @@ public class CreatePublicKeyCredentialDomExceptionJavaTest {
         String expectedMessage = "msg";
         DomError expectedDomError = new EncodingError();
         String expectedType = CreatePublicKeyCredentialDomException
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + expectedDomError.getType();
+                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR
+                + expectedDomError.getType();
 
         CreateCredentialException exception = CreatePublicKeyCredentialException
                 .createFrom(expectedType, expectedMessage);

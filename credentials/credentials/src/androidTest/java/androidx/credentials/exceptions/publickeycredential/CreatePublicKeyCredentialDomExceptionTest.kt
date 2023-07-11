@@ -20,6 +20,7 @@ import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.EncodingError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException.Companion.createFrom
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -37,7 +38,7 @@ class CreatePublicKeyCredentialDomExceptionTest {
         val expectedDomError = EncodingError()
         val expectedType =
             CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
-                expectedDomError.type
+                SEPARATOR + expectedDomError.type
 
         val exception = CreatePublicKeyCredentialDomException(expectedDomError, expectedMessage)
 
@@ -50,7 +51,7 @@ class CreatePublicKeyCredentialDomExceptionTest {
         val expectedMessage = "msg"
         val expectedDomError = EncodingError()
         val expectedType = CreatePublicKeyCredentialDomException
-            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + expectedDomError.type
+            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + expectedDomError.type
 
         val exception = CreatePublicKeyCredentialException.createFrom(expectedType,
             expectedMessage)
