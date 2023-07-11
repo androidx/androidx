@@ -17,6 +17,9 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,7 +51,7 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun all_unselected() {
         rule.setMaterialContent(lightColorScheme()) {
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
                     SegmentedButton(checked = false, onCheckedChange = {}) {
                         Text(it)
@@ -63,7 +66,7 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun all_selected() {
         rule.setMaterialContent(lightColorScheme()) {
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
                     SegmentedButton(checked = true, onCheckedChange = {}) {
                         Text(it)
@@ -78,7 +81,7 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun middle_selected() {
         rule.setMaterialContent(lightColorScheme()) {
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
                     SegmentedButton(checked = index == 1, onCheckedChange = {}) {
                         Text(item)
@@ -91,13 +94,42 @@ class SegmentedButtonScreenshotTest {
     }
 
     @Test
+    fun middle_selected_with_icon() {
+        rule.setMaterialContent(lightColorScheme()) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+                values.forEachIndexed { index, item ->
+                    SegmentedButton(
+                        checked = index == 1,
+                        onCheckedChange = {},
+                        icon = if (index == 1) {
+                            { SegmentedButtonDefaults.ActiveIcon() }
+                        } else {
+                            {
+                                Icon(
+                                    imageVector = Icons.Outlined.Favorite,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
+                                )
+                            }
+                        }
+                    ) {
+                        Text(item)
+                    }
+                }
+            }
+        }
+
+        assertButtonAgainstGolden("middle_selected_with_icon")
+    }
+
+    @Test
     fun stroke_zIndex() {
         rule.setMaterialContent(lightColorScheme()) {
             val colors = SegmentedButtonDefaults.colors(
-                checkedBorderColor = Color.Blue,
-                uncheckedBorderColor = Color.Yellow
+                activeBorderColor = Color.Blue,
+                inactiveBorderColor = Color.Yellow
             )
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
                     SegmentedButton(
                         checked = index == 1,
@@ -117,10 +149,10 @@ class SegmentedButtonScreenshotTest {
     fun button_shape() {
         rule.setMaterialContent(lightColorScheme()) {
             val colors = SegmentedButtonDefaults.colors(
-                checkedBorderColor = Color.Blue,
-                uncheckedBorderColor = Color.Yellow
+                activeBorderColor = Color.Blue,
+                inactiveBorderColor = Color.Yellow
             )
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
                     val shape = SegmentedButtonDefaults.shape(index, values.size)
 
@@ -142,7 +174,7 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun all_unselected_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
                     SegmentedButton(checked = false, onCheckedChange = {}) {
                         Text(it)
@@ -157,7 +189,7 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun all_selected_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
-            SegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
                     SegmentedButton(checked = true, onCheckedChange = {}) {
                         Text(it)
