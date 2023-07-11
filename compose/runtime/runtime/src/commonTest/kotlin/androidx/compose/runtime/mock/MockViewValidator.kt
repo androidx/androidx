@@ -47,12 +47,6 @@ class MockViewListValidator(private val views: List<View>) :
             assertEquals(0, views.size, "Not expecting children but some found")
         }
     }
-
-    inline fun inlineValidate(block: MockViewListValidator.() -> Unit) {
-        this.block()
-        val hasNext = next()
-        assertEquals(false, hasNext, "Expected children but none found")
-    }
 }
 
 fun MockViewValidator.view(name: String, block: (MockViewValidator.() -> Unit)? = null) {
@@ -60,13 +54,6 @@ fun MockViewValidator.view(name: String, block: (MockViewValidator.() -> Unit)? 
     assertTrue(hasNext, "Expected a $name, but none found")
     assertEquals(name, view.name)
     MockViewListValidator(view.children).validate(block)
-}
-
-inline fun MockViewValidator.inlineView(name: String, block: MockViewValidator.() -> Unit) {
-    val hasNext = next()
-    assertTrue(hasNext, "Expected a $name, but none found")
-    assertEquals(name, view.name)
-    MockViewListValidator(view.children).inlineValidate(block)
 }
 
 fun <T> MockViewValidator.Repeated(of: Iterable<T>, block: MockViewValidator.(value: T) -> Unit) {
@@ -77,8 +64,6 @@ fun <T> MockViewValidator.Repeated(of: Iterable<T>, block: MockViewValidator.(va
 
 fun MockViewValidator.Linear() = view("linear", null)
 fun MockViewValidator.Linear(block: MockViewValidator.() -> Unit) = view("linear", block)
-inline fun MockViewValidator.InlineLinear(block: MockViewValidator.() -> Unit) =
-    inlineView("linear", block)
 fun MockViewValidator.box(block: MockViewValidator.() -> Unit) = view("box", block)
 fun MockViewValidator.Text(value: String) {
     view("text")
