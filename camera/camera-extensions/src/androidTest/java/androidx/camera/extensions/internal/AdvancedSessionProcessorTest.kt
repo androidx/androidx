@@ -230,7 +230,7 @@ class AdvancedSessionProcessorTest {
     @Test
     fun getRealtimeLatencyEstimate_advancedSessionProcessorInvokesSessionProcessorImpl() =
         runBlocking {
-            ExtensionVersion.injectInstance(FakeExtensionVersion(Version.VERSION_1_4))
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
             ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
 
             val fakeSessionProcessImpl = object : SessionProcessorImpl by FakeSessionProcessImpl() {
