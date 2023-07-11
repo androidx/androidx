@@ -24,27 +24,27 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class ClearCustomCredentialExceptionTest {
-    @Test(expected = ClearCustomCredentialException::class)
+class ClearCredentialCustomExceptionTest {
+    @Test(expected = ClearCredentialCustomException::class)
     fun construct_inputsNonEmpty_success() {
-        throw ClearCustomCredentialException("type", "msg")
+        throw ClearCredentialCustomException("type", "msg")
     }
 
-    @Test(expected = ClearCustomCredentialException::class)
+    @Test(expected = ClearCredentialCustomException::class)
     fun construct_errorMessageNull_success() {
-        throw ClearCustomCredentialException("type", null)
+        throw ClearCredentialCustomException("type", null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun construct_typeEmpty_throws() {
-        throw ClearCustomCredentialException("", "msg")
+        throw ClearCredentialCustomException("", "msg")
     }
 
     @Test
     fun getter_success() {
         val expectedType = "type"
         val expectedMessage = "message"
-        val exception = ClearCustomCredentialException(expectedType, expectedMessage)
+        val exception = ClearCredentialCustomException(expectedType, expectedMessage)
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }

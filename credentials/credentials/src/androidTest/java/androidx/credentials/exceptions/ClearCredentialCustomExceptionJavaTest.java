@@ -26,34 +26,34 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ClearCustomCredentialExceptionJavaTest {
+public class ClearCredentialCustomExceptionJavaTest {
 
     @Test(expected = ClearCredentialException.class)
-    public void construct_inputsNonEmpty_success() throws ClearCustomCredentialException {
-        throw new ClearCustomCredentialException("type", "msg");
+    public void construct_inputsNonEmpty_success() throws ClearCredentialCustomException {
+        throw new ClearCredentialCustomException("type", "msg");
     }
 
-    @Test(expected = ClearCustomCredentialException.class)
-    public void construct_errorMessageNull_success() throws ClearCustomCredentialException {
-        throw new ClearCustomCredentialException("type", null);
+    @Test(expected = ClearCredentialCustomException.class)
+    public void construct_errorMessageNull_success() throws ClearCredentialCustomException {
+        throw new ClearCredentialCustomException("type", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void construct_typeEmpty_throws() throws ClearCustomCredentialException {
-        throw new ClearCustomCredentialException("", "msg");
+    public void construct_typeEmpty_throws() throws ClearCredentialCustomException {
+        throw new ClearCredentialCustomException("", "msg");
     }
 
     @Test(expected = NullPointerException.class)
-    public void construct_typeNull_throws() throws ClearCustomCredentialException {
-        throw new ClearCustomCredentialException(null, "msg");
+    public void construct_typeNull_throws() throws ClearCredentialCustomException {
+        throw new ClearCredentialCustomException(null, "msg");
     }
 
     @Test
     public void getter_success() {
         String expectedType = "type";
         String expectedMessage = "message";
-        ClearCustomCredentialException exception = new
-                ClearCustomCredentialException(expectedType , expectedMessage);
+        ClearCredentialCustomException exception = new
+                ClearCredentialCustomException(expectedType , expectedMessage);
         assertThat(exception.getType()).isEqualTo(expectedType);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
