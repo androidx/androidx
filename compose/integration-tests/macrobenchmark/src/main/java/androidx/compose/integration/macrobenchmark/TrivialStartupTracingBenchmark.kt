@@ -26,7 +26,6 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.measureStartup
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,8 +42,6 @@ class TrivialStartupTracingBenchmark(
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
-    // TODO(283953019): enable alongside StartupTracingInitializer (pending performance testing)
-    @Ignore
     @Test
     fun startup() = try {
         Arguments.fullTracingEnableOverride = isFullTracingEnabled
@@ -54,7 +51,7 @@ class TrivialStartupTracingBenchmark(
             val perfettoSdkTraceSection = TraceSectionMetric(
                 "androidx.compose.integration.macrobenchmark.target." +
                     "TrivialStartupTracingActivity.onCreate.<anonymous>" +
-                    " (TrivialStartupTracingActivity.kt:33)"
+                    " (TrivialStartupTracingActivity.kt:34)"
             )
             benchmarkRule.measureStartup(
                 compilationMode = compilationMode,
