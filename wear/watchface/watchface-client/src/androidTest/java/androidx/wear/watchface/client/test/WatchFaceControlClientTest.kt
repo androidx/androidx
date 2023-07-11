@@ -119,7 +119,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
@@ -137,6 +137,9 @@ abstract class WatchFaceControlClientTestBase {
             resourceOnlyWatchFacePackageName = null
         )
     }
+
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
     @Mock protected lateinit var surfaceHolder: SurfaceHolder
 
@@ -164,7 +167,6 @@ abstract class WatchFaceControlClientTestBase {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         WatchFaceControlTestService.apiVersionOverride = null
         Mockito.`when`(surfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 400, 400))
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)

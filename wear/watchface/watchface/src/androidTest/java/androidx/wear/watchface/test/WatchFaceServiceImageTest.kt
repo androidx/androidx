@@ -92,7 +92,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -132,6 +132,9 @@ public class ComplicationTapActivity : Activity() {
 @MediumTest
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 public class WatchFaceServiceImageTest {
+
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
 
@@ -194,11 +197,9 @@ public class WatchFaceServiceImageTest {
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
-    @Suppress("DEPRECATION") // b/251211092
     @Before
     public fun setUp() {
         Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
-        MockitoAnnotations.initMocks(this)
 
         pretendBinderThread.start()
         pretendBinderHandler = Handler(pretendBinderThread.looper)
