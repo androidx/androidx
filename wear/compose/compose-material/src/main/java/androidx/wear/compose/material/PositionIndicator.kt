@@ -74,6 +74,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.materialcore.isRoundDevice
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.max

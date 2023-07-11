@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.materialcore.isRoundDevice
 
 /**
  * Possible combinations for vignette state.

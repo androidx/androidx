@@ -21,6 +21,7 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
+import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StepperSample
@@ -113,5 +114,8 @@ val WearMaterial3Demos = DemoCategory(
                 ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
             )
         ),
+        ComposableDemo("HorizontalPageIndicator") {
+            Centralize { HorizontalPageIndicatorSample() }
+        },
     )
 )
