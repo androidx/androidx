@@ -41,7 +41,11 @@ import androidx.compose.ui.unit.Velocity
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.action.CoordinatesProvider
+import androidx.test.espresso.action.GeneralLocation
+import androidx.test.espresso.action.GeneralSwipeAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -100,6 +104,8 @@ class VelocityTrackingParityTest {
         checkVisibility(composeView, View.VISIBLE)
         checkVisibility(draggableView, View.GONE)
 
+        assertTrue { isValidGesture(draggableView.motionEvents.filterNotNull()) }
+
         // Inject the same events in compose view
         for (event in draggableView.motionEvents) {
             composeView.dispatchTouchEvent(event)
@@ -129,9 +135,39 @@ class VelocityTrackingParityTest {
     }
 
     private fun swipeView(id: Int) {
-        Espresso.onView(withId(id)).perform(swipeUp())
+        controlledSwipeUp(id)
         rule.waitForIdle()
     }
+
+    /**
+     * Checks the contents of [events] represents a swipe gesture.
+     */
+    private fun isValidGesture(events: List<MotionEvent>): Boolean {
+        val down = events.filter { it.action == MotionEvent.ACTION_DOWN }
+        val move = events.filter { it.action == MotionEvent.ACTION_MOVE }
+        val up = events.filter { it.action == MotionEvent.ACTION_UP }
+        return down.size == 1 && move.isNotEmpty() && up.size == 1
+    }
+}
+
+internal fun controlledSwipeUp(id: Int) {
+    Espresso.onView(withId(id))
+        .perform(
+            espressoSwipe(
+                GeneralLocation.CENTER,
+                GeneralLocation.TOP_CENTER
+            )
+        )
+}
+
+private fun espressoSwipe(
+    start: CoordinatesProvider,
+    end: CoordinatesProvider
+): GeneralSwipeAction {
+    return GeneralSwipeAction(
+        Swipe.FAST, start, end,
+        Press.FINGER
+    )
 }
 
 @Composable
