@@ -98,12 +98,19 @@ package androidx.compose.material3.adaptive {
     field public static final androidx.compose.material3.adaptive.ThreePaneScaffoldDefaults INSTANCE;
   }
 
+  public final class ThreePaneScaffoldKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void ThreePaneScaffold(androidx.compose.ui.Modifier modifier, androidx.compose.material3.adaptive.AdaptiveLayoutDirective layoutDirective, androidx.compose.material3.adaptive.ThreePaneScaffoldValue scaffoldValue, androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement arrangement, kotlin.jvm.functions.Function2<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,? super androidx.compose.material3.adaptive.PaneAdaptedValue,kotlin.Unit> secondaryPane, optional kotlin.jvm.functions.Function2<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,? super androidx.compose.material3.adaptive.PaneAdaptedValue,kotlin.Unit>? tertiaryPane, kotlin.jvm.functions.Function2<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,? super androidx.compose.material3.adaptive.PaneAdaptedValue,kotlin.Unit> primaryPane);
+  }
+
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum ThreePaneScaffoldRole {
     method public static androidx.compose.material3.adaptive.ThreePaneScaffoldRole valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.adaptive.ThreePaneScaffoldRole[] values();
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Primary;
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Secondary;
     enum_constant public static final androidx.compose.material3.adaptive.ThreePaneScaffoldRole Tertiary;
+  }
+
+  public interface ThreePaneScaffoldScope extends androidx.compose.material3.adaptive.PaneScaffoldScope {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue {
