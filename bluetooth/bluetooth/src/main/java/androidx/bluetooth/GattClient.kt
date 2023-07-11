@@ -26,12 +26,10 @@ import android.bluetooth.BluetoothGattDescriptor as FwkDescriptor
 import android.bluetooth.BluetoothGattService as FwkService
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
@@ -73,7 +71,7 @@ internal class GattClient {
     }
 
     private companion object {
-        private const val TAG = "GattClientImpl"
+        private const val TAG = "GattClient"
 
         /**
          * The maximum ATT size(512) + header(3)
@@ -121,9 +119,8 @@ internal class GattClient {
         context: Context,
         device: BluetoothDevice,
         block: suspend BluetoothLe.GattClientScope.() -> R
-    ): R? = coroutineScope {
-        val connectResult = CompletableDeferred<Boolean>(parent = coroutineContext.job)
-        val finished = Job(parent = coroutineContext.job)
+    ): Result<R> = coroutineScope {
+        val connectResult = CompletableDeferred<Unit>(parent = coroutineContext.job)
         val callbackResultsFlow =
             MutableSharedFlow<CallbackResult>(extraBufferCapacity = Int.MAX_VALUE)
         val subscribeMap: MutableMap<FwkCharacteristic, SubscribeListener> = mutableMapOf()
@@ -135,9 +132,7 @@ internal class GattClient {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     gatt?.requestMtu(GATT_MAX_MTU)
                 } else {
-                    connectResult.complete(false)
-                    // TODO(b/270492198): throw precise exception
-                    finished.completeExceptionally(IllegalStateException("connect failed"))
+                    connectResult.cancel("connect failed")
                 }
             }
 
@@ -145,9 +140,7 @@ internal class GattClient {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     gatt?.discoverServices()
                 } else {
-                    connectResult.complete(false)
-                    // TODO(b/270492198): throw precise exception
-                    finished.completeExceptionally(IllegalStateException("mtu request failed"))
+                    connectResult.cancel("mtu request failed")
                 }
             }
 
@@ -155,7 +148,8 @@ internal class GattClient {
                 gatt?.let {
                     attributeMap.updateWithFrameworkServices(it.services)
                 }
-                connectResult.complete(status == BluetoothGatt.GATT_SUCCESS)
+                if (status == BluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
+                else connectResult.cancel("service discover failed")
             }
 
             override fun onCharacteristicRead(
@@ -215,12 +209,13 @@ internal class GattClient {
             }
         }
         if (!impl.connectGatt(context, device.fwkDevice, callback)) {
-            return@coroutineScope null
+            return@coroutineScope Result.failure(CancellationException("failed to connect"))
         }
 
-        if (!connectResult.await()) {
-            Log.w(TAG, "Failed to connect to the remote GATT server")
-            return@coroutineScope null
+        try {
+            connectResult.await()
+        } catch (e: Throwable) {
+            return@coroutineScope Result.failure(e)
         }
         val gattScope = object : BluetoothLe.GattClientScope {
             val taskMutex = Mutex()
@@ -252,7 +247,8 @@ internal class GattClient {
                     }
 
                     if (res.status == BluetoothGatt.GATT_SUCCESS) Result.success(res.value)
-                    else Result.failure(RuntimeException("fail"))
+                    // TODO: throw precise reason if we can gather the info
+                    else Result.failure(CancellationException("fail"))
                 }
             }
 
@@ -274,7 +270,8 @@ internal class GattClient {
                         it.characteristic == characteristic
                     }
                     if (res.status == BluetoothGatt.GATT_SUCCESS) Result.success(Unit)
-                    else Result.failure(RuntimeException("fail"))
+                    // TODO: throw precise reason if we can gather the info
+                    else Result.failure(CancellationException("fail"))
                 }
             }
 
@@ -293,11 +290,11 @@ internal class GattClient {
                         }
 
                         override fun finish() {
-                            cancel("finished")
+                            close()
                         }
                     }
                     if (!registerSubscribeListener(characteristic.fwkCharacteristic, listener)) {
-                        cancel("already subscribed")
+                        throw IllegalStateException("already subscribed")
                     }
 
                     runTask {
@@ -312,7 +309,7 @@ internal class GattClient {
                             it.descriptor == cccd
                         }
                         if (res.status != BluetoothGatt.GATT_SUCCESS) {
-                            cancel(CancellationException("failed to set notification"))
+                            cancel("failed to set notification")
                         }
                     }
 
@@ -363,7 +360,11 @@ internal class GattClient {
                 }
             }
         }
-        gattScope.block()
+        try {
+            Result.success(gattScope.block())
+        } catch (e: CancellationException) {
+            Result.failure(e)
+        }
     }
 
     private suspend inline fun <reified R : CallbackResult> takeMatchingResult(
