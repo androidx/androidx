@@ -611,8 +611,8 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * @param fallbackValue Used when the system does not support dynamic values.
  *
  *   IMPORTANT: This is only used when the system does not support dynamic values _at all_. See
- *   [ComplicationData.BaseBuilder.setDynamicValueInvalidationFallback] for the situation where the
- *   dynamic value has been invalidated.
+ *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the dynamic value
+ *   cannot be evaluated, e.g. when a data source is not available.
  */
 public class DynamicComplicationText(
     public val dynamicValue: DynamicString,
