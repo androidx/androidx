@@ -13,239 +13,218 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Context.BIND_AUTO_CREATE
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.ServiceConnection
+import android.os.IBinder
+import androidx.lifecycle.Lifecycle.Event
+import androidx.lifecycle.Lifecycle.Event.ON_CREATE
+import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
+import androidx.lifecycle.Lifecycle.Event.ON_START
+import androidx.lifecycle.Lifecycle.Event.ON_STOP
+import androidx.lifecycle.service.TestService
+import androidx.lifecycle.service.TestService.ACTION_LOG_EVENT
+import androidx.lifecycle.service.TestService.EXTRA_KEY_EVENT
+import androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 
-import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
-import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
-import static androidx.lifecycle.Lifecycle.Event.ON_START;
-import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-
-import androidx.lifecycle.Lifecycle.Event;
-import androidx.lifecycle.service.TestService;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-@SuppressWarnings("deprecation")
+@Suppress("deprecation")
 @MediumTest
-@RunWith(AndroidJUnit4.class)
-public class ServiceLifecycleTest {
+@RunWith(AndroidJUnit4::class)
+class ServiceLifecycleTest {
+    private lateinit var serviceIntent: Intent
 
-    private static final int RETRY_NUMBER = 5;
-    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(1);
-
-    private Intent mServiceIntent;
-
-    private volatile List<Event> mLoggerEvents;
-    private EventLogger mLogger;
+    @Volatile
+    private var loggerEvents = mutableListOf<Event?>()
+    private lateinit var logger: EventLogger
 
     @Before
-    public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
-        mServiceIntent = new Intent(context, TestService.class);
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(TestService.ACTION_LOG_EVENT);
+    fun setUp() {
+        val context = getApplicationContext<Context>()
+        serviceIntent = Intent(context, TestService::class.java)
+        val localBroadcastManager = getInstance(context)
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(ACTION_LOG_EVENT)
 
-        // Overcautiousness: each EventLogger has its own events list, so one bad test won't spoil
+        // Over-cautiousness: each EventLogger has its own events list, so one bad test won't spoil
         // others.
-        mLoggerEvents = new ArrayList<>();
-        mLogger = new EventLogger(mLoggerEvents);
-        localBroadcastManager.registerReceiver(mLogger, intentFilter);
-
+        loggerEvents = ArrayList()
+        logger = EventLogger(loggerEvents)
+        localBroadcastManager.registerReceiver(logger, intentFilter)
     }
 
     @After
-    public void tearDown() {
-        Context context = ApplicationProvider.getApplicationContext();
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-        localBroadcastManager.unregisterReceiver(mLogger);
-        mLogger = null;
-        mLoggerEvents = null;
+    fun tearDown() {
+        val context = getApplicationContext<Context>()
+        val localBroadcastManager = getInstance(context)
+        localBroadcastManager.unregisterReceiver(logger)
+        loggerEvents.clear()
     }
 
     @Test
-    public void testUnboundedService() throws TimeoutException, InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        context.startService(mServiceIntent);
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-        context.stopService(mServiceIntent);
-        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY);
+    @Throws(TimeoutException::class, InterruptedException::class)
+    fun testUnboundedService() {
+        val context = getApplicationContext<Context>()
+        context.startService(serviceIntent)
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.stopService(serviceIntent)
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY)
     }
 
     @Test
-    public void testBoundedService() throws TimeoutException, InterruptedException {
-        ServiceConnection connection = bindToService();
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-        ApplicationProvider.getApplicationContext().unbindService(connection);
-        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY);
+    @Throws(TimeoutException::class, InterruptedException::class)
+    fun testBoundedService() {
+        val connection = bindToService()
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        getApplicationContext<Context>().unbindService(connection)
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY)
     }
 
     @Test
-    public void testStartBindUnbindStop() throws InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        context.startService(mServiceIntent);
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        ServiceConnection connection = bindToService();
+    @Throws(InterruptedException::class)
+    fun testStartBindUnbindStop() {
+        val context = getApplicationContext<Context>()
+        context.startService(serviceIntent)
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        val connection = bindToService()
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // still the same events
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.unbindService(connection);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.unbindService(connection)
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // service is still started (stopServices/stopSelf weren't called)
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.stopService(mServiceIntent);
-        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.stopService(serviceIntent)
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY)
     }
 
     @Test
-    public void testStartBindStopUnbind() throws InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        context.startService(mServiceIntent);
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        ServiceConnection connection = bindToService();
+    @Throws(InterruptedException::class)
+    fun testStartBindStopUnbind() {
+        val context = getApplicationContext<Context>()
+        context.startService(serviceIntent)
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        val connection = bindToService()
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // still the same events
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.stopService(mServiceIntent);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.stopService(serviceIntent)
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // service is still bound
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.unbindService(connection);
-        awaitAndAssertEvents(ON_CREATE, ON_START,
-                ON_STOP, ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.unbindService(connection)
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY)
     }
 
     @Test
-    public void testBindStartUnbindStop() throws InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        ServiceConnection connection = bindToService();
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-
-        context.startService(mServiceIntent);
+    @Throws(InterruptedException::class)
+    fun testBindStartUnbindStop() {
+        val context = getApplicationContext<Context>()
+        val connection = bindToService()
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.startService(serviceIntent)
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // still the same events
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.unbindService(connection);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.unbindService(connection)
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // service is still started (stopServices/stopSelf weren't called)
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.stopService(mServiceIntent);
-        awaitAndAssertEvents(ON_CREATE, ON_START,
-                ON_STOP, ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.stopService(serviceIntent)
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY)
     }
 
     @Test
-    public void testBindStartStopUnbind() throws InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        ServiceConnection connection = bindToService();
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.startService(mServiceIntent);
+    @Throws(InterruptedException::class)
+    fun testBindStartStopUnbind() {
+        val context = getApplicationContext<Context>()
+        val connection = bindToService()
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.startService(serviceIntent)
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // still the same events
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.stopService(mServiceIntent);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.stopService(serviceIntent)
         // Precaution: give a chance to dispatch events
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync()
         // service is still bound
-        awaitAndAssertEvents(ON_CREATE, ON_START);
-
-        context.unbindService(connection);
-        awaitAndAssertEvents(ON_CREATE, ON_START,
-                ON_STOP, ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START)
+        context.unbindService(connection)
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY)
     }
 
     // can't use ServiceTestRule because it proxies connection, so we can't use unbindService method
-    private ServiceConnection bindToService() throws InterruptedException {
-        Context context = ApplicationProvider.getApplicationContext();
-        final CountDownLatch latch = new CountDownLatch(1);
-        ServiceConnection connection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                latch.countDown();
+    @Throws(InterruptedException::class)
+    private fun bindToService(): ServiceConnection {
+        val context = getApplicationContext<Context>()
+        val latch = CountDownLatch(1)
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                latch.countDown()
             }
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-        };
-
-        boolean success = context.bindService(mServiceIntent, connection, Context.BIND_AUTO_CREATE);
-        assertThat(success, is(true));
-        boolean awaited = latch.await(TIMEOUT, TimeUnit.MILLISECONDS);
-        assertThat(awaited, is(true));
-        return connection;
+            override fun onServiceDisconnected(name: ComponentName) {}
+        }
+        val success = context.bindService(serviceIntent, connection, BIND_AUTO_CREATE)
+        assertThat(success, `is`(true))
+        val awaited = latch.await(TIMEOUT, MILLISECONDS)
+        assertThat(awaited, `is`(true))
+        return connection
     }
 
-    private void awaitAndAssertEvents(Event... events) throws InterruptedException {
-        //noinspection SynchronizeOnNonFinalField
-        synchronized (mLoggerEvents) {
-            int retryCount = 0;
-            while (mLoggerEvents.size() < events.length && retryCount++ < RETRY_NUMBER) {
-                mLoggerEvents.wait(TIMEOUT);
+    @Throws(InterruptedException::class)
+    private fun awaitAndAssertEvents(vararg events: Event) {
+        lock.withLock {
+            var retryCount = 0
+            while (loggerEvents.size < events.size && retryCount++ < RETRY_NUMBER) {
+                condition.await(TIMEOUT, SECONDS)
             }
-            assertThat(mLoggerEvents, is(Arrays.asList(events)));
+            assertThat(loggerEvents, `is`(listOf(*events)))
         }
     }
 
-    private static class EventLogger extends BroadcastReceiver {
-        private final List<Event> mLoggerEvents;
-
-        private EventLogger(List<Event> loggerEvents) {
-            mLoggerEvents = loggerEvents;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            synchronized (mLoggerEvents) {
-                mLoggerEvents.add((Event) intent.getSerializableExtra(TestService.EXTRA_KEY_EVENT));
-                mLoggerEvents.notifyAll();
+    private class EventLogger(private val loggerEvents: MutableList<Event?>) :
+        BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            lock.withLock {
+                loggerEvents.add(intent.getSerializableExtra(EXTRA_KEY_EVENT) as Event)
+                condition.signalAll()
             }
         }
+    }
+
+    companion object {
+        private const val RETRY_NUMBER = 5
+        private val TIMEOUT = SECONDS.toMillis(1)
+        private val lock = ReentrantLock()
+        private val condition = lock.newCondition()
     }
 }
