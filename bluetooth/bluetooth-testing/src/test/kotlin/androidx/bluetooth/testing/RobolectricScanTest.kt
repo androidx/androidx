@@ -18,6 +18,7 @@ package androidx.bluetooth.testing
 
 import android.content.Context
 import androidx.bluetooth.BluetoothLe
+import androidx.bluetooth.ScanFilter
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.test.runTest
@@ -40,7 +41,7 @@ class RobolectricScanTest {
     fun scanTest() = runTest {
         try {
             withTimeout(TIMEOUT_MS) {
-                bluetoothLe.scan(listOf()).collect {
+                bluetoothLe.scan(listOf(ScanFilter())).collect {
                     // Should not find any device
                     fail()
                 }

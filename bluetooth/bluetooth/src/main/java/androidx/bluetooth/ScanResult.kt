@@ -21,12 +21,12 @@ import android.os.ParcelUuid
 import java.util.UUID
 
 /**
- * ScanResult for Bluetooth LE scan.
+ * Represents a scan result for Bluetooth LE scan.
  *
  * The ScanResult class is used by Bluetooth LE applications to scan for and discover Bluetooth LE
- * devices. When a Bluetooth LE application scans for devices, it will receive a list of ScanResult
- * objects that contain information about the scanned devices. The application can then use this
- * information to determine which devices it wants to connect to.
+ * devices. When a Bluetooth LE application scans for devices, it will receive a list of
+ * [ScanResult] objects that contain information about the scanned devices. The application can
+ * then use this information to determine which devices it wants to connect to.
  *
  * @property device Remote device found
  * @property deviceAddress Bluetooth address for the remote device found
@@ -54,8 +54,8 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
      * Returns the manufacturer specific data associated with the manufacturer id.
      *
      * @param manufacturerId The manufacturer id of the scanned device
-     * @return the manufacturer specific data associated with the manufacturer id, or null if the
-     * manufacturer specific data is not present
+     * @return the manufacturer specific data associated with the manufacturer id, or @{code null}
+     * if the manufacturer specific data is not present
      */
     fun getManufacturerSpecificData(manufacturerId: Int): ByteArray? {
         return fwkScanResult.scanRecord?.getManufacturerSpecificData(manufacturerId)
@@ -72,17 +72,17 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
      * Returns the service data associated with the service UUID.
      *
      * @param serviceUuid The service UUID of the service data
-     * @return the service data associated with the specified service UUID, or null if the service
-     * UUID is not found
+     * @return the service data associated with the specified service UUID, or {@code null}
+     * if the service UUID is not found
      */
     fun getServiceData(serviceUuid: UUID): ByteArray? {
         return fwkScanResult.scanRecord?.getServiceData(ParcelUuid(serviceUuid))
     }
 
     /**
-     * Checks if this object represents connectable scan result.
+     * Checks if this object represents a connectable scan result.
      *
-     * @return true if the scanned device is connectable; false otherwise
+     * @return {@code true} if the scanned device is connectable.
      */
     fun isConnectable(): Boolean {
         return fwkScanResult.isConnectable

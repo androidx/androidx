@@ -21,7 +21,6 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -143,10 +142,10 @@ class BluetoothLe(private val context: Context) {
         val bleScanner = bluetoothAdapter?.bluetoothLeScanner
         val scanSettings = ScanSettings.Builder().build()
 
-        bleScanner?.startScan(filters, scanSettings, callback)
+        val fwkFilters = filters.map { it.fwkScanFilter }
+        bleScanner?.startScan(fwkFilters, scanSettings, callback)
 
         awaitClose {
-            Log.d(TAG, "awaitClose() called")
             bleScanner?.stopScan(callback)
         }
     }
