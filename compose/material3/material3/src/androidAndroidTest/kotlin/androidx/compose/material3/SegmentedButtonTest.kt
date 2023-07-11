@@ -53,13 +53,30 @@ class SegmentedButtonTest {
     val rule = createComposeRule()
 
     @Test
-    fun segmentedButton_itemsDisplay() {
+    fun toggleableSegmentedButton_itemsDisplay() {
         val values = listOf("Day", "Month", "Week")
 
         rule.setMaterialContent(lightColorScheme()) {
-            SegmentedButtonRow {
+            MultiChoiceSegmentedButtonRow {
                 values.forEach {
                     SegmentedButton(checked = false, onCheckedChange = {}) {
+                        Text(it)
+                    }
+                }
+            }
+        }
+
+        values.forEach { rule.onNodeWithText(it).assertIsDisplayed() }
+    }
+
+    @Test
+    fun selectableSegmentedButton_itemsDisplay() {
+        val values = listOf("Day", "Month", "Week")
+
+        rule.setMaterialContent(lightColorScheme()) {
+            SingleChoiceSegmentedButtonRow {
+                values.forEach {
+                    SegmentedButton(selected = false, onClick = {}) {
                         Text(it)
                     }
                 }
@@ -73,7 +90,7 @@ class SegmentedButtonTest {
     fun segmentedButton_itemsChecked() {
         var checked by mutableStateOf(true)
         rule.setMaterialContent(lightColorScheme()) {
-            SegmentedButtonRow {
+            MultiChoiceSegmentedButtonRow {
                 SegmentedButton(onCheckedChange = { checked = it }, checked = checked) {
                     Text("Day")
                 }
@@ -95,13 +112,13 @@ class SegmentedButtonTest {
     }
 
     @Test
-    fun segmentedButton_semantics() {
+    fun selectableSegmentedButton_semantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            SegmentedButtonRow(modifier = Modifier.testTag("row")) {
-                SegmentedButton(checked = false, onCheckedChange = {}) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.testTag("row")) {
+                SegmentedButton(selected = false, onClick = {}) {
                     Text("Day")
                 }
-                SegmentedButton(checked = false, onCheckedChange = {}) {
+                SegmentedButton(selected = false, onClick = {}) {
                     Text("Month")
                 }
             }
@@ -114,13 +131,36 @@ class SegmentedButtonTest {
     }
 
     @Test
+    fun segmentedButton_icon() {
+        var checked by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag("row")) {
+                SegmentedButton(
+                    checked = checked,
+                    onCheckedChange = {},
+                    icon = { Text(if (checked) "checked" else "unchecked") },
+                ) {
+                    Text("Day")
+                }
+            }
+        }
+
+        rule.onNodeWithText("unchecked").assertIsDisplayed()
+
+        rule.runOnIdle { checked = true }
+        rule.waitForIdle()
+
+        rule.onNodeWithText("checked").assertIsDisplayed()
+    }
+
+    @Test
     fun segmentedButton_Sizing() {
         val itemSize = 60.dp
 
         rule.setMaterialContentForSizeAssertions(
             parentMaxWidth = 300.dp, parentMaxHeight = 100.dp
         ) {
-            SegmentedButtonRow {
+            MultiChoiceSegmentedButtonRow {
                 SegmentedButton(checked = false, onCheckedChange = {}) {
                     Text(modifier = Modifier.width(60.dp), text = "Day")
                 }
