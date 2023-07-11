@@ -480,8 +480,6 @@ public class SearchSpecToProtoConverterTest {
                         PrefixUtil.removePrefix(grouping2.getEntryGroupings(1).getNamespace()));
     }
 
-    // @exportToFramework:startStrip()
-    // TODO(b/258715421) start exporting this when it is unhidden in framework
     @Test
     public void testToResultSpecProto_groupBySchema() throws Exception {
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -528,7 +526,6 @@ public class SearchSpecToProtoConverterTest {
                 .isEqualTo(
                     PrefixUtil.removePrefix(grouping2.getEntryGroupings(1).getSchema()));
     }
-    // @exportToFramework:endStrip()
 
     @Test
     public void testToResultSpecProto_groupByNamespaceAndPackage() throws Exception {
@@ -565,8 +562,6 @@ public class SearchSpecToProtoConverterTest {
         assertThat(resultSpecProto.getResultGroupings(3).getEntryGroupingsList()).hasSize(1);
     }
 
-    // @exportToFramework:startStrip()
-    // TODO(b/258715421) start exporting this when it is unhidden in framework
     @Test
     public void testToResultSpecProto_groupBySchemaAndPackage() throws Exception {
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -804,7 +799,6 @@ public class SearchSpecToProtoConverterTest {
         assertThat(grouping8.getEntryGroupings(0).getSchema())
                 .isEqualTo("package1$database/typeB");
     }
-    // @exportToFramework:endStrip()
 
     @Test
     public void testGetTargetNamespaceFilters_emptySearchingFilter() {
