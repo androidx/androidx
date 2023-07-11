@@ -35,11 +35,24 @@ internal const val FLOAT_TOLERANCE = 1f
 
 /**
  * Checks whether [expectedColor] does not exist in current [ImageBitmap]
- */
+ *
 fun ImageBitmap.assertDoesNotContainColor(expectedColor: Color) {
     val histogram = histogram()
     if (histogram.containsKey(expectedColor)) {
         throw AssertionError("Expected color $expectedColor exists in current bitmap")
+    }
+}*/
+
+/**
+ * Checks whether [expectedColor] exist in current [ImageBitmap], covering at least the given ratio
+ * of the image
+ */
+fun ImageBitmap.assertDoesContainColor(expectedColor: Color, expectedRatio: Float = 0.75f) {
+    val histogram = histogram()
+    val ratio = (histogram.getOrDefault(expectedColor, 0L)).toFloat() / (width * height)
+    if (ratio < expectedRatio) {
+        throw AssertionError("Expected color $expectedColor with ratio $expectedRatio." +
+            " Actual ratio = $ratio")
     }
 }
 
