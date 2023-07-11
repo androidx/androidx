@@ -24,7 +24,6 @@ import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SnapshotThreadLocal
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.synchronized
 import androidx.compose.runtime.createSynchronizedObject
 import kotlin.contracts.ExperimentalContracts
@@ -213,7 +212,7 @@ sealed class Snapshot(
     /**
      * The set of state objects that have been modified in this snapshot.
      */
-    internal abstract val modified: IdentityArraySet<StateObject>?
+    internal abstract val modified: MutableSet<StateObject>?
 
     /**
      * Notify the snapshot that all objects created in this snapshot to this point should be
@@ -907,21 +906,21 @@ open class MutableSnapshot internal constructor(
                             mergedRecords ?: mutableListOf<Pair<StateObject, StateRecord>>().also {
                                 mergedRecords = it
                             }
-                        ).add(state to current.create())
+                            ).add(state to current.create())
 
                         // If we revert to current then the state is no longer modified.
                         (
                             statesToRemove ?: mutableListOf<StateObject>().also {
                                 statesToRemove = it
                             }
-                        ).add(state)
+                            ).add(state)
                     }
                     else -> {
                         (
                             mergedRecords ?: mutableListOf<Pair<StateObject, StateRecord>>().also {
                                 mergedRecords = it
                             }
-                        ).add(
+                            ).add(
                             if (merged != previous) state to merged
                             else state to previous.create()
                         )
@@ -945,9 +944,9 @@ open class MutableSnapshot internal constructor(
             }
         }
 
-        statesToRemove?.fastForEach {
+        statesToRemove?.let {
             // Remove from modified any state objects that have reverted to the parent value.
-            modified.remove(it)
+            modified.removeAll(it)
         }
 
         return SnapshotApplyResult.Success
@@ -1005,10 +1004,10 @@ open class MutableSnapshot internal constructor(
     }
 
     override fun recordModified(state: StateObject) {
-        (modified ?: IdentityArraySet<StateObject>().also { modified = it }).add(state)
+        (modified ?: HashSet<StateObject>().also { modified = it }).add(state)
     }
 
-    override var modified: IdentityArraySet<StateObject>? = null
+    override var modified: MutableSet<StateObject>? = null
 
     /**
      * A set of the id's previously associated with this snapshot. When this snapshot closes
@@ -1204,7 +1203,7 @@ internal class ReadonlySnapshot internal constructor(
     override fun hasPendingChanges(): Boolean = false
     override val writeObserver: ((Any) -> Unit)? get() = null
 
-    override var modified: IdentityArraySet<StateObject>?
+    override var modified: HashSet<StateObject>?
         get() = null
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
@@ -1275,7 +1274,7 @@ internal class NestedReadonlySnapshot(
         }
     }
 
-    override val modified: IdentityArraySet<StateObject>? get() = null
+    override val modified: HashSet<StateObject>? get() = null
     override val writeObserver: ((Any) -> Unit)? get() = null
     override fun recordModified(state: StateObject) = reportReadonlySnapshotWrite()
 
@@ -1399,10 +1398,10 @@ internal class NestedMutableSnapshot(
 
                 // Add all modified objects in this set to the parent
                 (
-                    parent.modified ?: IdentityArraySet<StateObject>().also {
+                    parent.modified ?: HashSet<StateObject>().also {
                         parent.modified = it
                     }
-                ).addAll(modified)
+                    ).addAll(modified)
             }
 
             // Ensure the parent is newer than the current snapshot
@@ -1477,7 +1476,7 @@ internal class TransparentObserverMutableSnapshot(
 
     override fun hasPendingChanges(): Boolean = currentSnapshot.hasPendingChanges()
 
-    override var modified: IdentityArraySet<StateObject>?
+    override var modified: MutableSet<StateObject>?
         get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
@@ -1581,7 +1580,7 @@ internal class TransparentObserverSnapshot(
 
     override fun hasPendingChanges(): Boolean = currentSnapshot.hasPendingChanges()
 
-    override var modified: IdentityArraySet<StateObject>?
+    override var modified: MutableSet<StateObject>?
         get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
