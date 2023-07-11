@@ -498,7 +498,11 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
-            assertThat(startedCount).isEqualTo(1)
+            if (FragmentManager.USE_PREDICTIVE_BACK) {
+                assertThat(startedCount).isEqualTo(1)
+            } else {
+                assertThat(startedCount).isEqualTo(0)
+            }
             assertThat(committedCount).isEqualTo(0)
 
             withActivity {
@@ -560,14 +564,22 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
-            assertThat(startedCount).isEqualTo(1)
+            if (FragmentManager.USE_PREDICTIVE_BACK) {
+                assertThat(startedCount).isEqualTo(1)
+            } else {
+                assertThat(startedCount).isEqualTo(0)
+            }
             assertThat(committedCount).isEqualTo(0)
 
             withActivity {
                 onBackPressedDispatcher.dispatchOnBackCancelled()
             }
 
-            assertThat(startedCount).isEqualTo(1)
+            if (FragmentManager.USE_PREDICTIVE_BACK) {
+                assertThat(startedCount).isEqualTo(1)
+            } else {
+                assertThat(startedCount).isEqualTo(0)
+            }
             assertThat(committedCount).isEqualTo(0)
 
             assertThat(fragment2).isSameInstanceAs(fragmentManager.findFragmentById(R.id.content))
