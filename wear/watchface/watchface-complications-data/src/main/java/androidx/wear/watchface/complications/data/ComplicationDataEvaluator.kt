@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
 
@@ -148,21 +149,34 @@ constructor(
      */
     private fun WireComplicationData.topLevelSetterFlows(): List<Flow<WireComplicationDataSetter>> =
         buildList {
-            if (hasRangedDynamicValue()) {
+            if (hasRangedDynamicValue() && rangedDynamicValue != null) {
                 add(
-                    bindDynamicFloat(
-                        rangedDynamicValue,
-                        dynamicValueTrimmer = { setRangedDynamicValue(null) },
-                        floatSetter = { setRangedValue(it) },
-                    )
+                    rangedDynamicValue!!
+                        .evaluate()
+                        .toDataSetter(
+                            setter = { setRangedValue(it) },
+                            dynamicValueTrimmer = { setRangedDynamicValue(null) },
+                        )
                 )
             }
-            if (hasLongText()) add(bindDynamicText(longText) { setLongText(it) })
-            if (hasLongTitle()) add(bindDynamicText(longTitle) { setLongTitle(it) })
-            if (hasShortText()) add(bindDynamicText(shortText) { setShortText(it) })
-            if (hasShortTitle()) add(bindDynamicText(shortTitle) { setShortTitle(it) })
-            if (hasContentDescription()) {
-                add(bindDynamicText(contentDescription) { setContentDescription(it) })
+            if (hasLongText() && longText?.dynamicValue != null) {
+                add(longText!!.dynamicValue!!.evaluateToTextSetter { setLongText(it) })
+            }
+            if (hasLongTitle() && longTitle?.dynamicValue != null) {
+                add(longTitle!!.dynamicValue!!.evaluateToTextSetter { setLongTitle(it) })
+            }
+            if (hasShortText() && shortText?.dynamicValue != null) {
+                add(shortText!!.dynamicValue!!.evaluateToTextSetter { setShortText(it) })
+            }
+            if (hasShortTitle() && shortTitle?.dynamicValue != null) {
+                add(shortTitle!!.dynamicValue!!.evaluateToTextSetter { setShortTitle(it) })
+            }
+            if (hasContentDescription() && contentDescription?.dynamicValue != null) {
+                add(
+                    contentDescription!!.dynamicValue!!.evaluateToTextSetter {
+                        setContentDescription(it)
+                    }
+                )
             }
         }
 
@@ -231,91 +245,92 @@ constructor(
         }
     }
 
-    /**
-     * Returns a [Flow] of [WireComplicationDataSetter] based on [DynamicFloat] evaluation.
-     *
-     * Uses the generic [bindDynamicType] that provides a default [Executor] and
-     * [DynamicTypeValueReceiver] based on the generated [Flow].
-     */
-    private fun bindDynamicFloat(
-        dynamicFloat: DynamicFloat?,
+    /** Converts a generic flow to a [WireComplicationDataSetter]. */
+    private fun <T : Any> Flow<T?>.toDataSetter(
+        setter: WireComplicationData.Builder.(T) -> WireComplicationData.Builder,
         dynamicValueTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
-        floatSetter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
     ): Flow<WireComplicationDataSetter> {
-        // If there's no dynamic value, return a no-op setter.
-        dynamicFloat ?: return flowOf { it }
-        return bindDynamicType(
+        return map { value ->
+            if (value == null) return@map { null } // emit invalidating setter.
+            { builder ->
+                var newBuilder = setter(builder, value)
+                if (!keepDynamicValues) newBuilder = dynamicValueTrimmer(newBuilder)
+                newBuilder
+            }
+        }
+    }
+
+    /**
+     * Evaluates a [DynamicString] and converts it to a [WireComplicationDataSetter].
+     *
+     * This combines [DynamicString.evaluate] and [toDataSetter] because the trimming requires the
+     * evaluated [DynamicString], so combining it avoids mentioning it twice, i.e.:
+     * ```
+     * dynamicString.evaluate().toTextSetter(dynamicString) { ... }
+     * ```
+     */
+    private fun DynamicString.evaluateToTextSetter(
+        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
+    ): Flow<WireComplicationDataSetter> =
+        evaluate()
+            .toDataSetter(
+                setter = { value ->
+                    if (keepDynamicValues) {
+                        setter(WireComplicationText(value, this@evaluateToTextSetter))
+                    } else {
+                        setter(WireComplicationText(value))
+                    }
+                },
+                dynamicValueTrimmer = { this }, // Trimming is done in setter.
+            )
+
+    /**
+     * Binds a [DynamicFloat], returning a [Flow] of [Float] or `null` if the binding is
+     * invalidated.
+     */
+    private fun DynamicFloat.evaluate(): Flow<Float?> {
+        return evaluateDynamicType(
             bindingRequest = { executor, receiver ->
-                DynamicTypeBindingRequest.forDynamicFloat(dynamicFloat, executor, receiver)
-            },
-            builderSetter = { builder, value ->
-                val trimmed = if (keepDynamicValues) builder else dynamicValueTrimmer(builder)
-                floatSetter(trimmed, value)
+                DynamicTypeBindingRequest.forDynamicFloat(this@evaluate, executor, receiver)
             }
         )
     }
 
     /**
-     * Returns a [Flow] of [WireComplicationDataSetter] based on [DynamicString] evaluation (within
-     * a [WireComplicationText].
-     *
-     * Uses the generic [bindDynamicType] that provides a default [Executor] and
-     * [DynamicTypeValueReceiver] based on the generated [Flow].
+     * Binds a [DynamicString], returning a [Flow] of [String] or `null` if the binding is
+     * invalidated.
      */
-    private fun bindDynamicText(
-        unevaluatedText: WireComplicationText?,
-        textSetter:
-            WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
-    ): Flow<WireComplicationDataSetter> {
-        // If there's no dynamic value, return a no-op setter.
-        val dynamicString: DynamicString = unevaluatedText?.dynamicValue ?: return flowOf { it }
-        return bindDynamicType(
+    private fun DynamicString.evaluate(): Flow<String?> {
+        return evaluateDynamicType(
             bindingRequest = { executor, receiver ->
                 DynamicTypeBindingRequest.forDynamicString(
-                    dynamicString,
+                    this@evaluate,
                     ULocale.getDefault(),
                     executor,
                     receiver,
                 )
-            },
-            builderSetter = { builder, value ->
-                val evaluatedText =
-                    if (keepDynamicValues) {
-                        WireComplicationText(value, dynamicString)
-                    } else {
-                        WireComplicationText(value)
-                    }
-                textSetter(builder, evaluatedText)
             }
         )
     }
 
     /**
-     * Returns a [Flow] of [WireComplicationDataSetter] based on a [DynamicTypeBindingRequest] and a
-     * [builderSetter] that takes the evaluated raw value and sets the relevant builder field..
-     *
-     * In high-level terms, this converts the [DynamicTypeValueReceiver] callback given to
-     * [DynamicTypeEvaluator.bind] into a Kotlin [Flow], for easier use (e.g. to [combine] binding
-     * of multiple fields). The [Flow] is conflated (ignoring emissions that we didn't have time to
-     * process), as only the latest evaluation matters.
+     * Converts [DynamicTypeEvaluator.bind] to [Flow], emitting `null` when the binding is
+     * invalidated.
      *
      * The actual implementation of [DynamicTypeValueReceiver] is separated to the helper class
-     * [DynamicTypeValueReceiverToChannelConverter].
+     * [DynamicTypeValueReceiverToChannel].
      */
-    private fun <T : Any> bindDynamicType(
+    private fun <T : Any> evaluateDynamicType(
         bindingRequest: (Executor, DynamicTypeValueReceiver<T>) -> DynamicTypeBindingRequest,
-        builderSetter: (WireComplicationData.Builder, T) -> WireComplicationData.Builder,
-    ): Flow<WireComplicationDataSetter> =
+    ): Flow<T?> =
         callbackFlow {
                 // Binding DynamicTypeEvaluator to the provided binding request.
                 val boundDynamicType: BoundDynamicType =
                     evaluator.bind(
                         bindingRequest(
                             currentCoroutineContext().asExecutor(),
-                            DynamicTypeValueReceiverToChannelConverter(
-                                /* callbackFlow */ channel,
-                                builderSetter
-                            )
+                            // Emitting values to the callbackFlow's channel.
+                            DynamicTypeValueReceiverToChannel(channel)
                         )
                     )
                 // Start evaluation.
@@ -331,26 +346,21 @@ constructor(
     /**
      * Converts [DynamicTypeValueReceiver] into a [SendChannel] (from a [callbackFlow]).
      *
-     * When [onData] is invoked, emits a method that applies the [builderSetter] on the data. When
-     * [onInvalidated] is invoked, emits a method that returns `null`.
+     * [onData] emits the value, [onInvalidated] emits `null`.
      */
-    private class DynamicTypeValueReceiverToChannelConverter<T : Any>(
-        private val channel: SendChannel<WireComplicationDataSetter>,
-        private val builderSetter:
-            (WireComplicationData.Builder, T) -> WireComplicationData.Builder,
+    private class DynamicTypeValueReceiverToChannel<T : Any>(
+        private val channel: SendChannel<T?>,
     ) : DynamicTypeValueReceiver<T> {
         override fun onData(newData: T) {
             channel
-                // Setter method that applies the builderSetter.
-                .trySend { builder -> builderSetter(builder, newData) }
+                .trySend(newData)
                 // Shouldn't fail for overflow as we conflate the flow.
                 .onFailure { e -> Log.e(TAG, "Failed sending dynamic update.", e) }
         }
 
         override fun onInvalidated() {
             channel
-                // Setter method that returns null.
-                .trySend { null }
+                .trySend(null)
                 // Shouldn't fail for overflow as we conflate the flow.
                 .onFailure { e -> Log.e(TAG, "Failed sending dynamic update.", e) }
         }
