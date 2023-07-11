@@ -211,7 +211,7 @@ internal open class SwipeableState<T>(
 
     private suspend fun snapInternalToOffset(target: Float) {
         draggableState.drag {
-            dragBy(target - absoluteOffset.value)
+            dragBy(target - absoluteOffset.floatValue)
         }
     }
 
@@ -244,8 +244,8 @@ internal open class SwipeableState<T>(
         get() {
             // TODO(calintat): Track current velocity (b/149549482) and use that here.
             val target = animationTarget.value ?: computeTarget(
-                offset = offset.value,
-                lastValue = anchors.getOffset(currentValue) ?: offset.value,
+                offset = offset.floatValue,
+                lastValue = anchors.getOffset(currentValue) ?: offset.floatValue,
                 anchors = anchors.keys,
                 thresholds = thresholds,
                 velocity = 0f,
@@ -362,7 +362,7 @@ internal open class SwipeableState<T>(
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val lastAnchor = anchors.getOffset(currentValue)!!
             val targetValue = computeTarget(
-                offset = offset.value,
+                offset = offset.floatValue,
                 lastValue = lastAnchor,
                 anchors = anchors.keys,
                 thresholds = thresholds,
