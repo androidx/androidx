@@ -32,7 +32,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- TODO(245426369): enable when feature complete (i.e. after measuring perf impact) -->
+        <!-- TODO(283953019): enable when feature complete (i.e. after measuring perf impact) -->
         <!--
         <provider
             android:name="androidx.startup.InitializationProvider"
