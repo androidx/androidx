@@ -70,7 +70,6 @@ import androidx.camera.extensions.impl.ProcessResultImpl
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
-import androidx.camera.extensions.internal.FakeExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -345,7 +344,7 @@ class BasicExtenderSessionProcessorTest(
     @Test
     fun getRealtimeCaptureLatencyEstimate_invokesCaptureExtenderImpl(): Unit = runBlocking {
         assumeTrue(hasCaptureProcessor)
-        ExtensionVersion.injectInstance(FakeExtensionVersion(Version.VERSION_1_4))
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
         ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
         fakeCaptureExtenderImpl = object : FakeImageCaptureExtenderImpl(hasCaptureProcessor) {
             override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
