@@ -16,8 +16,10 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.icu.util.TimeZone
+import android.os.Build
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
@@ -32,6 +34,7 @@ import android.text.style.SubscriptSpan
 import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import java.time.Instant
@@ -542,6 +545,7 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
+@SuppressLint("NewApi") // This is what's in the wire format, regardless of whether it's supported.
 internal fun WireComplicationText.toApiComplicationText(
     placeholderAware: Boolean = false
 ): ComplicationText =
@@ -614,6 +618,7 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the dynamic value
  *   cannot be evaluated, e.g. when a data source is not available.
  */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class DynamicComplicationText(
     public val dynamicValue: DynamicString,
     public val fallbackValue: CharSequence,
