@@ -263,6 +263,19 @@ public class ListTemplateTest {
     }
 
     @Test
+    public void createInstance_addComposeAction() {
+        CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action composeAction = Action.COMPOSE_MESSAGE;
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(composeAction)
+                        .build();
+        assertThat(template.getActions()).containsExactly(composeAction);
+    }
+
+    @Test
     public void createInstance_addAction_appIconInvalid_throws() {
         assertThrows(
                 IllegalArgumentException.class,

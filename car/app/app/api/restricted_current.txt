@@ -931,12 +931,14 @@ package androidx.car.app.model {
     method public static String typeToString(int);
     field public static final androidx.car.app.model.Action APP_ICON;
     field public static final androidx.car.app.model.Action BACK;
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final androidx.car.app.model.Action COMPOSE_MESSAGE;
     field @androidx.car.app.annotations.RequiresCarApi(5) public static final int FLAG_DEFAULT = 4; // 0x4
     field @androidx.car.app.annotations.RequiresCarApi(5) public static final int FLAG_IS_PERSISTENT = 2; // 0x2
     field @androidx.car.app.annotations.RequiresCarApi(4) public static final int FLAG_PRIMARY = 1; // 0x1
     field public static final androidx.car.app.model.Action PAN;
     field public static final int TYPE_APP_ICON = 65538; // 0x10002
     field public static final int TYPE_BACK = 65539; // 0x10003
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int TYPE_COMPOSE_MESSAGE = 65541; // 0x10005
     field public static final int TYPE_CUSTOM = 1; // 0x1
     field public static final int TYPE_PAN = 65540; // 0x10004
   }
