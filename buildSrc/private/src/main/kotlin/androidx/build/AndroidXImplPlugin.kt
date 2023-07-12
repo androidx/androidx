@@ -1223,7 +1223,9 @@ fun Project.validateMultiplatformPluginHasNotBeenApplied() {
 
 /** Verifies that ProjectParser computes the correct values for this project */
 fun Project.validateProjectParser(extension: AndroidXExtension) {
-    project.afterEvaluate {
+    // If configuration fails, we don't want to validate the ProjectParser
+    // (otherwise it could report a confusing, unnecessary error)
+    project.gradle.taskGraph.whenReady {
         val parsed = project.parse()
         check(extension.type == parsed.libraryType) {
             "ProjectParser incorrectly computed libraryType = ${parsed.libraryType} " +
