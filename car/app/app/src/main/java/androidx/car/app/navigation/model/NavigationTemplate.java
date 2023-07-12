@@ -29,13 +29,13 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
-import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -306,15 +306,17 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets the {@link TravelEstimate} to the final destination.
          *
-         * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is
-         *                                  {@link TravelEstimate#REMAINING_TIME_UNKNOWN} or less
-         *                                  than zero
+         * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is less
+         *                                  than zero unless the value provided is
+         *                                  {@link TravelEstimate#REMAINING_TIME_UNKNOWN}
          * @throws NullPointerException     if {@code destinationTravelEstimate} is {@code null}
          */
         @NonNull
         public Builder setDestinationTravelEstimate(
                 @NonNull TravelEstimate destinationTravelEstimate) {
-            if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0) {
+            if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0
+                    && requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds()
+                    != TravelEstimate.REMAINING_TIME_UNKNOWN) {
                 throw new IllegalArgumentException(
                         "The destination travel estimate's remaining time must be greater or "
                                 + "equal to zero");
