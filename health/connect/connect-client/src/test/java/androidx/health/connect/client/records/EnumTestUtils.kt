@@ -16,25 +16,14 @@
 
 package androidx.health.connect.client.records
 
-import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
+internal inline fun <reified T> getAllIntDefEnums(pattern: String): Collection<Int> {
+    val regex = pattern.toRegex()
 
-internal fun KClass<*>.allIntDefEnumsWithPrefix(prefix: String): Collection<Int> {
-    return members
+    return T::class.java.fields
         .asSequence()
-        .filter { it.name.startsWith(prefix) && !it.name.endsWith("UNKNOWN") }
-        .filter { it.returnType == typeOf<Int>() }
-        .map { it.call(null) }
-        .filterIsInstance<Int>()
-        .toHashSet()
-}
-
-internal fun KClass<*>.allObjectIntDefEnumsWithPrefix(prefix: String): Collection<Int> {
-    return members
-        .asSequence()
-        .filter { it.name.startsWith(prefix) && !it.name.endsWith("UNKNOWN") }
-        .filter { it.returnType == typeOf<Int>() }
-        .map { it.call() }
+        .filter { it.name.matches(regex) }
+        .filter { it.type == Int::class.javaPrimitiveType }
+        .map { it.get(null) }
         .filterIsInstance<Int>()
         .toHashSet()
 }
