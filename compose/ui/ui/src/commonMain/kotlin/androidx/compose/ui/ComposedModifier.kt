@@ -25,6 +25,7 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.NoInspectorInfo
+import kotlin.jvm.JvmName
 
 /**
  * Declare a just-in-time composition of a [Modifier] that will be composed for each element it

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
+import kotlin.jvm.JvmInline
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
