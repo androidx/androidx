@@ -27,6 +27,6 @@ class TransactionInactiveError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TRANSACTION_INACTIVE_ERROR"
+            "androidx.credentials.TYPE_TRANSACTION_INACTIVE_ERROR"
     }
 }

@@ -27,6 +27,6 @@ class NamespaceError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NAMESPACE_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NAMESPACE_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NAMESPACE_ERROR"
+            "androidx.credentials.TYPE_NAMESPACE_ERROR"
     }
 }
