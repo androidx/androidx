@@ -20,7 +20,6 @@ import androidx.build.dackka.DokkaAnalysisPlatform
 import androidx.build.dackka.docsPlatform
 import com.android.build.gradle.LibraryExtension
 import com.google.gson.GsonBuilder
-import java.io.File
 import java.util.Locale
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -30,6 +29,7 @@ import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
@@ -136,10 +136,10 @@ fun Project.configureSourceJarForMultiplatform() {
             ?: throw GradleException(
                 "Unable to find multiplatform extension while configuring multiplatform source JAR"
             )
-    val metadataFile = buildDir.resolve(PROJECT_STRUCTURE_METADATA_FILEPATH)
+    val metadataFile = layout.buildDirectory.file(PROJECT_STRUCTURE_METADATA_FILEPATH)
     val multiplatformMetadataTask =
         tasks.register("createMultiplatformMetadata", CreateMultiplatformMetadata::class.java) {
-            it.metadataFile = metadataFile
+            it.metadataFile.set(metadataFile)
             it.sourceSetJson = createSourceSetMetadata(extension)
         }
     val sourceJar =
@@ -217,11 +217,11 @@ private fun KotlinTarget.mainCompilation() =
 abstract class CreateMultiplatformMetadata : DefaultTask() {
     @Input lateinit var sourceSetJson: String
 
-    @OutputFile lateinit var metadataFile: File
+    @get:OutputFile abstract val metadataFile: RegularFileProperty
 
     @TaskAction
     fun execute() {
-        metadataFile.apply {
+        metadataFile.get().asFile.apply {
             parentFile.mkdirs()
             createNewFile()
             writeText(sourceSetJson)
