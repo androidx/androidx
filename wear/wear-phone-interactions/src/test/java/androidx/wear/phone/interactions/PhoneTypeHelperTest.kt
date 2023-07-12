@@ -26,12 +26,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.PhoneTypeHelper.Companion.getPhoneDeviceType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowContentResolver
@@ -45,14 +46,15 @@ class PhoneTypeHelperTest {
         .path(PhoneTypeHelper.BLUETOOTH_MODE)
         .build()
 
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
+
     @Mock
     var mockContentProvider: ContentProvider? = null
     private var contentResolver: ContentResolver? = null
 
-    @Suppress("DEPRECATION") // b/251211092
     @Before
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
         ShadowContentResolver.registerProviderInternal(
             PhoneTypeHelper.SETTINGS_AUTHORITY,
             mockContentProvider

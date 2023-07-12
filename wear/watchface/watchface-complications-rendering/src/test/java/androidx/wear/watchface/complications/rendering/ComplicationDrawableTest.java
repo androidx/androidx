@@ -65,10 +65,12 @@ import kotlin.coroutines.Continuation;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -89,16 +91,16 @@ public class ComplicationDrawableTest {
     private androidx.wear.watchface.complications.data.ComplicationData mComplicationData;
     private int mDefaultTextSize;
 
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
     @Mock Canvas mMockCanvas;
     @Mock Drawable mMockDrawableActive;
     @Mock Drawable mMockDrawableAmbient;
     @Mock PendingIntent mMockPendingIntent;
     @Mock Drawable.Callback mMockDrawableCallback;
 
-    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         mComplicationDrawable = new ComplicationDrawable();
         mComplicationDrawable.setCallback(mMockDrawableCallback);
 
