@@ -42,6 +42,7 @@ androidXMultiplatform {
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-window-size-class"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 

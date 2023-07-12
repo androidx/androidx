@@ -18,7 +18,6 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,125 +51,140 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastMap
 
 /**
- * The Navigation Suite wraps the provided content and places the adequate provided navigation
- * component on the screen according to the current [NavigationLayoutType].
+ * The Navigation Suite Scaffold wraps the provided content and places the adequate provided
+ * navigation component on the screen according to the current [NavigationSuiteType].
  *
- * @param adaptiveInfo the current [WindowAdaptiveInfo]
- * @param modifier the [Modifier] to be applied to the navigation suite
- * @param layoutTypeProvider the current [NavigationLayoutTypeProvider]
- * @param navigationComponent the navigation component to be displayed, typically
- * [NavigationSuiteComponent]
- * @param containerColor the color used for the background of the navigation suite. Use
+ * @param modifier the [Modifier] to be applied to the navigation suite scaffold
+ * @param navigationSuite the navigation component to be displayed, typically [NavigationSuite]
+ * @param containerColor the color used for the background of the navigation suite scaffold. Use
  * [Color.Transparent] to have no color
- * @param contentColor the preferred color for content inside the navigation suite. Defaults to
- * either the matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme
+ * @param contentColor the preferred color for content inside the navigation suite scaffold.
+ * Defaults to either the matching content color for [containerColor], or to the current
+ * [LocalContentColor] if [containerColor] is not a color from the theme
  * @param content the content of your screen
  *
  * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun NavigationSuite(
-    adaptiveInfo: WindowAdaptiveInfo,
+internal fun NavigationSuiteScaffold(
     modifier: Modifier = Modifier,
-    layoutTypeProvider: NavigationLayoutTypeProvider = NavigationSuiteDefaults.layoutTypeProvider,
-    navigationComponent: @Composable () -> Unit,
+    navigationSuite: @Composable NavigationSuiteScaffoldScope.() -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable () -> Unit = {},
 ) {
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
-        NavigationSuiteLayout(
-            navigationLayoutType = layoutTypeProvider.calculateFromAdaptiveInfo(adaptiveInfo),
-            navigationComponent = navigationComponent,
+        NavigationSuiteScaffoldLayout(
+            navigationSuite = navigationSuite,
             content = content
         )
     }
 }
 
 /**
- * Layout for a [NavigationSuite]'s content.
+ * Layout for a [NavigationSuiteScaffold]'s content.
  *
- * @param navigationLayoutType the current [NavigationLayoutType] of the [NavigationSuite]
- * @param navigationComponent the navigation component of the [NavigationSuite]
- * @param content the main body of the [NavigationSuite]
+ * @param navigationSuite the navigation suite of the [NavigationSuiteScaffold]
+ * @param content the main body of the [NavigationSuiteScaffold]
+ * @throws [IllegalArgumentException] if there is more than one [NavigationSuiteAlignment] for the
+ * given navigation component
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-private fun NavigationSuiteLayout(
-    navigationLayoutType: NavigationLayoutType,
-    navigationComponent: @Composable () -> Unit,
+private fun NavigationSuiteScaffoldLayout(
+    navigationSuite: @Composable NavigationSuiteScaffoldScope.() -> Unit,
     content: @Composable () -> Unit = {}
 ) {
     Layout(
-        content = {
-            Box(modifier = Modifier.layoutId("navigation")) { navigationComponent() }
-            Box(modifier = Modifier.layoutId("content")) { content() }
+        contents = listOf({ NavigationSuiteScaffoldScopeImpl.navigationSuite() }, content)
+    ) { (navigationMeasurables, contentMeasurables), constraints ->
+        val navigationPlaceables = navigationMeasurables.map { it.measure(constraints) }
+        val alignments = navigationPlaceables.fastMap {
+            (it.parentData as NavigationSuiteParentData).alignment
+        }.filterNotNull()
+        if (alignments.all { alignments[0] != it }) {
+            throw IllegalArgumentException("There should be only one NavigationSuiteAlignment.")
         }
-    ) { measurables, constraints ->
-        val navigationPlaceable =
-            measurables.first { it.layoutId == "navigation" }.measure(constraints)
+        val alignment = alignments.firstOrNull() ?: NavigationSuiteAlignment.StartVertical
         val layoutHeight = constraints.maxHeight
         val layoutWidth = constraints.maxWidth
-        val contentPlaceable = measurables.first { it.layoutId == "content" }.measure(
-            if (navigationLayoutType.orientation
-                == NavigationSuiteFeature.Orientation.Horizontal
+        val contentPlaceables = contentMeasurables.map { it.measure(
+            if (alignment == NavigationSuiteAlignment.TopHorizontal ||
+                alignment == NavigationSuiteAlignment.BottomHorizontal
             ) {
                 constraints.copy(
-                    minHeight = layoutHeight - navigationPlaceable.height,
-                    maxHeight = layoutHeight - navigationPlaceable.height
+                    minHeight = layoutHeight - navigationPlaceables.maxOf { it.height },
+                    maxHeight = layoutHeight - navigationPlaceables.maxOf { it.height }
                 )
             } else {
                 constraints.copy(
-                    minWidth = layoutWidth - navigationPlaceable.width,
-                    maxWidth = layoutWidth - navigationPlaceable.width
+                    minWidth = layoutWidth - navigationPlaceables.maxOf { it.width },
+                    maxWidth = layoutWidth - navigationPlaceables.maxOf { it.width }
                 )
             }
-        )
+        ) }
 
         layout(layoutWidth, layoutHeight) {
-            when (navigationLayoutType.alignment) {
-                // The navigation component can be vertical or horizontal.
-                Alignment.TopStart -> {
+            when (alignment) {
+                NavigationSuiteAlignment.StartVertical -> {
                     // Place the navigation component at the start of the screen.
-                    navigationPlaceable.placeRelative(0, 0)
-
-                    if (navigationLayoutType.orientation
-                        == NavigationSuiteFeature.Orientation.Horizontal
-                    ) {
-                        // Place content below the navigation component.
-                        contentPlaceable.placeRelative(0, navigationPlaceable.height)
-                    } else {
-                        // Place content to the side of the navigation component.
-                        contentPlaceable.placeRelative(navigationPlaceable.width, 0)
+                    navigationPlaceables.forEach {
+                        it.placeRelative(0, 0)
+                    }
+                    // Place content to the side of the navigation component.
+                    contentPlaceables.forEach {
+                        it.placeRelative(navigationPlaceables.maxOf { it.width }, 0)
                     }
                 }
 
-                // The navigation component can only be vertical.
-                Alignment.TopEnd -> {
-                    navigationPlaceable.placeRelative(layoutWidth - navigationPlaceable.width, 0)
+                NavigationSuiteAlignment.EndVertical -> {
+                    // Place the navigation component at the end of the screen.
+                    navigationPlaceables.forEach {
+                        it.placeRelative(
+                            layoutWidth - navigationPlaceables.maxOf { it.width },
+                            0
+                        )
+                    }
                     // Place content at the start of the screen.
-                    contentPlaceable.placeRelative(0, 0)
+                    contentPlaceables.forEach {
+                        it.placeRelative(0, 0)
+                    }
                 }
 
-                // The navigation component can only be horizontal.
-                Alignment.BottomStart -> {
+                NavigationSuiteAlignment.TopHorizontal -> {
+                    // Place the navigation component at the start of the screen.
+                    navigationPlaceables.forEach {
+                        it.placeRelative(0, 0)
+                    }
+                    // Place content below the navigation component.
+                    contentPlaceables.forEach {
+                        it.placeRelative(0, navigationPlaceables.maxOf { it.height })
+                    }
+                }
+
+                NavigationSuiteAlignment.BottomHorizontal -> {
                     // Place content above the navigation component.
-                    contentPlaceable.placeRelative(0, 0)
+                    contentPlaceables.forEach {
+                        it.placeRelative(0, 0)
+                    }
                     // Place the navigation component at the bottom of the screen.
-                    navigationPlaceable.placeRelative(0, layoutHeight - navigationPlaceable.height)
-                }
-
-                else -> {
-                    // Do nothing if it's not a supported [Alignment].
+                    navigationPlaceables.forEach {
+                        it.placeRelative(
+                            0,
+                            layoutHeight - navigationPlaceables.maxOf { it.height })
+                    }
                 }
             }
         }
@@ -178,38 +192,38 @@ private fun NavigationSuiteLayout(
 }
 
 /**
- * The default Material navigation component according to the current [NavigationLayoutType] to be
- * used with the Navigation Suite.
+ * The default Material navigation component according to the current [NavigationSuiteType] to be
+ * used with the [NavigationSuiteScaffold].
  *
  * For specifics about each navigation component, see [NavigationBar], [NavigationRail], and
  * [PermanentDrawerSheet].
  *
- * @param adaptiveInfo the current [WindowAdaptiveInfo] of the [NavigationSuite]
  * @param modifier the [Modifier] to be applied to the navigation component
+ * @param layoutType the current [NavigationSuiteType] of the [NavigationSuiteScaffold]. Defaults to
+ * [NavigationSuiteDefaults.calculateFromAdaptiveInfo]
  * @params colors [NavigationSuiteColors] that will be used to determine the container (background)
  * color of the navigation component and the preferred color for content inside the navigation
  * component
- * @param layoutTypeProvider the current [NavigationLayoutTypeProvider] of the [NavigationSuite]
  * @param content the content inside the current navigation component, typically
- * [NavigationSuiteComponentScope.item]s
+ * [NavigationSuiteScope.item]s
  *
  * TODO: Remove "internal".
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun NavigationSuiteComponent(
-    adaptiveInfo: WindowAdaptiveInfo,
+internal fun NavigationSuiteScaffoldScope.NavigationSuite(
     modifier: Modifier = Modifier,
-    layoutTypeProvider: NavigationLayoutTypeProvider = NavigationSuiteDefaults.layoutTypeProvider,
+    layoutType: NavigationSuiteType =
+        NavigationSuiteDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
     colors: NavigationSuiteColors = NavigationSuiteDefaults.colors(),
-    content: NavigationSuiteComponentScope.() -> Unit
+    content: NavigationSuiteScope.() -> Unit
 ) {
     val scope by rememberStateOfItems(content)
 
-    when (layoutTypeProvider.calculateFromAdaptiveInfo(adaptiveInfo)) {
-        NavigationLayoutType.NavigationBar -> {
+    when (layoutType) {
+        NavigationSuiteType.NavigationBar -> {
             NavigationBar(
-                modifier = modifier,
+                modifier = modifier.alignment(NavigationSuiteDefaults.NavigationBarAlignment),
                 containerColor = colors.navigationBarContainerColor,
                 contentColor = colors.navigationBarContentColor
             ) {
@@ -230,9 +244,9 @@ internal fun NavigationSuiteComponent(
             }
         }
 
-        NavigationLayoutType.NavigationRail -> {
+        NavigationSuiteType.NavigationRail -> {
             NavigationRail(
-                modifier = modifier,
+                modifier = modifier.alignment(NavigationSuiteDefaults.NavigationRailAlignment),
                 containerColor = colors.navigationRailContainerColor,
                 contentColor = colors.navigationRailContentColor
             ) {
@@ -253,9 +267,9 @@ internal fun NavigationSuiteComponent(
             }
         }
 
-        NavigationLayoutType.NavigationDrawer -> {
+        NavigationSuiteType.NavigationDrawer -> {
             PermanentDrawerSheet(
-                modifier = modifier,
+                modifier = modifier.alignment(NavigationSuiteDefaults.NavigationDrawerAlignment),
                 drawerContainerColor = colors.navigationDrawerContainerColor,
                 drawerContentColor = colors.navigationDrawerContentColor
             ) {
@@ -278,114 +292,53 @@ internal fun NavigationSuiteComponent(
 }
 
 /**
- * A feature that describes characteristics of the navigation component of the [NavigationSuite].
+ * The scope associated with the [NavigationSuiteScaffold].
  *
  * TODO: Remove "internal".
  */
 @ExperimentalMaterial3AdaptiveApi
-internal interface NavigationSuiteFeature {
+internal interface NavigationSuiteScaffoldScope {
     /**
-     * Represents the orientation of the navigation component of the [NavigationSuite].
+     * [Modifier] that should be applied to the [NavigationSuite] of the [NavigationSuiteScaffold]
+     * in order to determine its alignment on the screen.
+     *
+     * @param alignment the desired [NavigationSuiteAlignment]
      */
-    enum class Orientation {
-        /**
-         * The navigation component of the [NavigationSuite] is horizontal, such as the
-         * Navigation Bar.
-         */
-        Horizontal,
-
-        /**
-         * The navigation component of the [NavigationSuite] is vertical, such as the
-         * Navigation Rail or Navigation Drawer.
-         */
-        Vertical
-    }
+    fun Modifier.alignment(alignment: NavigationSuiteAlignment): Modifier
 }
 
 /**
- * Class that describes the different navigation layout types of the [NavigationSuite].
+ * Represents the alignment of the navigation component of the [NavigationSuiteScaffold].
  *
- * The [NavigationLayoutType] informs the [NavigationSuite] of what navigation component to expect
- * and how to properly place it on the screen in relation to the [NavigationSuite]'s content.
- *
- * @param description the description of the [NavigationLayoutType]
- * @param alignment the [Alignment] of the [NavigationLayoutType] that helps inform how the
- * navigation component will be positioned on the screen. The current supported alignments are:
- * [Alignment.TopStart], [Alignment.BottomStart], and [Alignment.TopEnd]
- * @param orientation the [NavigationSuiteFeature.Orientation] of the [NavigationLayoutType] that
- * helps inform how the navigation component will be positioned on the screen in relation to the
- * content
- *
- * TODO: Make class open instead of internal.
- */
-@ExperimentalMaterial3AdaptiveApi
-internal class NavigationLayoutType constructor(
-    private val description: String,
-    // TODO: Make this an internal open val.
-    internal val alignment: Alignment,
-    // TODO: Make this an internal open val.
-    internal val orientation: NavigationSuiteFeature.Orientation
-) {
-    override fun toString(): String {
-        return description
-    }
-
-    companion object {
-        /**
-         * A navigation layout type that instructs the [NavigationSuite] to expect a [NavigationBar]
-         * and properly place it on the screen.
-         *
-         * @see NavigationBar
-         */
-        @JvmField
-        val NavigationBar =
-            NavigationLayoutType(
-                description = "NavigationBar",
-                alignment = Alignment.BottomStart,
-                orientation = NavigationSuiteFeature.Orientation.Horizontal,
-            )
-
-        /**
-         * A navigation layout type that instructs the [NavigationSuite] to expect a
-         * [NavigationRail] and properly place it on the screen.
-         *
-         * @see NavigationRail
-         */
-        @JvmField
-        val NavigationRail =
-            NavigationLayoutType(
-                description = "NavigationRail",
-                alignment = Alignment.TopStart,
-                orientation = NavigationSuiteFeature.Orientation.Vertical,
-            )
-
-        /**
-         * A navigation layout type that instructs the [NavigationSuite] to expect a
-         * [PermanentDrawerSheet] and properly place it on the screen.
-         *
-         * @see PermanentDrawerSheet
-         */
-        @JvmField
-        val NavigationDrawer =
-            NavigationLayoutType(
-                description = "NavigationDrawer",
-                alignment = Alignment.TopStart,
-                orientation = NavigationSuiteFeature.Orientation.Vertical,
-            )
-    }
-}
-
-/**
- * The scope associated with the [NavigationSuiteComponent].
+ * The alignment informs the Navigation Suite Scaffold how to properly place the expected navigation
+ * component on the screen in relation to the Navigation Suite Scaffold's content.
  *
  * TODO: Remove "internal".
  */
-internal interface NavigationSuiteComponentScope {
+@ExperimentalMaterial3AdaptiveApi
+internal enum class NavigationSuiteAlignment {
+    /** The navigation component is vertical and positioned at the start of the screen. */
+    StartVertical,
+    /** The navigation component is vertical and positioned at the end of the screen. */
+    EndVertical,
+    /** The navigation component is horizontal and positioned at the top of the screen. */
+    TopHorizontal,
+    /** The navigation component is horizontal and positioned at the bottom of the screen. */
+    BottomHorizontal
+}
+
+/**
+ * The scope associated with the [NavigationSuite].
+ *
+ * TODO: Remove "internal".
+ */
+@ExperimentalMaterial3AdaptiveApi
+internal interface NavigationSuiteScope {
 
     /**
      * This function sets the parameters of the default Material navigation item to be used with the
-     * Navigation Suite. The item is called in [NavigationSuiteComponent], according to the current
-     * [NavigationLayoutType].
+     * Navigation Suite Scaffold. The item is called in [NavigationSuite], according to the
+     * current [NavigationSuiteType].
      *
      * For specifics about each item component, see [NavigationBarItem], [NavigationRailItem], and
      * [NavigationDrawerItem].
@@ -422,21 +375,46 @@ internal interface NavigationSuiteComponentScope {
 }
 
 /**
- * A [NavigationLayoutType] provider associated with the [NavigationSuite] and the
- * [NavigationSuiteComponent].
+ * Class that describes the different navigation suite types of the [NavigationSuiteScaffold].
  *
- * TODO: Remove "internal".
+ * The [NavigationSuiteType] informs the [NavigationSuite] of what navigation component to
+ * expect.
+ *
+ * @param description the description of the [NavigationSuiteType]
+ *
+ * TODO: remove "internal"
  */
-internal fun interface NavigationLayoutTypeProvider {
+@JvmInline
+@ExperimentalMaterial3AdaptiveApi
+internal value class NavigationSuiteType private constructor(private val description: String) {
+    override fun toString(): String {
+        return description
+    }
 
-    /**
-     * Returns the expected [NavigationLayoutType] according to the provided
-     * [WindowAdaptiveInfo].
-     *
-     * @param adaptiveInfo the provided [WindowAdaptiveInfo]
-     */
-    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-    fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationLayoutType
+    companion object {
+        /**
+         * A navigation suite type that instructs the [NavigationSuite] to expect a [NavigationBar].
+         *
+         * @see NavigationBar
+         */
+        val NavigationBar = NavigationSuiteType(description = "NavigationBar")
+
+        /**
+         * A navigation suite type that instructs the [NavigationSuite] to expect a
+         * [NavigationRail].
+         *
+         * @see NavigationRail
+         */
+        val NavigationRail = NavigationSuiteType(description = "NavigationRail")
+
+        /**
+         * A navigation suite type that instructs the [NavigationSuite] to expect a
+         * [PermanentDrawerSheet].
+         *
+         * @see PermanentDrawerSheet
+         */
+        val NavigationDrawer = NavigationSuiteType(description = "NavigationDrawer")
+    }
 }
 
 /**
@@ -444,21 +422,35 @@ internal fun interface NavigationLayoutTypeProvider {
  *
  * TODO: Remove "internal".
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@ExperimentalMaterial3AdaptiveApi
 internal object NavigationSuiteDefaults {
-
-    /** The default implementation of the [NavigationLayoutTypeProvider]. */
-    val layoutTypeProvider = NavigationLayoutTypeProvider { adaptiveInfo ->
-        with(adaptiveInfo) {
+    /**
+     * Returns the expected [NavigationSuiteType] according to the provided [WindowAdaptiveInfo].
+     * Usually used with the [NavigationSuite].
+     *
+     * @param adaptiveInfo the provided [WindowAdaptiveInfo]
+     * @see NavigationSuite
+     */
+    fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationSuiteType {
+        return with(adaptiveInfo) {
             if (posture.isTabletop || windowSizeClass.heightSizeClass == Compact) {
-                NavigationLayoutType.NavigationBar
+                NavigationSuiteType.NavigationBar
             } else if (windowSizeClass.widthSizeClass == Expanded) {
-                NavigationLayoutType.NavigationRail
+                NavigationSuiteType.NavigationRail
             } else {
-                NavigationLayoutType.NavigationBar
+                NavigationSuiteType.NavigationBar
             }
         }
     }
+
+    /** Default alignment for the [NavigationSuiteType.NavigationBar]. */
+    val NavigationBarAlignment = NavigationSuiteAlignment.BottomHorizontal
+
+    /** Default alignment for the [NavigationSuiteType.NavigationRail]. */
+    val NavigationRailAlignment = NavigationSuiteAlignment.StartVertical
+
+    /** Default alignment for the [NavigationSuiteType.NavigationDrawer]. */
+    val NavigationDrawerAlignment = NavigationSuiteAlignment.StartVertical
 
     /**
      * Creates a [NavigationSuiteColors] with the provided colors for the container color, according
@@ -497,26 +489,27 @@ internal object NavigationSuiteDefaults {
 }
 
 /**
- * Represents the colors of a [NavigationSuiteComponent].
+ * Represents the colors of a [NavigationSuite].
  *
  * For specifics about each navigation component colors see [NavigationBarDefaults],
  * [NavigationRailDefaults], and [DrawerDefaults].
  *
  * @param navigationBarContainerColor the container color for the [NavigationBar] of the
- * [NavigationSuiteComponent]
+ * [NavigationSuite]
  * @param navigationBarContentColor the content color for the [NavigationBar] of the
- * [NavigationSuiteComponent]
+ * [NavigationSuite]
  * @param navigationRailContainerColor the container color for the [NavigationRail] of the
- * [NavigationSuiteComponent]
+ * [NavigationSuite]
  * @param navigationRailContentColor the content color for the [NavigationRail] of the
- * [NavigationSuiteComponent]
+ * [NavigationSuite]
  * @param navigationDrawerContainerColor the container color for the [PermanentDrawerSheet] of the
- * [NavigationSuiteComponent]
+ * [NavigationSuite]
  * @param navigationDrawerContentColor the content color for the [PermanentDrawerSheet] of the
- * [NavigationSuiteComponent]
+ * [NavigationSuite]
  *
  * TODO: Remove "internal".
  */
+@ExperimentalMaterial3AdaptiveApi
 internal class NavigationSuiteColors
 internal constructor(
     val navigationBarContainerColor: Color,
@@ -528,20 +521,21 @@ internal constructor(
 )
 
 /**
- * Represents the colors of a [NavigationSuiteComponentScope.item].
+ * Represents the colors of a [NavigationSuiteScope.item].
  *
  * For specifics about each navigation item colors see [NavigationBarItemColors],
  * [NavigationRailItemColors], and [NavigationDrawerItemColors].
  *
  * @param navigationBarItemColors the [NavigationBarItemColors] associated with the
- * [NavigationBarItem] of the [NavigationSuiteComponentScope.item]
+ * [NavigationBarItem] of the [NavigationSuiteScope.item]
  * @param navigationRailItemColors the [NavigationRailItemColors] associated with the
- * [NavigationRailItem] of the [NavigationSuiteComponentScope.item]
+ * [NavigationRailItem] of the [NavigationSuiteScope.item]
  * @param navigationDrawerItemColors the [NavigationDrawerItemColors] associated with the
- * [NavigationDrawerItem] of the [NavigationSuiteComponentScope.item]
+ * [NavigationDrawerItem] of the [NavigationSuiteScope.item]
  *
  * TODO: Remove "internal".
  */
+@ExperimentalMaterial3AdaptiveApi
 internal class NavigationSuiteItemColors
 internal constructor(
     val navigationBarItemColors: NavigationBarItemColors,
@@ -549,12 +543,76 @@ internal constructor(
     val navigationDrawerItemColors: NavigationDrawerItemColors,
 )
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal object NavigationSuiteScaffoldScopeImpl : NavigationSuiteScaffoldScope {
+    override fun Modifier.alignment(alignment: NavigationSuiteAlignment): Modifier {
+        return this.then(
+            AlignmentElement(alignment = alignment)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal class AlignmentElement(
+    val alignment: NavigationSuiteAlignment
+) : ModifierNodeElement<AlignmentNode>() {
+    override fun create(): AlignmentNode {
+        return AlignmentNode(alignment)
+    }
+
+    override fun update(node: AlignmentNode) {
+        node.alignment = alignment
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "alignment"
+        value = alignment
+    }
+
+    override fun hashCode(): Int = alignment.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? AlignmentElement ?: return false
+        return alignment == otherModifier.alignment
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal class AlignmentNode(
+    var alignment: NavigationSuiteAlignment
+) : ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) =
+        ((parentData as? NavigationSuiteParentData) ?: NavigationSuiteParentData()).also {
+            it.alignment = alignment
+        }
+}
+
+/** Parent data associated with children. */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal data class NavigationSuiteParentData(
+    var alignment: NavigationSuiteAlignment? = null
+)
+
+internal val IntrinsicMeasurable.navigationSuiteParentData: NavigationSuiteParentData?
+    get() = parentData as? NavigationSuiteParentData
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val NavigationSuiteParentData?.alignment: NavigationSuiteAlignment
+    get() = this?.alignment ?: NavigationSuiteAlignment.StartVertical
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal expect val WindowAdaptiveInfoDefault: WindowAdaptiveInfo
+    @Composable
+    get
+
 private interface NavigationSuiteItemProvider {
     val itemsCount: Int
     val itemList: MutableVector<NavigationSuiteItem>
 }
 
-private class NavigationSuiteItem(
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private class NavigationSuiteItem constructor(
     val selected: Boolean,
     val onClick: () -> Unit,
     val icon: @Composable () -> Unit,
@@ -567,7 +625,8 @@ private class NavigationSuiteItem(
     val interactionSource: MutableInteractionSource
 )
 
-private class NavigationSuiteComponentScopeImpl : NavigationSuiteComponentScope,
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private class NavigationSuiteScopeImpl : NavigationSuiteScope,
     NavigationSuiteItemProvider {
 
     override fun item(
@@ -604,13 +663,14 @@ private class NavigationSuiteComponentScopeImpl : NavigationSuiteComponentScope,
         get() = itemList.size
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun rememberStateOfItems(
-    content: NavigationSuiteComponentScope.() -> Unit
+    content: NavigationSuiteScope.() -> Unit
 ): State<NavigationSuiteItemProvider> {
     val latestContent = rememberUpdatedState(content)
     return remember {
-        derivedStateOf { NavigationSuiteComponentScopeImpl().apply(latestContent.value) }
+        derivedStateOf { NavigationSuiteScopeImpl().apply(latestContent.value) }
     }
 }
 
