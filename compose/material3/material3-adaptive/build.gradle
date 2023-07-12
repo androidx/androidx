@@ -42,6 +42,7 @@ androidXMultiplatform {
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-window-size-class"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -110,4 +111,11 @@ androidx {
     publish = Publish.NONE
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
+}
+
+// Screenshot tests related setup
+android {
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/compose/material3/material3-adaptive"
+    namespace "androidx.compose.material3.adaptive"
 }

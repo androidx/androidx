@@ -84,5 +84,5 @@ private class PreferredWidthNode(var width: Dp) : ParentDataModifierNode, Modifi
 }
 
 internal data class PaneScaffoldParentData(
-    var preferredWidth: Float = Float.NaN,
+    var preferredWidth: Float? = null,
 )
