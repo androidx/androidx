@@ -18,6 +18,7 @@ package androidx.wear.watchface.complications.data
 
 import android.content.Context
 import android.icu.util.TimeZone
+import android.os.Build
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireTimeFormatBuilder
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class AsWireComplicationTextTest {
@@ -124,6 +126,7 @@ public class AsWireComplicationTextTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     public fun dynamicText() {
         val text = DynamicComplicationText(DynamicString.constant("dynamic"), "fallback")
 
@@ -208,6 +211,7 @@ public class FromWireComplicationTextTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     public fun dynamicText() {
         val wireText = WireComplicationText("fallback", DynamicString.constant("dynamic"))
 

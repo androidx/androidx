@@ -17,6 +17,7 @@ package androidx.wear.watchface.complications.datasource
 
 import android.content.Intent
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -25,6 +26,7 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -51,6 +53,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
@@ -308,6 +311,7 @@ class ComplicationDataSourceServiceTest {
             .isEqualTo("hello preview")
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     enum class GetComplicationPreviewDataInvalidScenario(
         val data: ComplicationData,
         val message: String
@@ -374,6 +378,7 @@ class ComplicationDataSourceServiceTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     fun testGetComplicationPreviewData_invalid_fails() {
         for (scenario in GetComplicationPreviewDataInvalidScenario.values()) {
             mService.previewData = scenario.data

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.datasource.samples.dynamic
 
+import android.os.Build
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
@@ -33,6 +34,21 @@ class TimeDataSourceService : ComplicationDataSourceService() {
         request: ComplicationRequest,
         listener: ComplicationRequestListener
     ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            val text = PlainComplicationText.Builder("--").build()
+            listener.onComplicationData(
+                RangedValueComplicationData.Builder(
+                        value = 0f,
+                        min = 0f,
+                        max = 9f,
+                        contentDescription = text
+                    )
+                    .setText(text)
+                    .build()
+            )
+            return
+        }
+
         val epochDuration: DynamicDuration =
             DynamicInstant.withSecondsPrecision(EPOCH)
                 .durationUntil(DynamicInstant.platformTimeWithSecondsPrecision())
