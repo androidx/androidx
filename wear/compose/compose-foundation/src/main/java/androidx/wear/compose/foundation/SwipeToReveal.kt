@@ -282,7 +282,7 @@ public fun SwipeToReveal(
             ) { value, layoutSize ->
                 val swipeableWidth = layoutSize.width.toFloat()
                 // Update the total width which will be used to calculate the anchors
-                revealScope.width.value = swipeableWidth
+                revealScope.width.floatValue = swipeableWidth
                 // Multiply the anchor with -1f to get the actual swipeable anchor
                 -state.swipeAnchors[value]!! * swipeableWidth
             }
@@ -363,7 +363,7 @@ private class RevealScopeImpl constructor(
     val width = mutableFloatStateOf(0.0f)
 
     override val revealOffset: Float
-        get() = width.value * (revealState.swipeAnchors[RevealValue.Revealing] ?: 0.0f)
+        get() = width.floatValue * (revealState.swipeAnchors[RevealValue.Revealing] ?: 0.0f)
 }
 
 /**
