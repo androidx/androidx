@@ -21,6 +21,8 @@ import static android.view.Display.DEFAULT_DISPLAY;
 
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.os.LocaleList;
+import android.os.SystemClock;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
@@ -28,6 +30,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.LocaleListCompat;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}.
@@ -322,6 +325,40 @@ public class AccessibilityWindowInfoCompat {
     }
 
     /**
+     * Returns the {@link SystemClock#uptimeMillis()} at which the last transition happens.
+     * A transition happens when {@link #getBoundsInScreen(Rect)} is changed.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *   <li>Api &lt; 34: Will return 0.</li>
+     * </ul>
+     * @return The transition timestamp.
+     */
+    public long getTransitionTimeMillis() {
+        if (SDK_INT >= 34) {
+            return Api34Impl.getTransitionTimeMillis((AccessibilityWindowInfo) mInfo);
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the {@link android.os.LocaleList} of the window.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *   <li>Api &lt; 34: Will return {@link LocaleListCompat#getEmptyLocaleList()}.</li>
+     * </ul>
+     * @return the locales of the window.
+     */
+    public @NonNull LocaleListCompat getLocales() {
+        if (SDK_INT >= 34) {
+            return LocaleListCompat.wrap(Api34Impl.getLocales((AccessibilityWindowInfo) mInfo));
+        } else {
+            return LocaleListCompat.getEmptyLocaleList();
+        }
+    }
+
+    /**
      * Gets the title of the window.
      *
      * @return The title of the window, or the application label for the window if no title was
@@ -448,6 +485,8 @@ public class AccessibilityWindowInfoCompat {
         builder.append(", active=").append(isActive());
         builder.append(", hasParent=").append(getParent() != null);
         builder.append(", hasChildren=").append(getChildCount() > 0);
+        builder.append(", transitionTime=").append(getTransitionTimeMillis());
+        builder.append(", locales=").append(getLocales());
         builder.append(']');
         return builder.toString();
     }
@@ -591,6 +630,23 @@ public class AccessibilityWindowInfoCompat {
         @DoNotInline
         static boolean isInPictureInPictureMode(AccessibilityWindowInfo info) {
             return info.isInPictureInPictureMode();
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static long getTransitionTimeMillis(AccessibilityWindowInfo info) {
+            return info.getTransitionTimeMillis();
+        }
+
+        @DoNotInline
+        static LocaleList getLocales(AccessibilityWindowInfo info) {
+            return info.getLocales();
         }
     }
 }
