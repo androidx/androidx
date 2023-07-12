@@ -26,6 +26,7 @@ import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileTree
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
@@ -102,14 +103,13 @@ private const val InputDir = "src"
 private const val IncludedFiles = "**/*.kt"
 
 fun Project.configureKtlint() {
-    val outputDir = "${buildDir.relativeTo(projectDir)}/reports/ktlint/"
     val lintProvider =
         tasks.register("ktlint", KtlintCheckTask::class.java) { task ->
-            task.report = File("${outputDir}ktlint-checkstyle-report.xml")
+            task.report.set(layout.buildDirectory.file("reports/ktlint/report.xml"))
             task.ktlintClasspath.from(getKtlintConfiguration())
         }
     tasks.register("ktlintFormat", KtlintFormatTask::class.java) { task ->
-        task.report = File("${outputDir}ktlint-format-checkstyle-report.xml")
+        task.report.set(layout.buildDirectory.file("reports/ktlint/format-report.xml"))
         task.ktlintClasspath.from(getKtlintConfiguration())
     }
     // afterEvaluate because Gradle's default "check" task doesn't exist yet
@@ -156,7 +156,7 @@ abstract class BaseKtlintTask : DefaultTask() {
      */
     @get:Internal var overrideSubdirectories: List<String>? = null
 
-    @get:OutputFile lateinit var report: File
+    @get:OutputFile abstract val report: RegularFileProperty
 
     protected fun getArgsList(shouldFormat: Boolean): List<String> {
         val arguments = mutableListOf("--code-style=android_studio")
@@ -165,7 +165,7 @@ abstract class BaseKtlintTask : DefaultTask() {
         arguments.add("--disabled_rules")
         arguments.add(DisabledRules)
         arguments.add("--reporter=plain")
-        arguments.add("--reporter=checkstyle,output=$report")
+        arguments.add("--reporter=checkstyle,output=${report.get().asFile.absolutePath}")
 
         overrideDirectory?.let {
             val subdirectories = overrideSubdirectories

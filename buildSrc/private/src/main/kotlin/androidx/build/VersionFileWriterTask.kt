@@ -71,7 +71,7 @@ fun Project.configureVersionFileWriter(
 
             it.version.set(version)
             it.relativePath.set(String.format("META-INF/%s_%s.version", group, artifactId))
-            it.outputDir.set(File(buildDir, "generatedVersionFile"))
+            it.outputDir.set(layout.buildDirectory.dir("generatedVersionFile"))
 
             // We only add version file if is a library that is publishing.
             it.enabled = androidXExtension.shouldPublish()

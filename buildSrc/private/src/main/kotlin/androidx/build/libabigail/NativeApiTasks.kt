@@ -47,7 +47,7 @@ object NativeApiTasks {
                 task.description = "Generates API files from native source"
                 task.projectRootDir.set(project.rootDir)
                 task.prefabDirectory.set(
-                    project.buildDir.resolve("intermediates/prefab_package/release/prefab")
+                    project.layout.buildDirectory.dir("intermediates/prefab_package/release/prefab")
                 )
                 task.artifactNames.set(artifactNames)
                 task.apiLocation.set(builtApiLocation)
