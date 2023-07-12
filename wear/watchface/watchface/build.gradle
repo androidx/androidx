@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTest)
 
     testImplementation(project(":wear:watchface:watchface-complications-rendering"))
     testImplementation(libs.testExtJunit)
