@@ -113,6 +113,9 @@ abstract class BaseTelecomTest {
 
     private fun maybeCleanupStuckCalls() {
         JetpackConnectionService.mPendingConnectionRequests.clear()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ManagedConnectionService.mPendingConnectionRequests.clear()
+        }
         MockInCallService.destroyAllCalls()
     }
 
