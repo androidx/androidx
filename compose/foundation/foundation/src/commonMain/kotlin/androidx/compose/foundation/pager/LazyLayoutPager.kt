@@ -246,9 +246,10 @@ private fun rememberPagerItemProviderLambda(
     pageCount: () -> Int
 ): () -> PagerLazyLayoutItemProvider {
     val latestContent = rememberUpdatedState(pageContent)
-    return remember(state, latestContent, key, pageCount) {
+    val latestKey = rememberUpdatedState(key)
+    return remember(state, latestContent, latestKey, pageCount) {
         val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
-            PagerLayoutIntervalContent(latestContent.value, key, pageCount())
+            PagerLayoutIntervalContent(latestContent.value, latestKey.value, pageCount())
         }
         val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
             val intervalContent = intervalContentState.value
