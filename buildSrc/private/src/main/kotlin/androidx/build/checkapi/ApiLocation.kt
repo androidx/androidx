@@ -144,7 +144,7 @@ fun Project.hasApiFileDirectory(): Boolean {
 
 /** Returns the directory containing the project's built current API file. */
 private fun Project.getBuiltApiFileDirectory(): File {
-    return File(project.buildDir, "api")
+    @Suppress("DEPRECATION") return File(project.buildDir, "api")
 }
 
 /**

@@ -764,6 +764,7 @@ dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see
 Encountered duplicate path \"jvmMain(\/([a-zA-Z]+))+(\.jvm)?\.kt\" during copy operation configured with DuplicatesStrategy.WARN
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
+For more on this\, please refer to https\:\/\/docs\.gradle\.org\/.*\/userguide\/command_line_interface\.html\#sec\:command_line_warnings in the Gradle documentation\.
 # > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
@@ -960,8 +961,7 @@ Run the build with '\-\-info' for more details\.
 # AGP warning about API usage we have no control over
 Values of variant API AnnotationProcessorOptions\.arguments are queried and may return non final values, this is unsupported
 # > Task :compose:ui:ui:testDebugUnitTest
-OpenJDK 64\-Bit Server VM warning:
-.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+(OpenJDK 64\-Bit Server VM warning:.*|.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended)
 # > Task :concurrent:concurrent-futures:compileTestJava b/242311027
 \$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] (resume|suspend)\(\) in Thread has been deprecated and marked for removal
 thread\.(resume|suspend)\(\);

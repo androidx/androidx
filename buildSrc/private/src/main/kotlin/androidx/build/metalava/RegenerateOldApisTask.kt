@@ -147,6 +147,7 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         configuration.isTransitive = false
 
         val sanitizedMavenId = mavenId.replace(":", "-")
+        @Suppress("DEPRECATION")
         val unzippedDir = File("${runnerProject.buildDir.path}/sources-unzipped/$sanitizedMavenId")
         runnerProject.copy({ copySpec ->
             copySpec.from(runnerProject.zipTree(configuration.singleFile))
@@ -163,6 +164,7 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         configuration.isTransitive = false
 
         val sanitizedMavenId = mavenId.replace(":", "-")
+        @Suppress("DEPRECATION")
         val unzippedDir = File("${runnerProject.buildDir.path}/aars-unzipped/$sanitizedMavenId")
         runnerProject.copy({ copySpec ->
             copySpec.from(runnerProject.zipTree(configuration.singleFile))
