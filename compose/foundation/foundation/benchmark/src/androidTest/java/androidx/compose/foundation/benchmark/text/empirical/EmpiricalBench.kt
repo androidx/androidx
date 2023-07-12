@@ -16,12 +16,18 @@
 
 package androidx.compose.foundation.benchmark.text.empirical
 
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import org.junit.Rule
 import org.junit.Test
 
@@ -46,4 +52,28 @@ abstract class EmpiricalBench<S> where S : ToggleableTestCase, S : LayeredCompos
     fun draw() {
         benchmarkRule.toggleStateBenchmarkDraw(caseFactory)
     }
+}
+
+@Composable
+fun Subject(text: String, style: TextStyle) {
+    Text(text, style = style)
+}
+
+@Composable
+fun Subject(text: String, modifier: Modifier, style: TextStyle) {
+    Text(text, modifier, style = style)
+}
+
+@Composable
+fun Subject(text: AnnotatedString, style: TextStyle) {
+    Text(text, style = style)
+}
+
+@Composable
+fun Subject(
+    text: AnnotatedString,
+    style: TextStyle,
+    inlineContent: Map<String, InlineTextContent>
+) {
+    Text(text, style = style, inlineContent = inlineContent)
 }

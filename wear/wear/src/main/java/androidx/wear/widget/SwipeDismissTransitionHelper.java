@@ -257,10 +257,14 @@ class SwipeDismissTransitionHelper {
         mCompositingPaint.setColorFilter(null);
         mLayout.setLayerType(View.LAYER_TYPE_NONE, null);
         mLayout.setClipToOutline(false);
-        getOriginalParentView().setBackground(mPrevParentBackground);
+
+        // Restoring previous background
+        ViewGroup originalParentView = getOriginalParentView();
+        if (originalParentView != null) {
+            originalParentView.setBackground(mPrevParentBackground);
+        }
         mPrevParentBackground = null;
     }
-
     private Drawable generateScrimBackgroundDrawable(int width, int height) {
         ShapeDrawable shape = new ShapeDrawable(new RectShape());
         shape.setBounds(0, 0, width, height);

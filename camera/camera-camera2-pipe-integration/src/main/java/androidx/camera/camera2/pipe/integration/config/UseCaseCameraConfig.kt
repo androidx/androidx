@@ -18,6 +18,8 @@
 
 package androidx.camera.camera2.pipe.integration.config
 
+import android.media.MediaCodec
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -30,8 +32,12 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
+import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -52,14 +58,27 @@ annotation class UseCaseCameraScope
 /** Dependency bindings for building a [UseCaseCamera] */
 @Module(
     includes = [
-        CapturePipelineImpl.Bindings::class,
         UseCaseCameraImpl.Bindings::class,
         UseCaseCameraRequestControlImpl.Bindings::class,
     ]
 )
 abstract class UseCaseCameraModule {
     // Used for dagger provider methods that are static.
-    companion object
+    companion object {
+
+        @UseCaseCameraScope
+        @Provides
+        fun provideCapturePipeline(
+            capturePipelineImpl: CapturePipelineImpl,
+            capturePipelineTorchCorrection: CapturePipelineTorchCorrection
+        ): CapturePipeline {
+            if (CapturePipelineTorchCorrection.isEnabled) {
+                return capturePipelineTorchCorrection
+            }
+
+            return capturePipelineImpl
+        }
+    }
 }
 
 /** Dagger module for binding the [UseCase]'s to the [UseCaseCamera]. */
@@ -67,6 +86,8 @@ abstract class UseCaseCameraModule {
 class UseCaseCameraConfig(
     private val useCases: List<UseCase>,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraQuirks: CameraQuirks,
+    private val cameraGraphFlags: CameraGraph.Flags,
 ) {
     @UseCaseCameraScope
     @Provides
@@ -90,6 +111,7 @@ class UseCaseCameraConfig(
     ): UseCaseGraphConfig {
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
+        var containsVideo = false
         // TODO: This may need to combine outputs that are (or will) share the same output
         //  imageReader or surface.
         val sessionConfigAdapter = SessionConfigAdapter(useCases)
@@ -100,6 +122,10 @@ class UseCaseCameraConfig(
                     streamUseCase = getStreamUseCase(
                         deferrableSurface,
                         sessionConfigAdapter.surfaceToStreamUseCaseMap
+                    ),
+                    streamUseHint = getStreamUseHint(
+                        deferrableSurface,
+                        sessionConfigAdapter.surfaceToStreamUseHintMap
                     ),
                     size = deferrableSurface.prescribedSize,
                     format = StreamFormat(deferrableSurface.prescribedStreamFormat),
@@ -114,8 +140,34 @@ class UseCaseCameraConfig(
                     "Prepare config for: $deferrableSurface (${deferrableSurface.prescribedSize}," +
                         " ${deferrableSurface.prescribedStreamFormat})"
                 }
+                if (deferrableSurface.containerClass == MediaCodec::class.java) {
+                    containsVideo = true
+                }
             }
         }
+
+        val shouldCloseCaptureSessionOnDisconnect =
+            if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
+                // If we can release Surfaces immediately, we'll finalize the session when the
+                // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we won't
+                // need to explicitly close the capture session.
+                false
+            } else {
+                if (cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
+                    containsVideo
+                ) {
+                    true
+                } else
+                // TODO(b/277675483): From the current test results, older devices (Android
+                //  version <= 8.1.0) seem to have a higher chance of encountering an issue where
+                //  not closing the capture session would lead to CameraDevice.close stalling
+                //  indefinitely. This version check might need to be further fine-turned down the
+                //  line.
+                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1
+            }
+        val combinedFlags = cameraGraphFlags.copy(
+            quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
+        )
 
         // Build up a config (using TEMPLATE_PREVIEW by default)
         val graph = cameraPipe.create(
@@ -123,6 +175,7 @@ class UseCaseCameraConfig(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
                 defaultListeners = listOf(callbackMap, requestListener),
+                flags = combinedFlags,
             )
         )
 
@@ -166,6 +219,13 @@ class UseCaseCameraConfig(
         mapping: Map<DeferrableSurface, Long>
     ): OutputStream.StreamUseCase? {
         return mapping[deferrableSurface]?.let { OutputStream.StreamUseCase(it) }
+    }
+
+    private fun getStreamUseHint(
+        deferrableSurface: DeferrableSurface,
+        mapping: Map<DeferrableSurface, Long>
+    ): OutputStream.StreamUseHint? {
+        return mapping[deferrableSurface]?.let { OutputStream.StreamUseHint(it) }
     }
 }
 

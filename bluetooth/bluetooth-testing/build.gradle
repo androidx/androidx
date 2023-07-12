@@ -27,7 +27,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Bluetooth Testing"
+    name = "Bluetooth Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "Test utilities for AndroidX Bluetooth"

@@ -29,7 +29,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
 import java.util.Map;
@@ -76,9 +76,8 @@ public final class CameraManagerCompat {
     /**
      * Get a {@link CameraManagerCompat} instance from a provided {@link CameraManagerCompatImpl}.
      *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     @NonNull
     public static CameraManagerCompat from(@NonNull final CameraManagerCompatImpl impl) {
         return new CameraManagerCompat(impl);

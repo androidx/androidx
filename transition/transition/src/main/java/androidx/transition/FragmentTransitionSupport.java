@@ -35,7 +35,6 @@ import java.util.List;
 
 
 /**
- * @hide
  */
 // This is instantiated in androidx.fragment.app.FragmentTransition
 @SuppressWarnings("unused")

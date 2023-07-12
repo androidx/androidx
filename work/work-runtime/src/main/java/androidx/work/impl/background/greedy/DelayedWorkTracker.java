@@ -18,6 +18,7 @@ package androidx.work.impl.background.greedy;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.Clock;
 import androidx.work.Logger;
 import androidx.work.RunnableScheduler;
 import androidx.work.impl.model.WorkSpec;
@@ -30,7 +31,6 @@ import java.util.Map;
  * Keeps track of {@link androidx.work.WorkRequest}s that have a timing component in a
  * {@link GreedyScheduler}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DelayedWorkTracker {
@@ -44,14 +44,17 @@ public class DelayedWorkTracker {
     final GreedyScheduler mGreedyScheduler;
 
     private final RunnableScheduler mRunnableScheduler;
+    private final Clock mClock;
     private final Map<String, Runnable> mRunnables;
 
     public DelayedWorkTracker(
             @NonNull GreedyScheduler scheduler,
-            @NonNull RunnableScheduler runnableScheduler) {
+            @NonNull RunnableScheduler runnableScheduler,
+            @NonNull Clock clock) {
 
         mGreedyScheduler = scheduler;
         mRunnableScheduler = runnableScheduler;
+        mClock = clock;
         mRunnables = new HashMap<>();
     }
 
@@ -61,8 +64,9 @@ public class DelayedWorkTracker {
      * the {@link WorkSpec}'s scheduled run time.
      *
      * @param workSpec The {@link WorkSpec} corresponding to the {@link androidx.work.WorkRequest}
+     * @param nextRunTime time when work should be executed
      */
-    public void schedule(@NonNull final WorkSpec workSpec) {
+    public void schedule(@NonNull final WorkSpec workSpec, long nextRunTime) {
         Runnable existing = mRunnables.remove(workSpec.id);
         if (existing != null) {
             mRunnableScheduler.cancel(existing);
@@ -77,8 +81,8 @@ public class DelayedWorkTracker {
         };
 
         mRunnables.put(workSpec.id, runnable);
-        long now = System.currentTimeMillis();
-        long delay = workSpec.calculateNextRunTime() - now;
+        long now = mClock.currentTimeMillis();
+        long delay = nextRunTime - now;
         mRunnableScheduler.scheduleWithDelay(delay, runnable);
     }
 

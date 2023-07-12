@@ -50,7 +50,6 @@ import java.util.List;
 /**
  * Wrapper around {@link Notification.Builder} that works in a backwards compatible way.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccessor {

@@ -20,13 +20,14 @@ import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.google.common.truth.Truth.assertThat
+import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class PagingSourceTest {
@@ -426,8 +427,8 @@ class PagingSourceTest {
             Item(
                 names[it % 10],
                 it,
-                Math.random() * 1000,
-                (Math.random() * 200).toInt().toString() + " fake st."
+                Random.nextDouble(1000.0),
+                Random.nextInt(200).toString() + " fake st."
             )
         }.sortedWith(ITEM_COMPARATOR)
 

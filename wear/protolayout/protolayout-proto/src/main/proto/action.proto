@@ -4,7 +4,7 @@ syntax = "proto3";
 package androidx.wear.protolayout.proto;
 
 import "state.proto";
-import "state_entry.proto";
+import "dynamic_data.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ActionProto";
@@ -54,11 +54,11 @@ message AndroidExtra {
 
 // A launch action to send an intent to an Android activity.
 message AndroidActivity {
-  // The package name to send the intent to, for example, "com.google.weather".
+  // The package name to send the intent to, for example, "com.example.weather".
   string package_name = 1;
 
   // The fully qualified class name (including the package) to send the intent
-  // to, for example, "com.google.weather.WeatherOverviewActivity".
+  // to, for example, "com.example.weather.WeatherOverviewActivity".
   string class_name = 2;
 
   // The extras to be included in the intent.
@@ -101,5 +101,5 @@ message SetStateAction {
   // The target key of the state item for this action.
   string target_key = 1;
   // The value to set the state item to, when this action is executed.
-  androidx.wear.protolayout.expression.proto.StateEntryValue value = 2;
+  androidx.wear.protolayout.expression.proto.DynamicDataValue value = 2;
 }

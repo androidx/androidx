@@ -65,8 +65,8 @@ fun lightColorScheme(
     onError: Color = ColorLightTokens.OnError,
     errorContainer: Color = ColorLightTokens.ErrorContainer,
     onErrorContainer: Color = ColorLightTokens.OnErrorContainer,
-    outline: Color = ColorLightTokens.Outline,
-    outlineVariant: Color = ColorLightTokens.OutlineVariant,
+    border: Color = ColorLightTokens.Border,
+    borderVariant: Color = ColorLightTokens.BorderVariant,
     scrim: Color = ColorLightTokens.Scrim
 ): ColorScheme =
     ColorScheme(
@@ -96,8 +96,8 @@ fun lightColorScheme(
         onError = onError,
         errorContainer = errorContainer,
         onErrorContainer = onErrorContainer,
-        outline = outline,
-        outlineVariant = outlineVariant,
+        border = border,
+        borderVariant = borderVariant,
         scrim = scrim
     )
 
@@ -157,9 +157,9 @@ fun lightColorScheme(
  * @property errorContainer The preferred tonal color of error containers.
  * @property onErrorContainer The color (and state variants) that should be used for content on
  * top of [errorContainer].
- * @property outline Subtle color used for boundaries. Outline color role adds contrast for
+ * @property border Subtle color used for boundaries. Border color role adds contrast for
  * accessibility purposes.
- * @property outlineVariant Utility color used for boundaries for decorative elements when strong
+ * @property borderVariant Utility color used for boundaries for decorative elements when strong
  * contrast is not required.
  * @property scrim Color of a scrim that obscures content.
  */
@@ -192,8 +192,8 @@ class ColorScheme(
     onError: Color,
     errorContainer: Color,
     onErrorContainer: Color,
-    outline: Color,
-    outlineVariant: Color,
+    border: Color,
+    borderVariant: Color,
     scrim: Color
 ) {
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
@@ -248,9 +248,9 @@ class ColorScheme(
         internal set
     var onErrorContainer by mutableStateOf(onErrorContainer, structuralEqualityPolicy())
         internal set
-    var outline by mutableStateOf(outline, structuralEqualityPolicy())
+    var border by mutableStateOf(border, structuralEqualityPolicy())
         internal set
-    var outlineVariant by mutableStateOf(outlineVariant, structuralEqualityPolicy())
+    var borderVariant by mutableStateOf(borderVariant, structuralEqualityPolicy())
         internal set
     var scrim by mutableStateOf(scrim, structuralEqualityPolicy())
         internal set
@@ -283,8 +283,8 @@ class ColorScheme(
         onError: Color = this.onError,
         errorContainer: Color = this.errorContainer,
         onErrorContainer: Color = this.onErrorContainer,
-        outline: Color = this.outline,
-        outlineVariant: Color = this.outlineVariant,
+        border: Color = this.border,
+        borderVariant: Color = this.borderVariant,
         scrim: Color = this.scrim
     ): ColorScheme =
         ColorScheme(
@@ -314,8 +314,8 @@ class ColorScheme(
             onError = onError,
             errorContainer = errorContainer,
             onErrorContainer = onErrorContainer,
-            outline = outline,
-            outlineVariant = outlineVariant,
+            border = border,
+            borderVariant = borderVariant,
             scrim = scrim
         )
 
@@ -347,8 +347,8 @@ class ColorScheme(
             "onError=$onError" +
             "errorContainer=$errorContainer" +
             "onErrorContainer=$onErrorContainer" +
-            "outline=$outline" +
-            "outlineVariant=$outlineVariant" +
+            "border=$border" +
+            "borderVariant=$borderVariant" +
             "scrim=$scrim" +
             ")"
     }
@@ -385,8 +385,8 @@ fun darkColorScheme(
     onError: Color = ColorDarkTokens.OnError,
     errorContainer: Color = ColorDarkTokens.ErrorContainer,
     onErrorContainer: Color = ColorDarkTokens.OnErrorContainer,
-    outline: Color = ColorDarkTokens.Outline,
-    outlineVariant: Color = ColorDarkTokens.OutlineVariant,
+    border: Color = ColorDarkTokens.Border,
+    borderVariant: Color = ColorDarkTokens.BorderVariant,
     scrim: Color = ColorDarkTokens.Scrim
 ): ColorScheme =
     ColorScheme(
@@ -416,8 +416,8 @@ fun darkColorScheme(
         onError = onError,
         errorContainer = errorContainer,
         onErrorContainer = onErrorContainer,
-        outline = outline,
-        outlineVariant = outlineVariant,
+        border = border,
+        borderVariant = borderVariant,
         scrim = scrim
     )
 
@@ -555,8 +555,8 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
     onError = other.onError
     errorContainer = other.errorContainer
     onErrorContainer = other.onErrorContainer
-    outline = other.outline
-    outlineVariant = other.outlineVariant
+    border = other.border
+    borderVariant = other.borderVariant
     scrim = other.scrim
 }
 
@@ -586,8 +586,8 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
         ColorSchemeKeyTokens.SurfaceTint -> surfaceTint
         ColorSchemeKeyTokens.OnTertiary -> onTertiary
         ColorSchemeKeyTokens.OnTertiaryContainer -> onTertiaryContainer
-        ColorSchemeKeyTokens.Outline -> outline
-        ColorSchemeKeyTokens.OutlineVariant -> outlineVariant
+        ColorSchemeKeyTokens.Border -> border
+        ColorSchemeKeyTokens.BorderVariant -> borderVariant
         ColorSchemeKeyTokens.Primary -> primary
         ColorSchemeKeyTokens.PrimaryContainer -> primaryContainer
         ColorSchemeKeyTokens.Scrim -> scrim

@@ -22,7 +22,6 @@ import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -51,6 +50,7 @@ abstract class CreateCredentialRequest internal constructor(
     open val isAutoSelectAllowed: Boolean,
     /** @hide */
     val displayInfo: DisplayInfo,
+    val origin: String?,
 ) {
 
     init {
@@ -67,13 +67,15 @@ abstract class CreateCredentialRequest internal constructor(
      * @property userId the user identifier of the created credential
      * @property userDisplayName an optional display name in addition to the [userId] that may be
      * displayed next to the `userId` during the user consent to help your user better understand
-     * the credential being created.
+     * the credential being created
      */
     class DisplayInfo internal /** @hide */ constructor(
         val userId: CharSequence,
         val userDisplayName: CharSequence?,
         /** @hide */
-        val credentialTypeIcon: Icon?
+        val credentialTypeIcon: Icon?,
+        /** @hide */
+        val defaultProvider: String?,
     ) {
 
         /**
@@ -82,7 +84,7 @@ abstract class CreateCredentialRequest internal constructor(
          * @param userId the user id of the created credential
          * @param userDisplayName an optional display name in addition to the [userId] that may be
          * displayed next to the `userId` during the user consent to help your user better
-         * understand the credential being created.
+         * understand the credential being created
          * @throws IllegalArgumentException If [userId] is empty
          */
         @JvmOverloads constructor(
@@ -91,7 +93,8 @@ abstract class CreateCredentialRequest internal constructor(
         ) : this(
             userId,
             userDisplayName,
-            null
+            null,
+            null,
         )
 
         init {
@@ -105,6 +108,9 @@ abstract class CreateCredentialRequest internal constructor(
             bundle.putCharSequence(BUNDLE_KEY_USER_ID, userId)
             if (!TextUtils.isEmpty(userDisplayName)) {
                 bundle.putCharSequence(BUNDLE_KEY_USER_DISPLAY_NAME, userDisplayName)
+            }
+            if (!TextUtils.isEmpty(defaultProvider)) {
+                bundle.putString(BUNDLE_KEY_DEFAULT_PROVIDER, defaultProvider)
             }
             // Today the type icon is determined solely within this library right before the
             // request is passed into the framework. Later if needed a new API can be added for
@@ -132,6 +138,10 @@ abstract class CreateCredentialRequest internal constructor(
             const val BUNDLE_KEY_CREDENTIAL_TYPE_ICON =
                 "androidx.credentials.BUNDLE_KEY_CREDENTIAL_TYPE_ICON"
 
+            /** @hide */
+            const val BUNDLE_KEY_DEFAULT_PROVIDER =
+                "androidx.credentials.BUNDLE_KEY_DEFAULT_PROVIDER"
+
             /**
              * Returns a RequestDisplayInfo from a `credentialData` Bundle, or otherwise `null` if
              * parsing fails.
@@ -149,7 +159,9 @@ abstract class CreateCredentialRequest internal constructor(
                         displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_DISPLAY_NAME)
                     val icon: Icon? =
                         displayInfoBundle.getParcelable(BUNDLE_KEY_CREDENTIAL_TYPE_ICON)
-                    DisplayInfo(userId!!, displayName, icon)
+                    val defaultProvider: String? =
+                        displayInfoBundle.getString(BUNDLE_KEY_DEFAULT_PROVIDER)
+                    DisplayInfo(userId!!, displayName, icon, defaultProvider)
                 } catch (e: Exception) {
                     null
                 }
@@ -165,7 +177,7 @@ abstract class CreateCredentialRequest internal constructor(
 
         /**
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
-         * [CreatePublicKeyCredentialRequest], [CreatePublicKeyCredentialRequestPrivileged], and
+         * [CreatePublicKeyCredentialRequest], and
          * [CreateCustomCredentialRequest]. Otherwise returns null.
          *
          * @hide
@@ -176,22 +188,19 @@ abstract class CreateCredentialRequest internal constructor(
             type: String,
             credentialData: Bundle,
             candidateQueryData: Bundle,
-            requireSystemProvider: Boolean
+            requireSystemProvider: Boolean,
+            origin: String? = null,
         ): CreateCredentialRequest? {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        CreatePasswordRequest.createFrom(credentialData)
+                        CreatePasswordRequest.createFrom(credentialData, origin)
 
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (credentialData.getString(BUNDLE_KEY_SUBTYPE)) {
                             CreatePublicKeyCredentialRequest
                                 .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
-                                CreatePublicKeyCredentialRequest.createFrom(credentialData)
-
-                            BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV ->
-                                CreatePublicKeyCredentialRequestPrivileged
-                                    .createFrom(credentialData)
+                                CreatePublicKeyCredentialRequest.createFrom(credentialData, origin)
 
                             else -> throw FrameworkClassParsingException()
                         }

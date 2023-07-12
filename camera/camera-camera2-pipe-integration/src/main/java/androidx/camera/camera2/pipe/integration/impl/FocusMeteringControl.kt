@@ -26,10 +26,13 @@ import android.util.Rational
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl.OperationCanceledException
 import androidx.camera.core.FocusMeteringAction
@@ -41,11 +44,11 @@ import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
@@ -54,6 +57,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl @Inject constructor(
     private val cameraProperties: CameraProperties,
+    private val meteringRegionCorrection: MeteringRegionCorrection,
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
     private val zoomCompat: ZoomCompat,
@@ -107,7 +111,7 @@ class FocusMeteringControl @Inject constructor(
         val signal = CompletableDeferred<FocusMeteringResult>()
 
         useCaseCamera?.let { useCaseCamera ->
-            val job = threads.sequentialScope.launch {
+            threads.sequentialScope.launch {
                 cancelSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
                 updateSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
                 updateSignal = signal
@@ -116,19 +120,25 @@ class FocusMeteringControl @Inject constructor(
                     action.meteringPointsAe,
                     maxAeRegionCount,
                     cropSensorRegion,
-                    defaultAspectRatio
+                    defaultAspectRatio,
+                    FocusMeteringAction.FLAG_AE,
+                    meteringRegionCorrection,
                 )
                 val afRectangles = meteringRegionsFromMeteringPoints(
                     action.meteringPointsAf,
                     maxAfRegionCount,
                     cropSensorRegion,
-                    defaultAspectRatio
+                    defaultAspectRatio,
+                    FocusMeteringAction.FLAG_AF,
+                    meteringRegionCorrection,
                 )
                 val awbRectangles = meteringRegionsFromMeteringPoints(
                     action.meteringPointsAwb,
                     maxAwbRegionCount,
                     cropSensorRegion,
-                    defaultAspectRatio
+                    defaultAspectRatio,
+                    FocusMeteringAction.FLAG_AWB,
+                    meteringRegionCorrection,
                 )
                 if (aeRectangles.isEmpty() && afRectangles.isEmpty() && awbRectangles.isEmpty()) {
                     signal.completeExceptionally(
@@ -149,39 +159,54 @@ class FocusMeteringControl @Inject constructor(
                 } else {
                     (false to autoFocusTimeoutMs)
                 }
-                withTimeoutOrNull(timeout) {
-                    useCaseCamera.requestControl.startFocusAndMeteringAsync(
-                        aeRegions = aeRectangles,
-                        afRegions = afRectangles,
-                        awbRegions = awbRectangles,
-                        afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
-                    ).await()
-                }.let { result3A ->
-                    if (result3A != null) {
-                        if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
-                            signal.completeExceptionally(
-                                OperationCanceledException("Camera is not active.")
-                            )
-                        } else {
-                            signal.complete(result3A.toFocusMeteringResult(
-                                shouldTriggerAf = afRectangles.isNotEmpty()
-                            ))
+
+                /**
+                 * If device does not support a 3A region, we should not update it at all.
+                 * If device does support but a region list is empty, it means any previously
+                 * set region should be removed, so the no-op METERING_REGIONS_DEFAULT is used.
+                 */
+                val result3A = useCaseCamera.requestControl.startFocusAndMeteringAsync(
+                    aeRegions = if (maxAeRegionCount > 0)
+                        aeRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                    else null,
+                    afRegions = if (maxAfRegionCount > 0)
+                        afRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                    else null,
+                    awbRegions = if (maxAwbRegionCount > 0)
+                        awbRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                    else null,
+                    aeLockBehavior = if (maxAeRegionCount > 0)
+                        Lock3ABehavior.AFTER_NEW_SCAN
+                    else null,
+                    afLockBehavior = if (maxAfRegionCount > 0)
+                        Lock3ABehavior.AFTER_NEW_SCAN
+                    else null,
+                    awbLockBehavior = if (maxAwbRegionCount > 0)
+                        Lock3ABehavior.AFTER_NEW_SCAN
+                    else null,
+                    afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON),
+                    timeLimitNs = TimeUnit.NANOSECONDS.convert(
+                        timeout,
+                        TimeUnit.MILLISECONDS
+                    )
+                ).await()
+
+                if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
+                    signal.completeExceptionally(
+                        OperationCanceledException("Camera is not active.")
+                    )
+                } else if (result3A.status == Result3A.Status.TIME_LIMIT_REACHED) {
+                    if (isCancelEnabled) {
+                        if (signal.isActive) {
+                            cancelFocusAndMeteringNowAsync(useCaseCamera, signal)
                         }
                     } else {
-                        if (isCancelEnabled) {
-                            if (signal.isActive) {
-                                cancelFocusAndMeteringNowAsync(useCaseCamera, signal)
-                            }
-                        } else {
-                            signal.complete(FocusMeteringResult.create(false))
-                        }
+                        signal.complete(FocusMeteringResult.create(false))
                     }
-                }
-            }
-
-            signal.invokeOnCompletion { throwable ->
-                if (throwable is OperationCanceledException) {
-                    job.cancel()
+                } else {
+                    signal.complete(result3A.toFocusMeteringResult(
+                        shouldTriggerAf = afRectangles.isNotEmpty()
+                    ))
                 }
             }
         } ?: run {
@@ -200,19 +225,25 @@ class FocusMeteringControl @Inject constructor(
             action.meteringPointsAe,
             maxAeRegionCount,
             cropSensorRegion,
-            defaultAspectRatio
+            defaultAspectRatio,
+            FocusMeteringAction.FLAG_AE,
+            meteringRegionCorrection,
         )
         val rectanglesAf = meteringRegionsFromMeteringPoints(
             action.meteringPointsAf,
             maxAfRegionCount,
             cropSensorRegion,
-            defaultAspectRatio
+            defaultAspectRatio,
+            FocusMeteringAction.FLAG_AF,
+            meteringRegionCorrection,
         )
         val rectanglesAwb = meteringRegionsFromMeteringPoints(
             action.meteringPointsAwb,
             maxAwbRegionCount,
             cropSensorRegion,
-            defaultAspectRatio
+            defaultAspectRatio,
+            FocusMeteringAction.FLAG_AWB,
+            meteringRegionCorrection,
         )
         return rectanglesAe.isNotEmpty() || rectanglesAf.isNotEmpty() || rectanglesAwb.isNotEmpty()
     }
@@ -285,7 +316,8 @@ class FocusMeteringControl @Inject constructor(
          * in priority. On the other hand, resultAfState == null matters only if the result comes
          * from a submitted request, so it should be checked after frameMetadata == null.
          *
-         * Ref: [FocusMeteringAction] and [Controller3A.lock3A] documentations.
+         * @see FocusMeteringAction
+         * @see androidx.camera.camera2.pipe.graph.Controller3A.lock3A
          */
         val isFocusSuccessful = when {
             !shouldTriggerAf -> false
@@ -315,6 +347,8 @@ class FocusMeteringControl @Inject constructor(
             maxRegionCount: Int,
             cropSensorRegion: Rect,
             defaultAspectRatio: Rational,
+            @FocusMeteringAction.MeteringMode meteringMode: Int,
+            meteringRegionCorrection: MeteringRegionCorrection,
         ): List<MeteringRectangle> {
             if (meteringPoints.isEmpty() || maxRegionCount == 0) {
                 return emptyList()
@@ -331,8 +365,13 @@ class FocusMeteringControl @Inject constructor(
                 if (!isValid(meteringPoint)) {
                     continue
                 }
-                val adjustedPoint: PointF =
-                    getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio, defaultAspectRatio)
+                val adjustedPoint: PointF = getFovAdjustedPoint(
+                    meteringPoint,
+                    cropRegionAspectRatio,
+                    defaultAspectRatio,
+                    meteringMode,
+                    meteringRegionCorrection
+                )
                 val meteringRectangle: MeteringRectangle =
                     getMeteringRect(adjustedPoint, meteringPoint.size, cropSensorRegion)
                 meteringRegions.add(meteringRectangle)
@@ -344,13 +383,19 @@ class FocusMeteringControl @Inject constructor(
         private fun getFovAdjustedPoint(
             meteringPoint: MeteringPoint,
             cropRegionAspectRatio: Rational,
-            defaultAspectRatio: Rational
+            defaultAspectRatio: Rational,
+            @FocusMeteringAction.MeteringMode meteringMode: Int,
+            meteringRegionCorrection: MeteringRegionCorrection,
         ): PointF {
             // Use default aspect ratio unless there is a custom aspect ratio in MeteringPoint.
             val fovAspectRatio = meteringPoint.surfaceAspectRatio ?: defaultAspectRatio
+            val correctedPoint = meteringRegionCorrection.getCorrectedPoint(
+                meteringPoint,
+                meteringMode
+            )
             if (fovAspectRatio != cropRegionAspectRatio) {
                 if (fovAspectRatio.compareTo(cropRegionAspectRatio) > 0) {
-                    val adjustedPoint = PointF(meteringPoint.x, meteringPoint.y)
+                    val adjustedPoint = PointF(correctedPoint.x, correctedPoint.y)
                     // The crop region is taller than the FOV, top and bottom of the crop region is
                     // cropped.
                     val verticalPadding =
@@ -359,7 +404,7 @@ class FocusMeteringControl @Inject constructor(
                     adjustedPoint.y = (topPadding + adjustedPoint.y) * (1f / verticalPadding)
                     return adjustedPoint
                 } else {
-                    val adjustedPoint = PointF(meteringPoint.x, meteringPoint.y)
+                    val adjustedPoint = PointF(correctedPoint.x, correctedPoint.y)
                     // The crop region is wider than the FOV, left and right side of crop region is
                     // cropped
                     val horizontalPadding =
@@ -369,7 +414,7 @@ class FocusMeteringControl @Inject constructor(
                     return adjustedPoint
                 }
             }
-            return PointF(meteringPoint.x, meteringPoint.y)
+            return PointF(correctedPoint.x, correctedPoint.y)
         }
 
         // Given a normalized PointF and normalized size factor for width and height, calculate

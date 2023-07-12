@@ -49,21 +49,16 @@ import java.io.PrintWriter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
-/**
- * A service for creating and controlling watch face instances.
- *
- * @hide
- */
+/** A service for creating and controlling watch face instances. */
 @RequiresApi(27)
-@VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WatchFaceControlService : Service() {
     private var watchFaceInstanceServiceStub: IWatchFaceInstanceServiceStub? = null
 
-    /** @hide */
     public companion object {
         public const val ACTION_WATCHFACE_CONTROL_SERVICE: String =
             "com.google.android.wearable.action.WATCH_FACE_CONTROL"
+        internal const val TAG = "IWatchFaceInstanceServiceStub"
     }
 
     override fun onBind(intent: Intent?): IBinder? =
@@ -81,11 +76,12 @@ public open class WatchFaceControlService : Service() {
     open fun createWatchFaceService(watchFaceName: ComponentName): WatchFaceService? {
         return try {
             val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
-            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+            if (!WatchFaceService::class.java.isAssignableFrom(watchFaceServiceClass)) {
                 return null
             }
             watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
         } catch (e: ClassNotFoundException) {
+            Log.w(TAG, "createWatchFaceService failed for $watchFaceName", e)
             null
         }
     }
@@ -116,7 +112,6 @@ public open class WatchFaceControlService : Service() {
     }
 }
 
-/** @hide */
 @RequiresApi(27)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class IWatchFaceInstanceServiceStub(

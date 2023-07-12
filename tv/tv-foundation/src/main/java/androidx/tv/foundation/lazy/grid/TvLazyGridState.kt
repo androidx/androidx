@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -135,7 +136,7 @@ class TvLazyGridState constructor(
     /**
      * Needed for [animateScrollToItem]. Updated on every measure.
      */
-    internal var slotsPerLine: Int by mutableStateOf(0)
+    internal var slotsPerLine: Int by mutableIntStateOf(0)
 
     /**
      * Needed for [animateScrollToItem]. Updated on every measure.

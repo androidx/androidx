@@ -21,6 +21,7 @@ package androidx.camera.testing
 
 import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Observable
+import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.asExecutor
@@ -28,7 +29,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import kotlin.coroutines.ContinuationInterceptor
 
 public fun <T> Observable<T>.asFlow(): Flow<T?> = callbackFlow {
     val observer = object : Observable.Observer<T> {

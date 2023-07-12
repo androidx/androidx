@@ -26,4 +26,16 @@
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
+    <fragment
+        android:id="@+id/navigation_scanner"
+        android:name="androidx.bluetooth.integration.testapp.ui.scanner.ScannerFragment"
+        android:label="@string/title_scanner"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_advertiser"
+        android:name="androidx.bluetooth.integration.testapp.ui.advertiser.AdvertiserFragment"
+        android:label="@string/title_advertiser"
+        tools:layout="@layout/fragment_home" />
+
 </navigation>

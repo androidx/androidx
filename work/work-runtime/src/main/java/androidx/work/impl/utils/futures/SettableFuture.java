@@ -34,7 +34,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  * @author Sven Mawson
  * @since 9.0 (in 1.0 as {@code ValueFuture})
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SettableFuture<V> extends AbstractFuture<V> {

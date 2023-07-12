@@ -16,17 +16,18 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+
 import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ResolutionSelector;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,9 +45,11 @@ import java.util.UUID;
 public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutputConfig {
 
     private final Config mConfig;
+    private final CaptureType mCaptureType;
 
-    FakeUseCaseConfig(Config config) {
+    FakeUseCaseConfig(Config config, CaptureType captureType) {
         mConfig = config;
+        mCaptureType = captureType;
     }
 
     @NonNull
@@ -57,7 +61,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     @Override
     public int getInputFormat() {
         return retrieveOption(OPTION_INPUT_FORMAT,
-                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+    }
+
+    @NonNull
+    @Override
+    public CaptureType getCaptureType() {
+        return mCaptureType;
     }
 
     /** Builder for an empty Config */
@@ -81,6 +91,11 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
             this(MutableOptionsBundle.create(), captureType);
         }
 
+        public Builder(@NonNull CaptureType captureType, int inputFormat) {
+            this(MutableOptionsBundle.create(), captureType);
+            mOptionsBundle.insertOption(OPTION_INPUT_FORMAT, inputFormat);
+        }
+
         public Builder(@NonNull Config config, @NonNull CaptureType captureType) {
             mOptionsBundle = MutableOptionsBundle.from(config);
             setTargetClass(FakeUseCase.class);
@@ -96,7 +111,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @NonNull
         @Override
         public FakeUseCaseConfig getUseCaseConfig() {
-            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle));
+            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle), mCaptureType);
         }
 
         @Override
@@ -197,6 +212,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
 
         @NonNull
         @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            getMutableConfig().insertOption(OPTION_MIRROR_MODE, mirrorMode);
+            return this;
+        }
+
+        @NonNull
+        @Override
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
             return this;
@@ -258,6 +280,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         public Builder setHighResolutionDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setCaptureType(@NonNull CaptureType captureType) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
             return this;
         }
     }

@@ -56,6 +56,10 @@ internal val STREAM_USE_CASE_OPTION: Config.Option<Long> = Config.Option.create(
     "camera2.cameraCaptureSession.streamUseCase",
     Long::class.javaPrimitiveType!!
 )
+internal val STREAM_USE_HINT_OPTION: Config.Option<Long> = Config.Option.create(
+    "camera2.cameraCaptureSession.streamUseHint",
+    Long::class.javaPrimitiveType!!
+)
 internal val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> = Config.Option.create(
     "camera2.captureRequest.tag", Any::class.java
 )
@@ -76,7 +80,6 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
     /**
      * Returns all capture request options contained in this configuration.
      *
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val captureRequestOptions: CaptureRequestOptions
@@ -108,6 +111,21 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
      */
     fun getStreamUseCase(valueIfMissing: Long? = null): Long? {
         return config.retrieveOption(STREAM_USE_CASE_OPTION, valueIfMissing)
+    }
+
+    /**
+     * Returns a CameraDevice template on the given configuration.
+     *
+     * @see [android.hardware.camera2.CameraMetadata] for valid stream use cases.
+     * @see [android.hardware.camera2.params.OutputConfiguration] to see how
+     * camera2 framework uses this.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or `valueIfMissing` if the value does not exist in this
+     * configuration.
+     */
+    fun getStreamUseHint(valueIfMissing: Long? = null): Long? {
+        return config.retrieveOption(STREAM_USE_HINT_OPTION, valueIfMissing)
     }
 
     /**

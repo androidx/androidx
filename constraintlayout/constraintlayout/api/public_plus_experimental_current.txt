@@ -120,20 +120,6 @@ package androidx.constraintlayout.helper.widget {
     field protected float mComputedMinY;
   }
 
-  public class LogJson extends androidx.constraintlayout.widget.ConstraintHelper {
-    ctor public LogJson(android.content.Context);
-    ctor public LogJson(android.content.Context, android.util.AttributeSet?);
-    ctor public LogJson(android.content.Context, android.util.AttributeSet?, int);
-    method public void periodicStart();
-    method public void periodicStop();
-    method public void setDelay(int);
-    method public void writeLog();
-    field public static final int LOG_API = 4; // 0x4
-    field public static final int LOG_DELAYED = 2; // 0x2
-    field public static final int LOG_LAYOUT = 3; // 0x3
-    field public static final int LOG_PERIODIC = 1; // 0x1
-  }
-
   public class MotionEffect extends androidx.constraintlayout.motion.widget.MotionHelper {
     ctor public MotionEffect(android.content.Context!);
     ctor public MotionEffect(android.content.Context!, android.util.AttributeSet!);

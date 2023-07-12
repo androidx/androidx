@@ -122,8 +122,16 @@ object Shell {
             val result = ShellImpl.executeCommandUnsafe("ls -l $path")
             if (result.isBlank()) "" else result.split(Regex("\\s+"))[3]
         }
-        check(sum.isNotBlank()) {
-            "Checksum for $path was blank"
+        if (sum.isBlank()) {
+            if (!ShellImpl.isSessionRooted) {
+                val lsOutput = ShellImpl.executeCommandUnsafe("ls -l $path")
+                throw IllegalStateException(
+                    "Checksum for $path was blank. Adb session is not rooted, if root owns file, " +
+                        "you may need to \"adb root\" and delete the file: $lsOutput"
+                )
+            } else {
+                throw IllegalStateException("Checksum for $path was blank.")
+            }
         }
         return sum
     }
@@ -255,6 +263,38 @@ object Shell {
         val output = executeScriptCaptureStdoutStderr(script, stdin)
         check(output.stderr.isBlank()) { "Expected no stderr from $script, saw ${output.stderr}" }
         return output.stdout
+    }
+
+    /**
+     * Returns one apk (or more, if multi-apk/bundle) path for the given package
+     *
+     * The result of `pm path <package>` is one or more lines like:
+     * ```
+     * package: </path/to/apk1>
+     * package: </path/to/apk2>
+     * ```
+     *
+     * Note - to test multi-apk behavior locally, you can build and install a module like
+     * `benchmark:integration-tests:macrobenchmark-target` with the instructions below:
+     * ```
+     * ./gradlew benchmark:integ:macrobenchmark-target:bundleRelease
+     * java -jar bundletool.jar build-apks --local-testing --bundle=../../out/androidx/benchmark/integration-tests/macrobenchmark-target/build/outputs/bundle/release/macrobenchmark-target-release.aab --output=out.apks --overwrite --ks=/path/to/androidx/frameworks/support/development/keystore/debug.keystore --connected-device --ks-key-alias=AndroidDebugKey --ks-pass=pass:android
+     * java -jar bundletool.jar install-apks --apks=out.apks
+     * ```
+     */
+    @RequiresApi(21)
+    @CheckResult
+    fun pmPath(packageName: String): List<String> {
+        return executeScriptCaptureStdout("pm path $packageName").split("\n")
+            .mapNotNull {
+                val delimiter = "package:"
+                val index = it.indexOf(delimiter)
+                if (index != -1) {
+                    it.substring(index + delimiter.length).trim()
+                } else {
+                    null
+                }
+            }
     }
 
     data class Output(val stdout: String, val stderr: String) {
@@ -658,7 +698,8 @@ class ShellScript internal constructor(
          * Usage args: ```path/to/shellWrapper.sh <scriptFile> <stderrFile> [inputFile]```
          */
         private val scriptWrapperPath = Shell.createRunnableExecutable(
-            "shellWrapper.sh",
+            // use separate paths to prevent access errors after `adb unroot`
+            if (ShellImpl.isSessionRooted) "shellWrapper_root.sh" else "shellWrapper.sh",
             """
                 ### shell script which passes in stdin as needed, and captures stderr in a file
                 # $1 == script content (not executable)

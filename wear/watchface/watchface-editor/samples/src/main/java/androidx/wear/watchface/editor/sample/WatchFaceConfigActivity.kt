@@ -31,7 +31,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/** @hide */
 @RestrictTo(LIBRARY)
 internal interface FragmentController {
     /** Show the [ConfigFragment] which lets the user select what they want to configure. */

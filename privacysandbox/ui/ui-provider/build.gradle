@@ -24,8 +24,8 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.1.0")
     implementation project(path: ':privacysandbox:ui:ui-core')
-    implementation project(path: ':annotation:annotation')
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

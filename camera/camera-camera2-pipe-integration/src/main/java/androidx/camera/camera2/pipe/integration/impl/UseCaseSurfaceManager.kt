@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
@@ -49,6 +50,7 @@ private const val TIMEOUT_GET_SURFACE_IN_MS = 5_000L
 class UseCaseSurfaceManager @Inject constructor(
     private val threads: UseCaseThreads,
     private val cameraPipe: CameraPipe,
+    private val inactiveSurfaceCloser: InactiveSurfaceCloser,
 ) : CameraSurfaceManager.SurfaceListener {
 
     private val lock = Any()
@@ -105,6 +107,7 @@ class UseCaseSurfaceManager @Inject constructor(
                         graph.setSurface(
                             stream = stream, surface = surface
                         )
+                        inactiveSurfaceCloser.configure(stream, it.key, graph)
                     }
                 } else {
                     // Only handle the first failed Surface since subsequent calls to
@@ -130,6 +133,7 @@ class UseCaseSurfaceManager @Inject constructor(
         setupSurfaceDeferred?.cancel()
 
         return synchronized(lock) {
+            inactiveSurfaceCloser.closeAll()
             configuredSurfaceMap = null
             stopDeferred = stopDeferred ?: CompletableDeferred<Unit>().apply {
                 invokeOnCompletion { synchronized(lock) { stopDeferred = null } }
@@ -161,6 +165,7 @@ class UseCaseSurfaceManager @Inject constructor(
         synchronized(lock) {
             activeSurfaceMap.remove(surface)?.let {
                 Log.debug { "SurfaceInactive $it in ${this@UseCaseSurfaceManager}" }
+                inactiveSurfaceCloser.onSurfaceInactive(it)
                 try {
                     it.decrementUseCount()
                 } catch (e: IllegalStateException) {

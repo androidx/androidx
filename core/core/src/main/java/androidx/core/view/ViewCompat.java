@@ -58,6 +58,8 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeProvider;
+import android.view.autofill.AutofillId;
+import android.view.contentcapture.ContentCaptureSession;
 import android.view.inputmethod.InputConnection;
 
 import androidx.annotation.DoNotInline;
@@ -74,10 +76,14 @@ import androidx.collection.SimpleArrayMap;
 import androidx.core.R;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
+import androidx.core.view.HapticFeedbackConstantsCompat.HapticFeedbackFlags;
+import androidx.core.view.HapticFeedbackConstantsCompat.HapticFeedbackType;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
+import androidx.core.view.autofill.AutofillIdCompat;
+import androidx.core.view.contentcapture.ContentCaptureSessionCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -103,20 +109,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN,
             View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusDirection {}
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusRealDirection {}
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
@@ -172,6 +175,42 @@ public class ViewCompat {
     })
     @Retention(RetentionPolicy.SOURCE)
     private @interface ImportantForAccessibility {}
+
+    @IntDef({
+            IMPORTANT_FOR_CONTENT_CAPTURE_AUTO,
+            IMPORTANT_FOR_CONTENT_CAPTURE_YES,
+            IMPORTANT_FOR_CONTENT_CAPTURE_NO,
+            IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS,
+            IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ImportantForContentCapture {}
+
+    /**
+     * Automatically determine whether a view is important for content capture.
+     */
+    public static final int IMPORTANT_FOR_CONTENT_CAPTURE_AUTO = 0x0;
+
+    /**
+     * The view is important for content capture, and its children (if any) will be traversed.
+     */
+    public static final int IMPORTANT_FOR_CONTENT_CAPTURE_YES = 0x1;
+
+    /**
+     * The view is not important for content capture, but its children (if any) will be traversed.
+     */
+    public static final int IMPORTANT_FOR_CONTENT_CAPTURE_NO = 0x2;
+
+    /**
+     * The view is important for content capture, but its children (if any) will not be traversed.
+     */
+    public static final int IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS = 0x4;
+
+    /**
+     * The view is not important for content capture, and its children (if any) will not be
+     * traversed.
+     */
+    public static final int IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS = 0x8;
 
     /**
      * Automatically determine whether a view is important for accessibility.
@@ -365,7 +404,6 @@ public class ViewCompat {
     public static final int MEASURED_STATE_TOO_SMALL = 0x01000000;
 
     /**
-     * @hide
      */
     @IntDef(value = {SCROLL_AXIS_NONE, SCROLL_AXIS_HORIZONTAL, SCROLL_AXIS_VERTICAL}, flag = true)
     @Retention(RetentionPolicy.SOURCE)
@@ -388,7 +426,6 @@ public class ViewCompat {
     public static final int SCROLL_AXIS_VERTICAL = 1 << 1;
 
     /**
-     * @hide
      */
     @IntDef({TYPE_TOUCH, TYPE_NON_TOUCH})
     @Retention(RetentionPolicy.SOURCE)
@@ -406,7 +443,6 @@ public class ViewCompat {
      */
     public static final int TYPE_NON_TOUCH = 1;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true,
@@ -778,6 +814,7 @@ public class ViewCompat {
      * <p>This method is only supported on API >= 26.
      * On API 25 and below, it will always return {@link View#IMPORTANT_FOR_AUTOFILL_AUTO}.</p>
      *
+     * @param v The View against which to invoke the method.
      * @return {@link View#IMPORTANT_FOR_AUTOFILL_AUTO} by default, or value passed to
      * {@link #setImportantForAutofill(View, int)}.
      *
@@ -819,7 +856,7 @@ public class ViewCompat {
      * <p>This method is only supported on API >= 26.
      * On API 25 and below, it is a no-op</p>
      *
-     *
+     * @param v The View against which to invoke the method.
      * @param mode {@link View#IMPORTANT_FOR_AUTOFILL_AUTO},
      * {@link View#IMPORTANT_FOR_AUTOFILL_YES},
      * {@link View#IMPORTANT_FOR_AUTOFILL_NO},
@@ -887,6 +924,7 @@ public class ViewCompat {
      * <p>This method is only supported on API >= 26.
      * On API 25 and below, it will always return {@code true}.</p>
      *
+     * @param v The View against which to invoke the method.
      * @return whether the view is considered important for autofill.
      *
      * @see #setImportantForAutofill(View, int)
@@ -902,6 +940,241 @@ public class ViewCompat {
             return Api26Impl.isImportantForAutofill(v);
         }
         return true;
+    }
+
+    /**
+     * Gets the unique, logical identifier of this view in the activity, for autofill purposes.
+     *
+     * <p>The autofill id is created on demand, unless it is explicitly set by
+     * {@link #setAutofillId(AutofillId)}.
+     *
+     * <p>See {@link #setAutofillId(AutofillId)} for more info.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 26 and above, this method matches platform behavior.
+     * <li>SDK 25 and below, this method always return null.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @return The View's autofill id.
+     */
+    @Nullable
+    public static AutofillIdCompat getAutofillId(@NonNull View v) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return AutofillIdCompat.toAutofillIdCompat(Api26Impl.getAutofillId(v));
+        }
+        return null;
+    }
+
+    /**
+     * Sets the unique, logical identifier of this view in the activity, for autofill purposes.
+     *
+     * <p>The autofill id is created on demand, and this method should only be called when a view is
+     * reused after {@link #dispatchProvideAutofillStructure(ViewStructure, int)} is called, as
+     * that method creates a snapshot of the view that is passed along to the autofill service.
+     *
+     * <p>This method is typically used when view subtrees are recycled to represent different
+     * content* &mdash;in this case, the autofill id can be saved before the view content is swapped
+     * out, and restored later when it's swapped back in. For example:
+     *
+     * <pre>
+     * EditText reusableView = ...;
+     * ViewGroup parentView = ...;
+     * AutofillManager afm = ...;
+     *
+     * // Swap out the view and change its contents
+     * AutofillId oldId = reusableView.getAutofillId();
+     * CharSequence oldText = reusableView.getText();
+     * parentView.removeView(reusableView);
+     * AutofillId newId = afm.getNextAutofillId();
+     * reusableView.setText("New I am");
+     * reusableView.setAutofillId(newId);
+     * parentView.addView(reusableView);
+     *
+     * // Later, swap the old content back in
+     * parentView.removeView(reusableView);
+     * reusableView.setAutofillId(oldId);
+     * reusableView.setText(oldText);
+     * parentView.addView(reusableView);
+     * </pre>
+     *
+     * <p>NOTE: If this view is a descendant of an {@link android.widget.AdapterView}, the system
+     * may reset its autofill id when this view is recycled. If the autofill ids need to be stable,
+     * they should be set again in
+     * {@link android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)}.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 28 and above, this method matches platform behavior.
+     * <li>SDK 27 and below, this method does nothing.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @param id an autofill ID that is unique in the {@link android.app.Activity} hosting the view,
+     * or {@code null} to reset it. Usually it's an id previously allocated to another view (and
+     * obtained through {@link #getAutofillId()}), or a new value obtained through
+     * {@link AutofillManager#getNextAutofillId()}.
+     *
+     * @throws IllegalStateException if the view is already {@link #isAttachedToWindow() attached to
+     * a window}.
+     *
+     * @throws IllegalArgumentException if the id is an autofill id associated with a virtual view.
+     */
+    public static void setAutofillId(@NonNull View v, @Nullable AutofillIdCompat id) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            Api28Impl.setAutofillId(v, id.toAutofillId());
+        }
+    }
+
+    /**
+     * Sets the mode for determining whether this view is considered important for content capture.
+     *
+     * <p>The platform determines the importance for autofill automatically but you
+     * can use this method to customize the behavior. Typically, a view that provides text should
+     * be marked as {@link #IMPORTANT_FOR_CONTENT_CAPTURE_YES}.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 30 and above, this method matches platform behavior.
+     * <li>SDK 29 and below, this method does nothing.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @param mode {@link #IMPORTANT_FOR_CONTENT_CAPTURE_AUTO},
+     * {@link #IMPORTANT_FOR_CONTENT_CAPTURE_YES}, {@link #IMPORTANT_FOR_CONTENT_CAPTURE_NO},
+     * {@link #IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS},
+     * or {@link #IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS}.
+     *
+     * @attr ref android.R.styleable#View_importantForContentCapture
+     */
+    public static void setImportantForContentCapture(@NonNull View v,
+            @ImportantForContentCapture int mode) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            Api30Impl.setImportantForContentCapture(v, mode);
+        }
+    }
+
+    /**
+     * Gets the mode for determining whether this view is important for content capture.
+     *
+     * <p>See {@link #setImportantForContentCapture(int)} and
+     * {@link #isImportantForContentCapture()} for more info about this mode.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 30 and above, this method matches platform behavior.
+     * <li>SDK 29 and below, this method always return {@link #IMPORTANT_FOR_CONTENT_CAPTURE_AUTO}.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @return {@link #IMPORTANT_FOR_CONTENT_CAPTURE_AUTO} by default, or value passed to
+     * {@link #setImportantForContentCapture(int)}.
+     *
+     * @attr ref android.R.styleable#View_importantForContentCapture
+     */
+    public static int getImportantForContentCapture(@NonNull View v) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getImportantForContentCapture(v);
+        }
+        return IMPORTANT_FOR_CONTENT_CAPTURE_AUTO;
+    }
+
+    /**
+     * Hints the Android System whether this view is considered important for content capture, based
+     * on the value explicitly set by {@link #setImportantForContentCapture(int)} and heuristics
+     * when it's {@link #IMPORTANT_FOR_CONTENT_CAPTURE_AUTO}.
+     *
+     * <p>See {@link ContentCaptureManager} for more info about content capture.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 30 and above, this method matches platform behavior.
+     * <li>SDK 29 and below, this method always return false.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @return whether the view is considered important for content capture.
+     *
+     * @see #setImportantForContentCapture(int)
+     * @see #IMPORTANT_FOR_CONTENT_CAPTURE_AUTO
+     * @see #IMPORTANT_FOR_CONTENT_CAPTURE_YES
+     * @see #IMPORTANT_FOR_CONTENT_CAPTURE_NO
+     * @see #IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS
+     * @see #IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS
+     */
+    public static boolean isImportantForContentCapture(@NonNull View v) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.isImportantForContentCapture(v);
+        }
+        return false;
+    }
+
+    /**
+     * Gets the session used to notify content capture events.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 29 and above, this method matches platform behavior.
+     * <li>SDK 28 and below, this method always return null.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @return session explicitly set by {@link #setContentCaptureSession(ContentCaptureSession)},
+     * inherited by ancestors, default session or {@code null} if content capture is disabled for
+     * this view.
+     */
+    @Nullable
+    public static ContentCaptureSessionCompat getContentCaptureSession(@NonNull View v) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            ContentCaptureSession session = Api29Impl.getContentCaptureSession(v);
+            if (session == null) {
+                return null;
+            }
+            return ContentCaptureSessionCompat.toContentCaptureSessionCompat(session, v);
+        }
+        return null;
+    }
+
+    /**
+     * Sets the (optional) {@link ContentCaptureSession} associated with this view.
+     *
+     * <p>This method should be called when you need to associate a {@link ContentCaptureContext} to
+     * the content capture events associated with this view or its view hierarchy (if it's a
+     * {@link ViewGroup}).
+     *
+     * <p>For example, if your activity is associated with a web domain, first you would need to
+     * set the context for the main DOM:
+     *
+     * <pre>
+     *   ContentCaptureSession mainSession = rootView.getContentCaptureSession();
+     *   mainSession.setContentCaptureContext(ContentCaptureContext.forLocusId(Uri.parse(myUrl));
+     * </pre>
+     *
+     * <p>Then if the page had an {@code IFRAME}, you would create a new session for it:
+     *
+     * <pre>
+     *   ContentCaptureSession iframeSession = mainSession.createContentCaptureSession(
+     *       ContentCaptureContext.forLocusId(Uri.parse(iframeUrl)));
+     *   iframeView.setContentCaptureSession(iframeSession);
+     * </pre>
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 29 and above, this method matches platform behavior.
+     * <li>SDK 28 and below, this method does nothing.
+     * </ul>
+     *
+     * @param v The View against which to invoke the method.
+     * @param contentCaptureSession a session created by
+     * {@link ContentCaptureSession#createContentCaptureSession(
+     *        android.view.contentcapture.ContentCaptureContext)}.
+     */
+    public static void setContentCaptureSession(@NonNull View v,
+            @Nullable ContentCaptureSessionCompat contentCaptureSession) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            Api29Impl.setContentCaptureSession(v, contentCaptureSession.toContentCaptureSession());
+        }
     }
 
     /**
@@ -1209,6 +1482,58 @@ public class ViewCompat {
             return Api16Impl.performAccessibilityAction(view, action, arguments);
         }
         return false;
+    }
+
+    /**
+     * Perform a haptic feedback to the user for the view.
+     *
+     * <p>The framework will provide haptic feedback for some built in actions, such as long
+     * presses, but you may wish to provide feedback for your own widget.
+     *
+     * <p>The feedback will only be performed if {@link android.view.View#isHapticFeedbackEnabled()}
+     * is true.
+     *
+     * <em>Note:</em> Check compatibility support for each feedback constant described at
+     * {@link HapticFeedbackConstantsCompat}.
+     *
+     * @param view             The view.
+     * @param feedbackConstant One of the constants defined in {@link HapticFeedbackConstantsCompat}
+     * @return Whether the feedback might be performed - generally this result should be ignored
+     */
+    public static boolean performHapticFeedback(@NonNull View view,
+            @HapticFeedbackType int feedbackConstant) {
+        feedbackConstant =
+                HapticFeedbackConstantsCompat.getFeedbackConstantOrFallback(feedbackConstant);
+        if (feedbackConstant == HapticFeedbackConstantsCompat.NO_HAPTICS) {
+            // This compat implementation is straightforward.
+            return false;
+        }
+        return view.performHapticFeedback(feedbackConstant);
+    }
+
+    /**
+     * Perform a haptic feedback to the user for the view.
+     *
+     * <p>This is similar to {@link #performHapticFeedback(android.view.View, int)}, with
+     * additional options.
+     *
+     * <em>Note:</em> Check compatibility support for each feedback constant described at
+     * {@link HapticFeedbackConstantsCompat}.
+     *
+     * @param view             The view.
+     * @param feedbackConstant One of the constants defined in {@link HapticFeedbackConstantsCompat}
+     * @param flags            Additional flags as per {@link HapticFeedbackConstantsCompat}
+     * @return Whether the feedback might be performed - generally this result should be ignored
+     */
+    public static boolean performHapticFeedback(@NonNull View view,
+            @HapticFeedbackType int feedbackConstant, @HapticFeedbackFlags int flags) {
+        feedbackConstant =
+                HapticFeedbackConstantsCompat.getFeedbackConstantOrFallback(feedbackConstant);
+        if (feedbackConstant == HapticFeedbackConstantsCompat.NO_HAPTICS) {
+            // This compat implementation is straightforward.
+            return false;
+        }
+        return view.performHapticFeedback(feedbackConstant, flags);
     }
 
     /**
@@ -5070,6 +5395,17 @@ public class ViewCompat {
         static List<Rect> getSystemGestureExclusionRects(View view) {
             return view.getSystemGestureExclusionRects();
         }
+
+        @DoNotInline
+        static ContentCaptureSession getContentCaptureSession(View view) {
+            return view.getContentCaptureSession();
+        }
+
+        @DoNotInline
+        static void setContentCaptureSession(View view,
+                ContentCaptureSession contentCaptureSession) {
+            view.setContentCaptureSession(contentCaptureSession);
+        }
     }
 
     @RequiresApi(30)
@@ -5094,6 +5430,21 @@ public class ViewCompat {
         @DoNotInline
         static CharSequence getStateDescription(View view) {
             return view.getStateDescription();
+        }
+
+        @DoNotInline
+        static void setImportantForContentCapture(View view, int mode) {
+            view.setImportantForContentCapture(mode);
+        }
+
+        @DoNotInline
+        static boolean isImportantForContentCapture(View view) {
+            return view.isImportantForContentCapture();
+        }
+
+        @DoNotInline
+        static int getImportantForContentCapture(View view) {
+            return view.getImportantForContentCapture();
         }
     }
 
@@ -5178,6 +5529,11 @@ public class ViewCompat {
         @DoNotInline
         static boolean isImportantForAutofill(View view) {
             return view.isImportantForAutofill();
+        }
+
+        @DoNotInline
+        public static AutofillId getAutofillId(View view) {
+            return view.getAutofillId();
         }
     }
 
@@ -5540,6 +5896,11 @@ public class ViewCompat {
             if (fwListener != null) {
                 v.removeOnUnhandledKeyEventListener(fwListener);
             }
+        }
+
+        @DoNotInline
+        public static void setAutofillId(View view, AutofillId id) {
+            view.setAutofillId(id);
         }
     }
 

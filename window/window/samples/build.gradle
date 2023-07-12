@@ -36,7 +36,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack WindowManager Library Samples"
+    name = "WindowManager Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2022"
     description = "Code samples for WindowManager Jetpack library."

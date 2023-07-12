@@ -56,7 +56,13 @@ private object Api29Impl {
 ```
 
 When developing against pre-release SDKs where the `SDK_INT` has not been
-finalized, SDK checks **must** use `BuildCompat.isAtLeastX()` methods.
+finalized, SDK checks **must** use `BuildCompat.isAtLeastX()` methods and
+**must** use a tip-of-tree `project` dependency to ensure that the
+implementation of `BuildCompat` stays up-to-date when the SDK is finalized.
+
+**Do not** assume that the next SDK release's `SDK_INT` will be N+1. The value
+is not finalized until SDK finalization happens, at which point the `isAtLeast`
+check will be updated. **Never** write your own check for a pre-release SDK.
 
 ```java {.good}
 @NonNull
@@ -68,19 +74,40 @@ public static List<Window> getAllWindows() {
 }
 ```
 
-##### Preventing invalid casting in verification fixes
+```kotlin {.good}
+dependencies {
+  api(project(":core:core"))
+}
+```
+
+##### Preventing invalid casting {#compat-casting}
 
 Even when a call to a new API is moved to a version-specific class, a class
-verification failure is still possible if the method returns a new type. The new
-type will be seen as `Object` on lower API levels, so casting the returned value
-outside of the version-specific class to anything other than `Object` or the
-same new type will fail.
+verification failure is still possible when referencing types introduced in new
+APIs.
+
+When a type does not exist on a device, the verifier treats the type as
+`Object`. This is a problem if the new type is implicitly cast to a different
+type which does exist on the device.
+
+In general, if `A extends B`, using an `A` as a `B` without an explicit cast is
+fine. However, if `A` was introduced at a later API level than `B`, on devices
+below that API level, `A` will be seen as `Object`. An `Object` cannot be used
+as a `B` without an explicit cast. However, adding an explicit cast to `B` won't
+fix this, because the compiler will see the cast as redundant (as it normally
+would be). So, implicit casts between types introduced at different API levels
+should be moved out to version-specific static inner classes, as described
+[above](#compat-sdk).
+
+The `ImplicitCastClassVerificationFailure` lint check detects and provides
+autofixes for instances of invalid implicit casts.
 
 For instance, the following would **not** be valid, because it implicitly casts
 an `AdaptiveIconDrawable` (new in API level 26, `Object` on lower API levels) to
-`Drawable`. Instead, the method inside of `Api26Impl` should return `Drawable`.
+`Drawable`. Instead, the method inside of `Api26Impl` could return `Drawable`,
+or the cast could be moved into a version-specific static inner class.
 
-```java {.good}
+```java {.bad}
 private Drawable methodReturnsDrawable() {
   if (Build.VERSION.SDK_INT >= 26) {
     // Implicitly casts the returned AdaptiveIconDrawable to Drawable
@@ -96,7 +123,95 @@ static class Api26Impl {
   @DoNotInline
   static AdaptiveIconDrawable createAdaptiveIconDrawable(Drawable backgroundDrawable, Drawable foregroundDrawable) {
     return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
-    }
+  }
+}
+```
+
+The version-specific static inner class solution would look like this:
+
+```java {.good}
+private Drawable methodReturnsDrawable() {
+  if (Build.VERSION.SDK_INT >= 26) {
+    return Api26Impl.castToDrawable(Api26Impl.createAdaptiveIconDrawable(null, null));
+  } else {
+    return null;
+  }
+}
+
+@RequiresApi(26)
+static class Api26Impl {
+  // Returns AdaptiveIconDrawable, introduced in API level 26
+  @DoNotInline
+  static AdaptiveIconDrawable createAdaptiveIconDrawable(Drawable backgroundDrawable, Drawable foregroundDrawable) {
+    return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
+  }
+
+  // Method which performs the implicit cast from AdaptiveIconDrawable to Drawable
+  @DoNotInline
+  static Drawable castToDrawable(AdaptiveIconDrawable adaptiveIconDrawable) {
+    return adaptiveIconDrawable;
+  }
+}
+```
+
+The following would also **not** be valid, because it implicitly casts a
+`Notification.MessagingStyle` (new in API level 24, `Object` on lower API
+levels) to `Notification.Style`. Instead, `Api24Impl` could have a `setBuilder`
+method which takes `Notification.MessagingStyle` as a parameter, or the cast
+could be moved into a version-specific static inner class.
+
+```java {.bad}
+public void methodUsesStyle(Notification.MessagingStyle style, Notification.Builder builder) {
+  if (Build.VERSION.SDK_INT >= 24) {
+    Api16Impl.setBuilder(
+      // Implicitly casts the style to Notification.Style (added in API level 16)
+      // when it is a Notification.MessagingStyle (added in API level 24)
+      style, builder
+    );
+  }
+}
+
+@RequiresApi(16)
+static class Api16Impl {
+  private Api16Impl() { }
+
+  @DoNotInline
+  static void setBuilder(Notification.Style style, Notification.Builder builder) {
+    style.setBuilder(builder);
+  }
+}
+```
+
+The version-specific static inner class solution would look like this:
+
+```java {.good}
+public void methodUsesStyle(Notification.MessagingStyle style, Notification.Builder builder) {
+  if (Build.VERSION.SDK_INT >= 24) {
+    Api16Impl.setBuilder(
+      Api24Impl.castToStyle(style), builder
+    );
+  }
+}
+
+@RequiresApi(16)
+static class Api16Impl {
+  private Api16Impl() { }
+
+  @DoNotInline
+  static void setBuilder(Notification.Style style, Notification.Builder builder) {
+    style.setBuilder(builder);
+  }
+}
+
+@RequiresApi(24)
+static class Api24Impl {
+  private Api24Impl() { }
+
+  // Performs the implicit cast from Notification.MessagingStyle to Notification.Style
+  @DoNotInline
+  static Notification.Style castToStyle(Notification.MessagingStyle messagingStyle) {
+    return messagingStyle;
+  }
 }
 ```
 

@@ -19,9 +19,9 @@ package androidx.camera.core;
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
+import static androidx.camera.core.processing.TargetUtils.getHumanReadableName;
 import static androidx.core.util.Preconditions.checkArgument;
-
-import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,10 +30,8 @@ import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Represents a collection of {@link UseCase}.
@@ -92,7 +90,9 @@ public final class UseCaseGroup {
         private static final List<Integer> SUPPORTED_TARGETS = Arrays.asList(
                 PREVIEW,
                 VIDEO_CAPTURE,
-                IMAGE_CAPTURE);
+                IMAGE_CAPTURE,
+                PREVIEW | VIDEO_CAPTURE,
+                PREVIEW | VIDEO_CAPTURE | IMAGE_CAPTURE);
 
         private ViewPort mViewPort;
         private final List<UseCase> mUseCases;
@@ -116,12 +116,22 @@ public final class UseCaseGroup {
         /**
          * Adds a {@link CameraEffect} to the collection.
          *
-         * <p>The value of {@link CameraEffect#getTargets()} must be unique and must be one of
-         * the supported values below:
+         * <p>The value of {@link CameraEffect#getTargets()} must be one of the supported values
+         * below:
          * <ul>
          * <li>{@link CameraEffect#PREVIEW}
+         * <li>{@link CameraEffect#VIDEO_CAPTURE}
          * <li>{@link CameraEffect#IMAGE_CAPTURE}
+         * <li>{@link CameraEffect#VIDEO_CAPTURE} | {@link CameraEffect#PREVIEW}
+         * <li>{@link CameraEffect#VIDEO_CAPTURE} | {@link CameraEffect#PREVIEW} |
+         * {@link CameraEffect#IMAGE_CAPTURE}
          * </ul>
+         *
+         * <p>The targets must be mutually exclusive of each other, otherwise, the {@link #build()}
+         * method will throw {@link IllegalArgumentException}. For example, it's invalid to have
+         * one {@link CameraEffect} with target {@link CameraEffect#PREVIEW} and another
+         * {@link CameraEffect} with target {@link CameraEffect#PREVIEW} |
+         * {@link CameraEffect#VIDEO_CAPTURE}, since they both target {@link Preview}.
          *
          * <p>Once added, CameraX will use the {@link CameraEffect}s to process the outputs of
          * the {@link UseCase}s.
@@ -135,53 +145,24 @@ public final class UseCaseGroup {
         /**
          * Checks effect targets and throw {@link IllegalArgumentException}.
          *
-         * <p>Throws exception if the effects 1) contains duplicate targets or 2) contains
+         * <p>Throws exception if the effects 1) contains conflicting targets or 2) contains
          * effects that is not in the allowlist.
          */
         private void checkEffectTargets() {
-            Map<Integer, CameraEffect> targetEffectMap = new HashMap<>();
+            int existingTargets = 0;
             for (CameraEffect effect : mEffects) {
                 int targets = effect.getTargets();
-                if (!SUPPORTED_TARGETS.contains(targets)) {
+                checkSupportedTargets(SUPPORTED_TARGETS, targets);
+                int overlappingTargets = existingTargets & targets;
+                if (overlappingTargets > 0) {
                     throw new IllegalArgumentException(String.format(Locale.US,
-                            "Effects target %s is not in the supported list %s.",
-                            getHumanReadableTargets(targets),
-                            getHumanReadableSupportedTargets()));
+                            "More than one effects has targets %s.",
+                            getHumanReadableName(overlappingTargets)));
                 }
-                if (targetEffectMap.containsKey(effect.getTargets())) {
-                    throw new IllegalArgumentException(String.format(Locale.US,
-                            "Effects %s and %s contain duplicate targets %s.",
-                            requireNonNull(
-                                    targetEffectMap.get(effect.getTargets())).getClass().getName(),
-                            effect.getClass().getName(),
-                            getHumanReadableTargets(targets)));
-                }
-                targetEffectMap.put(effect.getTargets(), effect);
+                existingTargets |= targets;
             }
         }
 
-        static String getHumanReadableSupportedTargets() {
-            List<String> targetNameList = new ArrayList<>();
-            for (Integer targets : SUPPORTED_TARGETS) {
-                targetNameList.add(getHumanReadableTargets(targets));
-            }
-            return "[" + String.join(", ", targetNameList) + "]";
-        }
-
-        static String getHumanReadableTargets(int targets) {
-            List<String> names = new ArrayList<>();
-            if ((targets & IMAGE_CAPTURE) != 0) {
-                names.add("IMAGE_CAPTURE");
-            }
-            if ((targets & PREVIEW) != 0) {
-                names.add("PREVIEW");
-            }
-
-            if ((targets & VIDEO_CAPTURE) != 0) {
-                names.add("VIDEO_CAPTURE");
-            }
-            return String.join("|", names);
-        }
 
         /**
          * Adds {@link UseCase} to the collection.

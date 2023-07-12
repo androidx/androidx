@@ -118,8 +118,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
 
     /** Whether or not the watch face supports [renderWatchFaceToSurface]. */
     public val isRenderWatchFaceToSurfaceSupported: Boolean
-        @get:JvmName("isRenderWatchFaceToSurfaceSupported")
-        get() = false
+        @get:JvmName("isRenderWatchFaceToSurfaceSupported") get() = false
 
     /**
      * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]

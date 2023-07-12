@@ -17,9 +17,8 @@
 package androidx.tv.material3
 
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -40,15 +39,20 @@ import androidx.compose.testutils.assertShape
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
@@ -85,6 +89,7 @@ private fun assertFloatPrecision(a: Float, b: Float) =
 )
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SurfaceTest {
 
     @get:Rule
@@ -107,8 +112,8 @@ class SurfaceTest {
                     shape = ClickableSurfaceDefaults.shape(
                         shape = RectangleShape
                     ),
-                    color = ClickableSurfaceDefaults.color(
-                        color = Color.Yellow
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Yellow
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -118,8 +123,8 @@ class SurfaceTest {
                     shape = ClickableSurfaceDefaults.shape(
                         shape = RectangleShape
                     ),
-                    color = ClickableSurfaceDefaults.color(
-                        color = Color.Green
+                    colors = ClickableSurfaceDefaults.colors(
+                        containerColor = Color.Green
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -175,7 +180,7 @@ class SurfaceTest {
                     },
                     onClick = {},
                     tonalElevation = 2.toDp(),
-                    contentColor = ClickableSurfaceDefaults.color(color = expectedColor)
+                    colors = ClickableSurfaceDefaults.colors(contentColor = expectedColor)
                 ) {}
             }
         }
@@ -214,6 +219,7 @@ class SurfaceTest {
         rule.setContent {
             Surface(
                 modifier = Modifier
+                    .semantics { role = Role.Tab }
                     .testTag("surface"),
                 onClick = { count.value += 1 },
             ) {
@@ -224,6 +230,7 @@ class SurfaceTest {
         rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsEnabled()
             // since we merge descendants we should have text on the same node
             .assertTextEquals("0")
@@ -336,42 +343,6 @@ class SurfaceTest {
     }
 
     @Test
-    fun clickableSurface_allowsFinalPassChildren() {
-        val hitTested = mutableStateOf(false)
-
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("surface"),
-                    onClick = {}
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag("pressable")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    hitTested.value = true
-                                    val event = awaitPointerEvent(PointerEventPass.Final)
-                                    Truth
-                                        .assertThat(event.changes[0].isConsumed)
-                                        .isFalse()
-                                }
-                            }
-                    )
-                }
-            }
-        }
-        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
-        rule.onNodeWithTag("pressable", true)
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(hitTested.value).isTrue()
-    }
-
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    @Test
     fun clickableSurface_reactsToStateChange() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
@@ -399,7 +370,7 @@ class SurfaceTest {
     }
 
     @FlakyTest(bugId = 269229262)
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_changesGlowColor() {
         rule.setContent {
@@ -408,9 +379,9 @@ class SurfaceTest {
                     .testTag("surface")
                     .size(100.toDp()),
                 onClick = {},
-                color = ClickableSurfaceDefaults.color(
-                    color = Color.Transparent,
-                    focusedColor = Color.Transparent
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
                 ),
                 glow = ClickableSurfaceDefaults.glow(
                     glow = Glow(
@@ -436,7 +407,7 @@ class SurfaceTest {
             .assertContainsColor(Color.Green)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_changesScaleFactor() {
         rule.setContent {
@@ -460,5 +431,365 @@ class SurfaceTest {
         rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
 
         rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun clickableSurface_onFocus_showsBorder() {
+        rule.setContent {
+            Surface(
+                onClick = { /* Do something */ },
+                modifier = Modifier
+                    .size(100.toDp())
+                    .testTag("surface"),
+                border = ClickableSurfaceDefaults.border(
+                    focusedBorder = Border(
+                        border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
+                    )
+                ),
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
+                )
+            ) {}
+        }
+
+        val surface = rule.onNodeWithTag("surface")
+
+        surface.captureToImage().assertDoesNotContainColor(Color.Magenta)
+
+        surface.performSemanticsAction(SemanticsActions.RequestFocus)
+
+        surface.captureToImage().assertContainsColor(Color.Magenta)
+    }
+
+    @Test
+    fun toggleable_semantics() {
+        var isChecked by mutableStateOf(false)
+        rule.setContent {
+            Surface(
+                checked = isChecked,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = { isChecked = it }
+            ) {
+                Text("$isChecked")
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+            .assertIsEnabled()
+            // since we merge descendants we should have text on the same node
+            .assertTextEquals("false")
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("true")
+    }
+
+    @Test
+    fun toggleable_customSemantics() {
+        var isChecked by mutableStateOf(false)
+        rule.setContent {
+            Surface(
+                checked = isChecked,
+                modifier = Modifier
+                    .semantics { role = Role.Tab }
+                    .testTag("surface"),
+                onCheckedChange = { isChecked = it }
+            ) {
+                Text("$isChecked")
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsEnabled()
+            // since we merge descendants we should have text on the same node
+            .assertTextEquals("false")
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("true")
+    }
+
+    @Test
+    fun toggleable_toggleAction() {
+        var isChecked by mutableStateOf(false)
+
+        rule.setContent {
+            Surface(
+                checked = isChecked,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = { isChecked = it }
+            ) {
+                Spacer(modifier = Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(isChecked).isTrue()
+
+        rule.onNodeWithTag("surface").performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(isChecked).isFalse()
+    }
+
+    @Test
+    fun toggleable_enabled_disabled() {
+        var isChecked by mutableStateOf(false)
+        var enabled by mutableStateOf(true)
+
+        rule.setContent {
+            Surface(
+                checked = isChecked,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = { isChecked = it },
+                enabled = enabled
+            ) {
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertIsEnabled()
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+
+        Truth.assertThat(isChecked).isTrue()
+        rule.runOnIdle {
+            enabled = false
+        }
+
+        rule.onNodeWithTag("surface")
+            .assertIsNotEnabled()
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(isChecked).isTrue()
+    }
+
+    @Test
+    fun toggleable_interactionSource() {
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Surface(
+                checked = false,
+                modifier = Modifier
+                    .testTag("surface"),
+                onCheckedChange = {},
+                interactionSource = interactionSource
+            ) {
+                Spacer(Modifier.size(30.toDp()))
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { keyDown(Key.DirectionCenter) }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(2)
+            Truth.assertThat(interactions[1]).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        rule.onNodeWithTag("surface").performKeyInput { keyUp(Key.DirectionCenter) }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(3)
+            Truth.assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            Truth.assertThat(interactions[1]).isInstanceOf(PressInteraction.Press::class.java)
+            Truth.assertThat(interactions[2]).isInstanceOf(PressInteraction.Release::class.java)
+            Truth.assertThat((interactions[2] as PressInteraction.Release).press)
+                .isEqualTo(interactions[1])
+        }
+    }
+
+    @Test
+    fun toggleableSurface_reactsToStateChange() {
+        val interactionSource = MutableInteractionSource()
+        var isPressed by mutableStateOf(false)
+
+        rule.setContent {
+            isPressed = interactionSource.collectIsPressedAsState().value
+            Surface(
+                checked = false,
+                modifier = Modifier
+                    .testTag("surface")
+                    .size(100.toDp()),
+                onCheckedChange = {},
+                interactionSource = interactionSource
+            ) {}
+        }
+
+        with(rule.onNodeWithTag("surface")) {
+            performSemanticsAction(SemanticsActions.RequestFocus)
+            assertIsFocused()
+            performKeyInput { keyDown(Key.DirectionCenter) }
+        }
+
+        rule.waitUntil(condition = { isPressed })
+
+        Truth.assertThat(isPressed).isTrue()
+    }
+
+    @FlakyTest(bugId = 269229262)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun toggleableSurface_onCheckedChange_changesGlowColor() {
+        var isChecked by mutableStateOf(false)
+        var focusManager: FocusManager? = null
+        rule.setContent {
+            focusManager = LocalFocusManager.current
+            Surface(
+                checked = isChecked,
+                modifier = Modifier
+                    .testTag("surface")
+                    .size(100.toDp()),
+                onCheckedChange = { isChecked = it },
+                colors = ToggleableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    selectedContainerColor = Color.Transparent
+                ),
+                glow = ToggleableSurfaceDefaults.glow(
+                    glow = Glow(
+                        elevationColor = Color.Magenta,
+                        elevation = Elevation.Level5
+                    ),
+                    selectedGlow = Glow(
+                        elevationColor = Color.Green,
+                        elevation = Elevation.Level5
+                    )
+                )
+            ) {}
+        }
+        rule.onNodeWithTag("surface")
+            .captureToImage()
+            .assertContainsColor(Color.Magenta)
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+
+        // Remove focused state to reveal selected state
+        focusManager?.clearFocus()
+
+        rule.onNodeWithTag("surface")
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun toggleableSurface_onCheckedChange_changesScaleFactor() {
+        var isChecked by mutableStateOf(false)
+        var focusManager: FocusManager? = null
+        rule.setContent {
+            focusManager = LocalFocusManager.current
+            Box(
+                modifier = Modifier
+                    .background(Color.Blue)
+                    .size(50.toDp())
+            )
+            Surface(
+                checked = isChecked,
+                onCheckedChange = { isChecked = it },
+                modifier = Modifier
+                    .size(50.toDp())
+                    .testTag("surface"),
+                scale = ToggleableSurfaceDefaults.scale(
+                    selectedScale = 1.5f
+                )
+            ) {}
+        }
+        rule.onRoot().captureToImage().assertContainsColor(Color.Blue)
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+
+        // Remove focused state to reveal selected state
+        focusManager?.clearFocus()
+
+        rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun toggleableSurface_onCheckedChange_showsOutline() {
+        var isChecked by mutableStateOf(false)
+        var focusManager: FocusManager? = null
+        rule.setContent {
+            focusManager = LocalFocusManager.current
+            Surface(
+                checked = isChecked,
+                onCheckedChange = { isChecked = it },
+                modifier = Modifier
+                    .size(100.toDp())
+                    .testTag("surface"),
+                border = ToggleableSurfaceDefaults.border(
+                    selectedBorder = Border(
+                        border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
+                    )
+                ),
+                colors = ToggleableSurfaceDefaults.colors(
+                    containerColor = Color.Transparent,
+                    selectedContainerColor = Color.Transparent
+                )
+            ) {}
+        }
+
+        val surface = rule.onNodeWithTag("surface")
+
+        surface.captureToImage().assertDoesNotContainColor(Color.Magenta)
+
+        surface
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performKeyInput { pressKey(Key.DirectionCenter) }
+
+        // Remove focused state to reveal selected state
+        focusManager?.clearFocus()
+
+        surface.captureToImage().assertContainsColor(Color.Magenta)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun surfaceChangesStyleOnChangingEnabledState() {
+        var surfaceEnabled by mutableStateOf(true)
+
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .size(100.toDp())
+                    .testTag("surface"),
+                onClick = {},
+                enabled = surfaceEnabled,
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = Color.Green,
+                    disabledContainerColor = Color.Red
+                )
+            ) {}
+        }
+
+        // Assert surface is enabled
+        rule.onNodeWithTag("surface").captureToImage().assertContainsColor(Color.Green)
+        surfaceEnabled = false
+        // Assert surface is disabled
+        rule.onNodeWithTag("surface").captureToImage().assertContainsColor(Color.Red)
     }
 }

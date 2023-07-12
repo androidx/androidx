@@ -33,6 +33,7 @@ class TestPointerInputEventData(
 ) {
     @OptIn(ExperimentalComposeUiApi::class)
     internal fun toPointerInputEventData() =
+        @OptIn(ExperimentalComposeUiApi::class)
         PointerInputEventData(
             id,
             uptime,

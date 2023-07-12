@@ -23,12 +23,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
-import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24Helper.shaderDir
+import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.tracing.trace
-import java.io.File
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -242,15 +241,28 @@ public class MacrobenchmarkScope(
     public fun dropShaderCache() {
         Log.d(TAG, "Dropping shader cache for $packageName")
         val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
-        if (dropError != null) {
-            if (Shell.isSessionRooted()) {
-                // fall back to root approach
-                val path = getShaderCachePath(packageName)
-                Shell.executeScriptSilent("find $path -type f | xargs rm")
-            } else {
+        if (dropError != null && !DeviceInfo.isEmulator) {
+            if (!dropShaderCacheRoot()) {
                 throw IllegalStateException(dropError)
             }
         }
+    }
+
+    /**
+     * Returns true if rooted, and delete operation succeeded without error.
+     *
+     * Note that if no files are present in the shader dir, true will still be returned.
+     */
+    internal fun dropShaderCacheRoot(): Boolean {
+        if (Shell.isSessionRooted()) {
+            // fall back to root approach
+            val path = getShaderCachePath(packageName)
+
+            // Use -f to allow missing files, since app may not have generated shaders.
+            Shell.executeScriptSilent("find $path -type f | xargs rm -f")
+            return true
+        }
+        return false
     }
 
     /**
@@ -312,21 +324,24 @@ public class MacrobenchmarkScope(
             val context = InstrumentationRegistry.getInstrumentation().context
 
             // Shader paths sourced from ActivityThread.java
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                context.shaderDir
+            val shaderDirectory = if (Build.VERSION.SDK_INT >= 34) {
+                // U switched to cache dir, so it's not deleted on each app update
+                context.createDeviceProtectedStorageContextCompat().cacheDir
+            } else if (Build.VERSION.SDK_INT >= 24) {
+                // shaders started using device protected storage context once it was added in N
+                context.createDeviceProtectedStorageContextCompat().codeCacheDir
             } else {
                 // getCodeCacheDir was added in L, but not used by platform for shaders until M
                 // as M is minApi of this library, that's all we support here
                 context.codeCacheDir
-            }.absolutePath.replace(context.packageName, packageName)
+            }
+            return shaderDirectory.absolutePath.replace(context.packageName, packageName)
         }
 
         @RequiresApi(Build.VERSION_CODES.N)
-        internal object Api24Helper {
-            val Context.shaderDir: File
-                get() =
-                    // shaders started using device protected storage context once it was added in N
-                    createDeviceProtectedStorageContext().codeCacheDir
+        internal object Api24ContextHelper {
+            fun Context.createDeviceProtectedStorageContextCompat(): Context =
+                createDeviceProtectedStorageContext()
         }
     }
 }

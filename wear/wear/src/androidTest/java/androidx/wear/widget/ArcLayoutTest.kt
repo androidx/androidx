@@ -54,16 +54,17 @@ import androidx.wear.widget.ArcLayout.LayoutParams.VERTICAL_ALIGN_INNER
 import androidx.wear.widget.ArcLayout.LayoutParams.VERTICAL_ALIGN_OUTER
 import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.any
 import org.hamcrest.Matcher
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @MediumTest
@@ -830,6 +831,7 @@ class ArcLayoutTest(private val testHeight: Int) {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/280671279")
     fun testBasicTouch() {
         val context: Context = ApplicationProvider.getApplicationContext()
         // This views are the same as the test testTouchEvents()
@@ -873,6 +875,7 @@ class ArcLayoutTest(private val testHeight: Int) {
     }
 
     @Test(timeout = 10000)
+    @Ignore("b/280671279")
     fun testMarginTouch() {
         val views = createTwoArcsWithMargin()
         testEventsFast("touch_fast_margin_screenshot", views)

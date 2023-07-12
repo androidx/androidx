@@ -26,10 +26,10 @@ import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)

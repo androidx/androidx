@@ -28,6 +28,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -40,7 +41,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.samples.BasicFocusableMarqueeSample
 import androidx.compose.foundation.samples.BasicMarqueeSample
 import androidx.compose.foundation.samples.BasicMarqueeWithFadedEdgesSample
@@ -91,6 +91,7 @@ fun BasicMarqueeDemo() {
         Spacer(Modifier.height(16.dp))
         Divider()
         Text("Compose marquees:", style = MaterialTheme.typography.subtitle1)
+
         MarqueeText("short", Modifier.fillMaxWidth())
         listOf(40.dp, 80.dp, 120.dp).forEach {
             MarqueeText("long text in short marquee", Modifier.width(it))

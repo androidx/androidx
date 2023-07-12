@@ -40,7 +40,6 @@ import kotlinx.coroutines.withContext
 /**
  * A helper class for supporting Kotlin Coroutines in Room.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class CoroutinesRoom private constructor() {
@@ -144,7 +143,6 @@ public class CoroutinesRoom private constructor() {
 /**
  * Gets the query coroutine dispatcher.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
@@ -156,7 +154,6 @@ public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
 /**
  * Gets the transaction coroutine dispatcher.
  *
- * @hide
  */
 internal val RoomDatabase.transactionDispatcher: CoroutineDispatcher
     get() = backingFieldMap.getOrPut("TransactionDispatcher") {

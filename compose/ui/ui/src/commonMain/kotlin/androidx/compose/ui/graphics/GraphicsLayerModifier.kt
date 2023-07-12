@@ -18,7 +18,6 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -241,7 +240,6 @@ fun Modifier.graphicsLayer(
  * @param ambientShadowColor see [GraphicsLayerScope.ambientShadowColor]
  * @param spotShadowColor see [GraphicsLayerScope.spotShadowColor]
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Deprecated(
     "Replace with graphicsLayer that consumes a compositing strategy",
     replaceWith = ReplaceWith(
@@ -343,7 +341,6 @@ fun Modifier.graphicsLayer(
  * @param spotShadowColor see [GraphicsLayerScope.spotShadowColor]
  * @param compositingStrategy see [GraphicsLayerScope.compositingStrategy]
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Stable
 fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
@@ -363,7 +360,7 @@ fun Modifier.graphicsLayer(
     ambientShadowColor: Color = DefaultShadowColor,
     spotShadowColor: Color = DefaultShadowColor,
     compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
-) = this then GraphicsLayerModifierNodeElement(
+) = this then GraphicsLayerElement(
     scaleX,
     scaleY,
     alpha,
@@ -383,8 +380,7 @@ fun Modifier.graphicsLayer(
     compositingStrategy
 )
 
-@ExperimentalComposeUiApi
-private data class GraphicsLayerModifierNodeElement(
+private data class GraphicsLayerElement(
     val scaleX: Float,
     val scaleY: Float,
     val alpha: Float,
@@ -425,7 +421,7 @@ private data class GraphicsLayerModifierNodeElement(
         )
     }
 
-    override fun update(node: SimpleGraphicsLayerModifier): SimpleGraphicsLayerModifier {
+    override fun update(node: SimpleGraphicsLayerModifier) {
         node.scaleX = scaleX
         node.scaleY = scaleY
         node.alpha = alpha
@@ -444,8 +440,6 @@ private data class GraphicsLayerModifierNodeElement(
         node.spotShadowColor = spotShadowColor
         node.compositingStrategy = compositingStrategy
         node.invalidateLayerBlock()
-
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -544,14 +538,14 @@ value class CompositingStrategy internal constructor(
 fun Modifier.toolingGraphicsLayer() =
     if (isDebugInspectorInfoEnabled) this.then(Modifier.graphicsLayer()) else this
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class BlockGraphicsLayerElement(
     val block: GraphicsLayerScope.() -> Unit
 ) : ModifierNodeElement<BlockGraphicsLayerModifier>() {
     override fun create() = BlockGraphicsLayerModifier(block)
 
-    override fun update(node: BlockGraphicsLayerModifier) = node.apply {
-        layerBlock = block
+    override fun update(node: BlockGraphicsLayerModifier) {
+        node.layerBlock = block
+        node.invalidateLayerBlock()
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -560,10 +554,22 @@ private data class BlockGraphicsLayerElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class BlockGraphicsLayerModifier(
     var layerBlock: GraphicsLayerScope.() -> Unit,
 ) : LayoutModifierNode, Modifier.Node() {
+
+    /**
+     * We can skip remeasuring as we only need to rerun the placement block. we request it
+     * manually in the update block.
+     */
+    override val shouldAutoInvalidate: Boolean get() = false
+
+    fun invalidateLayerBlock() {
+        requireCoordinator(Nodes.Layout).wrapped?.updateLayerBlock(
+            layerBlock,
+            forceUpdateLayerParameters = true
+        )
+    }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -580,7 +586,6 @@ private class BlockGraphicsLayerModifier(
             "block=$layerBlock)"
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class SimpleGraphicsLayerModifier(
     var scaleX: Float,
     var scaleY: Float,
@@ -600,6 +605,12 @@ private class SimpleGraphicsLayerModifier(
     var spotShadowColor: Color,
     var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
 ) : LayoutModifierNode, Modifier.Node() {
+
+    /**
+     * We can skip remeasuring as we only need to rerun the placement block. we request it
+     * manually in the update block.
+     */
+    override val shouldAutoInvalidate: Boolean get() = false
 
     private var layerBlock: GraphicsLayerScope.() -> Unit = {
         scaleX = this@SimpleGraphicsLayerModifier.scaleX
@@ -624,7 +635,7 @@ private class SimpleGraphicsLayerModifier(
     fun invalidateLayerBlock() {
         requireCoordinator(Nodes.Layout).wrapped?.updateLayerBlock(
             this.layerBlock,
-            forceLayerInvalidated = true
+            forceUpdateLayerParameters = true
         )
     }
 

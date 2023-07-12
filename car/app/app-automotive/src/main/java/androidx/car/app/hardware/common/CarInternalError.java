@@ -32,7 +32,6 @@ import com.google.auto.value.AutoValue;
  * {@link android.car.hardware.property.CarPropertyManager}. It should not be exposed to front-end
  * such as {@link androidx.car.app.hardware.info.AutomotiveCarInfo}.
  *
- * @hide
  */
 @AutoValue
 @RestrictTo(LIBRARY)

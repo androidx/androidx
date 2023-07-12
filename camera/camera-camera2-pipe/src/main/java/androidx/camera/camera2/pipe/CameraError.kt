@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraAccessException.CAMERA_ERROR
 import android.hardware.camera2.CameraAccessException.CAMERA_IN_USE
 import android.hardware.camera2.CameraAccessException.MAX_CAMERAS_IN_USE
 import android.hardware.camera2.CameraDevice.StateCallback
+import android.os.Build
 import androidx.annotation.RequiresApi
 
 @JvmInline
@@ -87,13 +88,30 @@ value class CameraError private constructor(val value: Int) {
         /** This indicates that we received SecurityException while opening the camera. */
         val ERROR_SECURITY_EXCEPTION = CameraError(8)
 
+        /**
+         * This indicates we've encountered an error while configuring our camera graph, such as
+         * creating, finalizing capture sessions, and creating, submitting capture requests.
+         */
+        val ERROR_GRAPH_CONFIG = CameraError(9)
+
+        /**
+         * The camera cannot be opened because Do Not Disturb (DND) mode is on. This is actually
+         * a quirk for legacy devices on P, where we encounter RuntimeExceptions while opening the
+         * camera when it tries to enable shutter sound.
+         */
+        val ERROR_DO_NOT_DISTURB_ENABLED = CameraError(10)
+
         internal fun from(throwable: Throwable) =
             when (throwable) {
                 is CameraAccessException -> from(throwable)
                 is IllegalArgumentException -> ERROR_ILLEGAL_ARGUMENT_EXCEPTION
                 is SecurityException -> ERROR_SECURITY_EXCEPTION
                 else -> {
-                    throw IllegalArgumentException("Unexpected throwable: $throwable")
+                    if (shouldHandleDoNotDisturbException(throwable)) {
+                        ERROR_DO_NOT_DISTURB_ENABLED
+                    } else {
+                        throw IllegalArgumentException("Unexpected throwable: $throwable")
+                    }
                 }
             }
 
@@ -124,5 +142,37 @@ value class CameraError private constructor(val value: Int) {
                     )
                 }
             }
+
+        internal fun shouldHandleDoNotDisturbException(throwable: Throwable): Boolean =
+            Build.VERSION.SDK_INT == 28 && isDoNotDisturbException(throwable)
+
+        /**
+         * The full stack trace of the Do Not Disturb exception on API level 28 is as follows:
+         *
+         * java.lang.RuntimeException: Camera is being used after Camera.release() was called
+         *  at android.hardware.Camera._enableShutterSound(Native Method)
+         *  at android.hardware.Camera.updateAppOpsPlayAudio(Camera.java:1770)
+         *  at android.hardware.Camera.initAppOps(Camera.java:582)
+         *  at android.hardware.Camera.<init>(Camera.java:575)
+         *  at android.hardware.Camera.getEmptyParameters(Camera.java:2130)
+         *  at android.hardware.camera2.legacy.LegacyMetadataMapper.createCharacteristics
+         *  (LegacyMetadataMapper.java:151)
+         *  at android.hardware.camera2.CameraManager.getCameraCharacteristics
+         *  (CameraManager.java:274)
+         *
+         * This function checks whether the method name of the top element is "_enableShutterSound".
+         */
+        private fun isDoNotDisturbException(throwable: Throwable): Boolean {
+            if (throwable !is RuntimeException) return false
+            val topMethodName =
+                throwable.stackTrace.let { if (it.isNotEmpty()) it[0].methodName else null }
+            return topMethodName == "_enableShutterSound"
+        }
     }
 }
+
+// TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.
+class DoNotDisturbException(message: String) : RuntimeException(message)
+
+// An exception indicating that the CameraDevice.close() call has stalled.
+class CameraCloseStallException(message: String) : RuntimeException(message)

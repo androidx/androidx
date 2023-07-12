@@ -22,6 +22,7 @@ import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_IN_MEMORY
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_MEDIA_STORE
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_OUTPUT_STREAM
+import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
@@ -87,6 +88,7 @@ class ImageCaptureUnlockedOrientationTest(
 
     @Before
     fun before() {
+        CoreAppTestUtil.assumeCompatibleDevice()
         setUp(lensFacing)
     }
 

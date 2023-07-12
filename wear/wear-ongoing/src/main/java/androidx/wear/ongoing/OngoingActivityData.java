@@ -29,7 +29,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * This class is used internally by the library to represent the data of an OngoingActivity and
  * serialize/deserialize using VersionedParcelable.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize

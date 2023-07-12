@@ -67,7 +67,10 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
             addParameter("width", Int::class)
             addParameter("height", Int::class)
             returns(viewClass)
-            addStatement("TODO(\"Implement\")")
+            addStatement(
+                "throw UnsupportedOperationException(%S)",
+                "This SDK doesn't support explicit SurfaceView requests."
+            )
         }
     }
 

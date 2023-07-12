@@ -42,6 +42,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -239,6 +240,10 @@ class CameraSelectionOptimizerTest {
             set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+            )
+            set(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                StreamConfigurationMapBuilder.newBuilder().build()
             )
         }
 

@@ -224,33 +224,47 @@ from `framework/support`:
 
 ```shell
 # Run instrumentation tests on a connected device
-./gradlew <project-name>:connectedAndroidTest --info --daemon
+./gradlew <project-name>:connectedAndroidTest --info
+
+# Run instrumentation tests in Firebase Test Lab (remote)
+./gradlew <project-name>:ftlnexus4api21
+./gradlew <project-name>:ftlpixel2api26
+./gradlew <project-name>:ftlpixel2api28
+./gradlew <project-name>:ftlpixel2api30
+./gradlew <project-name>:ftlpixel2api33
 
 # Run local unit tests
-./gradlew <project-name>:test --info --daemon
+./gradlew <project-name>:test
 ```
 
-substituting the Gradle project name (ex. `core`).
+substituting the Gradle project name (ex. `:core:core`).
 
-To run all integration tests in the specific project and test class you're
-working on, run
+To run a specific instrumentation test in a given project, run
 
 ```shell
-./gradlew <project-name>:connectedAndroidTest --info --daemon \
+# Run instrumentation tests on a connected device
+./gradlew <project-name>:connectedAndroidTest --info \
     -Pandroid.testInstrumentationRunnerArguments.class=<fully-qualified-class>[\#testName]
+
+# Run instrumentation tests on in Firebase Test Lab (remote)
+./gradlew <project-name>:ftlpixel2api30 --className=<fully-qualified-class>
 ```
 
 substituting the Gradle project name (ex. `viewpager`) and fully-qualified class
 name (ex. `androidx.viewpager.widget.ViewPagerTest`) of your test file,
 optionally followed by `\#testName` if you want to execute a single test in that
-file. Substitute `test` for `connectedAndroidTest` to run local unit tests.
+file
 
-If you see some weird compilation errors such as below, run `./gradlew clean`
-first:
+If you want to run a specific unit test, you can do it using
+[`--tests` filtering](https://docs.gradle.org/current/userguide/java_testing.html#test_filtering):
 
-```
-Unknown source file : UNEXPECTED TOP-LEVEL EXCEPTION:
-Unknown source file : com.android.dex.DexException: Multiple dex files define Landroid/content/pm/ParceledListSlice$1;
+```shell
+# Run a test for an Android library on a connected device
+./gradlew <project-name>:test --tests androidx.core.view.DisplayCompatTest
+
+# Run a test for a JVM library
+./gradlew <project-name>:testDebugUnitTest --tests
+androidx.core.view.DisplayCompatTest
 ```
 
 ## Test apps {#testapps}

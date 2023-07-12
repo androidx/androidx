@@ -36,6 +36,12 @@ class FakeProcessCameraProviderWrapper(
     private val bindToLifecycleException: Throwable? = null
 ) : ProcessCameraProviderWrapper {
 
+    private var unbindInvoked = false
+
+    fun unbindInvoked(): Boolean {
+        return unbindInvoked
+    }
+
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         return true
     }
@@ -45,7 +51,7 @@ class FakeProcessCameraProviderWrapper(
     }
 
     override fun unbindAll() {
-        // no-op.
+        unbindInvoked = true
     }
 
     override fun bindToLifecycle(

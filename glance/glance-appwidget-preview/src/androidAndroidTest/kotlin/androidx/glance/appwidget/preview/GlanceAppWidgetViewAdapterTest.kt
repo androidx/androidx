@@ -16,15 +16,16 @@
 
 package androidx.glance.appwidget.preview
 
-import androidx.glance.appwidget.preview.test.R
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.glance.appwidget.preview.test.R
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -110,10 +111,11 @@ class GlanceAppWidgetViewAdapterTest {
             assertNotNull(viewNotFoundMsg("TextView", "Text"), textView)
             val linearLayoutRow = linearLayoutColumn.getChildOfType<LinearLayout>()
             assertNotNull(viewNotFoundMsg("LinearLayout", "Row"), linearLayoutRow)
-            // Depending on the API version Button might be wrapped in the RelativeLayout
-            val button1 = linearLayoutRow!!.getChildOfType<FrameLayout>()
+            // Backport button are implemented using FrameLayout and depending on the API version
+            // Button might be wrapped in the RelativeLayout.
+            val button1 = linearLayoutRow!!.getChildOfType<Button>()
                 ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<FrameLayout>()
-            val button2 = linearLayoutRow.getChildOfType<FrameLayout>(1)
+            val button2 = linearLayoutRow.getChildOfType<Button>(1)
                 ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<FrameLayout>()
             assertNotNull(viewNotFoundMsg("FrameLayout", "Button"), button1)
             assertNotNull(viewNotFoundMsg("FrameLayout", "Button"), button2)

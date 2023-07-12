@@ -32,6 +32,9 @@ import kotlinx.coroutines.flow.Flow
  * An interface to provide information about available window areas on the device and an option
  * to use the rear display area of a foldable device, exclusively or concurrently with the internal
  * display.
+ *
+ * @hide
+ *
  */
 @ExperimentalWindowApi
 interface WindowAreaController {

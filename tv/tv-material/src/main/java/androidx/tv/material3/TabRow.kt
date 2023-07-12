@@ -170,7 +170,7 @@ object TabRowDefaults {
   /** Space between tabs in the tab row */
   @Composable
   fun TabSeparator() {
-    Spacer(modifier = Modifier.width(20.dp))
+    Spacer(modifier = Modifier.width(8.dp))
   }
 
   /** Default accent color for the TabRow */

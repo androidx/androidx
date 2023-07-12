@@ -40,12 +40,12 @@ import androidx.viewpager2.integration.testapp.test.util.waitForInjectMotionEven
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import java.util.Locale
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import java.util.Locale
 
 /**
  * Base class for all tests. Contains common functionality, like finding the [ViewPager2] under

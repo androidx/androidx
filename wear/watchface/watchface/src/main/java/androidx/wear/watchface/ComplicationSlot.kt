@@ -226,7 +226,6 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
     ): Boolean = false
 }
 
-/** @hide */
 @IntDef(
     value =
         [
@@ -326,7 +325,6 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
         return result
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() = BoundingArcWireFormat(startAngle, totalAngle, thickness)
 }
@@ -504,6 +502,7 @@ internal constructor(
          * @param bounds The complication's [ComplicationSlotBounds].
          */
         @JvmStatic
+        @OptIn(ComplicationExperimental::class)
         public fun createRoundRectComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
@@ -540,6 +539,7 @@ internal constructor(
          *   the initial complication data source when the watch is first installed.
          */
         @JvmStatic
+        @OptIn(ComplicationExperimental::class)
         public fun createBackgroundComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
@@ -586,6 +586,7 @@ internal constructor(
          */
         // TODO(b/230364881): Deprecate when BoundingArc is no longer experimental.
         @JvmStatic
+        @OptIn(ComplicationExperimental::class)
         public fun createEdgeComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
@@ -625,13 +626,14 @@ internal constructor(
         @JvmStatic
         @JvmOverloads
         @ComplicationExperimental
+        @Suppress("UnavailableSymbol")
         public fun createEdgeComplicationSlotBuilder(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
             bounds: ComplicationSlotBounds,
-            boundingArc: BoundingArc,
+            @Suppress("HiddenTypeParameter") boundingArc: BoundingArc,
             complicationTapFilter: ComplicationTapFilter =
                 object : ComplicationTapFilter {
                     override fun hitTest(
@@ -721,6 +723,10 @@ internal constructor(
                 ".systemDataSourceFallbackDefaultType."
         )
         public fun setDefaultDataSourceType(defaultDataSourceType: ComplicationType): Builder {
+            require(defaultDataSourceType in supportedTypes) {
+                "Can't set $defaultDataSourceType because it's not in the supportedTypes list:" +
+                    " $supportedTypes"
+            }
             defaultDataSourcePolicy =
                 when {
                     defaultDataSourcePolicy.secondaryDataSource != null ->
@@ -800,8 +806,36 @@ internal constructor(
         }
 
         /** Constructs the [ComplicationSlot]. */
-        public fun build(): ComplicationSlot =
-            ComplicationSlot(
+        public fun build(): ComplicationSlot {
+            require(
+                defaultDataSourcePolicy.primaryDataSourceDefaultType == null ||
+                    defaultDataSourcePolicy.primaryDataSourceDefaultType in supportedTypes
+            ) {
+                "defaultDataSourcePolicy.primaryDataSourceDefaultType " +
+                    "${defaultDataSourcePolicy.primaryDataSourceDefaultType} must be in the" +
+                    " supportedTypes list: $supportedTypes"
+            }
+
+            require(
+                defaultDataSourcePolicy.secondaryDataSourceDefaultType == null ||
+                    defaultDataSourcePolicy.secondaryDataSourceDefaultType in supportedTypes
+            ) {
+                "defaultDataSourcePolicy.secondaryDataSourceDefaultType " +
+                    "${defaultDataSourcePolicy.secondaryDataSourceDefaultType} must be in the" +
+                    " supportedTypes list: $supportedTypes"
+            }
+
+            require(
+                defaultDataSourcePolicy.systemDataSourceFallbackDefaultType ==
+                    ComplicationType.NOT_CONFIGURED ||
+                    defaultDataSourcePolicy.systemDataSourceFallbackDefaultType in supportedTypes
+            ) {
+                "defaultDataSourcePolicy.systemDataSourceFallbackDefaultType " +
+                    "${defaultDataSourcePolicy.systemDataSourceFallbackDefaultType} must be in " +
+                    "the supportedTypes list: $supportedTypes"
+            }
+
+            return ComplicationSlot(
                 id,
                 accessibilityTraversalIndex,
                 boundsType,
@@ -818,6 +852,7 @@ internal constructor(
                 screenReaderNameResourceId,
                 boundingArc
             )
+        }
     }
 
     internal interface InvalidateListener {
@@ -1025,6 +1060,11 @@ internal constructor(
         if (!forceUpdate && complicationData.value == best) return
         renderer.loadData(best, loadDrawablesAsynchronous)
         (complicationData as MutableStateFlow).value = best
+
+        // forceUpdate is used for screenshots, don't set the dirty flag for those.
+        if (!forceUpdate) {
+            dataDirty = true
+        }
     }
 
     /**
@@ -1128,7 +1168,6 @@ internal constructor(
      * @param complicationType The [ComplicationType] to use when looking up the slot's
      *   [ComplicationSlotBounds.perComplicationTypeBounds].
      * @param applyMargins Whether or not the margins should be applied to the computed [Rect].
-     * @hide
      */
     @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

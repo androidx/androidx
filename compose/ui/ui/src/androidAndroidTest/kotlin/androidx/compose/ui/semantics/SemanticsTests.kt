@@ -19,6 +19,7 @@ package androidx.compose.ui.semantics
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -30,9 +31,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -40,8 +44,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertValueEquals
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -50,6 +54,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -57,6 +62,7 @@ import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.max
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -64,7 +70,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.max
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -101,23 +106,7 @@ class SemanticsTests {
     }
 
     @Test
-    fun valueSemanticsAreEqual() {
-        assertEquals(
-            Modifier.semantics {
-                text = AnnotatedString("text")
-                contentDescription = "foo"
-                popup()
-            },
-            Modifier.semantics {
-                text = AnnotatedString("text")
-                contentDescription = "foo"
-                popup()
-            }
-        )
-    }
-
-    @Test
-    fun containerProperty() {
+    fun isTraversalGroupProperty() {
         rule.setContent {
             Surface(
                 Modifier.testTag(TestTag)
@@ -128,7 +117,70 @@ class SemanticsTests {
 
         rule.onNodeWithTag(TestTag)
             .assert(SemanticsMatcher.expectValue(
-                SemanticsProperties.IsContainer, true))
+                SemanticsProperties.IsTraversalGroup, true))
+    }
+
+    @Test
+    fun traversalIndexProperty() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .semantics { traversalIndex = 0f }
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.TraversalIndex, 0f))
+    }
+
+    @Test
+    fun traversalIndexPropertyNull() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        // If traversalIndex is not explicitly set, the default value is zero, but
+        // only considered so when sorting in the DelegateCompat file
+        rule.onNodeWithTag(TestTag)
+            .assertDoesNotHaveProperty(SemanticsProperties.TraversalIndex)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun isContainerPropertyDeprecated() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .testTag(TestTag)
+                    .semantics { isContainer = true }
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        // Since `isContainer` has been deprecated, setting that property will actually set
+        // `isTraversalGroup` instead, but `IsContainer` can still be used to retrieve the value
+        rule.onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("container property") {
+                    it.config.getOrNull(SemanticsProperties.IsContainer) == true
+                }
+            )
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.IsTraversalGroup, true))
     }
 
     @Test
@@ -303,6 +355,23 @@ class SemanticsTests {
     }
 
     @Test
+    fun higherUpSemanticsOverridePropertiesOfLowerSemanticsOnSameNode() {
+        rule.setContent {
+            Box(Modifier
+                .testTag("tag")
+                .semantics { contentDescription = "high" }
+                .semantics { contentDescription = "low" }
+            )
+        }
+
+        rule
+            .onNodeWithTag("tag")
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("high"))
+            )
+    }
+
+    @Test
     fun replacedChildren_includeFakeNodes() {
         val tag = "tag1"
         rule.setContent {
@@ -330,6 +399,32 @@ class SemanticsTests {
         val children = node.children
         assertThat(children.count()).isEqualTo(1)
         assertThat(children.last().isFake).isFalse()
+    }
+
+    @Test
+    fun fakeSemanticsNode_usesValuesFromParent() {
+        val tag = "tag1"
+        rule.setContent {
+            SimpleTestLayout(
+                Modifier
+                    .offset(10.dp, 10.dp)
+                    .clickable(role = Role.Button, onClick = {})
+                    .testTag(tag)
+            ) {
+                BasicText("text")
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
+        val fakeNode = node.replacedChildren.first { it.isFake }
+
+        // Ensure that the fake node uses the properties of the parent.
+        assertThat(fakeNode.size).isNotEqualTo(IntSize.Zero)
+        assertThat(fakeNode.boundsInRoot).isNotEqualTo(Rect.Zero)
+        assertThat(fakeNode.positionInRoot).isNotEqualTo(Offset.Zero)
+        assertThat(fakeNode.boundsInWindow).isNotEqualTo(Rect.Zero)
+        assertThat(fakeNode.positionInWindow).isNotEqualTo(Offset.Zero)
+        assertThat(fakeNode.isTransparent).isFalse()
     }
 
     @Test
@@ -792,7 +887,11 @@ class SemanticsTests {
 
     @Test
     fun testInspectorValue() {
-        val properties: SemanticsPropertyReceiver.() -> Unit = {}
+        val properties: SemanticsPropertyReceiver.() -> Unit = {
+            paneTitle = "testTitle"
+            focused = false
+            role = Role.Image
+        }
         rule.setContent {
             val modifier = Modifier.semantics(true, properties) as InspectableValue
 
@@ -800,7 +899,11 @@ class SemanticsTests {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.asIterable()).containsExactly(
                 ValueElement("mergeDescendants", true),
-                ValueElement("properties", properties)
+                ValueElement("properties", mapOf(
+                    "PaneTitle" to "testTitle",
+                    "Focused" to false,
+                    "Role" to Role.Image
+                ))
             )
         }
     }
@@ -831,6 +934,52 @@ class SemanticsTests {
             root.children[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }
+
+    @Test
+    fun delegatedSemanticsPropertiesGetRead() {
+        val node = object : DelegatingNode() {
+            val inner = delegate(SemanticsMod {
+                contentDescription = "hello world"
+            })
+        }
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .testTag(TestTag)
+                    .elementFor(node)
+            )
+        }
+
+        rule
+            .onNodeWithTag(TestTag)
+            .assertContentDescriptionEquals("hello world")
+    }
+
+    @Test
+    fun multipleDelegatesGetCombined() {
+        val node = object : DelegatingNode() {
+            val a = delegate(SemanticsMod {
+                contentDescription = "hello world"
+            })
+            val b = delegate(SemanticsMod {
+                testProperty = "bar"
+            })
+        }
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .testTag(TestTag)
+                    .elementFor(node)
+            )
+        }
+
+        rule
+            .onNodeWithTag(TestTag)
+            .assertContentDescriptionEquals("hello world")
+            .assertTestPropertyEquals("bar")
+    }
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
@@ -840,9 +989,9 @@ private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: Semanti
 private val TestProperty = SemanticsPropertyKey<String>("TestProperty") { parent, child ->
     if (parent == null) child else "$parent, $child"
 }
-private var SemanticsPropertyReceiver.testProperty by TestProperty
+internal var SemanticsPropertyReceiver.testProperty by TestProperty
 
-private fun SemanticsNodeInteraction.assertTestPropertyEquals(value: String) = assert(
+internal fun SemanticsNodeInteraction.assertTestPropertyEquals(value: String) = assert(
     SemanticsMatcher.expectValue(TestProperty, value)
 )
 
@@ -939,3 +1088,23 @@ private fun SimpleSubcomposeLayout(
 }
 
 private enum class TestSlot { First, Second }
+
+internal fun SemanticsMod(
+    mergeDescendants: Boolean = false,
+    properties: SemanticsPropertyReceiver.() -> Unit
+): CoreSemanticsModifierNode {
+    return CoreSemanticsModifierNode(
+        mergeDescendants = mergeDescendants,
+        isClearingSemantics = false,
+        properties = properties,
+    )
+}
+
+internal fun Modifier.elementFor(node: Modifier.Node): Modifier {
+    return this then NodeElement(node)
+}
+
+internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
+    override fun create(): Modifier.Node = node
+    override fun update(node: Modifier.Node) {}
+}

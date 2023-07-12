@@ -39,7 +39,6 @@ import java.lang.reflect.Method;
  * To use this, implement {@link Component} and call the dispatch methods at appropriate times.
  *
  * This must be used for some core compatibility features to function fully.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class KeyEventDispatcher {

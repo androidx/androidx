@@ -101,7 +101,6 @@ internal fun WorkManagerImpl.updateWorkImpl(
 /**
  * Enqueue or update the work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(

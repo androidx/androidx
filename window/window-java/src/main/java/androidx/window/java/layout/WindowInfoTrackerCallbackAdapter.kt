@@ -18,21 +18,21 @@ package androidx.window.java.layout
 
 import android.app.Activity
 import android.content.Context
+import android.inputmethodservice.InputMethodService
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
-import android.inputmethodservice.InputMethodService
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
+import java.util.concurrent.Executor
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * An adapted interface for [WindowInfoTracker] that allows listening for events via a callback

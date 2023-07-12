@@ -157,7 +157,13 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val (up, down, left, right, parent) = List(5) { mutableStateOf(false) }
         val child = mutableStateOf(false)
         var (upItem, downItem, leftItem, rightItem, childItem) = FocusRequester.createRefs()
-        val customFocusEnter = Modifier.focusProperties { enter = { Cancel } }
+        var directionSentToEnter: FocusDirection? = null
+        val customFocusEnter = Modifier.focusProperties {
+            enter = {
+                directionSentToEnter = it
+                Cancel
+            }
+        }
         when (focusDirection) {
             Left -> rightItem = initialFocus
             Right -> leftItem = initialFocus
@@ -167,11 +173,11 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         rule.setContentForTest {
             FocusableBox(up, 30, 0, 10, 10, upItem)
             FocusableBox(left, 0, 30, 10, 10, leftItem)
-            FocusableBox(parent, 20, 20, 70, 50, deactivated = true, modifier = customFocusEnter) {
-                FocusableBox(child, 30, 30, 10, 10, childItem)
+            FocusableBox(parent, 20, 20, 30, 30, deactivated = true, modifier = customFocusEnter) {
+                FocusableBox(child, 10, 10, 10, 10, childItem)
             }
-            FocusableBox(right, 100, 35, 10, 10, rightItem)
-            FocusableBox(down, 30, 90, 10, 10, downItem)
+            FocusableBox(right, 60, 30, 10, 10, rightItem)
+            FocusableBox(down, 30, 60, 10, 10, downItem)
         }
 
         // Act.
@@ -180,7 +186,9 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         // Assert.
         rule.runOnIdle {
             assertThat(movedFocusSuccessfully).isFalse()
+            assertThat(directionSentToEnter).isEqualTo(focusDirection)
             assertThat(child.value).isFalse()
+            assertThat(parent.value).isFalse()
             when (focusDirection) {
                 Left -> assertThat(right.value).isTrue()
                 Right -> assertThat(left.value).isTrue()

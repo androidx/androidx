@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Class to generate string representations of dates/times according to a specified format.
  *
- * @hide
  * @see ComplicationText.TimeFormatBuilder
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

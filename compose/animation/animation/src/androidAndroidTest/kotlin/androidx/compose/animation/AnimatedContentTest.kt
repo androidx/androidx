@@ -21,6 +21,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -45,7 +46,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
@@ -60,6 +60,8 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -67,13 +69,12 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalTestApi::class)
 class AnimatedContentTest {
 
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun AnimatedContentSizeTransformTest() {
         val size1 = 40
@@ -90,16 +91,17 @@ class AnimatedContentTest {
                     testModifier,
                     transitionSpec = {
                         if (true isTransitioningTo false) {
-                            fadeIn() with fadeOut() using SizeTransform { initialSize, targetSize ->
-                                keyframes {
-                                    durationMillis = 320
-                                    IntSize(targetSize.width, initialSize.height) at 160 with
-                                        LinearEasing
-                                    targetSize at 320 with LinearEasing
+                            fadeIn() togetherWith fadeOut() using
+                                SizeTransform { initialSize, targetSize ->
+                                    keyframes {
+                                        durationMillis = 320
+                                        IntSize(targetSize.width, initialSize.height) at 160 with
+                                            LinearEasing
+                                        targetSize at 320 with LinearEasing
+                                    }
                                 }
-                            }
                         } else {
-                            fadeIn() with fadeOut() using SizeTransform { _, _ ->
+                            fadeIn() togetherWith fadeOut() using SizeTransform { _, _ ->
                                 tween(durationMillis = 80, easing = LinearEasing)
                             }
                         }
@@ -153,7 +155,7 @@ class AnimatedContentTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun AnimatedContentSizeTransformEmptyComposableTest() {
         val size1 = 160
@@ -168,9 +170,10 @@ class AnimatedContentTest {
                 transition.AnimatedContent(
                     testModifier,
                     transitionSpec = {
-                        EnterTransition.None with ExitTransition.None using SizeTransform { _, _ ->
-                            tween(durationMillis = 160, easing = LinearEasing)
-                        }
+                        EnterTransition.None togetherWith ExitTransition.None using
+                            SizeTransform { _, _ ->
+                                tween(durationMillis = 160, easing = LinearEasing)
+                            }
                     }
                 ) {
                     if (it) {
@@ -214,7 +217,7 @@ class AnimatedContentTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun AnimatedContentContentAlignmentTest() {
         val size1 = IntSize(80, 80)
@@ -237,7 +240,7 @@ class AnimatedContentTest {
                     testModifier,
                     contentAlignment = contentAlignment,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(durationMillis = 80)) with fadeOut(
+                        fadeIn(animationSpec = tween(durationMillis = 80)) togetherWith fadeOut(
                             animationSpec = tween(durationMillis = 80)
                         ) using SizeTransform { _, _ ->
                             tween(durationMillis = 80, easing = LinearEasing)
@@ -360,17 +363,17 @@ class AnimatedContentTest {
                     transitionSpec = {
                         if (true isTransitioningTo false) {
                             slideIntoContainer(
-                                towards = AnimatedContentScope.SlideDirection.Start, animSpec
-                            ) with
+                                AnimatedContentTransitionScope.SlideDirection.Start, animSpec
+                            ) togetherWith
                                 slideOutOfContainer(
-                                    towards = AnimatedContentScope.SlideDirection.Start, animSpec
+                                    AnimatedContentTransitionScope.SlideDirection.Start, animSpec
                                 )
                         } else {
                             slideIntoContainer(
-                                towards = AnimatedContentScope.SlideDirection.End, animSpec
-                            ) with
+                                AnimatedContentTransitionScope.SlideDirection.End, animSpec
+                            ) togetherWith
                                 slideOutOfContainer(
-                                    towards = AnimatedContentScope.SlideDirection.End,
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End,
                                     animSpec
                                 )
                         }
@@ -437,7 +440,59 @@ class AnimatedContentTest {
         rule.onNodeWithTag("false").assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun AnimatedContentWithContentKey() {
+        var targetState by mutableStateOf(1)
+        var actualIncomingPosition: Offset? = null
+        var actualOutgoingPosition: Offset? = null
+        var targetPosition: Offset? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                AnimatedContent(targetState,
+                    Modifier.onGloballyPositioned {
+                        targetPosition = it.positionInRoot()
+                    },
+                    transitionSpec = {
+                        slideInHorizontally { -200 } togetherWith
+                            slideOutHorizontally(snap()) { 200 } + fadeOut(tween(200))
+                    },
+                    contentKey = { it > 3 }) { target ->
+                    Box(
+                        Modifier
+                            .requiredSize(200.dp)
+                            .onGloballyPositioned {
+                                if (target == targetState) {
+                                    actualIncomingPosition = it.localToRoot(Offset.Zero)
+                                } else {
+                                    actualOutgoingPosition = it.localToRoot(Offset.Zero)
+                                }
+                            })
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            repeat(3) {
+                // Check that no animation happens until the content key changes
+                assertEquals(targetPosition, actualIncomingPosition)
+                assertNotNull(actualIncomingPosition)
+                assertNull(actualOutgoingPosition)
+                targetState++
+            }
+        }
+
+        rule.runOnIdle {
+            // Check that animation happened because targetState going from 3 to 4 caused the
+            // resulting key to change
+            assertEquals(targetPosition, actualIncomingPosition)
+            assertNotNull(actualIncomingPosition)
+            assertEquals(
+                targetPosition!!.copy(x = targetPosition!!.x + 200),
+                actualOutgoingPosition
+            )
+        }
+    }
+
     @Test
     fun AnimatedContentWithKeysTest() {
         var targetState by mutableStateOf(1)
@@ -496,19 +551,25 @@ class AnimatedContentTest {
             AnimatedContent(targetState = flag,
                 modifier = Modifier.onGloballyPositioned { rootCoords = it },
                 transitionSpec = {
-                if (targetState) {
-                    fadeIn(tween(2000)) with slideOut(
-                        tween(2000)) { fullSize ->
-                        IntOffset(0, fullSize.height / 2) } + fadeOut(
-                        tween(2000))
-                } else {
-                    fadeIn(tween(2000)) with fadeOut(tween(2000))
-                }
-            }) { state ->
+                    if (targetState) {
+                        fadeIn(tween(2000)) togetherWith slideOut(
+                            tween(2000)
+                        ) { fullSize ->
+                            IntOffset(0, fullSize.height / 2)
+                        } + fadeOut(
+                            tween(2000)
+                        )
+                    } else {
+                        fadeIn(tween(2000)) togetherWith fadeOut(tween(2000))
+                    }
+                }) { state ->
                 if (state) {
                     Box(modifier = Modifier
                         .onGloballyPositioned {
-                            assertEquals(Offset.Zero, rootCoords!!.localPositionOf(it, Offset.Zero))
+                            assertEquals(
+                                Offset.Zero,
+                                rootCoords!!.localPositionOf(it, Offset.Zero)
+                            )
                         }
                         .fillMaxSize()
                         .background(Color.Green)
@@ -523,7 +584,10 @@ class AnimatedContentTest {
                     }
                     Box(modifier = Modifier
                         .onGloballyPositioned {
-                            assertEquals(Offset.Zero, rootCoords!!.localPositionOf(it, Offset.Zero))
+                            assertEquals(
+                                Offset.Zero,
+                                rootCoords!!.localPositionOf(it, Offset.Zero)
+                            )
                         }
                         .fillMaxSize()
                         .background(Color.Red)

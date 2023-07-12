@@ -24,6 +24,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricPrompt
 import java.security.KeyStore
+import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -78,7 +79,7 @@ internal fun createCryptoObject(
 
     // Generate and store the key in the Android keystore.
     KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE).run {
-        init(keySpec)
+        init(keySpec as AlgorithmParameterSpec)
         generateKey()
     }
 

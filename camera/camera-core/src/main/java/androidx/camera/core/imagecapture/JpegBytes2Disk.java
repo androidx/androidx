@@ -81,14 +81,26 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
             File appProvidedFile = options.getFile();
             if (appProvidedFile != null) {
                 // For saving-to-file case, write to the target folder and rename for better
-                // performance.
+                // performance. The file extensions must be the same as app provided to avoid the
+                // directory access problem.
                 return new File(appProvidedFile.getParent(),
-                        TEMP_FILE_PREFIX + UUID.randomUUID().toString() + TEMP_FILE_SUFFIX);
+                        TEMP_FILE_PREFIX + UUID.randomUUID().toString()
+                                + getFileExtensionWithDot(appProvidedFile));
             } else {
                 return File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             }
         } catch (IOException e) {
             throw new ImageCaptureException(ERROR_FILE_IO, "Failed to create temp file.", e);
+        }
+    }
+
+    private static String getFileExtensionWithDot(File file) {
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex >= 0) {
+            return fileName.substring(dotIndex);
+        } else {
+            return "";
         }
     }
 

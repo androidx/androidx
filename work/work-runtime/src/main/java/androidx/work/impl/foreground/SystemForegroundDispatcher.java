@@ -56,7 +56,6 @@ import java.util.UUID;
  * Handles requests for executing {@link androidx.work.WorkRequest}s on behalf of
  * {@link SystemForegroundService}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemForegroundDispatcher implements WorkConstraintsCallback, ExecutionListener {
@@ -178,6 +177,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                     // cancelling the notification.
                     mCallback.cancelNotification(info.getNotificationId());
                 }
+            } else {
+                mCurrentForegroundId = null;
             }
         }
         // Keep track of the reference and use that when cancelling Notification. This is because

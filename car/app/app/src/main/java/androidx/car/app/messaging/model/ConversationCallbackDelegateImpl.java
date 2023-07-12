@@ -44,7 +44,7 @@ import androidx.car.app.utils.RemoteUtils;
 @ExperimentalCarApi
 @RestrictTo(LIBRARY)
 @CarProtocol
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 @KeepFields
 class ConversationCallbackDelegateImpl implements ConversationCallbackDelegate {
 

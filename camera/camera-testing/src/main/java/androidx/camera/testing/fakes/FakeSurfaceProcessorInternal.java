@@ -18,9 +18,13 @@ package androidx.camera.testing.fakes;
 
 import android.os.Build;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
@@ -32,6 +36,8 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
         SurfaceProcessorInternal {
 
     private boolean mIsReleased;
+    private int mJpegQuality = 0;
+    private int mRotationDegrees = 0;
 
     /**
      * {@inheritDoc}
@@ -56,5 +62,25 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
     @Override
     public void release() {
         mIsReleased = true;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Void> snapshot(
+            @IntRange(from = 0, to = 100) int jpegQuality,
+            @IntRange(from = 0, to = 359) int rotationDegrees) {
+        mJpegQuality = jpegQuality;
+        mRotationDegrees = rotationDegrees;
+        return Futures.immediateFuture(null);
+    }
+
+    @IntRange(from = 0, to = 100)
+    public int getJpegQuality() {
+        return mJpegQuality;
+    }
+
+    @IntRange(from = 0, to = 359)
+    public int getRotationDegrees() {
+        return mRotationDegrees;
     }
 }

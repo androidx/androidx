@@ -18,9 +18,9 @@ package androidx.glance.wear.tiles.preview
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.glance.action.Action
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
+import androidx.glance.action.Action
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row

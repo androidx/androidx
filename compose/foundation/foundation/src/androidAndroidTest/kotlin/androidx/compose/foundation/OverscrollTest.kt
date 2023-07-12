@@ -109,9 +109,7 @@ class OverscrollTest {
             overscrollEffect = controller
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -142,9 +140,7 @@ class OverscrollTest {
             overscrollEffect = controller
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)
@@ -241,9 +237,7 @@ class OverscrollTest {
             flingBehavior = flingBehavior
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -469,9 +463,7 @@ class OverscrollTest {
             overscrollEffect = controller
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -511,9 +503,7 @@ class OverscrollTest {
             orientation = Orientation.Vertical
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 
@@ -713,9 +703,7 @@ class OverscrollTest {
             reverseDirection = reverseDirection
         )
 
-        rule.runOnIdle {
-            assertThat(controller.drawCallsCount).isEqualTo(1)
-        }
+        rule.waitUntil { controller.drawCallsCount == 1 }
 
         rule.onNodeWithTag(boxTag).assertExists()
 

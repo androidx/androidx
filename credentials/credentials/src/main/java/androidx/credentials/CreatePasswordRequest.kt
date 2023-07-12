@@ -26,18 +26,24 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property id the user id associated with the password
  * @property password the password
+ * @param origin the origin of a different application if the request is being made on behalf of
+ * that application. For API level >=34, setting a non-null value for this parameter, will throw a
+ * SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present when
+ * API level >= 34.
  */
 class CreatePasswordRequest private constructor(
     val id: String,
     val password: String,
     displayInfo: DisplayInfo,
+    origin: String? = null,
 ) : CreateCredentialRequest(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     credentialData = toCredentialDataBundle(id, password),
     candidateQueryData = toCandidateDataBundle(),
     isSystemProviderRequired = false,
     isAutoSelectAllowed = false,
-    displayInfo
+    displayInfo,
+    origin
 ) {
 
     /**
@@ -46,11 +52,16 @@ class CreatePasswordRequest private constructor(
      *
      * @param id the user id associated with the password
      * @param password the password
+     * @param origin the origin of a different application if the request is being made on behalf of
+     * that application. For API level >=34, setting a non-null value for this parameter, will throw
+     * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
+     * @throws SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
-    constructor(id: String, password: String) : this(id, password, DisplayInfo(id, null))
+    @JvmOverloads constructor(id: String, password: String, origin: String? = null) : this(id,
+        password, DisplayInfo(id, null), origin)
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
@@ -78,15 +89,16 @@ class CreatePasswordRequest private constructor(
 
         @JvmStatic
         @RequiresApi(23)
-        internal fun createFrom(data: Bundle): CreatePasswordRequest {
+        internal fun createFrom(data: Bundle, origin: String? = null): CreatePasswordRequest {
             try {
                 val id = data.getString(BUNDLE_KEY_ID)
                 val password = data.getString(BUNDLE_KEY_PASSWORD)
                 val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
                 return if (displayInfo == null) CreatePasswordRequest(
                     id!!,
-                    password!!
-                ) else CreatePasswordRequest(id!!, password!!, displayInfo)
+                    password!!,
+                    origin
+                ) else CreatePasswordRequest(id!!, password!!, displayInfo, origin)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

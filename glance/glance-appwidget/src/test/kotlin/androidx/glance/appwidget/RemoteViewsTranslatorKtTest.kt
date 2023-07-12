@@ -26,6 +26,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.GridView
 import android.widget.ImageView
@@ -726,7 +727,8 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateButton() = fakeCoroutineScope.runTest {
+    @Config(maxSdk = 30)
+    fun canTranslateBackportButton_enabled() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Button(
                 "Button",
@@ -735,7 +737,8 @@ class RemoteViewsTranslatorKtTest {
             )
         }
 
-        // All items with actions are wrapped in FrameLayout
+        // Backport button is implemented using a FrameLayout containing an outline image, a text
+        // and a ripple image.
         val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
         assertThat(frame.hasOnClickListeners()).isTrue()
         assertThat(frame.isEnabled).isTrue()
@@ -743,6 +746,43 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
+    @Config(minSdk = 31)
+    fun canTranslateButton_enabled() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Button(
+                "Button",
+                onClick = actionStartActivity<Activity>(),
+                enabled = true
+            )
+        }
+
+        val button = assertIs<Button>(context.applyRemoteViews(rv))
+        assertThat(button.hasOnClickListeners()).isTrue()
+        assertThat(button.isEnabled).isTrue()
+        assertThat(button.text.toString()).isEqualTo("Button")
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateBackportButton_disabled() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Button(
+                "Button",
+                onClick = actionStartActivity<Activity>(),
+                enabled = false
+            )
+        }
+
+        // Backport button is implemented using a FrameLayout containing an outline image, a text
+        // and a ripple image.
+        val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
+        assertThat(frame.hasOnClickListeners()).isFalse()
+        assertThat(frame.isEnabled).isFalse()
+        checkNotNull(frame.findView<TextView> { it.text.toString() == "Button" })
+    }
+
+    @Test
+    @Config(minSdk = 31)
     fun canTranslateButton_disabled() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Button(
@@ -752,10 +792,10 @@ class RemoteViewsTranslatorKtTest {
             )
         }
 
-        val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
-        assertThat(frame.hasOnClickListeners()).isFalse()
-        assertThat(frame.isEnabled).isFalse()
-        checkNotNull(frame.findView<TextView> { it.text.toString() == "Button" })
+        val button = assertIs<Button>(context.applyRemoteViews(rv))
+        assertThat(button.isEnabled).isFalse()
+        assertThat(button.hasOnClickListeners()).isFalse()
+        assertThat(button.text.toString()).isEqualTo("Button")
     }
 
     @Test

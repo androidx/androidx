@@ -36,7 +36,6 @@ import androidx.annotation.RestrictTo;
  *     <li> 500 <= |code| < 1000: Browser/Library session specific code.</li>
  *     <li>1000 <= |code|       : Custom session player result code.</li>
  * </ul>
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public interface BaseResult {

@@ -29,9 +29,11 @@ import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ImageView.ScaleType
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
@@ -49,7 +51,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
-import androidx.glance.ButtonColors
+import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -114,7 +116,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestWatcher
@@ -436,12 +437,40 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
             Button(
                 text = "Button",
                 onClick = actionStartActivity<Activity>(),
-                colors = ButtonColors(
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = ColorProvider(Color.Transparent),
+                    contentColor = ColorProvider(Color.DarkGray)
+                ),
+                enabled = false
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<Button> { button ->
+            checkNotNull(button.text.toString() == "Button") {
+                "Couldn't find 'Button'"
+            }
+
+            assertThat(button.isEnabled).isFalse()
+            assertThat(button.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun createButtonBackport() {
+        TestGlanceAppWidget.uiDefinition = {
+            Button(
+                text = "Button",
+                onClick = actionStartActivity<Activity>(),
+                colors = ButtonDefaults.buttonColors(
                     backgroundColor = ColorProvider(Color.Transparent),
                     contentColor = ColorProvider(Color.DarkGray)
                 ),
@@ -488,8 +517,14 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<TextView> { textView ->
-            assertThat(textView.background).isNotNull()
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertThat(image.drawable).isNotNull()
+            assertThat(image.scaleType).isEqualTo(ScaleType.FIT_XY)
+            assertThat(text.background).isNull()
         }
     }
 
@@ -511,6 +546,30 @@ class GlanceAppWidgetReceiverTest {
             val image = boxedImage.getTargetView<ImageView>()
             val text = boxedText.getTargetView<TextView>()
             assertThat(image.drawable).isNotNull()
+            assertThat(image.scaleType).isEqualTo(ScaleType.FIT_CENTER)
+            assertThat(text.background).isNull()
+        }
+    }
+
+    @Test
+    fun drawableCropBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                    .background(ImageProvider(R.drawable.oval), contentScale = ContentScale.Crop)
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertThat(image.drawable).isNotNull()
+            assertThat(image.scaleType).isEqualTo(ScaleType.CENTER_CROP)
             assertThat(text.background).isNull()
         }
     }
@@ -828,7 +887,7 @@ class GlanceAppWidgetReceiverTest {
                     fontWeight = FontWeight.Bold,
                     fontStyle = FontStyle.Normal,
                 ),
-                colors = switchColors(
+                colors = SwitchDefaults.colors(
                     checkedThumbColor = ColorProvider(
                         day = Color.Blue,
                         night = Color.Red
@@ -878,7 +937,36 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun lambdaActionCallback() = runTest {
+        TestGlanceAppWidget.uiDefinition = {
+            val text = remember { mutableStateOf("initial") }
+            Button(
+                text = text.value,
+                onClick = {
+                    text.value = "clicked"
+                }
+            )
+        }
+
+        mHostRule.startHost()
+        var button: View? = null
+        mHostRule.onUnboxedHostView<Button> { buttonView ->
+            assertThat(buttonView.text.toString()).isEqualTo("initial")
+            button = buttonView
+        }
+        mHostRule.runAndWaitForUpdate {
+            button!!.performClick()
+        }
+
+        mHostRule.onUnboxedHostView<Button> { buttonView ->
+            assertThat(buttonView.text.toString()).isEqualTo("clicked")
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun lambdaActionCallback_backportButton() = runTest {
         TestGlanceAppWidget.uiDefinition = {
             val text = remember { mutableStateOf("initial") }
             Button(
@@ -904,7 +992,6 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
-    @Ignore // b/269611628
     @Test
     fun unsetActionCallback() = runTest {
         var enabled by mutableStateOf(true)
@@ -1088,6 +1175,18 @@ class GlanceAppWidgetReceiverTest {
                 }
                 2 -> assertThat(state).isEqualTo(EffectState.Disposed)
             }
+        }
+    }
+
+    @Test
+    fun rootViewIdIsNotReservedId() = runTest {
+        TestGlanceAppWidget.uiDefinition = {
+            Column {}
+        }
+
+        mHostRule.startHost()
+        mHostRule.onUnboxedHostView<View> { root ->
+            assertThat(root.id).isNotIn(0..1)
         }
     }
 

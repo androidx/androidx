@@ -25,11 +25,13 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.TriggerBuilders.Trigger;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
@@ -49,7 +51,6 @@ public final class ResourceBuilders {
      * Format describing the contents of an image data byte array.
      *
      * @since 1.0
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({IMAGE_FORMAT_UNDEFINED, IMAGE_FORMAT_RGB_565})
@@ -75,7 +76,6 @@ public final class ResourceBuilders {
      * Format describing the contents of an animated image.
      *
      * @since 1.2
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ANIMATED_IMAGE_FORMAT_UNDEFINED, ANIMATED_IMAGE_FORMAT_AVD})
@@ -121,7 +121,6 @@ public final class ResourceBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -133,7 +132,6 @@ public final class ResourceBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -234,7 +232,6 @@ public final class ResourceBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -246,7 +243,6 @@ public final class ResourceBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -339,6 +335,7 @@ public final class ResourceBuilders {
      *
      * @since 1.2
      */
+    @ProtoLayoutExperimental
     public static final class AndroidAnimatedImageResourceByResId {
         private final ResourceProto.AndroidAnimatedImageResourceByResId mImpl;
 
@@ -383,7 +380,6 @@ public final class ResourceBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -395,7 +391,6 @@ public final class ResourceBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -471,6 +466,7 @@ public final class ResourceBuilders {
      *
      * @since 1.2
      */
+    @ProtoLayoutExperimental
     public static final class AndroidSeekableAnimatedImageResourceByResId {
         private final ResourceProto.AndroidSeekableAnimatedImageResourceByResId mImpl;
 
@@ -522,7 +518,6 @@ public final class ResourceBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -534,7 +529,6 @@ public final class ResourceBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -659,6 +653,7 @@ public final class ResourceBuilders {
          * @since 1.2
          */
         @Nullable
+        @ProtoLayoutExperimental
         public AndroidAnimatedImageResourceByResId getAndroidAnimatedResourceByResId() {
             if (mImpl.hasAndroidAnimatedResourceByResId()) {
                 return AndroidAnimatedImageResourceByResId.fromProto(
@@ -675,6 +670,7 @@ public final class ResourceBuilders {
          * @since 1.2
          */
         @Nullable
+        @ProtoLayoutExperimental
         public AndroidSeekableAnimatedImageResourceByResId
                 getAndroidSeekableAnimatedResourceByResId() {
             if (mImpl.hasAndroidSeekableAnimatedResourceByResId()) {
@@ -687,7 +683,6 @@ public final class ResourceBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -698,7 +693,6 @@ public final class ResourceBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -708,6 +702,7 @@ public final class ResourceBuilders {
 
         @Override
         @NonNull
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public String toString() {
             return "ImageResource{"
                     + "androidResourceByResId="
@@ -758,6 +753,7 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
+            @ProtoLayoutExperimental
             public Builder setAndroidAnimatedResourceByResId(
                     @NonNull AndroidAnimatedImageResourceByResId androidAnimatedResourceByResId) {
                 mImpl.setAndroidAnimatedResourceByResId(androidAnimatedResourceByResId.toProto());
@@ -771,6 +767,7 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
+            @ProtoLayoutExperimental
             public Builder setAndroidSeekableAnimatedResourceByResId(
                     @NonNull
                             AndroidSeekableAnimatedImageResourceByResId
@@ -836,7 +833,6 @@ public final class ResourceBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -847,7 +843,6 @@ public final class ResourceBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

@@ -76,13 +76,11 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_VERSION_2 = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressLint("UniqueConstants")
@@ -91,7 +89,6 @@ public final class SessionCommand implements VersionedParcelable {
     public @interface CommandVersion {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({COMMAND_CODE_CUSTOM,

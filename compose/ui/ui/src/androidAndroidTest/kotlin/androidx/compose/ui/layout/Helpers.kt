@@ -58,8 +58,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.asCoroutineDispatcher
 
 internal fun createDelegate(
     root: LayoutNode,
@@ -80,7 +83,9 @@ internal fun createDelegate(
 @OptIn(ExperimentalComposeUiApi::class)
 private class FakeOwner(
     val delegate: MeasureAndLayoutDelegate,
-    val createLayer: () -> OwnedLayer
+    val createLayer: () -> OwnedLayer,
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 ) : Owner {
     override val measureIteration: Long
         get() = delegate.measureIteration
@@ -88,7 +93,8 @@ private class FakeOwner(
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
             delegate.requestLookaheadRemeasure(layoutNode)
@@ -105,8 +111,8 @@ private class FakeOwner(
         delegate.measureAndLayout(layoutNode, constraints)
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        delegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        delegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
@@ -289,7 +295,7 @@ internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     }
 }
 
-internal fun LayoutNode.add(child: LayoutNode) = insertAt(children.count(), child)
+internal fun LayoutNode.add(child: LayoutNode) = insertAt(foldedChildren.count(), child)
 
 internal fun LayoutNode.measureInLayoutBlock() {
     measurePolicy = MeasureInLayoutBlock()

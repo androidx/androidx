@@ -18,7 +18,6 @@ package com.example.datastorecomposesamples
 
 import android.os.Bundle
 import android.os.StrictMode
-
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement

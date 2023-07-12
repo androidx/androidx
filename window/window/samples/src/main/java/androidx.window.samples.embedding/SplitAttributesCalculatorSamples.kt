@@ -17,13 +17,12 @@
 package androidx.window.samples.embedding
 
 import android.app.Application
-import android.graphics.Color
 import androidx.annotation.Sampled
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
-import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitController
 import androidx.window.layout.FoldingFeature
 
@@ -61,8 +60,6 @@ fun splitAttributesCalculatorSample() {
                             SplitAttributes.LayoutDirection.LOCALE
                         }
                     )
-                    // Set the color to use when switching between vertical and horizontal
-                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             }
             return@setSplitAttributesCalculator if (
@@ -72,7 +69,6 @@ fun splitAttributesCalculatorSample() {
                 SplitAttributes.Builder()
                     .setSplitType(SPLIT_TYPE_EQUAL)
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else {
                 // Expand containers if the device is in portrait or the width is less than 600 dp.
@@ -96,13 +92,11 @@ fun splitWithOrientations() {
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                     // Set the color to use when switching between vertical and horizontal
-                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else if (parentConfiguration.screenHeightDp >= 600) {
                 builder
                     .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
                     // Set the color to use when switching between vertical and horizontal
-                    .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else {
                 // Fallback to expand the secondary container

@@ -22,6 +22,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.ExifInterface
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.camera.core.impl.utils.Exif
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -30,13 +31,13 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 private const val WIDTH = 80
 private const val HEIGHT = 60
@@ -128,6 +129,9 @@ class FileTransformFactoryDeviceTest {
     }
 
     private fun createMediaStoreImage(): Uri {
+        // Ensure the folder of MediaStore.Images.Media is created.
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)?.mkdirs()
+
         val contentValues = ContentValues()
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
         val uri = contentResolver.insert(

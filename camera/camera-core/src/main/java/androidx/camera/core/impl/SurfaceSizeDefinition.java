@@ -20,9 +20,12 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
+
+import java.util.Map;
 
 /**
  * Camera device surface size definition
@@ -42,54 +45,109 @@ public abstract class SurfaceSizeDefinition {
     /**
      * Create a SurfaceSizeDefinition object with input analysis, preview, record and maximum sizes
      *
-     * @param analysisSize   Default ANALYSIS size is * 640x480.
-     * @param s720p          s720p refers to the 720p (1280 x 720) or the maximum supported
-     *                       resolution for the particular format returned by
-     *                       {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is
-     *                       smaller.
-     * @param previewSize    PREVIEW refers to the best size match to the device's screen
-     *                       resolution,
-     *                       or to 1080p * (1920x1080), whichever is smaller.
-     * @param s1440p         s1440p refers to the 1440p (1920 x 1440) or the maximum supported
-     *                       resolution for the particular format returned by
-     *                       {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is
-     *                       smaller.
-     * @param recordSize     RECORD refers to the camera device's maximum supported * recording
-     *                       resolution, as determined by CamcorderProfile.
+     * @param analysisSize        Default ANALYSIS size is * 640x480.
+     * @param s720pSizeMap        The format to size map of an s720p size stream. s720p refers to
+     *                            the 720p (1280 x 720) or the maximum supported resolution for the
+     *                            particular format returned by
+     *                            {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is
+     *                            smaller.
+     * @param previewSize         PREVIEW refers to the best size match to the device's screen
+     *                            resolution, or to 1080p * (1920x1080), whichever is smaller.
+     * @param s1440pSizeMap       The format to size map of an s1440p size stream. s1440p refers
+     *                            to the 1440p (1920 x 1440) or the maximum supported resolution
+     *                            for the particular format returned by
+     *                            {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is
+     *                            smaller.
+     * @param recordSize          RECORD refers to the camera device's maximum supported * recording
+     *                            resolution, as determined by CamcorderProfile.
+     * @param maximumSizeMap      The format to size map of an MAXIMUM size stream. MAXIMUM
+     *                            refers to the camera device's maximum output resolution in the
+     *                            default sensor pixel mode.
+     * @param ultraMaximumSizeMap The format to size map of an ULTRA_MAXIMUM size stream.
+     *                            ULTRA_MAXIMUM refers to the camera device's maximum output
+     *                            resolution in the maximum resolution sensor pixel mode.
      * @return new {@link SurfaceSizeDefinition} object
      */
     @NonNull
     public static SurfaceSizeDefinition create(
             @NonNull Size analysisSize,
-            @NonNull Size s720p,
+            @NonNull Map<Integer, Size> s720pSizeMap,
             @NonNull Size previewSize,
-            @NonNull Size s1440p,
-            @NonNull Size recordSize) {
+            @NonNull Map<Integer, Size> s1440pSizeMap,
+            @NonNull Size recordSize,
+            @NonNull Map<Integer, Size> maximumSizeMap,
+            @NonNull Map<Integer, Size> ultraMaximumSizeMap) {
         return new AutoValue_SurfaceSizeDefinition(
                 analysisSize,
-                s720p,
+                s720pSizeMap,
                 previewSize,
-                s1440p,
-                recordSize);
+                s1440pSizeMap,
+                recordSize,
+                maximumSizeMap,
+                ultraMaximumSizeMap);
     }
 
     /** Returns the size of an ANALYSIS stream. */
     @NonNull
     public abstract Size getAnalysisSize();
 
-    /** Returns the size of an s720p stream. */
+    /** Returns the format to size map of an s720p stream. */
     @NonNull
-    public abstract Size getS720pSize();
+    public abstract Map<Integer, Size> getS720pSizeMap();
 
     /** Returns the size of a PREVIEW stream. */
     @NonNull
     public abstract Size getPreviewSize();
 
-    /** Returns the size of an s1440p stream. */
+    /** Returns the format to size map of an s1440p stream. */
     @NonNull
-    public abstract Size getS1440pSize();
+    public abstract Map<Integer, Size> getS1440pSizeMap();
 
     /** Returns the size of a RECORD stream*/
     @NonNull
     public abstract Size getRecordSize();
+
+    /** Returns the format to size map of an MAXIMUM stream. */
+    @NonNull
+    public abstract Map<Integer, Size> getMaximumSizeMap();
+
+    /** Returns the format to size map of an ULTRA_MAXIMUM stream. */
+    @NonNull
+    public abstract Map<Integer, Size> getUltraMaximumSizeMap();
+
+    /**
+     * Returns the s720p size for the specified format, or {@code null} null if there is no data
+     * for the format.
+     */
+    @NonNull
+    public Size getS720pSize(int format) {
+        return getS720pSizeMap().get(format);
+    }
+
+    /**
+     * Returns the s1440p size for the specified format, or {@code null} null if there is no data
+     * for the format.
+     */
+    @NonNull
+    public Size getS1440pSize(int format) {
+        return getS1440pSizeMap().get(format);
+    }
+
+    /**
+     * Returns the MAXIMUM size for the specified format, or {@code null} null if there is no
+     * data for the format.
+     */
+    @NonNull
+    public Size getMaximumSize(int format) {
+        return getMaximumSizeMap().get(format);
+    }
+
+    /**
+     * Returns the ULTRA_MAXIMUM size for the specified format, or {@code null} if the device
+     * doesn't support maximum resolution sensor pixel mode.
+     */
+    @Nullable
+    public Size getUltraMaximumSize(int format) {
+        return getUltraMaximumSizeMap().get(format);
+    }
 }

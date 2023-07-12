@@ -34,7 +34,6 @@ import java.util.Map;
 /**
  * Class used internally by the library to represent the status of and ongoing activity, and to
  * serialize / deserialize.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize(isCustom = true)
@@ -67,7 +66,6 @@ class OngoingActivityStatus extends CustomVersionedParcelable {
     // Implementation of CustomVersionedParcelable
     /**
      * See {@link androidx.versionedparcelable.CustomVersionedParcelable#onPreParceling(boolean)}
-     * @hide
      */
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -80,7 +78,6 @@ class OngoingActivityStatus extends CustomVersionedParcelable {
 
     /**
      * See {@link androidx.versionedparcelable.CustomVersionedParcelable#onPostParceling()}
-     * @hide
      */
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.indexForKey
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.semantics
@@ -35,10 +36,10 @@ import androidx.compose.ui.semantics.verticalScrollAxisRange
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("ComposableModifierFactory", "ModifierInspectorInfo")
+@Suppress("ComposableModifierFactory")
 @Composable
 internal fun Modifier.lazyLayoutSemantics(
-    itemProvider: LazyLayoutItemProvider,
+    itemProviderLambda: () -> LazyLayoutItemProvider,
     state: LazyLayoutSemanticState,
     orientation: Orientation,
     userScrollEnabled: Boolean,
@@ -47,13 +48,14 @@ internal fun Modifier.lazyLayoutSemantics(
     val coroutineScope = rememberCoroutineScope()
     return this.then(
         remember(
-            itemProvider,
+            itemProviderLambda,
             state,
             orientation,
             userScrollEnabled
         ) {
             val isVertical = orientation == Orientation.Vertical
             val indexForKeyMapping: (Any) -> Int = { needle ->
+                val itemProvider = itemProviderLambda()
                 var result = -1
                 for (index in 0 until itemProvider.itemCount) {
                     if (itemProvider.getKey(index) == needle) {
@@ -73,6 +75,7 @@ internal fun Modifier.lazyLayoutSemantics(
                     state.currentPosition
                 },
                 maxValue = {
+                    val itemProvider = itemProviderLambda()
                     if (state.canScrollForward) {
                         // If we can scroll further, we don't know the end yet,
                         // but it's upper bounded by #items + 1
@@ -104,6 +107,7 @@ internal fun Modifier.lazyLayoutSemantics(
 
             val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {
                 { index ->
+                    val itemProvider = itemProviderLambda()
                     require(index >= 0 && index < itemProvider.itemCount) {
                         "Can't scroll to index $index, it is out of " +
                             "bounds [0, ${itemProvider.itemCount})"
@@ -120,6 +124,7 @@ internal fun Modifier.lazyLayoutSemantics(
             val collectionInfo = state.collectionInfo()
 
             Modifier.semantics {
+                isTraversalGroup = true
                 indexForKey(indexForKeyMapping)
 
                 if (isVertical) {

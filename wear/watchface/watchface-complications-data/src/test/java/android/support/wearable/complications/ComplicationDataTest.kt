@@ -25,15 +25,20 @@ import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import android.support.wearable.complications.ComplicationText.plainText
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
+import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertThrows
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationDataTest {
+    @get:Rule val expect = Expect.create()
+
     private val mPendingIntent: PendingIntent? =
         PendingIntent.getBroadcast(
             ApplicationProvider.getApplicationContext(),
@@ -1067,6 +1072,54 @@ public class ComplicationDataTest {
         val entry = data.timelineEntries!!.first()
         assertThat(entry.type).isEqualTo(ComplicationData.TYPE_NO_DATA)
         assertThat(entry.placeholder!!.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+    }
+
+    enum class HasExpressionWithExpressionScenario(val data: ComplicationData) {
+        RANGED_VALUE(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setRangedValueExpression(DynamicFloat.constant(1f))
+                .build()
+        ),
+        LONG_TEXT(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setLongText(ComplicationText(DynamicString.constant("Long Text")))
+                .build()
+        ),
+        LONG_TITLE(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setLongTitle(ComplicationText(DynamicString.constant("Long Title")))
+                .build()
+        ),
+        SHORT_TEXT(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setShortText(ComplicationText(DynamicString.constant("Short Text")))
+                .build()
+        ),
+        SHORT_TITLE(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setShortTitle(ComplicationText(DynamicString.constant("Short Title")))
+                .build()
+        ),
+        CONTENT_DESCRIPTION(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setContentDescription(ComplicationText(DynamicString.constant("Description")))
+                .build()
+        ),
+    }
+
+    @Test
+    fun hasExpression_withExpression_returnsTrue() {
+        for (scenario in HasExpressionWithExpressionScenario.values()) {
+            expect.withMessage(scenario.name).that(scenario.data.hasExpression()).isTrue()
+        }
+    }
+
+    @Test
+    fun hasExpression_withoutExpression_returnsFalse() {
+        val data =
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).setRangedValue(10f).build()
+
+        assertThat(data.hasExpression()).isFalse()
     }
 
     private companion object {

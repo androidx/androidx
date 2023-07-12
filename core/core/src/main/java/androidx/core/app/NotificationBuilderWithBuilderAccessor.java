@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
  * an accessor for {@link Notification.Builder}. {@link Notification.Builder}
  * was introduced in HoneyComb.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface NotificationBuilderWithBuilderAccessor {

@@ -88,7 +88,6 @@ public class DrawerArrowDrawable extends Drawable {
      */
     public static final int ARROW_DIRECTION_END = 3;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({ARROW_DIRECTION_LEFT, ARROW_DIRECTION_RIGHT,
             ARROW_DIRECTION_START, ARROW_DIRECTION_END})

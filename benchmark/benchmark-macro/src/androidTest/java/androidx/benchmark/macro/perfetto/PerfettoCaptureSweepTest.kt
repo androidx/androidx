@@ -16,35 +16,38 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.verifyWithPolling
 import androidx.tracing.Trace
 import androidx.tracing.trace
+import kotlin.test.assertEquals
+import kotlin.test.fail
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.test.assertEquals
-import kotlin.test.fail
-import org.junit.Ignore
 
 /**
  * Trace validation tests for PerfettoCapture
  *
  * Note: this test is defined in benchmark-macro instead of benchmark-common so that it can
- * validate trace contents with PerfettoTraceProcessor
+ * validate trace contents with TraceProcessor
  */
 @SdkSuppress(minSdkVersion = 23)
 @LargeTest
@@ -84,6 +87,7 @@ class PerfettoCaptureSweepTest(
         captureAndValidateTrace(unbundled = true)
     }
 
+    @SuppressLint("BanThreadSleep")
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())
 
@@ -92,7 +96,7 @@ class PerfettoCaptureSweepTest(
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start(listOf(Packages.TEST))
+        perfettoCapture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
 
         if (!Trace.isEnabled()) {
             // Should be available immediately, but let's wait a while to see if it works slowly.
@@ -119,7 +123,7 @@ class PerfettoCaptureSweepTest(
 
         perfettoCapture.stop(traceFilePath)
 
-        val matchingSlices = PerfettoTraceProcessor.runServer(traceFilePath) {
+        val matchingSlices = PerfettoTraceProcessor.runSingleSessionServer(traceFilePath) {
             querySlices("PerfettoCaptureTest_%")
         }
 

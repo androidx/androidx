@@ -28,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
@@ -261,6 +263,60 @@ class ResizingComposeViewTest {
         awaitDrawAndAssertSizes()
     }
 
+    @Test
+    fun whenForceRemeasureCalledAndSizeChanged() {
+        var childHeight by mutableStateOf(10)
+        val parent = RequestLayoutTrackingFrameLayout(rule.activity)
+        var remeasurement: Remeasurement? = null
+        rule.runOnUiThread {
+            parent.addView(composeView, WrapContentLayoutParams)
+            rule.activity.setContentView(parent, WrapContentLayoutParams)
+            composeView.setContent {
+                ResizingChild(
+                    layoutHeight = { childHeight },
+                    modifier = RemeasurementElement { remeasurement = it }
+                )
+            }
+        }
+
+        awaitDrawAndAssertSizes()
+        rule.runOnUiThread {
+            parent.requestLayoutCalled = false
+            drawLatch = CountDownLatch(1)
+
+            childHeight = 20
+            remeasurement!!.forceRemeasure()
+        }
+
+        awaitDrawAndAssertSizes()
+        assertThat(parent.requestLayoutCalled).isTrue()
+    }
+
+    @Test
+    fun noRequestLayoutWhenForceRemeasureCalled() {
+        val parent = RequestLayoutTrackingFrameLayout(rule.activity)
+        var remeasurement: Remeasurement? = null
+        rule.runOnUiThread {
+            parent.addView(composeView, WrapContentLayoutParams)
+            rule.activity.setContentView(parent, WrapContentLayoutParams)
+            composeView.setContent {
+                ResizingChild(
+                    layoutHeight = { 10 },
+                    modifier = RemeasurementElement { remeasurement = it }
+                )
+            }
+        }
+
+        awaitDrawAndAssertSizes()
+        rule.runOnUiThread {
+            parent.requestLayoutCalled = false
+
+            remeasurement!!.forceRemeasure()
+
+            assertThat(parent.requestLayoutCalled).isFalse()
+        }
+    }
+
     private fun awaitDrawAndAssertSizes() {
         Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         // size assertion is done inside Modifier.drawBehind() which calls countDown() on the latch
@@ -270,10 +326,11 @@ class ResizingComposeViewTest {
     private fun ResizingChild(
         layoutHeight: () -> Int,
         viewHeight: () -> Int = layoutHeight,
+        modifier: Modifier = Modifier
     ) {
         Layout(
             {},
-            Modifier.drawBehind {
+            modifier.drawBehind {
                 val expectedLayoutHeight = Snapshot.withoutReadObservation { layoutHeight() }
                 assertWithMessage("Layout size is wrong")
                     .that(size.height.roundToInt()).isEqualTo(expectedLayoutHeight)
@@ -332,3 +389,27 @@ private val WrapContentLayoutParams = ViewGroup.LayoutParams(
     ViewGroup.LayoutParams.WRAP_CONTENT,
     ViewGroup.LayoutParams.WRAP_CONTENT
 )
+
+private class RemeasurementElement(
+    private val onRemeasurementAvailable: (Remeasurement) -> Unit
+) : ModifierNodeElement<RemeasurementModifierNode>() {
+    override fun create() = RemeasurementModifierNode(onRemeasurementAvailable)
+    override fun update(node: RemeasurementModifierNode) {
+        node.onRemeasurementAvailable = onRemeasurementAvailable
+    }
+    override fun hashCode(): Int = 242
+    override fun equals(other: Any?) = other === this
+}
+
+private class RemeasurementModifierNode(
+    onRemeasurementAvailable: (Remeasurement) -> Unit
+) : Modifier.Node() {
+    var onRemeasurementAvailable: (Remeasurement) -> Unit = onRemeasurementAvailable
+        set(value) {
+            field = value
+            value(requireLayoutNode())
+        }
+    override fun onAttach() {
+        onRemeasurementAvailable(requireLayoutNode())
+    }
+}

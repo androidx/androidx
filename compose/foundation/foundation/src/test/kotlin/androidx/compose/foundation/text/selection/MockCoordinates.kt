@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.IntSize
 

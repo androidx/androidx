@@ -41,7 +41,7 @@ dependencies {
 }
 
 androidx {
-    name = 'AppSearch Builtin Types'
+    name = "AppSearch Builtin Types"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = '2021'
     description = 'Contains AppSearch Document classes and builders for a variety of common ' +

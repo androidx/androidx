@@ -36,6 +36,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -354,7 +355,6 @@ fun slideOut(
  *                        [TransformOrigin.Center].
  */
 @Stable
-@ExperimentalAnimationApi
 fun scaleIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     initialScale: Float = 0f,
@@ -385,7 +385,6 @@ fun scaleIn(
  *                        [TransformOrigin.Center].
  */
 @Stable
-@ExperimentalAnimationApi
 fun scaleOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetScale: Float = 0f,
@@ -940,10 +939,9 @@ private val TransformOriginVectorConverter =
         convertFromVector = { TransformOrigin(it.v1, it.v2) }
     )
 
-private val DefaultAlpha = mutableStateOf(1f)
+private val DefaultAlpha = mutableFloatStateOf(1f)
 private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
 
-@Suppress("ModifierInspectorInfo")
 private fun Modifier.slideInOut(
     transition: Transition<EnterExitState>,
     slideIn: State<Slide?>,
@@ -1025,7 +1023,6 @@ private class SlideModifier(
     }
 }
 
-@Suppress("ModifierInspectorInfo")
 private fun Modifier.shrinkExpand(
     transition: Transition<EnterExitState>,
     expand: State<ChangeSize?>,

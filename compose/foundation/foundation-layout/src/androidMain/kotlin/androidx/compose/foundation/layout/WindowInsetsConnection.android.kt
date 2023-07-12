@@ -36,26 +36,27 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.Velocity
-import kotlin.math.roundToInt
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
+import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -128,6 +129,21 @@ internal fun rememberWindowInsetsConnection(
  * A [NestedScrollConnection] that does nothing, for versions before R.
  */
 private object DoNothingNestedScrollConnection : NestedScrollConnection
+
+/**
+ * Used in place of the standard Job cancellation pathway to avoid reflective
+ * javaClass.simpleName lookups to build the exception message and stack trace collection.
+ * Remove if these are changed in kotlinx.coroutines.
+ */
+private class WindowInsetsAnimationCancelledException : CancellationException(
+    "Window insets animation cancelled"
+) {
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+}
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalLayoutApi::class)
 @RequiresApi(Build.VERSION_CODES.R)
@@ -219,7 +235,7 @@ private class WindowInsetsNestedScrollConnection(
      */
     private fun scroll(available: Offset, scrollAmount: Float): Offset {
         animationJob?.let {
-            it.cancel()
+            it.cancel(WindowInsetsAnimationCancelledException())
             animationJob = null
         }
 
@@ -289,7 +305,7 @@ private class WindowInsetsNestedScrollConnection(
         flingAmount: Float,
         towardShown: Boolean
     ): Velocity {
-        animationJob?.cancel()
+        animationJob?.cancel(WindowInsetsAnimationCancelledException())
         animationJob = null
         partialConsumption = 0f
 
@@ -341,7 +357,7 @@ private class WindowInsetsNestedScrollConnection(
                             endVelocity = velocity
                             animationController.finish(targetShown)
                             this@WindowInsetsNestedScrollConnection.animationController = null
-                            animationJob?.cancel()
+                            animationJob?.cancel(WindowInsetsAnimationCancelledException())
                         }
                     }
                 }
@@ -426,7 +442,7 @@ private class WindowInsetsNestedScrollConnection(
         continuation = null
 
         // Cancel any animation that's running.
-        animationJob?.cancel()
+        animationJob?.cancel(WindowInsetsAnimationCancelledException())
         animationJob = null
 
         partialConsumption = 0f

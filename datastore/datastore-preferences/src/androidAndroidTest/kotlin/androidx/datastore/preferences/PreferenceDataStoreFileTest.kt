@@ -18,9 +18,9 @@ package androidx.datastore.preferences
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
+import org.junit.Test
 
 public class PreferenceDataStoreFileTest {
     @Test

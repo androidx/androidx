@@ -34,8 +34,8 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTO
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
-import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
@@ -48,7 +48,6 @@ import androidx.window.layout.WindowMetrics
  */
 @OptIn(ExperimentalWindowApi::class)
 class ExampleWindowInitializer : Initializer<RuleController> {
-    private val mDemoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
 
     override fun create(context: Context): RuleController {
         SplitController.getInstance(context).apply {
@@ -84,11 +83,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
         // Make a copy of the default splitAttributes, but replace the animation background
         // color to what is configured in the Demo app.
-        val backgroundColor = mDemoActivityEmbeddingController.animationBackgroundColor
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
             .setSplitType(params.defaultSplitAttributes.splitType)
-            .setAnimationBackgroundColor(backgroundColor)
             .build()
         when (tag?.substringBefore(SUFFIX_REVERSED)) {
             TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
@@ -114,7 +111,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 } else if (isPortrait) {
                     return expandContainersAttrs
@@ -131,25 +127,11 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 }
             }
             TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE -> {
-                return SplitAttributes.Builder()
-                    .setSplitType(SPLIT_TYPE_HINGE)
-                    .setLayoutDirection(
-                        if (shouldReversed) {
-                            BOTTOM_TO_TOP
-                        } else {
-                            TOP_TO_BOTTOM
-                        }
-                    ).build()
-            }
-            TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE + SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE -> {
-                return if (isBookMode) {
-                    expandContainersAttrs
-                } else if (config.screenWidthDp <= 600) {
+                return if (config.screenWidthDp < 600) {
                     SplitAttributes.Builder()
                         .setSplitType(SPLIT_TYPE_EQUAL)
                         .setLayoutDirection(
@@ -159,7 +141,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 } else {
                     SplitAttributes.Builder()
@@ -171,7 +152,33 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
+                        .build()
+                }
+            }
+            TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE + SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE -> {
+                return if (isBookMode) {
+                    expandContainersAttrs
+                } else if (config.screenWidthDp < 600) {
+                    SplitAttributes.Builder()
+                        .setSplitType(SPLIT_TYPE_EQUAL)
+                        .setLayoutDirection(
+                            if (shouldReversed) {
+                                BOTTOM_TO_TOP
+                            } else {
+                                TOP_TO_BOTTOM
+                            }
+                        )
+                        .build()
+                } else {
+                    SplitAttributes.Builder()
+                        .setSplitType(SPLIT_TYPE_EQUAL)
+                        .setLayoutDirection(
+                            if (shouldReversed) {
+                                RIGHT_TO_LEFT
+                            } else {
+                                LEFT_TO_RIGHT
+                            }
+                        )
                         .build()
                 }
             }
@@ -195,7 +202,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 }
             }

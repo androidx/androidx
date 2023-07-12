@@ -16,6 +16,8 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
+
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -104,7 +106,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 .build();
 
         mWorkManagerImpl =
-                spy(new WorkManagerImpl(context, mConfiguration, new InstantWorkTaskExecutor()));
+                spy(createWorkManager(context, mConfiguration, new InstantWorkTaskExecutor()));
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();

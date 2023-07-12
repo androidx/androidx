@@ -43,7 +43,6 @@ import java.util.Locale;
  * relative to the pages and exposes this position via ({@link #getRelativeScrollPosition()}.
  */
 final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
-    /** @hide */
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
             STATE_IN_PROGRESS_IMMEDIATE_SCROLL, STATE_IN_PROGRESS_FAKE_DRAG})

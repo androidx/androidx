@@ -29,6 +29,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesResponse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,6 +38,7 @@ class DialogTest {
     @get:Rule
     val rule = ComposeInspectionRule(DialogTestActivity::class)
 
+    @Ignore // b/273151077
     @Test
     fun dialogLocation(): Unit = runBlocking {
         assertThat(rule.roots).hasSize(2)

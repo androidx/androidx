@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.annotation.ColorInt;
+import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
@@ -34,8 +35,11 @@ public final class DynamicColorTest {
   @ColorInt private static final int CONSTANT_VALUE = 0xff00ff00;
   private static final AnimationSpec SPEC =
       new AnimationSpec.Builder()
-          .setStartDelayMillis(1)
-          .setDurationMillis(2)
+          .setAnimationParameters(
+                  new AnimationParameters.Builder()
+                          .setDurationMillis(2)
+                          .setDelayMillis(1)
+                          .build())
           .setRepeatable(
               new Repeatable.Builder().setRepeatMode(REPEAT_MODE_REVERSE).setIterations(10).build())
           .build();
@@ -54,7 +58,7 @@ public final class DynamicColorTest {
 
   @Test
   public void stateEntryValueColor() {
-    DynamicColor stateColor = DynamicColor.fromState(STATE_KEY);
+    DynamicColor stateColor = DynamicColor.from(new AppDataKey<>(STATE_KEY));
 
     assertThat(stateColor.toDynamicColorProto().getStateSource().getSourceKey())
         .isEqualTo(STATE_KEY);
@@ -62,8 +66,8 @@ public final class DynamicColorTest {
 
   @Test
   public void stateToString() {
-    assertThat(DynamicColor.fromState("key").toString())
-        .isEqualTo("StateColorSource{sourceKey=key}");
+    assertThat(DynamicColor.from(new AppDataKey<>("key")).toString())
+        .isEqualTo("StateColorSource{sourceKey=key, sourceNamespace=}");
   }
 
   @Test
@@ -90,20 +94,21 @@ public final class DynamicColorTest {
             DynamicColor.animate(
                     /* start= */ 0x00000001,
                     /* end= */ 0x00000002,
-                    new AnimationSpec.Builder().setStartDelayMillis(0).build())
+                    new AnimationSpec.Builder().build())
                 .toString())
         .isEqualTo(
             "AnimatableFixedColor{"
                 + "fromArgb=1, toArgb=2, animationSpec=AnimationSpec{"
-                + "durationMillis=0, startDelayMillis=0, easing=null, repeatable=null}}");
+                + "animationParameters=null, repeatable=null}}");
   }
 
   @Test
   public void stateAnimatedColor() {
-    DynamicColor stateColor = DynamicColor.fromState(STATE_KEY);
+    AppDataKey<DynamicColor> source = new AppDataKey<>(STATE_KEY);
+    DynamicColor stateColor = DynamicColor.from(source);
 
-    DynamicColor animatedColor = DynamicColor.animate(STATE_KEY);
-    DynamicColor animatedColorWithSpec = DynamicColor.animate(STATE_KEY, SPEC);
+    DynamicColor animatedColor = DynamicColor.animate(source);
+    DynamicColor animatedColorWithSpec = DynamicColor.animate(source, SPEC);
 
     assertThat(animatedColor.toDynamicColorProto().getAnimatableDynamic().hasAnimationSpec())
         .isFalse();
@@ -120,13 +125,18 @@ public final class DynamicColorTest {
   public void stateAnimatedToString() {
     assertThat(
             DynamicColor.animate(
-                    /* stateKey= */ "key",
-                    new AnimationSpec.Builder().setStartDelayMillis(1).build())
+                    /* stateKey= */ new AppDataKey<>("key"),
+                    new AnimationSpec.Builder()
+                            .setAnimationParameters(
+                                    new AnimationParameters.Builder().setDelayMillis(1).build())
+                            .build())
                 .toString())
         .isEqualTo(
             "AnimatableDynamicColor{"
-                + "input=StateColorSource{sourceKey=key}, animationSpec=AnimationSpec{"
-                + "durationMillis=0, startDelayMillis=1, easing=null, repeatable=null}}");
+                + "input=StateColorSource{sourceKey=key, sourceNamespace=}, "
+                + "animationSpec=AnimationSpec{"
+                + "animationParameters=AnimationParameters{durationMillis=0, easing=null, "
+                + "delayMillis=1}, repeatable=null}}");
   }
 
   @Test

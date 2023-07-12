@@ -17,11 +17,11 @@
 package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.preferences.PreferencesProto.PreferenceMap
-import androidx.datastore.preferences.PreferencesProto.Value
-import androidx.datastore.preferences.PreferencesProto.StringSet
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.preferences.PreferencesMapCompat
+import androidx.datastore.preferences.PreferencesProto.PreferenceMap
+import androidx.datastore.preferences.PreferencesProto.StringSet
+import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.protobuf.ByteString
 import kotlin.jvm.Throws
 import okio.BufferedSink

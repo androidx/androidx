@@ -159,7 +159,6 @@ public class WebSettingsCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {
@@ -234,7 +233,6 @@ public class WebSettingsCompat {
      * @param suppressed whether the WebView should suppress its internal error page
      *
      * TODO(cricke): unhide
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
@@ -262,7 +260,6 @@ public class WebSettingsCompat {
      * @see #setWillSuppressErrorPage
      *
      * TODO(cricke): unhide
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
@@ -319,7 +316,6 @@ public class WebSettingsCompat {
     public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
@@ -565,7 +561,6 @@ public class WebSettingsCompat {
             WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {

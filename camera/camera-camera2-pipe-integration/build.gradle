@@ -115,11 +115,11 @@ kapt {
 }
 
 androidx {
-    name = "Jetpack Camera Camera Pipe Integration Library"
+    name = "Camera2 Pipe Integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
-    description = "A CameraPipe implementation of CameraX, a library providing a consistent and " +
-            "reliable camera foundation that enables great camera driven experiences across all " +
-            "of Android."
+    description = "A Camera2 Pipe implementation of CameraX, a library providing a consistent " +
+            "and reliable camera foundation that enables great camera driven experiences across " +
+            "all of Android."
 }

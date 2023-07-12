@@ -81,6 +81,7 @@ class StableAidlCheckApiTest {
                 expectedApiDir.absolutePath,
                 actualApiDir.absolutePath
             ),
+            listOf(),
             listOf()
         )
 

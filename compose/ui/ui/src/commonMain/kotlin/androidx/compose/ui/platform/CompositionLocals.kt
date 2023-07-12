@@ -143,12 +143,13 @@ val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
  * This is a low-level API for code that talks directly to the platform input method framework.
  * Higher-level text input APIs in the Foundation library are more appropriate for most cases.
  */
+// Experimental in desktop.
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @ExperimentalTextApi
 @get:ExperimentalTextApi
 val LocalPlatformTextInputPluginRegistry =
     staticCompositionLocalOf<PlatformTextInputPluginRegistry> {
-        error("No PlatformTextInputServiceProvider provided")
+        error("No PlatformTextInputPluginRegistry provided")
     }
 
 /**

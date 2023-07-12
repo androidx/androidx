@@ -16,11 +16,13 @@
 
 package androidx.glance.wear.tiles
 
-import androidx.glance.LocalState
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.Applier
 import androidx.glance.GlanceId
@@ -28,27 +30,24 @@ import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
+import androidx.glance.LocalState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.fillMaxSize
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
-import kotlinx.coroutines.CancellationException
 
 /**
  * Object containing the result from composition of [GlanceWearTiles].
  */
 @ExperimentalGlanceWearTilesApi
+@Suppress("deprecation") // For backwards compatibility.
 class WearTilesCompositionResult(
-    val layout: LayoutElementBuilders.LayoutElement,
-    val resources: ResourceBuilders.Resources
+    val layout: androidx.wear.tiles.LayoutElementBuilders.LayoutElement,
+    val resources: androidx.wear.tiles.ResourceBuilders.Resources
 )
 
 @ExperimentalGlanceWearTilesApi
@@ -97,13 +96,14 @@ suspend fun compose(
  *
  * @return Composition result containing the glance ui.
  */
+@Suppress("deprecation") // For backwards compatibility.
 internal suspend fun composeTileHelper(
     screenSize: DpSize,
     state: suspend () -> Any?,
     timeInterval: TimeInterval?,
     glanceId: GlanceId,
     context: Context,
-    errorUiLayout: LayoutElementBuilders.LayoutElement?,
+    errorUiLayout: androidx.wear.tiles.LayoutElementBuilders.LayoutElement?,
     content: @Composable () -> Unit
 ): CompositionResult =
     coroutineScope {
@@ -141,6 +141,8 @@ internal suspend fun composeTileHelper(
                 throw throwable
             }
             Log.e(GlanceWearTileTag, throwable.toString())
-            CompositionResult(errorUiLayout, ResourceBuilders.Resources.Builder())
+            CompositionResult(
+                errorUiLayout,
+                androidx.wear.tiles.ResourceBuilders.Resources.Builder())
         }
     }

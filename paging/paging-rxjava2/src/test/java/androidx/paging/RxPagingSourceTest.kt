@@ -19,12 +19,12 @@ package androidx.paging
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.rxjava2.RxPagingSource
 import io.reactivex.Single
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class RxPagingSourceTest {

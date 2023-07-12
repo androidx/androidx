@@ -23,11 +23,7 @@ import androidx.credentials.exceptions.CreateCredentialException
 /**
  * A subclass of CreateCredentialException for unique exceptions thrown specific only to
  * PublicKeyCredentials. See [CredentialManager] for more details on how Credentials work for
- * Credential Manager flows. See [GMS Error Codes](https://developers.google.com/android/reference/com/google/android/gms/fido/fido2/api/common/ErrorCode)
- * for more details on some of the subclasses.
- *
- * @see CredentialManager
- * @see CreatePublicKeyCredentialDomException
+ * Credential Manager flows.
  *
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty

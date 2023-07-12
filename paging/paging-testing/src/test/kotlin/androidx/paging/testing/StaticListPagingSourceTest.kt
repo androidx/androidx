@@ -271,7 +271,7 @@ class StaticListPagingSourceTest {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun runPagingSourceTest(
         source: PagingSource<Int, Int> = StaticListPagingSource(DATA),
-        pager: TestPager<Int, Int> = TestPager(source, CONFIG),
+        pager: TestPager<Int, Int> = TestPager(CONFIG, source),
         block: suspend (pagingSource: PagingSource<Int, Int>, pager: TestPager<Int, Int>) -> Unit
     ) {
         runTest {

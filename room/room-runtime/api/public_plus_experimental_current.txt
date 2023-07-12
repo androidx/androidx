@@ -77,7 +77,7 @@ package androidx.room {
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public void runInTransaction(Runnable body);
-    method public <V> V! runInTransaction(java.util.concurrent.Callable<V> body);
+    method public <V> V runInTransaction(java.util.concurrent.Callable<V> body);
     method @Deprecated public void setTransactionSuccessful();
     property public androidx.room.InvalidationTracker invalidationTracker;
     property public boolean isOpen;
@@ -125,7 +125,7 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
-    method public static androidx.room.RoomDatabase.JournalMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.room.RoomDatabase.JournalMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;

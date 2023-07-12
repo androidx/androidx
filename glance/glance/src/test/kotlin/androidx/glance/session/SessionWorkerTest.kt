@@ -29,6 +29,8 @@ import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Data
 import androidx.work.ListenableWorker.Result
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
@@ -36,7 +38,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -55,10 +56,14 @@ class SessionWorkerTest {
         context = ApplicationProvider.getApplicationContext()
         worker = TestListenableWorkerBuilder<SessionWorker>(context)
             .setInputData(Data(mapOf(sessionManager.keyParam to SESSION_KEY)))
+            .setWorkerFactory(object : WorkerFactory() {
+                override fun createWorker(
+                    appContext: Context,
+                    workerClassName: String,
+                    workerParameters: WorkerParameters
+                ) = SessionWorker(appContext, workerParameters, sessionManager)
+            })
             .build()
-            .also {
-                it.sessionManager = sessionManager
-            }
     }
 
     @Test
@@ -149,16 +154,6 @@ class SessionWorkerTest {
             assertThat(text.text).isEqualTo("Hello Earth")
         }
         sessionManager.closeSession()
-    }
-
-    @Test
-    fun sessionWorkerTimeout() = runTest {
-        launch {
-            val result = worker.doWork()
-            assertThat(result).isEqualTo(Result.success())
-        }
-        sessionManager.startSession(context)
-        advanceTimeBy(SessionWorker.defaultTimeout.inWholeMilliseconds + 1)
     }
 }
 

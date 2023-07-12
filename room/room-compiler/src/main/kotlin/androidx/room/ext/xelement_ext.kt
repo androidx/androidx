@@ -16,15 +16,23 @@
 
 package androidx.room.ext
 
-import kotlin.contracts.contract
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XTypeElement
+import kotlin.contracts.contract
 
 fun XElement.isEntityElement(): Boolean {
     contract {
         returns(true) implies (this@isEntityElement is XTypeElement)
     }
     return this.hasAnnotation(androidx.room.Entity::class)
+}
+
+fun XTypeElement.getValueClassUnderlyingProperty(): XFieldElement {
+    check(this.isValueClass()) {
+        "Can't get value class property, type element '$this' is not a value class"
+    }
+    return this.getDeclaredFields().single()
 }
 
 /**

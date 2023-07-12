@@ -18,9 +18,9 @@ package androidx.build.resources
 
 import androidx.build.getSupportRootFolder
 import com.android.build.gradle.LibraryExtension
+import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
-import java.io.File
 
 fun Project.configurePublicResourcesStub(extension: LibraryExtension) {
     val targetResFolder = File(project.buildDir, "generated/res/public-stub")

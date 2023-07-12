@@ -52,7 +52,8 @@ internal class UwbClientSessionScopeAospImpl(
 
         val parametersBuilder1 = androidx.core.uwb.backend.RangingParameters()
         parametersBuilder1.uwbConfigId = when (parameters.uwbConfigType) {
-            RangingParameters.UWB_CONFIG_ID_1 -> RangingParameters.UWB_CONFIG_ID_1
+            RangingParameters.CONFIG_UNICAST_DS_TWR -> RangingParameters.CONFIG_UNICAST_DS_TWR
+            RangingParameters.CONFIG_MULTICAST_DS_TWR -> RangingParameters.CONFIG_MULTICAST_DS_TWR
             RangingParameters.UWB_CONFIG_ID_3 -> RangingParameters.UWB_CONFIG_ID_3
             else -> throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
         }

@@ -22,7 +22,6 @@ import java.util.concurrent.Executor
 /**
  * A simple [Executor].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class DirectExecutor : Executor {

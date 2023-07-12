@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 RemovedClass: androidx.benchmark.macro.Api29Kt:
     Removed class androidx.benchmark.macro.Api29Kt
+RemovedClass: androidx.benchmark.macro.BaselineProfilesKt:
+    Removed class androidx.benchmark.macro.BaselineProfilesKt
 RemovedClass: androidx.benchmark.macro.FrameTimingGfxInfoMetric:
     Removed class androidx.benchmark.macro.FrameTimingGfxInfoMetric
 RemovedClass: androidx.benchmark.macro.IdeSummaryStringKt:
@@ -15,10 +17,6 @@ RemovedClass: androidx.benchmark.macro.MetricResultExtensionsKt:
     Removed class androidx.benchmark.macro.MetricResultExtensionsKt
 RemovedClass: androidx.benchmark.macro.TagKt:
     Removed class androidx.benchmark.macro.TagKt
-
-
-RemovedMethod: androidx.benchmark.macro.BaselineProfilesKt#collectBaselineProfile(String, String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
-    Removed method androidx.benchmark.macro.BaselineProfilesKt.collectBaselineProfile(String,String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)
 
 
 RemovedPackage: androidx.benchmark.macro.perfetto:

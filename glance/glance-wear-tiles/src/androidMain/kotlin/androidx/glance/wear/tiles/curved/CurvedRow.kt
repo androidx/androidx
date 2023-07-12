@@ -16,12 +16,12 @@
 
 package androidx.glance.wear.tiles.curved
 
-import androidx.glance.GlanceNode
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.unit.ColorProvider
 
 /**

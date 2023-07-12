@@ -24,6 +24,8 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
+ * @property clientDataHash a hash that is used to verify the relying party identity, set only if
+ * you have set the [GetCredentialRequest.origin]
  * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
  * immediately when there is no available credential instead of falling back to discovering remote
  * credentials, and false (default) otherwise
@@ -32,12 +34,15 @@ import androidx.credentials.internal.FrameworkClassParsingException
  */
 class GetPublicKeyCredentialOption @JvmOverloads constructor(
     val requestJson: String,
+    val clientDataHash: String? = null,
     @get:JvmName("preferImmediatelyAvailableCredentials")
     val preferImmediatelyAvailableCredentials: Boolean = false,
 ) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    requestData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
-    candidateQueryData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
+    requestData = toRequestDataBundle(requestJson, clientDataHash,
+        preferImmediatelyAvailableCredentials),
+    candidateQueryData = toRequestDataBundle(requestJson, clientDataHash,
+        preferImmediatelyAvailableCredentials),
     isSystemProviderRequired = false,
     isAutoSelectAllowed = true,
 ) {
@@ -49,6 +54,8 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
     companion object {
         internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
+        internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
+            "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
         internal const val BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION"
@@ -56,6 +63,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         @JvmStatic
         internal fun toRequestDataBundle(
             requestJson: String,
+            clientDataHash: String?,
             preferImmediatelyAvailableCredentials: Boolean
         ): Bundle {
             val bundle = Bundle()
@@ -64,6 +72,7 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
                 BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             bundle.putBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentials)
             return bundle
@@ -75,9 +84,11 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
         internal fun createFrom(data: Bundle): GetPublicKeyCredentialOption {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
+                val clientDataHash = data.getString(BUNDLE_KEY_CLIENT_DATA_HASH)
                 val preferImmediatelyAvailableCredentials =
                     data.get(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 return GetPublicKeyCredentialOption(requestJson!!,
+                    clientDataHash,
                     (preferImmediatelyAvailableCredentials!!) as Boolean)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

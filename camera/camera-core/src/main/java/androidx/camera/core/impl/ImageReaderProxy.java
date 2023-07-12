@@ -117,7 +117,6 @@ public interface ImageReaderProxy {
     /**
      * A listener for newly available images.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface OnImageAvailableListener {

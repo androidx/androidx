@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
-import androidx.room.integration.kotlintestapp.test.TestDatabaseTest
-import androidx.room.integration.kotlintestapp.test.TestUtil
+import androidx.kruth.assertThat
 import androidx.room.invalidationTrackerFlow
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -162,6 +160,7 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         }
     }
 
+    @Ignore("b/277764166")
     @Test
     fun mapBlockingQuery() = runBlocking {
         booksDao.addAuthors(TestUtil.AUTHOR_1)

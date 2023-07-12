@@ -17,10 +17,10 @@
 package androidx.paging.testing
 
 import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.PagingDataDiffer
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
-import androidx.paging.LoadState
 
 /**
  * An interface to implement the error recovery strategy when [PagingSource]

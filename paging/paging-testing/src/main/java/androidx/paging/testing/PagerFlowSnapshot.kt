@@ -25,9 +25,9 @@ import androidx.paging.NullPaddedList
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
-import androidx.paging.testing.ErrorRecovery.THROW
 import androidx.paging.testing.ErrorRecovery.RETRY
 import androidx.paging.testing.ErrorRecovery.RETURN_CURRENT_SNAPSHOT
+import androidx.paging.testing.ErrorRecovery.THROW
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_CHANGED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_REMOVED
@@ -57,7 +57,7 @@ import kotlinx.coroutines.withContext
 public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     coroutineScope: CoroutineScope,
     onError: LoadErrorHandler = LoadErrorHandler { THROW },
-    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit
+    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit = { }
 ): @JvmSuppressWildcards List<Value> {
 
     lateinit var loader: SnapshotLoader<Value>

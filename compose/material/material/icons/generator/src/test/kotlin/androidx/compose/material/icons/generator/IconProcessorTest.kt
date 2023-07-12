@@ -17,13 +17,13 @@
 package androidx.compose.material.icons.generator
 
 import com.google.common.truth.Truth
+import java.io.File
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 /**
  * Test for [IconProcessor].

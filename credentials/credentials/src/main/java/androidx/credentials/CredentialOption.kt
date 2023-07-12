@@ -76,9 +76,6 @@ abstract class CredentialOption internal constructor(
                             GetPublicKeyCredentialOption
                                 .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION ->
                                 GetPublicKeyCredentialOption.createFrom(requestData)
-                            GetPublicKeyCredentialOptionPrivileged
-                                .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED ->
-                                GetPublicKeyCredentialOptionPrivileged.createFrom(requestData)
                             else -> throw FrameworkClassParsingException()
                         }
                     else -> throw FrameworkClassParsingException()

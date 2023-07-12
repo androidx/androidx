@@ -15,6 +15,7 @@
  */
 
 /**
- * Insert package level documentation here
+ * Internal protos for interaction-service.
+ * @hide
  */
 package androidx.appactions.interaction.service.proto;

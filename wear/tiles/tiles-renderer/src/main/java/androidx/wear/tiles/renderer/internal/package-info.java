@@ -17,7 +17,6 @@
 /**
  * Internal implementation for Wear Tiles.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.wear.tiles.renderer.internal;

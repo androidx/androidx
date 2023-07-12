@@ -114,7 +114,6 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
 
     /**
      * @return The {@link TaskExecutor} associated with this unit of work.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
@@ -66,6 +67,20 @@ class CameraInfoAdapterTest {
     }
 
     @Test
+    fun getSupportedFpsRanges() {
+        // Act.
+        val ranges: Set<Range<Int>> = cameraInfoAdapter.supportedFrameRateRanges
+
+        // Assert.
+        assertThat(ranges).containsExactly(
+            Range(12, 30),
+            Range(24, 24),
+            Range(30, 30),
+            Range(60, 60)
+        )
+    }
+
+    @Test
     fun canReturnIsFocusMeteringSupported() {
         val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f)
         val action = FocusMeteringAction.Builder(
@@ -99,7 +114,7 @@ class CameraInfoAdapterTest {
         zoomControl.useCaseCamera = FakeUseCaseCamera()
 
         val expectedZoomState = ZoomValue(3.0f, 1.0f, 10.0f)
-        zoomControl.setZoomValue(expectedZoomState)[3, TimeUnit.SECONDS]
+        zoomControl.applyZoomState(expectedZoomState)[3, TimeUnit.SECONDS]
 
         assertWithMessage("zoomState did not return the correct zoom state successfully")
             .that(currentZoomState)

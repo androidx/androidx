@@ -33,7 +33,6 @@ import com.google.common.util.concurrent.ListenableFuture
  * Is an implementation of a [androidx.work.Worker] that can delegate to a different
  * [androidx.work.Worker] when the constraints are met.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ConstraintTrackingWorker(
@@ -50,7 +49,6 @@ class ConstraintTrackingWorker(
 
     /**
      * @return The [androidx.work.Worker] used for delegated work
-     * @hide
      */
     @get:VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

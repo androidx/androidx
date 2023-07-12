@@ -23,9 +23,9 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
-import androidx.core.util.Consumer
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
+import androidx.core.util.Consumer
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -81,7 +81,6 @@ public interface WatchFaceControlClient : AutoCloseable {
                 }
             )
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public suspend fun createWatchFaceControlClientImpl(
             context: Context,

@@ -31,6 +31,7 @@ import java.util.List;
 /**
  * Test for {@link MediaRouteProviderDescriptor}.
  */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class MediaRouteProviderDescriptorTest {
 
@@ -43,70 +44,100 @@ public class MediaRouteProviderDescriptorTest {
     private static final String FAKE_MEDIA_ROUTE_NAME_3 = "fakeMediaRouteName3";
     private static final String FAKE_MEDIA_ROUTE_NAME_4 = "fakeMediaRouteName4";
 
+    private static final MediaRouteDescriptor FAKE_MEDIA_ROUTE_1 = new MediaRouteDescriptor
+            .Builder(FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME_1)
+            .build();
+    private static final MediaRouteDescriptor FAKE_MEDIA_ROUTE_2 = new MediaRouteDescriptor
+            .Builder(FAKE_MEDIA_ROUTE_ID_2, FAKE_MEDIA_ROUTE_NAME_2)
+            .build();
+    private static final MediaRouteDescriptor FAKE_MEDIA_ROUTE_3 = new MediaRouteDescriptor
+            .Builder(FAKE_MEDIA_ROUTE_ID_3, FAKE_MEDIA_ROUTE_NAME_3)
+            .build();
+    private static final MediaRouteDescriptor FAKE_MEDIA_ROUTE_4 = new MediaRouteDescriptor
+            .Builder(FAKE_MEDIA_ROUTE_ID_4, FAKE_MEDIA_ROUTE_NAME_4)
+            .build();
+
     @Test
-    @SmallTest
-    public void testBuilder() {
-        // Tests for empty descriptor
+    public void defaultBuilder_createsEmptyDescriptor() {
         MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
         MediaRouteProviderDescriptor descriptor = builder.build();
         assertTrue(descriptor.getRoutes().isEmpty());
+    }
 
-        // Tests for addRoute()
-        builder.addRoute(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_1,
-                FAKE_MEDIA_ROUTE_NAME_1).build());
-        builder.addRoute(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_2,
-                FAKE_MEDIA_ROUTE_NAME_2).build());
-        descriptor = builder.build();
+    @Test
+    public void builderAddRoute_addsRoute() {
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
+        builder.addRoute(FAKE_MEDIA_ROUTE_1);
+        builder.addRoute(FAKE_MEDIA_ROUTE_2);
+        MediaRouteProviderDescriptor descriptor = builder.build();
         List<MediaRouteDescriptor> routes = descriptor.getRoutes();
+
         assertEquals(2, routes.size());
         assertEquals(FAKE_MEDIA_ROUTE_ID_1, routes.get(0).getId());
         assertEquals(FAKE_MEDIA_ROUTE_NAME_1, routes.get(0).getName());
         assertEquals(FAKE_MEDIA_ROUTE_ID_2, routes.get(1).getId());
         assertEquals(FAKE_MEDIA_ROUTE_NAME_2, routes.get(1).getName());
+    }
 
-        // Tests for addRoutes()
-        List<MediaRouteDescriptor> otherRoutes = new ArrayList<>();
-        otherRoutes.add(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_3,
-                FAKE_MEDIA_ROUTE_NAME_3).build());
-        otherRoutes.add(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_4,
-                FAKE_MEDIA_ROUTE_NAME_4).build());
-        builder.addRoutes(otherRoutes);
-        descriptor = builder.build();
-        routes = descriptor.getRoutes();
-        assertEquals(4, routes.size());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_1, routes.get(0).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_1, routes.get(0).getName());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_2, routes.get(1).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_2, routes.get(1).getName());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_3, routes.get(2).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, routes.get(2).getName());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_4, routes.get(3).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, routes.get(3).getName());
+    @Test
+    public void builderAddRoutes_addsRoutes() {
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
+        List<MediaRouteDescriptor> routesList = new ArrayList<>();
+        routesList.add(FAKE_MEDIA_ROUTE_3);
+        routesList.add(FAKE_MEDIA_ROUTE_4);
+        builder.addRoutes(routesList);
+        MediaRouteProviderDescriptor descriptor = builder.build();
 
-        // Tests for setRoutes()
-        builder.setRoutes(otherRoutes);
-        descriptor = builder.build();
-        routes = descriptor.getRoutes();
-        assertEquals(2, routes.size());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_3, routes.get(0).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, routes.get(0).getName());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_4, routes.get(1).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, routes.get(1).getName());
+        List<MediaRouteDescriptor> descriptorRoutes = descriptor.getRoutes();
+        assertEquals(2, descriptorRoutes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_3, descriptorRoutes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, descriptorRoutes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, descriptorRoutes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, descriptorRoutes.get(1).getName());
+    }
 
-        // Tests setRoutes() for side effects
-        otherRoutes.add(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_1,
-                FAKE_MEDIA_ROUTE_NAME_1).build());
-        descriptor = builder.build();
-        routes = descriptor.getRoutes();
-        assertEquals(2, routes.size());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_3, routes.get(0).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, routes.get(0).getName());
-        assertEquals(FAKE_MEDIA_ROUTE_ID_4, routes.get(1).getId());
-        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, routes.get(1).getName());
+    @Test
+    public void builderSetRoutes_clearsListAndAddsRoutes() {
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
 
-        // Tests setRoutes against null
+        List<MediaRouteDescriptor> routesList = new ArrayList<>();
+        routesList.add(FAKE_MEDIA_ROUTE_3);
+        routesList.add(FAKE_MEDIA_ROUTE_4);
+        builder.setRoutes(routesList);
+
+        MediaRouteProviderDescriptor descriptor = builder.build();
+        List<MediaRouteDescriptor> descriptorRoutes = descriptor.getRoutes();
+        assertEquals(2, descriptorRoutes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_3, descriptorRoutes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, descriptorRoutes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, descriptorRoutes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, descriptorRoutes.get(1).getName());
+    }
+
+    @Test
+    public void builderSetRoutes_deepCopiesList() {
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
+
+        List<MediaRouteDescriptor> routesList = new ArrayList<>();
+        routesList.add(FAKE_MEDIA_ROUTE_3);
+        routesList.add(FAKE_MEDIA_ROUTE_4);
+        builder.setRoutes(routesList);
+        routesList.add(FAKE_MEDIA_ROUTE_1);
+
+        MediaRouteProviderDescriptor descriptor = builder.build();
+        List<MediaRouteDescriptor> descriptorRoutes = descriptor.getRoutes();
+        assertEquals(2, descriptorRoutes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_3, descriptorRoutes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, descriptorRoutes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, descriptorRoutes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, descriptorRoutes.get(1).getName());
+    }
+
+    @Test
+    public void builderSetRoutes_withNull_createsEmptyDescriptor() {
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
         builder.setRoutes(null);
-        descriptor = builder.build();
+        MediaRouteProviderDescriptor descriptor = builder.build();
         assertTrue(descriptor.getRoutes().isEmpty());
     }
 }

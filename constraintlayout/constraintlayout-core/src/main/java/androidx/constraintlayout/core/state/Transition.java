@@ -280,9 +280,17 @@ public class Transition implements TypedValues {
             float rest = currentPosition + 0.5f * Math.abs(velocity) * velocity / mMaxAcceleration;
             switch (mOnTouchUp) {
                 case ON_UP_AUTOCOMPLETE_TO_START:
+                    if (currentPosition >= 1f) {
+                        return 1;
+                    }
+                    return 0;
                 case ON_UP_NEVER_COMPLETE_TO_END:
                     return 0;
                 case ON_UP_AUTOCOMPLETE_TO_END:
+                    if (currentPosition <= 0f) {
+                        return 0;
+                    }
+                    return 1;
                 case ON_UP_NEVER_COMPLETE_TO_START:
                     return 1;
                 case ON_UP_STOP:
@@ -309,7 +317,14 @@ public class Transition implements TypedValues {
 
         void config(float position, float velocity, long start, float duration) {
             mStart = start;
+            if (Math.abs(velocity) > mMaxVelocity) {
+                velocity = mMaxVelocity * Math.signum(velocity);
+            }
             mDestination = getDestinationPosition(position, velocity, duration);
+            if (mDestination == position) {
+                mEngine = null;
+                return;
+            }
             if ((mOnTouchUp == ON_UP_DECELERATE)
                     && (mAutoCompleteMode == MODE_CONTINUOUS_VELOCITY)) {
                 StopLogicEngine.Decelerate sld;
@@ -381,7 +396,7 @@ public class Transition implements TypedValues {
             if (mOnTouchUp == ON_UP_STOP) {
                 return false;
             }
-            return !mEngine.isStopped();
+            return mEngine != null && !mEngine.isStopped();
         }
     }
 

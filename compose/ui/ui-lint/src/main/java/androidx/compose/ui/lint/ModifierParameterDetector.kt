@@ -32,12 +32,12 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import java.util.EnumSet
+import java.util.Locale
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UMethod
-import java.util.EnumSet
-import java.util.Locale
 
 /**
  * [Detector] that checks Composable functions with Modifiers parameters for consistency with

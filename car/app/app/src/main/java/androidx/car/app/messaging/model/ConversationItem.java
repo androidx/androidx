@@ -21,6 +21,7 @@ import static androidx.core.util.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Item;
 import androidx.car.app.utils.CollectionUtils;
+import androidx.core.app.Person;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +43,14 @@ import java.util.Objects;
 @ExperimentalCarApi
 @CarProtocol
 @KeepFields
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 public class ConversationItem implements Item {
     @NonNull
     private final String mId;
     @NonNull
     private final CarText mTitle;
+    @NonNull
+    private final Bundle mSelf;
     @Nullable
     private final CarIcon mIcon;
     private final boolean mIsGroupConversation;
@@ -58,6 +62,7 @@ public class ConversationItem implements Item {
     @Override
     public int hashCode() {
         return Objects.hash(
+                PersonsEqualityHelper.getPersonHashCode(getSelf()),
                 mId,
                 mTitle,
                 mIcon,
@@ -80,6 +85,8 @@ public class ConversationItem implements Item {
                 Objects.equals(mId, otherConversationItem.mId)
                         && Objects.equals(mTitle, otherConversationItem.mTitle)
                         && Objects.equals(mIcon, otherConversationItem.mIcon)
+                        && PersonsEqualityHelper
+                            .arePersonsEqual(getSelf(), otherConversationItem.getSelf())
                         && mIsGroupConversation == otherConversationItem.mIsGroupConversation
                         && Objects.equals(mMessages, otherConversationItem.mMessages)
                 ;
@@ -88,6 +95,7 @@ public class ConversationItem implements Item {
     ConversationItem(@NonNull Builder builder) {
         this.mId = requireNonNull(builder.mId);
         this.mTitle = requireNonNull(builder.mTitle);
+        this.mSelf = validateSender(builder.mSelf).toBundle();
         this.mIcon = builder.mIcon;
         this.mIsGroupConversation = builder.mIsGroupConversation;
         this.mMessages = requireNonNull(CollectionUtils.unmodifiableCopy(builder.mMessages));
@@ -100,6 +108,7 @@ public class ConversationItem implements Item {
     private ConversationItem() {
         mId = "";
         mTitle = new CarText.Builder("").build();
+        mSelf = new Person.Builder().setName("").build().toBundle();
         mIcon = null;
         mIsGroupConversation = false;
         mMessages = new ArrayList<>();
@@ -133,6 +142,12 @@ public class ConversationItem implements Item {
         return mTitle;
     }
 
+    /** Returns a {@link Person} for the conversation */
+    @NonNull
+    public Person getSelf() {
+        return Person.fromBundle(mSelf);
+    }
+
     /** Returns a {@link CarIcon} for the conversation, or {@code null} if not set */
     @Nullable
     public CarIcon getIcon() {
@@ -160,12 +175,27 @@ public class ConversationItem implements Item {
         return mConversationCallbackDelegate;
     }
 
+    /**
+     * Verifies that a given {@link Person} has the required fields to be a message sender. Returns
+     * the input {@link Person} if valid, or throws an exception if invalid.
+     *
+     * <p> See also {@link ConversationItem#getSelf()} and {@link CarMessage#getSender()}.
+     */
+    static Person validateSender(@Nullable Person person) {
+        requireNonNull(person);
+        requireNonNull(person.getName());
+        requireNonNull(person.getKey());
+        return person;
+    }
+
     /** A builder for {@link ConversationItem} */
     public static final class Builder {
         @Nullable
         String mId;
         @Nullable
         CarText mTitle;
+        @Nullable
+        Person mSelf;
         @Nullable
         CarIcon mIcon;
         boolean mIsGroupConversation;
@@ -201,6 +231,19 @@ public class ConversationItem implements Item {
         @NonNull
         public Builder setIcon(@NonNull CarIcon icon) {
             mIcon = icon;
+            return this;
+        }
+
+        /**
+         * Sets a {@link Person} for the conversation
+         *
+         * <p> The {@link Person} must specify a non-null
+         * {@link Person.Builder#setName(CharSequence)} and
+         * {@link Person.Builder#setKey(String)}.
+         */
+        @NonNull
+        public Builder setSelf(@NonNull Person self) {
+            mSelf = self;
             return this;
         }
 

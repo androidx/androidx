@@ -171,7 +171,6 @@ public class FrameMetricsAggregator {
 
     private final FrameMetricsBaseImpl mInstance;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(

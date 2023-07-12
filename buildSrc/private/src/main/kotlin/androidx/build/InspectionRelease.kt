@@ -19,10 +19,10 @@ package androidx.build
 import androidx.inspection.gradle.InspectionPlugin
 import androidx.inspection.gradle.createConsumeInspectionConfiguration
 import androidx.inspection.gradle.createConsumeNonDexedInspectionConfiguration
+import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.Sync
-import java.io.File
 
 /**
  * Copies artifacts prepared by InspectionPlugin into $destDir/inspection

@@ -31,7 +31,6 @@ private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
  * @see TransitionScope
  * @see ConstraintSetScope
  */
-@ExperimentalMotionApi
 fun MotionScene(
     motionSceneContent: MotionSceneScope.() -> Unit
 ): MotionScene {
@@ -42,7 +41,6 @@ fun MotionScene(
     )
 }
 
-@ExperimentalMotionApi
 internal class MotionSceneDslImpl(
     private val constraintSetsByName: Map<String, ConstraintSet>,
     private val transitionsByName: Map<String, Transition>
@@ -118,7 +116,6 @@ internal class MotionSceneDslImpl(
  * The [defaultTransition] **should always be set**. It defines the initial state of the layout and
  * works as a fallback for undefined `from -> to` transitions.
  */
-@ExperimentalMotionApi
 class MotionSceneScope internal constructor() {
     /**
      * Count of generated ConstraintSet & Transition names.
@@ -359,6 +356,39 @@ class MotionSceneScope internal constructor() {
      */
     fun ConstrainScope.customFontSize(name: String, value: TextUnit) {
         customFloat(name, value.value)
+    }
+
+    /**
+     * Custom staggered weight. When set, MotionLayout will use these values instead of the default
+     * way of calculating the weight, ignoring those with a `Float.NaN` value.
+     *
+     * &nbsp;
+     *
+     * The value is `Float.NaN` by default. Note that when all widgets are set to `Float.NaN`,
+     * MotionLayout will use the default way of calculating the weight.
+     *
+     * @see TransitionScope.staggered
+     */
+    var ConstrainScope.staggeredWeight: Float
+        get() {
+            if (!this.containerObject.has("motion")) {
+                return Float.NaN
+            }
+            val motionObject = this.containerObject.getObject("motion")
+            return motionObject.getFloatOrNaN("stagger")
+        }
+        set(value) {
+            with(this) {
+                setMotionProperty("stagger", value)
+            }
+        }
+
+    private fun ConstrainScope.setMotionProperty(name: String, value: Float) {
+        if (!this.containerObject.has("motion")) {
+            containerObject.put("motion", CLObject(charArrayOf()))
+        }
+        val motionPropsObject = containerObject.getObjectOrNull("motion") ?: return
+        motionPropsObject.putNumber(name, value)
     }
 
     /**

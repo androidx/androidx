@@ -29,6 +29,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -76,14 +77,15 @@ internal class DataStoreImpl<T>(
          * Final. ReadException can transition to another ReadException, Data or Final.
          * Data can transition to another Data or Final. Final will not change.
          */
-        val latestVersionAtRead = coordinator.getVersion()
-        val currentDownStreamFlowState = inMemoryCache.currentState
-
-        if ((currentDownStreamFlowState !is Data) ||
-            (currentDownStreamFlowState.version < latestVersionAtRead)
-        ) {
-            // We need to send a read request because we don't have data yet / cached data is stale.
-            readActor.offer(Message.Read(currentDownStreamFlowState))
+        // the first read should not be blocked by ongoing writes, so it can be dirty read. If it is
+        // a unlocked read, the same value might be emitted to the flow again
+        val startState = readState(requireLock = false)
+        when (startState) {
+            is Data<T> -> emit(startState.value)
+            is UnInitialized -> error(BUG_MESSAGE)
+            is ReadException<T> -> throw startState.readException
+            // TODO(b/273990827): decide the contract of accessing when state is Final
+            is Final -> return@flow
         }
 
         emitAll(
@@ -91,16 +93,7 @@ internal class DataStoreImpl<T>(
                 // end the flow if we reach the final value
                 it !is Final
             }.dropWhile {
-                if (currentDownStreamFlowState is Data<T> && it is Data) {
-                    // we need to drop until initTasks are completed and set to null, and data
-                    // version >= the current version when entering flow
-                    it.version < latestVersionAtRead
-                } else {
-                    // we need to drop the last seen state since it was either an exception or
-                    // wasn't yet initialized. Since we sent a message to actor, we *will* see a
-                    // new value.
-                    it === currentDownStreamFlowState
-                }
+                it is Data && it.version <= startState.version
             }.map {
                 when (it) {
                     is ReadException<T> -> throw it.readException
@@ -125,6 +118,7 @@ internal class DataStoreImpl<T>(
         return ack.await()
     }
 
+    // cache is only set by the reads who have file lock, so cache always has stable data
     private val inMemoryCache = DataStoreInMemoryCache<T>()
 
     private val readAndInit = InitDataStore(initTasksList)
@@ -141,6 +135,11 @@ internal class DataStoreImpl<T>(
     private val writeActor = SimpleActor<Message.Update<T>>(
         scope = scope,
         onComplete = {
+            // TODO(b/267792241): remove it if updateCollector is better scoped
+            // no more reads so stop listening to file changes
+            if (::updateCollector.isInitialized) {
+                updateCollector.cancel()
+            }
             it?.let {
                 inMemoryCache.tryUpdate(Final(it))
             }
@@ -160,32 +159,25 @@ internal class DataStoreImpl<T>(
         handleUpdate(msg)
     }
 
-    private val readActor = SimpleActor<Message.Read<T>>(
-        scope = scope,
-        onComplete = {
-            // TODO(b/267792241): remove it if updateCollector is better scoped
-            // no more reads so stop listening to file changes
-            if (::updateCollector.isInitialized) {
-                updateCollector.cancel()
+    private suspend fun readState(requireLock: Boolean): State<T> =
+        withContext(scope.coroutineContext) {
+            if (inMemoryCache.currentState is Final) {
+                // if state is Final, just return it
+                inMemoryCache.currentState
+            } else {
+                try {
+                    // make sure we initialize properly before reading from file.
+                    readAndInitOrPropagateAndThrowFailure()
+                } catch (throwable: Throwable) {
+                    // init or read failed, it is already updated in the cached value
+                    // so we don't need to do anything.
+                    return@withContext ReadException(throwable, -1)
+                }
+                // after init, try to read again. If the init run for this block, it won't re-read
+                // the file and use cache, so this is an OK call to make wrt performance.
+                readDataAndUpdateCache(requireLock)
             }
-        },
-        onUndeliveredElement = { _, _ -> }
-    ) {
-        handleRead()
-    }
-
-    private suspend fun handleRead() {
-        try {
-            // make sure we initialize properly before reading from file.
-            readAndInitOrPropagateAndThrowFailure()
-            // after init, try to read again. If the init run for this block, it won't
-            // re-read the file and use cache, so this is an OK call to make wrt performance.
-            readDataAndUpdateCache()
-        } catch (throwable: Throwable) {
-            // init or read failed, it is already updated in the cached value
-            // so we don't need to do anything.
         }
-    }
 
     private suspend fun handleUpdate(update: Message.Update<T>) {
         update.ack.completeWith(
@@ -231,41 +223,64 @@ internal class DataStoreImpl<T>(
     }
 
     /**
-     * Reads the file and updates the cache unless current cached value is Data and
-     * its version is equal to the latest version.
+     * Reads the file and updates the cache unless current cached value is Data and its version is
+     * equal to the latest version, or it is unable to get lock.
      *
-     * Calling this method when state is UnInitialized is a bug and this method
-     * will throw if that happens.
+     * Calling this method when state is UnInitialized is a bug and this method will throw if that
+     * happens.
      */
-    private suspend fun readDataAndUpdateCache() {
+    private suspend fun readDataAndUpdateCache(requireLock: Boolean): State<T> {
         // Check if the cached version matches with shared memory counter
         val currentState = inMemoryCache.currentState
         // should not call this without initialization first running
         check(currentState !is UnInitialized) {
             BUG_MESSAGE
         }
-        val version = coordinator.getVersion()
+        val latestVersion = coordinator.getVersion()
         val cachedVersion = if (currentState is Data) currentState.version else -1
 
         // Return cached value if cached version is latest
-        if (currentState is Data && version == cachedVersion) {
-            return
+        if (currentState is Data && latestVersion == cachedVersion) {
+            return currentState
         }
-        val data = try {
-            coordinator.tryLock { locked ->
-                val result = readDataFromFileOrDefault()
-                Data(
-                    result,
-                    result.hashCode(),
-                    // use the latest version if we have the lock. Otherwise, use the
-                    // previous version that we read before entering the tryLock
-                    if (locked) coordinator.getVersion() else version
-                )
+        val (newState, acquiredLock) =
+            if (requireLock) {
+                coordinator.lock { attemptRead(acquiredLock = true) to true }
+            } else {
+                coordinator.tryLock { locked ->
+                    attemptRead(locked) to locked
+                }
             }
-        } catch (throwable: Throwable) {
-            ReadException(throwable, version)
+        if (acquiredLock) {
+            inMemoryCache.tryUpdate(newState)
         }
-        inMemoryCache.tryUpdate(data)
+        return newState
+    }
+
+    /**
+     * Caller is responsible to lock or tryLock, and pass the [acquiredLock] parameter to indicate
+     * if it has acquired lock.
+     */
+    private suspend fun attemptRead(acquiredLock: Boolean): State<T> {
+        // read version before file
+        val currentVersion = coordinator.getVersion()
+        // use current version if it has lock, otherwise use the older version between current and
+        // cached version, which guarantees correctness
+        val readVersion = if (acquiredLock) {
+            currentVersion
+        } else {
+            inMemoryCache.currentState.version
+        }
+        val readResult = runCatching { readDataFromFileOrDefault() }
+        return if (readResult.isSuccess) {
+            Data(
+                readResult.getOrThrow(),
+                readResult.getOrThrow().hashCode(),
+                readVersion
+            )
+        } else {
+            ReadException<T>(readResult.exceptionOrNull()!!, readVersion)
+        }
     }
 
     // Caller is responsible for (try to) getting file lock. It reads from the file directly without
@@ -298,8 +313,11 @@ internal class DataStoreImpl<T>(
         // The code in `writeScope` is run synchronously, i.e. the newVersion isn't returned until
         // the code in `writeScope` completes.
         storageConnection.writeScope {
-            writeData(newData)
+            // update version before write to file to avoid the case where if update version after
+            // file write, the process can crash after file write but before version increment, so
+            // the readers might skip reading forever because the version isn't changed
             newVersion = coordinator.incrementAndGetVersion()
+            writeData(newData)
             if (updateCache) {
                 inMemoryCache.tryUpdate(Data(newData, newData.hashCode(), newVersion))
             }
@@ -363,10 +381,11 @@ internal class DataStoreImpl<T>(
             inMemoryCache.tryUpdate(initData)
             if (!::updateCollector.isInitialized) {
                 updateCollector = scope.launch {
-                    coordinator.updateNotifications.collect {
+                    coordinator.updateNotifications.conflate().collect {
                         val currentState = inMemoryCache.currentState
                         if (currentState !is Final) {
-                            readActor.offer(Message.Read(currentState))
+                            // update triggered reads should always wait for lock
+                            readDataAndUpdateCache(requireLock = true)
                         }
                     }
                 }

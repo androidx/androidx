@@ -37,7 +37,6 @@ import java.util.concurrent.Future;
  */
 public abstract class RemoteSessionPlayer extends SessionPlayer {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})

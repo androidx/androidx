@@ -80,7 +80,8 @@ class MeteringRepeatingSession {
                 meteringSurfaceSize.getHeight());
         Surface surface = new Surface(surfaceTexture);
 
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfigWithDefaults);
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfigWithDefaults,
+                meteringSurfaceSize);
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         mDeferrableSurface = new ImmediateSurface(surface);

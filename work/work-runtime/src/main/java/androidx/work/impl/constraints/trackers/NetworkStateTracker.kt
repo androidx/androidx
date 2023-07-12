@@ -49,7 +49,6 @@ import androidx.work.impl.utils.unregisterNetworkCallbackCompat
  *
  * Based on [android.app.job.JobScheduler]'s ConnectivityController on API 26.
  * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun NetworkStateTracker(

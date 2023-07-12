@@ -27,7 +27,6 @@ import java.util.UUID;
 /**
  * A {@link WorkRequest} holder that has all the information a {@link WorkRequest} has.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkRequestHolder extends WorkRequest {

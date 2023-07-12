@@ -58,7 +58,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -150,7 +149,7 @@ public class CameraControllerFragment extends Fragment {
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
 
     @VisibleForTesting
-    ToneMappingPreviewEffect mToneMappingPreviewEffect;
+    ToneMappingSurfaceEffect mToneMappingSurfaceEffect;
     ToneMappingImageEffect mToneMappingImageEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
@@ -222,7 +221,7 @@ public class CameraControllerFragment extends Fragment {
         });
 
         // Set up post-processing effects.
-        mToneMappingPreviewEffect = new ToneMappingPreviewEffect();
+        mToneMappingSurfaceEffect = new ToneMappingSurfaceEffect();
         mToneMappingImageEffect = new ToneMappingImageEffect();
         mEffectToggle = view.findViewById(R.id.effect_toggle);
         mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
@@ -370,15 +369,15 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
-        mToneMappingPreviewEffect.release();
+        mToneMappingSurfaceEffect.release();
     }
 
     private void onEffectsToggled() {
         if (mEffectToggle.isChecked()) {
             mCameraController.setEffects(
-                    new HashSet<>(asList(mToneMappingPreviewEffect, mToneMappingImageEffect)));
+                    new HashSet<>(asList(mToneMappingSurfaceEffect, mToneMappingImageEffect)));
         } else {
-            mCameraController.setEffects(null);
+            mCameraController.clearEffects();
         }
     }
 
@@ -610,34 +609,22 @@ public class CameraControllerFragment extends Fragment {
     // For testing
     // -----------------
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     LifecycleCameraController getCameraController() {
         return mCameraController;
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
         mWrappedAnalyzer = analyzer;
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     PreviewView getPreviewView() {
         return mPreviewView;
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     int getSensorRotation() {
         return mRotation;
     }

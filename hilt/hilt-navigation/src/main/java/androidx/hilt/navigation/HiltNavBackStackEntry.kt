@@ -40,7 +40,7 @@ public fun HiltViewModelFactory(
     context: Context,
     navBackStackEntry: NavBackStackEntry
 ): ViewModelProvider.Factory {
-    return HiltViewModelFactory(context, navBackStackEntry)
+    return HiltViewModelFactory(context, navBackStackEntry.defaultViewModelProviderFactory)
 }
 
 /**

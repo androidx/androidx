@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
 
     <issue
         id="NewApi"
@@ -17,6 +17,1320 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(500);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        if (HUMAN_DELAY) Thread.sleep(delay);"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(300);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(10);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(10);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(10);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(50);"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(16);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(50);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(80);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(50);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(2000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(HORIZONTAL_SCROLL_WAIT);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(2000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(1000);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/testutils/LeakDetector.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TIME_SLICE);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/testutils/PollingCheck.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SearchFragmentTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SearchSupportFragmentTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleSupportFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleSupportFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(500);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/VerticalGridFragmentTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/VerticalGridSupportFragmentTest.java"/>
     </issue>
 
     <issue
@@ -2028,15 +3342,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Rect getSource() {"
         errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/graphics/FitWidthBitmapDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/graphics/FitWidthBitmapDrawable.java"/>
     </issue>

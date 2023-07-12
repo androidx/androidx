@@ -60,7 +60,6 @@ private val MagnifierSpringSpec = SpringSpec(visibilityThreshold = OffsetDisplac
  * The text magnifier follows horizontal dragging exactly, but is vertically clamped to the current
  * line, so when it changes lines we animate it.
  */
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.animatedSelectionMagnifier(
     magnifierCenter: () -> Offset,
     platformMagnifier: (animatedCenter: () -> Offset) -> Modifier

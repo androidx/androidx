@@ -22,6 +22,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +35,7 @@ import java.nio.ByteBuffer;
 
 /** Resource resolver for inline resources. */
 public class DefaultInlineImageResourceResolver implements InlineImageResourceResolver {
-    private static final int RGB565_BYTES_PER_PX = 2;
+    private static final String TAG = "InlineImageResolver";
 
     @NonNull private final Context mAppContext;
 
@@ -49,7 +50,8 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
             throws ResourceAccessException {
         @Nullable Bitmap bitmap = null;
 
-        if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_RGB_565) {
+        if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_RGB_565
+                || inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_ARGB_8888) {
             bitmap = loadRawBitmap(inlineImage);
         } else if (inlineImage.getFormat() == ImageFormat.IMAGE_FORMAT_UNDEFINED) {
             bitmap = loadStructuredBitmap(inlineImage);
@@ -69,12 +71,22 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         switch (imageFormat) {
             case IMAGE_FORMAT_RGB_565:
                 return Config.RGB_565;
+            case IMAGE_FORMAT_ARGB_8888:
+                return Config.ARGB_8888;
             case IMAGE_FORMAT_UNDEFINED:
             case UNRECOGNIZED:
                 return null;
         }
-
         return null;
+    }
+
+    private int getBytesPerPixel(Config config) {
+        if (config == Config.RGB_565) {
+            return 2;
+        } else if (config == Config.ARGB_8888) {
+            return 4;
+        }
+        return -1;
     }
 
     @NonNull
@@ -82,15 +94,15 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
             throws ResourceAccessException {
         Config config = imageFormatToBitmapConfig(inlineImage.getFormat());
 
-        // Only handles RGB_565 for now
-        if (config != Config.RGB_565) {
+        if (config == null) {
             throw new ResourceAccessException("Unknown image format in image resource.");
         }
 
         int widthPx = inlineImage.getWidthPx();
         int heightPx = inlineImage.getHeightPx();
 
-        int expectedDataSize = widthPx * heightPx * RGB565_BYTES_PER_PX;
+        int bytesPerPixel = getBytesPerPixel(config);
+        int expectedDataSize = widthPx * heightPx * bytesPerPixel;
         if (inlineImage.getData().size() != expectedDataSize) {
             throw new ResourceAccessException(
                     "Mismatch between image data size and dimensions in image resource.");
@@ -102,12 +114,15 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         return bitmap;
     }
 
-    @NonNull
+    @Nullable
     private Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage) {
         Bitmap bitmap =
                 BitmapFactory.decodeByteArray(
                         inlineImage.getData().toByteArray(), 0, inlineImage.getData().size());
-
+        if (bitmap == null) {
+            Log.e(TAG, "Unable to load structured bitmap.");
+            return null;
+        }
         return Bitmap.createScaledBitmap(
                 bitmap, inlineImage.getWidthPx(), inlineImage.getHeightPx(), /* filter= */ true);
     }

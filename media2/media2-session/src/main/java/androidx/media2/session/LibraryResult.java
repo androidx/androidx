@@ -44,7 +44,6 @@ import java.util.List;
 @VersionedParcelize(isCustom = true)
 public class LibraryResult extends CustomVersionedParcelable implements RemoteResult {
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
             RESULT_SUCCESS,
@@ -222,7 +221,6 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override
@@ -246,7 +244,6 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override

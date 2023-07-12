@@ -55,6 +55,9 @@ internal actual class AtomicInt actual constructor(value: Int) {
     actual fun add(amount: Int): Int = delegate.addAndGet(amount)
 }
 
+internal actual class WeakReference<T : Any> actual constructor(reference: T) :
+    java.lang.ref.WeakReference<T>(reference)
+
 /**
  * Implementation of [SnapshotContextElement] that enters a single given snapshot when updating
  * the thread context of a resumed coroutine.

@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 
@@ -31,11 +32,11 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
     val typeArg: KSTypeArgument,
-    jvmTypeResolver: KspJvmTypeResolver?
+    scope: KSTypeVarianceResolverScope?
 ) : KspType(
     env = env,
     ksType = typeArg.requireType(),
-    jvmTypeResolver = jvmTypeResolver
+    scope = scope
 ) {
     /**
      * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
@@ -47,7 +48,8 @@ internal class KspTypeArgumentType(
             ksType = ksType,
             allowPrimitives = false
         )
-        if (this.ksType.declaration is KSTypeParameter && this == extendBound) {
+        if (typeArg.variance == Variance.STAR ||
+            (this.ksType.declaration is KSTypeParameter && this == extendBound)) {
             null
         } else {
             extendBound
@@ -77,15 +79,15 @@ internal class KspTypeArgumentType(
                 original = typeArg,
                 type = ksType.withNullability(nullability).createTypeReference()
             ),
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 
-    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
         return KspTypeArgumentType(
             env = env,
             typeArg = typeArg,
-            jvmTypeResolver = jvmTypeResolver
+            scope = scope
         )
     }
 

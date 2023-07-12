@@ -16,41 +16,44 @@
 
 package androidx.appactions.interaction.capabilities.core.impl
 
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.SessionBuilder
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
+import kotlinx.coroutines.sync.Mutex
 
-import androidx.annotation.RestrictTo
-
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
-    PropertyT,
-    ArgumentT,
+    ArgumentsT,
     OutputT,
     > constructor(
-    override val id: String?,
-    val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
-    val property: PropertyT,
-    val sessionBuilder: SessionBuilder<BaseSession<ArgumentT, OutputT>>,
-) : ActionCapability {
-    override val supportsMultiTurnTask = false
+    id: String,
+    val actionSpec: ActionSpec<ArgumentsT, OutputT>,
+    val property: Map<String, Property<*>>,
+    val executionCallback: ExecutionCallback<ArgumentsT, OutputT>,
+) : Capability(id) {
+    private val mutex = Mutex()
 
-    override fun getAppAction(): AppAction {
-        val appActionBuilder = actionSpec.convertPropertyToProto(property).toBuilder()
+    override val appAction: AppAction get() =
+        actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
-        id?.let(appActionBuilder::setIdentifier)
-        return appActionBuilder.build()
-    }
+            .setIdentifier(id)
+            .build()
 
-    override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
+    override fun createSession(
+        sessionId: String,
+        hostProperties: HostProperties,
+    ): CapabilitySession {
         return SingleTurnCapabilitySession(
+            sessionId,
             actionSpec,
-            sessionBuilder.createSession(hostProperties),
+            executionCallback,
+            mutex,
         )
     }
 }

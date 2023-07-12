@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyGetterDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.descriptors.VariableDescriptorWithAccessors
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor
 import org.jetbrains.kotlin.descriptors.synthetic.FunctionInterfaceConstructorDescriptor
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
@@ -48,8 +49,7 @@ import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.KtTryExpression
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.calls.util.getResolvedCall
-import org.jetbrains.kotlin.resolve.calls.util.getValueArgumentForExpression
+import org.jetbrains.kotlin.resolve.BindingContext.DELEGATED_PROPERTY_RESOLVED_CALL
 import org.jetbrains.kotlin.resolve.calls.checkers.AdditionalTypeChecker
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
 import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext
@@ -58,6 +58,8 @@ import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.calls.model.ArgumentMatch
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionResolvedCall
+import org.jetbrains.kotlin.resolve.calls.util.getResolvedCall
+import org.jetbrains.kotlin.resolve.calls.util.getValueArgumentForExpression
 import org.jetbrains.kotlin.resolve.inline.InlineUtil.isInlinedArgument
 import org.jetbrains.kotlin.resolve.sam.getSingleAbstractMethodOrNull
 import org.jetbrains.kotlin.types.KotlinType
@@ -65,6 +67,7 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.lowerIfFlexible
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
+import org.jetbrains.kotlin.types.typeUtil.isNothing
 import org.jetbrains.kotlin.types.upperIfFlexible
 import org.jetbrains.kotlin.util.OperatorNameConventions
 
@@ -130,11 +133,15 @@ open class ComposableCallChecker :
         reportOn: PsiElement,
         context: CallCheckerContext
     ) {
-        if (!resolvedCall.isComposableInvocation()) {
+        val bindingContext = context.trace.bindingContext
+        if (
+            !resolvedCall.isComposableDelegateReference(bindingContext) &&
+                !resolvedCall.isComposableInvocation()
+        ) {
             checkInlineLambdaCall(resolvedCall, reportOn, context)
             return
         }
-        val bindingContext = context.trace.bindingContext
+
         var node: PsiElement? = reportOn
         loop@while (node != null) {
             when (node) {
@@ -223,6 +230,27 @@ open class ComposableCallChecker :
                     // KtPropertyAccessor, the ONLY time we make it into this branch is when the
                     // call was done in the initializer of the property/variable.
                     val descriptor = bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, node]
+
+                    if (resolvedCall.isComposableDelegateOperator()) {
+                        // The call is initializer for fields like `val foo by composableDelegate()`.
+                        // Creating the property doesn't have any requirements from Compose side,
+                        // we will recheck on the property call site instead.
+                        if (
+                            descriptor is VariableDescriptorWithAccessors &&
+                                descriptor.isDelegated
+                        ) {
+                            if (descriptor.isVar) {
+                                // setValue delegate is not allowed for now.
+                                illegalComposableDelegate(context, reportOn)
+                            }
+                            if (descriptor is PropertyDescriptor &&
+                                descriptor.getter?.hasComposableAnnotation() != true) {
+                                composableExpected(context, node.nameIdentifier ?: node)
+                            }
+                            return
+                        }
+                    }
+
                     if (
                         descriptor !is LocalVariableDescriptor &&
                         node.annotationEntries.hasComposableAnnotation(bindingContext)
@@ -294,8 +322,15 @@ open class ComposableCallChecker :
     ) {
         context.trace.report(ComposeErrors.COMPOSABLE_INVOCATION.on(callEl))
         if (functionEl != null) {
-            context.trace.report(ComposeErrors.COMPOSABLE_EXPECTED.on(functionEl))
+            composableExpected(context, functionEl)
         }
+    }
+
+    private fun composableExpected(
+        context: CallCheckerContext,
+        functionEl: PsiElement
+    ) {
+        context.trace.report(ComposeErrors.COMPOSABLE_EXPECTED.on(functionEl))
     }
 
     private fun illegalCallMustBeReadonly(
@@ -312,6 +347,13 @@ open class ComposableCallChecker :
         context.trace.report(ComposeErrors.COMPOSABLE_FUNCTION_REFERENCE.on(refExpr))
     }
 
+    private fun illegalComposableDelegate(
+        context: CallCheckerContext,
+        reportOn: PsiElement
+    ) {
+        context.trace.report(ComposeErrors.COMPOSE_INVALID_DELEGATE.on(reportOn))
+    }
+
     override fun checkType(
         expression: KtExpression,
         expressionType: KotlinType,
@@ -319,6 +361,7 @@ open class ComposableCallChecker :
         c: ResolutionContext<*>
     ) {
         val bindingContext = c.trace.bindingContext
+        if (expressionType.isNothing()) return
         val expectedType = c.expectedType
         if (expectedType === TypeUtils.NO_EXPECTED_TYPE) return
         if (expectedType === TypeUtils.UNIT_EXPECTED_TYPE) return
@@ -412,6 +455,23 @@ fun ResolvedCall<*>.isReadOnlyComposableInvocation(): Boolean {
         is PropertyGetterDescriptor -> candidateDescriptor.hasReadonlyComposableAnnotation()
         else -> candidateDescriptor.hasReadonlyComposableAnnotation()
     }
+}
+
+fun ResolvedCall<*>.isComposableDelegateReference(bindingContext: BindingContext): Boolean {
+    val descriptor = candidateDescriptor
+    if (descriptor is VariableDescriptorWithAccessors) {
+        val delegateInitCall = bindingContext[DELEGATED_PROPERTY_RESOLVED_CALL, descriptor.getter]
+        return delegateInitCall?.candidateDescriptor?.isMarkedAsComposable() == true
+    } else {
+        return false
+    }
+}
+
+fun ResolvedCall<*>.isComposableDelegateOperator(): Boolean {
+    val descriptor = candidateDescriptor
+    return descriptor is FunctionDescriptor &&
+        descriptor.isOperator &&
+        descriptor.name in OperatorNameConventions.DELEGATED_PROPERTY_OPERATORS
 }
 
 fun ResolvedCall<*>.isComposableInvocation(): Boolean {

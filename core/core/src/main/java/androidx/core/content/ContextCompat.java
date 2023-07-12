@@ -70,6 +70,7 @@ import static android.content.Context.WINDOW_SERVICE;
 
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AppOpsManager;
@@ -131,6 +132,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
@@ -140,6 +142,7 @@ import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.DisplayContext;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
@@ -205,7 +208,6 @@ public class ContextCompat {
             ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
 
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {
             RECEIVER_VISIBLE_TO_INSTANT_APPS, RECEIVER_EXPORTED, RECEIVER_NOT_EXPORTED,
@@ -592,7 +594,7 @@ public class ContextCompat {
     @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         ObjectsCompat.requireNonNull(permission, "permission must be non-null");
-        if (!BuildCompat.isAtLeastT()
+        if (Build.VERSION.SDK_INT < 33
                 && TextUtils.equals(android.Manifest.permission.POST_NOTIFICATIONS, permission)) {
             return NotificationManagerCompat.from(context).areNotificationsEnabled()
                     ? PackageManager.PERMISSION_GRANTED
@@ -750,6 +752,31 @@ public class ContextCompat {
         } else {
             // Pre-O behavior.
             context.startService(intent);
+        }
+    }
+
+    /**
+     * Get the display this context is associated with or the
+     * {@link Display#DEFAULT_DISPLAY default display} as the fallback if the context is not
+     * associated with any {@link Display}.
+     * <p>
+     * Applications must use this method with {@link Activity} or a context associated with a
+     * {@link Display} via {@link Context#createDisplayContext(Display)} or
+     * {@link Context#createWindowContext(Display, int, Bundle)}, or the reported {@link Display}
+     * instance is not reliable. </p>
+     *
+     * @param context Context to obtain the associated display
+     * @return The display associated with the Context or the default display if the context
+     * doesn't associated with any display.
+     */
+    @NonNull
+    public static Display getDisplayOrDefault(@NonNull @DisplayContext Context context) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getDisplayOrDefault(context);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) context.getSystemService(WINDOW_SERVICE);
+            return windowManager.getDefaultDisplay();
         }
     }
 
@@ -1113,6 +1140,19 @@ public class ContextCompat {
         @DoNotInline
         static String getAttributionTag(Context obj) {
             return obj.getAttributionTag();
+        }
+
+        @DoNotInline
+        static Display getDisplayOrDefault(Context obj) {
+            try {
+                return obj.getDisplay();
+            } catch (UnsupportedOperationException e) {
+                // Provide a fallback display if the context is not associated with any display.
+                Log.w(TAG, "The context:" + obj + " is not associated with any display. Return a "
+                        + "fallback display instead.");
+                return obj.getSystemService(DisplayManager.class)
+                        .getDisplay(Display.DEFAULT_DISPLAY);
+            }
         }
     }
 

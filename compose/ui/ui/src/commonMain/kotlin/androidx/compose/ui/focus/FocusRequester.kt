@@ -20,6 +20,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
 
@@ -49,7 +50,6 @@ private const val InvalidFocusRequesterInvocation = """
 @Stable
 class FocusRequester {
 
-    @OptIn(ExperimentalComposeUiApi::class)
     internal val focusRequesterNodes: MutableVector<FocusRequesterModifierNode> = mutableVectorOf()
 
     /**
@@ -60,36 +60,22 @@ class FocusRequester {
      * @sample androidx.compose.ui.samples.RequestFocusSample
      */
     fun requestFocus() {
-        // TODO(b/245755256): Add another API that returns a Boolean indicating
-        //  whether requestFocus succeeded or not.
-        @OptIn(ExperimentalComposeUiApi::class)
-        findFocusTarget { it.requestFocus() }
+        focus()
     }
 
-    /**
-     * This function searches down the hierarchy and calls [onFound] for all focus nodes associated
-     * with this [FocusRequester].
-     * @param onFound the callback that is run when the child is found.
-     * @return false if no focus nodes were found or if the FocusRequester is
-     * [FocusRequester.Cancel]. Returns null if the FocusRequester is [FocusRequester.Default].
-     * Otherwise returns a logical or of the result of calling [onFound] for each focus node
-     * associated with this [FocusRequester].
-     */
-    @OptIn(ExperimentalComposeUiApi::class)
-    internal fun findFocusTarget(onFound: (FocusTargetModifierNode) -> Boolean): Boolean {
-        check(this != Default) { InvalidFocusRequesterInvocation }
-        check(this != Cancel) { InvalidFocusRequesterInvocation }
-        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
-        var success = false
-        focusRequesterNodes.forEach { node ->
-            node.visitChildren(Nodes.FocusTarget) {
-                if (onFound(it)) {
-                    success = true
-                    return@forEach
+    // TODO(b/245755256): Consider making this API Public.
+    internal fun focus(): Boolean {
+        @OptIn(ExperimentalComposeUiApi::class)
+        return findFocusTarget { focusTarget ->
+            val focusProperties = focusTarget.fetchFocusProperties()
+            if (focusProperties.canFocus) {
+                focusTarget.requestFocus()
+            } else {
+                focusTarget.findChildCorrespondingToFocusEnter(Enter) {
+                    it.requestFocus()
                 }
             }
         }
-        return success
     }
 
     /**
@@ -107,7 +93,6 @@ class FocusRequester {
      *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun captureFocus(): Boolean {
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
         focusRequesterNodes.forEach {
@@ -132,7 +117,6 @@ class FocusRequester {
      *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun freeFocus(): Boolean {
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
         focusRequesterNodes.forEach {
@@ -156,7 +140,7 @@ class FocusRequester {
          * [Modifier.focusProperties][focusProperties] implies that we want to block focus search
          * from proceeding in the specified [direction][FocusDirection].
          *
-         * @sample androidx.compose.ui.samples.CancelFocusMoveSample()
+         * @sample androidx.compose.ui.samples.CancelFocusMoveSample
          */
         @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         @get:ExperimentalComposeUiApi
@@ -196,5 +180,31 @@ class FocusRequester {
          */
         @ExperimentalComposeUiApi
         fun createRefs() = FocusRequesterFactory
+    }
+
+    /**
+     * This function searches down the hierarchy and calls [onFound] for all focus nodes associated
+     * with this [FocusRequester].
+     * @param onFound the callback that is run when the child is found.
+     * @return false if no focus nodes were found or if the FocusRequester is
+     * [FocusRequester.Cancel]. Returns null if the FocusRequester is [FocusRequester.Default].
+     * Otherwise returns a logical or of the result of calling [onFound] for each focus node
+     * associated with this [FocusRequester].
+     */
+    @ExperimentalComposeUiApi
+    private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
+        check(this !== Default) { InvalidFocusRequesterInvocation }
+        check(this !== Cancel) { InvalidFocusRequesterInvocation }
+        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        var success = false
+        focusRequesterNodes.forEach { node ->
+            node.visitChildren(Nodes.FocusTarget) {
+                if (onFound(it)) {
+                    success = true
+                    return@forEach
+                }
+            }
+        }
+        return success
     }
 }

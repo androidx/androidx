@@ -27,7 +27,6 @@ import java.nio.ByteBuffer;
  *
  * TODO: Rename this to FakeByteArrayPlaneProxy and inherit {@link FakePlaneProxy}.
  *
- * @hide
  */
 @RequiresApi(21)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

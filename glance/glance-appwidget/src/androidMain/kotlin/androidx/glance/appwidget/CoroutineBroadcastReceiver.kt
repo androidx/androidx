@@ -18,13 +18,13 @@ package androidx.glance.appwidget
 
 import android.content.BroadcastReceiver
 import android.util.Log
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Execute the block asynchronously in a scope with the lifetime of the broadcast.
@@ -54,7 +54,13 @@ internal fun BroadcastReceiver.goAsync(
             }
         } finally {
             // This must be the last call, as the process may be killed after calling this.
-            pendingResult.finish()
+            try {
+                pendingResult.finish()
+            } catch (e: IllegalStateException) {
+                // On some OEM devices, this may throw an error about "Broadcast already finished".
+                // See b/257513022.
+                Log.e(GlanceAppWidgetTag, "Error thrown when trying to finish broadcast", e)
+            }
         }
     }
 }

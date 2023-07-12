@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.lifecycle.AbstractSavedStateViewModelFactory#create(Class<T>):
-    Removed method androidx.lifecycle.AbstractSavedStateViewModelFactory.create(Class<T>)
-RemovedMethod: androidx.lifecycle.AbstractSavedStateViewModelFactory#create(Class<T>, androidx.lifecycle.viewmodel.CreationExtras):
-    Removed method androidx.lifecycle.AbstractSavedStateViewModelFactory.create(Class<T>,androidx.lifecycle.viewmodel.CreationExtras)
+InvalidNullConversion: androidx.lifecycle.SavedStateHandle#getLiveData(String, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.lifecycle.SavedStateHandle.getLiveData(String key, T initialValue)
+InvalidNullConversion: androidx.lifecycle.SavedStateHandle#getStateFlow(String, T) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter initialValue in androidx.lifecycle.SavedStateHandle.getStateFlow(String key, T initialValue)

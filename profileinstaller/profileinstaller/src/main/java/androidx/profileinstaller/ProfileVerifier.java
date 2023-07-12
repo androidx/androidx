@@ -113,7 +113,6 @@ public final class ProfileVerifier {
      *                                  {@link ProfileInstallReceiver}.
      * @return the {@link CompilationStatus} of the app profile. Note that this is the same
      * {@link CompilationStatus} obtained through {@link #getCompilationStatusAsync()}.
-     * @hide
      */
     @NonNull
     @WorkerThread
@@ -320,7 +319,6 @@ public final class ProfileVerifier {
         return sFuture;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static class Cache {
         private static final int SCHEMA = 1;
@@ -393,7 +391,6 @@ public final class ProfileVerifier {
      */
     public static class CompilationStatus {
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({
@@ -428,9 +425,15 @@ public final class ProfileVerifier {
 
         /**
          * Indicates that a profile is installed and the app will be compiled with it later when
-         * background dex optimization runs. This is the result of installation through profile
+         * background dex optimization runs (i.e when the device is in idle
+         * and connected to the power). This is the result of installation through profile
          * installer. When the profile is compiled, the result code will change to
-         * {@link #RESULT_CODE_COMPILED_WITH_PROFILE}.
+         * {@link #RESULT_CODE_COMPILED_WITH_PROFILE}. Note that to test that the app is compiled
+         * with the installed profile, the background dex optimization can be forced through the
+         * following adb shell command:
+         * ```
+         * adb shell cmd package compile -f -m speed-profile <PACKAGE_NAME>
+         * ```
          */
         public static final int RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION = 2;
 

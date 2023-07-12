@@ -48,26 +48,25 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyStaggeredGridArrangementsTest(
@@ -219,6 +218,55 @@ class LazyStaggeredGridArrangementsTest(
         rule.onNodeWithTag("2")
             .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
             .assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
+
+        assertThat(state.firstVisibleItemIndex).isEqualTo(2)
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun negativeSpacing_withContentPadding_itemsVisible() {
+        state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                lanes = 2,
+                modifier = Modifier
+                    .testTag(LazyStaggeredGrid)
+                    .axisSize(itemSizeDp * 2, itemSizeDp * 5),
+                state = state,
+                mainAxisSpacing = -itemSizeDp,
+                contentPadding = PaddingValues(beforeContent = itemSizeDp)
+            ) {
+                items(100) {
+                    BasicText(
+                        text = "$it",
+                        modifier = Modifier
+                            .testTag("$it")
+                            .mainAxisSize(itemSizeDp * 2)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+            .assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
+
+        rule.onNodeWithTag("2")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 2)
+            .assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
+
+        state.scrollBy(itemSizeDp)
+
+        rule.onNodeWithTag("0")
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
+
+        rule.onNodeWithTag("2")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+            .assertMainAxisSizeIsEqualTo(itemSizeDp * 2)
+
+        assertThat(state.firstVisibleItemIndex).isEqualTo(2)
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
     }
 
     @Test
@@ -244,8 +292,64 @@ class LazyStaggeredGridArrangementsTest(
         }
 
         rule.runOnIdle {
-            Truth.assertThat(state.firstVisibleItemIndex).isEqualTo(0)
-            Truth.assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
         }
+    }
+
+    @Test
+    fun nonStartCrossAxisArrangement() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp * 5, mainAxis = itemSizeDp * 5),
+                crossAxisArrangement = Arrangement.Center,
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 0.5f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 2.5f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+    }
+
+    @Test
+    fun spacedByWithAlignment() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp * 5, mainAxis = itemSizeDp * 5),
+                crossAxisArrangement = object : Arrangement.HorizontalOrVertical,
+                    Arrangement.Horizontal by Arrangement.spacedBy(
+                        itemSizeDp * 0.5f, Alignment.End
+                    ),
+                    Arrangement.Vertical by Arrangement.spacedBy(
+                        itemSizeDp * 0.5f, Alignment.Bottom
+                    ) {
+                        override val spacing: Dp = itemSizeDp * 0.5f
+                    },
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 0.5f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 3f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
     }
 }

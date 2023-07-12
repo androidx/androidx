@@ -16,8 +16,8 @@
 
 package androidx.room.vo
 
-import org.apache.commons.codec.digest.DigestUtils
 import java.util.Locale
+import org.apache.commons.codec.digest.DigestUtils
 
 interface HasSchemaIdentity {
     fun getIdKey(): String

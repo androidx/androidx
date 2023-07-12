@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,9 +51,9 @@ public fun IndeterminateProgress() {
 
 @Composable
 public fun ProgressWithCustomAngles() {
-    var startAngle by remember { mutableStateOf(292.5f) }
-    var endAngle by remember { mutableStateOf(247.5f) }
-    var progress by remember { mutableStateOf(0.5f) }
+    var startAngle by remember { mutableFloatStateOf(292.5f) }
+    var endAngle by remember { mutableFloatStateOf(247.5f) }
+    var progress by remember { mutableFloatStateOf(0.5f) }
     val animatedProgress: Float by animateFloatAsState(targetValue = progress)
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

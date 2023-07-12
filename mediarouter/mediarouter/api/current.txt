@@ -9,7 +9,7 @@ package androidx.mediarouter.app {
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public android.view.View onCreateActionView();
     method public androidx.mediarouter.app.MediaRouteButton onCreateMediaRouteButton();
-    method public void setAlwaysVisible(boolean);
+    method @Deprecated public void setAlwaysVisible(boolean);
     method public void setDialogFactory(androidx.mediarouter.app.MediaRouteDialogFactory);
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
@@ -23,7 +23,7 @@ package androidx.mediarouter.app {
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method public void setAlwaysVisible(boolean);
+    method @Deprecated public void setAlwaysVisible(boolean);
     method public void setDialogFactory(androidx.mediarouter.app.MediaRouteDialogFactory);
     method public void setRemoteIndicatorDrawable(android.graphics.drawable.Drawable?);
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);

@@ -25,8 +25,11 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -38,7 +41,7 @@ import androidx.compose.ui.unit.dp
 fun InteractiveTextDemo() {
     val clickedOffset = remember { mutableStateOf<Int?>(null) }
     val hoveredOffset = remember { mutableStateOf<Int?>(null) }
-    val numOnHoverInvocations = remember { mutableStateOf(0) }
+    var numOnHoverInvocations by remember { mutableIntStateOf(0) }
     Column(
         modifier = Modifier.padding(horizontal = 10.dp)
     ) {
@@ -47,14 +50,14 @@ fun InteractiveTextDemo() {
         Text(text = "Click/Hover the lorem ipsum text below.")
         Text(text = "Clicked offset: ${clickedOffset.value ?: "No click yet"}")
         Text(text = "Hovered offset: ${hoveredOffset.value ?: "Not hovering"}")
-        Text(text = "Number of onHover invocations: ${numOnHoverInvocations.value}")
+        Text(text = "Number of onHover invocations: $numOnHoverInvocations")
 
         ClickableText(
             text = AnnotatedString(loremIpsum(wordCount = 30)),
             modifier = Modifier.border(Dp.Hairline, Color.Black),
             style = MaterialTheme.typography.body1,
             onHover = {
-                numOnHoverInvocations.value = numOnHoverInvocations.value + 1
+                numOnHoverInvocations++
                 hoveredOffset.value = it
             }
         ) { offset ->
@@ -65,7 +68,7 @@ fun InteractiveTextDemo() {
             onClick = {
                 clickedOffset.value = null
                 hoveredOffset.value = null
-                numOnHoverInvocations.value = 0
+                numOnHoverInvocations = 0
             }
         ) {
             Text(text = "Reset Offsets/Counter")

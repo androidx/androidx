@@ -46,7 +46,6 @@ import androidx.annotation.RestrictTo;
  * ignored for the first measure pass, and will receive an exact measurespec on the second measure
  * pass.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("AppCompatCustomView")

@@ -21,16 +21,20 @@ import android.util.SizeF
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.IdRes
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
+import androidx.annotation.RestrictTo
 
 /**
  * A class representing the UI response being returned to the host. A `UiResponse` cannot be built
  * directly, it must be built from a [UiResponse] Builder.
  */
 class UiResponse {
-    internal val remoteViewsInternal: RemoteViewsInternal?
-    internal val tileLayoutInternal: TileLayoutInternal?
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val remoteViewsInternal: RemoteViewsInternal?
+
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val tileLayoutInternal: TileLayoutInternal?
 
     internal constructor(remoteViewsInternal: RemoteViewsInternal) {
         this.remoteViewsInternal = remoteViewsInternal
@@ -43,9 +47,10 @@ class UiResponse {
     }
 
     /** Builder for TileLayouts, used in Wear OS. */
+    @Suppress("deprecation") // for backward compatibility
     class TileLayoutBuilder {
-        private var layout: LayoutElementBuilders.Layout? = null
-        private var resources: ResourceBuilders.Resources? = null
+        private var layout: androidx.wear.tiles.LayoutElementBuilders.Layout? = null
+        private var resources: androidx.wear.tiles.ResourceBuilders.Resources? = null
 
         /**
          * Sets the [LayoutElementBuilders.Layout] and the associated [ResourceBuilders.Resources]
@@ -57,8 +62,8 @@ class UiResponse {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         fun setTileLayout(
-            layout: LayoutElementBuilders.Layout,
-            resources: ResourceBuilders.Resources
+            layout: androidx.wear.tiles.LayoutElementBuilders.Layout,
+            resources: androidx.wear.tiles.ResourceBuilders.Resources
         ): TileLayoutBuilder {
             this.layout = layout
             this.resources = resources
@@ -73,8 +78,7 @@ class UiResponse {
     class RemoteViewsUiBuilder {
         private var remoteViews: RemoteViews? = null
         private var size: SizeF? = null
-        private val changedViewIds: HashSet<Int> = HashSet()
-        private val remoteViewsFactories: HashMap<Int, RemoteViewsFactory> = HashMap()
+        private val collectionViewFactories: HashMap<Int, RemoteViewsFactory> = HashMap()
 
         /**
          * Sets the `RemoteViews` to be displayed in the host.
@@ -86,18 +90,6 @@ class UiResponse {
         fun setRemoteViews(remoteViews: RemoteViews, size: SizeF?): RemoteViewsUiBuilder {
             this.remoteViews = remoteViews
             this.size = size
-            return this
-        }
-
-        /**
-         * Add the specified view ID to the list of changed views for RemoteViews collection update.
-         *
-         * Any errors resulting from the provided view IDs will contain "RemoteViewsCollection
-         * error: " errors with some message from the host.
-         */
-        @SuppressLint("MissingGetterMatchingBuilder")
-        fun addViewIdForCollectionUpdate(@IdRes viewId: Int): RemoteViewsUiBuilder {
-            changedViewIds.add(viewId)
             return this
         }
 
@@ -114,14 +106,14 @@ class UiResponse {
             @IdRes viewId: Int,
             factory: RemoteViewsFactory
         ): RemoteViewsUiBuilder {
-            remoteViewsFactories.put(viewId, factory)
+            collectionViewFactories.put(viewId, factory)
             return this
         }
 
         /** Builds the UiResponse. */
         fun build() =
             UiResponse(
-                RemoteViewsInternal(remoteViews!!, size!!, changedViewIds, remoteViewsFactories)
+                RemoteViewsInternal(remoteViews!!, size!!, collectionViewFactories)
             )
     }
 }

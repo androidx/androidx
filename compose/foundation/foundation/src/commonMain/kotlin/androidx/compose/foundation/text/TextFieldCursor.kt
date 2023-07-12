@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.floor
 import kotlinx.coroutines.withContext
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.cursor(
     state: TextFieldState,
     value: TextFieldValue,

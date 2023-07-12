@@ -63,7 +63,6 @@ public class ComplicationSlotBounds(
         perComplicationTypeBounds: Map<ComplicationType, RectF>
     ) : this(perComplicationTypeBounds, perComplicationTypeBounds.mapValues { RectF() })
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun write(dos: DataOutputStream) {
         perComplicationTypeBounds.keys.toSortedSet().forEach { type ->
@@ -130,8 +129,6 @@ public class ComplicationSlotBounds(
          * RectF>, backfilling with empty [RectF]s. This method is necessary because there can be a
          * skew between the version of the library between the watch face and the system which would
          * otherwise be problematic if new complication types have been introduced.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun createFromPartialMap(

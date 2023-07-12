@@ -48,7 +48,6 @@ import androidx.leanback.R;
 
 /**
  * A page indicator with dots.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PagingIndicator extends View {

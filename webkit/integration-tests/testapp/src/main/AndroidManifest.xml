@@ -131,7 +131,7 @@
             android:process=":dataDirectorySuffixActivity"
             android:exported="true" />
         <activity
-            android:name=".DirectoryBasePathActivity"
+            android:name=".DirectoryBasePathsActivity"
             android:process=":directoryBasePathActivity"
             android:exported="true" />
         <activity

@@ -16,93 +16,140 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.ColorProto;
 
 /** Builders for color utilities for layout elements. */
 public final class ColorBuilders {
-  private ColorBuilders() {}
+    private ColorBuilders() {}
 
-  /** Shortcut for building a {@link ColorProp} using an ARGB value. */
-  @NonNull
-  public static ColorProp argb(@ColorInt int colorArgb) {
-    return new ColorProp.Builder().setArgb(colorArgb).build();
-  }
-
-  /**
-   * A property defining a color.
-   *
-   * @since 1.0
-   */
-  public static final class ColorProp {
-    private final ColorProto.ColorProp mImpl;
-    @Nullable private final Fingerprint mFingerprint;
-
-    ColorProp(ColorProto.ColorProp impl, @Nullable Fingerprint fingerprint) {
-      this.mImpl = impl;
-      this.mFingerprint = fingerprint;
+    /** Shortcut for building a {@link ColorProp} using an ARGB value. */
+    @NonNull
+    public static ColorProp argb(@ColorInt int colorArgb) {
+        return new ColorProp.Builder().setArgb(colorArgb).build();
     }
 
     /**
-     * Gets the color value, in ARGB format.
+     * A property defining a color.
      *
      * @since 1.0
      */
-    @ColorInt
-    public int getArgb() {
-      return mImpl.getArgb();
+    public static final class ColorProp {
+        private final ColorProto.ColorProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ColorProp(ColorProto.ColorProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the color value, in ARGB format.
+         *
+         * @since 1.0
+         */
+        @ColorInt
+        public int getArgb() {
+            return mImpl.getArgb();
+        }
+
+        /**
+         * Gets the dynamic value.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicColor getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicColorFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        @NonNull
+        static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
+            return new ColorProp(proto, null);
+        }
+
+        @NonNull
+        ColorProto.ColorProp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ColorProp{" + "argb=" + getArgb() + ", dynamicValue=" + getDynamicValue() + "}";
+        }
+
+        /** Builder for {@link ColorProp} */
+        public static final class Builder {
+            private final ColorProto.ColorProp.Builder mImpl = ColorProto.ColorProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1955659823);
+
+            /**
+             * @deprecated Use {@link #Builder(int)} instead.
+             */
+            @Deprecated
+            public Builder() {}
+
+            public Builder(@ColorInt int argb) {
+                setArgb(argb);
+            }
+
+            /**
+             * Sets the color value, in ARGB format.
+             * If a dynamic value is also set and the renderer supports dynamic values for the
+             * corresponding field, this static value will be ignored.
+             *
+             * @since 1.0
+             */
+            @NonNull
+            public Builder setArgb(@ColorInt int argb) {
+                mImpl.setArgb(argb);
+                mFingerprint.recordPropertyUpdate(1, argb);
+                return this;
+            }
+
+            /**
+             * Sets the dynamic value. Note that when setting this value, the static value is still
+             * required to be set to support older renderers that only read the static value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicColor dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicColorProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public ColorProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasArgb()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
+                return new ColorProp(mImpl.build(), mFingerprint);
+            }
+        }
     }
-
-    /**
-     * Get the fingerprint for this object, or null if unknown.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public Fingerprint getFingerprint() {
-      return mFingerprint;
-    }
-
-    @NonNull
-    static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
-      return new ColorProp(proto, null);
-    }
-
-    @NonNull
-    ColorProto.ColorProp toProto() {
-      return mImpl;
-    }
-
-    /** Builder for {@link ColorProp} */
-    public static final class Builder {
-      private final ColorProto.ColorProp.Builder mImpl = ColorProto.ColorProp.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(-1955659823);
-
-      public Builder() {}
-
-      /**
-       * Sets the color value, in ARGB format.
-       *
-       * @since 1.0
-       */
-      @NonNull
-      public Builder setArgb(@ColorInt int argb) {
-        mImpl.setArgb(argb);
-        mFingerprint.recordPropertyUpdate(1, argb);
-        return this;
-      }
-
-      /** Builds an instance from accumulated values. */
-      @NonNull
-      public ColorProp build() {
-        return new ColorProp(mImpl.build(), mFingerprint);
-      }
-    }
-  }
 }

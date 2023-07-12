@@ -513,6 +513,7 @@ public open class ActivityNavigator(
          * @see NavOptions.popEnterAnim
          * @see NavOptions.popExitAnim
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         public fun applyPopAnimationsToPendingTransition(activity: Activity) {
             val intent = activity.intent ?: return

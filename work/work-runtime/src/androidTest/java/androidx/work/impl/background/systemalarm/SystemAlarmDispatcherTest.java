@@ -59,6 +59,7 @@ import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.StartStopToken;
+import androidx.work.impl.WorkLauncher;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
@@ -122,6 +123,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
             mHandler.post(runnable);
         }
     };
+
+    private WorkLauncher mLauncher;
 
     @Before
     @SuppressWarnings("unchecked")
@@ -189,9 +192,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 instantTaskExecutor,
                 mDatabase);
         mSpyProcessor = spy(processor);
-
+        mLauncher = mock(WorkLauncher.class);
         mDispatcher =
-                new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor, mWorkManager);
+                new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor,
+                        mWorkManager, mLauncher);
         mDispatcher.setCompletedListener(completedListener);
         mSpyDispatcher = spy(mDispatcher);
         Schedulers.registerRescheduling(Collections.singletonList(scheduler), processor,
@@ -310,7 +314,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(captor.getValue().getId()).isEqualTo(workSpecId);
 
         ArgumentCaptor<StartStopToken> captorStop = ArgumentCaptor.forClass(StartStopToken.class);
-        verify(mWorkManager, times(1)).stopWork(captorStop.capture());
+        verify(mLauncher, times(1)).stopWork(captorStop.capture());
         assertThat(captorStop.getValue().getId()).isEqualTo(workSpecId);
     }
 
@@ -340,7 +344,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(captor.getValue().getId()).isEqualTo(workSpecId);
 
         ArgumentCaptor<StartStopToken> captorStop = ArgumentCaptor.forClass(StartStopToken.class);
-        verify(mWorkManager, times(1)).stopWork(captorStop.capture());
+        verify(mLauncher, times(1)).stopWork(captorStop.capture());
         assertThat(captorStop.getValue().getId()).isEqualTo(workSpecId);
     }
 
@@ -755,8 +759,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         CommandInterceptingSystemDispatcher(@NonNull Context context,
                 @Nullable Processor processor,
-                @Nullable WorkManagerImpl workManager) {
-            super(context, processor, workManager);
+                @Nullable WorkManagerImpl workManager,
+                @Nullable WorkLauncher launcher) {
+            super(context, processor, workManager, launcher);
             mCommands = new ArrayList<>();
             mActionCount = new HashMap<>();
         }

@@ -29,7 +29,11 @@ import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -37,6 +41,7 @@ import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.FragmentNavigator.Destination
+import java.lang.ref.WeakReference
 
 /**
  * Navigator that navigates through [fragment transactions][FragmentTransaction]. Every
@@ -62,28 +67,70 @@ public open class FragmentNavigator(
     /**
      * List of entries that were popped by direct calls to popBackStack (i.e. from NavController)
      */
-    private val entriesToPop = mutableSetOf<String>()
+    internal val entriesToPop: Set<String>
+        get() = (state.transitionsInProgress.value - state.backStack.value.toSet())
+            .map { it.id }
+            .toSet()
 
     /**
      * Get the back stack from the [state].
      */
     internal val backStack get() = state.backStack
 
+    private val fragmentObserver = LifecycleEventObserver { source, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            val fragment = source as Fragment
+            val entry = state.transitionsInProgress.value.lastOrNull { entry ->
+                entry.id == fragment.tag
+            }
+            if (entry != null) {
+                if (!state.backStack.value.contains(entry)) {
+                    state.markTransitionComplete(entry)
+                }
+            }
+        }
+    }
+
+    private val fragmentViewObserver = { entry: NavBackStackEntry ->
+        LifecycleEventObserver { _, event ->
+            // Once the lifecycle reaches RESUMED, if the entry is in the back stack we can mark
+            // the transition complete
+            if (event == Lifecycle.Event.ON_RESUME && state.backStack.value.contains(entry)) {
+                state.markTransitionComplete(entry)
+            }
+            // Once the lifecycle reaches DESTROYED, if the entry is not in the back stack, we can
+            // mark the transition complete
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                if (!state.backStack.value.contains(entry)) {
+                    state.markTransitionComplete(entry)
+                }
+            }
+        }
+    }
+
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
+
+        fragmentManager.addFragmentOnAttachListener { _, fragment ->
+            val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
+            if (entry != null) {
+                attachObservers(entry, fragment)
+                // We need to ensure that if the fragment has its state saved and then that state
+                // later cleared without the restoring the fragment that we also clear the state
+                // of the associated entry.
+                attachClearViewModel(fragment, entry, state)
+            }
+        }
+
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
             override fun onBackStackChanged() { }
 
             override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
                 // We only care about the pop case here since in the navigate case by the time
                 // we get here the fragment will have already been moved to STARTED.
-                // In the case of a pop, we move the top most entry from RESUMED to STARTED by
-                // calling prepareForTransition.
+                // In the case of a pop, we move the entries to STARTED
                 if (pop) {
-                    val entry = state.backStack.value.lastOrNull {
-                        it.id == fragment.tag &&
-                            it.lifecycle.currentState == Lifecycle.State.RESUMED
-                    }
+                    val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
                     entry?.let { state.prepareForTransition(it) }
                 }
             }
@@ -92,54 +139,63 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
-                if (entry != null && fragmentWasAddedOrPopped(fragment, entry)) {
-                    val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
-                    val currentState = viewLifecycle.currentState
-                    // We only need to add observers while the viewLifecycle has not reached a final
-                    // state
-                    if (currentState == Lifecycle.State.STARTED ||
-                        currentState == Lifecycle.State.CREATED
-                    ) {
-                        viewLifecycle.addObserver(object : LifecycleEventObserver {
-                            override fun onStateChanged(
-                                source: LifecycleOwner,
-                                event: Lifecycle.Event
-                            ) {
-                                // Once the lifecycle reaches RESUMED, we can mark the transition
-                                // complete
-                                if (event == Lifecycle.Event.ON_RESUME) {
-                                    state.markTransitionComplete(entry)
-                                }
-                                // Once the lifecycle reaches DESTROYED, we can mark the transition
-                                // complete and remove the observer.
-                                if (event == Lifecycle.Event.ON_DESTROY) {
-                                    state.markTransitionComplete(entry)
-                                    viewLifecycle.removeObserver(this)
-                                }
-                            }
-                        })
+                if (!pop) {
+                    requireNotNull(entry) {
+                        "The fragment " + fragment + " is unknown to the FragmentNavigator. " +
+                            "Please use the navigate() function to add fragments to the " +
+                            "FragmentNavigator managed FragmentManager."
                     }
-                    entriesToPop.remove(entry.id)
-                } else if (fragmentShouldBePopped(fragment, pop)) {
-                    // This is the case of system back where we will need to make the call to
-                    // popBackStack. Otherwise, popBackStack was called directly and this should
-                    // end up being a no-op.
-                    var entryToPop = state.backStack.value.last()
-                    popBackStack(entryToPop, false)
-                    // remove it so we don't falsely identify a direct call to popBackStack
-                    entriesToPop.remove(entryToPop.id)
+                }
+                if (entry != null) {
+                    // In case we get a fragment that was never attached to the fragment manager,
+                    // we need to make sure we still return the entries to their proper final state.
+                    attachClearViewModel(fragment, entry, state)
+                    if (pop) {
+                        // This is the case of system back where we will need to make the call to
+                        // popBackStack. Otherwise, popBackStack was called directly and this should
+                        // end up being a no-op.
+                        if (entriesToPop.isEmpty() && fragment.isRemoving) {
+                            state.popWithTransition(entry, false)
+                        }
+                    }
                 }
             }
-
-            fun fragmentWasAddedOrPopped(fragment: Fragment, entry: NavBackStackEntry): Boolean {
-                return fragment.view != null &&
-                    (fragment.isAdded || entriesToPop.contains(entry.id))
-            }
-
-            fun fragmentShouldBePopped(fragment: Fragment, pop: Boolean): Boolean {
-                return pop && entriesToPop.isEmpty() && !fragment.isAdded
-            }
         })
+    }
+
+    private fun attachObservers(entry: NavBackStackEntry, fragment: Fragment) {
+        fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
+            // attach observer unless it was already popped at this point
+            if (owner != null && !entriesToPop.contains(fragment.tag)) {
+                val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
+                // We only need to add observers while the viewLifecycle has not reached a final
+                // state
+                if (viewLifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    viewLifecycle.addObserver(fragmentViewObserver(entry))
+                }
+            }
+        }
+        fragment.lifecycle.addObserver(fragmentObserver)
+    }
+
+    internal fun attachClearViewModel(
+        fragment: Fragment,
+        entry: NavBackStackEntry,
+        state: NavigatorState
+    ) {
+        val viewModel = ViewModelProvider(
+            fragment.viewModelStore,
+            viewModelFactory { initializer { ClearEntryStateViewModel() } },
+            CreationExtras.Empty
+        )[ClearEntryStateViewModel::class.java]
+        viewModel.completeTransition =
+            WeakReference {
+                entry.let {
+                    state.transitionsInProgress.value.forEach { entry ->
+                        state.markTransitionComplete(entry)
+                    }
+                }
+            }
     }
 
     /**
@@ -161,14 +217,14 @@ public open class FragmentNavigator(
             )
             return
         }
+        val beforePopList = state.backStack.value
+        // Get the set of entries that are going to be popped
+        val poppedList = beforePopList.subList(
+            beforePopList.indexOf(popUpTo),
+            beforePopList.size
+        )
         if (savedState) {
-            val beforePopList = state.backStack.value
             val initialEntry = beforePopList.first()
-            // Get the set of entries that are going to be popped
-            val poppedList = beforePopList.subList(
-                beforePopList.indexOf(popUpTo),
-                beforePopList.size
-            )
             // Now go through the list in reversed order (i.e., started from the most added)
             // and save the back stack state of each.
             for (entry in poppedList.reversed()) {
@@ -188,7 +244,6 @@ public open class FragmentNavigator(
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
         }
-        entriesToPop.add(popUpTo.id)
         state.popWithTransition(popUpTo, savedState)
     }
 
@@ -520,5 +575,13 @@ public open class FragmentNavigator(
     private companion object {
         private const val TAG = "FragmentNavigator"
         private const val KEY_SAVED_IDS = "androidx-nav-fragment:navigator:savedIds"
+    }
+
+    internal class ClearEntryStateViewModel : ViewModel() {
+        lateinit var completeTransition: WeakReference<() -> Unit>
+        override fun onCleared() {
+            super.onCleared()
+            completeTransition.get()?.invoke()
+        }
     }
 }

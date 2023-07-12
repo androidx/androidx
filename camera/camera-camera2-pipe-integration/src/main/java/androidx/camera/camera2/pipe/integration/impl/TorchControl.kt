@@ -16,10 +16,10 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
+import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.TorchState
@@ -68,10 +68,7 @@ class TorchControl @Inject constructor(
         setTorchAsync(false)
     }
 
-    private val hasFlashUnit: Boolean =
-        cameraProperties.metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE].let {
-            it != null && it
-        }
+    private val hasFlashUnit: Boolean = cameraProperties.isFlashAvailable()
 
     private val _torchState = MutableLiveData(TorchState.OFF)
     val torchStateLiveData: LiveData<Int>

@@ -17,22 +17,13 @@
 package androidx.bluetooth.integration.testapp.ui.home
 
 import android.bluetooth.le.ScanResult
-import android.util.Log
 import androidx.lifecycle.ViewModel
 
 class HomeViewModel : ViewModel() {
 
-    companion object {
-        const val TAG = "HomeViewModel"
+    private companion object {
+        private const val TAG = "HomeViewModel"
     }
 
     val scanResults = mutableMapOf<String, ScanResult>()
-
-    init {
-        Log.d(TAG, "init called")
-    }
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared() called")
-    }
 }

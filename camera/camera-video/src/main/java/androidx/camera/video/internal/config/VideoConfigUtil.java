@@ -106,13 +106,13 @@ public final class VideoConfigUtil {
      * @param videoSpec              the video spec.
      * @param inputTimebase          the timebase of the input frame.
      * @param surfaceSize            the surface size.
-     * @param expectedFrameRateRange the expected frame rate range. It could be null.
+     * @param expectedFrameRateRange the expected frame rate range.
      * @return a VideoEncoderConfig.
      */
     @NonNull
     public static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
             @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
-            @NonNull Size surfaceSize, @Nullable Range<Integer> expectedFrameRateRange) {
+            @NonNull Size surfaceSize, @NonNull Range<Integer> expectedFrameRateRange) {
         Supplier<VideoEncoderConfig> configSupplier;
         VideoValidatedEncoderProfilesProxy profiles = videoMimeInfo.getCompatibleEncoderProfiles();
         if (profiles != null) {
@@ -125,37 +125,6 @@ public final class VideoConfigUtil {
         }
 
         return configSupplier.get();
-    }
-
-    static int resolveFrameRate(@NonNull Range<Integer> preferredRange,
-            int exactFrameRateHint, @Nullable Range<Integer> strictOperatingFpsRange) {
-        Range<Integer> refinedRange;
-        if (strictOperatingFpsRange != null) {
-            // We have a strict operating range. Our frame rate should always be in this
-            // range. Since we can only choose a single frame rate (which acts as a target for
-            // VBR), we can only fine tune our preferences within that range.
-            try {
-                // First, let's try to intersect with the preferred frame rate range since this
-                // could contain intent from the user.
-                refinedRange = strictOperatingFpsRange.intersect(preferredRange);
-            } catch (IllegalArgumentException ex) {
-                // Ranges are disjoint. Choose the closest extreme as our frame rate.
-                if (preferredRange.getUpper() < strictOperatingFpsRange.getLower()) {
-                    // Preferred range is below operating range.
-                    return strictOperatingFpsRange.getLower();
-                } else {
-                    // Preferred range is above operating range.
-                    return strictOperatingFpsRange.getUpper();
-                }
-            }
-        } else {
-            // We only have the preferred range as a hint since the operating range is null.
-            refinedRange = preferredRange;
-        }
-
-        // Finally, try to apply the exact frame rate hint to the refined range since
-        // other settings may expect this number.
-        return refinedRange.clamp(exactFrameRateHint);
     }
 
     static int scaleAndClampBitrate(

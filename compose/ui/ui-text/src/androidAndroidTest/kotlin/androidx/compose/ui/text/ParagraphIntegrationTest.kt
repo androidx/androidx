@@ -459,6 +459,78 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingFalse() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingTrue() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = true)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
     fun getBoundingBox_ltr_singleLine() {
         with(defaultDensity) {
             val text = "abc"
@@ -2833,7 +2905,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lineHeight_InEm_when_includeFontPadding_is_false() {
         val text = "abcdefgh"
@@ -2867,7 +2938,6 @@ class ParagraphIntegrationTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lineHeight_IsAppliedToFirstLine_when_includeFontPadding_is_true() {
         // values such as text or TextStyle attributes are from the b/227095468
@@ -3670,7 +3740,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_setBrush() {
         with(defaultDensity) {
@@ -3700,7 +3769,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_setBrushAlpha() {
         with(defaultDensity) {
@@ -3732,7 +3800,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testDefaultSpanStyle_overrideAlphaDuringDraw() {
         with(defaultDensity) {
@@ -4296,7 +4363,6 @@ class ParagraphIntegrationTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testSolidBrushColorIsSameAsColor() {
         with(defaultDensity) {
@@ -4323,7 +4389,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testSpanBrush_overridesDefaultBrush() {
         with(defaultDensity) {
@@ -4365,7 +4430,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun testBrush_notEffectedBy_TextDirection() {
         with(defaultDensity) {
@@ -4448,7 +4512,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun paint_withBlendMode_changesVisual() {
         with(defaultDensity) {
@@ -4484,7 +4547,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun paint_withBlendMode_sameResult() {
         with(defaultDensity) {

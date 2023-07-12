@@ -94,7 +94,7 @@ internal class CachedPageEventFlow<T : Any>(
     val downstreamFlow = flow {
         // track max event index we've seen to avoid race condition between history and the shared
         // stream
-        var maxEventIndex = Integer.MIN_VALUE
+        var maxEventIndex = Int.MIN_VALUE
         sharedForDownstream
             .takeWhile {
                 // shared flow cannot finish hence we have a special marker to finish it
@@ -108,6 +108,12 @@ internal class CachedPageEventFlow<T : Any>(
                 }
             }
     }
+
+    /**
+     * Returns cached data as PageEvent.Insert. Null if cached data is empty (for example on
+     * initial refresh).
+     */
+    internal fun getCachedEvent(): PageEvent.Insert<T>? = pageController.getCachedEvent()
 }
 
 private class FlattenedPageController<T : Any> {
@@ -141,6 +147,10 @@ private class FlattenedPageController<T : Any> {
             }
         }
     }
+
+    fun getCachedEvent(): PageEvent.Insert<T>? = list.getAsEvents().firstOrNull()?.let {
+        if (it is PageEvent.Insert && it.loadType == LoadType.REFRESH) it else null
+    }
 }
 
 /**
@@ -149,7 +159,7 @@ private class FlattenedPageController<T : Any> {
  *
  * There is no synchronization in this code so it should be used with locks around if necessary.
  */
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal class FlattenedPageEventStorage<T : Any> {
     private var placeholdersBefore: Int = 0
     private var placeholdersAfter: Int = 0

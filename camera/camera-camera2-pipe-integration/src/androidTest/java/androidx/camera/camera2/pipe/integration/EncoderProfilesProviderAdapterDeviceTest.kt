@@ -39,7 +39,9 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
+class EncoderProfilesProviderAdapterDeviceTest(
+    private val quality: Int,
+) {
 
     companion object {
         @JvmStatic
@@ -74,7 +76,10 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
 
         cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
         intCameraId = cameraId.toInt()
+        setUptEncoderProfileProvider()
+    }
 
+    private fun setUptEncoderProfileProvider() {
         encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId)
     }
 
@@ -187,13 +192,16 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
     }
 
     private fun skipTestOnDevicesWithProblematicBuild() {
-        // Skip test for b/265613005 and b/223439995
+        // Skip test for b/265613005, b/223439995 and b/277174217
         val hasVideoProfilesQuirk = DeviceQuirks[InvalidVideoProfilesQuirk::class.java] != null
-        val isProblematicCuttlefishBuild =
-            Build.MODEL.contains("Cuttlefish") && Build.ID.startsWith("TP1A")
         Assume.assumeFalse(
             "Skip test with null VideoProfile issue. Unable to test.",
-            hasVideoProfilesQuirk || isProblematicCuttlefishBuild
+            hasVideoProfilesQuirk || isProblematicCuttlefishBuild()
         )
+    }
+
+    private fun isProblematicCuttlefishBuild(): Boolean {
+        return Build.MODEL.contains("Cuttlefish", true) &&
+            (Build.ID.startsWith("TP1A", true) || Build.ID.startsWith("TSE4", true))
     }
 }

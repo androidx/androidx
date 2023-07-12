@@ -16,8 +16,8 @@
 package androidx.work.impl.constraints.trackers
 
 import android.content.Context
-import android.content.IntentFilter
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.annotation.RestrictTo
 import androidx.work.Logger
@@ -25,7 +25,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * Tracks whether or not the device's battery level is low.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BatteryNotLowTracker(context: Context, taskExecutor: TaskExecutor) :

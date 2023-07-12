@@ -38,7 +38,6 @@ import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
-import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -94,7 +93,7 @@ class BasicUITest(
 
     @Before
     fun setUp() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         // Use the natural orientation throughout these tests to ensure the activity isn't
         // recreated unexpectedly. This will also freeze the sensors until

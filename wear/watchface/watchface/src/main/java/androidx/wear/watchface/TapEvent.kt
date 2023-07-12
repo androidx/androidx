@@ -18,10 +18,11 @@ package androidx.wear.watchface
 
 import androidx.annotation.IntDef
 import androidx.annotation.Px
+import androidx.annotation.RestrictTo
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import java.time.Instant
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = [TapType.DOWN, TapType.UP, TapType.CANCEL])
 public annotation class TapType {
     public companion object {

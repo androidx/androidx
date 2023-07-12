@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -43,11 +42,11 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import java.util.Locale
+import kotlin.math.abs
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
-import kotlin.math.abs
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -420,7 +419,6 @@ class AccessibilityIteratorsTest {
         Truth.assertThat(range).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun multiLineText(
         text: String,
         fontSize: TextUnit = 20.sp,

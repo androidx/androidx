@@ -17,6 +17,8 @@
 package androidx.sqlite.db.framework
 
 import android.content.Context
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -107,5 +109,54 @@ class FrameworkSQLiteDatabaseTest {
 
         val actual = db1.attachedDbs?.map { it.first to it.second }
         assertThat(expected).isEqualTo(actual)
+    }
+
+    // b/271083856 and b/183028015
+    @Test
+    fun testFrameWorkSQLiteDatabase_onUpgrade_maxSqlCache() {
+        // Open and close DB at initial version.
+        openHelper.writableDatabase.use { db ->
+            db.execSQL("CREATE TABLE Foo (id INTEGER NOT NULL PRIMARY KEY, data TEXT)")
+            db.execSQL("INSERT INTO Foo (id, data) VALUES (1, 'bar')")
+        }
+
+        FrameworkSQLiteOpenHelper(
+            context,
+            dbName,
+            object : SupportSQLiteOpenHelper.Callback(10) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {
+                    // Do a query, this query will get cached, but we expect it to get evicted if
+                    // androidx.sqlite workarounds this issue by reducing the cache size.
+                    db.query("SELECT * FROM Foo").let { c ->
+                        assertThat(c.moveToNext()).isTrue()
+                        assertThat(c.getString(1)).isEqualTo("bar")
+                        c.close()
+                    }
+                    // Alter table, specifically make it so that using a cached query will be
+                    // troublesome.
+                    db.execSQL("ALTER TABLE Foo RENAME TO Foo_old")
+                    db.execSQL("CREATE TABLE Foo (id INTEGER NOT NULL PRIMARY KEY)")
+                    // Do an irrelevant query to evict the last SELECT statement, sadly this is
+                    // required because we can only reduce the cache size to 1, and only SELECT or
+                    // UPDATE statement are cache.
+                    // See frameworks/base/core/java/android/database/sqlite/SQLiteConnection.java;l=1209
+                    db.query("SELECT * FROM Foo_old").close()
+                    // Do earlier query, checking it is not cached
+                    db.query("SELECT * FROM Foo").let { c ->
+                        assertThat(c.columnNames.toList()).containsExactly("id")
+                        assertThat(c.count).isEqualTo(0)
+                        c.close()
+                    }
+                }
+            },
+            useNoBackupDirectory = false,
+            allowDataLossOnRecovery = false
+        ).writableDatabase.close()
     }
 }

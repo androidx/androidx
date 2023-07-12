@@ -42,7 +42,7 @@ class WorkManagerInitializationTest {
     @SdkSuppress(minSdkVersion = 24)
     fun directBootTest() {
         val context = DeviceProtectedStoreContext(true)
-        WorkManagerImpl(context, configuration, taskExecutor, true)
+        TestWorkManagerImpl(context, configuration, taskExecutor)
     }
 
     @Test
@@ -50,7 +50,7 @@ class WorkManagerInitializationTest {
     @SdkSuppress(minSdkVersion = 24)
     fun credentialBackedStorageTest() {
         val context = DeviceProtectedStoreContext(false)
-        val workManager = WorkManagerImpl(context, configuration, taskExecutor, true)
+        val workManager = TestWorkManagerImpl(context, configuration, taskExecutor)
         assertNotNull(workManager)
     }
 }

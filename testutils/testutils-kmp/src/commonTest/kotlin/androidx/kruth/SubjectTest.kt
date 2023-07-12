@@ -34,6 +34,77 @@ import kotlin.test.assertFailsWith
 class SubjectTest {
 
     @Test
+    fun isNull() {
+        val o: Any? = null
+        assertThat(o).isNull()
+    }
+
+    @Test
+    fun isNullFail() {
+        val o = Any()
+        assertFailsWith<AssertionError> {
+            assertThat(o).isNull()
+        }
+    }
+
+    @Test
+    fun isNullWhenSubjectForbidsIsEqualTo() {
+        ForbidsEqualityChecksSubject(null).isNull()
+    }
+
+    @Test
+    fun isNullWhenSubjectForbidsIsEqualToFail() {
+        assertFailsWith<AssertionError> {
+            ForbidsEqualityChecksSubject(Any()).isNull()
+        }
+    }
+
+    @Test
+    fun stringIsNullFail() {
+        assertFailsWith<AssertionError> {
+            assertThat("foo").isNull()
+        }
+    }
+
+    @Test
+    fun isNullBadEqualsImplementation() {
+        assertFailsWith<AssertionError> {
+            assertThat(ThrowsOnEqualsNull()).isNull()
+        }
+    }
+
+    @Test
+    fun isNotNull() {
+        val o = Any()
+        assertThat(o).isNotNull()
+    }
+
+    @Test
+    fun isNotNullFail() {
+        val o: Any? = null
+        assertFailsWith<AssertionError> {
+            assertThat(o).isNotNull()
+        }
+    }
+
+    @Test
+    fun isNotNullBadEqualsImplementation() {
+        assertThat(ThrowsOnEqualsNull()).isNotNull()
+    }
+
+    @Test
+    fun isNotNullWhenSubjectForbidsIsEqualTo() {
+        ForbidsEqualityChecksSubject(Any()).isNotNull()
+    }
+
+    @Test
+    fun isNotNullWhenSubjectForbidsIsEqualToFail() {
+        assertFailsWith<AssertionError> {
+            ForbidsEqualityChecksSubject(null).isNotNull()
+        }
+    }
+
+    @Test
     fun toStringsAreIdentical() {
         class IntWrapper(val wrapped: Int) {
             override fun toString(): String = wrapped.toString()
@@ -105,6 +176,322 @@ class SubjectTest {
     }
 
     @Test
+    fun isEqualToNestedArrays() {
+        fun getArray(): Array<*> =
+            arrayOf(
+                intArrayOf(1, 2, 3),
+                arrayOf(
+                    intArrayOf(1, 2, 3),
+                    arrayOf("a", null, "b"),
+                ),
+                listOf(1, 2, 3),
+                "a",
+            )
+
+        assertThat(getArray()).isEqualTo(getArray())
+    }
+
+    @Test
+    fun isEqualToNestedArraysFailsNotEqual() {
+        fun getArray(arg: Int): Array<*> =
+            arrayOf(
+                intArrayOf(1, 2, 3),
+                arrayOf(
+                    intArrayOf(1, arg, 3),
+                    arrayOf("a", null, "b"),
+                ),
+                listOf(1, 2, 3),
+                "a",
+            )
+
+        assertFailsWith<AssertionError> {
+            assertThat(getArray(arg = 10)).isEqualTo(getArray(arg = 20))
+        }
+    }
+
+    @Test
+    fun isEqualToByteArray() {
+        assertThat(byteArrayOf(0, 1, 2)).isEqualTo(byteArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToByteArrayEmpty() {
+        assertThat(byteArrayOf()).isEqualTo(byteArrayOf())
+    }
+
+    @Test
+    fun isEqualToByteArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(byteArrayOf(0, 1, 2)).isEqualTo(byteArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToIntArray() {
+        assertThat(intArrayOf(0, 1, 2)).isEqualTo(intArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToIntArrayEmpty() {
+        assertThat(intArrayOf()).isEqualTo(intArrayOf())
+    }
+
+    @Test
+    fun isEqualToIntArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(intArrayOf(0, 1, 2)).isEqualTo(intArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToLongArray() {
+        assertThat(longArrayOf(0, 1, 2)).isEqualTo(longArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToLongArrayEmpty() {
+        assertThat(longArrayOf()).isEqualTo(longArrayOf())
+    }
+
+    @Test
+    fun isEqualToLongArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(longArrayOf(0, 1, 2)).isEqualTo(longArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToFloatArray() {
+        assertThat(floatArrayOf(0F, 1F, 2F)).isEqualTo(floatArrayOf(0F, 1F, 2F))
+    }
+
+    @Test
+    fun isEqualToFloatArrayEmpty() {
+        assertThat(floatArrayOf()).isEqualTo(floatArrayOf())
+    }
+
+    @Test
+    fun isEqualToFloatArrayEmptyNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(floatArrayOf(0F, 1F, 2F)).isEqualTo(floatArrayOf(0F, 1F, 3F))
+        }
+    }
+
+    @Test
+    fun isEqualToDoubleArray() {
+        assertThat(doubleArrayOf(0.0, 1.0, 2.0)).isEqualTo(doubleArrayOf(0.0, 1.0, 2.0))
+    }
+
+    @Test
+    fun isEqualToDoubleArrayEmpty() {
+        assertThat(doubleArrayOf()).isEqualTo(doubleArrayOf())
+    }
+
+    @Test
+    fun isEqualToDoubleArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(doubleArrayOf(0.0, 1.0, 2.0)).isEqualTo(doubleArrayOf(0.0, 1.0, 3.0))
+        }
+    }
+
+    @Test
+    fun isEqualToShortArray() {
+        assertThat(shortArrayOf(0, 1, 2)).isEqualTo(shortArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToShortArrayEmpty() {
+        assertThat(shortArrayOf()).isEqualTo(shortArrayOf())
+    }
+
+    @Test
+    fun isEqualToShortArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(shortArrayOf(0, 1, 2)).isEqualTo(shortArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToCharArray() {
+        assertThat(charArrayOf('a', 'b', 'c')).isEqualTo(charArrayOf('a', 'b', 'c'))
+    }
+
+    @Test
+    fun isEqualToCharArrayEmpty() {
+        assertThat(charArrayOf()).isEqualTo(charArrayOf())
+    }
+
+    @Test
+    fun isEqualToCharArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(charArrayOf('a', 'b', 'c')).isEqualTo(charArrayOf('a', 'b', 'd'))
+        }
+    }
+
+    @Test
+    fun isNotEqualToWithNulls() {
+        val o: Any? = null
+        assertThat(o).isNotEqualTo("a")
+    }
+
+    @Test
+    fun isNotEqualToFailureWithNulls() {
+        val o: Any? = null
+        assertFailsWith<AssertionError> {
+            assertThat(o).isNotEqualTo(null)
+        }
+    }
+
+    @Test
+    fun isNotEqualToWithObjects() {
+        val a = Any()
+        val b = Any()
+        assertThat(a).isNotEqualTo(b)
+    }
+
+    @Test
+    fun isNotEqualToFailureWithObjects() {
+        val o: Any = 1000
+        assertFailsWith<AssertionError> {
+            assertThat(o).isNotEqualTo(1000)
+        }
+    }
+
+    @Test
+    fun isNotEqualToFailureWithSameObject() {
+        assertFailsWith<AssertionError> {
+            assertThat(object1).isNotEqualTo(object1)
+        }
+    }
+
+    @Test
+    fun isNotEqualToWithDifferentTypesAndSameToString() {
+        val a: Any = "true"
+        val b: Any = true
+        assertThat(a).isNotEqualTo(b)
+    }
+
+    @Test
+    fun isNotEqualToNullBadEqualsImplementation() {
+        assertThat(ThrowsOnEqualsNull()).isNotEqualTo(null)
+    }
+
+    @Test
+    fun isNotEqualToSameInstanceBadEqualsImplementation() {
+        val o: Any = ThrowsOnEquals()
+        assertFailsWith<AssertionError> {
+            assertThat(o).isNotEqualTo(o)
+        }
+    }
+
+    @Test
+    fun isSameInstanceAsWithNulls() {
+        val o: Any? = null
+        assertThat(o).isSameInstanceAs(null)
+    }
+
+    @Test
+    fun isSameInstanceAsFailureWithNulls() {
+        val o: Any? = null
+        assertFailsWith<AssertionError> {
+            assertThat(o).isSameInstanceAs("a")
+        }
+    }
+
+    @Test
+    fun isSameInstanceAsWithSameObject() {
+        val a = Any()
+        assertThat(a).isSameInstanceAs(a)
+    }
+
+    @Test
+    fun isSameInstanceAsFailureWithObjects() {
+        assertFailsWith<AssertionError> {
+            assertThat(object1).isSameInstanceAs(object2)
+        }
+    }
+
+    @Test
+    fun isSameInstanceAsFailureWithComparableObjects_nonString() {
+        class AlwaysEqual : Comparable<AlwaysEqual> {
+            override fun compareTo(other: AlwaysEqual): Int = 0
+        }
+
+        assertFailsWith<AssertionError> {
+            assertThat(AlwaysEqual()).isSameInstanceAs(AlwaysEqual())
+        }
+    }
+
+    @Test
+    fun isSameInstanceAsFailureWithComparableObjects() {
+        val a: Any = "ab"
+        val b: Any = buildString { append("ab") }
+        assertFailsWith<AssertionError> {
+            assertThat(a).isSameInstanceAs(b)
+        }
+    }
+
+    @Test
+    fun isSameInstanceAsFailureWithDifferentTypesAndSameToString() {
+        val a: Any = "true"
+        val b: Any = true
+        assertFailsWith<AssertionError> {
+            assertThat(a).isSameInstanceAs(b)
+        }
+    }
+
+    @Test
+    fun isNotSameInstanceAsWithNulls() {
+        val o: Any? = null
+        assertThat(o).isNotSameInstanceAs("a")
+    }
+
+    @Test
+    fun isNotSameInstanceAsFailureWithNulls() {
+        val o: Any? = null
+        assertFailsWith<AssertionError> {
+            assertThat(o).isNotSameInstanceAs(null)
+        }
+    }
+
+    @Test
+    fun isNotSameInstanceAsWithObjects() {
+        val a = Any()
+        val b = Any()
+        assertThat(a).isNotSameInstanceAs(b)
+    }
+
+    @Test
+    fun isNotSameInstanceAsFailureWithSameObject() {
+        assertFailsWith<AssertionError> {
+            assertThat(object1).isNotSameInstanceAs(object1)
+        }
+    }
+
+    @Test
+    fun isNotSameInstanceAsWithComparableObjects_nonString() {
+        class AlwaysEqual : Comparable<AlwaysEqual> {
+            override fun compareTo(other: AlwaysEqual): Int = 0
+        }
+
+        assertThat(AlwaysEqual()).isNotSameInstanceAs(AlwaysEqual())
+    }
+
+    @Test
+    fun isNotSameInstanceAsWithComparableObjects() {
+        val a: Any = "ab"
+        val b: Any = buildString { append("ab") }
+        assertThat(a).isNotSameInstanceAs(b)
+    }
+
+    @Test
+    fun isNotSameInstanceAsWithDifferentTypesAndSameToString() {
+        val a: Any = "true"
+        val b: Any = true
+        assertThat(a).isNotSameInstanceAs(b)
+    }
+
+    @Test
     fun isInstanceOfExactType() {
         assertThat("a").isInstanceOf<String>()
     }
@@ -144,6 +531,34 @@ class SubjectTest {
     fun isInstanceOfInterfaceForNull() {
         assertFailsWith<AssertionError> {
             assertThat(null as Any?).isInstanceOf<CharSequence>()
+        }
+    }
+
+    @Test
+    fun isNotInstanceOfExactType() {
+        assertFailsWith<AssertionError> {
+            assertThat(5).isNotInstanceOf<Int>()
+        }
+    }
+
+    @Test
+    fun isNotInstanceOfSuperclass() {
+        assertFailsWith<AssertionError> {
+            assertThat(5).isNotInstanceOf<Number>()
+        }
+    }
+
+    @Test
+    fun isNotInstanceOfImplementedInterface() {
+        assertFailsWith<AssertionError> {
+            assertThat("a").isNotInstanceOf<CharSequence>()
+        }
+    }
+
+    @Test
+    fun isNotInstanceOfPrimitiveType() {
+        assertFailsWith<AssertionError> {
+            assertThat(1).isNotInstanceOf<Int>()
         }
     }
 
@@ -306,3 +721,27 @@ private class ThrowsOnEqualsNull {
         return super.equals(other)
     }
 }
+
+/**
+ * Copied from Truth.
+ */
+private class ForbidsEqualityChecksSubject(actual: Any?) : Subject<Any>(actual) {
+    // Not sure how to feel about this, but people do it:
+    override fun isEqualTo(expected: Any?) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun isNotEqualTo(unexpected: Any?) {
+        throw UnsupportedOperationException()
+    }
+}
+
+private val object1: Any =
+    object : Any() {
+        override fun toString(): String = "Object 1"
+    }
+
+private val object2: Any =
+    object : Any() {
+        override fun toString(): String = "Object 2"
+    }

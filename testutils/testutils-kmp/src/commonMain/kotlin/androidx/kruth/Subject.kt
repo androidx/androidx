@@ -16,7 +16,9 @@
 
 package androidx.kruth
 
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertIsNot
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -35,9 +37,15 @@ open class Subject<out T>(val actual: T?) {
     /**
      *  Fails if the subject is not null.
      */
-    @Suppress("SyntheticAccessor")
-    fun isNull() {
+    open fun isNull() {
         actual.standardIsEqualTo(null)
+    }
+
+    /**
+     * Fails if the subject is null.
+     **/
+    open fun isNotNull() {
+        actual.standardIsNotEqualTo(null)
     }
 
     /**
@@ -60,15 +68,46 @@ open class Subject<out T>(val actual: T?) {
      * that will return the same result as long as [equals] is implemented according to the contract
      * for its type.
      */
-    @Suppress("SyntheticAccessor")
     open fun isEqualTo(expected: Any?) {
         actual.standardIsEqualTo(expected)
+    }
+
+    /**
+     * Fails if the subject is equal to the given object. The meaning of equality is the same as for
+     * the [isEqualTo] method.
+     */
+    open fun isNotEqualTo(unexpected: Any?) {
+        actual.standardIsNotEqualTo(unexpected)
+    }
+
+    /** Fails if the subject is not the same instance as the given object.  */
+    open fun isSameInstanceAs(expected: Any?) {
+        if (actual !== expected) {
+            fail(
+                "Expected ${actual.toStringForAssert()} to be the same instance as " +
+                    "${expected.toStringForAssert()}, but was not"
+            )
+        }
+    }
+
+    /** Fails if the subject is the same instance as the given object.  */
+    open fun isNotSameInstanceAs(unexpected: Any?) {
+        if (actual === unexpected) {
+            fail("Expected ${actual.toStringForAssert()} not to be specific instance, but it was")
+        }
     }
 
     /**
      * Fails if the subject is not an instance of the given class.
      */
     inline fun <reified V> isInstanceOf() = assertIs<V>(actual)
+
+    /**
+     * Fails if the subject is an instance of the given class.
+     **/
+    inline fun <reified V> isNotInstanceOf() {
+        assertIsNot<V>(actual)
+    }
 
     /** Fails unless the subject is equal to any element in the given [iterable]. */
     open fun isIn(iterable: Iterable<*>?) {
@@ -102,6 +141,14 @@ private fun Any?.standardIsEqualTo(expected: Any?) {
     )
 }
 
+private fun Any?.standardIsNotEqualTo(unexpected: Any?) {
+    assertFalse(
+        compareForEquality(unexpected),
+        "expected ${toStringForAssert()} not be equal to ${unexpected.toStringForAssert()}, " +
+            "but it was",
+    )
+}
+
 /**
  * Returns whether [this] equals [expected].
  *
@@ -116,7 +163,13 @@ private fun Any?.compareForEquality(expected: Any?): Boolean {
         this == null && expected == null -> true
         this == null || expected == null -> false
         this is ByteArray && expected is ByteArray -> contentEquals(expected)
-        this is Array<*> && expected is Array<*> -> contentEquals(expected)
+        this is IntArray && expected is IntArray -> contentEquals(expected)
+        this is LongArray && expected is LongArray -> contentEquals(expected)
+        this is FloatArray && expected is FloatArray -> contentEquals(expected)
+        this is DoubleArray && expected is DoubleArray -> contentEquals(expected)
+        this is ShortArray && expected is ShortArray -> contentEquals(expected)
+        this is CharArray && expected is CharArray -> contentEquals(expected)
+        this is Array<*> && expected is Array<*> -> contentDeepEquals(expected)
         isIntegralBoxedPrimitive() && expected.isIntegralBoxedPrimitive() -> {
             integralValue() == expected.integralValue()
         }

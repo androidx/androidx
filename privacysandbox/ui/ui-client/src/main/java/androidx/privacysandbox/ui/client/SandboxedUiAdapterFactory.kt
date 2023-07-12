@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ui.client
 
 import android.content.Context
+import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Binder
 import android.os.Build
@@ -106,6 +107,12 @@ object SandboxedUiAdapterFactory {
                     client.onSessionError(Throwable(errorString))
                 }
             }
+
+            override fun onResizeRequested(width: Int, height: Int) {
+                clientExecutor.execute {
+                    client.onResizeRequested(width, height)
+                }
+            }
         }
 
         private class SessionImpl(
@@ -114,6 +121,18 @@ object SandboxedUiAdapterFactory {
         ) : SandboxedUiAdapter.Session {
 
             override val view: View = surfaceView
+
+            override fun notifyConfigurationChanged(configuration: Configuration) {
+                remoteSessionController.notifyConfigurationChanged(configuration)
+            }
+
+            override fun notifyResized(width: Int, height: Int) {
+                remoteSessionController.notifyResized(width, height)
+            }
+
+            override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+                surfaceView.setZOrderOnTop(isZOrderOnTop)
+            }
 
             override fun close() {
                 remoteSessionController.close()

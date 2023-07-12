@@ -245,7 +245,7 @@ public final class ParcelCompat {
             return Api33Impl.readParcelable(in, loader, clazz);
         } else {
             T parcelable = in.readParcelable(loader);
-            if (!clazz.isInstance(parcelable)) {
+            if (parcelable != null && !clazz.isInstance(parcelable)) {
                 throw new BadParcelableException("Parcelable " + parcelable.getClass() + " is not "
                         + "a subclass of required class " + clazz.getName()
                         + " provided in the parameter");

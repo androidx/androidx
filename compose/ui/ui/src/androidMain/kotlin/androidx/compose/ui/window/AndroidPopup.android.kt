@@ -75,8 +75,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -391,7 +391,7 @@ internal class PopupLayout(
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal val params = createLayoutParams()
 
     /** The logic of positioning the popup relative to its parent. */
@@ -483,10 +483,12 @@ internal class PopupLayout(
         super.internalOnLayout(changed, left, top, right, bottom)
         // Now set the content size as fixed layout params, such that ViewRootImpl knows
         // the exact window size.
-        val child = getChildAt(0) ?: return
-        params.width = child.measuredWidth
-        params.height = child.measuredHeight
-        popupLayoutHelper.updateViewLayout(windowManager, this, params)
+        if (!properties.usePlatformDefaultWidth) {
+            val child = getChildAt(0) ?: return
+            params.width = child.measuredWidth
+            params.height = child.measuredHeight
+            popupLayoutHelper.updateViewLayout(windowManager, this, params)
+        }
     }
 
     private val displayWidth: Int
@@ -562,6 +564,13 @@ internal class PopupLayout(
         layoutDirection: LayoutDirection
     ) {
         this.onDismissRequest = onDismissRequest
+        if (properties.usePlatformDefaultWidth && !this.properties.usePlatformDefaultWidth) {
+            // Undo fixed size in internalOnLayout, which would suppress size changes when
+            // usePlatformDefaultWidth is true.
+            params.width = WindowManager.LayoutParams.WRAP_CONTENT
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT
+            popupLayoutHelper.updateViewLayout(windowManager, this, params)
+        }
         this.properties = properties
         this.testTag = testTag
         setIsFocusable(properties.focusable)
@@ -616,7 +625,7 @@ internal class PopupLayout(
      * changed since the last call, calls [updatePosition] to actually calculate the popup's new
      * position and update the window.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal fun updateParentBounds() {
         val coordinates = parentLayoutCoordinates ?: return
         val layoutSize = coordinates.size
@@ -752,7 +761,7 @@ internal class PopupLayout(
  * Collection of methods delegated to platform methods to support APIs only available on newer
  * platforms and testing.
  */
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal interface PopupLayoutHelper {
     fun getWindowVisibleDisplayFrame(composeView: View, outRect: Rect)
     fun setGestureExclusionRects(composeView: View, width: Int, height: Int)

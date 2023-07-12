@@ -24,6 +24,7 @@ import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.ParcelableVolumeInfo;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 

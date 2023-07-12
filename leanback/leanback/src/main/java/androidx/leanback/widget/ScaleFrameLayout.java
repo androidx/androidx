@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Subclass of FrameLayout that support scale layout area size for children.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ScaleFrameLayout extends FrameLayout {

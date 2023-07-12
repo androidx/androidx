@@ -55,6 +55,10 @@ internal fun AtomicInt.postIncrement(): Int = add(1) - 1
 
 expect annotation class CompositionContextLocal
 
+internal expect class WeakReference<T : Any>(reference: T) {
+    fun get(): T?
+}
+
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
 @Target(

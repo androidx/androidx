@@ -203,7 +203,7 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
             alignmentLinesOwner.requestMeasure()
         }
         if (usedByModifierLayout) {
-            parent.requestLayout()
+            alignmentLinesOwner.requestLayout()
         }
         parent.alignmentLines.onAlignmentsChanged()
     }

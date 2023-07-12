@@ -113,11 +113,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -352,7 +354,10 @@ class AndroidLayoutDrawTest {
         expectedCompositing: Boolean,
         expectedOverlappingRendering: Boolean
     ): Boolean {
-        val node = RenderNodeApi29(AndroidComposeView(activity)).apply {
+        val node = RenderNodeApi29(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.compositingStrategy = compositingStrategy
         }
         return expectedCompositing == node.isUsingCompositingLayer() &&
@@ -365,7 +370,10 @@ class AndroidLayoutDrawTest {
         expectedLayerType: Int,
         expectedOverlappingRendering: Boolean
     ): Boolean {
-        val node = RenderNodeApi23(AndroidComposeView(activity)).apply {
+        val node = RenderNodeApi23(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.compositingStrategy = compositingStrategy
         }
         return expectedLayerType == node.getLayerType() &&
@@ -378,7 +386,10 @@ class AndroidLayoutDrawTest {
         expectedOverlappingRendering: Boolean
     ): Boolean {
         val view = ViewLayer(
-            AndroidComposeView(activity),
+            AndroidComposeView(
+                activity,
+                Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+            ),
             ViewLayerContainer(activity),
             {},
             {}).apply {
@@ -412,7 +423,10 @@ class AndroidLayoutDrawTest {
     private fun verifyRenderNode29CameraDistance(cameraDistance: Float): Boolean =
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
-        RenderNodeApi29(AndroidComposeView(activity)).apply {
+        RenderNodeApi29(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.cameraDistance = cameraDistance
         }.dumpRenderNodeData().cameraDistance == cameraDistance
 
@@ -420,13 +434,19 @@ class AndroidLayoutDrawTest {
     private fun verifyRenderNode23CameraDistance(cameraDistance: Float): Boolean =
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
-        RenderNodeApi23(AndroidComposeView(activity)).apply {
+        RenderNodeApi23(AndroidComposeView(
+            activity,
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        )).apply {
             this.cameraDistance = cameraDistance
         }.dumpRenderNodeData().cameraDistance == -cameraDistance // Camera distance is negative
 
     private fun verifyViewLayerCameraDistance(cameraDistance: Float): Boolean {
         val layer = ViewLayer(
-            AndroidComposeView(activity),
+            AndroidComposeView(
+                activity,
+                Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+            ),
             ViewLayerContainer(activity),
             {},
             {}

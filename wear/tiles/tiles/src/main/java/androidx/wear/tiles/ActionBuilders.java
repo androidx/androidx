@@ -24,13 +24,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.StateBuilders.State;
 import androidx.wear.protolayout.proto.ActionProto;
 
 import java.util.Collections;
 import java.util.Map;
 
-/** Builders for actions that can be performed when a user interacts with layout elements. */
+/**
+ * Builders for actions that can be performed when a user interacts with layout elements.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.ActionBuilders} instead.
+ */
+@Deprecated
 public final class ActionBuilders {
     private ActionBuilders() {}
 
@@ -78,21 +82,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidStringExtra fromProto(@NonNull ActionProto.AndroidStringExtra proto) {
             return new AndroidStringExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidStringExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -135,21 +136,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidIntExtra fromProto(@NonNull ActionProto.AndroidIntExtra proto) {
             return new AndroidIntExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidIntExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -192,21 +190,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidLongExtra fromProto(@NonNull ActionProto.AndroidLongExtra proto) {
             return new AndroidLongExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidLongExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -249,21 +244,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidDoubleExtra fromProto(@NonNull ActionProto.AndroidDoubleExtra proto) {
             return new AndroidDoubleExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidDoubleExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -306,7 +298,6 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidBooleanExtra fromProto(
@@ -314,14 +305,12 @@ public final class ActionBuilders {
             return new AndroidBooleanExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidBooleanExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -357,11 +346,7 @@ public final class ActionBuilders {
      * to an Android activity. Supports types in android.os.PersistableBundle, excluding arrays.
      */
     public interface AndroidExtra {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidExtra toAndroidExtraProto();
@@ -369,8 +354,6 @@ public final class ActionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -443,14 +426,12 @@ public final class ActionBuilders {
                                                             f.getValue()))));
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidActivity fromProto(@NonNull ActionProto.AndroidActivity proto) {
             return new AndroidActivity(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ActionProto.AndroidActivity toProto() {
@@ -519,21 +500,18 @@ public final class ActionBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static LaunchAction fromProto(@NonNull ActionProto.LaunchAction proto) {
             return new LaunchAction(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LaunchAction toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -578,29 +556,26 @@ public final class ActionBuilders {
          * only.
          */
         @Nullable
-        public State getRequestState() {
+        public StateBuilders.State getRequestState() {
             if (mImpl.hasRequestState()) {
-                return State.fromProto(mImpl.getRequestState());
+                return StateBuilders.State.fromProto(mImpl.getRequestState());
             } else {
                 return null;
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static LoadAction fromProto(@NonNull ActionProto.LoadAction proto) {
             return new LoadAction(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LoadAction toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -621,7 +596,7 @@ public final class ActionBuilders {
              * a {@link androidx.wear.tiles.ModifiersBuilders.Clickable}.
              */
             @NonNull
-            public Builder setRequestState(@NonNull State requestState) {
+            public Builder setRequestState(@NonNull StateBuilders.State requestState) {
                 mImpl.setRequestState(requestState.toProto());
                 return this;
             }
@@ -636,11 +611,7 @@ public final class ActionBuilders {
 
     /** Interface defining an action that can be used by a layout element. */
     public interface Action {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         * @hide
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.Action toActionProto();
@@ -648,8 +619,6 @@ public final class ActionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

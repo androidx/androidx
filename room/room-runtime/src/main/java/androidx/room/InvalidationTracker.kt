@@ -466,7 +466,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     fun notifyObserversByTableNames(vararg tables: String) {
         synchronized(observerMap) {
             observerMap.forEach { (observer, wrapper) ->
@@ -549,7 +548,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     @Deprecated("Use [createLiveData(String[], boolean, Callable)]")
     open fun <T> createLiveData(
         tableNames: Array<out String>,
-        computeFunction: Callable<T>
+        computeFunction: Callable<T?>
     ): LiveData<T> {
         return createLiveData(tableNames, false, computeFunction)
     }
@@ -573,7 +572,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     open fun <T> createLiveData(
         tableNames: Array<out String>,
         inTransaction: Boolean,
-        computeFunction: Callable<T>
+        computeFunction: Callable<T?>
     ): LiveData<T> {
         return invalidationLiveDataContainer.create(
             validateAndResolveTableNames(tableNames), inTransaction, computeFunction

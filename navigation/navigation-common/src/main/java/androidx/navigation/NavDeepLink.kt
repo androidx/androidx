@@ -188,12 +188,30 @@ public class NavDeepLink internal constructor(
         getMatchingUriFragment(deepLink.fragment, bundle, arguments)
 
         // Check that all required arguments are present in bundle
-        for ((argName, argument) in arguments.entries) {
-            val argumentIsRequired = argument != null && !argument.isNullable &&
-                !argument.isDefaultValuePresent
-            if (argumentIsRequired && !bundle.containsKey(argName)) return null
+        val missingRequiredArguments = arguments.missingRequiredArguments { argName ->
+            !bundle.containsKey(argName)
         }
+        if (missingRequiredArguments.isNotEmpty()) return null
 
+        return bundle
+    }
+
+    /**
+     * Returns a bundle containing matching path and query arguments with the requested uri.
+     * It returns empty bundle if this Deeplink's path pattern does not match with the uri.
+     */
+    internal fun getMatchingPathAndQueryArgs(
+        deepLink: Uri?,
+        arguments: Map<String, NavArgument?>
+    ): Bundle {
+        val bundle = Bundle()
+        if (deepLink == null) return bundle
+        val matcher = pathPattern?.matcher(deepLink.toString()) ?: return bundle
+        if (!matcher.matches()) {
+            return bundle
+        }
+        getMatchingPathArguments(matcher, bundle, arguments)
+        if (isParameterizedQuery) getMatchingQueryArguments(deepLink, bundle, arguments)
         return bundle
     }
 

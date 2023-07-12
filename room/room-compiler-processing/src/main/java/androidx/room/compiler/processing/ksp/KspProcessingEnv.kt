@@ -28,9 +28,8 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
@@ -43,12 +42,13 @@ import com.google.devtools.ksp.symbol.Nullability
 import com.google.devtools.ksp.symbol.Variance
 
 internal class KspProcessingEnv(
-    override val options: Map<String, String>,
-    codeGenerator: CodeGenerator,
-    logger: KSPLogger,
+    val delegate: SymbolProcessorEnvironment,
     override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+    override val options = delegate.options
+    private val logger = delegate.logger
+    private val codeGenerator = delegate.codeGenerator
 
     // No API to get this but Kotlin's default is 8, so go with it for now.
     // TODO: https://github.com/google/ksp/issues/810
@@ -105,7 +105,7 @@ internal class KspProcessingEnv(
             env = this,
             ksType = resolver.builtIns.unitType,
             boxed = false,
-            jvmTypeResolver = null
+            scope = null
         )
 
     override fun findTypeElement(qName: String): KspTypeElement? {
@@ -227,7 +227,7 @@ internal class KspProcessingEnv(
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
-            jvmTypeResolver = null
+            scope = null
         )
     }
 
@@ -258,14 +258,14 @@ internal class KspProcessingEnv(
             return KspTypeVariableType(
                 env = this,
                 ksType = ksType,
-                jvmTypeResolver = null
+                scope = null
             )
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
-                return KspPrimitiveType(this, ksType, jvmTypeResolver = null)
+                return KspPrimitiveType(this, ksType, scope = null)
             }
             // special case for void
             if (qName == "kotlin.Unit") {
@@ -275,7 +275,7 @@ internal class KspProcessingEnv(
         return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(
             this,
             ksType,
-            jvmTypeResolver = null
+            scope = null
         )
     }
 
@@ -295,26 +295,8 @@ internal class KspProcessingEnv(
     /**
      * Resolves the wildcards for the given ksType. See [KSTypeVarianceResolver] for details.
      */
-    fun resolveWildcards(
-        /**
-         * The KSType whose wildcards variance will be resolved
-         */
-        ksType: KSType,
-        /**
-         * Default wildcard resolution strategy
-         */
-        wildcardMode: KSTypeVarianceResolver.WildcardMode,
-        /**
-         * The original declaration type if [ksType] is obtained via inheritance.
-         */
-        declarationType: KSType?
-    ): KSType {
-        return ksTypeVarianceResolver.applyTypeVariance(
-            ksType = ksType,
-            wildcardMode = wildcardMode,
-            declarationType = declarationType
-        )
-    }
+    internal fun resolveWildcards(ksType: KSType, scope: KSTypeVarianceResolverScope?) =
+        ksTypeVarianceResolver.applyTypeVariance(ksType, scope)
 
     internal fun clearCache() {
         typeElementStore.clear()

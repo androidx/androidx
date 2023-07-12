@@ -22,9 +22,9 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Intent
 import android.content.Intent.FILL_IN_COMPONENT
 import android.widget.RemoteViews
-import androidx.core.widget.RemoteViewsCompat
 import androidx.glance.appwidget.InsertedViewInfo
 import androidx.glance.appwidget.LayoutType
+import androidx.glance.appwidget.RemoteCollectionItems
 import androidx.glance.appwidget.TopLevelLayoutsCount
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
@@ -33,6 +33,8 @@ import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyList
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.setRemoteAdapter
+import androidx.glance.appwidget.toSizeString
 import androidx.glance.appwidget.translateChild
 import androidx.glance.appwidget.translateComposition
 import androidx.glance.layout.Alignment
@@ -67,7 +69,7 @@ private fun RemoteViews.translateEmittableLazyList(
             FILL_IN_COMPONENT or FLAG_MUTABLE or FLAG_UPDATE_CURRENT,
         )
     )
-    val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
+    val items = RemoteCollectionItems.Builder().apply {
         val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
         element.children.foldIndexed(false) { position, previous, itemEmittable ->
             itemEmittable as EmittableLazyListItem
@@ -85,11 +87,11 @@ private fun RemoteViews.translateEmittableLazyList(
         }.let { setHasStableIds(it) }
         setViewTypeCount(TopLevelLayoutsCount)
     }.build()
-    RemoteViewsCompat.setRemoteAdapter(
+    setRemoteAdapter(
         translationContext.context,
-        this,
         translationContext.appWidgetId,
         viewDef.mainViewId,
+        translationContext.layoutSize.toSizeString(),
         items
     )
     applyModifiers(translationContext, this, element.modifier, viewDef)

@@ -25,13 +25,13 @@ import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import java.util.Locale
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
 
 // Fetch default locale as early as possible (e.g., before initializing LocaleTestUtilsTest class)
 private val DEFAULT_LANGUAGE = Locale.getDefault().toString()

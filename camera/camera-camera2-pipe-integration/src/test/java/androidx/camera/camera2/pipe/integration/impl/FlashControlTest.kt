@@ -20,6 +20,11 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
@@ -42,6 +47,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -70,9 +76,26 @@ class FlashControlTest {
     )
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
     private val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-    private val state3AControl = State3AControl(FakeCameraProperties(metadata)).apply {
-        useCaseCamera = fakeUseCaseCamera
-    }
+    private val aeFpsRange = AeFpsRange(
+        CameraQuirks(
+            FakeCameraMetadata(),
+            StreamConfigurationMapCompat(
+                StreamConfigurationMapBuilder.newBuilder().build(),
+                OutputSizesCorrector(
+                    FakeCameraMetadata(),
+                    StreamConfigurationMapBuilder.newBuilder().build()
+                )
+            )
+        )
+    )
+    private val state3AControl =
+        State3AControl(
+            FakeCameraProperties(metadata),
+            NoOpAutoFlashAEModeDisabler,
+            aeFpsRange
+            ).apply {
+            useCaseCamera = fakeUseCaseCamera
+        }
     private lateinit var flashControl: FlashControl
 
     @Before
@@ -90,7 +113,11 @@ class FlashControlTest {
         val fakeCameraProperties = FakeCameraProperties()
 
         val flashControl = FlashControl(
-            State3AControl(fakeCameraProperties).apply {
+            State3AControl(
+                fakeCameraProperties,
+                NoOpAutoFlashAEModeDisabler,
+                aeFpsRange
+            ).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,

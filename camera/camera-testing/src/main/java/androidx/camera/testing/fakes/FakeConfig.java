@@ -30,7 +30,6 @@ import androidx.camera.core.impl.ReadableConfig;
 /**
  * Wrapper for an empty Config
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)

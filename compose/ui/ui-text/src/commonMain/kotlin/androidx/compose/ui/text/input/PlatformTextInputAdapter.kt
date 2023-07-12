@@ -21,8 +21,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -35,11 +35,13 @@ import kotlinx.coroutines.launch
 private const val DEBUG = false
 
 /** See kdoc on actual interfaces. */
+// Experimental in desktop.
 @ExperimentalTextApi
 @Immutable
 expect interface PlatformTextInputPlugin<T : PlatformTextInputAdapter>
 
 /** See kdoc on actual interfaces. */
+// Experimental in desktop.
 @ExperimentalTextApi
 expect interface PlatformTextInputAdapter
 
@@ -47,6 +49,7 @@ expect interface PlatformTextInputAdapter
  * Calls the [PlatformTextInputAdapter]'s onDisposed method. This is done through a proxy method
  * because expect interfaces aren't allowed to have default implementations.
  */
+// Experimental in desktop.
 @OptIn(ExperimentalTextApi::class)
 internal expect fun PlatformTextInputAdapter.dispose()
 
@@ -103,6 +106,8 @@ sealed interface PlatformTextInputPluginRegistry {
      * @param T The type of [PlatformTextInputAdapter] that [plugin] creates.
      * @param plugin The factory for adapters and the key into the cache of those adapters.
      */
+    // Experimental in desktop.
+    @OptIn(ExperimentalTextApi::class)
     @Composable
     fun <T : PlatformTextInputAdapter> rememberAdapter(plugin: PlatformTextInputPlugin<T>): T
 }
@@ -116,6 +121,7 @@ sealed interface PlatformTextInputPluginRegistry {
  */
 // This doesn't violate the EndsWithImpl rule because it's not public API.
 @Suppress("EndsWithImpl")
+// Experimental in desktop.
 @OptIn(ExperimentalTextApi::class)
 @InternalTextApi
 class PlatformTextInputPluginRegistryImpl(
@@ -288,7 +294,7 @@ class PlatformTextInputPluginRegistryImpl(
          * This is backed by a MutableState because it is incremented in [getOrCreateAdapter] which
          * can be called directly from a composition, inside a [remember] block.
          */
-        private var refCount by mutableStateOf(0)
+        private var refCount by mutableIntStateOf(0)
 
         val isRefCountZero get() = refCount == 0
 

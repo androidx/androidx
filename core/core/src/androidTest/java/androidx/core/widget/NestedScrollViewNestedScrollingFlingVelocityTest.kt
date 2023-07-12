@@ -25,6 +25,7 @@ import android.widget.FrameLayout
 import androidx.core.view.NestedScrollingParent3
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import java.util.Arrays
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.junit.Before
@@ -32,7 +33,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.Arrays
 
 /**
  * This test verifies that the velocity that NestedScrollView flings with in response to finger

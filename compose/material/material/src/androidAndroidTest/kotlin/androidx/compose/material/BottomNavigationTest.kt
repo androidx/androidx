@@ -199,24 +199,24 @@ class BottomNavigationTest {
             .getUnclippedBoundsInRoot()
         val textBounds = rule.onNodeWithText("ItemText").getUnclippedBoundsInRoot()
 
-        // Distance from the bottom to the text baseline and from the text baseline to the
-        // bottom of the icon
+        val topPadding = 8.dp
+        // Distance from the text baseline to the bottom of the icon
         val textBaseline = 12.dp
 
         // Relative position of the baseline to the top of text
-        val relativeTextBaseline = rule.onNodeWithText("ItemText").getLastBaselinePosition()
+        val relativeTextBaseline = rule.onNodeWithText("ItemText").getFirstBaselinePosition()
         // Absolute y position of the text baseline
         val absoluteTextBaseline = textBounds.top + relativeTextBaseline
 
-        val itemBottom = itemBounds.height + itemBounds.top
-        // Text baseline should be 12.dp from the bottom of the item
-        absoluteTextBaseline.assertIsEqualTo(itemBottom - textBaseline)
+        val iconBottom = iconBounds.height + iconBounds.top
+        // Text baseline should be 12.dp from the bottom of the icon
+        absoluteTextBaseline.assertIsEqualTo(iconBottom + textBaseline)
 
         rule.onNodeWithTag("icon", useUnmergedTree = true)
-            // The icon should be centered in the item
+            // The icon should be horizontally centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
-            // The bottom of the icon is 12.dp above the text baseline
-            .assertTopPositionInRootIsEqualTo(absoluteTextBaseline - 12.dp - iconBounds.height)
+            // The icon is 8.dp from the top
+            .assertTopPositionInRootIsEqualTo(topPadding)
     }
 
     @Test

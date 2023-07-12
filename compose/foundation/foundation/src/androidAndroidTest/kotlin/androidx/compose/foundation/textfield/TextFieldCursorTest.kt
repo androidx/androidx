@@ -55,11 +55,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toOffset
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -305,6 +307,7 @@ class TextFieldCursorTest {
             )
     }
 
+    @Ignore // b/271927667
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whileTyping() = with(rule.density) {
@@ -347,6 +350,7 @@ class TextFieldCursorTest {
     }
 
     @Test
+    @FlakyTest(bugId = 283292820)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionChanges_cursorNotBlinking() = with(rule.density) {
         rule.mainClock.autoAdvance = false

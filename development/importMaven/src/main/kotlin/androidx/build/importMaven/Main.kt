@@ -225,7 +225,7 @@ internal abstract class BaseImportMavenCommand(
         repositories?.let {
             extraRepositories.addAll(it)
         }
-        val resolvedArtifacts = ArtifactResolver.resolveArtifacts(
+        val result = ArtifactResolver.resolveArtifacts(
             artifacts = artifactsToBeResolved,
             additionalRepositories = extraRepositories,
             explicitlyFetchInheritedDependencies = explicitlyFetchInheritedDependencies,
@@ -239,6 +239,7 @@ internal abstract class BaseImportMavenCommand(
             },
             downloadObserver = downloader
         )
+        val resolvedArtifacts = result.artifacts
         if (cleanLocalRepo) {
             downloader.cleanupLocalRepositories()
         }
@@ -263,6 +264,14 @@ internal abstract class BaseImportMavenCommand(
                 https://issuetracker.google.com/issues/new?component=705292[0m
                 """.trimIndent()
             )
+        } else {
+            if (!result.dependenciesPassedVerification) {
+                logger.warn(
+                   """
+                   [33mOur Gradle build won't trust any artifacts that are unsigned or are signed with new keys. To trust these artifacts, run `development/update-verification-metadata.sh
+                   """.trimIndent()
+                )
+            }
         }
         flushLogs()
     }

@@ -39,3 +39,8 @@ internal fun requireNonNegative(value: Double, name: String) {
 internal fun Map<String, Int>.reverse(): Map<Int, String> {
     return entries.associateBy({ it.value }, { it.key })
 }
+
+internal fun <T : Comparable<T>> T.requireInRange(min: T, max: T, name: String) {
+    requireNotLess(min, name)
+    requireNotMore(max, name)
+}

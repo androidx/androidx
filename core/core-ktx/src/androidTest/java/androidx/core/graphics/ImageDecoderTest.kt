@@ -20,11 +20,11 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
 
 @SdkSuppress(minSdkVersion = 28)
 @SmallTest

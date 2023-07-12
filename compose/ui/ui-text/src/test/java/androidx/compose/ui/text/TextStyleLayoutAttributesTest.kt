@@ -27,8 +27,8 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.LineHeightStyle.Alignment
+import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
@@ -75,7 +75,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_color_to_brush_change() {
         val style = TextStyle(color = Color.Red)
@@ -84,7 +83,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_to_color_change() {
         val style = TextStyle(brush = SolidColor(Color.Green))
@@ -93,7 +91,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_solid_color_change() {
         val style = TextStyle(brush = SolidColor(Color.Red))
@@ -103,7 +100,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_shader_change() {
         val style = TextStyle(brush = Brush.linearGradient(listOf(Color.Black, Color.White)))
@@ -114,7 +110,6 @@ class TextStyleLayoutAttributesTest {
         ).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_true_for_brush_alpha_change() {
         val brush = Brush.linearGradient(listOf(Color.Black, Color.White))
@@ -286,19 +281,16 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-// TODO: `includeFontPadding` is not available on desktop. Comment out when `includeFontPadding` is removed in upstream.
-// keep this comment in JB fork.
-//    @Suppress("DEPRECATION")
-//    @OptIn(ExperimentalTextApi::class)
-//    @Test
-//    fun returns_false_for_platformStyle_change() {
-//        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-//        assertThat(
-//            style.hasSameLayoutAffectingAttributes(
-//                TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
-//            )
-//        ).isFalse()
-//    }
+    @Suppress("DEPRECATION")
+    @Test
+    fun returns_false_for_platformStyle_change() {
+        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        assertThat(
+            style.hasSameLayoutAffectingAttributes(
+                TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+            )
+        ).isFalse()
+    }
 
     @Test
     fun returns_false_for_color_and_textAlign_change() {
@@ -310,7 +302,6 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_lineHeightStyle_change() {
         val style = TextStyle(
@@ -331,7 +322,6 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_lineBreak_change() {
         val style = TextStyle(

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.core.graphics.Insets as AndroidXInsets
 import android.os.Build
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
@@ -28,16 +27,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.R
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.graphics.Insets as AndroidXInsets
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import java.util.WeakHashMap
-import androidx.compose.ui.R
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import org.jetbrains.annotations.TestOnly
 
 internal fun AndroidXInsets.toInsetsValues(): InsetsValues =

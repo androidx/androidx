@@ -70,7 +70,6 @@ public abstract class Visibility extends Transition {
      */
     public static final int MODE_OUT = 0x2;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @SuppressLint("UniqueConstants") // because MODE_IN and Fade.IN are aliases.
     @IntDef(flag = true, value = {MODE_IN, MODE_OUT, Fade.IN, Fade.OUT})

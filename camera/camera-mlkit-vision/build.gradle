@@ -58,7 +58,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera MLKit Vision Library"
+    name = "Camera MLKit Vision"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     runApiTasks = new RunApiTasks.Yes()

@@ -20,13 +20,13 @@ import androidx.datastore.FileTestIO
 import androidx.datastore.JavaIOFile
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import kotlinx.coroutines.flow.first
 import org.junit.Test
 
@@ -37,7 +37,7 @@ class DataMigrationInitializerTestFileTest :
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @InternalCoroutinesApi
-class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
+class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
 
     @Test
     fun testMutatingDataStoreFails() = doTest {
@@ -78,6 +78,8 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
 
     @Test
     fun testReadUnreadableFile() = doTest {
+        // ensure the file exists by writing into it
+        testFile.file.writeText("")
         testFile.file.setReadable(false)
         val result = runCatching {
             store.data.first()
@@ -89,6 +91,8 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
 
     @Test
     fun testReadAfterTransientBadRead() = doTest {
+        // ensure the file exists by writing into it
+        testFile.file.writeText("")
         testFile.file.setReadable(false)
 
         assertThrows<IOException> { store.data.first() }.hasMessageThat()

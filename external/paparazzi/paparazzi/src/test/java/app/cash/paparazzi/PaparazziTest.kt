@@ -27,11 +27,11 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Button
 import com.android.internal.lang.System_Delegate
+import java.util.concurrent.TimeUnit
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 class PaparazziTest {
   @get:Rule

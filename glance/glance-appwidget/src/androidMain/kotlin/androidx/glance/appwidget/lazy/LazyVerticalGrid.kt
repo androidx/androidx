@@ -15,17 +15,17 @@
  */
 
 package androidx.glance.appwidget.lazy
-import androidx.compose.runtime.Composable
-import androidx.glance.GlanceModifier
-import androidx.glance.GlanceNode
-import androidx.glance.layout.Alignment
-import androidx.glance.EmittableWithChildren
-import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.wrapContentHeight
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
 import androidx.glance.Emittable
+import androidx.glance.EmittableWithChildren
+import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.wrapContentHeight
 
 /**
  * The DSL implementation of a lazy grid layout. It composes only visible rows of the grid.
@@ -34,8 +34,9 @@ import androidx.glance.Emittable
  * @param modifier the modifier to apply to this layout
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param content a block which describes the content. Inside this block you can use methods like
- * [LazyVerticalGridScope.item] to add a single item or
- * [LazyVerticalGridScope.items] to add a list of items.
+ * [LazyVerticalGridScope.item] to add a single item or [LazyVerticalGridScope.items] to add a list
+ * of items. If the item has more than one top-level child, they will be automatically wrapped in a
+ * Box.
  */
 @Composable
 fun LazyVerticalGrid(

@@ -43,21 +43,15 @@ public interface BoundDynamicType extends AutoCloseable {
     /**
      * Sets the visibility to all animations in this dynamic type. They can be triggered when
      * visible.
-     *
-     * @hide
      */
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void setAnimationVisibility(boolean visible);
 
-    /**
-     * Returns the number of currently running animations in this dynamic type.
-     *
-     * @hide
-     */
+    /** Returns the number of currently running animations in this dynamic type. */
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     int getRunningAnimationCount();
 
     /** Destroys this dynamic type and it shouldn't be used after this. */
@@ -65,13 +59,9 @@ public interface BoundDynamicType extends AutoCloseable {
     @Override
     void close();
 
-    /**
-     * Returns the number of dynamic nodes that this dynamic type contains.
-     *
-     * @hide
-     */
+    /** Returns the number of dynamic nodes that this dynamic type contains. */
     @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     int getDynamicNodeCount();
 }

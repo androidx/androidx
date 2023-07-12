@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -24,9 +25,11 @@ import android.widget.TextView;
 
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
+import androidx.test.uiautomator.UiObject2;
 
 import org.junit.Test;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class BySelectorTest extends BaseTest {
@@ -318,6 +321,61 @@ public class BySelectorTest extends BaseTest {
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N2").depth(1)));
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N3").depth(1)));
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "tree_N4").depth(2)));
+    }
+
+    @Test
+    public void testHasParent() {
+        launchTestActivity(ParentChildTestActivity.class);
+        BySelector n1 = By.res(TEST_APP, "tree_N1"); // grandparent
+        BySelector n3 = By.res(TEST_APP, "tree_N3"); // parent
+        BySelector n4 = By.res(TEST_APP, "tree_N4"); // sibling
+        BySelector n5 = By.res(TEST_APP, "tree_N5"); // child
+
+        // Can search by parent-child relationship.
+        UiObject2 child = mDevice.findObject(By.copy(n5).hasParent(n3));
+        assertEquals("tree_N5", child.getText());
+
+        // Can find all children by parent-child relationship.
+        List<UiObject2> descendants = mDevice.findObjects(By.hasParent(n3));
+        assertEquals(2, descendants.size());
+
+        // Parent selector can have a parent (grandparent search).
+        UiObject2 grandchild = mDevice.findObject(By.copy(n5).hasParent(By.hasParent(n1)));
+        assertEquals("tree_N5", grandchild.getText());
+
+        // Parent selectors can have children (sibling search).
+        UiObject2 sibling = mDevice.findObject(By.copy(n4).hasParent(By.hasChild(n5)));
+        assertEquals("tree_N4", sibling.getText());
+
+        // Parent must be a direct ancestor.
+        assertFalse(mDevice.hasObject(By.copy(n5).hasParent(n1)));
+        assertFalse(mDevice.hasObject(By.copy(n5).hasParent(n4)));
+    }
+
+    @Test
+    public void testHasAncestor() {
+        launchTestActivity(ParentChildTestActivity.class);
+        BySelector n1 = By.res(TEST_APP, "tree_N1"); // grandparent
+        BySelector n3 = By.res(TEST_APP, "tree_N3"); // parent
+        BySelector n4 = By.res(TEST_APP, "tree_N4"); // sibling
+        BySelector n5 = By.res(TEST_APP, "tree_N5"); // child
+
+        // Can search by any ancestor or a subset of ancestors.
+        assertTrue(mDevice.hasObject(By.copy(n5).hasAncestor(n1)));
+        assertTrue(mDevice.hasObject(By.copy(n5).hasAncestor(n3)));
+        assertFalse(mDevice.hasObject(By.copy(n5).hasAncestor(n4)));
+        assertTrue(mDevice.hasObject(By.copy(n5).hasAncestor(n1, 2)));
+        assertTrue(mDevice.hasObject(By.copy(n5).hasAncestor(n3, 1)));
+        assertFalse(mDevice.hasObject(By.copy(n5).hasAncestor(n1, 1)));
+
+        // Can find all descendants (N2, N3, N4, N5).
+        List<UiObject2> descendants = mDevice.findObjects(By.hasAncestor(n1));
+        assertEquals(4, descendants.size());
+
+        // Ancestor selectors can have ancestors and descendants.
+        assertTrue(mDevice.hasObject(By.copy(n5).hasAncestor(By.hasAncestor(n1))));
+        assertFalse(mDevice.hasObject(By.copy(n5).hasAncestor(By.hasAncestor(n3))));
+        assertTrue(mDevice.hasObject(By.copy(n5).hasAncestor(By.hasDescendant(n3))));
     }
 
     @Test

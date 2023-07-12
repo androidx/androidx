@@ -101,8 +101,8 @@ sealed class CompilationMode {
                         val output = Shell.executeScriptCaptureStdout(
                             "cmd package compile --reset $packageName"
                         )
-                        check(output.trim() == "Success") {
-                            "Unable to recompile $packageName ($output)"
+                        check(output.trim() == "Success" || output.contains("PERFORMED")) {
+                            "Unable to recompile $packageName (out=$output)"
                         }
                     } else {
                         // User builds pre-U. Kick off a full uninstall-reinstall
@@ -119,38 +119,48 @@ sealed class CompilationMode {
         }
     }
 
-    // This is a more expensive when compared to `compile --reset`.
+    /**
+     * A more expensive alternative to `compile --reset` which doesn't preserve app data, but
+     * does work on older APIs without root
+     */
     private fun reinstallPackage(packageName: String) {
         userspaceTrace("reinstallPackage") {
-            val packagePath = Shell.executeScriptCaptureStdout("pm path $packageName")
-            // The result looks like: `package: <result>`
-            val apkPath = packagePath.substringAfter("package:").trim()
-            // Copy the APK to /data/local/temp
-            val tempApkPath = "/data/local/tmp/$packageName-${System.currentTimeMillis()}.apk"
-            Log.d(TAG, "Copying APK to $tempApkPath")
-            val result = Shell.executeScriptCaptureStdout(
-                "cp $apkPath $tempApkPath"
-            )
+
+            // Copy APKs to /data/local/temp
+            val apkPaths = Shell.pmPath(packageName)
+
+            val tempApkPaths: List<String> = apkPaths.mapIndexed { index, apkPath ->
+                val tempApkPath =
+                    "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
+                Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
+                Shell.executeScriptSilent(
+                    "cp $apkPath $tempApkPath"
+                )
+                tempApkPath
+            }
+            val tempApkPathsString = tempApkPaths.joinToString(" ")
+
             try {
                 // Uninstall package
                 // This is what effectively clears the ART profiles
                 Log.d(TAG, "Uninstalling $packageName")
                 var output = Shell.executeScriptCaptureStdout("pm uninstall $packageName")
                 check(output.trim() == "Success") {
-                    "Unable to uninstall $packageName ($result)"
+                    "Unable to uninstall $packageName ($output)"
                 }
                 // Install the APK from /data/local/tmp
                 Log.d(TAG, "Installing $packageName")
                 // Provide a `-t` argument to `pm install` to ensure test packages are
                 // correctly installed. (b/231294733)
-                output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPath")
-                check(output.trim() == "Success") {
-                    "Unable to install $packageName ($result)"
+                output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPathsString")
+
+                check(output.trim() == "Success" || output.contains("PERFORMED")) {
+                    "Unable to install $packageName (out=$output)"
                 }
             } finally {
                 // Cleanup the temporary APK
-                Log.d(TAG, "Deleting $tempApkPath")
-                Shell.executeScriptSilent("rm $tempApkPath")
+                Log.d(TAG, "Deleting $tempApkPathsString")
+                Shell.executeScriptSilent("rm $tempApkPathsString")
             }
         }
     }
@@ -423,7 +433,9 @@ sealed class CompilationMode {
             val stdout = Shell.executeScriptCaptureStdout(
                 "cmd package compile -f -m $compileArgument $packageName"
             )
-            check(stdout.trim() == "Success")
+            check(stdout.trim() == "Success" || stdout.contains("PERFORMED")) {
+                "Failed to compile (out=$stdout)"
+            }
         }
     }
 }

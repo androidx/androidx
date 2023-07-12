@@ -167,7 +167,7 @@ import java.util.Map;
  *     /&gt;</pre>
  *     Represents files in the root of your app's external storage area. The root path of this
  *     subdirectory is the same as the value returned by
- *     {@code Context#getExternalFilesDir(String) Context.getExternalFilesDir(null)}.
+ *     {@link Context#getExternalFilesDir(String) Context.getExternalFilesDir(null)}.
  *     </li>
  *     <li>
  *     <pre class="prettyprint">&lt;external-cache-path name="<i>name</i>" path="<i>path</i>"
@@ -566,6 +566,17 @@ public class FileProvider extends ContentProvider {
             }
         }
 
+        return "application/octet-stream";
+    }
+
+    /**
+     * Unrestricted version of getType
+     * called, when caller does not have corresponding permissions
+     */
+    //@Override
+    @SuppressWarnings("MissingOverride")
+    @Nullable
+    public String getTypeAnonymous(@NonNull Uri uri) {
         return "application/octet-stream";
     }
 

@@ -16,14 +16,12 @@
 
 package androidx.window.testing.layout
 
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.WindowMetricsCalculatorDecorator
 
 /**
  * A decorator to return [StubWindowMetricsCalculator] instead of the actual implementation.
  */
-@ExperimentalWindowApi
 internal object StubMetricDecorator : WindowMetricsCalculatorDecorator {
     override fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator {
         return StubWindowMetricsCalculator()

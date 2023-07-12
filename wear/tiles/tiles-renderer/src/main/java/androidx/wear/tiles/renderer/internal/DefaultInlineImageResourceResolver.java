@@ -35,6 +35,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.nio.ByteBuffer;
 
 /** Resource resolver for inline resources. */
+// TODO(b/276703002): Add support for ARGB_8888 images.
 public class DefaultInlineImageResourceResolver implements InlineImageResourceResolver {
     private static final int RGB565_BYTES_PER_PX = 2;
 
@@ -83,6 +84,7 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
                 return Config.RGB_565;
             case IMAGE_FORMAT_UNDEFINED:
             case UNRECOGNIZED:
+            case IMAGE_FORMAT_ARGB_8888:
                 return null;
         }
 

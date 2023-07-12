@@ -9,6 +9,7 @@ package androidx.camera.video {
     field public static final int AUDIO_STATE_ACTIVE = 0; // 0x0
     field public static final int AUDIO_STATE_DISABLED = 1; // 0x1
     field public static final int AUDIO_STATE_ENCODER_ERROR = 3; // 0x3
+    field public static final int AUDIO_STATE_MUTED = 5; // 0x5
     field public static final int AUDIO_STATE_SOURCE_ERROR = 4; // 0x4
     field public static final int AUDIO_STATE_SOURCE_SILENCED = 2; // 0x2
   }
@@ -120,6 +121,7 @@ package androidx.camera.video {
 
   @RequiresApi(21) public final class Recording implements java.lang.AutoCloseable {
     method public void close();
+    method public void mute(boolean);
     method public void pause();
     method public void resume();
     method public void stop();
@@ -132,8 +134,21 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
+    method public int getMirrorMode();
     method public T getOutput();
+    method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
+    method public int getTargetRotation();
+    method public void setTargetRotation(int);
+    method @Deprecated public void setTargetRotationDegrees(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
+  }
+
+  @RequiresApi(21) public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture> {
+    ctor public VideoCapture.Builder(T);
+    method public androidx.camera.video.VideoCapture<T!> build();
+    method public androidx.camera.video.VideoCapture.Builder<T!> setMirrorMode(int);
+    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
+    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);
   }
 
   @RequiresApi(21) public interface VideoOutput {
@@ -158,6 +173,7 @@ package androidx.camera.video {
     field public static final int ERROR_NONE = 0; // 0x0
     field public static final int ERROR_NO_VALID_DATA = 8; // 0x8
     field public static final int ERROR_RECORDER_ERROR = 7; // 0x7
+    field public static final int ERROR_RECORDING_GARBAGE_COLLECTED = 10; // 0xa
     field public static final int ERROR_SOURCE_INACTIVE = 4; // 0x4
     field public static final int ERROR_UNKNOWN = 1; // 0x1
   }

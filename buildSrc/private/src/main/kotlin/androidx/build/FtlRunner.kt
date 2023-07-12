@@ -27,6 +27,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -64,6 +65,9 @@ abstract class FtlRunner : DefaultTask() {
     @get:Internal
     abstract val appLoader: Property<BuiltArtifactsLoader>
 
+    @get:Input
+    abstract val apkPackageName: Property<String>
+
     @get:Optional
     @get:Input
     @get:Option(option = "className", description = "Fully qualified class name of a class to run")
@@ -73,6 +77,19 @@ abstract class FtlRunner : DefaultTask() {
     @get:Input
     @get:Option(option = "packageName", description = "Package name test classes to run")
     abstract val packageName: Property<String>
+
+    @get:Optional
+    @get:Input
+    @get:Option(option = "pullScreenshots", description = "true if screenshots should be pulled")
+    abstract val pullScreenshots: Property<String>
+
+    @get:Optional
+    @get:Input
+    @get:Option(
+        option = "instrumentationArgs",
+        description = "instrumentation arguments to pass to FTL test runner"
+    )
+    abstract val instrumentationArgs: Property<String>
 
     @get:Input
     abstract val device: Property<String>
@@ -104,6 +121,9 @@ abstract class FtlRunner : DefaultTask() {
             if (className.isPresent) "class ${className.get()}" else null,
             if (packageName.isPresent) "package ${packageName.get()}" else null,
         ).joinToString(separator = ",")
+
+        val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
+
         execOperations.exec {
             it.commandLine(
                 listOfNotNull(
@@ -126,6 +146,12 @@ abstract class FtlRunner : DefaultTask() {
                     testApkPath,
                     if (hasFilters) "--test-targets" else null,
                     if (hasFilters) filters else null,
+                    if (shouldPull) "--directories-to-pull" else null,
+                    if (shouldPull) {
+                        "/sdcard/Android/data/${apkPackageName.get()}/cache/androidx_screenshots"
+                    } else null,
+                    if (instrumentationArgs.isPresent) "--environment-variables" else null,
+                    if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
                 )
             )
         }
@@ -145,23 +171,27 @@ fun Project.configureFtlRunner() {
         onVariants { variant ->
             var name: String? = null
             var artifacts: Artifacts? = null
+            var apkPackageName: Provider<String>? = null
             when {
                 variant is HasAndroidTest -> {
                     name = variant.androidTest?.name
                     artifacts = variant.androidTest?.artifacts
+                    apkPackageName = variant.androidTest?.namespace
                 }
 
                 project.plugins.hasPlugin("com.android.test") -> {
                     name = variant.name
                     artifacts = variant.artifacts
+                    apkPackageName = variant.namespace
                 }
             }
-            if (name == null || artifacts == null) {
+            if (name == null || artifacts == null || apkPackageName == null) {
                 return@onVariants
             }
             devicesToRunOn.forEach { (taskPrefix, model) ->
                 tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
                     task.device.set(model)
+                    task.apkPackageName.set(apkPackageName)
                     task.testFolder.set(artifacts.get(SingleArtifact.APK))
                     task.testLoader.set(artifacts.getBuiltArtifactsLoader())
                 }

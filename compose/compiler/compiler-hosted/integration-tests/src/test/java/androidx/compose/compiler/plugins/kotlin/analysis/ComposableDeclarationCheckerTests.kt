@@ -128,7 +128,7 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
                 acceptSuspend <!TYPE_MISMATCH!>@Composable {}<!>
                 acceptComposableSuspend @Composable {}
                 acceptComposableSuspend(composableLambda)
-                acceptSuspend(<!COMPOSABLE_SUSPEND_FUN, TYPE_MISMATCH!>@Composable suspend fun() { }<!>)
+                acceptSuspend(<!COMPOSABLE_SUSPEND_FUN,TYPE_MISMATCH!>@Composable suspend fun() { }<!>)
             }
         """
         )
@@ -282,6 +282,76 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
 
                 class Impl : Base {
                     <!CONFLICTING_OVERLOADS!>override fun compose(content: @Composable () -> Unit)<!> {}
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testOverrideComposableLambda() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                class Impl : @Composable () -> Unit {
+                    @Composable
+                    override fun invoke() {}
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testTransitiveOverrideComposableLambda() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                interface ComposableFunction : @Composable () -> Unit
+
+                class Impl : ComposableFunction {
+                    @Composable
+                    override fun invoke() {}
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testMissingOverrideComposableLambda() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                class Impl : @Composable () -> Unit {
+                    <!CONFLICTING_OVERLOADS!>override fun invoke()<!> {}
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testWrongOverrideLambda() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                class Impl : () -> Unit {
+                    <!CONFLICTING_OVERLOADS!>@Composable override fun invoke()<!> {}
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testMultipleOverrideLambda() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                class Impl : () -> Unit, @Composable (Int) -> Unit {
+                    <!CONFLICTING_OVERLOADS!>@Composable override fun invoke()<!> {}
+                    @Composable override fun invoke(p0: Int) {}
                 }
             """
         )

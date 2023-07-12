@@ -16,25 +16,28 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
 import android.util.Size;
 import android.view.Surface;
+
+import androidx.annotation.NonNull;
 
 /**
  * For specifying output surface of the extension.
  *
  * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface OutputSurfaceImpl {
     /**
      * Gets the surface.
      */
+    @NonNull
     Surface getSurface();
+
 
     /**
      * Gets the size.
      */
+    @NonNull
     Size getSize();
 
     /**

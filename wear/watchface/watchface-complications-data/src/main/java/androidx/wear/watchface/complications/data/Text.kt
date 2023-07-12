@@ -22,8 +22,8 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireComplicationTextTimeFormatBuilder
-import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.support.wearable.complications.TimeDependentText
+import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.support.wearable.complications.TimeDifferenceText
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
@@ -66,17 +66,12 @@ public interface ComplicationText {
 
     public fun isAlwaysEmpty(): Boolean
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun isPlaceholder(): Boolean = false
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.SUBCLASSES) public fun getTimeDependentText(): TimeDependentText
 
-    /**
-     * Converts this value to [WireComplicationText] object used for serialization.
-     *
-     * @hide
-     */
+    /** Converts this value to [WireComplicationText] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationText(): WireComplicationText
 
@@ -113,7 +108,6 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
@@ -121,7 +115,6 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText() = delegate.toWireComplicationText()
 
@@ -276,7 +269,6 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText() = delegate.toWireComplicationText()
 
@@ -427,7 +419,6 @@ public class TimeFormatComplicationText internal constructor(delegate: WireCompl
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText() = delegate.toWireComplicationText()
 
@@ -521,14 +512,13 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
         }
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
+
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toWireComplicationText() = delegate
 
     override fun equals(other: Any?): Boolean {
@@ -556,12 +546,10 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
-internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
-    DelegatingComplicationText(this)
-
-/** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
-internal fun WireComplicationText.toApiComplicationTextPlaceholderAware(): ComplicationText =
-    if (isPlaceholder) {
+internal fun WireComplicationText.toApiComplicationText(
+    placeholderAware: Boolean = false
+): ComplicationText =
+    if (placeholderAware && isPlaceholder) {
         ComplicationText.PLACEHOLDER
     } else {
         DelegatingComplicationText(this)
@@ -592,7 +580,6 @@ private class DelegatingTimeDependentText(private val delegate: WireTimeDependen
 
     override fun getTimeDependentText(): TimeDependentText = delegate
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText(): WireComplicationText {
         throw UnsupportedOperationException(
@@ -616,7 +603,6 @@ private class DelegatingTimeDependentText(private val delegate: WireTimeDependen
     override fun toString() = delegate.toString()
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
     DelegatingTimeDependentText(this)
@@ -625,9 +611,8 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * A [ComplicationText] where the system evaluates a [DynamicString] on behalf of the watch face. By
  * the time this reaches the watch face's Renderer, it'll have been converted to a plain
  * ComplicationText.
- *
- * @hide
  */
+// TODO(b/269414040): Unhide complication expression APIs.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComplicationTextExpression(public val expression: DynamicString) : ComplicationText {
     private val delegate = DelegatingComplicationText(WireComplicationText(expression))
@@ -643,15 +628,12 @@ public class ComplicationTextExpression(public val expression: DynamicString) : 
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText() = delegate.toWireComplicationText()
 

@@ -42,42 +42,35 @@ import java.io.StringReader
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21)
+@RequiresApi(23)
 public class PerfettoCapture(
     /**
      * Bundled is available above API 28, but we default to using unbundled as well on API 29, as
      * ProcessStatsConfig.scan_all_processes_on_start isn't supported on the bundled version.
      */
-    unbundled: Boolean = Build.VERSION.SDK_INT in 21..29
+    unbundled: Boolean = Build.VERSION.SDK_INT <= 29
 ) {
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)
 
-    public fun isRunning() = helper.isRunning()
+    fun isRunning() = helper.isRunning()
 
     /**
      * Start collecting perfetto trace.
-     *
-     * TODO: provide configuration options
      */
-    public fun start(packages: List<String>) = userspaceTrace("start perfetto") {
-        // Write binary proto to dir that shell can read
-        // TODO: cache on disk
+    fun start(config: PerfettoConfig) = userspaceTrace("start perfetto") {
+        // Write config proto to dir that shell can read
+        //     We use `.pb` even with textproto so we'll only ever have one file
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
             userspaceTrace("write config") {
-                val atraceApps = if (Build.VERSION.SDK_INT <= 28 || packages.isEmpty()) {
-                    packages
-                } else {
-                    listOf("*")
-                }
-                configProtoFile.writeBytes(perfettoConfig(atraceApps).validateAndEncode())
+                config.writeTo(configProtoFile)
                 if (Outputs.forceFilesForShellAccessible) {
                     configProtoFile.setReadable(true, /* ownerOnly = */ false)
                 }
             }
             userspaceTrace("start perfetto process") {
-                helper.startCollecting(configProtoFile.absolutePath, false)
+                helper.startCollecting(configProtoFile.absolutePath, config.isTextProto)
             }
         } finally {
             configProtoFile.delete()
@@ -98,7 +91,7 @@ public class PerfettoCapture(
      * Enables Perfetto SDK tracing in an app if present. Provides required binary dependencies to
      * the app if they're missing and the [provideBinariesIfMissing] parameter is set to `true`.
      */
-    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    @RequiresApi(30) // TODO(234351579): Support API < 30
     fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean

@@ -22,11 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
 
-/**
- * Implementation of [IEditorService], intended for use by EditorSession only.
- *
- * @hide
- */
+/** Implementation of [IEditorService], intended for use by EditorSession only. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EditorService : IEditorService.Stub() {
     private val lock = Any()

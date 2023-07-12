@@ -45,7 +45,6 @@ import java.util.concurrent.Executor;
  * This is a command handler which attempts to run a work spec given its id.
  * Also handles constraints gracefully.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DelayMetCommandHandler implements

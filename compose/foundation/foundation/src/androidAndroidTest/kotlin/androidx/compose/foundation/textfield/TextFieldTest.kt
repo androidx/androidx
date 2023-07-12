@@ -14,9 +14,6 @@
 * limitations under the License.
 */
 
-// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.textfield
 
 import android.os.Build
@@ -42,6 +39,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.runtime.Composable
@@ -84,6 +82,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
@@ -96,6 +95,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
@@ -150,18 +150,19 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -605,6 +606,63 @@ class TextFieldTest {
             .performSemanticsAction(SemanticsActions.OnClick)
         rule.onNodeWithTag(Tag)
             .assert(isFocused())
+    }
+
+    @Test
+    fun semantics_imeEnterAction() {
+        var done = false
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { done = true })
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertIsFocused()
+
+        rule.runOnIdle {
+            assertThat(done).isFalse()
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performImeAction()
+
+        rule.runOnIdle {
+            assertThat(done).isTrue()
+        }
+    }
+
+    @Test
+    fun semantics_defaultImeEnterAction() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                keyboardActions = KeyboardActions()
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertIsFocused()
+
+        val error = assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performImeAction()
+        }
+        assertThat(error).hasMessageThat().startsWith(
+            "Failed to perform IME action.\n" +
+                "Failed to assert the following: (NOT (ImeAction = 'Default'))\n" +
+                "Semantics of the node:"
+        )
     }
 
     @Test
@@ -1312,8 +1370,8 @@ class TextFieldTest {
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
-        textNode.performTextInputSelection(TextRange(0, 4))
+        textNode.performSemanticsAction(SemanticsActions.RequestFocus)
+        textNode.performTextInputSelection(TextRange(0, 5))
         textNode.performKeyPress(
             KeyEvent(
                 NativeKeyEvent(
@@ -1331,14 +1389,18 @@ class TextFieldTest {
             )
         )
 
+        rule.waitForIdle()
+        textNode.assertTextEquals("")
+        val selection = textNode.fetchSemanticsNode().config
+            .getOrNull(SemanticsProperties.TextSelectionRange)
+        assertThat(selection).isEqualTo(TextRange(0))
+
         textFieldValue.value = "Hello"
 
         rule.waitForIdle()
-
-        val expected = TextRange(0, 0)
         val actual = textNode.fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual).isEqualTo(TextRange(0))
     }
 
     @Test

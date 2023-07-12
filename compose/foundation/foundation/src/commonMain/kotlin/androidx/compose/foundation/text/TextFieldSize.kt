@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.textFieldMinSize(style: TextStyle) = composed {
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current

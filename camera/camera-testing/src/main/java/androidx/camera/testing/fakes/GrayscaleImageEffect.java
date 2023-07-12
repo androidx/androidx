@@ -43,7 +43,9 @@ public class GrayscaleImageEffect extends CameraEffect {
     public GrayscaleImageEffect() {
         super(IMAGE_CAPTURE,
                 directExecutor(),
-                new GrayscaleProcessor());
+                new GrayscaleProcessor(),
+                throwable -> {
+                });
     }
 
     @Nullable

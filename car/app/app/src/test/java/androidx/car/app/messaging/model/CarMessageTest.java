@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.model.CarText;
-import androidx.core.app.Person;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,23 +50,33 @@ public class CarMessageTest {
     // Ignore nullability, so we can null out a builder field
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void build_throwsException_ifSenderMissing() {
-        assertThrows(
-                NullPointerException.class,
-                () -> TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(null)
-                        .build()
-        );
-    }
-
-    // Ignore nullability, so we can null out a builder field
-    @SuppressWarnings("ConstantConditions")
-    @Test
     public void build_throwsException_ifMessageBodyMissing() {
         assertThrows(
                 NullPointerException.class,
                 () -> TestConversationFactory.createMinimalMessageBuilder()
                         .setBody(null)
+                        .build()
+        );
+    }
+
+    public void build_throwsException_ifSenderNameMissing() {
+        assertThrows(
+                NullPointerException.class,
+                () -> TestConversationFactory.createMinimalMessageBuilder()
+                        .setSender(TestConversationFactory.createMinimalMessageSenderBuilder()
+                                .setName(null)
+                                .build())
+                        .build()
+        );
+    }
+
+    public void build_throwsException_ifSenderKeyMissing() {
+        assertThrows(
+                NullPointerException.class,
+                () -> TestConversationFactory.createMinimalMessageBuilder()
+                        .setSender(TestConversationFactory.createMinimalMessageSenderBuilder()
+                                .setKey(null)
+                                .build())
                         .build()
         );
     }
@@ -105,7 +114,7 @@ public class CarMessageTest {
                         .createFullyPopulatedMessageBuilder()
                         .setSender(
                                 TestConversationFactory
-                                        .createMinimalPersonBuilder()
+                                        .createMinimalMessageSenderBuilder()
                                         .setKey("Modified Key")
                                         .build()
                         )
@@ -134,57 +143,6 @@ public class CarMessageTest {
         assertNotEqual(fullyPopulatedMessage, modifiedBody);
         assertNotEqual(fullyPopulatedMessage, modifiedReceivedTimeEpochMillis);
         assertNotEqual(fullyPopulatedMessage, modifiedIsRead);
-    }
-
-    @Test
-    public void equalsAndHashCode_produceCorrectResult_ifSenderIdMissing() {
-        Person.Builder senderWithoutId = TestConversationFactory
-                .createMinimalPersonBuilder()
-                .setKey(null);
-        Person.Builder senderWithId = TestConversationFactory
-                .createMinimalPersonBuilder()
-                .setKey("Test Sender Key");
-
-        // Create Test Data
-        CarMessage senderKeyMissingWithStandardData =
-                TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(senderWithoutId.build())
-                        .build();
-        CarMessage senderKeyMissingWithStandardData2 =
-                TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(senderWithoutId.build())
-                        .build();
-        CarMessage senderKeyMissingWithModifiedData =
-                TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(senderWithoutId.build())
-                        .setBody(CarText.create("Modified Message Body"))
-                        .build();
-        CarMessage senderKeyProvidedWithStandardData =
-                TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(senderWithId.build())
-                        .build();
-        CarMessage senderKeyProvidedWithStandardData2 =
-                TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(senderWithId.build())
-                        .build();
-        CarMessage senderKeyProvidedWithModifiedData =
-                TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(senderWithId.build())
-                        .setBody(CarText.create("Modified Message Body"))
-                        .build();
-
-        // Verify (in)equality
-
-        // Sender & message content are equal: == EQUAL ==
-        assertEqual(senderKeyMissingWithStandardData, senderKeyMissingWithStandardData2);
-        assertEqual(senderKeyProvidedWithStandardData, senderKeyProvidedWithStandardData2);
-
-        // One sender is missing a key: == NOT EQUAL ==
-        assertNotEqual(senderKeyMissingWithStandardData, senderKeyProvidedWithStandardData);
-
-        // Sender is equal, but message content is not: == NOT EQUAL ==
-        assertNotEqual(senderKeyMissingWithStandardData, senderKeyMissingWithModifiedData);
-        assertNotEqual(senderKeyProvidedWithStandardData, senderKeyProvidedWithModifiedData);
     }
 
     private void assertEqual(CarMessage message1, CarMessage message2) {

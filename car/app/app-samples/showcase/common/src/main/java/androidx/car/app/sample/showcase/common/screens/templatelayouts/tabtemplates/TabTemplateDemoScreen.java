@@ -26,6 +26,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridTemplate;
@@ -119,20 +120,17 @@ public final class TabTemplateDemoScreen extends Screen {
                             ICON_RES_IDS[i])).build())
                     .setContentId(contentId);
             if (TextUtils.isEmpty(mActiveContentId) && i == 0) {
-                tabBuilder.setActive(true);
+                mActiveContentId = contentId;
                 mTabTemplateBuilder.setTabContents(tabContents);
             } else if (TextUtils.equals(mActiveContentId, contentId)) {
-                tabBuilder.setActive(true);
                 mTabTemplateBuilder.setTabContents(tabContents);
-            } else {
-                tabBuilder.setActive(false);
             }
 
             Tab tab = tabBuilder.build();
             mTabs.put(tab.getContentId(), tab);
             mTabTemplateBuilder.addTab(tab);
         }
-        return mTabTemplateBuilder.build();
+        return mTabTemplateBuilder.setActiveTabContentId(mActiveContentId).build();
     }
 
     private ListTemplate createListTemplate() {
@@ -142,6 +140,7 @@ public final class TabTemplateDemoScreen extends Screen {
         }
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
+                .addAction(createFabBackAction())
                 .build();
     }
 
@@ -162,6 +161,7 @@ public final class TabTemplateDemoScreen extends Screen {
         }
         return new GridTemplate.Builder()
                 .setSingleList(listBuilder.build())
+                .addAction(createFabBackAction())
                 .build();
     }
 
@@ -197,6 +197,15 @@ public final class TabTemplateDemoScreen extends Screen {
         }
         return new PaneTemplate.Builder(paneBuilder.build())
                 .build();
+    }
+
+    private Action createFabBackAction() {
+        Action action = new Action.Builder()
+                .setIcon(CarIcon.BACK)
+                .setBackgroundColor(CarColor.BLUE)
+                .setOnClickListener(() -> getScreenManager().pop())
+                .build();
+        return action;
     }
 
 }

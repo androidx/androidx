@@ -68,20 +68,21 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.platform.renderingTest
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.event.KeyEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import java.awt.event.KeyEvent
 
 @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
 class ComposeSceneTest {
@@ -297,6 +298,7 @@ class ComposeSceneTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of clickable`() = renderingTest(width = 40, height = 40) {
         setContent {
             val interactionSource = remember { MutableInteractionSource() }
@@ -342,6 +344,7 @@ class ComposeSceneTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of LazyColumn`() = renderingTest(
         width = 40,
         height = 40

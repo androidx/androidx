@@ -38,7 +38,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Testing Samples"
+    name = "Compose Testing Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2022"
     description = "Contains samples for AndroidX Compose Testing."

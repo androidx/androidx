@@ -16,17 +16,19 @@
 
 package androidx.appactions.interaction.capabilities.core.impl;
 
+import androidx.annotation.RestrictTo;
+
 /** A class to define exceptions that are reported from dialog capability API. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum ErrorStatusInternal {
     CANCELLED(0),
     TIMEOUT(1),
-    INVALID_REQUEST_TYPE(2),
+    INVALID_REQUEST(2),
     UNCHANGED_DISAMBIG_STATE(3),
     INVALID_RESOLVER(4),
     STRUCT_CONVERSION_FAILURE(5),
-    SYNC_REQUEST_FAILURE(6),
-    CONFIRMATION_REQUEST_FAILURE(7),
-    TOUCH_EVENT_REQUEST_FAILURE(8);
+    EXTERNAL_EXCEPTION(9),
+    SESSION_ALREADY_DESTROYED(10);
 
     private final int mCode;
 

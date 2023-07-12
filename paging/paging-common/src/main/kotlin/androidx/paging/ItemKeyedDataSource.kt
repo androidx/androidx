@@ -19,9 +19,9 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 /**
  * Incremental data loader for paging keyed content, where loaded content uses previously loaded

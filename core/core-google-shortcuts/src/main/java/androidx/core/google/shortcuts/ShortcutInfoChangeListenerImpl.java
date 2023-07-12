@@ -49,7 +49,6 @@ import java.util.List;
 /**
  * Provides a listener on changes to shortcuts in ShortcutInfoCompat.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {

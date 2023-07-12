@@ -19,24 +19,39 @@ package androidx.camera.camera2.pipe.integration.testing
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withTimeoutOrNull
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
-    private var config: UseCaseCameraConfig = UseCaseCameraConfig(emptyList(), CameraStateAdapter())
+    var buildInvocationCount = 0
+
+    private val cameraQuirks = CameraQuirks(
+        FakeCameraMetadata(),
+        StreamConfigurationMapCompat(null, OutputSizesCorrector(FakeCameraMetadata(), null))
+    )
+    private var config: UseCaseCameraConfig =
+        UseCaseCameraConfig(emptyList(), CameraStateAdapter(), cameraQuirks, CameraGraph.Flags())
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
         this.config = config
@@ -44,6 +59,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     }
 
     override fun build(): UseCaseCameraComponent {
+        buildInvocationCount++
         return FakeUseCaseCameraComponent(config.provideUseCaseList())
     }
 }
@@ -98,14 +114,30 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
     override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode?
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+        aeLockBehavior: Lock3ABehavior?,
+        afLockBehavior: Lock3ABehavior?,
+        awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode?,
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         focusMeteringCalls.add(
-            FocusMeteringParams(aeRegions, afRegions, awbRegions, afTriggerStartAeMode)
+            FocusMeteringParams(
+                aeRegions, afRegions, awbRegions,
+                aeLockBehavior, afLockBehavior, awbLockBehavior,
+                afTriggerStartAeMode,
+                timeLimitNs
+            )
         )
+        withTimeoutOrNull(TimeUnit.MILLISECONDS.convert(timeLimitNs, TimeUnit.NANOSECONDS)) {
+            focusMeteringResult.await()
+        }.let { result3A ->
+            if (result3A == null) {
+                focusMeteringResult.complete(Result3A(status = Result3A.Status.TIME_LIMIT_REACHED))
+            }
+        }
         return focusMeteringResult
     }
 
@@ -124,10 +156,14 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     }
 
     data class FocusMeteringParams(
-        val aeRegions: List<MeteringRectangle> = emptyList(),
-        val afRegions: List<MeteringRectangle> = emptyList(),
-        val awbRegions: List<MeteringRectangle> = emptyList(),
-        val afTriggerStartAeMode: AeMode? = null
+        val aeRegions: List<MeteringRectangle>? = null,
+        val afRegions: List<MeteringRectangle>? = null,
+        val awbRegions: List<MeteringRectangle>? = null,
+        val aeLockBehavior: Lock3ABehavior? = null,
+        val afLockBehavior: Lock3ABehavior? = null,
+        val awbLockBehavior: Lock3ABehavior? = null,
+        val afTriggerStartAeMode: AeMode? = null,
+        val timeLimitNs: Long = CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS,
     )
 
     data class RequestParameters(

@@ -71,7 +71,6 @@ public final class SessionToken implements VersionedParcelable {
     private static final int MSG_SEND_TOKEN2_FOR_LEGACY_SESSION = 1000;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -203,7 +202,6 @@ public final class SessionToken implements VersionedParcelable {
     }
 
     /**
-     * @hide
      * @return component name of the session. Can be {@code null} for {@link #TYPE_SESSION}.
      */
     @RestrictTo(LIBRARY)
@@ -236,7 +234,6 @@ public final class SessionToken implements VersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public boolean isLegacySession() {
@@ -244,7 +241,6 @@ public final class SessionToken implements VersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Object getBinder() {
@@ -254,7 +250,6 @@ public final class SessionToken implements VersionedParcelable {
     /**
      * Creates SessionToken object from MediaSessionCompat.Token.
      * When the SessionToken is ready, OnSessionTokenCreateListener will be called.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static void createSessionToken(@NonNull final Context context,
@@ -394,7 +389,6 @@ public final class SessionToken implements VersionedParcelable {
     }
 
     /**
-     * @hide
      * Interface definition of a listener to be invoked when a {@link SessionToken token2} object
      * is created from a {@link MediaSessionCompat.Token compat token}.
      *

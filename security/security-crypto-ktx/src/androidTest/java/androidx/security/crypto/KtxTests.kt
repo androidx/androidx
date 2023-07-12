@@ -20,13 +20,13 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import java.io.File
+import java.nio.charset.StandardCharsets
+import java.security.KeyStore
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.nio.charset.StandardCharsets
-import java.security.KeyStore
 
 private const val PREFS_FILE = "test_shared_prefs"
 

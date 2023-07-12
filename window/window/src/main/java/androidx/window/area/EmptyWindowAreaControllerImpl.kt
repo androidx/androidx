@@ -18,9 +18,9 @@ package androidx.window.area
 
 import android.app.Activity
 import androidx.window.core.ExperimentalWindowApi
+import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.util.concurrent.Executor
 
 /**
  * Empty Implementation for devices that do not

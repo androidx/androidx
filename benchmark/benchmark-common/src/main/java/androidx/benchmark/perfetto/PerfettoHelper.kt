@@ -37,7 +37,7 @@ import org.jetbrains.annotations.TestOnly
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21)
+@RequiresApi(23)
 public class PerfettoHelper(
     private val unbundled: Boolean = Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED
 ) {

@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.UiAutomation;
 import android.graphics.Point;
-import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
@@ -60,7 +59,6 @@ import javax.xml.xpath.XPathFactory;
 public class UiDeviceTest extends BaseTest {
 
     private static final long TIMEOUT_MS = 5_000;
-    private static final int GESTURE_MARGIN = 50;
     private static final String PACKAGE_NAME = "androidx.test.uiautomator.testapp";
     // Defined in 'AndroidManifest.xml'.
     private static final String APP_NAME = "UiAutomator Test App";
@@ -301,7 +299,6 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("I've been clicked!", button.getText());
     }
 
-    @Ignore // b/266617096
     @Test
     public void testSwipe() {
         launchTestActivity(SwipeTestActivity.class);
@@ -310,7 +307,7 @@ public class UiDeviceTest extends BaseTest {
 
         int width = mDevice.getDisplayWidth();
         int height = mDevice.getDisplayHeight();
-        mDevice.swipe(GESTURE_MARGIN, height / 2, width - GESTURE_MARGIN, height / 2, 10);
+        mDevice.swipe(width / 10, height / 2, 9 * width / 10, height / 2, 10);
 
         assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
     }
@@ -331,7 +328,6 @@ public class UiDeviceTest extends BaseTest {
         assertTrue(dragDestination.wait(Until.textEquals("drag_received"), TIMEOUT_MS));
     }
 
-    @Ignore // b/266617096
     @Test
     public void testSwipe_withPointArray() {
         launchTestActivity(SwipeTestActivity.class);
@@ -341,9 +337,9 @@ public class UiDeviceTest extends BaseTest {
         int width = mDevice.getDisplayWidth();
         int height = mDevice.getDisplayHeight();
 
-        Point point1 = new Point(GESTURE_MARGIN, height / 2);
+        Point point1 = new Point(width / 10, height / 2);
         Point point2 = new Point(width / 2, height / 2);
-        Point point3 = new Point(width - GESTURE_MARGIN, height / 2);
+        Point point3 = new Point(9 * width / 10, height / 2);
 
         mDevice.swipe(new Point[]{point1, point2, point3}, 10);
 
@@ -358,18 +354,18 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    @Ignore("b/280669851")
     public void testSetOrientationLeft() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
             assertTrue(mDevice.isNaturalOrientation());
             assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+
             mDevice.setOrientationLeft();
-            // Make the device wait for 1 sec for the rotation animation to finish.
-            SystemClock.sleep(1_000);
             assertFalse(mDevice.isNaturalOrientation());
             assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
+
             mDevice.setOrientationNatural();
-            SystemClock.sleep(1_000);
             assertTrue(mDevice.isNaturalOrientation());
         } finally {
             mDevice.unfreezeRotation();
@@ -377,18 +373,42 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    @Ignore("b/280669851")
     public void testSetOrientationRight() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
         try {
             assertTrue(mDevice.isNaturalOrientation());
             assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+
             mDevice.setOrientationRight();
-            SystemClock.sleep(1_000);
             assertFalse(mDevice.isNaturalOrientation());
             assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
+
             mDevice.setOrientationNatural();
-            SystemClock.sleep(1_000);
             assertTrue(mDevice.isNaturalOrientation());
+        } finally {
+            mDevice.unfreezeRotation();
+        }
+    }
+
+    @Test
+    public void testSetOrientationPortrait() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+        try {
+            mDevice.setOrientationPortrait();
+            assertTrue(mDevice.getDisplayHeight() > mDevice.getDisplayWidth());
+        } finally {
+            mDevice.unfreezeRotation();
+        }
+    }
+
+    @Test
+    @Ignore("b/280669851")
+    public void testSetOrientationLandscape() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+        try {
+            mDevice.setOrientationLandscape();
+            assertTrue(mDevice.getDisplayWidth() > mDevice.getDisplayHeight());
         } finally {
             mDevice.unfreezeRotation();
         }

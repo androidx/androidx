@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.core.generator.poet
 
 import androidx.privacysandbox.tools.core.model.Type
+import java.lang.IllegalStateException
 
 /** AIDL file with a single interface. */
 internal data class AidlInterfaceSpec(
@@ -51,9 +52,18 @@ internal data class AidlInterfaceSpec(
         }
 
     class Builder(val type: Type) {
-        val methods = mutableListOf<AidlMethodSpec>()
+        private val methods = mutableListOf<AidlMethodSpec>()
 
         fun addMethod(method: AidlMethodSpec) {
+            val methodsByTxId = methods.associateBy(AidlMethodSpec::transactionId)
+            methodsByTxId[method.transactionId]?.let { conflictMethod ->
+                throw IllegalStateException(
+                    // TODO(b/271114359): Update this error message when manual IDs are possible
+                    "Methods '${method.name}' and '${conflictMethod.name}' in interface " +
+                        "'${type.simpleName}' have the same AIDL transaction ID. Please " +
+                        "change one of the methods' name or type signature."
+                )
+            }
             methods.add(method)
         }
 

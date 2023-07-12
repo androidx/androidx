@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Utility methods to help with resource calculations.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public final class ResourcesUtil {

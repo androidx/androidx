@@ -72,9 +72,10 @@ public class GetPublicKeyCredentialOptionJavaTest {
     @Test
     public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
         boolean preferImmediatelyAvailableCredentialsExpected = true;
+        String clientDataHash = "hash";
         GetPublicKeyCredentialOption getPublicKeyCredentialOpt =
                 new GetPublicKeyCredentialOption(
-                        "JSON", preferImmediatelyAvailableCredentialsExpected);
+                        "JSON", clientDataHash, preferImmediatelyAvailableCredentialsExpected);
         boolean preferImmediatelyAvailableCredentialsActual =
                 getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials();
         assertThat(preferImmediatelyAvailableCredentialsActual).isEqualTo(
@@ -95,18 +96,21 @@ public class GetPublicKeyCredentialOptionJavaTest {
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         boolean preferImmediatelyAvailableCredentialsExpected = false;
         boolean expectedIsAutoSelect = true;
+        String clientDataHash = "hash";
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                 GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION);
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
+        expectedData.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+                clientDataHash);
         expectedData.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentialsExpected);
         expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
 
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
-                requestJsonExpected, preferImmediatelyAvailableCredentialsExpected);
+                requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
@@ -117,8 +121,9 @@ public class GetPublicKeyCredentialOptionJavaTest {
 
     @Test
     public void frameworkConversion_success() {
+        String clientDataHash = "hash";
         GetPublicKeyCredentialOption option =
-                new GetPublicKeyCredentialOption("json", true);
+                new GetPublicKeyCredentialOption("json", clientDataHash, true);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(),

@@ -19,8 +19,8 @@
 package androidx.build.lint
 
 import androidx.build.lint.Stubs.Companion.DoNotInline
-import androidx.build.lint.Stubs.Companion.RequiresApi
 import androidx.build.lint.Stubs.Companion.IntRange
+import androidx.build.lint.Stubs.Companion.RequiresApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
     useDetector = ClassVerificationFailureDetector(),
-    useIssues = listOf(ClassVerificationFailureDetector.ISSUE),
+    useIssues = listOf(ClassVerificationFailureDetector.METHOD_CALL_ISSUE),
     stubs = arrayOf(
         // AndroidManifest with minSdkVersion=14
         manifest().minSdk(14),
@@ -82,7 +82,7 @@ src/androidx/sample/core/widget/ListViewCompat.java:69: Error: This call referen
 Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to static inner class:
 @@ -39 +39
 -             listView.scrollListBy(y);
-+             Api19Impl.scrollListBy((android.widget.AbsListView) listView, y);
++             Api19Impl.scrollListBy(listView, y);
 @@ -91 +91
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
@@ -100,7 +100,7 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to 
 Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to static inner class:
 @@ -69 +69
 -             return listView.canScrollList(direction);
-+             return Api19Impl.canScrollList((android.widget.AbsListView) listView, direction);
++             return Api19Impl.canScrollList(listView, direction);
 @@ -91 +91
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
@@ -530,7 +530,7 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inn
 Fix for src/androidx/AutofixUnsafeCallToThis.java line 48: Extract to static inner class:
 @@ -48 +48
 -             this.getClipToPadding();
-+             Api21Impl.getClipToPadding((ViewGroup) this);
++             Api21Impl.getClipToPadding(this);
 @@ -60 +60
 + @androidx.annotation.RequiresApi(21)
 + static class Api21Impl {
@@ -792,7 +792,7 @@ src/androidx/AutofixUnsafeCallWithImplicitParamCast.java:43: Error: This call re
 Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 34: Extract to static inner class:
 @@ -34 +34
 -         style.setBuilder(builder);
-+         Api16Impl.setBuilder((Notification.Style) style, builder);
++         Api16Impl.setBuilder(style, builder);
 @@ -45 +45
 + @RequiresApi(16)
 + static class Api16Impl {
@@ -810,7 +810,7 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 34: Extrac
 Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 43: Extract to static inner class:
 @@ -43 +43
 -         builder.extend(extender);
-+         Api20Impl.extend(builder, (Notification.Extender) extender);
++         Api20Impl.extend(builder, extender);
 @@ -45 +45
 + @RequiresApi(20)
 + static class Api20Impl {
@@ -819,7 +819,7 @@ Fix for src/androidx/AutofixUnsafeCallWithImplicitParamCast.java line 43: Extrac
 +     }
 +
 +     @DoNotInline
-+     static Notification.Builder extend(Notification.Builder builder, Notification.Extender extender) {
++     static Notification.Builder extend(Notification.Builder builder, Notification.CarExtender extender) {
 +         return builder.extend(extender);
 +     }
 +
@@ -874,7 +874,7 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 35: Ex
 Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 43: Extract to static inner class:
 @@ -43 +43
 -         adapter.setAutofillOptions(vararg);
-+         Api27Impl.setAutofillOptions(adapter, (java.lang.CharSequence) vararg);
++         Api27Impl.setAutofillOptions(adapter, vararg);
 @@ -54 +54
 + @RequiresApi(27)
 + static class Api27Impl {
@@ -892,7 +892,7 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 43: Ex
 Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java line 52: Extract to static inner class:
 @@ -52 +52
 -         adapter.setAutofillOptions(vararg1, vararg2, vararg3);
-+         Api27Impl.setAutofillOptions(adapter, (java.lang.CharSequence) vararg1, (java.lang.CharSequence) vararg2, (java.lang.CharSequence) vararg3);
++         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
 @@ -54 +54
 + @RequiresApi(27)
 + static class Api27Impl {

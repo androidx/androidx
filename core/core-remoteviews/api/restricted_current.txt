@@ -291,6 +291,7 @@ package androidx.core.widget {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RemoteViewsCompatService extends android.widget.RemoteViewsService {
+    ctor public RemoteViewsCompatService();
     method public android.widget.RemoteViewsService.RemoteViewsFactory onGetViewFactory(android.content.Intent intent);
   }
 

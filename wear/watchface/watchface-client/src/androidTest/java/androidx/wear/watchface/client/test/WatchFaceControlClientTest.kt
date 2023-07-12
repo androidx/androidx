@@ -884,6 +884,28 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    fun addWatchFaceReadyListener_alreadyReady() {
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+
+        try {
+            // Perform an action that will block until watch face init has completed.
+            assertThat(interactiveInstance.complicationSlotsState).isNotEmpty()
+
+            val wfReady = CompletableDeferred<Unit>()
+            interactiveInstance.addOnWatchFaceReadyListener(
+                { runnable -> runnable.run() },
+                { wfReady.complete(Unit) }
+            )
+
+            // This should happen quickly, but it can sometimes be slow.
+            awaitWithTimeout(wfReady, 1000)
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
     fun isConnectionAlive_false_after_close() {
         val interactiveInstance = getOrCreateTestSubject()
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackInt2
 import kotlin.math.sign
@@ -30,7 +31,7 @@ import kotlin.math.sign
  * @see LayoutNode.hitTest
  * @see NodeCoordinator.hitTest
  */
-internal class HitTestResult<T> : List<T> {
+internal class HitTestResult : List<Modifier.Node> {
     private var values = arrayOfNulls<Any>(16)
     // contains DistanceAndInLayer
     private var distanceFromEdgeAndInLayer = LongArray(16)
@@ -92,7 +93,7 @@ internal class HitTestResult<T> : List<T> {
      * Records [node] as a hit, adding it to the [HitTestResult] or replacing the existing one.
      * Runs [childHitTest] to do further hit testing for children.
      */
-    fun hit(node: T, isInLayer: Boolean, childHitTest: () -> Unit) {
+    fun hit(node: Modifier.Node, isInLayer: Boolean, childHitTest: () -> Unit) {
         hitInMinimumTouchTarget(node, -1f, isInLayer, childHitTest)
     }
 
@@ -101,7 +102,7 @@ internal class HitTestResult<T> : List<T> {
      * Runs [childHitTest] to do further hit testing for children.
      */
     fun hitInMinimumTouchTarget(
-        node: T,
+        node: Modifier.Node,
         distanceFromEdge: Float,
         isInLayer: Boolean,
         childHitTest: () -> Unit
@@ -124,7 +125,7 @@ internal class HitTestResult<T> : List<T> {
      * hit.
      */
     fun speculativeHit(
-        node: T,
+        node: Modifier.Node,
         distanceFromEdge: Float,
         isInLayer: Boolean,
         childHitTest: () -> Unit
@@ -188,9 +189,9 @@ internal class HitTestResult<T> : List<T> {
         }
     }
 
-    override fun contains(element: T): Boolean = indexOf(element) != -1
+    override fun contains(element: Modifier.Node): Boolean = indexOf(element) != -1
 
-    override fun containsAll(elements: Collection<T>): Boolean {
+    override fun containsAll(elements: Collection<Modifier.Node>): Boolean {
         elements.forEach {
             if (!contains(it)) {
                 return false
@@ -199,10 +200,9 @@ internal class HitTestResult<T> : List<T> {
         return true
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun get(index: Int): T = values[index] as T
+    override fun get(index: Int): Modifier.Node = values[index] as Modifier.Node
 
-    override fun indexOf(element: T): Int {
+    override fun indexOf(element: Modifier.Node): Int {
         for (i in 0..lastIndex) {
             if (values[i] == element) {
                 return i
@@ -213,9 +213,9 @@ internal class HitTestResult<T> : List<T> {
 
     override fun isEmpty(): Boolean = size == 0
 
-    override fun iterator(): Iterator<T> = HitTestResultIterator()
+    override fun iterator(): Iterator<Modifier.Node> = HitTestResultIterator()
 
-    override fun lastIndexOf(element: T): Int {
+    override fun lastIndexOf(element: Modifier.Node): Int {
         for (i in lastIndex downTo 0) {
             if (values[i] == element) {
                 return i
@@ -224,11 +224,12 @@ internal class HitTestResult<T> : List<T> {
         return -1
     }
 
-    override fun listIterator(): ListIterator<T> = HitTestResultIterator()
+    override fun listIterator(): ListIterator<Modifier.Node> = HitTestResultIterator()
 
-    override fun listIterator(index: Int): ListIterator<T> = HitTestResultIterator(index)
+    override fun listIterator(index: Int): ListIterator<Modifier.Node> =
+        HitTestResultIterator(index)
 
-    override fun subList(fromIndex: Int, toIndex: Int): List<T> =
+    override fun subList(fromIndex: Int, toIndex: Int): List<Modifier.Node> =
         SubList(fromIndex, toIndex)
 
     /**
@@ -243,18 +244,18 @@ internal class HitTestResult<T> : List<T> {
         var index: Int = 0,
         val minIndex: Int = 0,
         val maxIndex: Int = size
-    ) : ListIterator<T> {
+    ) : ListIterator<Modifier.Node> {
         override fun hasNext(): Boolean = index < maxIndex
 
         override fun hasPrevious(): Boolean = index > minIndex
 
         @Suppress("UNCHECKED_CAST")
-        override fun next(): T = values[index++] as T
+        override fun next(): Modifier.Node = values[index++] as Modifier.Node
 
         override fun nextIndex(): Int = index - minIndex
 
         @Suppress("UNCHECKED_CAST")
-        override fun previous(): T = values[--index] as T
+        override fun previous(): Modifier.Node = values[--index] as Modifier.Node
 
         override fun previousIndex(): Int = index - minIndex - 1
     }
@@ -262,13 +263,13 @@ internal class HitTestResult<T> : List<T> {
     private inner class SubList(
         val minIndex: Int,
         val maxIndex: Int
-    ) : List<T> {
+    ) : List<Modifier.Node> {
         override val size: Int
             get() = maxIndex - minIndex
 
-        override fun contains(element: T): Boolean = indexOf(element) != -1
+        override fun contains(element: Modifier.Node): Boolean = indexOf(element) != -1
 
-        override fun containsAll(elements: Collection<T>): Boolean {
+        override fun containsAll(elements: Collection<Modifier.Node>): Boolean {
             elements.forEach {
                 if (!contains(it)) {
                     return false
@@ -277,10 +278,9 @@ internal class HitTestResult<T> : List<T> {
             return true
         }
 
-        @Suppress("UNCHECKED_CAST")
-        override fun get(index: Int): T = values[index + minIndex] as T
+        override fun get(index: Int): Modifier.Node = values[index + minIndex] as Modifier.Node
 
-        override fun indexOf(element: T): Int {
+        override fun indexOf(element: Modifier.Node): Int {
             for (i in minIndex..maxIndex) {
                 if (values[i] == element) {
                     return i - minIndex
@@ -291,9 +291,10 @@ internal class HitTestResult<T> : List<T> {
 
         override fun isEmpty(): Boolean = size == 0
 
-        override fun iterator(): Iterator<T> = HitTestResultIterator(minIndex, minIndex, maxIndex)
+        override fun iterator(): Iterator<Modifier.Node> =
+            HitTestResultIterator(minIndex, minIndex, maxIndex)
 
-        override fun lastIndexOf(element: T): Int {
+        override fun lastIndexOf(element: Modifier.Node): Int {
             for (i in maxIndex downTo minIndex) {
                 if (values[i] == element) {
                     return i - minIndex
@@ -302,13 +303,13 @@ internal class HitTestResult<T> : List<T> {
             return -1
         }
 
-        override fun listIterator(): ListIterator<T> =
+        override fun listIterator(): ListIterator<Modifier.Node> =
             HitTestResultIterator(minIndex, minIndex, maxIndex)
 
-        override fun listIterator(index: Int): ListIterator<T> =
+        override fun listIterator(index: Int): ListIterator<Modifier.Node> =
             HitTestResultIterator(minIndex + index, minIndex, maxIndex)
 
-        override fun subList(fromIndex: Int, toIndex: Int): List<T> =
+        override fun subList(fromIndex: Int, toIndex: Int): List<Modifier.Node> =
             SubList(minIndex + fromIndex, minIndex + toIndex)
     }
 }

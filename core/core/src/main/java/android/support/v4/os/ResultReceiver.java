@@ -40,7 +40,6 @@ import androidx.annotation.RestrictTo;
  * lifecycle management (you must be using some higher-level component to tell
  * the system that your process needs to continue running), the connection will
  * break if your process goes away for any reason, etc.</p>
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("BanParcelableUsage")

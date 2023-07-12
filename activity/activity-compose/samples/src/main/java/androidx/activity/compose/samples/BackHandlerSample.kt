@@ -17,10 +17,8 @@
 package androidx.activity.compose.samples
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.Sampled
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,12 +28,14 @@ import androidx.compose.runtime.setValue
 @Sampled
 @Composable
 fun BackHandler() {
-    var backPressedCount by remember { mutableStateOf(0) }
-    BackHandler { backPressedCount++ }
+    var text by remember { mutableStateOf("") }
 
-    val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+    TextField(
+        value = text,
+        onValueChange = { text = it }
+    )
 
-    Button(onClick = { dispatcher.onBackPressed() }) {
-        Text("Press Back count $backPressedCount")
+    BackHandler(text.isNotEmpty()) {
+        // handle back event
     }
 }

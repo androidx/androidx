@@ -173,6 +173,7 @@ package androidx.room.migration.bundle {
     method public int getFormatVersion();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.SchemaBundle other);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static final void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.File file) throws java.io.IOException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static final void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.OutputStream outputStream) throws java.io.IOException;
     property public androidx.room.migration.bundle.DatabaseBundle database;
     property public int formatVersion;
     field public static final androidx.room.migration.bundle.SchemaBundle.Companion Companion;
@@ -182,10 +183,11 @@ package androidx.room.migration.bundle {
   public static final class SchemaBundle.Companion {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=UnsupportedEncodingException::class) public androidx.room.migration.bundle.SchemaBundle deserialize(java.io.InputStream fis) throws java.io.UnsupportedEncodingException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.File file) throws java.io.IOException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.OutputStream outputStream) throws java.io.IOException;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SchemaEquality<T> {
-    method public boolean isSchemaEqual(T? other);
+    method public boolean isSchemaEqual(T other);
   }
 
 }

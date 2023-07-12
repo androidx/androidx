@@ -419,7 +419,6 @@ internal interface ComplicationDataSourceInfoRetrieverProvider {
     fun getComplicationDataSourceInfoRetriever(): ComplicationDataSourceInfoRetriever
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class BaseEditorSession
 internal constructor(

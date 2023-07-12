@@ -47,6 +47,8 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.utility.TraceEvent
+import androidx.wear.watchface.utility.iconEquals
+import androidx.wear.watchface.utility.iconHashCode
 import java.lang.IllegalArgumentException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -125,7 +127,6 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     /** Exception thrown if the service disconnects. */
     public class ServiceDisconnectedException : Exception()
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(service: IProviderInfoService) {
@@ -381,7 +382,7 @@ public class ComplicationDataSourceInfo(
         if (appName != other.appName) return false
         if (name != other.name) return false
         if (type != other.type) return false
-        if (icon != other.icon) return false
+        if (!(icon iconEquals other.icon)) return false
         if (componentName != other.componentName) return false
 
         return true
@@ -391,16 +392,12 @@ public class ComplicationDataSourceInfo(
         var result = appName.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + type.hashCode()
-        result = 31 * result + icon.hashCode()
+        result = 31 * result + icon.iconHashCode()
         result = 31 * result + componentName.hashCode()
         return result
     }
 
-    /**
-     * Converts this value to [WireComplicationProviderInfo] object used for serialization.
-     *
-     * @hide
-     */
+    /** Converts this value to [WireComplicationProviderInfo] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationProviderInfo(): WireComplicationProviderInfo =
         WireComplicationProviderInfo(
@@ -412,7 +409,6 @@ public class ComplicationDataSourceInfo(
         )
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
     ComplicationDataSourceInfo(

@@ -17,15 +17,15 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.visitChildren
+import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
  * Implement this interface to create a modifier node that can be used to request changes in
- * the focus state of a [FocusTargetModifierNode] down the hierarchy.
+ * the focus state of a [FocusTargetNode] down the hierarchy.
  */
-@ExperimentalComposeUiApi
 interface FocusRequesterModifierNode : DelegatableNode
 
 /**
@@ -35,10 +35,17 @@ interface FocusRequesterModifierNode : DelegatableNode
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
  */
-@ExperimentalComposeUiApi
+@OptIn(ExperimentalComposeUiApi::class)
 fun FocusRequesterModifierNode.requestFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
-        if (it.requestFocus()) return true
+    visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
+        val focusProperties = focusTarget.fetchFocusProperties()
+        return if (focusProperties.canFocus) {
+            focusTarget.requestFocus()
+        } else {
+            focusTarget.findChildCorrespondingToFocusEnter(Enter) {
+                it.requestFocus()
+            }
+        }
     }
     return false
 }
@@ -58,9 +65,8 @@ fun FocusRequesterModifierNode.requestFocus(): Boolean {
  *
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
-@ExperimentalComposeUiApi
 fun FocusRequesterModifierNode.captureFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.captureFocus()) {
             return true
         }
@@ -82,9 +88,8 @@ fun FocusRequesterModifierNode.captureFocus(): Boolean {
  *
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
-@ExperimentalComposeUiApi
 fun FocusRequesterModifierNode.freeFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.freeFocus()) return true
     }
     return false

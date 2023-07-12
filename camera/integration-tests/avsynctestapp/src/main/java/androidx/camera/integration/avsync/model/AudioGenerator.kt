@@ -25,10 +25,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Logger
 import androidx.core.util.Preconditions.checkArgument
 import androidx.core.util.Preconditions.checkArgumentNonnegative
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.pow
 import kotlin.math.sin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "AudioGenerator"
 private const val DEFAULT_SAMPLE_RATE: Int = 44100

@@ -179,6 +179,7 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
         const val COMPLICATION_ID = 123
     }
 
+    @OptIn(ComplicationExperimental::class)
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
@@ -369,6 +370,7 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
+    @OptIn(ComplicationExperimental::class)
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
@@ -650,6 +652,7 @@ internal class TestComplicationStyleUpdateWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
+    @OptIn(ComplicationExperimental::class)
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {

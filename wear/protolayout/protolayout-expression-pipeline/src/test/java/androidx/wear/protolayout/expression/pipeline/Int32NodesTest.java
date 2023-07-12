@@ -18,38 +18,63 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import static java.lang.Integer.MAX_VALUE;
 
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
+import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32Source;
+import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class Int32NodesTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
+    @Mock
+    private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+
+    private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
+
     @Test
     public void testFixedInt32Node() {
         List<Integer> results = new ArrayList<>();
@@ -57,6 +82,7 @@ public class Int32NodesTest {
         FixedInt32 protoNode = FixedInt32.newBuilder().setValue(56).build();
         FixedInt32Node node = new FixedInt32Node(protoNode, new AddToListCallback<>(results));
 
+        node.preInit();
         node.init();
 
         assertThat(results).containsExactly(56);
@@ -69,36 +95,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(123456);
 
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(34);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(2057);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(123456);
     }
 
@@ -109,36 +135,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(-123456);
 
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(-1);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(-34);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(-2057);
         assertThat(
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                createGetDurationPartOpNodeAndGetPart(
+                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(-123456);
     }
 
@@ -155,11 +181,11 @@ public class Int32NodesTest {
     @Test
     public void stateInt32NodeTest() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(65))
                                         .build()));
 
@@ -176,11 +202,11 @@ public class Int32NodesTest {
     @Test
     public void stateInt32UpdatesWithStateChanges() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(65))
                                         .build()));
 
@@ -193,10 +219,10 @@ public class Int32NodesTest {
 
         results.clear();
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(12))
                                 .build()));
 
@@ -219,6 +245,7 @@ public class Int32NodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -243,6 +270,7 @@ public class Int32NodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -266,6 +294,7 @@ public class Int32NodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -280,11 +309,11 @@ public class Int32NodesTest {
         int value3 = 17;
         List<Integer> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
-                                "foo",
-                                StateEntryValue.newBuilder()
+                                KEY_FOO,
+                                DynamicDataValue.newBuilder()
                                         .setInt32Val(
                                                 FixedInt32.newBuilder().setValue(value1).build())
                                         .build()));
@@ -304,10 +333,10 @@ public class Int32NodesTest {
         stateNode.init();
 
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(value2))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -318,10 +347,10 @@ public class Int32NodesTest {
 
         int32Node.setVisibility(true);
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
-                        StateEntryValue.newBuilder()
+                        KEY_FOO,
+                        DynamicDataValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(value3))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -331,5 +360,68 @@ public class Int32NodesTest {
         assertThat(results.get(0)).isEqualTo(value2);
         assertThat(Iterables.getLast(results)).isEqualTo(value3);
         assertThat(results).isInOrder();
+    }
+
+    @Test
+    public void platformInt32Source_propagatesInvalidatedSignal() {
+        FakeSensorGateway fakeSensorGateway = new FakeSensorGateway();
+        StateStore stateStore = new StateStore(new ArrayMap<>());
+        stateStore.putAllPlatformProviders(
+                Collections.singletonMap(
+                        PlatformHealthSources.HEART_RATE_BPM,
+                        new SensorGatewaySingleDataProvider(
+                                fakeSensorGateway, PlatformHealthSources.HEART_RATE_BPM)));
+        PlatformInt32Source platformSource =
+                PlatformInt32Source.newBuilder()
+                        .setSourceType(
+                                PlatformInt32SourceType
+                                        .PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE)
+                        .build();
+        LegacyPlatformInt32SourceNode platformSourceNode =
+                new LegacyPlatformInt32SourceNode(
+                        stateStore,
+                        platformSource,
+                        mMockValueReceiver);
+
+        platformSourceNode.preInit();
+        verify(mMockValueReceiver).onPreUpdate();
+
+        platformSourceNode.init();
+        assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
+
+        fakeSensorGateway.registeredConsumers.get(0).onInvalidated();
+        verify(mMockValueReceiver).onInvalidated();
+    }
+
+    private static class FakeSensorGateway implements SensorGateway {
+        final List<Consumer> registeredConsumers = new ArrayList<>();
+
+        @Override
+        public void enableUpdates() {
+        }
+
+        @Override
+        public void disableUpdates() {
+        }
+
+        @Override
+        public void registerSensorGatewayConsumer(
+                @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer) {
+            registeredConsumers.add(consumer);
+        }
+
+        @Override
+        public void registerSensorGatewayConsumer(
+                @NonNull PlatformDataKey<?> key,
+                @NonNull Executor executor,
+                @NonNull Consumer consumer) {
+            registerSensorGatewayConsumer(key, consumer);
+        }
+
+        @Override
+        public void unregisterSensorGatewayConsumer(
+                @NonNull PlatformDataKey<?> key, @NonNull Consumer consumer) {
+            registeredConsumers.remove(consumer);
+        }
     }
 }

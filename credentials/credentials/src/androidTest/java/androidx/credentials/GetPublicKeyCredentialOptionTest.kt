@@ -57,8 +57,9 @@ class GetPublicKeyCredentialOptionTest {
     @Test
     fun constructor_setPreferImmediatelyAvailableCredentialsTrue() {
         val preferImmediatelyAvailableCredentialsExpected = true
+        val clientDataHash = "hash"
         val getPublicKeyCredentialOpt = GetPublicKeyCredentialOption(
-            "JSON", preferImmediatelyAvailableCredentialsExpected
+            "JSON", clientDataHash, preferImmediatelyAvailableCredentialsExpected
         )
         val preferImmediatelyAvailableCredentialsActual =
             getPublicKeyCredentialOpt.preferImmediatelyAvailableCredentials
@@ -79,6 +80,7 @@ class GetPublicKeyCredentialOptionTest {
         val requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
         val preferImmediatelyAvailableCredentialsExpected = false
         val expectedAutoSelectAllowed = true
+        val clientDataHash = "hash"
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -88,6 +90,8 @@ class GetPublicKeyCredentialOptionTest {
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
+        expectedData.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
+            clientDataHash)
         expectedData.putBoolean(
             GetPublicKeyCredentialOption.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
             preferImmediatelyAvailableCredentialsExpected
@@ -98,7 +102,7 @@ class GetPublicKeyCredentialOptionTest {
         )
 
         val option = GetPublicKeyCredentialOption(
-            requestJsonExpected, preferImmediatelyAvailableCredentialsExpected
+            requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected
         )
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -111,7 +115,8 @@ class GetPublicKeyCredentialOptionTest {
 
     @Test
     fun frameworkConversion_success() {
-        val option = GetPublicKeyCredentialOption("json", true)
+        val clientDataHash = "hash"
+        val option = GetPublicKeyCredentialOption("json", clientDataHash, true)
 
         val convertedOption = createFrom(
             option.type,

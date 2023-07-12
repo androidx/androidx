@@ -39,7 +39,7 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera Extensions Example Library"
+    name = "Camera Extensions Example"
     publish = Publish.NONE
     inceptionYear = "2019"
     description = "Example extension implementation for the Jetpack Camera Library, a library providing a " +

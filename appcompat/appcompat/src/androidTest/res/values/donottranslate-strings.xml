@@ -67,6 +67,7 @@
     <string name="app_compat_edit_text_receive_content_activity">
         AppCompat edit text receive content activity
     </string>
+    <string name="app_compat_ime_focus_activity">AppCompat ime focus</string>
     <string name="app_compat_button_auto_size_activity">AppCompat button auto-size</string>
     <string name="sample_text1">Sample text 1</string>
     <string name="sample_text2">Sample text 2</string>

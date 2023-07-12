@@ -25,6 +25,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
+import static androidx.work.impl.utils.EnqueueUtilsKt.checkContentUriTriggerWorkerLimits;
 import static androidx.work.impl.utils.EnqueueUtilsKt.wrapInConstraintTrackingWorkerIfNeeded;
 
 import android.content.Context;
@@ -58,7 +59,6 @@ import java.util.Set;
 /**
  * Manages the enqueuing of a {@link WorkContinuationImpl}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EnqueueRunnable implements Runnable {
@@ -118,6 +118,8 @@ public class EnqueueRunnable implements Runnable {
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
         workDatabase.beginTransaction();
         try {
+            checkContentUriTriggerWorkerLimits(workDatabase,
+                    workManagerImpl.getConfiguration(), mWorkContinuation);
             boolean needsScheduling = processContinuation(mWorkContinuation);
             workDatabase.setTransactionSuccessful();
             return needsScheduling;
@@ -186,7 +188,7 @@ public class EnqueueRunnable implements Runnable {
 
         boolean needsScheduling = false;
 
-        long currentTimeMillis = System.currentTimeMillis();
+        long currentTimeMillis = workManagerImpl.getConfiguration().getClock().currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
 
         boolean hasPrerequisite = (prerequisiteIds != null && prerequisiteIds.length > 0);

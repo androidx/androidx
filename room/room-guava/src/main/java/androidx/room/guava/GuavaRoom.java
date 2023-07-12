@@ -36,7 +36,6 @@ import java.util.concurrent.Executor;
 /**
  * A class to hold static methods used by code generation in Room's Guava compatibility library.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @SuppressWarnings("unused") // Used in GuavaListenableFutureQueryResultBinder code generation.

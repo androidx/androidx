@@ -74,7 +74,7 @@ abstract class DirectTestService() : Service() {
     private lateinit var testFailure: Throwable
 
     // It should be setup in `beforeTest`
-    internal lateinit var store: DataStoreImpl<FooProto>
+    internal lateinit var store: DataStore<FooProto>
 
     override fun onBind(intent: Intent): IBinder {
         return messenger.getBinder()

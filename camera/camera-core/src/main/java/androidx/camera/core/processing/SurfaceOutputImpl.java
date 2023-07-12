@@ -20,6 +20,7 @@ import static androidx.camera.core.impl.utils.MatrixExt.preRotate;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
+import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -33,11 +34,12 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceProcessor;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 
@@ -46,7 +48,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
-
 
 /**
  * A implementation of {@link SurfaceOutput} that is connected to a {@link SurfaceEdge}.
@@ -71,8 +72,12 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     private final int mRotationDegrees;
     private final boolean mMirroring;
 
+    // The additional transform to be applied on top of SurfaceTexture#getTransformMatrix()
     @NonNull
-    private final float[] mGlTransform = new float[16];
+    private final float[] mAdditionalTransform = new float[16];
+    // The inverted value of SurfaceTexture#getTransformMatrix()
+    @NonNull
+    private final float[] mInvertedTextureTransform = new float[16];
     @GuardedBy("mLock")
     @Nullable
     private Consumer<Event> mEventListener;
@@ -87,6 +92,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @NonNull
     private final ListenableFuture<Void> mCloseFuture;
     private CallbackToFutureAdapter.Completer<Void> mCloseFutureCompleter;
+    @Nullable
+    private CameraInternal mCameraInternal;
 
     SurfaceOutputImpl(
             @NonNull Surface surface,
@@ -96,7 +103,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             @NonNull Size inputSize,
             @NonNull Rect inputCropRect,
             int rotationDegree,
-            boolean mirroring) {
+            boolean mirroring,
+            @Nullable CameraInternal cameraInternal) {
         mSurface = surface;
         mTargets = targets;
         mFormat = format;
@@ -105,7 +113,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         mInputCropRect = new Rect(inputCropRect);
         mMirroring = mirroring;
         mRotationDegrees = rotationDegree;
-        calculateGlTransform();
+        mCameraInternal = cameraInternal;
+        calculateAdditionalTransform();
         mCloseFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mCloseFutureCompleter = completer;
@@ -133,9 +142,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     /**
-     * @inheritDoc
+     * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
      */
-    @Override
     public void requestClose() {
         AtomicReference<Consumer<Event>> eventListenerRef = new AtomicReference<>();
         Executor executor = null;
@@ -206,6 +214,11 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         return mMirroring;
     }
 
+    @VisibleForTesting
+    public CameraInternal getCamera() {
+        return mCameraInternal;
+    }
+
     /**
      * This method can be invoked by the processor implementation on any thread.
      *
@@ -224,10 +237,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
 
     /**
      * Returns the close state.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     public boolean isClosed() {
         synchronized (mLock) {
             return mIsClosed;
@@ -248,38 +259,48 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @AnyThread
     @Override
     public void updateTransformMatrix(@NonNull float[] output, @NonNull float[] input) {
-        System.arraycopy(mGlTransform, 0, output, 0, 16);
+        Matrix.multiplyMM(output, 0, input, 0, mAdditionalTransform, 0);
     }
 
     /**
-     * Calculates the GL transformation.
+     * Calculates the additional GL transform and saves it to {@link #mAdditionalTransform}.
      *
-     * <p>The calculation takes the assumption that input transform is not taken, that is
-     * {@link SurfaceTexture#getTransformMatrix(float[])}.
+     * <p>The effect implementation needs to apply this value on top of texture transform obtained
+     * from {@link SurfaceTexture#getTransformMatrix}.
      *
-     * <p>The calculation is:
+     * <p>The overall transformation (A * B) is a concatenation of 2 values: A) the texture
+     * transform (value of SurfaceTexture#getTransformMatrix), and B) CameraX's additional
+     * transform based on user config such as the ViewPort API and UseCase#targetRotation. To
+     * calculate B, we do it in 3 steps:
      * <ol>
-     *     <li>Add flipping to compensate the up-side down between texture and image buffer
-     *     coordinates.</li>
-     *     <li>Add rotation.</li>
-     *     <li>Add mirroring when mirroring is required.</li>
-     *     <li>Add cropping based on the input size and crop rect.</li>
+     * <li>1. Calculate A * B by using CameraX transformation value such as crop rect, relative
+     * rotation, and mirroring. It already contains the texture transform(A).
+     * <li>2. Calculate A^-1 by predicating the texture transform(A) based on camera
+     * characteristics then inverting it.
+     * <li>3. Calculate B by multiplying A^-1 * A * B.
      * </ol>
      */
-    private void calculateGlTransform() {
-        Matrix.setIdentityM(mGlTransform, 0);
+    private void calculateAdditionalTransform() {
+        Matrix.setIdentityM(mAdditionalTransform, 0);
 
-        // Flipping
-        Matrix.translateM(mGlTransform, 0, 0f, 1f, 0f);
-        Matrix.scaleM(mGlTransform, 0, 1f, -1f, 1f);
+        // Step 1, calculate the overall transformation(A * B) with the following steps:
+        // - Flip compensate the GL coordinates v.s. image coordinates
+        // - Rotate the image based on the relative rotation
+        // - Mirror the image if needed
+        // - Apply the crop rect
+
+        // Flipping for GL.
+        // TODO(b/278109696): move GL flipping to MatrixExt.
+        Matrix.translateM(mAdditionalTransform, 0, 0f, 1f, 0f);
+        Matrix.scaleM(mAdditionalTransform, 0, 1f, -1f, 1f);
 
         // Rotation
-        preRotate(mGlTransform, mRotationDegrees, 0.5f, 0.5f);
+        preRotate(mAdditionalTransform, mRotationDegrees, 0.5f, 0.5f);
 
         // Mirroring
         if (mMirroring) {
-            Matrix.translateM(mGlTransform, 0, 1, 0f, 0f);
-            Matrix.scaleM(mGlTransform, 0, -1, 1f, 1f);
+            Matrix.translateM(mAdditionalTransform, 0, 1, 0f, 0f);
+            Matrix.scaleM(mAdditionalTransform, 0, -1, 1f, 1f);
         }
 
         // Crop
@@ -297,7 +318,52 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         float scaleX = rotatedCroppedRect.width() / rotatedSize.getWidth();
         float scaleY = rotatedCroppedRect.height() / rotatedSize.getHeight();
         // Move to the new left-bottom position and apply the scale.
-        Matrix.translateM(mGlTransform, 0, offsetX, offsetY, 0f);
-        Matrix.scaleM(mGlTransform, 0, scaleX, scaleY, 1f);
+        Matrix.translateM(mAdditionalTransform, 0, offsetX, offsetY, 0f);
+        Matrix.scaleM(mAdditionalTransform, 0, scaleX, scaleY, 1f);
+
+        // Step 2: calculate the inverted texture transform: A^-1
+        calculateInvertedTextureTransform();
+
+        // Step 3: calculate the additional transform: B = A^-1 * A * B
+        Matrix.multiplyMM(mAdditionalTransform, 0, mInvertedTextureTransform, 0,
+                mAdditionalTransform, 0);
+    }
+
+    /**
+     * Calculates the inverted texture transform and saves it to
+     * {@link #mInvertedTextureTransform}.
+     *
+     * <p>This method predicts the value of {@link SurfaceTexture#getTransformMatrix} based on
+     * camera characteristics then invert it. The result is used to remove the texture transform
+     * from overall transformation.
+     */
+    private void calculateInvertedTextureTransform() {
+        Matrix.setIdentityM(mInvertedTextureTransform, 0);
+
+        // Flip for GL. SurfaceTexture#getTransformMatrix always contains this flipping regardless
+        // of whether it has the camera transform.
+        // TODO(b/278109696): move GL flipping to MatrixExt.
+        Matrix.translateM(mInvertedTextureTransform, 0, 0f, 1f, 0f);
+        Matrix.scaleM(mInvertedTextureTransform, 0, 1f, -1f, 1f);
+
+        // Applies the camera sensor orientation if the input surface contains camera transform.
+        if (mCameraInternal != null) {
+            checkState(mCameraInternal.getHasTransform(), "Camera has no transform.");
+
+            // Rotation
+            preRotate(mInvertedTextureTransform,
+                    mCameraInternal.getCameraInfo().getSensorRotationDegrees(),
+                    0.5f,
+                    0.5f);
+
+            // Mirroring
+            if (mCameraInternal.isFrontFacing()) {
+                Matrix.translateM(mInvertedTextureTransform, 0, 1, 0f, 0f);
+                Matrix.scaleM(mInvertedTextureTransform, 0, -1, 1f, 1f);
+            }
+        }
+
+        // Invert the matrix so it can be used to "undo" the SurfaceTexture#getTransformMatrix.
+        Matrix.invertM(mInvertedTextureTransform, 0, mInvertedTextureTransform, 0);
     }
 }

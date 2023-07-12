@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
@@ -33,6 +34,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -102,8 +104,7 @@ interface UseCaseCameraRequestControl {
      *
      *  This method will:
      *  (1) Stores [config], [tags] and [listeners] by [type] respectively. The new inputs above
-     *  will take place of the existing value of the [type]. If the [type] isn't set, it will
-     *  override the config which is stored as the [Type.DEFAULT].
+     *  will take place of the existing value of the [type].
      *  (2) Update the repeating request by merging all the [config], [tags] and [listeners] from
      *  all the defined types.
      *
@@ -130,10 +131,14 @@ interface UseCaseCameraRequestControl {
     // 3A
     suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
     suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode? = null
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
+        aeLockBehavior: Lock3ABehavior? = null,
+        afLockBehavior: Lock3ABehavior? = null,
+        awbLockBehavior: Lock3ABehavior? = null,
+        afTriggerStartAeMode: AeMode? = null,
+        timeLimitNs: Long = CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A>
 
     suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
@@ -175,6 +180,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         tags: Map<String, Any>,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> = synchronized(lock) {
+        debug { "[$type] Add request option: $values" }
         infoBundleMap.getOrPut(type) { InfoBundle() }.let {
             it.options.addAllCaptureRequestOptionsWithPriority(values, optionPriority)
             it.tags.putAll(tags)
@@ -191,6 +197,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> = synchronized(lock) {
+        debug { "[$type] Set config: ${config?.toParameters()}" }
         infoBundleMap[type] = InfoBundle(
             Camera2ImplConfig.Builder().apply {
                 config?.let {
@@ -217,17 +224,24 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         }
 
     override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
-        afTriggerStartAeMode: AeMode?
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+        aeLockBehavior: Lock3ABehavior?,
+        afLockBehavior: Lock3ABehavior?,
+        awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode?,
+        timeLimitNs: Long,
     ): Deferred<Result3A> = graph.acquireSession().use {
         it.lock3A(
             aeRegions = aeRegions,
             afRegions = afRegions,
             awbRegions = awbRegions,
-            afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-            afTriggerStartAeMode = afTriggerStartAeMode
+            aeLockBehavior = aeLockBehavior,
+            afLockBehavior = afLockBehavior,
+            awbLockBehavior = awbLockBehavior,
+            afTriggerStartAeMode = afTriggerStartAeMode,
+            timeLimitNs = timeLimitNs,
         )
     }
 

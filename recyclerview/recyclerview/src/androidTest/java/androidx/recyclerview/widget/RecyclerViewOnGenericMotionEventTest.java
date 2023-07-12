@@ -24,9 +24,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.widget.OverScroller;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.ViewConfigurationCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -57,17 +61,71 @@ public class RecyclerViewOnGenericMotionEventTest {
     }
 
     @Test
-    public void rotaryEncoderVerticalScroll() {
+    public void rotaryEncoderVerticalScroll_nonLowResDevice() {
+        mRecyclerView.mLowResRotaryEncoderFeature = false;
+        MockLayoutManager layoutManager = new MockLayoutManager(true, true);
+        mRecyclerView.setLayoutManager(layoutManager);
+        layout();
+
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
+
+        assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()),
+                /* assertSmoothScroll= */ false);
+    }
+
+    @Test
+    public void rotaryEncoderHorizontalScroll_nonLowResDevice() {
+        mRecyclerView.mLowResRotaryEncoderFeature = false;
+        // The encoder is one-dimensional, and can only scroll horizontally if vertical scrolling
+        // is not enabled.
+        MockLayoutManager layoutManager = new MockLayoutManager(true, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+        layout();
+
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
+
+        assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0,
+                /* assertSmoothScroll= */ false);
+    }
+
+    @Test
+    public void rotaryEncoderVerticalScroll_lowResDevice() {
+        mRecyclerView.mLowResRotaryEncoderFeature = true;
         MockLayoutManager layoutManager = new MockLayoutManager(true, true);
         mRecyclerView.setLayoutManager(layoutManager);
         layout();
         TouchUtils.scrollView(
                 MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
-        assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()));
+        assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()),
+                /* assertSmoothScroll= */ true);
     }
 
     @Test
-    public void rotaryEncoderHorizontalScroll() {
+    public void rotaryEncoderVerticalScroll_lowResDevice_backToBackScrollEvents() {
+        mRecyclerView.mLowResRotaryEncoderFeature = true;
+        MockLayoutManager layoutManager = new MockLayoutManager(true, true);
+        mRecyclerView.setLayoutManager(layoutManager);
+        layout();
+
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
+        OverScroller overScroller = mRecyclerView.mViewFlinger.mOverScroller;
+        int remainingScroll = overScroller.getFinalY() - overScroller.getCurrY();
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
+
+        // The expected total scroll will be the amount corresponding to each of the two scroll
+        // events, plus the amount of scroll remaining from the first scroll by the time the
+        // second scroll was initiated.
+        assertTotalScroll(0, (int) (-4f * getScaledVerticalScrollFactor()) + remainingScroll,
+                /* assertSmoothScroll= */ true);
+    }
+
+    @Test
+    public void rotaryEncoderHorizontalScroll_lowResDevice() {
+        mRecyclerView.mLowResRotaryEncoderFeature = true;
         // The encoder is one-dimensional, and can only scroll horizontally if vertical scrolling
         // is not enabled.
         MockLayoutManager layoutManager = new MockLayoutManager(true, false);
@@ -75,7 +133,29 @@ public class RecyclerViewOnGenericMotionEventTest {
         layout();
         TouchUtils.scrollView(
                 MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
-        assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0);
+        assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0,
+                /* assertSmoothScroll= */ true);
+    }
+
+    @Test
+    public void rotaryEncoderHorizontalScroll_lowResDevice_backToBackScrollEvents() {
+        mRecyclerView.mLowResRotaryEncoderFeature = true;
+        MockLayoutManager layoutManager = new MockLayoutManager(true, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+        layout();
+
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
+        OverScroller overScroller = mRecyclerView.mViewFlinger.mOverScroller;
+        int remainingScroll = overScroller.getFinalX() - overScroller.getCurrX();
+        TouchUtils.scrollView(
+                MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
+
+        // The expected total scroll will be the amount corresponding to each of the two scroll
+        // events, plus the amount of scroll remaining from the first scroll by the time the
+        // second scroll was initiated.
+        assertTotalScroll((int) (4f * getScaledVerticalScrollFactor()) + remainingScroll, 0,
+                /* assertSmoothScroll= */ true);
     }
 
     @Test
@@ -109,8 +189,17 @@ public class RecyclerViewOnGenericMotionEventTest {
     }
 
     private void assertTotalScroll(int x, int y) {
-        assertEquals("x total scroll", x, mRecyclerView.mTotalX);
-        assertEquals("y total scroll", y, mRecyclerView.mTotalY);
+        assertTotalScroll(x, y, /* smoothScroll= */ false);
+    }
+
+    private void assertTotalScroll(int x, int y, boolean assertSmoothScroll) {
+        if (assertSmoothScroll) {
+            assertEquals("x total smooth scroll", x, mRecyclerView.mTotalSmoothX);
+            assertEquals("y total smooth scroll", y, mRecyclerView.mTotalSmoothY);
+        } else {
+            assertEquals("x total scroll", x, mRecyclerView.mTotalX);
+            assertEquals("y total scroll", y, mRecyclerView.mTotalY);
+        }
     }
 
     private static MotionEvent obtainScrollMotionEvent(int axis, int axisValue, int inputDevice) {
@@ -212,6 +301,9 @@ public class RecyclerViewOnGenericMotionEventTest {
         int mTotalX = 0;
         int mTotalY = 0;
 
+        int mTotalSmoothX = 0;
+        int mTotalSmoothY = 0;
+
         TestRecyclerView(Context context) {
             super(context);
         }
@@ -220,6 +312,13 @@ public class RecyclerViewOnGenericMotionEventTest {
             mTotalX += x;
             mTotalY += y;
             return super.scrollByInternal(x, y, ev, type);
+        }
+
+        void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator,
+                int duration, boolean withNestedScrolling) {
+            mTotalSmoothX += dx;
+            mTotalSmoothY += dy;
+            super.smoothScrollBy(dx, dy, interpolator, duration, withNestedScrolling);
         }
     }
 }

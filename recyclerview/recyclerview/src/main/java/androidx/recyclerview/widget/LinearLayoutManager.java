@@ -2494,7 +2494,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressLint("BanParcelableUsage")

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(50)"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/AndroidxTracingTraceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                trace(label) { Thread.sleep(50) }"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/AndroidxTracingTraceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(5000)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/CompilationMode.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(sleepDurMs)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/ConfigurableActivity.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(2000)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(delayDurationMs)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(delayDurationMs)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(50)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(5000) // sleep to await flushing cache to disk"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/MacrobenchmarkScopeTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                trace(label) { Thread.sleep(50) }"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/PerfettoCaptureSweepTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(500)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/ProfileInstallBroadcast.kt"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="                    if (BuildCompat.isAtLeastU() || Shell.isSessionRooted()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/CompilationMode.kt"/>
+    </issue>
+
+</issues>

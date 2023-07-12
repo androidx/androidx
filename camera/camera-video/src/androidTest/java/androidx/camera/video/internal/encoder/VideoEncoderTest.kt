@@ -29,6 +29,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
@@ -42,7 +43,7 @@ import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
+import androidx.camera.video.Recorder
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
@@ -114,6 +115,7 @@ class VideoEncoderTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private val dynamicRange = DynamicRange.SDR
     private var currentSurface: Surface? = null
     private val encodeStopSemaphore = Semaphore(0)
     private val deactivateSurfaceBeforeStop =
@@ -366,8 +368,11 @@ class VideoEncoderTest(
 
     private fun initVideoEncoder() {
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
-        val resolution = QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
-        assumeTrue(resolution != null)
+        val quality = Quality.LOWEST
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        val videoProfile = videoCapabilities.getProfiles(quality, dynamicRange)?.defaultVideoProfile
+        assumeTrue(videoProfile != null)
+        val resolution = Size(videoProfile!!.width, videoProfile.height)
 
         videoEncoderConfig = VideoEncoderConfig.builder()
             .setInputTimebase(INPUT_TIMEBASE)
@@ -376,7 +381,7 @@ class VideoEncoderTest(
             .setFrameRate(FRAME_RATE)
             .setIFrameInterval(I_FRAME_INTERVAL)
             .setMimeType(MIME_TYPE)
-            .setResolution(resolution!!)
+            .setResolution(resolution)
             .build()
 
         // init video encoder

@@ -48,6 +48,8 @@ private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
 val ALLOW_RERUNNING_TASKS = setOf(
     "buildOnServer",
     "checkExternalLicenses",
+    // caching disabled for now while we look for a fix for b/273294710
+    "createAllArchives",
     // https://youtrack.jetbrains.com/issue/KT-52632
     "commonizeNativeDistribution",
     "createDiffArchiveForAll",
@@ -121,6 +123,7 @@ val ALLOW_RERUNNING_TASKS = setOf(
     "generateProjectStructureMetadata",
 
     // https://github.com/google/protobuf-gradle-plugin/issues/667
+    ":appactions:interaction:interaction-service-proto:extractIncludeTestProto",
     ":datastore:datastore-preferences-proto:extractIncludeTestProto",
     ":glance:glance-appwidget-proto:extractIncludeTestProto",
     ":health:connect:connect-client-proto:extractIncludeTestProto",
@@ -133,7 +136,6 @@ val ALLOW_RERUNNING_TASKS = setOf(
 // Additional tasks that are expected to be temporarily out-of-date after running once
 // Tasks in this set we don't even try to rerun, because they're known to be unnecessary
 val DONT_TRY_RERUNNING_TASKS = setOf(
-    ":buildSrc-tests:project-subsets:test",
     "listTaskOutputs",
     "tasks",
 
@@ -144,7 +146,7 @@ val DONT_TRY_RERUNNING_TASKS = setOf(
     // https://github.com/gradle/gradle/issues/11203
     "partiallyDejetifyArchive",
     "stripArchiveForPartialDejetification",
-    "createArchive"
+    "createArchive",
 )
 
 val DONT_TRY_RERUNNING_TASK_TYPES = setOf(

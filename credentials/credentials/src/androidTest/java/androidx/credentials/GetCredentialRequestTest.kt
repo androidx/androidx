@@ -16,13 +16,10 @@
 
 package androidx.credentials
 
-import com.google.common.truth.Truth.assertThat
-
-import org.junit.Assert.assertThrows
-
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-
+import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,9 +39,11 @@ class GetCredentialRequestTest {
         val expectedCredentialOptions = ArrayList<CredentialOption>()
         expectedCredentialOptions.add(GetPasswordOption())
         expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+        val origin = "origin"
 
         val request = GetCredentialRequest(
-            expectedCredentialOptions
+            expectedCredentialOptions,
+            origin
         )
 
         assertThat(request.credentialOptions).hasSize(expectedCredentialOptions.size)
@@ -53,16 +52,19 @@ class GetCredentialRequestTest {
                 expectedCredentialOptions[i]
             )
         }
+        assertThat(request.origin).isEqualTo(origin)
     }
 
     @Test
     fun constructor_defaultAutoSelect() {
         val options = ArrayList<CredentialOption>()
         options.add(GetPasswordOption())
+        val origin = "origin"
 
-        val request = GetCredentialRequest(options)
+        val request = GetCredentialRequest(options, origin)
 
         assertThat(request.credentialOptions[0].isAutoSelectAllowed).isFalse()
+        assertThat(request.origin).isEqualTo(origin)
     }
 
     @Test

@@ -17,22 +17,17 @@
 package androidx.credentials.exceptions.publickeycredential
 
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.DomError
 
 /**
- * During the create public key credential flow, this is thrown when a DOM Exception is thrown,
+ * During the create-passkey flow, this is thrown when a DOM Exception is thrown,
  * indicating the operation contains a DOMException error type. The fido spec can be found
- * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names). To see the full list of
- * implemented DOMErrors, please see the API docs associated with this package. For example, one
- * such error is [AbortError].
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names). The full list of
+ * implemented DOMErrors extends from and can be seen at [DomError].
  *
  * @property domError the specific error from the DOMException types defined in the fido spec found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
  * @throws NullPointerException If [domError] is null
- *
- * @see CreatePublicKeyCredentialException
- *
  */
 class CreatePublicKeyCredentialDomException @JvmOverloads constructor(
     val domError: DomError,

@@ -38,7 +38,7 @@ android {
 }
 
 androidx {
-    name = "Android Security App Package Authenticator Testing"
+    name = "Security App Authenticator Testing Extensions"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     mavenVersion = LibraryVersions.SECURITY_APP_AUTHENTICATOR_TESTING
     inceptionYear = "2021"

@@ -27,8 +27,8 @@ android {
 }
 
 androidx {
-    name = "Android Emoji2 Compat view helpers"
+    name = "Emoji2 Views Helper"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
-    description = "View helpers for Emoji2"
+    description = "Provide helper classes for Emoji2 views."
 }

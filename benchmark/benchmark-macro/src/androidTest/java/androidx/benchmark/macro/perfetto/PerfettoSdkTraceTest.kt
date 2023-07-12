@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tracing.trace
@@ -56,7 +57,7 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
             if (enableAppTagTracing) yield(StringSource.appTagTraceStrings)
             if (enableUserspaceTracing) yield(StringSource.userspaceTraceStrings)
         }.flatMap { it }.toList()
-        val actualSlices = PerfettoTraceProcessor.runServer(trace.path) {
+        val actualSlices = PerfettoTraceProcessor.runSingleSessionServer(trace.path) {
             StringSource.allTraceStrings.flatMap { querySlices(it).map { s -> s.name } }
         }
         assertThat(actualSlices).containsExactlyElementsIn(expectedSlices)

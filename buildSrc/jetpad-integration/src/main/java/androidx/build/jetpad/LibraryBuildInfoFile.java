@@ -49,6 +49,7 @@ public class LibraryBuildInfoFile {
     public String projectZipPath;
     public Boolean groupIdRequiresSameVersion;
     public ArrayList<Dependency> dependencies;
+    public ArrayList<Dependency> dependencyConstraints;
     public ArrayList<Check> checks;
 
     /**

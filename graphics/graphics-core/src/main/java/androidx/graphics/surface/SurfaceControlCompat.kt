@@ -26,6 +26,7 @@ import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
@@ -164,12 +165,15 @@ class SurfaceControlCompat internal constructor(
 
         internal companion object {
             @RequiresApi(Build.VERSION_CODES.Q)
-            fun createImpl(): SurfaceControlImpl.Builder =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            fun createImpl(): SurfaceControlImpl.Builder {
+                val usePlatformTransaction = !FrontBufferUtils.UseCompatSurfaceControl &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                return if (usePlatformTransaction) {
                     SurfaceControlVerificationHelper.createBuilderV33()
                 } else {
                     SurfaceControlVerificationHelper.createBuilderV29()
                 }
+            }
         }
     }
 
@@ -298,7 +302,8 @@ class SurfaceControlCompat internal constructor(
          *
          * @param surfaceControl Target [SurfaceControlCompat] to configure the provided buffer.
          * @param buffer [HardwareBuffer] instance to be rendered by the [SurfaceControlCompat]
-         * instance.
+         * instance. Use null to remove the current buffer that was previously configured on
+         * this [SurfaceControlCompat] instance.
          * @param fence Optional [SyncFenceCompat] that serves as the presentation fence. If set,
          * the [SurfaceControlCompat.Transaction] will not apply until the fence signals.
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
@@ -307,7 +312,7 @@ class SurfaceControlCompat internal constructor(
         @JvmOverloads
         fun setBuffer(
             surfaceControl: SurfaceControlCompat,
-            buffer: HardwareBuffer,
+            buffer: HardwareBuffer?,
             fence: SyncFenceCompat? = null,
             releaseCallback: (() -> Unit)? = null
         ): Transaction {
@@ -503,12 +508,15 @@ class SurfaceControlCompat internal constructor(
 
         internal companion object {
             @RequiresApi(Build.VERSION_CODES.Q)
-            fun createImpl(): SurfaceControlImpl.Transaction =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            fun createImpl(): SurfaceControlImpl.Transaction {
+                val usePlatformSurfaceControl = !FrontBufferUtils.UseCompatSurfaceControl &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                return if (usePlatformSurfaceControl) {
                     SurfaceControlVerificationHelper.createTransactionV33()
                 } else {
                     SurfaceControlVerificationHelper.createTransactionV29()
                 }
+            }
         }
     }
 }

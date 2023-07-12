@@ -35,7 +35,7 @@ import androidx.compose.ui.semantics.verticalScrollAxisRange
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("ComposableModifierFactory", "ModifierInspectorInfo")
+@Suppress("ComposableModifierFactory")
 @Composable
 internal fun Modifier.lazyLayoutSemantics(
     itemProvider: LazyLayoutItemProvider,

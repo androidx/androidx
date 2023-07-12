@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
+import androidx.kruth.assertThat
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -35,7 +36,6 @@ import androidx.room.Transaction
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
-import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import org.junit.Before
 import org.junit.Test

@@ -23,10 +23,10 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.core.widget.RemoteViewsCompat.setViewStubInflatedId
-import androidx.core.widget.RemoteViewsCompat.setViewStubLayoutResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.widget.RemoteViewsCompat.setViewStubInflatedId
+import androidx.core.widget.RemoteViewsCompat.setViewStubLayoutResource
 
 internal fun Dp.toPixels(context: Context) = toPixels(context.resources.displayMetrics)
 

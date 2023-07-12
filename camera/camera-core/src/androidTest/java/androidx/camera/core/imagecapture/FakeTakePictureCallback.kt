@@ -34,7 +34,7 @@ class FakeTakePictureCallback : TakePictureCallback {
     private var onDiskResultCont: Continuation<OutputFileResults>? = null
 
     override fun onImageCaptured() {
-        TODO("Not yet implemented")
+        TODO("onImageCaptured Not yet implemented")
     }
 
     override fun onFinalResult(outputFileResults: OutputFileResults) {

@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -54,7 +55,6 @@ public class SessionConfigTest {
             "camerax.test.option_0", Integer.class);
     private static final Option<String> OPTION_1 = Option.create(
             "camerax.test.option_1", String.class);
-
     private DeferrableSurface mMockSurface0;
     private DeferrableSurface mMockSurface1;
 
@@ -281,6 +281,86 @@ public class SessionConfigTest {
 
         assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
                 CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_nullValue() {
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getExpectedFrameRateRange()).isEqualTo(
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_initialValue() {
+        Range<Integer> fpsRangeLow = new Range<>(30, 45);
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builderPreview.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getExpectedFrameRateRange()).isEqualTo(
+                fpsRangeLow);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_sameValues() {
+        Range<Integer> fpsRangeLow = new Range<>(30, 45);
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
+        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        builderZsl.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigZsl = builderZsl.build();
+
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builderPreview.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigZsl);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getExpectedFrameRateRange()).isEqualTo(
+                fpsRangeLow);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_differentValues() {
+        Range<Integer> fpsRangeLow = new Range<>(30, 45);
+        Range<Integer> fpsRangeHigh = new Range<>(45, 60);
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
+        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        builderZsl.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigZsl = builderZsl.build();
+
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builderPreview.setExpectedFrameRateRange(fpsRangeHigh);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigZsl);
+
+        assertThat(validatingBuilder.isValid()).isFalse();
     }
 
     @Test
@@ -758,6 +838,134 @@ public class SessionConfigTest {
 
         assertThat(tag.getTag("TEST00")).isEqualTo(0);
         assertThat(tag.getTag("TEST01")).isEqualTo("String");
+    }
+
+    @Test
+    public void builderChange_doNotChangeEarlierBuiltInstance() {
+        // 1. Arrange
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback2 = mock(CameraCaptureCallback.class);
+        DeferrableSurface deferrableSurface1 = mock(DeferrableSurface.class);
+        DeferrableSurface deferrableSurface2 = mock(DeferrableSurface.class);
+        CameraDevice.StateCallback deviceStateCallback1 = mock(CameraDevice.StateCallback.class);
+        CameraDevice.StateCallback deviceStateCallback2 = mock(CameraDevice.StateCallback.class);
+        CameraCaptureSession.StateCallback sessionCallback1 =
+                mock(CameraCaptureSession.StateCallback.class);
+        CameraCaptureSession.StateCallback sessionCallback2 =
+                mock(CameraCaptureSession.StateCallback.class);
+        SessionConfig.ErrorListener errorListener1 = mock(SessionConfig.ErrorListener.class);
+        SessionConfig.ErrorListener errorListener2 = mock(SessionConfig.ErrorListener.class);
+        Range<Integer> fpsRange1 = new Range<>(30, 30);
+        Range<Integer> fpsRange2 = new Range<>(15, 30);
+        MutableOptionsBundle optionsBundle1 = MutableOptionsBundle.create();
+        optionsBundle1.insertOption(OPTION, 1);
+        MutableOptionsBundle optionsBundle2 = MutableOptionsBundle.create();
+        optionsBundle2.insertOption(OPTION, 2);
+        int template1 = CameraDevice.TEMPLATE_PREVIEW;
+        int template2 = CameraDevice.TEMPLATE_RECORD;
+
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        builder.addSurface(deferrableSurface1);
+        builder.setExpectedFrameRateRange(fpsRange1);
+        builder.addCameraCaptureCallback(callback1);
+        builder.addRepeatingCameraCaptureCallback(callback1);
+        builder.addDeviceStateCallback(deviceStateCallback1);
+        builder.addSessionStateCallback(sessionCallback1);
+        builder.setTemplateType(template1);
+        builder.addImplementationOptions(optionsBundle1);
+        builder.addErrorListener(errorListener1);
+        SessionConfig sessionConfig = builder.build();
+
+        // 2. Act
+        // builder change should not affect the instance built earlier.
+        builder.addSurface(deferrableSurface2);
+        builder.setExpectedFrameRateRange(fpsRange2);
+        builder.addCameraCaptureCallback(callback2);
+        builder.addRepeatingCameraCaptureCallback(callback2);
+        builder.addDeviceStateCallback(deviceStateCallback2);
+        builder.addSessionStateCallback(sessionCallback2);
+        builder.setTemplateType(template2);
+        builder.addImplementationOptions(optionsBundle2);
+        builder.addErrorListener(errorListener2);
+
+        // 3. Verify
+        assertThat(sessionConfig.getSurfaces()).containsExactly(deferrableSurface1);
+        assertThat(sessionConfig.getExpectedFrameRateRange()).isEqualTo(fpsRange1);
+        assertThat(sessionConfig.getSingleCameraCaptureCallbacks()).containsExactly(callback1);
+        assertThat(sessionConfig.getRepeatingCaptureConfig().getCameraCaptureCallbacks())
+                .containsExactly(callback1);
+        assertThat(sessionConfig.getDeviceStateCallbacks()).containsExactly(deviceStateCallback1);
+        assertThat(sessionConfig.getSessionStateCallbacks()).containsExactly(sessionCallback1);
+        assertThat(sessionConfig.getTemplateType()).isEqualTo(template1);
+        assertThat(sessionConfig.getImplementationOptions().retrieveOption(OPTION)).isEqualTo(1);
+        assertThat(sessionConfig.getErrorListeners()).containsExactly(errorListener1);
+    }
+
+    @Test
+    public void validatingBuilderChange_doNotChangeEarlierBuiltInstance() {
+        // 1. Arrange
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback2 = mock(CameraCaptureCallback.class);
+        DeferrableSurface deferrableSurface1 = mock(DeferrableSurface.class);
+        DeferrableSurface deferrableSurface2 = mock(DeferrableSurface.class);
+        CameraDevice.StateCallback deviceStateCallback1 = mock(CameraDevice.StateCallback.class);
+        CameraDevice.StateCallback deviceStateCallback2 = mock(CameraDevice.StateCallback.class);
+        CameraCaptureSession.StateCallback sessionCallback1 =
+                mock(CameraCaptureSession.StateCallback.class);
+        CameraCaptureSession.StateCallback sessionCallback2 =
+                mock(CameraCaptureSession.StateCallback.class);
+        SessionConfig.ErrorListener errorListener1 = mock(SessionConfig.ErrorListener.class);
+        SessionConfig.ErrorListener errorListener2 = mock(SessionConfig.ErrorListener.class);
+        Range<Integer> fpsRange1 = new Range<>(30, 30);
+        Range<Integer> fpsRange2 = new Range<>(15, 30);
+        MutableOptionsBundle optionsBundle1 = MutableOptionsBundle.create();
+        optionsBundle1.insertOption(OPTION, 1);
+        MutableOptionsBundle optionsBundle2 = MutableOptionsBundle.create();
+        optionsBundle2.insertOption(OPTION, 2);
+        int template1 = CameraDevice.TEMPLATE_PREVIEW;
+        int template2 = CameraDevice.TEMPLATE_RECORD;
+
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        builder.addSurface(deferrableSurface1);
+        builder.setExpectedFrameRateRange(fpsRange1);
+        builder.addCameraCaptureCallback(callback1);
+        builder.addRepeatingCameraCaptureCallback(callback1);
+        builder.addDeviceStateCallback(deviceStateCallback1);
+        builder.addSessionStateCallback(sessionCallback1);
+        builder.setTemplateType(template1);
+        builder.addImplementationOptions(optionsBundle1);
+        builder.addErrorListener(errorListener1);
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        validatingBuilder.add(builder.build());
+        SessionConfig sessionConfig = validatingBuilder.build();
+
+        // 2. Act
+        // add another SessionConfig to ValidatingBuilder. This should not affect the
+        // instance built earlier.
+        SessionConfig.Builder builder2 = new SessionConfig.Builder();
+        builder2.addSurface(deferrableSurface2);
+        builder2.setExpectedFrameRateRange(fpsRange2);
+        builder2.addCameraCaptureCallback(callback2);
+        builder2.addRepeatingCameraCaptureCallback(callback2);
+        builder2.addDeviceStateCallback(deviceStateCallback2);
+        builder2.addSessionStateCallback(sessionCallback2);
+        builder2.setTemplateType(template2);
+        builder2.addImplementationOptions(optionsBundle2);
+        builder2.addErrorListener(errorListener2);
+        validatingBuilder.add(builder2.build());
+
+        // 3. Verify
+        assertThat(sessionConfig.getSurfaces()).containsExactly(deferrableSurface1);
+        assertThat(sessionConfig.getExpectedFrameRateRange()).isEqualTo(fpsRange1);
+        assertThat(sessionConfig.getSingleCameraCaptureCallbacks()).containsExactly(callback1);
+        assertThat(sessionConfig.getRepeatingCaptureConfig().getCameraCaptureCallbacks())
+                .containsExactly(callback1);
+        assertThat(sessionConfig.getDeviceStateCallbacks()).containsExactly(deviceStateCallback1);
+        assertThat(sessionConfig.getSessionStateCallbacks()).containsExactly(sessionCallback1);
+        assertThat(sessionConfig.getTemplateType()).isEqualTo(template1);
+        assertThat(sessionConfig.getImplementationOptions().retrieveOption(OPTION)).isEqualTo(1);
+        assertThat(sessionConfig.getErrorListeners()).containsExactly(errorListener1);
     }
 
     private SessionConfig createSessionConfigWithTag(String key, Object tagValue) {

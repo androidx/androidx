@@ -81,6 +81,7 @@ public class WearCurvedSpacer extends View implements ArcLayout.Widget {
     }
 
     /** Sets the sweep angle of this spacer, in degrees. */
+    @Override
     public void setSweepAngleDegrees(float sweepAngleDegrees) {
         this.mSweepAngleDegrees = sweepAngleDegrees;
     }

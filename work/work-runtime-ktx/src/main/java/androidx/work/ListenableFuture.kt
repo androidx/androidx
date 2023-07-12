@@ -21,19 +21,18 @@ package androidx.work
 import androidx.annotation.RestrictTo
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Awaits for the completion of the [ListenableFuture] without blocking a thread.
  *
  * @return R The result from the [ListenableFuture]
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend inline fun <R> ListenableFuture<R>.await(): R {

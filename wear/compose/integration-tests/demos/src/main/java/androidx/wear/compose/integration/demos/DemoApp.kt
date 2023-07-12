@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.integration.demos
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -107,12 +106,15 @@ private fun BoxScope.BoxDemo(
         is ActivityDemo<*> -> {
             /* should never get here as activity demos are not added to the backstack*/
         }
+
         is ComposableDemo -> {
             demo.content(DemoParameters(onNavigateBack, state))
         }
+
         is DemoCategory -> {
             DisplayDemoList(demo, onNavigateTo)
         }
+
         else -> {
         }
     }
@@ -185,14 +187,13 @@ internal fun swipeDismissStateWithNavigation(
 
 internal data class TimestampedDelta(val time: Long, val delta: Float)
 
-@SuppressLint("ModifierInspectorInfo")
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable
 fun Modifier.rsbScroll(
     scrollableState: ScrollableState,
     flingBehavior: FlingBehavior,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester? = null
 ): Modifier {
     val channel = remember {
         Channel<TimestampedDelta>(
@@ -249,9 +250,12 @@ fun Modifier.rsbScroll(
             channel.trySend(TimestampedDelta(it.uptimeMillis, it.verticalScrollPixels))
             rsbScrollInProgress = true
             true
+        }.let {
+            if (focusRequester != null) {
+                it.focusRequester(focusRequester)
+                    .focusable()
+            } else it
         }
-            .focusRequester(focusRequester)
-            .focusable()
     }
 }
 

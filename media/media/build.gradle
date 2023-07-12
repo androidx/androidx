@@ -51,7 +51,7 @@ android {
 }
 
 androidx {
-    name = "Android Support Library media compat"
+    name = "Media"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.MEDIA
     inceptionYear = "2011"

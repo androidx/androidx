@@ -20,6 +20,7 @@ import android.content.Context;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -30,8 +31,8 @@ import java.util.Objects;
  * Converts altitudes reported above the World Geodetic System 1984 (WGS84) reference ellipsoid
  * into ones above Mean Sea Level.
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class AltitudeConverterCompat {
 
     private static final double MAX_ABS_VALID_LATITUDE = 90;
@@ -56,7 +57,6 @@ public final class AltitudeConverterCompat {
      *
      * <p>NOTE: Currently throws {@link UnsupportedOperationException} for a valid {@code location}.
      *
-     * @hide
      */
     @NonNull
     public static ListenableFuture<Location> addMslAltitudeAsync(

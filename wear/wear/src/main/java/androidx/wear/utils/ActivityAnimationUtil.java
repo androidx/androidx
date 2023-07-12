@@ -32,14 +32,12 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Helper for getting the system standard animations for a full-screen window or activity.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class ActivityAnimationUtil{
 
     /**
      * Activity animation types
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)

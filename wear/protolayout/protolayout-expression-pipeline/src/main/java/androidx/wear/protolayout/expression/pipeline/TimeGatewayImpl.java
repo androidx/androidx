@@ -28,16 +28,12 @@ import androidx.collection.ArrayMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-/**
- * Default implementation of {@link TimeGateway} using Android's clock.
- *
- * @hide
- */
+/** Default implementation of {@link TimeGateway} using Android's clock. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class TimeGatewayImpl implements TimeGateway, AutoCloseable {
     private final Handler uiHandler;
     private final Map<TimeCallback, Executor> registeredCallbacks = new ArrayMap<>();
-    private boolean updatesEnabled;
+    private boolean updatesEnabled = false;
     private final Runnable onTick;
 
     private long lastScheduleTimeMillis = 0;
@@ -48,9 +44,8 @@ public final class TimeGatewayImpl implements TimeGateway, AutoCloseable {
     // called after initialization is complete. This class is also final, so those methods cannot be
     // called from a sub-constructor either.
     @SuppressWarnings("methodref.receiver.bound")
-    public TimeGatewayImpl(@NonNull Handler uiHandler, boolean updatesEnabled) {
+    public TimeGatewayImpl(@NonNull Handler uiHandler) {
         this.uiHandler = uiHandler;
-        this.updatesEnabled = updatesEnabled;
 
         this.onTick = this::notifyNextSecond;
     }
@@ -143,6 +138,7 @@ public final class TimeGatewayImpl implements TimeGateway, AutoCloseable {
     }
 
     @Override
+    @UiThread
     public void close() {
         setUpdatesEnabled(false);
         registeredCallbacks.clear();

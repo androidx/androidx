@@ -48,6 +48,8 @@ internal class FileCache(context: Context) {
         currentProperty = "$osVersion|$appVersion"
         emojiPickerCacheDir =
             File(getDeviceProtectedStorageContext(context).cacheDir, EMOJI_PICKER_FOLDER)
+        if (!emojiPickerCacheDir.exists())
+            emojiPickerCacheDir.mkdir()
     }
 
     /** Get cache for a given file name, or write to a new file using the [defaultValue] factory. */

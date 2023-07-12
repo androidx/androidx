@@ -23,22 +23,32 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
@@ -51,9 +61,8 @@ import androidx.compose.ui.unit.dp
  * applied to. It takes in parameters like [Color], [Shape], blur radius, and Offset to let users
  * customise it to their brand personality.
  */
-@ExperimentalTvMaterial3Api
 @Stable
-class GlowIndication(
+internal class GlowIndication(
     private val color: Color,
     private val shape: Shape,
     private val glowBlurRadius: Dp,
@@ -74,7 +83,6 @@ class GlowIndication(
     }
 }
 
-@ExperimentalTvMaterial3Api
 private class GlowIndicationInstance(
     color: Color,
     private val shape: Shape,
@@ -144,9 +152,9 @@ private class GlowIndicationInstance(
  * @param offsetY describes the vertical offset of the glow from the composable.
  * @return A remembered instance of [GlowIndication].
  */
-@ExperimentalTvMaterial3Api
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-fun rememberGlowIndication(
+internal fun rememberGlowIndication(
     color: Color = MaterialTheme.colorScheme.primaryContainer,
     shape: Shape = RectangleShape,
     glowBlurRadius: Dp = 0.dp,
@@ -162,6 +170,84 @@ fun rememberGlowIndication(
     )
 }
 
+/**
+ * Border indication will add a border around the composable (independent from [Modifier.border])
+ * that can react to different [Indication] states like focused, pressed, etc.
+ * @param brush describes the color/gradient of the border.
+ * @param width describes the width/thickness of the border.
+ * @param shape describes the shape of the border. It is generally kept the same as the composable
+ * it's being applied to.
+ * @param inset describes the offset of the border from the composable it's being applied to.
+ */
+@Immutable
+internal class BorderIndication(
+    private val brush: Brush,
+    private val width: Dp,
+    private val shape: Shape,
+    private val inset: Dp = 0.dp
+) : Indication {
+
+    /**
+     * Creates an instance of [BorderIndication] from [androidx.tv.material3.Border].
+     * @param border the [androidx.tv.material3.Border] instance that is used to create and return
+     * an [BorderIndication] instance
+     */
+    @OptIn(ExperimentalTvMaterial3Api::class)
+    constructor(border: Border) :
+        this(
+            brush = border.border.brush,
+            width = border.border.width,
+            shape = border.shape,
+            inset = border.inset
+        )
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        val density = LocalDensity.current
+        val brushState = rememberUpdatedState(brush)
+        val widthState = rememberUpdatedState(width)
+        val shapeState = rememberUpdatedState(shape)
+        val insetState = rememberUpdatedState(inset)
+
+        return remember(interactionSource, density) {
+            BorderIndicationInstance(
+                brush = brushState,
+                width = widthState,
+                shape = shapeState,
+                density = density,
+                inset = insetState
+            )
+        }
+    }
+}
+
+internal class BorderIndicationInstance(
+    private val brush: State<Brush>,
+    private val width: State<Dp>,
+    private val shape: State<Shape>,
+    private val density: Density,
+    private val inset: State<Dp>
+) : IndicationInstance {
+    override fun ContentDrawScope.drawIndication() {
+        drawContent()
+
+        inset(inset = -inset.value.toPx()) {
+            drawOutline(
+                outline = shape.value.createOutline(
+                    size = size,
+                    layoutDirection = layoutDirection,
+                    density = this@BorderIndicationInstance.density
+                ),
+                brush = brush.value,
+                alpha = 1f,
+                style = Stroke(
+                    width = width.value.toPx(),
+                    cap = StrokeCap.Round
+                )
+            )
+        }
+    }
+}
+
 internal object ScaleIndicationTokens {
     const val focusDuration: Int = 300
     const val unFocusDuration: Int = 500
@@ -174,9 +260,8 @@ internal object ScaleIndicationTokens {
  * ScaleIndication is an [Indication] that scales the composable by the provided factor. This
  * indication by default will create a smooth animation between the state changes.
  */
-@ExperimentalTvMaterial3Api
 @Stable
-class ScaleIndication(private val scale: Float) : Indication {
+internal class ScaleIndication(private val scale: Float) : Indication {
     @Composable
     override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
         val interaction by interactionSource.interactions.collectAsState(

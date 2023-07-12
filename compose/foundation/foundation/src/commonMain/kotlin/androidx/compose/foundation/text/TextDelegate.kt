@@ -300,3 +300,48 @@ class TextDelegate(
 }
 
 internal fun Float.ceilToIntPx(): Int = ceil(this).roundToInt()
+
+/**
+ * Returns the [TextDelegate] passed as a [current] param if the input didn't change
+ * otherwise creates a new [TextDelegate].
+ */
+@OptIn(InternalFoundationTextApi::class)
+internal fun updateTextDelegate(
+    current: TextDelegate,
+    text: AnnotatedString,
+    style: TextStyle,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    softWrap: Boolean = true,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = DefaultMinLines,
+    placeholders: List<AnnotatedString.Range<Placeholder>>
+): TextDelegate {
+    // NOTE(text-perf-review): whenever we have remember intrinsic implemented, this might be a
+    // lot slower than the equivalent `remember(a, b, c, ...) { ... }` call.
+    return if (current.text != text ||
+        current.style != style ||
+        current.softWrap != softWrap ||
+        current.overflow != overflow ||
+        current.maxLines != maxLines ||
+        current.minLines != minLines ||
+        current.density != density ||
+        current.placeholders != placeholders ||
+        current.fontFamilyResolver !== fontFamilyResolver
+    ) {
+        TextDelegate(
+            text = text,
+            style = style,
+            softWrap = softWrap,
+            overflow = overflow,
+            maxLines = maxLines,
+            minLines = minLines,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver,
+            placeholders = placeholders,
+        )
+    } else {
+        current
+    }
+}

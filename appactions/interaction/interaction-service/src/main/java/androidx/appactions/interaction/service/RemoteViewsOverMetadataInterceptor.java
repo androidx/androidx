@@ -36,8 +36,6 @@ import io.grpc.Status;
 
 /**
  * Server interceptor that copies the RemoteViews provided in context to metadata.
- *
- * @hide
  */
 final class RemoteViewsOverMetadataInterceptor implements ServerInterceptor {
 

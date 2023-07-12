@@ -82,10 +82,12 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.imeAction
+import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
+import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -98,6 +100,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteAllCommand
 import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.OffsetMapping
@@ -202,7 +205,7 @@ internal fun CoreTextField(
 
     // CompositionLocals
     // If the text field is disabled or read-only, we should not deal with the input service
-    val textInputService = if (!enabled || readOnly) null else LocalTextInputService.current
+    val textInputService = LocalTextInputService.current
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
@@ -369,6 +372,7 @@ internal fun CoreTextField(
                 }
             }
             .then(selectionModifier)
+            .pointerHoverIcon(textPointerIcon)
     } else {
         Modifier
             .mouseDragGestureDetector(
@@ -447,6 +451,28 @@ internal fun CoreTextField(
             }
             true
         }
+        insertTextAtCursor { text ->
+            // If the action is performed while in an active text editing session, treat this like
+            // an IME command and update the text by going through the buffer. This keeps the buffer
+            // state consistent if other IME commands are performed before the next recomposition,
+            // and is used for the testing code path.
+            state.inputSession?.let { session ->
+                TextFieldDelegate.onEditCommand(
+                    // Finish composing text first because when the field is focused the IME might
+                    // set composition.
+                    ops = listOf(FinishComposingTextCommand(), CommitTextCommand(text, 1)),
+                    editProcessor = state.processor,
+                    state.onValueChange,
+                    session
+                )
+            } ?: run {
+                val newText =
+                    value.text.replaceRange(value.selection.start, value.selection.end, text)
+                val newCursor = TextRange(value.selection.start + text.length)
+                state.onValueChange(TextFieldValue(newText, newCursor))
+            }
+            true
+        }
         setSelection { selectionStart, selectionEnd, relativeToOriginalText ->
             // in traversal mode we get selection from the `textSelectionRange` semantics which is
             // selection in original text. In non-traversal mode selection comes from the Talkback
@@ -487,6 +513,13 @@ internal fun CoreTextField(
                 manager.exitSelectionMode()
                 false
             }
+        }
+        performImeAction {
+            // This will perform the appropriate default action if no handler has been specified, so
+            // as far as the platform is concerned, we always handle the action and never want to
+            // defer to the default _platform_ implementation.
+            state.onImeActionPerformed(imeOptions.imeAction)
+            true
         }
         onClick {
             // according to the documentation, we still need to provide proper semantics actions
@@ -548,7 +581,8 @@ internal fun CoreTextField(
             editable = !readOnly,
             singleLine = maxLines == 1,
             offsetMapping = offsetMapping,
-            undoManager = undoManager
+            undoManager = undoManager,
+            imeAction = imeOptions.imeAction,
         )
 
     // Modifiers that should be applied to the outer text field container. Usually those include

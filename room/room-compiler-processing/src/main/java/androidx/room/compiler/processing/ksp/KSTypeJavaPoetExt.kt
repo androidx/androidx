@@ -35,7 +35,6 @@ import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
-import kotlin.coroutines.Continuation
 
 // Catch-all type name when we cannot resolve to anything. This is what KAPT uses as error type
 // and we use the same type in KSP for consistency.
@@ -150,16 +149,8 @@ private fun KSTypeArgument.asJTypeName(
     return when (variance) {
         Variance.CONTRAVARIANT -> JWildcardTypeName.supertypeOf(resolveTypeName())
         Variance.COVARIANT -> JWildcardTypeName.subtypeOf(resolveTypeName())
-        Variance.STAR -> {
-            JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
-        }
-        else -> {
-            if (hasJvmWildcardAnnotation()) {
-                JWildcardTypeName.subtypeOf(resolveTypeName())
-            } else {
-                resolveTypeName()
-            }
-        }
+        Variance.STAR -> JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
+        else -> resolveTypeName()
     }
 }
 
@@ -179,56 +170,18 @@ private fun KSType.asJTypeName(
 ): JTypeName {
     return if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
         val args: Array<JTypeName> = this.arguments
-            .map { typeArg ->
-                typeArg.asJTypeName(
-                    resolver = resolver,
-                    typeArgumentTypeLookup = typeArgumentTypeLookup
-                )
-            }
+            .map { typeArg -> typeArg.asJTypeName(resolver, typeArgumentTypeLookup) }
             .map { it.tryBox() }
-            .let { args ->
-                if (this.isSuspendFunctionType) args.convertToSuspendSignature()
-                else args
-            }
             .toTypedArray()
 
-        when (
-            val typeName = declaration
-                .asJTypeName(resolver, typeArgumentTypeLookup).tryBox()
-        ) {
+        when (val typeName = declaration.asJTypeName(resolver, typeArgumentTypeLookup).tryBox()) {
             is JArrayTypeName -> JArrayTypeName.of(args.single())
-            is JClassName -> JParameterizedTypeName.get(
-                typeName,
-                *args
-            )
+            is JClassName -> JParameterizedTypeName.get(typeName, *args)
             else -> error("Unexpected type name for KSType: $typeName")
         }
     } else {
         this.declaration.asJTypeName(resolver, typeArgumentTypeLookup)
     }
-}
-
-/**
- * Transforms [this] list of arguments to a suspend signature. For a [suspend] functional type, we
- * need to transform it to be a FunctionX with a [Continuation] with the correct return type. A
- * transformed SuspendFunction looks like this:
- *
- * FunctionX<[? super $params], ? super Continuation<? super $ReturnType>, ?>
- */
-private fun List<JTypeName>.convertToSuspendSignature(): List<JTypeName> {
-    val args = this
-
-    // The last arg is the return type, so take everything except the last arg
-    val actualArgs = args.subList(0, args.size - 1)
-    val continuationReturnType = JWildcardTypeName.supertypeOf(args.last())
-    val continuationType = JParameterizedTypeName.get(
-        JClassName.get(Continuation::class.java),
-        continuationReturnType
-    )
-    return actualArgs + listOf(
-        JWildcardTypeName.supertypeOf(continuationType),
-        JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
-    )
 }
 
 /**

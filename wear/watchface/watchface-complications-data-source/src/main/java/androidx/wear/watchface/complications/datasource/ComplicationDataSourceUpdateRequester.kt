@@ -53,11 +53,7 @@ public interface ComplicationDataSourceUpdateRequester {
     public fun requestUpdate(vararg complicationInstanceIds: Int)
 
     public companion object {
-        /**
-         * The package of the service that accepts complication data source requests.
-         *
-         * @hide
-         */
+        /** The package of the service that accepts complication data source requests. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
 
@@ -76,22 +72,18 @@ public interface ComplicationDataSourceUpdateRequester {
         ): ComplicationDataSourceUpdateRequester =
             ComplicationDataSourceUpdateRequesterImpl(context, complicationDataSourceComponent)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val ACTION_REQUEST_UPDATE: String =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE"
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val ACTION_REQUEST_UPDATE_ALL: String =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL"
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val EXTRA_PROVIDER_COMPONENT: String =
             "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT"
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val EXTRA_COMPLICATION_IDS: String =
             "android.support.wearable.complications.EXTRA_COMPLICATION_IDS"

@@ -29,7 +29,9 @@ import android.os.Bundle;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +39,6 @@ import java.lang.annotation.RetentionPolicy;
 /** Helper for accessing features in {@link PendingIntent}. */
 public final class PendingIntentCompat {
 
-    /** @hide */
     @IntDef(
             flag = true,
             value = {
@@ -55,6 +56,7 @@ public final class PendingIntentCompat {
                 Intent.FILL_IN_CLIP_DATA
             })
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface Flags {}
 
     /**
@@ -134,10 +136,13 @@ public final class PendingIntentCompat {
     /**
      * Retrieves a {@link PendingIntent} with mandatory mutability flag set on supported platform
      * versions. The caller provides the flag as combination of all the other values except
-     * mutability flag. This method combines mutability flag when necessary. See {@link
-     * PendingIntent#getBroadcast(Context, int, Intent, int)}.
+     * mutability flag. This method combines mutability flag when necessary.
+     *
+     * @return Returns an existing or new PendingIntent matching the given parameters. May return
+     *         {@code null} only if {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
+     * @see PendingIntent#getBroadcast(Context, int, Intent, int)
      */
-    public static @NonNull PendingIntent getBroadcast(
+    public static @Nullable PendingIntent getBroadcast(
             @NonNull Context context,
             int requestCode,
             @NonNull Intent intent,

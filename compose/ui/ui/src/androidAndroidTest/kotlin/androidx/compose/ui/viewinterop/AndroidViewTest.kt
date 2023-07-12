@@ -30,6 +30,7 @@ import android.view.View
 import android.view.View.OnAttachStateChangeListener
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
@@ -38,6 +39,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
@@ -168,6 +171,32 @@ class AndroidViewTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun androidViewAccessibilityDelegate() {
+        rule.setContent {
+             AndroidView({ TextView(it).apply { text = "Test"; setScreenReaderFocusable(true) } })
+        }
+        Espresso
+            .onView(instanceOf(TextView::class.java))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                val viewParent = view.getParent()
+                if (viewParent !is View) {
+                    throw exception
+                }
+                val delegate = viewParent.getAccessibilityDelegate()
+                if (viewParent.getAccessibilityDelegate() == null) {
+                    throw exception
+                }
+                val info: AccessibilityNodeInfo = AccessibilityNodeInfo()
+                delegate.onInitializeAccessibilityNodeInfo(view, info)
+                if (!info.isScreenReaderFocusable()) {
+                    throw exception
+                }
+            }
+    }
+
+    @Test
     fun androidViewWithResourceTest_preservesLayoutParams() {
         rule.setContent {
             AndroidView({
@@ -202,13 +231,21 @@ class AndroidViewTest {
             }
         }
 
+        // Assert view initially attached
         rule.runOnUiThread {
             assertThat(frameLayout.parent).isNotNull()
             emit = false
         }
 
+        // Assert view detached when removed from composition hierarchy
         rule.runOnIdle {
             assertThat(frameLayout.parent).isNull()
+            emit = true
+        }
+
+        // Assert view reattached when added back to the composition hierarchy
+        rule.runOnIdle {
+            assertThat(frameLayout.parent).isNotNull()
         }
     }
 
@@ -616,6 +653,37 @@ class AndroidViewTest {
         rule.onNodeWithTag("box").captureToImage().assertPixels(IntSize(size, size)) {
             Color.Blue
         }
+    }
+
+    @Test
+    fun androidView_callsOnRelease() {
+        var releaseCount = 0
+        var showContent by mutableStateOf(true)
+        rule.setContent {
+            if (showContent) {
+                AndroidView(
+                    factory = { TextView(it) },
+                    update = { it.text = "onRelease test" },
+                    onRelease = { releaseCount++ }
+                )
+            }
+        }
+
+        onView(instanceOf(TextView::class.java))
+            .check(matches(isDisplayed()))
+
+        assertEquals("onRelease() was called unexpectedly", 0, releaseCount)
+
+        showContent = false
+
+        onView(instanceOf(TextView::class.java))
+            .check(doesNotExist())
+
+        assertEquals(
+            "onRelease() should be called exactly once after " +
+                "removing the view from the composition hierarchy",
+            1, releaseCount
+        )
     }
 
     @Test
@@ -1324,6 +1392,27 @@ class AndroidViewTest {
         onView(instanceOf(EditText::class.java))
             .check(matches(isDisplayed()))
             .check(matches(withText("User Input")))
+    }
+
+    @Test
+    fun androidView_withParentDataModifier() {
+        val columnHeight = 100
+        val columnHeightDp = with(rule.density) { columnHeight.toDp() }
+        var viewSize = IntSize.Zero
+        rule.setContent {
+            Column(Modifier.height(columnHeightDp).fillMaxWidth()) {
+                AndroidView(
+                    factory = { View(it) },
+                    modifier = Modifier.weight(1f).onGloballyPositioned { viewSize = it.size }
+                )
+
+                Box(Modifier.height(columnHeightDp / 4))
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(columnHeight * 3 / 4, viewSize.height)
+        }
     }
 
     @ExperimentalComposeUiApi

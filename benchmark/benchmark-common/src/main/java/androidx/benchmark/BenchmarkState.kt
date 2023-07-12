@@ -146,7 +146,7 @@ public class BenchmarkState internal constructor(
      * This value is overridden by the end of the warmup stage. The default value defines
      * behavior for modes that bypass warmup (dryRun and startup).
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal var iterationsPerRepeat = 1
 
     private var state = NOT_STARTED // Current benchmark state.

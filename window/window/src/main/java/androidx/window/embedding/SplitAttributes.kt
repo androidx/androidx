@@ -17,13 +17,12 @@
 package androidx.window.embedding
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
-import androidx.window.embedding.SplitAttributes.BackgroundColor
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 
@@ -57,9 +56,8 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * @see SplitAttributes.BackgroundColor
  */
-class SplitAttributes internal constructor(
+class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
 
     /**
      * The split type attribute. Defaults to an equal split of the parent window
@@ -72,18 +70,6 @@ class SplitAttributes internal constructor(
      * is based on locale.
      */
     val layoutDirection: LayoutDirection = LOCALE,
-
-    /**
-     * The color to use for the background color during the animation of
-     * the split involving this `SplitAttributes` object if the animation
-     * requires a background.
-     *
-     * The default is to use the current theme window background color.
-     *
-     * @see BackgroundColor.color
-     * @see BackgroundColor.DEFAULT
-     */
-    val animationBackgroundColor: BackgroundColor = BackgroundColor.DEFAULT
 ) {
 
     /**
@@ -362,85 +348,6 @@ class SplitAttributes internal constructor(
     }
 
     /**
-     * Background color to be used for window transition animations in a split if the animation
-     * requires a background.
-     *
-     * @see SplitAttributes.animationBackgroundColor
-     */
-    class BackgroundColor private constructor(
-
-        /**
-         * The description of this `BackgroundColor`.
-         */
-        private val description: String,
-
-        /**
-         * [ColorInt] to represent the color to use as the background color.
-         */
-        @ColorInt
-        internal val value: Int,
-    ) {
-        override fun toString() = "BackgroundColor($description)"
-
-        override fun equals(other: Any?): Boolean {
-            if (other === this) return true
-            if (other !is BackgroundColor) return false
-            return value == other.value && description == other.description
-        }
-
-        override fun hashCode() = description.hashCode() + 31 * value.hashCode()
-
-        /**
-         * Methods that create various [BackgroundColor].
-         */
-        companion object {
-
-            /**
-             * Creates a [BackgroundColor] to represent the given [color].
-             *
-             * Only opaque color is supported.
-             *
-             * @param color [ColorInt] of an opaque color.
-             * @return the [BackgroundColor] representing the [color].
-             *
-             * @see [DEFAULT] for the default value, which means to use the
-             * current theme window background color.
-             */
-            @JvmStatic
-            fun color(
-                @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong())
-                @ColorInt
-                color: Int
-            ):
-                BackgroundColor {
-                require(Color.BLACK <= color && color <= Color.WHITE) {
-                    "Background color must be opaque"
-                }
-                return BackgroundColor("color:${Integer.toHexString(color)}", color)
-            }
-
-            /**
-             * The special [BackgroundColor] to represent the default value,
-             * which means to use the current theme window background color.
-             */
-            @JvmField
-            val DEFAULT = BackgroundColor("DEFAULT", 0)
-
-            /**
-             * Returns a [BackgroundColor] with the given [value]
-             */
-            internal fun buildFromValue(@ColorInt value: Int): BackgroundColor {
-                return if (Color.alpha(value) != 255) {
-                    // Treat any non-opaque color as the default.
-                    DEFAULT
-                } else {
-                    color(value)
-                }
-            }
-        }
-    }
-
-    /**
      * Non-public properties and methods.
      */
     companion object {
@@ -455,7 +362,6 @@ class SplitAttributes internal constructor(
     override fun hashCode(): Int {
         var result = splitType.hashCode()
         result = result * 31 + layoutDirection.hashCode()
-        result = result * 31 + animationBackgroundColor.hashCode()
         return result
     }
 
@@ -471,8 +377,7 @@ class SplitAttributes internal constructor(
         if (this === other) return true
         if (other !is SplitAttributes) return false
         return splitType == other.splitType &&
-            layoutDirection == other.layoutDirection &&
-            animationBackgroundColor == other.animationBackgroundColor
+            layoutDirection == other.layoutDirection
     }
 
     /**
@@ -482,8 +387,7 @@ class SplitAttributes internal constructor(
      */
     override fun toString(): String =
         "${SplitAttributes::class.java.simpleName}:" +
-            "{splitType=$splitType, layoutDir=$layoutDirection," +
-            " animationBackgroundColor=$animationBackgroundColor"
+            "{splitType=$splitType, layoutDir=$layoutDirection }"
 
     /**
      * Builder for creating an instance of [SplitAttributes].
@@ -497,7 +401,6 @@ class SplitAttributes internal constructor(
     class Builder {
         private var splitType = SPLIT_TYPE_EQUAL
         private var layoutDirection = LOCALE
-        private var animationBackgroundColor = BackgroundColor.DEFAULT
 
         /**
          * Sets the split type attribute.
@@ -526,32 +429,11 @@ class SplitAttributes internal constructor(
             apply { this.layoutDirection = layoutDirection }
 
         /**
-         * Sets the color to use for the background color during animation
-         * of the split involving this `SplitAttributes` object if the animation
-         * requires a background. Only opaque color is supported.
-         *
-         * The default is [BackgroundColor.DEFAULT], which means to use the
-         * current theme window background color.
-         *
-         * @param color The animation background color.
-         * @return This `Builder`.
-         *
-         * @see BackgroundColor.color
-         * @see BackgroundColor.DEFAULT
-         */
-        fun setAnimationBackgroundColor(color: BackgroundColor): Builder =
-            apply {
-                animationBackgroundColor = color
-            }
-
-        /**
          * Builds a `SplitAttributes` instance with the attributes specified by
-         * [setSplitType], [setLayoutDirection], and
-         * [setAnimationBackgroundColor].
+         * [setSplitType] and [setLayoutDirection].
          *
          * @return The new `SplitAttributes` instance.
          */
-        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection,
-            animationBackgroundColor)
+        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection)
     }
 }

@@ -127,7 +127,8 @@ public class CreatePasswordRequestJavaTest {
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
                 request.getType(), getFinalCreateCredentialData(
                         request, mContext),
-                request.getCandidateQueryData(), request.isSystemProviderRequired()
+                request.getCandidateQueryData(), request.isSystemProviderRequired(),
+                request.getOrigin()
         );
 
         assertThat(convertedRequest).isInstanceOf(CreatePasswordRequest.class);

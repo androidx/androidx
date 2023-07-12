@@ -94,8 +94,8 @@ public class MeasurementManagerTest {
 
     @Test
     public void testRegisterSource_NoServerSetup_NoErrors() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         assertThat(mMeasurementManager.registerSourceAsync(
                 SOURCE_REGISTRATION_URI,
@@ -105,8 +105,8 @@ public class MeasurementManagerTest {
 
     @Test
     public void testRegisterTrigger_NoServerSetup_NoErrors() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         assertThat(mMeasurementManager.registerTriggerAsync(TRIGGER_REGISTRATION_URI).get())
                 .isNotNull();
@@ -115,8 +115,8 @@ public class MeasurementManagerTest {
     @Test
     @SdkSuppress(minSdkVersion = 33)
     public void registerWebSource_NoErrors() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         WebSourceParams webSourceParams =
                 new WebSourceParams(SOURCE_REGISTRATION_URI, false);
@@ -137,8 +137,8 @@ public class MeasurementManagerTest {
     @Test
     @SdkSuppress(minSdkVersion = 33)
     public void registerWebTrigger_NoErrors() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         WebTriggerParams webTriggerParams =
                 new WebTriggerParams(TRIGGER_REGISTRATION_URI, false);
@@ -155,8 +155,8 @@ public class MeasurementManagerTest {
     @SdkSuppress(minSdkVersion = 33)
     public void testDeleteRegistrations_withRequest_withNoRange_withCallback_NoErrors()
             throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -173,8 +173,8 @@ public class MeasurementManagerTest {
     @SdkSuppress(minSdkVersion = 33)
     public void testDeleteRegistrations_withRequest_withEmptyLists_withRange_withCallback_NoErrors()
             throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -193,8 +193,8 @@ public class MeasurementManagerTest {
     @SdkSuppress(minSdkVersion = 33)
     public void testDeleteRegistrations_withRequest_withInvalidArguments_withCallback_hasError()
             throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -215,8 +215,8 @@ public class MeasurementManagerTest {
     @Test
     @SdkSuppress(minSdkVersion = 33)
     public void testMeasurementApiStatus_returnResultStatus() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         int result = mMeasurementManager.getMeasurementApiStatusAsync().get();
         assertThat(result).isEqualTo(1);

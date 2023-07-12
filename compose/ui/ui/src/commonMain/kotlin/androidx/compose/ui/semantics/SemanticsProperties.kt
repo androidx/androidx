@@ -98,7 +98,16 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    val IsContainer = SemanticsPropertyKey<Boolean>("IsContainer")
+    @Deprecated("Use `isTraversalGroup` instead.",
+        replaceWith = ReplaceWith("IsTraversalGroup"),
+    )
+    val IsContainer: SemanticsPropertyKey<Boolean>
+        get() = IsTraversalGroup
+
+    /**
+     * @see SemanticsPropertyReceiver.isTraversalGroup
+     */
+    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
     /**
      * @see SemanticsPropertyReceiver.invisibleToUser
@@ -107,6 +116,17 @@ object SemanticsProperties {
     val InvisibleToUser = SemanticsPropertyKey<Unit>(
         name = "InvisibleToUser",
         mergePolicy = { parentValue, _ ->
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.traversalIndex
+     */
+    val TraversalIndex = SemanticsPropertyKey<Float>(
+        name = "TraversalIndex",
+        mergePolicy = { parentValue, _ ->
+            // Never merge traversal indices
             parentValue
         }
     )
@@ -271,6 +291,16 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.setText
      */
     val SetText = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetText")
+
+    /**
+     * @see SemanticsPropertyReceiver.insertTextAtCursor
+     */
+    val InsertTextAtCursor = ActionPropertyKey<(AnnotatedString) -> Boolean>("InsertTextAtCursor")
+
+    /**
+     * @see SemanticsPropertyReceiver.performImeAction
+     */
+    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
 
     /**
      * @see SemanticsPropertyReceiver.copyText
@@ -772,7 +802,18 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
+@Deprecated("Use `isTraversalGroup` instead.",
+    replaceWith = ReplaceWith("isTraversalGroup"),
+)
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
+
+/**
+ * Whether this semantics node is a traversal group. This is defined as a node whose function
+ * is to serve as a boundary or border in organizing its children.
+ *
+ * @see SemanticsProperties.IsTraversalGroup
+ */
+var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversalGroup
 
 /**
  * Whether this node is specially known to be invisible to the user.
@@ -790,6 +831,24 @@ var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }
+
+/**
+ * A value to manually control screenreader traversal order.
+ *
+ * This API can be used to customize TalkBack traversal order. When the `traversalIndex` property is
+ * set on a traversalGroup or on a screenreader-focusable node, then the sorting algorithm will
+ * prioritize nodes with smaller `traversalIndex`s earlier. The default traversalIndex value is
+ * zero, and traversalIndices are compared at a peer level.
+ *
+ * For example,` traversalIndex = -1f` can be used to force a top bar to be ordered earlier, and
+ * `traversalIndex = 1f` to make a bottom bar ordered last, in the edge cases where this does not
+ * happen by default.  As another example, if you need to reorder two Buttons within a Row, then
+ * you can set `isTraversalGroup = true` on the Row, and set `traversalIndex` on one of the Buttons.
+ *
+ * Note that if `traversalIndex` seems to have no effect, be sure to set `isTraversalGroup = true`
+ * as well.
+ */
+var SemanticsPropertyReceiver.traversalIndex by SemanticsProperties.TraversalIndex
 
 /**
  * The horizontal scroll state of this node if this node is scrollable.
@@ -867,6 +926,9 @@ var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSele
  * Contains the IME action provided by the node.
  *
  * For example, "go to next form field" or "submit".
+ *
+ * A node that specifies an action should also specify a callback to perform the action via
+ * [performImeAction].
  */
 var SemanticsPropertyReceiver.imeAction by SemanticsProperties.ImeAction
 
@@ -1021,13 +1083,47 @@ fun SemanticsPropertyReceiver.setProgress(label: String? = null, action: ((Float
  * Expected to be used on editable text fields.
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.SetText] is called.
+ * @param action Action to be performed when [SemanticsActions.SetText] is called.
  */
 fun SemanticsPropertyReceiver.setText(
     label: String? = null,
     action: ((AnnotatedString) -> Boolean)?
 ) {
     this[SemanticsActions.SetText] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to insert text into this node at the current cursor position, or replacing the selection
+ * if text is selected.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.InsertTextAtCursor] is called.
+ */
+fun SemanticsPropertyReceiver.insertTextAtCursor(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.InsertTextAtCursor] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to invoke the IME action handler configured on the node.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * A node that specifies an action callback should also report what IME action it will perform via
+ * the [imeAction] property.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.PerformImeAction] is called.
+ */
+fun SemanticsPropertyReceiver.performImeAction(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.PerformImeAction] = AccessibilityAction(label, action)
 }
 
 /**

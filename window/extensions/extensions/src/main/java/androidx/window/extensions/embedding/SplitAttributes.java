@@ -16,6 +16,7 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.BOTTOM_TO_TOP;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LEFT_TO_RIGHT;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LOCALE;
@@ -30,6 +31,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.window.extensions.core.util.function.Function;
 
 import java.lang.annotation.Retention;
@@ -78,6 +80,7 @@ public class SplitAttributes {
      * @see Builder#setAnimationBackgroundColor(int)
      */
     @ColorInt
+    @RestrictTo(LIBRARY)
     public static final int DEFAULT_ANIMATION_BACKGROUND_COLOR = 0;
 
     /**
@@ -433,6 +436,7 @@ public class SplitAttributes {
      * @return The animation background {@code ColorInt}.
      */
     @ColorInt
+    @RestrictTo(LIBRARY)
     public int getAnimationBackgroundColor() {
         return mAnimationBackgroundColor;
     }
@@ -509,6 +513,7 @@ public class SplitAttributes {
          * @return This {@code Builder}.
          */
         @NonNull
+        @RestrictTo(LIBRARY)
         public Builder setAnimationBackgroundColor(@ColorInt int color) {
             // Any non-opaque color will be treated as the default.
             mAnimationBackgroundColor = Color.alpha(color) != 255

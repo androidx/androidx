@@ -62,6 +62,28 @@ public class ConversationItemTest {
         );
     }
 
+    public void build_throwsException_ifSenderNameMissing() {
+        assertThrows(
+                NullPointerException.class,
+                () -> TestConversationFactory.createMinimalConversationItemBuilder()
+                        .setSelf(TestConversationFactory.createMinimalMessageSenderBuilder()
+                                .setName(null)
+                                .build())
+                        .build()
+        );
+    }
+
+    public void build_throwsException_ifSenderKeyMissing() {
+        assertThrows(
+                NullPointerException.class,
+                () -> TestConversationFactory.createMinimalConversationItemBuilder()
+                        .setSelf(TestConversationFactory.createMinimalMessageSenderBuilder()
+                                .setKey(null)
+                                .build())
+                        .build()
+        );
+    }
+
     // region .equals() & .hashCode()
     @Test
     public void equalsAndHashCode_areEqual_forMinimalConversationItem() {
@@ -110,6 +132,12 @@ public class ConversationItemTest {
                         .createFullyPopulatedConversationItemBuilder()
                         .setGroupConversation(!fullyPopulatedItem.isGroupConversation())
                         .build();
+        ConversationItem modifiedSelf =
+                TestConversationFactory
+                        .createFullyPopulatedConversationItemBuilder()
+                        .setSelf(
+                                TestConversationFactory.createFullyPopulatedPersonBuilder().build())
+                        .build();
         List<CarMessage> modifiedMessages = new ArrayList<>(1);
         modifiedMessages.add(
                 TestConversationFactory
@@ -125,6 +153,8 @@ public class ConversationItemTest {
         ConversationItem modifiedConversationCallback =
                 TestConversationFactory
                         .createFullyPopulatedConversationItemBuilder()
+                        .setSelf(
+                                TestConversationFactory.createMinimalMessageSenderBuilder().build())
                         .setConversationCallback(new ConversationCallback() {
                             @Override
                             public void onMarkAsRead() {
@@ -144,6 +174,7 @@ public class ConversationItemTest {
         assertNotEqual(fullyPopulatedItem, modifiedIcon);
         assertNotEqual(fullyPopulatedItem, modifiedGroupStatus);
         assertNotEqual(fullyPopulatedItem, modifiedMessageList);
+        assertNotEqual(fullyPopulatedItem, modifiedSelf);
 
         // NOTE: Conversation Callback does not affect equality
         assertEqual(fullyPopulatedItem, modifiedConversationCallback);

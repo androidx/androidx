@@ -17,13 +17,15 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
-import androidx.wear.compose.foundation.samples.CurvedBottomLayout
 import androidx.wear.compose.foundation.samples.CurvedBackground
+import androidx.wear.compose.foundation.samples.CurvedBottomLayout
 import androidx.wear.compose.foundation.samples.CurvedFixedSize
 import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
+import androidx.wear.compose.foundation.samples.ExpandableTextSample
+import androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
 import androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
 import androidx.wear.compose.foundation.samples.OversizeComposable
 import androidx.wear.compose.foundation.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
@@ -31,10 +33,20 @@ import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
+import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 
 val WearFoundationDemos = DemoCategory(
     "Foundation",
     listOf(
+        DemoCategory(
+            "Expandables",
+            listOf(
+                ComposableDemo("Items in SLC") { ExpandableListItems() },
+                ComposableDemo("Expandable Text") { ExpandableText() },
+                ComposableDemo("Items Sample") { ExpandableWithItemsSample() },
+                ComposableDemo("Text Sample") { ExpandableTextSample() },
+            )
+        ),
         DemoCategory("CurvedLayout", listOf(
             ComposableDemo("Curved Row") { CurvedWorldDemo() },
             ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
@@ -85,6 +97,26 @@ val WearFoundationDemos = DemoCategory(
                 ) {
                     ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
                 },
+            ),
+        ),
+        DemoCategory(
+            "Swipe To Reveal",
+            listOf(
+                ComposableDemo("Swipe To Reveal Chip") {
+                    SwipeToRevealChips()
+                },
+                ComposableDemo("Swipe To Reveal Card") {
+                    SwipeToRevealCards()
+                },
+                ComposableDemo("Swipe To Reveal - Custom") {
+                    SwipeToRevealWithSingleAction()
+                },
+                ComposableDemo("Swipe To Reveal - RTL") {
+                    SwipeToRevealInRtl()
+                },
+                ComposableDemo("Swipe To Reveal - Expandable") {
+                    SwipeToRevealWithExpandables()
+                }
             )
         )
     ),

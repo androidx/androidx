@@ -28,11 +28,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 
-/**
- * The API [WatchFaceImpl] uses to communicate with the system.
- *
- * @hide
- */
+/** The API [WatchFaceImpl] uses to communicate with the system. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface WatchFaceHostApi {
     /** The [WatchFaceService.SystemTimeProvider]. */

@@ -32,6 +32,13 @@ val TextDemos = DemoCategory(
             )
         ),
         DemoCategory(
+            "Animation",
+            listOf(
+                ComposableDemo("color = { animatedColor.value }") { TextColorAnimation() },
+                ComposableDemo("GraphicsLayer (skew, scale, etc)") { TextAnimationDemo() },
+            )
+        ),
+        DemoCategory(
             "Text Layout",
             listOf(
                 ComposableDemo("Static text") { TextDemo() },
@@ -67,7 +74,6 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                 ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
                 ComposableDemo("Interactive text") { InteractiveTextDemo() },
-                ComposableDemo("Text Animation") { TextAnimationDemo() },
             )
         ),
         DemoCategory(
@@ -111,6 +117,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
                 ComposableDemo("Focus immediately") { FocusTextFieldImmediatelyDemo() },
                 ComposableDemo("Secondary input system") { PlatformTextInputAdapterDemo() },
+                ComposableDemo("TextField focus") { TextFieldFocusDemo() },
             )
         ),
         DemoCategory(
@@ -125,7 +132,8 @@ val TextDemos = DemoCategory(
             "\uD83D\uDD75️️️ Memory allocs",
             listOf(
                 ComposableDemo("\uD83D\uDD75️ SetText") { MemoryAllocsSetText() },
-                ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() }
+                ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() },
+                ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() }
             )
         )
     )

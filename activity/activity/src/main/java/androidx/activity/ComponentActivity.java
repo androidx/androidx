@@ -172,7 +172,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
 
-    private final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
+    final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
 
     @NonNull
     final FullyDrawnReporter mFullyDrawnReporter = new FullyDrawnReporter(
@@ -314,6 +314,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
                     }
+                    mReportFullyDrawnExecutor.activityDestroyed();
                 }
             }
         });
@@ -459,14 +460,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view);
     }
@@ -475,7 +476,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view, params);
     }
@@ -484,14 +485,17 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void addContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.addContentView(view, params);
     }
 
-    private void initViewTreeOwners() {
-        // Set the view tree owners before setting the content view so that the inflation process
-        // and attach listeners will see them already present
+    /**
+     * Sets the view tree owners before setting the content view so that the
+     * inflation process and attach listeners will see them already present.
+     */
+    @CallSuper
+    public void initializeViewTreeOwners() {
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
@@ -685,10 +689,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * {@link android.app.Activity#onBackPressed()} is invoked.
      *
      * @see #getOnBackPressedDispatcher()
+     *
+     * @deprecated This method has been deprecated in favor of using the
+     * {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.
+     * The OnBackPressedDispatcher controls how back button events are dispatched
+     * to one or more {@link OnBackPressedCallback} objects.
      */
-    @SuppressWarnings("deprecation")
     @Override
     @MainThread
+    @CallSuper
+    @Deprecated
     public void onBackPressed() {
         mOnBackPressedDispatcher.onBackPressed();
     }
@@ -1141,6 +1151,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private interface ReportFullyDrawnExecutor extends Executor {
         void viewCreated(@NonNull View view);
+
+        void activityDestroyed();
     }
 
     static class ReportFullyDrawnExecutorApi1 implements ReportFullyDrawnExecutor {
@@ -1148,6 +1160,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
         @Override
         public void viewCreated(@NonNull View view) {
+        }
+
+        @Override
+        public void activityDestroyed() {
         }
 
         /**
@@ -1180,6 +1196,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 mOnDrawScheduled = true;
                 view.getViewTreeObserver().addOnDrawListener(this);
             }
+        }
+
+        @Override
+        public void activityDestroyed() {
+            getWindow().getDecorView().removeCallbacks(this);
+            getWindow().getDecorView().getViewTreeObserver().removeOnDrawListener(this);
         }
 
         /**

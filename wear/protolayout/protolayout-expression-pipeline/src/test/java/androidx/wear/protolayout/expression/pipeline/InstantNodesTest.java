@@ -47,6 +47,7 @@ public class InstantNodesTest {
         FixedInstant protoNode = FixedInstant.newBuilder().setEpochSeconds(1234567L).build();
         FixedInstantNode node = new FixedInstantNode(protoNode, new AddToListCallback<>(results));
 
+        node.preInit();
         node.init();
 
         assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));

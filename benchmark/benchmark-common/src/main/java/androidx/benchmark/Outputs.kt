@@ -30,14 +30,14 @@ import java.util.TimeZone
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object Outputs {
+object Outputs {
 
     private val formatter: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
 
     /**
      * The intended output directory that respects the `additionalTestOutputDir`.
      */
-    public val outputDirectory: File
+    val outputDirectory: File
 
     /**
      * The usable output directory, given permission issues with `adb shell` on Android R.
@@ -46,7 +46,7 @@ public object Outputs {
      * This dir can be read/written by app
      * This dir can be read by shell (see [forceFilesForShellAccessible] for API 21/22!)
      */
-    public val dirUsableByAppAndShell: File
+    val dirUsableByAppAndShell: File
 
     /**
      * Any file created by this process for the shell to use must be explicitly made filesystem
@@ -69,10 +69,12 @@ public object Outputs {
                 // Media directory. (b/216588251)
                 context.getFirstMountedMediaDir()
             }
+
             Build.VERSION.SDK_INT <= 22 -> {
                 // prior to API 23, shell didn't have access to externalCacheDir
                 context.cacheDir
             }
+
             else -> context.externalCacheDir
         } ?: throw IllegalStateException(
             "Unable to select a directory for writing files, " +
@@ -94,6 +96,9 @@ public object Outputs {
 
         Log.d(BenchmarkState.TAG, "Output Directory: $outputDirectory")
         outputDirectory.mkdirs()
+
+        // Clear all the existing files in the output directories
+        deleteFiles { true }
     }
 
     /**
@@ -104,7 +109,7 @@ public object Outputs {
      *
      * @return The absolute path of the output [File].
      */
-    public fun writeFile(
+    fun writeFile(
         fileName: String,
         reportKey: String,
         reportOnRunEndOnly: Boolean = false,
@@ -134,22 +139,22 @@ public object Outputs {
         return destination.absolutePath
     }
 
-    public fun sanitizeFilename(filename: String): String {
+    fun sanitizeFilename(filename: String): String {
         return filename
             .replace(" ", "")
             .replace("(", "[")
             .replace(")", "]")
     }
 
-    public fun testOutputFile(filename: String): File {
+    fun testOutputFile(filename: String): File {
         return File(outputDirectory, filename)
     }
 
-    public fun dateToFileName(date: Date = Date()): String {
+    fun dateToFileName(date: Date = Date()): String {
         return formatter.format(date)
     }
 
-    public fun relativePathFor(path: String): String {
+    fun relativePathFor(path: String): String {
         val hasOutputDirectoryPrefix = path.startsWith(outputDirectory.absolutePath)
         val relativePath = when {
             hasOutputDirectoryPrefix -> path.removePrefix("${outputDirectory.absolutePath}/")
@@ -159,5 +164,11 @@ public object Outputs {
             "$relativePath == $path"
         }
         return relativePath
+    }
+
+    fun deleteFiles(filterBlock: (File) -> (Boolean)) {
+        listOf(outputDirectory, dirUsableByAppAndShell)
+            .flatMap { it.listFiles(filterBlock)?.asList() ?: emptyList() }
+            .forEach { it.delete() }
     }
 }

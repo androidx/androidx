@@ -38,11 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -109,15 +109,15 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout modifier's placement block doesn't crash when
-     * LookaheadLayout is used.
+     * Make sure that measurement in the layout modifier's placement block doesn't crash in
+     * lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun measureInModifierPlacementWithLookaheadLayout() {
         var childSize = IntSize.Zero
         rule.setContent {
-            LookaheadLayout(content = @Composable {
+            LookaheadScope {
                 val measureInPlaceModifier = Modifier.layout { measurable, constraints ->
                     layout(100, 100) {
                         val p = measurable.measure(constraints)
@@ -132,12 +132,7 @@ class MeasureInPlacementTest {
                 ) {
                     Box(Modifier.size(10.dp))
                 }
-            }, measurePolicy = { measurables, constraints ->
-                val p = measurables[0].measure(constraints)
-                layout(p.width, p.height) {
-                    p.place(0, 0)
-                }
-            })
+            }
         }
 
         rule.waitForIdle()
@@ -146,15 +141,15 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout's placement block doesn't crash when
-     * LookaheadLayout is used.
+     * Make sure that measurement in the layout's placement block doesn't crash in
+     * lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun measureInLayoutPlacementWithLookaheadLayout() {
         var childSize = IntSize.Zero
         rule.setContent {
-            LookaheadLayout(content = @Composable {
+            LookaheadScope {
                 Layout(modifier = Modifier.fillMaxSize(), content = @Composable {
                     Box(Modifier.size(10.dp))
                 }) { measurables, constraints ->
@@ -164,12 +159,7 @@ class MeasureInPlacementTest {
                         p.place(0, 0)
                     }
                 }
-            }, measurePolicy = { measurables, constraints ->
-                val p = measurables[0].measure(constraints)
-                layout(p.width, p.height) {
-                    p.place(0, 0)
-                }
-            })
+            }
         }
 
         rule.waitForIdle()

@@ -49,6 +49,12 @@ class Configuration internal constructor(builder: Builder) {
     val taskExecutor: Executor
 
     /**
+     * The [Clock] used by [WorkManager] to calculate schedules and perform book-keeping.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val clock: Clock
+
+    /**
      * The [WorkerFactory] used by [WorkManager] to create [ListenableWorker]s
      */
     val workerFactory: WorkerFactory
@@ -84,7 +90,6 @@ class Configuration internal constructor(builder: Builder) {
 
     /**
      * The minimum logging level, corresponding to the constants found in [android.util.Log]
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val minimumLoggingLevel: Int
@@ -110,9 +115,18 @@ class Configuration internal constructor(builder: Builder) {
     val maxJobSchedulerId: Int
 
     /**
+     * Maximum number of Workers with [Constraints.contentUriTriggers] that
+     * could be enqueued simultaneously.
+     *
+     * Unlike the other workers Workers with [Constraints.contentUriTriggers] must immediately
+     * occupy slots in JobScheduler to avoid missing updates, thus they are separated in the
+     * its own category.
+     */
+    val contentUriTriggerWorkersLimit: Int
+
+    /**
      * The maximum number of system requests which can be enqueued by [WorkManager]
      * when using [android.app.job.JobScheduler] or [android.app.AlarmManager]
-     * @hide
      */
     @get:IntRange(from = MIN_SCHEDULER_LIMIT.toLong(), to = Scheduler.MAX_SCHEDULER_LIMIT.toLong())
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -120,7 +134,6 @@ class Configuration internal constructor(builder: Builder) {
 
     /**
      * @return `true` If the default task [Executor] is being used
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isUsingDefaultTaskExecutor: Boolean
@@ -132,6 +145,7 @@ class Configuration internal constructor(builder: Builder) {
         // So this should not be a single threaded executor. Writes will still be serialized
         // as this will be wrapped with an SerialExecutor.
         taskExecutor = builder.taskExecutor ?: createDefaultExecutor(isTaskExecutor = true)
+        clock = builder.clock ?: SystemClock()
         workerFactory = builder.workerFactory ?: WorkerFactory.getDefaultWorkerFactory()
         inputMergerFactory = builder.inputMergerFactory ?: NoOpInputMergerFactory
         runnableScheduler = builder.runnableScheduler ?: DefaultRunnableScheduler()
@@ -147,6 +161,7 @@ class Configuration internal constructor(builder: Builder) {
         initializationExceptionHandler = builder.initializationExceptionHandler
         schedulingExceptionHandler = builder.schedulingExceptionHandler
         defaultProcessName = builder.defaultProcessName
+        contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
     }
 
     /**
@@ -157,6 +172,7 @@ class Configuration internal constructor(builder: Builder) {
         internal var workerFactory: WorkerFactory? = null
         internal var inputMergerFactory: InputMergerFactory? = null
         internal var taskExecutor: Executor? = null
+        internal var clock: Clock? = null
         internal var runnableScheduler: RunnableScheduler? = null
         internal var initializationExceptionHandler: Consumer<Throwable>? = null
         internal var schedulingExceptionHandler: Consumer<Throwable>? = null
@@ -165,6 +181,7 @@ class Configuration internal constructor(builder: Builder) {
         internal var minJobSchedulerId: Int = INITIAL_ID
         internal var maxJobSchedulerId: Int = Int.MAX_VALUE
         internal var maxSchedulerLimit: Int = MIN_SCHEDULER_LIMIT
+        internal var contentUriTriggerWorkersLimit: Int = DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT
 
         /**
          * Creates a new [Configuration.Builder].
@@ -176,7 +193,6 @@ class Configuration internal constructor(builder: Builder) {
          * template.
          *
          * @param configuration An existing [Configuration] to use as a template
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         constructor(configuration: Configuration) {
@@ -186,6 +202,7 @@ class Configuration internal constructor(builder: Builder) {
             workerFactory = configuration.workerFactory
             inputMergerFactory = configuration.inputMergerFactory
             taskExecutor = configuration.taskExecutor
+            clock = configuration.clock
             loggingLevel = configuration.minimumLoggingLevel
             minJobSchedulerId = configuration.minJobSchedulerId
             maxJobSchedulerId = configuration.maxJobSchedulerId
@@ -247,6 +264,18 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
+         * Sets a [Clock] for WorkManager to calculate schedules and perform book-keeping.
+         *
+         * @param clock The [Clock] to use
+         * @return This [Builder] instance
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun setClock(clock: Clock): Builder {
+            this.clock = clock
+            return this
+        }
+
+        /**
          * Specifies the range of [android.app.job.JobInfo] IDs that can be used by
          * [WorkManager].  WorkManager needs a range of at least `1000` IDs.
          *
@@ -298,6 +327,19 @@ class Configuration internal constructor(builder: Builder) {
                 "WorkManager needs to be able to schedule at least 20 jobs in JobScheduler."
             }
             this.maxSchedulerLimit = min(maxSchedulerLimit, Scheduler.MAX_SCHEDULER_LIMIT)
+            return this
+        }
+
+        /**
+         * Specifies the maximum number of Workers with [Constraints.contentUriTriggers] that
+         * could be enqueued simultaneously.
+         *
+         * Unlike the other workers Workers with [Constraints.contentUriTriggers] must immediately
+         * occupy slots in JobScheduler to avoid missing updates, thus they are separated in the
+         * its own category.
+         */
+        fun setContentUriTriggerWorkersLimit(contentUriTriggerWorkersLimit: Int): Builder {
+            this.contentUriTriggerWorkersLimit = max(contentUriTriggerWorkersLimit, 0)
             return this
         }
 
@@ -415,6 +457,8 @@ class Configuration internal constructor(builder: Builder) {
         const val MIN_SCHEDULER_LIMIT = 20
     }
 }
+
+internal val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
 
 private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
     val factory = object : ThreadFactory {

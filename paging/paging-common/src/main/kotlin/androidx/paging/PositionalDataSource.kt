@@ -22,8 +22,8 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Position-based data loader for a fixed-size, countable data set, supporting fixed-size loads at

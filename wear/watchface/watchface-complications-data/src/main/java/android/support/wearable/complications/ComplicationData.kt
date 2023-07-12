@@ -435,6 +435,7 @@ class ComplicationData : Parcelable, Serializable {
 
         companion object {
             private const val VERSION_NUMBER = 20
+
             internal fun putIfNotNull(fields: Bundle, field: String, value: Parcelable?) {
                 if (value != null) {
                     fields.putParcelable(field, value)
@@ -1115,6 +1116,18 @@ class ComplicationData : Parcelable, Serializable {
     val endDateTimeMillis: Long
         get() = fields.getLong(FIELD_END_TIME, Long.MAX_VALUE)
 
+    /** Returns `true` if the complication contains an expression that needs to be evaluated. */
+    fun hasExpression(): Boolean =
+        (hasRangedValueExpression() && rangedValueExpression != null) ||
+            (hasLongText() && longText?.expression != null) ||
+            (hasLongTitle() && longTitle?.expression != null) ||
+            (hasShortText() && shortText?.expression != null) ||
+            (hasShortTitle() && shortTitle?.expression != null) ||
+            (hasContentDescription() && contentDescription?.expression != null) ||
+            (placeholder?.hasExpression() ?: false) ||
+            (timelineEntries?.any { it.hasExpression() } ?: false) ||
+            (listEntries?.any { it.hasExpression() } ?: false)
+
     /**
      * Returns true if the complication data contains at least one text field with a value that may
      * change based on the current time.
@@ -1177,7 +1190,11 @@ class ComplicationData : Parcelable, Serializable {
             (!isFieldValidForType(FIELD_LONG_TEXT, type) || longText == other.longText) &&
             (!isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type) ||
                 contentDescription == other.contentDescription) &&
-            (!isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) || placeholder == other.placeholder)
+            (!isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) ||
+                placeholder == other.placeholder) &&
+            (!isFieldValidForType(FIELD_TIMELINE_ENTRIES, type) ||
+                timelineEntries == other.timelineEntries) &&
+            (!isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type) || listEntries == other.listEntries)
 
     /** Similar to [equals], but avoids comparing evaluated fields (if expressions exist). */
     infix fun equalsUnevaluated(other: ComplicationData): Boolean =
@@ -1199,18 +1216,35 @@ class ComplicationData : Parcelable, Serializable {
             (!isFieldValidForType(FIELD_LONG_TEXT, type) ||
                 longText equalsUnevaluated other.longText) &&
             (!isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type) ||
-                contentDescription.equalsUnevaluated(other.contentDescription)) &&
+                contentDescription equalsUnevaluated other.contentDescription) &&
             (!isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) ||
-                ((placeholder == null && other.placeholder == null) ||
-                    ((placeholder != null && other.placeholder != null) &&
-                        placeholder!! equalsUnevaluated other.placeholder!!)))
+                placeholder equalsUnevaluated other.placeholder) &&
+            (!isFieldValidForType(FIELD_TIMELINE_ENTRIES, type) ||
+                timelineEntries equalsUnevaluated other.timelineEntries) &&
+            (!isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type) ||
+                listEntries equalsUnevaluated other.listEntries)
+
+    private infix fun ComplicationData?.equalsUnevaluated(other: ComplicationData?): Boolean {
+        if (this == null && other == null) return true
+        if (this == null || other == null) return false
+        // Both are non-null.
+        return this equalsUnevaluated other
+    }
+
+    private infix fun List<ComplicationData>?.equalsUnevaluated(
+        other: List<ComplicationData>?
+    ): Boolean {
+        if (this == null && other == null) return true
+        if (this == null || other == null) return false
+        return this.size == other.size && this.zip(other).all { (a, b) -> a equalsUnevaluated b }
+    }
 
     private infix fun ComplicationText?.equalsUnevaluated(other: ComplicationText?): Boolean {
         if (this == null && other == null) return true
         if (this == null || other == null) return false
         // Both are non-null.
-        if (expression == null) return equals(other)
-        return expression?.toDynamicStringByteArray() contentEquals
+        if (this.expression == null) return equals(other)
+        return this.expression?.toDynamicStringByteArray() contentEquals
             other.expression?.toDynamicStringByteArray()
     }
 
@@ -1223,10 +1257,6 @@ class ComplicationData : Parcelable, Serializable {
                     timelineStartEpochSecond == other.timelineStartEpochSecond) &&
                 (!isFieldValidForType(FIELD_TIMELINE_END_TIME, type) ||
                     timelineEndEpochSecond == other.timelineEndEpochSecond) &&
-                (!isFieldValidForType(FIELD_TIMELINE_ENTRIES, type) ||
-                    timelineEntries == other.timelineEntries) &&
-                (!isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type) ||
-                    listEntries == other.listEntries) &&
                 (!isFieldValidForType(FIELD_DATA_SOURCE, type) || dataSource == other.dataSource) &&
                 (!isFieldValidForType(FIELD_VALUE_TYPE, type) ||
                     rangedValueType == other.rangedValueType) &&
@@ -1806,13 +1836,13 @@ class ComplicationData : Parcelable, Serializable {
          *
          * Returns this Builder to allow chaining.
          */
-        fun setListEntryCollection(timelineEntries: Collection<ComplicationData>?) = apply {
-            if (timelineEntries == null) {
+        fun setListEntryCollection(listEntries: Collection<ComplicationData>?) = apply {
+            if (listEntries == null) {
                 fields.remove(EXP_FIELD_LIST_ENTRIES)
             } else {
                 fields.putParcelableArray(
                     EXP_FIELD_LIST_ENTRIES,
-                    timelineEntries
+                    listEntries
                         .map { data ->
                             data.fields.putInt(EXP_FIELD_LIST_ENTRY_TYPE, data.type)
                             data.fields
@@ -2230,6 +2260,9 @@ class ComplicationData : Parcelable, Serializable {
                 FIELD_END_TIME,
                 FIELD_TIMELINE_ENTRIES,
                 FIELD_TIMELINE_ENTRY_TYPE,
+                // Placeholder or fallback.
+                FIELD_PLACEHOLDER_FIELDS,
+                FIELD_PLACEHOLDER_TYPE,
             )
 
         // Used for validation. OPTIONAL_FIELDS[i] is a list containing all the fields which are
@@ -2313,8 +2346,6 @@ class ComplicationData : Parcelable, Serializable {
                         FIELD_LONG_TEXT,
                         FIELD_MAX_VALUE,
                         FIELD_MIN_VALUE,
-                        FIELD_PLACEHOLDER_FIELDS,
-                        FIELD_PLACEHOLDER_TYPE,
                         FIELD_SMALL_IMAGE,
                         FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
                         FIELD_SHORT_TITLE,

@@ -21,8 +21,8 @@ import androidx.build.releasenotes.getChangeIdAOSPLink
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.api.logging.Logger
+import org.gradle.api.provider.Provider
 
 interface GitClient {
     fun findChangedFilesSince(

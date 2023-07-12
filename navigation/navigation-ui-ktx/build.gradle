@@ -30,7 +30,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Navigation UI Kotlin Extensions"
+    name = "Navigation UI Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Navigation-UI-Ktx"

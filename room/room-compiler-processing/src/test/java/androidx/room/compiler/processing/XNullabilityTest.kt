@@ -385,7 +385,7 @@ class XNullabilityTest {
     @Test
     fun makeNullable_void() {
         val src = Source.java(
-            "Foo.java",
+            "Foo",
             """
             class Foo {
                 void subject() {}

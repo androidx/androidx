@@ -24,7 +24,6 @@ import androidx.room.Index
 /**
  * Database entity that defines a mapping from a name to a [WorkSpec] id.
  *
- * @hide
  */
 @Entity(
     foreignKeys = [ForeignKey(

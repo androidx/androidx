@@ -21,9 +21,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
+@Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
 internal class UpdateEffectTest {
     @get:Rule
     val rule = createComposeRule()

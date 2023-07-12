@@ -38,8 +38,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
 
 /**
  * The directions in which a [SwipeToDismiss] can be dismissed.

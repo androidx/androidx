@@ -36,7 +36,6 @@ import androidx.wear.watchface.style.UserStyleSchema
 import kotlin.jvm.Throws
 import org.xmlpull.v1.XmlPullParser
 
-/** @hide */
 @OptIn(ComplicationExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XmlSchemaAndComplicationSlotsDefinition(

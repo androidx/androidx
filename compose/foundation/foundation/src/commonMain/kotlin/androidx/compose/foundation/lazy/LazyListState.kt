@@ -23,8 +23,10 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
+import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
+import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -34,16 +36,12 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnGloballyPositionedModifier
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 
 /**
@@ -106,7 +104,7 @@ class LazyListState constructor(
      * derived state in order to only have recompositions when the derived value changes:
      * @sample androidx.compose.foundation.samples.UsingListScrollPositionInCompositionSample
      */
-    val firstVisibleItemIndex: Int get() = scrollPosition.index.value
+    val firstVisibleItemIndex: Int get() = scrollPosition.index
 
     /**
      * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the
@@ -155,7 +153,7 @@ class LazyListState constructor(
     /**
      * Needed for [animateScrollToItem].  Updated on every measure.
      */
-    internal var density: Density by mutableStateOf(Density(1f, 1f))
+    internal var density: Density = Density(1f, 1f)
 
     /**
      * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
@@ -196,7 +194,7 @@ class LazyListState constructor(
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
      * synchronously during scroll.
      */
-    internal var remeasurement: Remeasurement? by mutableStateOf(null)
+    internal var remeasurement: Remeasurement? = null
         private set
 
     /**
@@ -214,17 +212,21 @@ class LazyListState constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal var placementAnimator by mutableStateOf<LazyListItemPlacementAnimator?>(null)
+    internal val placementAnimator = LazyListItemPlacementAnimator()
+
+    internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
     /**
      * Constraints passed to the prefetcher for premeasuring the prefetched items.
      */
-    internal var premeasureConstraints by mutableStateOf(Constraints())
+    internal var premeasureConstraints = Constraints()
 
     /**
      * Stores currently pinned items which are always composed.
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
+
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
@@ -246,9 +248,9 @@ class LazyListState constructor(
     }
 
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        scrollPosition.requestPosition(DataIndex(index), scrollOffset)
+        scrollPosition.requestPosition(index, scrollOffset)
         // placement animation is not needed because we snap into a new position.
-        placementAnimator?.reset()
+        placementAnimator.reset()
         remeasurement?.forceRemeasure()
     }
 
@@ -402,9 +404,10 @@ class LazyListState constructor(
      * items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
      */
-    internal fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyListItemProvider) {
-        scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
+    internal fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyListItemProvider,
+        firstItemIndex: Int = Snapshot.withoutReadObservation { scrollPosition.index }
+    ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     companion object {
         /**
@@ -433,25 +436,4 @@ private object EmptyLazyListLayoutInfo : LazyListLayoutInfo {
     override val beforeContentPadding = 0
     override val afterContentPadding = 0
     override val mainAxisItemSpacing = 0
-}
-
-internal class AwaitFirstLayoutModifier : OnGloballyPositionedModifier {
-    private var wasPositioned = false
-    private var continuation: Continuation<Unit>? = null
-
-    suspend fun waitForFirstLayout() {
-        if (!wasPositioned) {
-            val oldContinuation = continuation
-            suspendCoroutine<Unit> { continuation = it }
-            oldContinuation?.resume(Unit)
-        }
-    }
-
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        if (!wasPositioned) {
-            wasPositioned = true
-            continuation?.resume(Unit)
-            continuation = null
-        }
-    }
 }

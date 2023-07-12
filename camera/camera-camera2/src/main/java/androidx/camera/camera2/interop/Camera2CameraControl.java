@@ -25,6 +25,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -51,7 +52,6 @@ import java.util.concurrent.Executor;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraControl {
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final String TAG_KEY = "Camera2CameraControl";
 
@@ -93,7 +93,6 @@ public final class Camera2CameraControl {
      *
      * @param camera2CameraControlImpl the camera control this Camera2CameraControl belongs.
      * @param executor                 the camera executor used to run camera task.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public Camera2CameraControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl,
@@ -102,7 +101,6 @@ public final class Camera2CameraControl {
         mExecutor = executor;
     }
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
     public Camera2CameraControlImpl.CaptureResultListener getCaptureRequestListener() {
@@ -128,9 +126,11 @@ public final class Camera2CameraControl {
      */
     @NonNull
     public static Camera2CameraControl from(@NonNull CameraControl cameraControl) {
-        Preconditions.checkArgument(cameraControl instanceof Camera2CameraControlImpl,
+        CameraControlInternal cameraControlImpl =
+                ((CameraControlInternal) cameraControl).getImplementation();
+        Preconditions.checkArgument(cameraControlImpl instanceof Camera2CameraControlImpl,
                 "CameraControl doesn't contain Camera2 implementation.");
-        return ((Camera2CameraControlImpl) cameraControl).getCamera2CameraControl();
+        return ((Camera2CameraControlImpl) cameraControlImpl).getCamera2CameraControl();
     }
 
     /**
@@ -240,7 +240,6 @@ public final class Camera2CameraControl {
      * Gets the {@link Camera2ImplConfig} that is currently applied by the
      * {@link Camera2CameraControl}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
@@ -303,7 +302,6 @@ public final class Camera2CameraControl {
      * When the state changes from inactive to active, a session update will be issued if there's
      * Camera2 options set while inactive.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public void setActive(boolean isActive) {

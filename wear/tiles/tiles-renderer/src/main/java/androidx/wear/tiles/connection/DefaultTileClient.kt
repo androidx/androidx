@@ -20,38 +20,37 @@ import android.content.ComponentName
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.protolayout.proto.ResourceProto
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import androidx.wear.tiles.EventBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourcesCallback
 import androidx.wear.tiles.ResourcesData
 import androidx.wear.tiles.ResourcesRequestData
-import androidx.wear.tiles.TileCallback
-import androidx.wear.tiles.TileData
-import androidx.wear.tiles.TileRequestData
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileAddEventData
 import androidx.wear.tiles.TileBuilders
+import androidx.wear.tiles.TileCallback
+import androidx.wear.tiles.TileData
 import androidx.wear.tiles.TileEnterEventData
 import androidx.wear.tiles.TileLeaveEventData
 import androidx.wear.tiles.TileProvider
-import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TileRemoveEventData
+import androidx.wear.tiles.TileRequestData
+import androidx.wear.tiles.TileService
 import androidx.wear.tiles.client.TileClient
-import androidx.wear.protolayout.proto.ResourceProto
 import androidx.wear.tiles.proto.TileProto
-import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import com.google.common.util.concurrent.ListenableFuture
+import java.lang.IllegalArgumentException
+import java.util.concurrent.Executor
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
-import java.lang.IllegalArgumentException
-import java.util.concurrent.Executor
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * Implementation of [TileClient] which can connect to a `TileService` in either the local
@@ -150,9 +149,10 @@ public class DefaultTileClient : TileClient {
         }
     }
 
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     public override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<ResourceBuilders.Resources> {
+    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> {
         return runForFuture {
             val params = ResourcesRequestData(
                 requestParams.toProto().toByteArray(),
@@ -226,8 +226,9 @@ public class DefaultTileClient : TileClient {
         }
     }
 
+    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     private class ResourcesResultCallback(
-        private val continuation: Continuation<ResourceBuilders.Resources>
+        private val continuation: Continuation<androidx.wear.tiles.ResourceBuilders.Resources>
     ) : ResourcesCallback.Stub() {
         override fun updateResources(resourcesData: ResourcesData?) {
             when {
@@ -247,7 +248,8 @@ public class DefaultTileClient : TileClient {
                 else -> {
                     try {
                         val resources = ResourceProto.Resources.parseFrom(resourcesData.contents)
-                        continuation.resume(ResourceBuilders.Resources.fromProto(resources))
+                        continuation.resume(
+                            androidx.wear.tiles.ResourceBuilders.Resources.fromProto(resources))
                     } catch (ex: InvalidProtocolBufferException) {
                         continuation.resumeWithException(ex)
                     }

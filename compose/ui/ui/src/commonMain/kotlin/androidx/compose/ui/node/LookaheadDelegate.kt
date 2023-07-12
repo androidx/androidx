@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -23,7 +24,6 @@ import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -77,11 +77,14 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
             alignmentLinesOwner.parentAlignmentLinesOwner?.alignmentLines?.onAlignmentsChanged()
         }
     }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val isLookingAhead: Boolean
+        get() = false
 }
 
 internal abstract class LookaheadDelegate(
     val coordinator: NodeCoordinator,
-    val lookaheadScope: LookaheadScope
 ) : Measurable, LookaheadCapablePlaceable() {
     override val child: LookaheadCapablePlaceable?
         get() = coordinator.wrapped?.lookaheadDelegate
@@ -93,6 +96,8 @@ internal abstract class LookaheadDelegate(
         get() = _measureResult ?: error(
             "LookaheadDelegate has not been measured yet when measureResult is requested."
         )
+    override val isLookingAhead: Boolean
+        get() = true
     override val layoutDirection: LayoutDirection
         get() = coordinator.layoutDirection
     override val density: Float

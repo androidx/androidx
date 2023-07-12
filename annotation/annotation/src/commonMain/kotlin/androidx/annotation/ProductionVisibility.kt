@@ -18,7 +18,6 @@ package androidx.annotation
 /**
  * Typedef for the [VisibleForTesting.otherwise] attribute.
  *
- * @hide
  */
 @IntDef(
     VisibleForTesting.PRIVATE,

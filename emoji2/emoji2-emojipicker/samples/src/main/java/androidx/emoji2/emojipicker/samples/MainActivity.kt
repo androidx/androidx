@@ -16,19 +16,19 @@
 
 package androidx.emoji2.emojipicker.samples
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ToggleButton
-import androidx.appcompat.app.AppCompatActivity
 import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.emoji2.emojipicker.RecentEmojiAsyncProvider
 import androidx.emoji2.emojipicker.RecentEmojiProviderAdapter
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)

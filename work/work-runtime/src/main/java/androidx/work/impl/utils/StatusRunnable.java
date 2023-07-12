@@ -35,7 +35,6 @@ import java.util.UUID;
  * A {@link Runnable} to get {@link WorkInfo}es.
  *
  * @param <T> The expected return type for the {@link ListenableFuture}.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class StatusRunnable<T> implements Runnable {

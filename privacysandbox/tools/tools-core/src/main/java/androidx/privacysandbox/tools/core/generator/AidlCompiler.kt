@@ -17,35 +17,55 @@
 package androidx.privacysandbox.tools.core.generator
 
 import java.io.IOException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.writeText
 
 class AidlCompiler(
     private val aidlCompilerPath: Path,
+    private val frameworkAidlPath: Path?,
     private val aidlCompileTimeoutMs: Long = 10_000,
 ) {
 
     fun compile(workingDir: Path, sources: List<Path>) {
-        val command =
-            listOf(
-                aidlCompilerPath.toString(),
-                "--structured",
-                "--lang=java",
-                "--include=$workingDir",
-                "--out=$workingDir",
-                *sources.map(Path::toString).toTypedArray()
-            )
-        val process = ProcessBuilder(command).start()
-        if (!process.waitFor(aidlCompileTimeoutMs, TimeUnit.MILLISECONDS)) {
-            throw Exception("AIDL compiler timed out: $command")
+        // TODO(b/269458005): Remove this fallback and make frameworkAidlPath non-nullable
+        //  (dependent on our callers always providing the argument)
+        val bundleFile = Files.createTempFile("bundle", "aidl")
+        val preProcessedAidlPath = if (frameworkAidlPath != null) {
+            frameworkAidlPath
+        } else {
+            bundleFile.writeText("parcelable android.os.Bundle;")
+            bundleFile.toAbsolutePath()
         }
-        if (process.exitValue() != 0) {
-            throw Exception(
-                "AIDL compiler didn't terminate successfully (exit code: " +
-                    "${process.exitValue()}).\n" +
-                    "Command: '$command'\n" +
-                    "Errors: ${getProcessErrors(process)}"
-            )
+
+        try {
+            val command =
+                listOf(
+                    aidlCompilerPath.toString(),
+                    "--lang=java",
+                    "--include=$workingDir",
+                    "--preprocessed=$preProcessedAidlPath",
+                    "--out=$workingDir",
+                    *sources.map(Path::toString).toTypedArray()
+                )
+            val process = ProcessBuilder(command).start()
+            val timedOut = !process.waitFor(aidlCompileTimeoutMs, TimeUnit.MILLISECONDS)
+
+            if (timedOut) {
+                throw Exception("AIDL compiler timed out: $command")
+            }
+            if (process.exitValue() != 0) {
+                throw Exception(
+                    "AIDL compiler didn't terminate successfully (exit code: " +
+                        "${process.exitValue()}).\n" +
+                        "Command: '$command'\n" +
+                        "Errors: ${getProcessErrors(process)}"
+                )
+            }
+        } finally {
+            bundleFile.deleteIfExists()
         }
     }
 

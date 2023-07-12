@@ -92,7 +92,6 @@ internal constructor(public val image: Icon, public val ambientImage: Icon?) {
         return "MonochromaticImage(image=$image, ambientImage=$ambientImage)"
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun isPlaceholder() = image.isPlaceholder()
 
     /** @hide */
@@ -219,11 +218,9 @@ internal constructor(
             SmallImage(createPlaceholderIcon(), SmallImageType.ICON, null)
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun isPlaceholder() = image.isPlaceholder()
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun Icon.isPlaceholder() =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

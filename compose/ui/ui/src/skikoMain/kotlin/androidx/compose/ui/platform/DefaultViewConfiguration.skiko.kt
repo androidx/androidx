@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 
 @Deprecated("Used only for tests. In application code, use LocalViewConfiguration.current instead")
 class DefaultViewConfiguration(private val density: Density) : ViewConfiguration {

@@ -35,7 +35,6 @@ private val DATABASE_EXTRA_FILES = arrayOf("-journal", "-shm", "-wal")
 
 /**
  * Keeps track of {@link WorkDatabase} paths.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object WorkDatabasePathHelper {

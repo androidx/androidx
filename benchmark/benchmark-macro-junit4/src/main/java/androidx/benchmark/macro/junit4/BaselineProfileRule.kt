@@ -55,6 +55,7 @@ import org.junit.runners.model.Statement
  *         startActivityAndWait()
  *     }
  * }
+ * ```
  *
  * Note that you can filter captured rules, for example, if you're generating rules for a library,
  * and don't want to record profiles from outside that library:
@@ -108,6 +109,12 @@ class BaselineProfileRule : TestRule {
      * @param outputFilePrefix An optional file name prefix used when creating the output
      *    file with the contents of the human readable baseline profile.
      *    For example: `outputFilePrefix-baseline-prof.txt`
+     * @param includeInStartupProfile determines whether the generated profile should be also used
+     *   as a startup profile. A startup profile is utilized during the build process in order to
+     *   determine which classes are needed in the primary dex to optimize the startup time. This
+     *   flag should be used only for startup flows, such as main application startup pre and post
+     *   login or other entry points of the app. Note that methods collected in a startup profiles
+     *   are also utilized for baseline profiles.
      * @param filterPredicate Function used to filter individual rules / lines of the baseline
      *   profile. By default, no filters are applied. Note that this works only when the target
      *   application's code is not obfuscated.
@@ -118,13 +125,15 @@ class BaselineProfileRule : TestRule {
         packageName: String,
         iterations: Int = 3,
         outputFilePrefix: String? = null,
-        filterPredicate: ((String) -> Boolean)? = null,
+        includeInStartupProfile: Boolean = false,
+        filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
             uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
             packageName = packageName,
             iterations = iterations,
+            includeInStartupProfile = includeInStartupProfile,
             filterPredicate = filterPredicate,
             profileBlock = profileBlock
         )
@@ -141,6 +150,12 @@ class BaselineProfileRule : TestRule {
      * @param outputFilePrefix An optional file name prefix used when creating the output
      *    file with the contents of the human readable baseline profile.
      *    For example: `outputFilePrefix-baseline-prof.txt`
+     * @param includeInStartupProfile determines whether the generated profile should be also used
+     *   as a startup profile. A startup profile is utilized during the build process in order to
+     *   determine which classes are needed in the primary dex to optimize the startup time. This
+     *   flag should be used only for startup flows, such as main application startup pre and post
+     *   login or other entry points of the app. Note that methods collected in a startup profiles
+     *   are also utilized for baseline profiles.
      * @param strictStability Enforce if the generated profile was stable
      * @param filterPredicate Function used to filter individual rules / lines of the baseline
      *  profile. By default, no filters are applied. Note that this works only when the target
@@ -154,8 +169,9 @@ class BaselineProfileRule : TestRule {
         maxIterations: Int,
         stableIterations: Int = 3,
         outputFilePrefix: String? = null,
+        includeInStartupProfile: Boolean = false,
         strictStability: Boolean = false,
-        filterPredicate: ((String) -> Boolean)? = null,
+        filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectStableBaselineProfile(
@@ -163,6 +179,7 @@ class BaselineProfileRule : TestRule {
             packageName = packageName,
             stableIterations = stableIterations,
             maxIterations = maxIterations,
+            includeInStartupProfile = includeInStartupProfile,
             strictStability = strictStability,
             filterPredicate = filterPredicate,
             profileBlock = profileBlock

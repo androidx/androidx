@@ -22,6 +22,7 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,6 +43,7 @@ import kotlinx.coroutines.launch
  * This class is responsible for detecting when item position changed, figuring our start/end
  * offsets and starting the animations.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridItemPlacementAnimator(
     private val scope: CoroutineScope,
     private val isVertical: Boolean
@@ -49,7 +52,7 @@ internal class LazyGridItemPlacementAnimator(
     private val keyToItemInfoMap = mutableMapOf<Any, ItemInfo>()
 
     // snapshot of the key to index map used for the last measuring.
-    private var keyToIndexMap: Map<Any, Int> = emptyMap()
+    private var keyToIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
 
     // keeps the index of the first visible item.
     private var firstVisibleIndex = 0
@@ -101,7 +104,7 @@ internal class LazyGridItemPlacementAnimator(
                 // there is no state associated with this item yet
                 if (itemInfo == null) {
                     val previousIndex = previousKeyToIndexMap[item.key]
-                    if (previousIndex != null && item.index != previousIndex) {
+                    if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
                             // the larger index will be in the start of the list
                             movingInFromStartBound.add(item)
@@ -170,7 +173,7 @@ internal class LazyGridItemPlacementAnimator(
             // whether the animation associated with the item has been finished or not yet started
             val inProgress = itemInfo.placeables.fastAny { it.inProgress }
             if (itemInfo.placeables.isEmpty() ||
-                newIndex == null ||
+                newIndex == -1 ||
                 (!inProgress && newIndex == previousKeyToIndexMap[key]) ||
                 (!inProgress && !itemInfo.isWithinBounds(mainAxisLayoutSize))
             ) {
@@ -292,7 +295,7 @@ internal class LazyGridItemPlacementAnimator(
      */
     fun reset() {
         keyToItemInfoMap.clear()
-        keyToIndexMap = emptyMap()
+        keyToIndexMap = LazyLayoutKeyIndexMap.Empty
         firstVisibleIndex = -1
     }
 

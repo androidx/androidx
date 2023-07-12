@@ -20,6 +20,7 @@ package androidx.compose.runtime
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.IdentityScopeMap
+import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
@@ -348,7 +349,7 @@ internal class CompositionImpl(
     private val applier: Applier<*>,
 
     recomposeContext: CoroutineContext? = null
-) : ControlledComposition {
+) : ControlledComposition, RecomposeScopeOwner {
     /**
      * `null` if a composition isn't pending to apply.
      * `Set<Any>` or `Array<Set<Any>>` if there are modifications to record
@@ -617,12 +618,13 @@ internal class CompositionImpl(
                 if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                     val manager = RememberEventDispatcher(abandonSet)
                     if (nonEmptySlotTable) {
+                        applier.onBeginChanges()
                         slotTable.write { writer ->
                             writer.removeCurrentGroup(manager)
                         }
                         applier.clear()
+                        applier.onEndChanges()
                         manager.dispatchRememberObservers()
-                        manager.dispatchNodeCallbacks()
                     }
                     manager.dispatchAbandons()
                 }
@@ -671,35 +673,39 @@ internal class CompositionImpl(
 
     override fun prepareCompose(block: () -> Unit) = composer.prepareCompose(block)
 
-    private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
-        var invalidated: HashSet<RecomposeScopeImpl>? = null
-
-        fun invalidate(value: Any) {
-            observations.forEachScopeOf(value) { scope ->
-                if (
-                    !observationsProcessed.remove(value, scope) &&
-                    scope.invalidateForResult(value) != InvalidationResult.IGNORED
-                ) {
-                    if (scope.isConditional && !forgetConditionalScopes) {
-                        conditionallyInvalidatedScopes.add(scope)
-                    } else {
-                        val set = invalidated
-                            ?: HashSet<RecomposeScopeImpl>().also {
-                                invalidated = it
-                            }
-                        set.add(scope)
-                    }
+    private fun HashSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
+        value: Any,
+        forgetConditionalScopes: Boolean
+    ): HashSet<RecomposeScopeImpl>? {
+        var set = this
+        observations.forEachScopeOf(value) { scope ->
+            if (
+                !observationsProcessed.remove(value, scope) &&
+                scope.invalidateForResult(value) != InvalidationResult.IGNORED
+            ) {
+                if (scope.isConditional && !forgetConditionalScopes) {
+                    conditionallyInvalidatedScopes.add(scope)
+                } else {
+                    if (set == null) set = HashSet()
+                    set?.add(scope)
                 }
             }
         }
+        return set
+    }
 
-        for (value in values) {
+    private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
+        var invalidated: HashSet<RecomposeScopeImpl>? = null
+
+        values.fastForEach { value ->
             if (value is RecomposeScopeImpl) {
                 value.invalidateForResult(null)
             } else {
-                invalidate(value)
+                invalidated =
+                    invalidated.addPendingInvalidationsLocked(value, forgetConditionalScopes)
                 derivedStates.forEachScopeOf(value) {
-                    invalidate(it)
+                    invalidated =
+                        invalidated.addPendingInvalidationsLocked(it, forgetConditionalScopes)
                 }
             }
         }
@@ -708,8 +714,8 @@ internal class CompositionImpl(
             observations.removeValueIf { scope ->
                 scope in conditionallyInvalidatedScopes || invalidated?.let { scope in it } == true
             }
-            cleanUpDerivedStateObservations()
             conditionallyInvalidatedScopes.clear()
+            cleanUpDerivedStateObservations()
         } else {
             invalidated?.let {
                 observations.removeValueIf { scope -> scope in it }
@@ -719,8 +725,10 @@ internal class CompositionImpl(
     }
 
     private fun cleanUpDerivedStateObservations() {
-        derivedStates.removeValueIf { derivedValue -> derivedValue !in observations }
-        conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
+        derivedStates.removeValueIf { derivedState -> derivedState !in observations }
+        if (conditionallyInvalidatedScopes.isNotEmpty()) {
+            conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
+        }
     }
 
     override fun recordReadOf(value: Any) {
@@ -728,19 +736,20 @@ internal class CompositionImpl(
         if (!areChildrenComposing) {
             composer.currentRecomposeScope?.let {
                 it.used = true
-                observations.add(value, it)
+                val alreadyRead = it.recordRead(value)
+                if (!alreadyRead) {
+                    observations.add(value, it)
 
-                // Record derived state dependency mapping
-                if (value is DerivedState<*>) {
-                    derivedStates.removeScope(value)
-                    for (dependency in value.dependencies) {
-                        // skip over empty objects from dependency array
-                        if (dependency == null) break
-                        derivedStates.add(dependency, value)
+                    // Record derived state dependency mapping
+                    if (value is DerivedState<*>) {
+                        derivedStates.removeScope(value)
+                        for (dependency in value.currentRecord.dependencies) {
+                            // skip over empty objects from dependency array
+                            if (dependency == null) break
+                            derivedStates.add(dependency, value)
+                        }
                     }
                 }
-
-                it.recordRead(value)
             }
         }
     }
@@ -793,7 +802,6 @@ internal class CompositionImpl(
             writer.removeCurrentGroup(manager)
         }
         manager.dispatchRememberObservers()
-        manager.dispatchNodeCallbacks()
     }
 
     private fun applyChangesInLocked(changes: MutableList<Change>) {
@@ -818,7 +826,6 @@ internal class CompositionImpl(
             // that implement RememberObserver receive onRemembered before a side effect
             // that captured it and operates on it can run.
             manager.dispatchRememberObservers()
-            manager.dispatchNodeCallbacks()
             manager.dispatchSideEffects()
 
             if (pendingInvalidScopes) {
@@ -928,19 +935,32 @@ internal class CompositionImpl(
         } else block()
     }
 
-    fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult {
+    override fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult {
         if (scope.defaultsInScope) {
             scope.defaultsInvalid = true
         }
         val anchor = scope.anchor
-        if (anchor == null || !slotTable.ownsAnchor(anchor) || !anchor.valid)
-            return InvalidationResult.IGNORED // The scope has not yet entered the composition
-        if (!anchor.valid)
+        if (anchor == null || !anchor.valid)
             return InvalidationResult.IGNORED // The scope was removed from the composition
+        if (!slotTable.ownsAnchor(anchor)) {
+            // The scope might be owned by the delegate
+            val delegate = synchronized(lock) { invalidationDelegate }
+            if (delegate?.tryImminentInvalidation(scope, instance) == true)
+                return InvalidationResult.IMMINENT // The scope was owned by the delegate
+
+            return InvalidationResult.IGNORED // The scope has not yet entered the composition
+        }
         if (!scope.canRecompose)
             return InvalidationResult.IGNORED // The scope isn't able to be recomposed/invalidated
         return invalidateChecked(scope, anchor, instance)
     }
+
+    override fun recomposeScopeReleased(scope: RecomposeScopeImpl) {
+        pendingInvalidScopes = true
+    }
+
+    private fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean =
+        isComposing && composer.tryImminentInvalidation(scope, instance)
 
     private fun invalidateChecked(
         scope: RecomposeScopeImpl,
@@ -959,7 +979,7 @@ internal class CompositionImpl(
                 } else null
             }
             if (delegate == null) {
-                if (isComposing && composer.tryImminentInvalidation(scope, instance)) {
+                if (tryImminentInvalidation(scope, instance)) {
                     // The invalidation was redirected to the composer.
                     return InvalidationResult.IMMINENT
                 }
@@ -1085,6 +1105,18 @@ internal class CompositionImpl(
         }
 
         fun dispatchRememberObservers() {
+            // Send node deactivations
+            val deactivating = deactivating
+            if (!deactivating.isNullOrEmpty()) {
+                trace("Compose:deactivations") {
+                    for (i in deactivating.size - 1 downTo 0) {
+                        val instance = deactivating[i]
+                        instance.onDeactivate()
+                    }
+                }
+                deactivating.clear()
+            }
+
             // Send forgets
             if (forgetting.isNotEmpty()) {
                 trace("Compose:onForgotten") {
@@ -1105,6 +1137,20 @@ internal class CompositionImpl(
                         instance.onRemembered()
                     }
                 }
+            }
+
+            // Send node releases
+            val releasing = releasing
+            if (!releasing.isNullOrEmpty()) {
+                // note that in contrast with objects from `forgetting` we will invoke the callback
+                // even for objects being abandoned.
+                trace("Compose:releases") {
+                    for (i in releasing.size - 1 downTo 0) {
+                        val instance = releasing[i]
+                        instance.onRelease()
+                    }
+                }
+                releasing.clear()
             }
         }
 
@@ -1129,32 +1175,6 @@ internal class CompositionImpl(
                         instance.onAbandoned()
                     }
                 }
-            }
-        }
-
-        fun dispatchNodeCallbacks() {
-            val deactivating = deactivating
-            if (!deactivating.isNullOrEmpty()) {
-                trace("Compose:deactivations") {
-                    for (i in deactivating.size - 1 downTo 0) {
-                        val instance = deactivating[i]
-                        instance.onDeactivate()
-                    }
-                }
-                deactivating.clear()
-            }
-
-            val releasing = releasing
-            if (!releasing.isNullOrEmpty()) {
-                // note that in contrast with objects from `forgetting` we will invoke the callback
-                // even for objects being abandoned.
-                trace("Compose:releases") {
-                    for (i in releasing.size - 1 downTo 0) {
-                        val instance = releasing[i]
-                        instance.onRelease()
-                    }
-                }
-                releasing.clear()
             }
         }
     }

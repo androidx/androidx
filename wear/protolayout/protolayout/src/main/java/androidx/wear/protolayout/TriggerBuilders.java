@@ -31,17 +31,20 @@ import androidx.wear.protolayout.proto.TriggerProto;
 public final class TriggerBuilders {
   private TriggerBuilders() {}
 
-  /** Shortcut for building an {@link OnLoadTrigger}. */
+  /** Creates a {@link Trigger} that fires immediately when the layout is loaded / reloaded.. */
   @NonNull
-  public static OnLoadTrigger createOnLoadTrigger() {
+  public static Trigger createOnLoadTrigger() {
     return new OnLoadTrigger.Builder().build();
   }
 
-  /** Shortcut for building an {@link OnConditionMetTrigger}. */
+  /**
+   * Creates a {@link Trigger} that fires *every time* the condition switches from false to true.
+   * If the condition is true initially, that will fire the trigger on load.
+   */
   @NonNull
-  public static OnConditionMetTrigger createOnConditionMetTrigger(
+  public static Trigger createOnConditionMetTrigger(
           @NonNull DynamicBool dynamicBool) {
-    return new OnConditionMetTrigger.Builder().setTrigger(dynamicBool).build();
+    return new OnConditionMetTrigger.Builder().setCondition(dynamicBool).build();
   }
 
   /**
@@ -49,7 +52,7 @@ public final class TriggerBuilders {
    *
    * @since 1.2
    */
-  public static final class OnLoadTrigger implements Trigger {
+  static final class OnLoadTrigger implements Trigger {
     private final TriggerProto.OnLoadTrigger mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -58,7 +61,6 @@ public final class TriggerBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -76,7 +78,6 @@ public final class TriggerBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -106,7 +107,7 @@ public final class TriggerBuilders {
    *
    * @since 1.2
    */
-  public static final class OnConditionMetTrigger implements Trigger {
+  static final class OnConditionMetTrigger implements Trigger {
     private final TriggerProto.OnConditionMetTrigger mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -121,15 +122,14 @@ public final class TriggerBuilders {
      * @since 1.2
      */
     @Nullable
-    public DynamicBool getTrigger() {
-      if (mImpl.hasTrigger()) {
-        return DynamicBuilders.dynamicBoolFromProto(mImpl.getTrigger());
+    public DynamicBool getCondition() {
+      if (mImpl.hasCondition()) {
+        return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
       } else {
         return null;
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -147,7 +147,6 @@ public final class TriggerBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -169,8 +168,8 @@ public final class TriggerBuilders {
        * @since 1.2
        */
       @NonNull
-      public Builder setTrigger(@NonNull DynamicBool dynamicBool) {
-        mImpl.setTrigger(dynamicBool.toDynamicBoolProto());
+      public Builder setCondition(@NonNull DynamicBool dynamicBool) {
+        mImpl.setCondition(dynamicBool.toDynamicBoolProto());
         mFingerprint.recordPropertyUpdate(
             1, checkNotNull(dynamicBool.getFingerprint()).aggregateValueAsInt());
         return this;
@@ -194,7 +193,6 @@ public final class TriggerBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -203,7 +201,6 @@ public final class TriggerBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -211,7 +208,6 @@ public final class TriggerBuilders {
 
     /** Builder to create {@link Trigger} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {

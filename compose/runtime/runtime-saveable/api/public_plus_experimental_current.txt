@@ -42,7 +42,7 @@ package androidx.compose.runtime.saveable {
 
   public interface Saver<Original, Saveable> {
     method public Original? restore(Saveable value);
-    method public Saveable? save(androidx.compose.runtime.saveable.SaverScope, Original? value);
+    method public Saveable? save(androidx.compose.runtime.saveable.SaverScope, Original value);
   }
 
   public final class SaverKt {

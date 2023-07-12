@@ -51,7 +51,8 @@ class SingleBundlingNode implements BundlingNode {
         captureNodeOut.getImageEdge().setListener(this::matchImageWithRequest);
         captureNodeOut.getRequestEdge().setListener(this::trackIncomingRequest);
         // Set up output edge.
-        mOutputEdge = ProcessingNode.In.of(captureNodeOut.getFormat());
+        mOutputEdge = ProcessingNode.In.of(captureNodeOut.getInputFormat(),
+                captureNodeOut.getOutputFormat());
         return mOutputEdge;
     }
 
@@ -94,8 +95,7 @@ class SingleBundlingNode implements BundlingNode {
                         mPendingRequest.getTagBundleKey()));
         checkState(stageId == mPendingRequest.getStageIds().get(0));
 
-        mOutputEdge.getEdge().accept(
-                ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
+        mOutputEdge.getEdge().accept(ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
         mPendingRequest = null;
     }
 }

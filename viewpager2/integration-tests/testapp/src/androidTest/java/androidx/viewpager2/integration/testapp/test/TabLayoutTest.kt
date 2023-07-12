@@ -28,6 +28,7 @@ import androidx.viewpager2.integration.testapp.R
 import androidx.viewpager2.integration.testapp.cards.Card
 import androidx.viewpager2.integration.testapp.cards.Card.Companion.find
 import androidx.viewpager2.integration.testapp.test.util.onTab
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -40,7 +41,7 @@ class TabLayoutTest : BaseTest<CardViewTabLayoutActivity>(CardViewTabLayoutActiv
     private val tenOfHeartsPage = "10\n♥"
 
     override val layoutId get() = R.id.view_pager
-
+    @Ignore("b/276935528")
     @Test
     fun testTabLayoutIntegration() {
         // test if ViewPager2 follows TabLayout when clicking a tab

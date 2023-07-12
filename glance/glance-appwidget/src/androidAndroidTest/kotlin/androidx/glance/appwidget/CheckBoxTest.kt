@@ -31,10 +31,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
-import org.junit.Test
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import org.junit.Rule
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest

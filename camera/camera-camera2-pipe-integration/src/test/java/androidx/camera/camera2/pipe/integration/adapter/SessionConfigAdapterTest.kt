@@ -28,6 +28,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.testutils.MainDispatcherRule
@@ -135,6 +136,12 @@ class SessionConfigAdapterTest {
     }
 
     @Test
+    fun populateSurfaceToStreamUseHintMappingEmptyUseCase() {
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseHintMapping(listOf())
+        TestCase.assertTrue(mapping.isEmpty())
+    }
+
+    @Test
     fun populateSurfaceToStreamUseCaseMappingNoAppropriateContainerClass() {
         Mockito.`when`(mockSurface.containerClass).thenReturn(FakeUseCase::class.java)
         Mockito.`when`(mockSessionConfig.surfaces).thenReturn(listOf(mockSurface))
@@ -199,6 +206,18 @@ class SessionConfigAdapterTest {
     @Test
     fun populateSurfaceToStreamUseCaseMappingVideoCapture() {
         Mockito.`when`(mockSurface.containerClass).thenReturn(MediaCodec::class.java)
+        Mockito.`when`(mockSessionConfig.surfaces).thenReturn(listOf(mockSurface))
+        Mockito.`when`(mockSessionConfig.implementationOptions).thenReturn(mockImplementationOption)
+        val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()
+        sessionConfigs.add(mockSessionConfig)
+        val mapping = sessionConfigAdapter.getSurfaceToStreamUseCaseMapping(sessionConfigs, true)
+        TestCase.assertTrue(mapping.isNotEmpty())
+        TestCase.assertTrue(mapping[mockSurface] == 3L)
+    }
+
+    @Test
+    fun populateSurfaceToStreamUseCaseMappingStreamSharing() {
+        Mockito.`when`(mockSurface.containerClass).thenReturn(StreamSharing::class.java)
         Mockito.`when`(mockSessionConfig.surfaces).thenReturn(listOf(mockSurface))
         Mockito.`when`(mockSessionConfig.implementationOptions).thenReturn(mockImplementationOption)
         val sessionConfigs: MutableCollection<SessionConfig> = ArrayList()

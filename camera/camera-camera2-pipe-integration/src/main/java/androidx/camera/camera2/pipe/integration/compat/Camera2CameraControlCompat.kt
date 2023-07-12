@@ -38,10 +38,10 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.annotation.ExecutedBy
 import dagger.Binds
 import dagger.Module
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 private const val TAG_KEY = "Camera2CameraControl.tag"
 

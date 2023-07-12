@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(project(":compose:foundation:foundation-layout"))
     androidTestImplementation(project(":compose:ui:ui-tooling"))
     androidTestImplementation(project(":compose:ui:ui-tooling-data"))
     androidTestImplementation(project(":compose:ui:ui"))
@@ -61,7 +62,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Compose Layout Inspector"
+    name = "Compose Layout Inspector"
     type = LibraryType.IDE_PLUGIN
     inceptionYear = "2021"
     description = "Compose layout inspector. Exposes information to our tools for better IDE support."

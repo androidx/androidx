@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo;
  * androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever} can be used to obtain
  * instances of this class for each of a watch face's complications.
  *
- * @hide
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

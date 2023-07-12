@@ -22,8 +22,11 @@ import androidx.window.core.ExperimentalWindowApi
  * Session interface to represent a long-standing
  * WindowArea mode or feature that provides a handle
  * to close the session.
+ *
+ * @hide
+ *
  */
 @ExperimentalWindowApi
-public interface WindowAreaSession {
+interface WindowAreaSession {
     fun close()
 }

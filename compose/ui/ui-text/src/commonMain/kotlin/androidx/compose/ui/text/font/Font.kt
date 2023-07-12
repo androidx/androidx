@@ -283,7 +283,6 @@ fun Font(
  *
  * @see FontFamily
  */
-@OptIn(ExperimentalTextApi::class)
 @Stable
 fun Font(
     resId: Int,

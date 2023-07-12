@@ -23,12 +23,12 @@ import android.os.Build
 import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
-import androidx.tracing.perfetto.Tracing.EnableTracingResponse
 import androidx.tracing.perfetto.PerfettoHandshake.EnableTracingResponse
 import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.KEY_PATH
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
 import androidx.tracing.perfetto.PerfettoHandshake.ResponseKeys
+import androidx.tracing.perfetto.Tracing.EnableTracingResponse
 import java.io.File
 import java.io.StringWriter
 import java.util.concurrent.LinkedBlockingQueue

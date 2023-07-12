@@ -30,7 +30,6 @@ public const val LOG_TAG: String = "Paging"
 
 @JvmDefaultWithCompatibility
 /**
- * @hide
  */
 public interface Logger {
     public fun isLoggable(level: Int): Boolean
@@ -38,7 +37,6 @@ public interface Logger {
 }
 
 /**
- * @hide
  */
 public inline fun log(
     @IntRange(from = VERBOSE.toLong(), to = DEBUG.toLong()) level: Int,
@@ -52,11 +50,9 @@ public inline fun log(
 }
 
 /**
- * @hide
  */
 public const val VERBOSE: Int = 2
 
 /**
- * @hide
  */
 public const val DEBUG: Int = 3

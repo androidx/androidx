@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -49,7 +50,6 @@ public class WebViewFeature {
     private WebViewFeature() {}
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
@@ -109,12 +109,11 @@ public class WebViewFeature {
     public @interface WebViewSupportFeature {}
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
             STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
-            STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+            STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -353,7 +352,6 @@ public class WebViewFeature {
      * This feature covers
      * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type, and
      * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEB_MESSAGE_GET_MESSAGE_PAYLOAD = "WEB_MESSAGE_GET_MESSAGE_PAYLOAD";
@@ -440,7 +438,6 @@ public class WebViewFeature {
      * {@link WebSettingsCompat#setWillSuppressErrorPage(WebSettings, boolean)}.
      *
      * TODO(cricke): unhide
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String SUPPRESS_ERROR_PAGE = "SUPPRESS_ERROR_PAGE";
@@ -489,7 +486,6 @@ public class WebViewFeature {
      * String, Set)}.
      *
      * TODO(swestphal): unhide when ready.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
@@ -527,7 +523,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isStartupFeatureSupported(Context, String)}.
      * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(Context, String)}.
      */
     public static final String STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
             "STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX";
@@ -535,10 +531,10 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isStartupFeatureSupported(Context, String)}.
      * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(String, String)}.
+     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
      */
-    public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH =
-            "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH";
+    public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS =
+            "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
@@ -547,7 +543,6 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)},
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderAllowList(WebSettings)}, and
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)}.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String REQUESTED_WITH_HEADER_ALLOW_LIST =

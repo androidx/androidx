@@ -24,6 +24,7 @@ import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import androidx.work.worker.FailureWorker
 import androidx.work.worker.TestWorker
+import java.util.UUID
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -31,7 +32,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
-import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

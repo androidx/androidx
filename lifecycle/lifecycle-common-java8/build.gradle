@@ -30,7 +30,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle-Common for Java 8 Language"
+    name = "Lifecycle-Common for Java 8"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common for Java 8 Language"

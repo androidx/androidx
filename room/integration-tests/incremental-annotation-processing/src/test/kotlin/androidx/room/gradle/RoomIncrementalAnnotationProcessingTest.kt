@@ -18,6 +18,8 @@ package androidx.room.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Expect
+import java.io.File
+import java.nio.file.Files
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -26,11 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
-import java.nio.file.Files
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 
 @RunWith(Parameterized::class)
 class RoomIncrementalAnnotationProcessingTest(
@@ -110,27 +107,7 @@ class RoomIncrementalAnnotationProcessingTest(
      * prebuilts (SNAPSHOT).
      */
     private val roomVersion by lazy {
-        val metadataFile = File(projectSetup.props.tipOfTreeMavenRepoPath).resolve(
-            "androidx/room/room-compiler/maven-metadata.xml"
-        )
-        check(metadataFile.exists()) {
-            "Cannot find room metadata file in ${metadataFile.absolutePath}"
-        }
-        check(metadataFile.isFile) {
-            "Metadata file should be a file but it is not."
-        }
-        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(metadataFile)
-        val latestVersionNode = XPathFactory.newInstance().newXPath()
-            .compile("/metadata/versioning/latest").evaluate(
-                xmlDoc, XPathConstants.STRING
-            )
-        check(latestVersionNode is String) {
-            """Unexpected node for latest version:
-                $latestVersionNode / ${latestVersionNode::class.java}
-            """.trimIndent()
-        }
-        latestVersionNode
+        projectSetup.getLibraryLatestVersionInLocalRepo("androidx/room/room-compiler")
     }
 
     @Before

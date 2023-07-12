@@ -28,7 +28,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * Tracks whether or not the device's battery is charging.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :

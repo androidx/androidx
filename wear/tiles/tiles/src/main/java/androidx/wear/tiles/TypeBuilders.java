@@ -23,7 +23,12 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.TypesProto;
 
-/** Builders for extensible primitive types used by layout elements. */
+/**
+ * Builders for extensible primitive types used by layout elements.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.TypeBuilders} instead.
+ */
+@Deprecated
 public final class TypeBuilders {
     private TypeBuilders() {}
 
@@ -40,14 +45,12 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Int32Prop fromProto(@NonNull TypesProto.Int32Prop proto) {
             return new Int32Prop(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TypesProto.Int32Prop toProto() {
@@ -89,14 +92,12 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static StringProp fromProto(@NonNull TypesProto.StringProp proto) {
             return new StringProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TypesProto.StringProp toProto() {
@@ -137,14 +138,12 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static FloatProp fromProto(@NonNull TypesProto.FloatProp proto) {
             return new FloatProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TypesProto.FloatProp toProto() {
@@ -185,14 +184,12 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static BoolProp fromProto(@NonNull TypesProto.BoolProp proto) {
             return new BoolProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TypesProto.BoolProp toProto() {
