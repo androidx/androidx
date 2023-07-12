@@ -19,13 +19,11 @@ package androidx.camera.camera2.internal;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
-import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -54,13 +52,11 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
-import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -70,16 +66,12 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.impl.SessionProcessor;
-import androidx.camera.core.impl.StreamSpec;
-import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -89,7 +81,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -213,9 +204,6 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     private final DynamicRangesCompat mDynamicRangesCompat;
 
-    @NonNull
-    private final SupportedSurfaceCombination mSupportedSurfaceCombination;
-
     /**
      * Constructor for a camera.
      *
@@ -230,7 +218,6 @@ final class Camera2CameraImpl implements CameraInternal {
      *                                    could occur if the camera was disconnected.
      */
     Camera2CameraImpl(
-            @NonNull Context context,
             @NonNull CameraManagerCompat cameraManager,
             @NonNull String cameraId,
             @NonNull Camera2CameraInfoImpl cameraInfoImpl,
@@ -281,20 +268,6 @@ final class Camera2CameraImpl implements CameraInternal {
                 mCameraConfigureAvailable,
                 mCameraAvailability);
         mCameraManager.registerAvailabilityCallback(mExecutor, mCameraAvailability);
-
-        mSupportedSurfaceCombination = new SupportedSurfaceCombination(context, cameraId,
-                cameraManager, new CamcorderProfileHelper() {
-                        @Override
-                        public boolean hasProfile(int cameraId, int quality) {
-                            return CamcorderProfile.hasProfile(cameraId, quality);
-                        }
-
-                        @Override
-                        @SuppressWarnings("deprecation")
-                        public CamcorderProfile get(int cameraId, int quality) {
-                            return CamcorderProfile.get(cameraId, quality);
-                        }
-                    });
     }
 
     @NonNull
@@ -640,15 +613,11 @@ final class Camera2CameraImpl implements CameraInternal {
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
-        StreamSpec streamSpec = useCase.getAttachedStreamSpec();
-        List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " ACTIVE");
 
-            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig, useCaseConfig,
-                    streamSpec, captureTypes);
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig,
-                    streamSpec, captureTypes);
+            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig, useCaseConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
             updateCaptureSessionConfig();
         });
     }
@@ -673,12 +642,9 @@ final class Camera2CameraImpl implements CameraInternal {
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
-        StreamSpec streamSpec = useCase.getAttachedStreamSpec();
-        List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " UPDATED");
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig,
-                    streamSpec, captureTypes);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
             updateCaptureSessionConfig();
         });
     }
@@ -688,22 +654,17 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
-        StreamSpec streamSpec = useCase.getAttachedStreamSpec();
-        List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
-        resetUseCase(getUseCaseId(useCase), sessionConfig, useCaseConfig, streamSpec, captureTypes);
+        resetUseCase(getUseCaseId(useCase), sessionConfig, useCaseConfig);
     }
 
     private void resetUseCase(
             @NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> useCaseConfig,
-            @Nullable StreamSpec streamSpec,
-            @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes
+            @NonNull UseCaseConfig<?> useCaseConfig
     ) {
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " RESET");
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig,
-                    streamSpec, captureTypes);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
             addOrRemoveMeteringRepeatingUseCase();
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
@@ -817,8 +778,7 @@ final class Camera2CameraImpl implements CameraInternal {
         for (UseCaseInfo useCaseInfo : useCaseInfos) {
             if (!mUseCaseAttachState.isUseCaseAttached(useCaseInfo.getUseCaseId())) {
                 mUseCaseAttachState.setUseCaseAttached(useCaseInfo.getUseCaseId(),
-                        useCaseInfo.getSessionConfig(), useCaseInfo.getUseCaseConfig(),
-                        useCaseInfo.getStreamSpec(), useCaseInfo.getCaptureTypes());
+                        useCaseInfo.getSessionConfig(), useCaseInfo.getUseCaseConfig());
 
                 useCaseIdsToAttach.add(useCaseInfo.getUseCaseId());
 
@@ -1035,15 +995,10 @@ final class Camera2CameraImpl implements CameraInternal {
                                         mMeteringRepeatingSession.getUseCaseConfig();
 
                                 resetUseCase(getMeteringRepeatingId(mMeteringRepeatingSession),
-                                        sessionConfigMeteringRepeating, useCaseConfig, null,
-                                        Collections.singletonList(
-                                                UseCaseConfigFactory.CaptureType.METERING_REPEATING
-                                        ));
+                                        sessionConfigMeteringRepeating, useCaseConfig);
                             });
                 }
-                if (isSurfaceCombinationWithMeteringRepeatingSupported()) {
-                    addMeteringRepeating();
-                }
+                addMeteringRepeating();
             } else {
                 // There is mMeteringRepeating and attached, check to remove it or not.
                 if (sizeSessionSurfaces == 1 && sizeRepeatingSurfaces == 1) {
@@ -1051,10 +1006,6 @@ final class Camera2CameraImpl implements CameraInternal {
                     removeMeteringRepeating();
                 } else if (sizeRepeatingSurfaces >= 2) {
                     // There are other repeating UseCases, remove the MeteringRepeating.
-                    removeMeteringRepeating();
-                } else if (mMeteringRepeatingSession != null
-                        && !isSurfaceCombinationWithMeteringRepeatingSupported()) {
-                    // Surface combination not supported, remove the MeteringRepeating if added.
                     removeMeteringRepeating();
                 } else {
                     // Other normal cases, do nothing.
@@ -1064,76 +1015,6 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
             }
         }
-    }
-
-    /**
-     * Checks if adding {@link MeteringRepeatingSession} to current use cases is supported
-     */
-    private boolean isSurfaceCombinationWithMeteringRepeatingSupported() {
-        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
-        @CameraMode.Mode int cameraMode = getCameraMode();
-
-        for (UseCaseAttachState.UseCaseAttachInfo useCaseInfo:
-                mUseCaseAttachState.getAttachedUseCaseInfo()) {
-            if (useCaseInfo.getCaptureTypes() != null && useCaseInfo.getCaptureTypes().get(0)
-                    == UseCaseConfigFactory.CaptureType.METERING_REPEATING) {
-                continue;
-            }
-
-            if (useCaseInfo.getStreamSpec() == null || useCaseInfo.getCaptureTypes() == null) {
-                Logger.w(TAG, "Invalid stream spec or capture types in " + useCaseInfo);
-                return false;
-            }
-
-            SessionConfig sessionConfig = useCaseInfo.getSessionConfig();
-            UseCaseConfig<?> useCaseConfig = useCaseInfo.getUseCaseConfig();
-            for (DeferrableSurface surface: sessionConfig.getSurfaces()) {
-                SurfaceConfig surfaceConfig =
-                        mSupportedSurfaceCombination.transformSurfaceConfig(cameraMode,
-                                useCaseConfig.getInputFormat(), surface.getPrescribedSize());
-
-                AttachedSurfaceInfo attachedSurfaceInfo = AttachedSurfaceInfo.create(surfaceConfig,
-                        useCaseConfig.getInputFormat(),
-                        surface.getPrescribedSize(),
-                        useCaseInfo.getStreamSpec().getDynamicRange(),
-                        useCaseInfo.getCaptureTypes(),
-                        useCaseInfo.getStreamSpec().getImplementationOptions(),
-                        useCaseConfig.getTargetFrameRate(null));
-
-                attachedSurfaces.add(attachedSurfaceInfo);
-            }
-        }
-
-        Preconditions.checkNotNull(mMeteringRepeatingSession);
-
-        Map<UseCaseConfig<?>, List<Size>> useCaseConfigToSizeMap = new HashMap<>();
-        useCaseConfigToSizeMap.put(mMeteringRepeatingSession.getUseCaseConfig(),
-                Collections.singletonList(mMeteringRepeatingSession.getMeteringRepeatingSize()));
-
-        try {
-            mSupportedSurfaceCombination.getSuggestedStreamSpecifications(cameraMode,
-                    attachedSurfaces, useCaseConfigToSizeMap);
-        } catch (IllegalArgumentException e) {
-            debugLog("Surface combination with metering repeating  not supported!", e);
-            return false;
-        }
-
-        debugLog("Surface combination with metering repeating supported!");
-        return true;
-    }
-
-    private @CameraMode.Mode int getCameraMode() {
-        synchronized (mLock) {
-            if (mCameraCoordinator.getCameraOperatingMode()
-                    == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT) {
-                return CameraMode.CONCURRENT_CAMERA;
-            }
-        }
-
-        // TODO(b/271199876): return ULTRA_HIGH_RESOLUTION_CAMERA when it can be enabled via
-        //  Camera2Interop
-
-        return CameraMode.DEFAULT;
     }
 
     private void removeMeteringRepeating() {
@@ -1153,15 +1034,11 @@ final class Camera2CameraImpl implements CameraInternal {
             mUseCaseAttachState.setUseCaseAttached(
                     id,
                     mMeteringRepeatingSession.getSessionConfig(),
-                    mMeteringRepeatingSession.getUseCaseConfig(),
-                    null,
-                    Collections.singletonList(UseCaseConfigFactory.CaptureType.METERING_REPEATING));
+                    mMeteringRepeatingSession.getUseCaseConfig());
             mUseCaseAttachState.setUseCaseActive(
                     id,
                     mMeteringRepeatingSession.getSessionConfig(),
-                    mMeteringRepeatingSession.getUseCaseConfig(),
-                    null,
-                    Collections.singletonList(UseCaseConfigFactory.CaptureType.METERING_REPEATING));
+                    mMeteringRepeatingSession.getUseCaseConfig());
         }
     }
 
@@ -1556,16 +1433,6 @@ final class Camera2CameraImpl implements CameraInternal {
         return useCase.getName() + useCase.hashCode();
     }
 
-    @Nullable
-    static List<UseCaseConfigFactory.CaptureType> getCaptureTypes(@NonNull UseCase useCase) {
-        if (useCase.getCamera() == null) {
-            // camera is not bound, so the current use case config may not have capture type set
-            return null;
-        }
-
-        return StreamSharing.getCaptureTypes(useCase);
-    }
-
     @NonNull
     static String getMeteringRepeatingId(@NonNull MeteringRepeatingSession meteringRepeating) {
         return meteringRepeating.getName() + meteringRepeating.hashCode();
@@ -1742,7 +1609,6 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>{@link UseCaseInfo} should only contain immutable class to avoid race condition between
      * caller thread and camera thread.
      */
-    @SuppressWarnings("AutoValueImmutableFields")  // avoid extra dependency for ImmutableList.
     @AutoValue
     abstract static class UseCaseInfo {
         @NonNull
@@ -1750,19 +1616,16 @@ final class Camera2CameraImpl implements CameraInternal {
                 @NonNull Class<?> useCaseType,
                 @NonNull SessionConfig sessionConfig,
                 @NonNull UseCaseConfig<?> useCaseConfig,
-                @Nullable Size surfaceResolution,
-                @Nullable StreamSpec streamSpec,
-                @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
+                @Nullable Size surfaceResolution) {
             return new AutoValue_Camera2CameraImpl_UseCaseInfo(useCaseId, useCaseType,
-                    sessionConfig, useCaseConfig, surfaceResolution, streamSpec, captureTypes);
+                    sessionConfig, useCaseConfig, surfaceResolution);
         }
 
         @NonNull
         static UseCaseInfo from(@NonNull UseCase useCase) {
             return create(Camera2CameraImpl.getUseCaseId(useCase), useCase.getClass(),
                     useCase.getSessionConfig(), useCase.getCurrentConfig(),
-                    useCase.getAttachedSurfaceResolution(),
-                    useCase.getAttachedStreamSpec(), Camera2CameraImpl.getCaptureTypes(useCase));
+                    useCase.getAttachedSurfaceResolution());
         }
 
         @NonNull
@@ -1779,12 +1642,6 @@ final class Camera2CameraImpl implements CameraInternal {
 
         @Nullable
         abstract Size getSurfaceResolution();
-
-        @Nullable
-        abstract StreamSpec getStreamSpec();
-
-        @Nullable
-        abstract List<UseCaseConfigFactory.CaptureType> getCaptureTypes();
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

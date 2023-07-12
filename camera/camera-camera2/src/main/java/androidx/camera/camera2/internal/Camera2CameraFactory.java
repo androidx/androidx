@@ -52,10 +52,6 @@ import java.util.Set;
 public final class Camera2CameraFactory implements CameraFactory {
     private static final String TAG = "Camera2CameraFactory";
     private static final int DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS = 1;
-
-    @NonNull
-    private final Context mContext;
-
     private final CameraCoordinator mCameraCoordinator;
     private final CameraThreadConfig mThreadConfig;
     private final CameraStateRegistry mCameraStateRegistry;
@@ -68,7 +64,6 @@ public final class Camera2CameraFactory implements CameraFactory {
     public Camera2CameraFactory(@NonNull Context context,
             @NonNull CameraThreadConfig threadConfig,
             @Nullable CameraSelector availableCamerasSelector) throws InitializationException {
-        mContext = context;
         mThreadConfig = threadConfig;
         mCameraManager = CameraManagerCompat.from(context, mThreadConfig.getSchedulerHandler());
         mDisplayInfoManager = DisplayInfoManager.getInstance(context);
@@ -89,7 +84,7 @@ public final class Camera2CameraFactory implements CameraFactory {
             throw new IllegalArgumentException(
                     "The given camera id is not on the available camera id list.");
         }
-        return new Camera2CameraImpl(mContext, mCameraManager,
+        return new Camera2CameraImpl(mCameraManager,
                 cameraId,
                 getCameraInfo(cameraId),
                 mCameraCoordinator,

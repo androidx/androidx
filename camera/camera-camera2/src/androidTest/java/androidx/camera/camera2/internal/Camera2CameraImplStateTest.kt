@@ -352,7 +352,6 @@ internal class Camera2CameraImplStateTest {
 
         // Initialize camera instance
         camera = Camera2CameraImpl(
-            ApplicationProvider.getApplicationContext(),
             cameraManagerCompat,
             cameraId,
             camera2CameraInfo,

@@ -21,8 +21,6 @@ import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.processing.TargetUtils.getNumberOfTargets;
-import static androidx.camera.core.streamsharing.StreamSharing.getCaptureTypes;
-import static androidx.camera.core.streamsharing.StreamSharing.isStreamSharing;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -729,6 +727,19 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
+    @NonNull
+    private static List<UseCaseConfigFactory.CaptureType> getCaptureTypes(UseCase useCase) {
+        List<UseCaseConfigFactory.CaptureType> result = new ArrayList<>();
+        if (isStreamSharing(useCase)) {
+            for (UseCase child : ((StreamSharing) useCase).getChildren()) {
+                result.add(child.getCurrentConfig().getCaptureType());
+            }
+        } else {
+            result.add(useCase.getCurrentConfig().getCaptureType());
+        }
+        return result;
+    }
+
     /**
      * Sets effects on the given {@link UseCase} list and returns unused effects.
      */
@@ -1023,6 +1034,10 @@ public final class CameraUseCaseAdapter implements Camera {
         }
 
         return hasPreview && !hasImageCapture;
+    }
+
+    private static boolean isStreamSharing(@Nullable UseCase useCase) {
+        return useCase instanceof StreamSharing;
     }
 
     private static boolean isPreview(@Nullable UseCase useCase) {
