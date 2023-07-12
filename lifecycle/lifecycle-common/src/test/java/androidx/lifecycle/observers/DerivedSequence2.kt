@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.observers;
+package androidx.lifecycle.observers
 
-import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.Lifecycle
 
-@SuppressWarnings("deprecation")
-public class DerivedSequence2 extends DerivedSequence1 {
-
+@Suppress("DEPRECATION")
+class DerivedSequence2 : DerivedSequence1() {
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    void onStop() {
-
-    }
+    fun onStop() {}
 }
