@@ -11,11 +11,13 @@ package androidx.compose.material3.adaptive {
     property public final androidx.compose.material3.adaptive.AdaptStrategy Hide;
   }
 
-  @androidx.compose.runtime.Immutable public final class AdaptiveLayoutDirective {
-    ctor public AdaptiveLayoutDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, optional int maxVerticalPartitions);
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class AdaptiveLayoutDirective {
+    ctor public AdaptiveLayoutDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, optional int maxVerticalPartitions, optional java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getExcludedBounds();
     method public androidx.compose.material3.adaptive.GutterSizes getGutterSizes();
     method public int getMaxHorizontalPartitions();
     method public int getMaxVerticalPartitions();
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds;
     property public final androidx.compose.material3.adaptive.GutterSizes gutterSizes;
     property public final int maxHorizontalPartitions;
     property public final int maxVerticalPartitions;
@@ -39,7 +41,7 @@ package androidx.compose.material3.adaptive {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
-  @androidx.compose.runtime.Immutable public final class GutterSizes {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class GutterSizes {
     ctor public GutterSizes(float outerVertical, float innerVertical, optional float outerHorizontal, optional float innerHorizontal);
     method public float getInnerHorizontal();
     method public float getInnerVertical();

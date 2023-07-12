@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -140,18 +141,22 @@ fun calculateDenseAdaptiveLayoutDirective(
 /**
  * Top-level directives about how an adaptive layout should be arranged and spaced, like how many
  * partitions the layout can be split into and what should be the gutter size.
+ *
+ * @param maxHorizontalPartitions the max number of partitions along the horizontal axis the layout
+ *        can be split into.
+ * @param gutterSizes the gutter sizes between panes the layout should preserve.
+ * @param maxVerticalPartitions the max number of partitions along the vertical axis the layout can
+ *        be split into.
+ * @param excludedBounds The bounds of all areas in the window that the layout needs to avoid
+ *        displaying anything upon it. Usually these bounds represent where physical hinges are.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class AdaptiveLayoutDirective(
-    /** How many partitions along the horizontal axis the respective layout can be split into. */
     val maxHorizontalPartitions: Int,
-    /** The gutter size of the respective layout should preserve. */
     val gutterSizes: GutterSizes,
-    /**
-     * How many partitions along the vertical axis the respective layout can be split into.
-     * The default value is 1.
-     */
-    val maxVerticalPartitions: Int = 1
+    val maxVerticalPartitions: Int = 1,
+    val excludedBounds: List<Rect> = emptyList()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -175,26 +180,22 @@ class AdaptiveLayoutDirective(
  * between panes ([innerVertical] and [innerHorizontal]) and paddings of the layout itself
  * ([outerVertical] and [outerHorizontal]). Usually we will expect larger gutter sizes to be set
  * when the layout is larger and more panes are shown in the layout.
+ *
+ * @param outerVertical Size of the outer vertical gutters. It's similar to left/right paddings of
+ *        a normal layout.
+ * @param innerVertical Size of the inner vertical gutters. It's similar to left/right margins of
+ *        a layout's children.
+ * @param outerHorizontal Size of the outer horizontal gutters. It's similar to top/bottom paddings
+ *        of a normal layout.
+ * @param innerHorizontal Size of the inner horizontal gutters. It's similar to top/bottom margins
+ *        of the layout's children.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class GutterSizes(
-    /**
-     * Size of the outer vertical gutters. It's similar to left/right paddings of a normal layout.
-     */
     val outerVertical: Dp,
-    /**
-     * Size of the inner vertical gutters. It's similar to left/right margins of the layout's
-     * children.
-     */
     val innerVertical: Dp,
-    /**
-     * Size of the outer horizontal gutters. It's similar to top/bottom paddings of a normal layout.
-     */
     val outerHorizontal: Dp = outerVertical,
-    /**
-     * Size of the inner horizontal gutters. It's similar to top/bottom margins of the layout's
-     * children.
-     */
     val innerHorizontal: Dp = innerVertical
 ) {
     override fun equals(other: Any?): Boolean {
