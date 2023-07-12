@@ -172,7 +172,6 @@ androidXMultiplatform {
         if (desktopEnabled) {
             desktopTest {
                 dependsOn(jvmTest)
-                dependsOn(desktopMain)
                 dependencies {
                     implementation(libs.truth)
                     implementation(libs.junit)

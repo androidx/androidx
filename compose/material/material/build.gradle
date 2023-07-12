@@ -140,7 +140,6 @@ androidXMultiplatform {
         if (desktopEnabled) {
             desktopTest {
                 dependsOn(jvmTest)
-                dependsOn(desktopMain)
                 dependencies {
                     implementation(project(":compose:ui:ui-test-junit4"))
                     implementation(libs.truth)
