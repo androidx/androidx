@@ -22,7 +22,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -31,14 +33,25 @@ import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class RippleTestActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             Column {
-                val interactionSource = remember { MutableInteractionSource() }
+                // Always pressed interaction source to trigger creating a ripple view immediately
+                val interactionSource = remember {
+                    object : MutableInteractionSource {
+                        override suspend fun emit(interaction: Interaction) {}
+                        override fun tryEmit(interaction: Interaction) = true
+                        override val interactions: Flow<Interaction>
+                            get() = flowOf(PressInteraction.Press(Offset.Zero))
+                    }
+                }
                 Text(
                     text = "Click me with indication",
                     modifier = Modifier
