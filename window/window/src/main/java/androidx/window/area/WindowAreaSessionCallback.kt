@@ -16,11 +16,14 @@
 
 package androidx.window.area
 
+import androidx.window.core.ExperimentalWindowApi
+
 /**
  *  Callback to update the client on the WindowArea Session being
  * started and ended.
  * TODO(b/207720511) Move to window-java module when Kotlin API Finalized
  */
+@ExperimentalWindowApi
 interface WindowAreaSessionCallback {
 
     /**

@@ -19,12 +19,14 @@ package androidx.window.java.area
 import androidx.core.util.Consumer
 import androidx.window.area.WindowAreaController
 import androidx.window.area.WindowAreaInfo
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
 
 /**
  * An adapter for [WindowAreaController] to provide callback APIs.
  */
+@ExperimentalWindowApi
 class WindowAreaControllerCallbackAdapter private constructor(
     private val controller: WindowAreaController,
     private val callbackToFlowAdapter: CallbackToFlowAdapter

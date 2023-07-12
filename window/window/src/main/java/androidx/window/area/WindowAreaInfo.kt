@@ -20,6 +20,7 @@ import android.os.Binder
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_PRESENT_ON_AREA
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_ACTIVITY_TO_AREA
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.layout.WindowMetrics
 
@@ -28,6 +29,7 @@ import androidx.window.layout.WindowMetrics
  * display in the system. These values can be used to modify the UI to show/hide controls and
  * determine when features can be enabled.
  */
+@ExperimentalWindowApi
 class WindowAreaInfo internal constructor(
 
     /**
@@ -96,6 +98,7 @@ class WindowAreaInfo internal constructor(
     /**
      * Represents a type of [WindowAreaInfo]
      */
+    @ExperimentalWindowApi
     class Type private constructor(private val description: String) {
         override fun toString(): String {
             return description
