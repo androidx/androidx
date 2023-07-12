@@ -357,9 +357,13 @@ public class DeviceProfileWriter {
             FileChannel channel = os.getChannel();
             // Acquire a lock to avoid racing with the Android Runtime
             // when saving the contents of the profile.
+
+            // The documentation suggests that these locks are VM wide, however, the underlying
+            // implementation in libcore (https://cs.android.com/android/platform/superproject/+/main:libcore/ojluni/src/main/native/FileDispatcherImpl.c;l=217;drc=e9cc931d70205df4e7dcc601729707bc7367c081)
+            // ensures that this is OS wide.
             FileLock lock = channel.tryLock()
         ) {
-            Encoding.writeAll(bis, os, channel, lock);
+            Encoding.writeAll(bis, os, lock);
             result(ProfileInstaller.RESULT_INSTALL_SUCCESS, null);
             return true;
         } catch (FileNotFoundException e) {
