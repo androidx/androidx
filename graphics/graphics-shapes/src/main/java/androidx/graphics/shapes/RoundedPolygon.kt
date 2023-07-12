@@ -314,7 +314,7 @@ class RoundedPolygon {
             val prevVertex = PointF(vertices[prevVtxIndex * 2], vertices[prevVtxIndex * 2 + 1])
             val nextVertex = PointF(vertices[nextVtxIndex * 2], vertices[nextVtxIndex * 2 + 1])
             val convex = (currVertex - prevVertex).clockwise(nextVertex - currVertex)
-            tempFeatures.add(Corner(cornerIndices, roundedCorners[i].center, currVertex,
+            tempFeatures.add(Corner(cornerIndices, currVertex, roundedCorners[i].center,
                 convex))
             tempFeatures.add(Edge(listOf(cubics.size)))
             cubics.add(Cubic.straightLine(corners[i].last().anchorX1, corners[i].last().anchorY1,
