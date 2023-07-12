@@ -23,19 +23,16 @@ import androidx.kruth.assertThrows
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
 @InternalCoroutinesApi
 class DataMigrationInitializerTestFileTest :
     DataMigrationInitializerTest<JavaIOFile, IOException>(FileTestIO())
 
-@OptIn(ExperimentalCoroutinesApi::class)
+class CloseDownstreamOnCloseJavaTest : CloseDownstreamOnCloseTest<JavaIOFile>(FileTestIO())
+
 @InternalCoroutinesApi
 class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
 
