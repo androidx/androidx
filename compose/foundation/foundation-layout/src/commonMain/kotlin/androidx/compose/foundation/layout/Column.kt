@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -139,7 +140,7 @@ interface ColumnScope {
      */
     @Stable
     fun Modifier.weight(
-        /*@FloatRange(from = 0.0, fromInclusive = false)*/
+        @FloatRange(from = 0.0, fromInclusive = false)
         weight: Float,
         fill: Boolean = true
     ): Modifier

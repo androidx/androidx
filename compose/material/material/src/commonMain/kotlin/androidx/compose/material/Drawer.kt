@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
@@ -327,7 +328,7 @@ class BottomDrawerState @Deprecated(
      * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
      * is in a settled state.
      */
-    /*@FloatRange(from = 0f, to = 1f)*/
+    @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
     val progress: Float
         get() = anchoredDraggableState.progress

@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.VectorizedAnimationSpec
@@ -254,7 +255,7 @@ private fun BottomNavigationTransition(
 private fun BottomNavigationItemBaselineLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     iconPositionAnimationProgress: Float
 ) {
     Layout(
@@ -332,7 +333,7 @@ private fun MeasureScope.placeLabelAndIcon(
     labelPlaceable: Placeable,
     iconPlaceable: Placeable,
     constraints: Constraints,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     iconPositionAnimationProgress: Float
 ): MeasureResult {
     val height = constraints.maxHeight

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
@@ -249,7 +250,7 @@ class LazyGridState constructor(
      * scroll the item further upward (taking it partly offscreen).
      */
     suspend fun scrollToItem(
-        /*@IntRange(from = 0)*/
+        @AndroidXIntRange(from = 0)
         index: Int,
         scrollOffset: Int = 0
     ) {
@@ -402,7 +403,7 @@ class LazyGridState constructor(
      * scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(
-        /*@IntRange(from = 0)*/
+        @AndroidXIntRange(from = 0)
         index: Int,
         scrollOffset: Int = 0
     ) {
