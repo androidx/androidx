@@ -208,6 +208,7 @@ internal enum class Platform {
     IOS,
     TvOS,
     WatchOS,
+    Android, // use case: a web app running in Chrome Android
 }
 
 internal expect fun currentPlatform(): Platform
@@ -240,6 +241,13 @@ internal val GenericFontFamiliesMapping: Map<String, List<String>> by lazy {
                 FontFamily.Monospace.name to listOf(".AppleSystemUIFontMonospaced", "Menlo", "Courier"),
                 // Safari "font-family: cursive" real font names from macOS and iOS.
                 FontFamily.Cursive.name to listOf("Apple Chancery", "Snell Roundhand")
+            )
+        Platform.Android -> // https://m3.material.io/styles/typography/fonts
+            mapOf(
+                FontFamily.SansSerif.name to listOf("Roboto", "Noto Sans"),
+                FontFamily.Serif.name to listOf("Roboto Serif", "Noto Serif"),
+                FontFamily.Monospace.name to listOf("Roboto Mono", "Noto Sans Mono"),
+                FontFamily.Cursive.name to listOf("Comic Sans MS")
             )
         Platform.Unknown ->
             mapOf(
