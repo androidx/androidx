@@ -4353,10 +4353,12 @@ package androidx.core.view.accessibility {
     method public int getDisplayId();
     method public int getId();
     method public int getLayer();
+    method public androidx.core.os.LocaleListCompat getLocales();
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getParent();
     method public void getRegionInScreen(android.graphics.Region);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getRoot();
     method public CharSequence? getTitle();
+    method public long getTransitionTimeMillis();
     method public int getType();
     method public boolean isAccessibilityFocused();
     method public boolean isActive();
