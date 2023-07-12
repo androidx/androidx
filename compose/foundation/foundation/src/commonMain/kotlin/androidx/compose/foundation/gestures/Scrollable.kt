@@ -236,6 +236,15 @@ object ScrollableDefaults {
 }
 
 internal interface ScrollConfig {
+
+    /**
+     * Enables animated transition of scroll on mouse wheel events.
+     */
+    val isSmoothScrollingEnabled: Boolean
+        get() = false
+
+    fun isPreciseWheelScroll(event: PointerEvent): Boolean = false
+
     fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset
 }
 

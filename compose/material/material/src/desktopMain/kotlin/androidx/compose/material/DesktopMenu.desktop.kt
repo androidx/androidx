@@ -23,6 +23,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
@@ -199,6 +200,8 @@ private fun OpenDropdownMenu(
         DropdownMenuContent(
             expandedStates = expandedStates,
             transformOriginState = transformOriginState,
+            // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-169/Merge-DesktopMenu.desktop.kt): Fix after merge
+            scrollState = rememberScrollState(),
             modifier = modifier,
             content = content
         )

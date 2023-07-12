@@ -26,14 +26,14 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
+apply from: "shared-dependencies.gradle"
+
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 IconGenerationTask.registerExtendedIconMainProject(
         project,
         android
 )
-
-apply from: "shared-dependencies.gradle"
 
 dependencies {
 
@@ -111,35 +111,7 @@ configurations {
 
 }
 
-if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    for (themeName in allThemes) {
-        def otherProject = project(":compose:material:material-icons-extended-" + themeName)
-        project.dependencies.add("embedThemesDebug", otherProject)
-        project.dependencies.add("embedThemesRelease", otherProject)
-    }
-    // Compiling all of the icons in this project takes a while,
-    // so when possible, we compile each theme in its own project and merge them here.
-    // Hopefully we can revert this when parallel compilation is supported:
-    // https://youtrack.jetbrains.com/issue/KT-46085
-    android {
-        libraryVariants.all { v ->
-            if (v.name.toLowerCase().contains("debug")) {
-                v.registerPostJavacGeneratedBytecode(configurations.embedThemesDebug)
-            } else {
-                v.registerPostJavacGeneratedBytecode(configurations.embedThemesRelease)
-            }
-            // Manually set up source jar generation
-            ExtendedIconGenerationTask.registerSourceJarOnly(project, v)
-        }
-    }
-} else {
-    // We're not sure how to compile these icons in parallel when multiplatform is enabled
-    IconGenerationTask.registerExtendedIconThemeProject(
-            project,
-            android,
-            AndroidXComposePlugin.isMultiplatformEnabled(project)
-    )
-}
+IconGenerationTask.registerExtendedIconThemeProject(project, android)
 
 
 androidx {

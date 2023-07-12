@@ -140,11 +140,12 @@ fun Modifier.onClick(
                     }
                 }
             }
-            PressedInteractionSourceDisposableEffect(
-                interactionSource = interactionSource,
-                pressedInteraction = pressedInteraction,
-                currentKeyPressInteractions = currentKeyPressInteractions
-            )
+            // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-157) Fix after merge
+//            PressedInteractionSourceDisposableEffect(
+//                interactionSource = interactionSource,
+//                pressedInteraction = pressedInteraction,
+//                currentKeyPressInteractions = currentKeyPressInteractions
+//            )
 
             val matcherState = rememberUpdatedState(matcher)
 
@@ -175,12 +176,13 @@ fun Modifier.onClick(
                         onClickState.value()
                     },
                     onPress = {
-                        handlePressInteraction(
-                            pressPoint = it,
-                            interactionSource = interactionSource,
-                            pressedInteraction = pressedInteraction,
-                            delayPressInteraction = mutableStateOf({ false })
-                        )
+                        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-157) Fix after merge
+//                        handlePressInteraction(
+//                            pressPoint = it,
+//                            interactionSource = interactionSource,
+//                            pressedInteraction = pressedInteraction,
+//                            delayPressInteraction = mutableStateOf({ false })
+//                        )
                     }
                 )
             }.focusRequester(focusRequester)

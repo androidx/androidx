@@ -143,7 +143,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(extension, kmpExtension, componentFactory)
         project.configureExternalDependencyLicenseCheck()
-        project.configureProjectStructureValidation(extension)
+//        project.configureProjectStructureValidation(extension)
         // TODO: [1.4 Update] check that it is not needed
         //   This validation is not needed for JetBrains Fork, since they usually set in a force way
 //        project.configureProjectVersionValidation(extension)
@@ -151,19 +151,19 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.addCreateLibraryBuildInfoFileTasks(extension)
 
         project.configurations.create("samples")
-        project.validateMultiplatformPluginHasNotBeenApplied()
+//        project.validateMultiplatformPluginHasNotBeenApplied()
 
         project.tasks.register("printCoordinates", PrintProjectCoordinatesTask::class.java) {
             it.configureWithAndroidXExtension(extension)
         }
         project.configureConstraintsWithinGroup(extension)
-        project.validateProjectParser(extension)
-        project.validateAllArchiveInputsRecognized()
-        project.afterEvaluate {
-            if (extension.shouldPublish()) {
-                project.validatePublishedMultiplatformHasDefault()
-            }
-        }
+//        project.validateProjectParser(extension)
+//        project.validateAllArchiveInputsRecognized()
+//        project.afterEvaluate {
+//            if (extension.shouldPublish()) {
+//                project.validatePublishedMultiplatformHasDefault()
+//            }
+//        }
     }
 
     private fun Project.registerProjectOrArtifact() {

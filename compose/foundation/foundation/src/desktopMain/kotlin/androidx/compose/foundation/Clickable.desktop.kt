@@ -47,6 +47,7 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChangeConsumed
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.center
@@ -55,8 +56,11 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import java.awt.event.KeyEvent.VK_ENTER
 
-@Composable
-internal actual fun isComposeRootInScrollableContainer(): () -> Boolean = { false }
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3341): support isComposeRootInScrollableContainer
+internal actual fun CompositionLocalConsumerModifierNode
+    .isComposeRootInScrollableContainer(): Boolean {
+    return false
+}
 
 // TODO: b/168524931 - should this depend on the input device?
 internal actual val TapIndicationDelay: Long = 0L
@@ -146,7 +150,6 @@ fun Modifier.mouseClickable(
         Modifier
             .then(focusRequesterModifier)
             .genericClickableWithoutGesture(
-                gestureModifiers = gesture,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 indicationScope = rememberCoroutineScope(),
@@ -159,6 +162,7 @@ fun Modifier.mouseClickable(
                 onLongClick = null,
                 onClick = { onClick(EmptyClickContext) }
             )
+            .then(gesture)
     },
     inspectorInfo = debugInspectorInfo {
         name = "clickable"

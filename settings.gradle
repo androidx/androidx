@@ -207,11 +207,7 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
-    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
-    if (envProp.isPresent()) {
-        return envProp.get().toUpperCase()
-    }
-    return null
+    return "COMPOSE"
 }
 
 private String getRequestedProjectPrefix() {
@@ -394,7 +390,8 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
         }
         projectReferences[name] = links
     }
-    if (!file.exists()) {
+    def isJBFork = true
+    if (!isJBFork) {
         // This option is supported so that development/simplify_build_failure.sh can try
         // deleting entire projects at once to identify the cause of a build failure
         if (System.getenv("ALLOW_MISSING_PROJECTS") == null) {
@@ -593,8 +590,8 @@ includeProject(":compose:lint:common", [BuildType.COMPOSE])
 includeProject(":compose:lint:common-test", [BuildType.COMPOSE])
 includeProject(":compose:material", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3", [BuildType.COMPOSE])
-includeProject(":compose:material3:benchmark", [BuildType.COMPOSE])
-includeProject(":compose:material3:material3-adaptive", [BuildType.COMPOSE])
+//includeProject(":compose:material3:benchmark", [BuildType.COMPOSE])
+//includeProject(":compose:material3:material3-adaptive", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-lint", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-window-size-class", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-window-size-class:material3-window-size-class-samples", "compose/material3/material3-window-size-class/samples", [BuildType.COMPOSE])

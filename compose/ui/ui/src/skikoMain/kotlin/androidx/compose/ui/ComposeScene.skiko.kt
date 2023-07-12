@@ -368,6 +368,7 @@ class ComposeScene internal constructor(
             platform.focusManager,
             pointerPositionUpdater,
             initDensity = density,
+            coroutineContext = recomposer.effectCoroutineContext,
             bounds = IntSize(constraints.maxWidth, constraints.maxHeight).toIntRect(),
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,

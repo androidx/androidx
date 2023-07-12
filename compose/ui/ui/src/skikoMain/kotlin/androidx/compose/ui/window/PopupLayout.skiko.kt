@@ -67,6 +67,7 @@ internal fun PopupLayout(
             scene = scene,
             platform = scene.platform,
             pointerPositionUpdater = scene.pointerPositionUpdater,
+            coroutineContext = parentComposition.effectCoroutineContext,
             initDensity = density,
             initLayoutDirection = layoutDirection,
             isFocusable = focusable,

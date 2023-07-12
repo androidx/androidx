@@ -45,7 +45,7 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.*
-import androidx.compose.ui.semantics.SemanticsModifierCore
+import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
@@ -55,6 +55,7 @@ import androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.platform.FontLoader
 import androidx.compose.ui.unit.*
+import kotlin.coroutines.CoroutineContext
 
 private typealias Command = () -> Unit
 
@@ -70,6 +71,7 @@ internal class SkiaBasedOwner(
     parentFocusManager: FocusManager = EmptyFocusManager,
     private val pointerPositionUpdater: PointerPositionUpdater,
     initDensity: Density = Density(1f, 1f),
+    coroutineContext: CoroutineContext,
     initLayoutDirection: LayoutDirection = platform.layoutDirection,
     bounds: IntRect = IntRect.Zero,
     val isFocusable: Boolean = true,
@@ -100,17 +102,13 @@ internal class SkiaBasedOwner(
 
     override val sharedDrawScope = LayoutNodeDrawScope()
 
-    private val semanticsModifier = SemanticsModifierCore(
-        mergeDescendants = false,
-        clearAndSetSemantics = false,
-        properties = {}
-    )
+    private val semanticsModifier = EmptySemanticsElement
 
     // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2944)
     //  Check if ComposePanel/SwingPanel focus interop work correctly with new features of
     //  the focus system (it works with the old features like moveFocus/clearFocus)
     override val focusOwner: FocusOwner = FocusOwnerImpl(
-        parent = parentFocusManager
+        //parent = parentFocusManager https://youtrack.jetbrains.com/issue/COMPOSE-162
     ) {
         registerOnEndApplyChangesListener(it)
     }.apply {
@@ -144,6 +142,8 @@ internal class SkiaBasedOwner(
             .onPreviewKeyEvent(onPreviewKeyEvent)
             .onKeyEvent(onKeyEvent)
     }
+
+    override val coroutineContext: CoroutineContext = coroutineContext
 
     override val rootForTest = this
 
@@ -264,20 +264,25 @@ internal class SkiaBasedOwner(
         root.children.maxOfOrNull { it.outerCoordinator.measuredHeight } ?: 0,
     )
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
     ) {
         if (affectsLookahead) {
-            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest)) {
+            if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest) &&
+                scheduleMeasureAndLayout
+            ) {
                 requestLayout?.invoke()
             }
-        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest)) {
+        } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest) &&
+            scheduleMeasureAndLayout
+        ) {
             requestLayout?.invoke()
         }
     }
@@ -356,20 +361,17 @@ internal class SkiaBasedOwner(
             isInBounds = isInBounds && event.pointers.all {
                 bounds.contains(it.position.round())
             }
-        ).also {
-            if (it.dispatchedToAPointerInputModifier) {
-                commitPointerIcon()
-            }
-        }
+        )
     }
 
     /**
      * If pointerPosition is inside UIKitView, then Compose skip touches. And touches goes to UIKit.
      */
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-170) check after merge
     fun hitInteropView(pointerPosition: Offset, isTouchEvent: Boolean): Boolean {
-        val result = HitTestResult<PointerInputModifierNode>()
+        val result = HitTestResult()
         pointerInputEventProcessor.root.hitTest(pointerPosition, result, isTouchEvent)
-        val last: PointerInputModifierNode? = result.lastOrNull()
+        val last = result.lastOrNull()
         return (last as? BackwardsCompatNode)?.element is InteropViewCatchPointerModifier
     }
 
@@ -403,16 +405,17 @@ internal class SkiaBasedOwner(
         requestLayout?.invoke()
     }
 
-    private fun commitPointerIcon() {
-        platform.setPointerIcon(pointerIconService.current)
-        pointerIconService.current = PointerIcon.Default
-    }
-
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-163) check after merge
     override val pointerIconService = object : PointerIconService {
-        override var current: PointerIcon = PointerIcon.Default
+        private var desiredPointerIcon: PointerIcon? = null
 
-        override fun requestUpdate() {
-            pointerPositionUpdater.needSendMove()
+        override fun getIcon(): PointerIcon {
+            return desiredPointerIcon ?: PointerIcon.Default
+        }
+
+        override fun setIcon(value: PointerIcon?) {
+            desiredPointerIcon = value
+            platform.setPointerIcon(desiredPointerIcon ?: PointerIcon.Default)
         }
     }
 }

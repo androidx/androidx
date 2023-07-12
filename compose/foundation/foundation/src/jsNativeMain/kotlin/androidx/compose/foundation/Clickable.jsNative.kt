@@ -22,10 +22,14 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import org.jetbrains.skiko.SkikoKey
 
-@Composable
-internal actual fun isComposeRootInScrollableContainer(): () -> Boolean = { false }
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3341): support isComposeRootInScrollableContainer
+internal actual fun CompositionLocalConsumerModifierNode
+    .isComposeRootInScrollableContainer(): Boolean {
+    return false
+}
 
 // TODO: b/168524931 - should this depend on the input device?
 internal actual val TapIndicationDelay: Long = 0L
