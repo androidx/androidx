@@ -116,7 +116,6 @@ androidXMultiplatform {
         if (desktopEnabled) {
             desktopTest {
                 dependsOn(jvmTest)
-                dependsOn(desktopMain)
                 dependencies {
 
                 }
