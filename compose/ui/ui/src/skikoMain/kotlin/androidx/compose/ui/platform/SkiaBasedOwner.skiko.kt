@@ -408,7 +408,6 @@ internal class SkiaBasedOwner(
         requestLayout?.invoke()
     }
 
-    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-163) check after merge
     override val pointerIconService = object : PointerIconService {
         private var desiredPointerIcon: PointerIcon? = null
 

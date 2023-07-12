@@ -157,6 +157,9 @@ class PointerIconTest {
             }
         }
 
+        // skip one frame, so Compose will properly calculate Boxes hierarchy
+        // and detect overrideDescendants
+        scene.render()
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
 
@@ -247,7 +250,9 @@ class PointerIconTest {
         try {
             scene.constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
             scene.setContent {
-                Box(modifier = Modifier.size(100.dp, 100.dp).pointerInput(Unit) { }) {
+                Box(
+                    modifier = Modifier.size(100.dp, 100.dp).pointerHoverIcon(PointerIcon.Default)
+                ) {
                     Box(
                         modifier = Modifier.pointerHoverIcon(iconState.value).size(30.dp, 30.dp)
                     )
