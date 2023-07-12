@@ -184,7 +184,6 @@ object BuildCompat {
      *
      * @return `true` if Sv2 APIs are available for use, `false` otherwise
      */
-    @PrereleaseSdkCheck
     @JvmStatic
     @ChecksSdkIntAtLeast(api = 32, codename = "Sv2")
     @Deprecated(
@@ -208,7 +207,6 @@ object BuildCompat {
      *
      * @return `true` if Tiramisu APIs are available for use, `false` otherwise
      */
-    @PrereleaseSdkCheck
     @JvmStatic
     @ChecksSdkIntAtLeast(api = 33, codename = "Tiramisu")
     @Deprecated(
@@ -232,7 +230,6 @@ object BuildCompat {
      *
      * @return `true` if UpsideDownCake APIs are available for use, `false` otherwise
      */
-    @PrereleaseSdkCheck
     @JvmStatic
     @ChecksSdkIntAtLeast(api = 34, codename = "UpsideDownCake")
     @Deprecated(
@@ -267,10 +264,11 @@ object BuildCompat {
     /**
      * Experimental feature set for pre-release SDK checks.
      *
-     * APIs annotated as part of this feature set should only be used when building against
-     * pre-release platform SDKs. They are safe to ship in production apps and alpha libraries,
-     * but they must not be shipped in beta or later libraries as they **will be
-     * removed** after their respective SDKs are finalized for release.
+     * Pre-release SDK checks **do not** guarantee correctness, as APIs may have been added or
+     * removed during the course of a pre-release SDK development cycle.
+     *
+     * Additionally, pre-release checks **may not** return `true` when run on a finalized version of
+     * the SDK associated with the codename.
      */
     @RequiresOptIn
     @Retention(AnnotationRetention.BINARY)
