@@ -45,12 +45,12 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -67,10 +67,7 @@ public class WearableRecyclerViewTest {
     public final ActivityScenarioRule<WearableRecyclerViewTestActivity> mActivityRule =
             new ActivityScenarioRule<>(WearableRecyclerViewTestActivity.class);
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
 
     @Test
     public void testCaseInitState() {
