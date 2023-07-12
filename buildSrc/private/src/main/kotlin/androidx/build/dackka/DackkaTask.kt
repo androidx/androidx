@@ -22,6 +22,7 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
@@ -49,7 +50,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     DefaultTask() {
 
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    lateinit var projectStructureMetadataFile: File
+    abstract val projectStructureMetadataFile: RegularFileProperty
 
     // Classpath containing Dackka
     @get:Classpath abstract val dackkaClasspath: ConfigurableFileCollection
@@ -64,22 +65,22 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 
     // Directory containing the code samples
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    lateinit var samplesDir: File
+    abstract val samplesDir: DirectoryProperty
 
     // Directory containing the JVM source code for Dackka to process
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    lateinit var jvmSourcesDir: File
+    abstract val jvmSourcesDir: DirectoryProperty
 
     // Directory containing the multiplatform source code for Dackka to process
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    lateinit var multiplatformSourcesDir: File
+    abstract val multiplatformSourcesDir: DirectoryProperty
 
     // Directory containing the docs project and package-lists
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     lateinit var docsProjectDir: File
 
     // Location of generated reference docs
-    @get:OutputDirectory lateinit var destinationDir: File
+    @get:OutputDirectory abstract val destinationDir: DirectoryProperty
 
     // Set of packages to exclude for refdoc generation for all languages
     @Input lateinit var excludedPackages: Set<String>
@@ -120,6 +121,8 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
         val gson = GsonBuilder().create()
         val multiplatformSourceSets =
             projectStructureMetadataFile
+                .get()
+                .asFile
                 .takeIf { it.exists() }
                 ?.let { metadataFile ->
                     val metadata =
@@ -127,7 +130,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                     metadata.sourceSets.map { sourceSet ->
                         val analysisPlatform =
                             DokkaAnalysisPlatform.valueOf(sourceSet.analysisPlatform.uppercase())
-                        val sourceDir = multiplatformSourcesDir.resolve(sourceSet.name)
+                        val sourceDir = multiplatformSourcesDir.get().asFile.resolve(sourceSet.name)
                         DokkaInputModels.SourceSet(
                             id = sourceSetIdForSourceSet(sourceSet.name),
                             displayName = sourceSet.name,
@@ -155,7 +158,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 analysisPlatform = "jvm",
                 sourceRoots = objects.fileCollection().from(jvmSourcesDir),
                 samples = objects.fileCollection().from(samplesDir, frameworkSamplesDir),
-                includes = objects.fileCollection().from(includesFiles(jvmSourcesDir)),
+                includes = objects.fileCollection().from(includesFiles(jvmSourcesDir.get().asFile)),
                 classpath = dependenciesClasspath,
                 externalDocumentationLinks = externalDocs,
                 dependentSourceSets = emptyList(),
@@ -178,7 +181,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
         val jsonMap =
             mapOf(
                 "moduleName" to "",
-                "outputDir" to destinationDir.path,
+                "outputDir" to destinationDir.get().asFile.path,
                 "globalLinks" to linksConfiguration,
                 "sourceSets" to sourceSets(),
                 "offlineMode" to "true",
