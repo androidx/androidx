@@ -118,11 +118,6 @@ private class MonotonicClockImpl : MonotonicFrameClock {
     }
 }
 
-internal actual fun <T> createSnapshotMutableState(
-    value: T,
-    policy: SnapshotMutationPolicy<T>
-): SnapshotMutableState<T> = SnapshotMutableStateImpl(value, policy)
-
 @ExperimentalComposeApi
 internal actual class SnapshotContextElementImpl actual constructor(
     private val snapshot: Snapshot
