@@ -70,26 +70,8 @@ internal actual class PlatformRipple actual constructor(
             }
         }
 
-        // Create or get the RippleContainer attached to the nearest root Compose view
-
-        var rippleContainer: RippleContainer? = null
-
-        for (index in 0 until view.childCount) {
-            val child = view.getChildAt(index)
-            if (child is RippleContainer) {
-                rippleContainer = child
-                break
-            }
-        }
-
-        if (rippleContainer == null) {
-            rippleContainer = RippleContainer(view.context).apply {
-                view.addView(this)
-            }
-        }
-
-        return remember(interactionSource, this, rippleContainer) {
-            AndroidRippleIndicationInstance(bounded, radius, color, rippleAlpha, rippleContainer)
+        return remember(interactionSource, this, view) {
+            AndroidRippleIndicationInstance(bounded, radius, color, rippleAlpha, view)
         }
     }
 
@@ -129,8 +111,14 @@ internal class AndroidRippleIndicationInstance(
     private val radius: Dp,
     private val color: State<Color>,
     private val rippleAlpha: State<RippleAlpha>,
-    private val rippleContainer: RippleContainer
+    private val view: ViewGroup
 ) : RippleIndicationInstance(bounded, rippleAlpha), RememberObserver {
+    /**
+     * [RippleContainer] attached to the nearest [ViewGroup]: [view]. If it hasn't already been
+     * created by a another ripple, we will create it and attach it to the hierarchy.
+     */
+    private var rippleContainer: RippleContainer? = null
+
     /**
      * Backing [RippleHostView] used to draw ripples for this [RippleIndicationInstance].
      * [mutableStateOf] as we want changes to this to invalidate drawing, and cause us to draw /
@@ -207,7 +195,7 @@ internal class AndroidRippleIndicationInstance(
     }
 
     override fun addRipple(interaction: PressInteraction.Press, scope: CoroutineScope) {
-        rippleHostView = with(rippleContainer) {
+        rippleHostView = with(getOrCreateRippleContainer()) {
             getRippleHostView().apply {
                 addRipple(
                     interaction = interaction,
@@ -237,7 +225,7 @@ internal class AndroidRippleIndicationInstance(
     }
 
     private fun dispose() {
-        with(rippleContainer) {
+        rippleContainer?.run {
             disposeRippleIfNeeded()
         }
     }
@@ -248,5 +236,27 @@ internal class AndroidRippleIndicationInstance(
      */
     fun resetHostView() {
         rippleHostView = null
+    }
+
+    private fun getOrCreateRippleContainer(): RippleContainer {
+        if (rippleContainer != null) return rippleContainer!!
+
+        // Find existing RippleContainer in the view hierarchy
+        for (index in 0 until view.childCount) {
+            val child = view.getChildAt(index)
+            if (child is RippleContainer) {
+                rippleContainer = child
+                break
+            }
+        }
+
+        // Create a new RippleContainer if needed
+        if (rippleContainer == null) {
+            rippleContainer = RippleContainer(view.context).apply {
+                view.addView(this)
+            }
+        }
+
+        return rippleContainer!!
     }
 }
