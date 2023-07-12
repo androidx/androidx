@@ -40,7 +40,7 @@ class DepthSortedSetTest {
         val child3 = LayoutNode()
         child2.add(child3)
 
-        val set = DepthSortedSet()
+        val set = DepthSortedSet(extraAssertions = true)
         set.add(child2)
         set.add(child3)
         set.add(root)
@@ -66,7 +66,7 @@ class DepthSortedSetTest {
         val child3 = LayoutNode()
         child1.add(child3)
 
-        val set = DepthSortedSet()
+        val set = DepthSortedSet(extraAssertions = true)
         set.add(child1)
         set.add(child3)
         set.add(child2)
@@ -97,7 +97,7 @@ class DepthSortedSetTest {
         val child3 = LayoutNode()
         child2.add(child3)
 
-        val set = DepthSortedSet()
+        val set = DepthSortedSet(extraAssertions = true)
         set.add(child1)
         set.add(child3)
         var expected: LayoutNode? = child1
@@ -126,7 +126,7 @@ class DepthSortedSetTest {
 
     @Test
     fun addingNotAttachedNodeThrows() {
-        val set = DepthSortedSet()
+        val set = DepthSortedSet(extraAssertions = true)
         assertFailsWith<IllegalStateException> {
             set.add(LayoutNode())
         }
@@ -143,7 +143,7 @@ class DepthSortedSetTest {
         val child2 = LayoutNode()
         child1.add(child2)
 
-        val set = DepthSortedSet()
+        val set = DepthSortedSet(extraAssertions = true)
         set.add(child2)
 
         // change depth of child2

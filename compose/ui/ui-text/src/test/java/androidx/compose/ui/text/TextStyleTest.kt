@@ -2077,7 +2077,10 @@ private fun TextStyle.getNotEqualValueFor(kParameter: KParameter): Any {
         TextAlign::class -> TextAlign.Justify
         TextDirection::class -> TextDirection.Rtl
         TextIndent::class -> TextIndent(10.sp)
-        PlatformTextStyle::class -> PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None)
+        PlatformTextStyle::class -> PlatformTextStyle(
+            paragraphStyle = PlatformParagraphStyle.Default,
+            spanStyle = null
+        )
         LineHeightStyle::class -> LineHeightStyle(
             LineHeightStyle.Alignment.Center,
             LineHeightStyle.Trim.None

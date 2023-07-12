@@ -42,7 +42,15 @@ import org.jetbrains.skia.Surface
 @OptIn(ExperimentalComposeUiApi::class)
 class PointerIconTest {
     private val iconService = object : PointerIconService {
-        override var current: PointerIcon = PointerIcon.Default
+        private var current: PointerIcon = PointerIcon.Default
+
+        override fun getIcon(): PointerIcon {
+            return current
+        }
+
+        override fun setIcon(value: PointerIcon?) {
+            current = value ?: PointerIcon.Default
+        }
     }
 
     @Test
@@ -67,7 +75,7 @@ class PointerIconTest {
         }
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
     }
 
     @Test
@@ -150,10 +158,10 @@ class PointerIconTest {
         }
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(15f, 15f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test
@@ -179,10 +187,10 @@ class PointerIconTest {
         }
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(15f, 15f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test

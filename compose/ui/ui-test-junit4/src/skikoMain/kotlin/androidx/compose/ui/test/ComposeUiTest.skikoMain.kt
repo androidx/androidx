@@ -128,31 +128,6 @@ class SkikoComposeUiTest(
         override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) = Unit
     }
 
-    @OptIn(ExperimentalTextApi::class)
-    private val textInputServiceForTests = object : TextInputForTests {
-        override fun inputTextForTest(text: String) {
-            performEditCommand(listOf(CommitTextCommand(text, 1)))
-        }
-
-        override fun submitTextForTest() {
-            with(requireSession()) {
-                if (imeOptions.imeAction == ImeAction.Default) {
-                    throw AssertionError(
-                        "Failed to perform IME action as current node does not specify any."
-                    )
-                }
-                onImeActionPerformed(imeOptions.imeAction)
-            }
-        }
-
-        private fun performEditCommand(commands: List<EditCommand>) {
-            requireSession().onEditCommand(commands)
-        }
-
-        private fun requireSession(): Session =
-            textInputService.session ?: error("No input session started. Missing a focus?")
-    }
-
     private val coroutineDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(coroutineDispatcher)
     override val mainClock: MainTestClock = MainTestClockImpl(
@@ -356,13 +331,6 @@ class SkikoComposeUiTest(
     private inner class DesktopTestOwner : TestOwner, SkikoTestOwner {
         val roots: Set<RootForTest>
             get() = this@SkikoComposeUiTest.scene.roots
-
-        @OptIn(ExperimentalTextApi::class)
-        override fun performTextInput(node: SemanticsNode, action: TextInputForTests.() -> Unit) {
-            runOnIdle {
-                textInputServiceForTests.action()
-            }
-        }
 
         override fun <T> runOnUiThread(action: () -> T): T {
             return this@SkikoComposeUiTest.runOnUiThread(action)
