@@ -30,7 +30,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toPath
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PreferenceDataStoreFactoryNativeTest {
@@ -45,7 +44,7 @@ class PreferenceDataStoreFactoryNativeTest {
     @BeforeTest
     fun setUp() {
         testIO = OkioTestIO()
-        testFile = testIO.tempDir().path / "test.preferences_pb".toPath()
+        testFile = testIO.newTempFile(relativePath = "test.preferences_pb").path
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
     }
 

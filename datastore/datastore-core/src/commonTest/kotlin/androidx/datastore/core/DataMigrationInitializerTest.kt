@@ -33,7 +33,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
+abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
     (private val testIO: TestIO<F, IOE>) {
 
     private lateinit var storage: Storage<Byte>

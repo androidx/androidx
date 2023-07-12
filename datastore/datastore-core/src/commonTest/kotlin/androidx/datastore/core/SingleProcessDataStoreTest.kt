@@ -27,7 +27,6 @@ import androidx.kruth.assertThrows
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
@@ -54,7 +53,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: TestIO<F, *>) {
+abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: TestIO<F, *>) {
 
     protected lateinit var store: DataStore<Byte>
     private lateinit var serializerConfig: TestingSerializerConfig
@@ -65,8 +64,8 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
     @BeforeTest
     fun setUp() {
         serializerConfig = TestingSerializerConfig()
-        tempFolder = testIO.tempDir()
-        testFile = testIO.newTempFile(tempFolder)
+        tempFolder = testIO.newTempFile().also { it.mkdirs() }
+        testFile = testIO.newTempFile(parentFile = tempFolder)
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
         store = testIO.getStore(
             serializerConfig,
@@ -182,7 +181,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
     @Test
     fun testWriteToNonExistentDir() = doTest {
         val fileInNonExistentDir = testIO.newTempFile(
-            testIO.tempDir("/this/does/not/exist", makeDirs = false)
+            relativePath = "this/does/not/exist"
         )
 
         coroutineScope {
@@ -201,17 +200,16 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testReadFromNonExistentFile() = doTest {
-        // TODO remove deleteIfExists after b/276983736
-        testFile.deleteIfExists()
         val newStore = newDataStore(testFile)
         assertThat(newStore.data.first()).isEqualTo(0)
     }
 
     @Test
     fun testWriteToDirFails() = doTest {
-        val directoryFile = testIO.tempDir("/this/is/a${Random.nextInt()}/directory")
-
-        assertThat(testIO.isDirectory(directoryFile))
+        val directoryFile = testIO.newTempFile(relativePath = "/this/is/a/directory").also {
+            it.mkdirs(mustCreate = true)
+        }
+        assertThat(directoryFile.isDirectory()).isTrue()
 
         val newStore = newDataStore(directoryFile)
         assertThrows(testIO.ioExceptionClass()) { newStore.data.first() }
@@ -703,7 +701,6 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = doTest {
-        testFile.deleteIfExists()
         val dataStore = newDataStore(
             serializerConfig = TestingSerializerConfig(defaultValue = 99),
             scope = dataStoreScope
@@ -967,7 +964,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
     }
 
     private fun newDataStore(
-        file: TestFile = testFile,
+        file: F = testFile,
         serializerConfig: TestingSerializerConfig = this.serializerConfig,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<InitTaskList> = listOf(),
