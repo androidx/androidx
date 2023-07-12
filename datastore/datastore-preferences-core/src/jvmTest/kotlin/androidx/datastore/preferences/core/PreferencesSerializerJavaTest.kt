@@ -44,7 +44,6 @@ class PreferencesSerializerJavaTest {
     @BeforeTest
     fun setUp() {
         testFile = testIO.newTempFile()
-        fileSystem.createDirectories(testFile.path.parent!!)
     }
     fun doTest(test: suspend TestScope.() -> Unit) {
         runTest(timeout = 10000.milliseconds) {
