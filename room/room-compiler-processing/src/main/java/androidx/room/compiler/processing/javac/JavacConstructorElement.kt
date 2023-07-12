@@ -35,6 +35,9 @@ internal class JavacConstructorElement(
             "Constructor element is constructed with invalid type: $element"
         }
     }
+
+    override fun isSyntheticConstructorForJvmOverloads() = false
+
     override val name: String
         get() = "<init>"
 

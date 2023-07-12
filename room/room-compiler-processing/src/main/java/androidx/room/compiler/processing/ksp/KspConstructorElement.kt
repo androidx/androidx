@@ -23,7 +23,7 @@ import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
-internal class KspConstructorElement(
+internal open class KspConstructorElement(
     env: KspProcessingEnv,
     declaration: KSFunctionDeclaration
 ) : KspExecutableElement(env, declaration),
@@ -33,6 +33,9 @@ internal class KspConstructorElement(
         filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_CONSTRUCTOR
     ),
     XConstructorElement {
+
+    override fun isSyntheticConstructorForJvmOverloads() = false
+
     override val name: String
         get() = "<init>"
 

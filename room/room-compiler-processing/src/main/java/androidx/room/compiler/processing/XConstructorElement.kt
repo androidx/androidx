@@ -48,4 +48,9 @@ interface XConstructorElement : XExecutableElement {
      * subclass ([other]) where type arguments are specified to actual types.
      */
     override fun asMemberOf(other: XType): XConstructorType
+
+    /**
+     * Denotes if this is a synthetic constructor generated via the usage of @JvmOverloads
+     */
+    fun isSyntheticConstructorForJvmOverloads(): Boolean
 }
