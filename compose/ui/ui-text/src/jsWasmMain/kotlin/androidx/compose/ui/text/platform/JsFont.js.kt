@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
 import org.jetbrains.skia.Data
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.hostOs
 
 internal actual fun loadTypeface(font: Font): SkTypeface {
     if (font !is PlatformFont) {
@@ -30,5 +32,11 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
     }
 }
 
-// TODO: Select current platform
-internal actual fun currentPlatform(): Platform = Platform.Unknown
+internal actual fun currentPlatform(): Platform = when (hostOs) {
+    OS.Android -> Platform.Android
+    OS.Ios -> Platform.IOS
+    OS.MacOS -> Platform.MacOS
+    OS.Linux -> Platform.Linux
+    OS.Windows -> Platform.Windows
+    else -> Platform.Unknown
+}

@@ -20,23 +20,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.FillBox
-import androidx.compose.ui.ImageComposeScene
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.PopupState
-import androidx.compose.ui.assertReceivedLast
-import androidx.compose.ui.assertReceivedNoEvents
+import androidx.compose.ui.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Layout
@@ -47,11 +33,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.use
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.fail
 import org.junit.Rule
 import org.junit.Test
 
+// TODO: Move in common once Popup is available there
 class DesktopPopupTest {
     @get:Rule
     val rule = createComposeRule()
@@ -280,6 +267,159 @@ class DesktopPopupTest {
     }
 
     @Test
+    fun `call dismiss if clicked outside of non-focusable popup`() = ImageComposeScene(
+        100,
+        100
+    ).use { scene ->
+        var onDismissRequestCallCount = 0
+
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+
+        scene.setContent {
+            background.Content()
+            popup.Content()
+        }
+
+        assertThat(onDismissRequestCallCount).isEqualTo(0)
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+        background.events.assertReceivedLast(PointerEventType.Press, Offset(10f, 10f))
+        assertThat(onDismissRequestCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun `call dismiss if clicked outside of multiple non-focusable popups`() = ImageComposeScene(
+        100,
+        100
+    ).use { scene ->
+        var onDismissRequestCallCount = 0
+
+        val background = FillBox()
+        val popup1 = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+        val popup2 = PopupState(
+            IntRect(30, 30, 70, 70),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+
+        scene.setContent {
+            background.Content()
+            popup1.Content()
+            popup2.Content()
+        }
+
+        assertThat(onDismissRequestCallCount).isEqualTo(0)
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+        background.events.assertReceivedLast(PointerEventType.Press, Offset(10f, 10f))
+        assertThat(onDismissRequestCallCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `call dismiss for non-focusable popups above`() = ImageComposeScene(
+        100,
+        100
+    ).use { scene ->
+        var onDismissRequestCallCount = 0
+
+        val background = FillBox()
+        val popup1 = PopupState(
+            IntRect(10, 10, 50, 50),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { fail() }
+        )
+        val popup2 = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { fail() }
+        )
+        val popup3 = PopupState(
+            IntRect(30, 30, 70, 70),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+        val popup4 = PopupState(
+            IntRect(40, 40, 80, 80),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+
+        scene.setContent {
+            background.Content()
+            popup1.Content()
+            popup2.Content()
+            popup3.Content()
+            popup4.Content()
+        }
+
+        assertThat(onDismissRequestCallCount).isEqualTo(0)
+        scene.sendPointerEvent(PointerEventType.Press, Offset(55f, 25f))
+        background.events.assertReceivedNoEvents()
+        assertThat(onDismissRequestCallCount).isEqualTo(2)
+    }
+
+    @Test
+    fun `call dismiss for above focusable popup`() = ImageComposeScene(
+        100,
+        100
+    ).use { scene ->
+        var onDismissRequestCallCount = 0
+
+        val background = FillBox()
+        val popup1 = PopupState(
+            IntRect(10, 10, 50, 50),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { fail() }
+        )
+        val popup2 = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { fail() }
+        )
+        val popup3 = PopupState(
+            IntRect(30, 30, 70, 70),
+            focusable = true,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+        val popup4 = PopupState(
+            IntRect(40, 40, 80, 80),
+            focusable = false,
+            dismissOnClickOutside = true,
+            onDismissRequest = { onDismissRequestCallCount++ }
+        )
+
+        scene.setContent {
+            background.Content()
+            popup1.Content()
+            popup2.Content()
+            popup3.Content()
+            popup4.Content()
+        }
+
+        assertThat(onDismissRequestCallCount).isEqualTo(0)
+        scene.sendPointerEvent(PointerEventType.Press, Offset(5f, 5f))
+        background.events.assertReceivedNoEvents()
+        assertThat(onDismissRequestCallCount).isEqualTo(2)
+    }
+
+    @Test
     fun `pass event if clicked outside of non-focusable popup`() = ImageComposeScene(
         100,
         100
@@ -302,6 +442,27 @@ class DesktopPopupTest {
         scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
         background.events.assertReceivedLast(PointerEventType.Press, Offset(10f, 10f))
         assertThat(onDismissRequestCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun `don't pass event if clicked outside of focusable popup`() = ImageComposeScene(
+        100,
+        100
+    ).use { scene ->
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = true
+        )
+
+        scene.setContent {
+            background.Content()
+            popup.Content()
+        }
+
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
+        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f))
+        background.events.assertReceivedNoEvents()
     }
 
     @Test
