@@ -42,9 +42,13 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SkikoComposeUiTest
@@ -106,14 +110,14 @@ class LazyListBeyondBoundsTest {
     }
 
     @Test
-    fun onlyOneVisibleItemIsPlaced()  = runParametrizedTest {
+    fun onlyOneVisibleItemIsPlaced() = runParametrizedTest {
         // Arrange.
         setLazyContent(size = 10.toDp(), firstVisibleItem = 0) {
             items(100) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
@@ -133,7 +137,7 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
@@ -153,7 +157,7 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
@@ -207,13 +211,13 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(Modifier
                     .size(10.toDp())
-                    .onPlaced { placedItems += 5 }
+                    .trackPlaced(5)
                     .modifierLocalConsumer {
                         beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                     }
@@ -223,11 +227,10 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        runOnIdle { placedItems.clear() }
 
         // Act.
         runOnUiThread {
@@ -240,7 +243,6 @@ class LazyListBeyondBoundsTest {
                     assertThat(placedItems).containsExactly(5, 6, 7, 8)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
-                placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -263,14 +265,14 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -280,31 +282,26 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        runOnIdle { placedItems.clear() }
 
         // Act.
         runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 if (--extraItemCount > 0) {
-                    placedItems.clear()
                     // Return null to continue the search.
                     null
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        // This is still not fixed in skiko
-                        assertThat(placedItems).containsAtLeast(3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsAtLeast(5, 6, 7)
+                        assertThat(placedItems).containsExactly(3, 4, 5, 6, 7)
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
                     } else {
                         assertThat(placedItems).containsExactly(5, 6, 7, 8, 9)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
-                    placedItems.clear()
                     // Return true to stop the search.
                     true
                 }
@@ -326,7 +323,7 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
@@ -336,40 +333,33 @@ class LazyListBeyondBoundsTest {
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                 )
             }
             items(5) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index + 6
-                        }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        runOnIdle { placedItems.clear() }
 
         // Act.
         runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 if (hasMoreContent) {
-                    placedItems.clear()
                     // Just return null so that we keep adding more items till we reach the end.
                     null
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        // TODO(b/228100623): Replace 'containsAtLeast' with 'containsExactly'.
-                        // This is still not fixed in skiko
-                        assertThat(placedItems).containsAtLeast(0, 1, 2, 3, 4, 5, 6, 7)
+                        assertThat(placedItems).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     } else {
                         assertThat(placedItems).containsExactly(5, 6, 7, 8, 9, 10)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
-                    placedItems.clear()
                     // Return true to end the search.
                     true
                 }
@@ -391,14 +381,14 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -408,14 +398,13 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
         runOnIdle {
             assertThat(placedItems).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
-            placedItems.clear()
         }
 
         // Act.
@@ -437,7 +426,6 @@ class LazyListBeyondBoundsTest {
                         }
                     }
                 }
-                placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -469,9 +457,7 @@ class LazyListBeyondBoundsTest {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index
-                        }
+                        .trackPlaced(index)
                 )
             }
             item {
@@ -481,20 +467,17 @@ class LazyListBeyondBoundsTest {
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                 )
             }
             items(5) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index + 6
-                        }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        runOnIdle { placedItems.clear() }
 
         // Act.
         var count = 0
@@ -502,7 +485,6 @@ class LazyListBeyondBoundsTest {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that we don't keep iterating when there is no ending condition.
                 assertThat(count++).isLessThan(lazyListState.layoutInfo.totalItemsCount)
-                placedItems.clear()
                 // Always return null to continue the search.
                 null
             }
@@ -591,4 +573,37 @@ class LazyListBeyondBoundsTest {
     private fun unsupportedDirection(): Nothing = error(
         "Lazy list does not support beyond bounds layout for the specified direction"
     )
+
+    private fun Modifier.trackPlaced(index: Int): Modifier =
+        this then TrackPlacedElement(placedItems, index)
+}
+
+internal data class TrackPlacedElement(
+    var placedItems: MutableSet<Int>,
+    var index: Int
+) : ModifierNodeElement<TrackPlacedNode>() {
+    override fun create() = TrackPlacedNode(placedItems, index)
+
+    override fun update(node: TrackPlacedNode) {
+        node.placedItems = placedItems
+        node.index = index
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "trackPlaced"
+        properties["index"] = index
+    }
+}
+
+internal class TrackPlacedNode(
+    var placedItems: MutableSet<Int>,
+    var index: Int
+) : LayoutAwareModifierNode, Modifier.Node() {
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        placedItems += index
+    }
+
+    override fun onDetach() {
+        placedItems -= index
+    }
 }

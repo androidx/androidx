@@ -46,6 +46,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
@@ -205,6 +206,8 @@ class FocusableBoundsTest {
             assertThat(focusedBounds).isEmpty()
         }
     }
+
+    @Ignore // b/278258427
     @Test
     fun onFocusedBoundsPositioned_notified_whenFocusedBoundsLeavesComposition() = runSkikoComposeUiTest {
         val focusRequester = FocusRequester()
@@ -239,6 +242,7 @@ class FocusableBoundsTest {
         }
     }
 
+    @Ignore // b/278258427
     @Test
     fun onFocusedBoundsPositioned_notified_whenFocusedBoundsIsDisabled() = runSkikoComposeUiTest {
         val focusRequester = FocusRequester()

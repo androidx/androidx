@@ -80,7 +80,6 @@ class HoverableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable())
                 .containsExactly(
                     "interactionSource",
-                    "enabled",
                 )
         }
     }

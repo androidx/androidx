@@ -39,11 +39,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -330,7 +332,9 @@ class FocusableTest {
 
     @Test
     fun focusable_inspectorValue() = runSkikoComposeUiTest {
-        val modifier = Modifier.focusable() as InspectableValue
+        val modifier = Modifier.focusable()
+            .foldIn(mutableListOf<Modifier.Element>()) { acc, e -> acc.apply { add(e) } }
+            .first() as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("focusable")
         assertThat(modifier.valueOverride).isNull()
         assertThat(modifier.inspectableElements.map { it.name }.asIterable())
@@ -411,6 +415,44 @@ class FocusableTest {
         // Assert.
         runOnIdle {
             assertThat(lazyRowHasFocus).isFalse()
+        }
+    }
+
+    @Test
+    fun removingFocusableFromSubcomposeLayout_clearsFocus() = runSkikoComposeUiTest {
+        // Arrange.
+        var hasFocus = false
+        var itemVisible by mutableStateOf(true)
+        setContent {
+            SubcomposeLayout(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .onFocusChanged { hasFocus = it.hasFocus },
+            ) { constraints ->
+                val measurable = if (itemVisible) {
+                    subcompose(Unit) {
+                        Box(
+                            Modifier
+                                .requiredSize(10.dp)
+                                .testTag("0")
+                                .focusable()
+                        )
+                    }.single()
+                } else null
+                val placeable = measurable?.measure(constraints)
+                layout(constraints.minWidth, constraints.minHeight) {
+                    placeable?.place(IntOffset.Zero)
+                }
+            }
+        }
+        onNodeWithTag("0").performSemanticsAction(SemanticsActions.RequestFocus)
+
+        // Act.
+        runOnIdle { itemVisible = false }
+
+        // Assert.
+        runOnIdle {
+            assertThat(hasFocus).isFalse()
         }
     }
 
@@ -497,5 +539,79 @@ class FocusableTest {
             assertThat(state.isFocused).isFalse()
         }
         onNodeWithTag(focusTag).assertIsNotFocused()
+    }
+
+    @Test
+    fun movableContent_movedContentRemainsFocused() = runSkikoComposeUiTest {
+        var moveContent by mutableStateOf(false)
+        val focusRequester = FocusRequester()
+        val interactionSource = MutableInteractionSource()
+        lateinit var state: FocusState
+        lateinit var scope: CoroutineScope
+        val content = movableContentOf {
+            Box(
+                Modifier
+                    .testTag(focusTag)
+                    .size(5.dp)
+                    .focusRequester(focusRequester)
+                    .onFocusEvent { state = it }
+                    .focusable(interactionSource = interactionSource)
+            )
+        }
+
+        setContent {
+            scope = rememberCoroutineScope()
+            if (moveContent) {
+                Box(Modifier.size(5.dp)) {
+                    content()
+                }
+            } else {
+                Box(Modifier.size(10.dp)) {
+                    content()
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        runOnIdle {
+            focusRequester.requestFocus() // request focus
+            assertThat(state.isFocused).isTrue()
+        }
+
+        runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertTrue(interactions.first() is FocusInteraction.Focus)
+        }
+
+        onNodeWithTag(focusTag)
+            .assertIsFocused()
+
+        runOnIdle {
+            moveContent = true // moving content
+        }
+
+        // Assert that focus is kept during movable content change.
+        runOnIdle {
+            assertThat(state.isFocused).isTrue()
+        }
+        onNodeWithTag(focusTag)
+            .assertIsFocused()
+
+        // Checks if we still received the correct Focus/Unfocus events. When moving contents, the
+        // focus event node will send a sequence of Focus/Unfocus/Focus events.
+        runOnIdle {
+            assertTrue(interactions.first() is FocusInteraction.Focus)
+            assertTrue(interactions[1] is FocusInteraction.Unfocus)
+            assertTrue(interactions[2] is FocusInteraction.Focus)
+        }
     }
 }
