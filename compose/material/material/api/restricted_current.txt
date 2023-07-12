@@ -82,7 +82,7 @@ package androidx.compose.material {
     method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material.BottomDrawerValue getCurrentValue();
     method public float getOffset();
-    method public float getProgress();
+    method @FloatRange(from=0.0, to=1.0) public float getProgress();
     method public androidx.compose.material.BottomDrawerValue getTargetValue();
     method public boolean isClosed();
     method public boolean isExpanded();
@@ -93,7 +93,7 @@ package androidx.compose.material {
     property public final boolean isExpanded;
     property public final boolean isOpen;
     property public final float offset;
-    property @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public final float progress;
+    property @SuppressCompatibility @FloatRange(from=0.0, to=1.0) @androidx.compose.material.ExperimentalMaterialApi public final float progress;
     property public final androidx.compose.material.BottomDrawerValue targetValue;
     field public static final androidx.compose.material.BottomDrawerState.Companion Companion;
   }
@@ -154,7 +154,7 @@ package androidx.compose.material {
     method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material.BottomSheetValue getCurrentValue();
     method @Deprecated public float getOffset();
-    method public float getProgress();
+    method @FloatRange(from=0.0, to=1.0) public float getProgress();
     method public androidx.compose.material.BottomSheetValue getTargetValue();
     method public boolean isCollapsed();
     method public boolean isExpanded();
@@ -163,7 +163,7 @@ package androidx.compose.material {
     property public final boolean isCollapsed;
     property public final boolean isExpanded;
     property @Deprecated public final float offset;
-    property @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public final float progress;
+    property @SuppressCompatibility @FloatRange(from=0.0, to=1.0) @androidx.compose.material.ExperimentalMaterialApi public final float progress;
     property public final androidx.compose.material.BottomSheetValue targetValue;
     field public static final androidx.compose.material.BottomSheetState.Companion Companion;
   }
@@ -550,14 +550,14 @@ package androidx.compose.material {
     ctor @Deprecated public ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional boolean isSkipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
     ctor @Deprecated public ModalBottomSheetState(androidx.compose.material.ModalBottomSheetValue initialValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmStateChange);
     method public androidx.compose.material.ModalBottomSheetValue getCurrentValue();
-    method public float getProgress();
+    method @FloatRange(from=0.0, to=1.0) public float getProgress();
     method public androidx.compose.material.ModalBottomSheetValue getTargetValue();
     method public suspend Object? hide(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public boolean isVisible();
     method public suspend Object? show(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final androidx.compose.material.ModalBottomSheetValue currentValue;
     property public final boolean isVisible;
-    property @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public final float progress;
+    property @SuppressCompatibility @FloatRange(from=0.0, to=1.0) @androidx.compose.material.ExperimentalMaterialApi public final float progress;
     property public final androidx.compose.material.ModalBottomSheetValue targetValue;
     field public static final androidx.compose.material.ModalBottomSheetState.Companion Companion;
   }
@@ -607,11 +607,11 @@ package androidx.compose.material {
     method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth);
     method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long backgroundColor, optional int strokeCap);
     method @Deprecated @androidx.compose.runtime.Composable public static void CircularProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth);
-    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long backgroundColor, optional int strokeCap);
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth, optional long backgroundColor, optional int strokeCap);
     method @Deprecated @androidx.compose.runtime.Composable public static void LinearProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional long backgroundColor);
     method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional long color, optional long backgroundColor, optional int strokeCap);
     method @Deprecated @androidx.compose.runtime.Composable public static void LinearProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long backgroundColor);
-    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long backgroundColor, optional int strokeCap);
+    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long backgroundColor, optional int strokeCap);
   }
 
   @androidx.compose.runtime.Stable public interface RadioButtonColors {
@@ -685,8 +685,8 @@ package androidx.compose.material {
   }
 
   public final class SliderKt {
-    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void RangeSlider(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> value, kotlin.jvm.functions.Function1<? super kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material.SliderColors colors);
-    method @androidx.compose.runtime.Composable public static void Slider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.material.SliderColors colors);
+    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void RangeSlider(kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> value, kotlin.jvm.functions.Function1<? super kotlin.ranges.ClosedFloatingPointRange<java.lang.Float>,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material.SliderColors colors);
+    method @androidx.compose.runtime.Composable public static void Slider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.material.SliderColors colors);
   }
 
   public interface SnackbarData {
