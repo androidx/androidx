@@ -270,6 +270,7 @@ internal class TestWatchFaceRuntimeService(
 ) : WatchFaceRuntimeService() {
 
     lateinit var lastResourceOnlyWatchFacePackageName: String
+    val lastResourceOnlyWatchFacePackageNameLatch = CountDownLatch(1)
 
     init {
         attachBaseContext(testContext)
@@ -299,6 +300,7 @@ internal class TestWatchFaceRuntimeService(
         resourceOnlyWatchFacePackageName: String
     ): WatchFace {
         lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
+        lastResourceOnlyWatchFacePackageNameLatch.countDown()
 
         return WatchFace(
             WatchFaceType.DIGITAL,
