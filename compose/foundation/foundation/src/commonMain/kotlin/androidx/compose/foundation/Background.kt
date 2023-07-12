@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -72,7 +73,7 @@ fun Modifier.background(
 fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     alpha: Float = 1.0f
 ) = this.then(
     BackgroundElement(
