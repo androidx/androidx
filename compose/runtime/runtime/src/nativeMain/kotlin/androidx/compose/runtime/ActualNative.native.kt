@@ -67,6 +67,11 @@ internal actual class AtomicInt actual constructor(value: Int) {
     actual fun add(amount: Int): Int = delegate.addAndGet(amount)
 }
 
+internal actual class WeakReference<T : Any> actual constructor(reference: T) {
+    val kotlinNativeReference = kotlin.native.ref.WeakReference<T>(reference)
+    actual fun get(): T? = kotlinNativeReference.get()
+}
+
 internal actual fun identityHashCode(instance: Any?): Int =
     instance.identityHashCode()
 
