@@ -395,20 +395,20 @@ object FloatingActionButtonDefaults {
     val LargeIconSize = FabPrimaryLargeTokens.IconSize
 
     /** Default shape for a floating action button. */
-    val shape: Shape @Composable get() = FabPrimaryTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = FabPrimaryTokens.ContainerShape.value
 
     /** Default shape for a small floating action button. */
-    val smallShape: Shape @Composable get() = FabPrimarySmallTokens.ContainerShape.toShape()
+    val smallShape: Shape @Composable get() = FabPrimarySmallTokens.ContainerShape.value
 
     /** Default shape for a large floating action button. */
-    val largeShape: Shape @Composable get() = FabPrimaryLargeTokens.ContainerShape.toShape()
+    val largeShape: Shape @Composable get() = FabPrimaryLargeTokens.ContainerShape.value
 
     /** Default shape for an extended floating action button. */
     val extendedFabShape: Shape @Composable get() =
-        ExtendedFabPrimaryTokens.ContainerShape.toShape()
+        ExtendedFabPrimaryTokens.ContainerShape.value
 
     /** Default container color for a floating action button. */
-    val containerColor: Color @Composable get() = FabPrimaryTokens.ContainerColor.toColor()
+    val containerColor: Color @Composable get() = FabPrimaryTokens.ContainerColor.value
 
     /**
      * Creates a [FloatingActionButtonElevation] that represents the elevation of a

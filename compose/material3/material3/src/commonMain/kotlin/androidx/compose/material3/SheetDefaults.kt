@@ -287,17 +287,17 @@ object BottomSheetDefaults {
     /** The default shape for bottom sheets in a [Hidden] state. */
     val HiddenShape: Shape
         @Composable get() =
-        SheetBottomTokens.DockedMinimizedContainerShape.toShape()
+        SheetBottomTokens.DockedMinimizedContainerShape.value
 
     /** The default shape for a bottom sheets in [PartiallyExpanded] and [Expanded] states. */
     val ExpandedShape: Shape
         @Composable get() =
-        SheetBottomTokens.DockedContainerShape.toShape()
+        SheetBottomTokens.DockedContainerShape.value
 
     /** The default container color for a bottom sheet. */
     val ContainerColor: Color
         @Composable get() =
-        SheetBottomTokens.DockedContainerColor.toColor()
+        SheetBottomTokens.DockedContainerColor.value
 
     /** The default elevation for a bottom sheet. */
     val Elevation = SheetBottomTokens.DockedModalContainerElevation
@@ -305,7 +305,7 @@ object BottomSheetDefaults {
     /** The default color of the scrim overlay for background content. */
     val ScrimColor: Color
         @Composable get() =
-        ScrimTokens.ContainerColor.toColor().copy(ScrimTokens.ContainerOpacity)
+        ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
     /**
      * The default peek height used by [BottomSheetScaffold].
@@ -328,7 +328,7 @@ object BottomSheetDefaults {
         width: Dp = SheetBottomTokens.DockedDragHandleWidth,
         height: Dp = SheetBottomTokens.DockedDragHandleHeight,
         shape: Shape = MaterialTheme.shapes.extraLarge,
-        color: Color = SheetBottomTokens.DockedDragHandleColor.toColor()
+        color: Color = SheetBottomTokens.DockedDragHandleColor.value
             .copy(SheetBottomTokens.DockedDragHandleOpacity),
     ) {
         val dragHandleDescription = getString(Strings.BottomSheetDragHandleDescription)

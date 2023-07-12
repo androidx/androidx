@@ -124,7 +124,7 @@ internal fun DropdownMenuContent(
             this.alpha = alpha
             transformOrigin = transformOriginState.value
         },
-        shape = MenuTokens.ContainerShape.toShape(),
+        shape = MenuTokens.ContainerShape.value,
         color = MaterialTheme.colorScheme.fromToken(MenuTokens.ContainerColor),
         tonalElevation = MenuTokens.ContainerElevation,
         shadowElevation = MenuTokens.ContainerElevation
@@ -233,15 +233,15 @@ object MenuDefaults {
      */
     @Composable
     fun itemColors(
-        textColor: Color = MenuTokens.ListItemLabelTextColor.toColor(),
-        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.toColor(),
-        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.toColor(),
+        textColor: Color = MenuTokens.ListItemLabelTextColor.value,
+        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.value,
+        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.value,
         disabledTextColor: Color =
-            MenuTokens.ListItemDisabledLabelTextColor.toColor()
+            MenuTokens.ListItemDisabledLabelTextColor.value
                 .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.value
             .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.toColor()
+        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.value
             .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
     ): MenuItemColors = MenuItemColors(
         textColor = textColor,

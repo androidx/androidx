@@ -272,7 +272,7 @@ class ChipTest {
         var expectedLabelColor = Color.Unspecified
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            expectedLabelColor = AssistChipTokens.LabelTextColor.toColor()
+            expectedLabelColor = AssistChipTokens.LabelTextColor.value
             AssistChip(onClick = {}, label = {
                 contentColor = LocalContentColor.current
             })
@@ -289,7 +289,7 @@ class ChipTest {
     fun elevatedDisabled_assistChip() {
         var containerColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            containerColor = AssistChipTokens.ElevatedDisabledContainerColor.toColor()
+            containerColor = AssistChipTokens.ElevatedDisabledContainerColor.value
                 .copy(alpha = AssistChipTokens.ElevatedDisabledContainerOpacity)
                 .compositeOver(MaterialTheme.colorScheme.surface)
             ElevatedAssistChip(
@@ -562,7 +562,7 @@ class ChipTest {
         var expectedLabelColor = Color.Unspecified
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            expectedLabelColor = FilterChipTokens.UnselectedLabelTextColor.toColor()
+            expectedLabelColor = FilterChipTokens.UnselectedLabelTextColor.value
             FilterChip(selected = false, onClick = {}, label = {
                 contentColor = LocalContentColor.current
             })
@@ -578,7 +578,7 @@ class ChipTest {
         var expectedLabelColor = Color.Unspecified
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            expectedLabelColor = FilterChipTokens.SelectedLabelTextColor.toColor()
+            expectedLabelColor = FilterChipTokens.SelectedLabelTextColor.value
             FilterChip(selected = true, onClick = {}, label = {
                 contentColor = LocalContentColor.current
             })
@@ -807,8 +807,8 @@ class ChipTest {
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
             val selected = remember { mutableStateOf(false) }
-            selectedLabelColor = InputChipTokens.SelectedLabelTextColor.toColor()
-            unselectedLabelColor = InputChipTokens.UnselectedLabelTextColor.toColor()
+            selectedLabelColor = InputChipTokens.SelectedLabelTextColor.value
+            unselectedLabelColor = InputChipTokens.UnselectedLabelTextColor.value
             InputChip(
                 selected = selected.value,
                 onClick = { selected.value = !selected.value },
@@ -967,7 +967,7 @@ class ChipTest {
         var expectedLabelColor = Color.Unspecified
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            expectedLabelColor = SuggestionChipTokens.LabelTextColor.toColor()
+            expectedLabelColor = SuggestionChipTokens.LabelTextColor.value
             SuggestionChip(onClick = {}, label = {
                 contentColor = LocalContentColor.current
             })
@@ -984,7 +984,7 @@ class ChipTest {
     fun elevatedDisabled_suggestionChip() {
         var containerColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            containerColor = SuggestionChipTokens.ElevatedDisabledContainerColor.toColor()
+            containerColor = SuggestionChipTokens.ElevatedDisabledContainerColor.value
                 .copy(alpha = SuggestionChipTokens.ElevatedDisabledContainerOpacity)
                 .compositeOver(MaterialTheme.colorScheme.surface)
             ElevatedSuggestionChip(

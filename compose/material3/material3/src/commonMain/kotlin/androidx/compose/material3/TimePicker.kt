@@ -273,27 +273,27 @@ object TimePickerDefaults {
      */
     @Composable
     fun colors(
-        clockDialColor: Color = ClockDialColor.toColor(),
-        clockDialSelectedContentColor: Color = ClockDialSelectedLabelTextColor.toColor(),
-        clockDialUnselectedContentColor: Color = ClockDialUnselectedLabelTextColor.toColor(),
-        selectorColor: Color = ClockDialSelectorHandleContainerColor.toColor(),
-        containerColor: Color = ContainerColor.toColor(),
-        periodSelectorBorderColor: Color = PeriodSelectorOutlineColor.toColor(),
+        clockDialColor: Color = ClockDialColor.value,
+        clockDialSelectedContentColor: Color = ClockDialSelectedLabelTextColor.value,
+        clockDialUnselectedContentColor: Color = ClockDialUnselectedLabelTextColor.value,
+        selectorColor: Color = ClockDialSelectorHandleContainerColor.value,
+        containerColor: Color = ContainerColor.value,
+        periodSelectorBorderColor: Color = PeriodSelectorOutlineColor.value,
         periodSelectorSelectedContainerColor: Color =
-            PeriodSelectorSelectedContainerColor.toColor(),
+            PeriodSelectorSelectedContainerColor.value,
         periodSelectorUnselectedContainerColor: Color = Color.Transparent,
         periodSelectorSelectedContentColor: Color =
-            PeriodSelectorSelectedLabelTextColor.toColor(),
+            PeriodSelectorSelectedLabelTextColor.value,
         periodSelectorUnselectedContentColor: Color =
-            PeriodSelectorUnselectedLabelTextColor.toColor(),
+            PeriodSelectorUnselectedLabelTextColor.value,
         timeSelectorSelectedContainerColor: Color =
-            TimeSelectorSelectedContainerColor.toColor(),
+            TimeSelectorSelectedContainerColor.value,
         timeSelectorUnselectedContainerColor: Color =
-            TimeSelectorUnselectedContainerColor.toColor(),
+            TimeSelectorUnselectedContainerColor.value,
         timeSelectorSelectedContentColor: Color =
-            TimeSelectorSelectedLabelTextColor.toColor(),
+            TimeSelectorSelectedLabelTextColor.value,
         timeSelectorUnselectedContentColor: Color =
-            TimeSelectorUnselectedLabelTextColor.toColor(),
+            TimeSelectorUnselectedLabelTextColor.value,
     ) = TimePickerColors(
         clockDialColor = clockDialColor,
         clockDialSelectedContentColor = clockDialSelectedContentColor,
@@ -935,7 +935,7 @@ private fun HorizontalPeriodToggle(
         }
     }
 
-    val shape = PeriodSelectorContainerShape.toShape() as CornerBasedShape
+    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
 
     PeriodToggleImpl(
         modifier = modifier,
@@ -978,7 +978,7 @@ private fun VerticalPeriodToggle(
         }
     }
 
-    val shape = PeriodSelectorContainerShape.toShape() as CornerBasedShape
+    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
 
     PeriodToggleImpl(
         modifier = modifier,
@@ -1004,7 +1004,7 @@ private fun PeriodToggleImpl(
         colors.periodSelectorBorderColor
     )
 
-    val shape = PeriodSelectorContainerShape.toShape() as CornerBasedShape
+    val shape = PeriodSelectorContainerShape.value as CornerBasedShape
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
     Layout(
         modifier = modifier
@@ -1031,7 +1031,7 @@ private fun PeriodToggleImpl(
                     .layoutId("Spacer")
                     .zIndex(SeparatorZIndex)
                     .fillMaxSize()
-                    .background(color = PeriodSelectorOutlineColor.toColor())
+                    .background(color = PeriodSelectorOutlineColor.value)
             )
             ToggleItem(
                 checked =
@@ -1090,7 +1090,7 @@ private fun DisplaySeparator(modifier: Modifier) {
     ) {
         Text(
             text = ":",
-            color = TimeFieldSeparatorColor.toColor(),
+            color = TimeFieldSeparatorColor.value,
             style = style
         )
     }
@@ -1132,7 +1132,7 @@ private fun TimeSelector(
             }
         },
         selected = selected,
-        shape = TimeSelectorContainerShape.toShape(),
+        shape = TimeSelectorContainerShape.value,
         color = containerColor,
     ) {
         val valueContentDescription =
@@ -1491,7 +1491,7 @@ private fun TimePickerTextField(
                             enabled = true,
                             isError = false,
                             interactionSource = interactionSource,
-                            shape = TimeInputTokens.TimeFieldContainerShape.toShape(),
+                            shape = TimeInputTokens.TimeFieldContainerShape.value,
                             colors = textFieldColors,
                         )
                     }
@@ -1510,7 +1510,7 @@ private fun TimePickerTextField(
                     Strings.TimePickerMinute
                 }
             ),
-            color = TimeInputTokens.TimeFieldSupportingTextColor.toColor(),
+            color = TimeInputTokens.TimeFieldSupportingTextColor.value,
             style = MaterialTheme
                 .typography
                 .fromToken(TimeInputTokens.TimeFieldSupportingTextFont)

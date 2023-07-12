@@ -423,16 +423,16 @@ object SegmentedButtonDefaults {
      */
     @Composable
     fun colors(
-        activeContainerColor: Color = SelectedContainerColor.toColor(),
-        activeContentColor: Color = SelectedLabelTextColor.toColor(),
-        activeBorderColor: Color = OutlineColor.toColor(),
+        activeContainerColor: Color = SelectedContainerColor.value,
+        activeContentColor: Color = SelectedLabelTextColor.value,
+        activeBorderColor: Color = OutlineColor.value,
         inactiveContainerColor: Color = MaterialTheme.colorScheme.surface,
-        inactiveContentColor: Color = UnselectedLabelTextColor.toColor(),
+        inactiveContentColor: Color = UnselectedLabelTextColor.value,
         inactiveBorderColor: Color = activeBorderColor,
         disabledActiveContainerColor: Color = activeContainerColor,
-        disabledActiveContentColor: Color = DisabledLabelTextColor.toColor()
+        disabledActiveContentColor: Color = DisabledLabelTextColor.value
             .copy(alpha = DisabledLabelTextOpacity),
-        disabledActiveBorderColor: Color = OutlineColor.toColor()
+        disabledActiveBorderColor: Color = OutlineColor.value
             .copy(alpha = DisabledOutlineOpacity),
         disabledInactiveContainerColor: Color = inactiveContainerColor,
         disabledInactiveContentColor: Color = disabledActiveContentColor,
@@ -459,7 +459,7 @@ object SegmentedButtonDefaults {
     val Shape: CornerBasedShape
         @Composable
         @ReadOnlyComposable
-        get() = OutlinedSegmentedButtonTokens.Shape.toShape() as CornerBasedShape
+        get() = OutlinedSegmentedButtonTokens.Shape.value as CornerBasedShape
 
     /**
      * A shape constructor that the button in [position] should have when there are [count] buttons

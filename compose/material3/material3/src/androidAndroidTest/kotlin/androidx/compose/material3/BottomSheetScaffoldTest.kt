@@ -772,7 +772,7 @@ class BottomSheetScaffoldTest {
 
         rule.setContent {
             dragHandleContentDescription = getString(Strings.BottomSheetDragHandleDescription)
-            dragHandleColor = SheetBottomTokens.DockedDragHandleColor.toColor()
+            dragHandleColor = SheetBottomTokens.DockedDragHandleColor.value
                 .copy(SheetBottomTokens.DockedDragHandleOpacity)
             surface = MaterialTheme.colorScheme.surface
             density = LocalDensity.current

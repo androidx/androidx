@@ -95,7 +95,7 @@ fun DatePickerDialog(
                         .padding(DialogButtonsPadding)
                 ) {
                     CompositionLocalProvider(
-                        LocalContentColor provides DialogTokens.ActionLabelTextColor.toColor()
+                        LocalContentColor provides DialogTokens.ActionLabelTextColor.value
                     ) {
                         val textStyle =
                             MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
