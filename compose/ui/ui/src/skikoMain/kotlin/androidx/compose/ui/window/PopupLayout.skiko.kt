@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.round
 internal fun PopupLayout(
     popupPositionProvider: PopupPositionProvider,
     focusable: Boolean,
-    onDismissRequest: (() -> Unit)?,
+    onClickOutside: (() -> Unit)?,
+    modifier: Modifier = Modifier,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
@@ -69,8 +70,8 @@ internal fun PopupLayout(
             pointerPositionUpdater = scene.pointerPositionUpdater,
             initDensity = density,
             initLayoutDirection = layoutDirection,
-            isFocusable = focusable,
-            onDismissRequest = onDismissRequest,
+            focusable = focusable,
+            onClickOutside = onClickOutside,
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent
         )
@@ -79,6 +80,7 @@ internal fun PopupLayout(
         val composition = owner.setContent(parent = parentComposition) {
             Layout(
                 content = content,
+                modifier = modifier,
                 measurePolicy = { measurables, constraints ->
                     val width = constraints.maxWidth
                     val height = constraints.maxHeight

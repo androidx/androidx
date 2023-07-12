@@ -101,13 +101,11 @@ fun Popup(
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     focusable: Boolean = false,
     content: @Composable () -> Unit
-) {
-    PopupLayout(
-        popupPositionProvider,
-        focusable,
-        onDismissRequest,
-        onPreviewKeyEvent,
-        onKeyEvent,
-        content
-    )
-}
+) = PopupLayout(
+    popupPositionProvider = popupPositionProvider,
+    focusable = focusable,
+    onClickOutside = if (focusable) onDismissRequest else null,
+    onPreviewKeyEvent = onPreviewKeyEvent,
+    onKeyEvent = onKeyEvent,
+    content = content
+)

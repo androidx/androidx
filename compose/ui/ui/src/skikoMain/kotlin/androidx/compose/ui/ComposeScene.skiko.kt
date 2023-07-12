@@ -16,57 +16,23 @@
 package androidx.compose.ui
 
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
-import androidx.compose.runtime.BroadcastFrameClock
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.CompositionLocalContext
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
-import androidx.compose.ui.input.pointer.PointerButton
-import androidx.compose.ui.input.pointer.PointerButtons
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.input.pointer.PointerInputEvent
-import androidx.compose.ui.input.pointer.PointerInputEventData
-import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.areAnyPressed
-import androidx.compose.ui.input.pointer.copyFor
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.FlushCoroutineDispatcher
-import androidx.compose.ui.platform.GlobalSnapshotManager
-import androidx.compose.ui.platform.Platform
-import androidx.compose.ui.platform.SkiaBasedOwner
-import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toIntRect
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.fastAny
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Volatile
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.currentNanoTime
@@ -164,7 +130,7 @@ class ComposeScene internal constructor(
 
     private fun invalidateIfNeeded() {
         hasPendingDraws = frameClock.hasAwaiters || needLayout || needDraw ||
-           snapshotChanges.hasCommands || pointerPositionUpdater.needUpdate
+            snapshotChanges.hasCommands || pointerPositionUpdater.needUpdate
         if (hasPendingDraws && !isInvalidationDisabled && !isClosed) {
             invalidate()
         }
@@ -193,8 +159,20 @@ class ComposeScene internal constructor(
 
     private inline fun forEachOwner(action: (SkiaBasedOwner) -> Unit) {
         listCopy.addAll(owners)
-        listCopy.forEach(action)
-        listCopy.clear()
+        try {
+            listCopy.forEach(action)
+        } finally {
+            listCopy.clear()
+        }
+    }
+
+    private inline fun <T> reversedOwners(action: (List<SkiaBasedOwner>) -> T): T {
+        listCopy.addAll(owners)
+        try {
+            return action(listCopy.asReversed())
+        } finally {
+            listCopy.clear()
+        }
     }
 
     /**
@@ -208,6 +186,7 @@ class ComposeScene internal constructor(
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(coroutineContext + job)
+
     // We use FlushCoroutineDispatcher for effectDispatcher not because we need `flush` for
     // LaunchEffect tasks, but because we need to know if it is idle (hasn't scheduled tasks)
     private val effectDispatcher = FlushCoroutineDispatcher(coroutineScope)
@@ -287,7 +266,7 @@ class ComposeScene internal constructor(
         owner.dispatchSnapshotChanges = snapshotChanges::add
         owner.constraints = constraints
         invalidateIfNeeded()
-        if (owner.isFocusable) {
+        if (owner.focusable) {
             focusedOwner = owner
         }
         if (isFocused) {
@@ -305,7 +284,7 @@ class ComposeScene internal constructor(
         owner.requestLayout = null
         invalidateIfNeeded()
         if (owner == focusedOwner) {
-            focusedOwner = owners.lastOrNull { it.isFocusable }
+            focusedOwner = owners.lastOrNull { it.focusable }
         }
         if (owner == lastMoveOwner) {
             lastMoveOwner = null
@@ -440,7 +419,7 @@ class ComposeScene internal constructor(
     private var pressOwner: SkiaBasedOwner? = null
     private var lastMoveOwner: SkiaBasedOwner? = null
     private fun hoveredOwner(event: PointerInputEvent): SkiaBasedOwner? =
-        owners.lastOrNull { it.isHovered(event.pointers.first().position) }
+        owners.lastOrNull { it.isHovered(event) }
 
     private fun SkiaBasedOwner?.isAbove(
         targetOwner: SkiaBasedOwner?
@@ -584,17 +563,29 @@ class ComposeScene internal constructor(
     }
 
     private fun processPress(event: PointerInputEvent) {
-        val owner = hoveredOwner(event)
-        if (focusedOwner.isAbove(owner)) {
-            focusedOwner?.onDismissRequest?.invoke()
-        } else {
-            owner?.processPointerInput(event)
-            pressOwner = owner
+        val owner = reversedOwners {
+            for (owner in it) {
+                if (owner.isHovered(event)) {
+                    // Stop once the position of in bounds of the owner
+                    return@reversedOwners owner
+                }
+                owner.onClickOutside?.invoke()
+                if (owner == focusedOwner) {
+                    // Stop if it's in focus, do not pass the event to hovered owner
+                    return@processPress
+                }
+            }
+            return@reversedOwners null
         }
+        owner?.processPointerInput(event)
+        pressOwner = owner
     }
 
     private fun processRelease(event: PointerInputEvent) {
         val owner = pressOwner ?: hoveredOwner(event)
+        if (focusedOwner.isAbove(owner)) {
+            return
+        }
         owner?.processPointerInput(event)
     }
 
@@ -603,6 +594,9 @@ class ComposeScene internal constructor(
             event.buttons.areAnyPressed -> pressOwner
             event.eventType == PointerEventType.Exit -> null
             else -> hoveredOwner(event)
+        }
+        if (focusedOwner.isAbove(owner)) {
+            return
         }
 
         // Cases:
@@ -630,9 +624,10 @@ class ComposeScene internal constructor(
 
     private fun processScroll(event: PointerInputEvent) {
         val owner = hoveredOwner(event)
-        if (!focusedOwner.isAbove(owner)) {
-            owner?.processPointerInput(event)
+        if (focusedOwner.isAbove(owner)) {
+            return
         }
+        owner?.processPointerInput(event)
     }
 
     /**
@@ -660,7 +655,7 @@ class ComposeScene internal constructor(
 
     @ExperimentalComposeUiApi
     fun requestFocus() {
-        owners.findLast { it.isFocusable }?.focusOwner?.takeFocus()
+        owners.findLast { it.focusable }?.focusOwner?.takeFocus()
         isFocused = true
     }
 
