@@ -20,6 +20,7 @@ import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.domerrors.DataCloneError
 import androidx.credentials.exceptions.domerrors.DomError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException.Companion.createFrom
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -62,7 +63,7 @@ class CreatePublicKeyCredentialExceptionTest {
         val expectedDomError: DomError = DataCloneError()
         val expectedType =
             CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
-                expectedDomError.type
+                SEPARATOR + expectedDomError.type
 
         val exception = createFrom(expectedType, expectedMessage)
 

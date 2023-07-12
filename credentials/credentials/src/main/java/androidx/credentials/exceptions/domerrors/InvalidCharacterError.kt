@@ -27,6 +27,6 @@ class InvalidCharacterError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_CHARACTER_ERROR"
+            "androidx.credentials.TYPE_INVALID_CHARACTER_ERROR"
     }
 }

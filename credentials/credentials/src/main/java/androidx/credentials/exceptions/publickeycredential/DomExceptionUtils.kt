@@ -55,6 +55,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class DomExceptionUtils {
     companion object {
+
+        const val SEPARATOR = "/"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal inline fun <reified T>
             generateDomException(type: String, prefix: String, msg: String?, t: T): T {
