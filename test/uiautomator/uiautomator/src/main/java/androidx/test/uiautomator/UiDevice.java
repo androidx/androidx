@@ -44,12 +44,12 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
+import androidx.annotation.Discouraged;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.test.uiautomator.util.Traces;
 import androidx.test.uiautomator.util.Traces.Section;
 
@@ -1126,13 +1126,14 @@ public class UiDevice implements Searchable {
      * <p>
      * Calling function with large amount of output will have memory impacts, and the function call
      * will block if the command executed is blocking.
-     * <p>Note: calling this function requires API level 21 or above
+     *
      * @param cmd the command to run
      * @return the standard output of the command
-     * @throws IOException
-     * Legacy hidden method, kept for compatibility with existing tests.
+     * @throws IOException if an I/O error occurs while reading output
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Discouraged(message = "Can be useful for simple commands, but lacks support for proper error"
+            + " handling, input data, or complex commands (quotes, pipes) that can be obtained "
+            + "from UiAutomation#executeShellCommandRwe or similar utilities.")
     @RequiresApi(21)
     @NonNull
     public String executeShellCommand(@NonNull String cmd) throws IOException {
