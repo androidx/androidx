@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
@@ -58,11 +57,9 @@ public final class UseCaseAttachState {
     public void setUseCaseActive(
             @NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> useCaseConfig,
-            @Nullable StreamSpec streamSpec,
-            @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
+            @NonNull UseCaseConfig<?> useCaseConfig) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
-                sessionConfig, useCaseConfig, streamSpec, captureTypes);
+                sessionConfig, useCaseConfig);
         useCaseAttachInfo.setActive(true);
     }
 
@@ -90,11 +87,9 @@ public final class UseCaseAttachState {
      */
     public void setUseCaseAttached(@NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> userCaseConfig,
-            @Nullable StreamSpec streamSpec,
-            @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
+            @NonNull UseCaseConfig<?> userCaseConfig) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
-                sessionConfig, userCaseConfig, streamSpec, captureTypes);
+                sessionConfig, userCaseConfig);
         useCaseAttachInfo.setAttached(true);
     }
 
@@ -137,12 +132,6 @@ public final class UseCaseAttachState {
     }
 
     @NonNull
-    public Collection<UseCaseAttachInfo> getAttachedUseCaseInfo() {
-        return Collections.unmodifiableCollection(
-                getUseCaseInfo((useCaseAttachInfo) -> useCaseAttachInfo.getAttached()));
-    }
-
-    @NonNull
     public Collection<SessionConfig> getActiveAndAttachedSessionConfigs() {
         return Collections.unmodifiableCollection(
                 getSessionConfigs((useCaseAttachInfo) ->
@@ -157,16 +146,14 @@ public final class UseCaseAttachState {
     public void updateUseCase(
             @NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> useCaseConfig,
-            @Nullable StreamSpec streamSpec,
-            @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
+            @NonNull UseCaseConfig<?> useCaseConfig) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCaseId)) {
             return;
         }
 
         // Rebuild the attach info from scratch to get the updated SessionConfig.
         UseCaseAttachInfo newUseCaseAttachInfo =
-                new UseCaseAttachInfo(sessionConfig, useCaseConfig, streamSpec, captureTypes);
+                new UseCaseAttachInfo(sessionConfig, useCaseConfig);
 
         // Retain the attached and active flags.
         UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
@@ -222,13 +209,10 @@ public final class UseCaseAttachState {
     private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(
             @NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> useCaseConfig,
-            @Nullable StreamSpec streamSpec,
-            @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
+            @NonNull UseCaseConfig<?> useCaseConfig) {
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         if (useCaseAttachInfo == null) {
-            useCaseAttachInfo = new UseCaseAttachInfo(sessionConfig, useCaseConfig, streamSpec,
-                    captureTypes);
+            useCaseAttachInfo = new UseCaseAttachInfo(sessionConfig, useCaseConfig);
             mAttachedUseCasesToInfoMap.put(useCaseId, useCaseAttachInfo);
         }
         return useCaseAttachInfo;
@@ -256,35 +240,19 @@ public final class UseCaseAttachState {
         return useCaseConfigs;
     }
 
-    private Collection<UseCaseAttachInfo> getUseCaseInfo(AttachStateFilter attachStateFilter) {
-        List<UseCaseAttachInfo> useCaseAttachInfo = new ArrayList<>();
-        for (Map.Entry<String, UseCaseAttachInfo> attachedUseCase :
-                mAttachedUseCasesToInfoMap.entrySet()) {
-            if (attachStateFilter == null || attachStateFilter.filter(attachedUseCase.getValue())) {
-                useCaseAttachInfo.add(attachedUseCase.getValue());
-            }
-        }
-        return useCaseAttachInfo;
-    }
-
     private interface AttachStateFilter {
         boolean filter(UseCaseAttachInfo attachInfo);
     }
 
     /** The set of state and configuration information for an attached use case. */
-    public static final class UseCaseAttachInfo {
+    private static final class UseCaseAttachInfo {
+
         /** The configurations required of the camera for the use case. */
         @NonNull
         private final SessionConfig mSessionConfig;
 
         @NonNull
         private final UseCaseConfig<?> mUseCaseConfig;
-
-        @Nullable
-        private final StreamSpec mStreamSpec;
-
-        @Nullable
-        private final List<UseCaseConfigFactory.CaptureType> mCaptureTypes;
 
         /**
          * True if the use case is currently attached (i.e. camera should have a capture session
@@ -299,33 +267,19 @@ public final class UseCaseAttachState {
         private boolean mActive = false;
 
         UseCaseAttachInfo(@NonNull SessionConfig sessionConfig,
-                @NonNull UseCaseConfig<?> useCaseConfig,
-                @Nullable StreamSpec streamSpec,
-                @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
+                @NonNull UseCaseConfig<?> useCaseConfig) {
             mSessionConfig = sessionConfig;
             mUseCaseConfig = useCaseConfig;
-            mStreamSpec = streamSpec;
-            mCaptureTypes = captureTypes;
         }
 
         @NonNull
-        public UseCaseConfig<?> getUseCaseConfig() {
+        UseCaseConfig<?> getUseCaseConfig() {
             return mUseCaseConfig;
         }
 
         @NonNull
-        public SessionConfig getSessionConfig() {
+        SessionConfig getSessionConfig() {
             return mSessionConfig;
-        }
-
-        @Nullable
-        public StreamSpec getStreamSpec() {
-            return mStreamSpec;
-        }
-
-        @Nullable
-        public List<UseCaseConfigFactory.CaptureType> getCaptureTypes() {
-            return mCaptureTypes;
         }
 
         boolean getAttached() {
@@ -342,15 +296,6 @@ public final class UseCaseAttachState {
 
         void setActive(boolean active) {
             mActive = active;
-        }
-
-        @SuppressWarnings("ObjectToString")
-        @NonNull
-        @Override
-        public String toString() {
-            return "UseCaseAttachInfo{" + "mSessionConfig=" + mSessionConfig + ", mUseCaseConfig="
-                    + mUseCaseConfig + ", mStreamSpec=" + mStreamSpec + ", mCaptureTypes="
-                    + mCaptureTypes + ", mAttached=" + mAttached + ", mActive=" + mActive + '}';
         }
     }
 }

@@ -204,9 +204,7 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
         mUseCaseActiveHistory.add(useCase);
         mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig(), useCase.getCurrentConfig(),
-                useCase.getAttachedStreamSpec(),
-                Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
+                useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
     }
 
@@ -225,9 +223,7 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
         mUseCaseUpdateHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig(), useCase.getCurrentConfig(),
-                useCase.getAttachedStreamSpec(),
-                Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
+                useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
     }
 
@@ -236,9 +232,7 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
         mUseCaseResetHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig(), useCase.getCurrentConfig(),
-                useCase.getAttachedStreamSpec(),
-                Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
+                useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
         openCaptureSession();
     }
@@ -261,9 +255,7 @@ public class FakeCamera implements CameraInternal {
             mUseCaseAttachState.setUseCaseAttached(
                     useCase.getName() + useCase.hashCode(),
                     useCase.getSessionConfig(),
-                    useCase.getCurrentConfig(),
-                    useCase.getAttachedStreamSpec(),
-                    Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
+                    useCase.getCurrentConfig());
         }
 
         open();
