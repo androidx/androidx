@@ -18,6 +18,10 @@ package androidx.credentials.exceptions.publickeycredential;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.credentials.exceptions.GetCredentialCustomException;
+import androidx.credentials.exceptions.GetCredentialException;
+import androidx.credentials.exceptions.domerrors.DomError;
+import androidx.credentials.exceptions.domerrors.EncodingError;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -56,5 +60,35 @@ public class GetPublicKeyCredentialExceptionJavaTest {
                 GetPublicKeyCredentialException(expectedType , expectedMessage);
         assertThat(exception.getType()).isEqualTo(expectedType);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    public void frameworkToJetpackConversion_success() {
+        String expectedMessage = "msg";
+        DomError expectedDomError = new EncodingError();
+        String expectedType = GetPublicKeyCredentialDomException
+                .TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + expectedDomError.getType();
+
+        GetCredentialException exception = GetPublicKeyCredentialException
+                .createFrom(expectedType, expectedMessage);
+
+        assertThat(exception).isInstanceOf(GetPublicKeyCredentialDomException.class);
+        assertThat(((GetPublicKeyCredentialDomException) exception).getDomError())
+                .isInstanceOf(EncodingError.class);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getMessage()).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    public void frameworkToJetpackConversion_failure_createsCustomException() {
+        String expectedMessage = "CustomMessage";
+        String expectedType = "CustomType";
+
+        GetCredentialException exception = GetPublicKeyCredentialException
+                .createFrom(expectedType, expectedMessage);
+
+        assertThat(exception).isInstanceOf(GetCredentialCustomException.class);
+        assertThat(exception.getType()).isEqualTo(expectedType);
+        assertThat(exception.getMessage()).isEqualTo(expectedMessage);
     }
 }
