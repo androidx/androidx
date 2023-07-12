@@ -65,7 +65,6 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -77,11 +76,8 @@ import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
-import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
-import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCameraCoordinator;
@@ -90,14 +86,11 @@ import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.camera.testing.mocks.MockObserver;
 import androidx.camera.testing.mocks.helpers.CallTimes;
 import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
-import androidx.camera.video.Recorder;
-import androidx.camera.video.VideoCapture;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -144,7 +137,6 @@ public final class Camera2CameraImplTest {
 
     static {
         DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_PREVIEW, false);
-        DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_STILL_CAPTURE, true);
         DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_RECORD, true);
         DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG, false);
     }
@@ -206,7 +198,6 @@ public final class Camera2CameraImplTest {
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(
-                (Context) ApplicationProvider.getApplicationContext(),
                 cameraManagerCompat, mCameraId, camera2CameraInfo, mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
                 DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
@@ -538,89 +529,6 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
-    public void attachNonRepeatingUseCase_whenCameraModeConcurrent_meteringRepeatingIsAttached() {
-        mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
-        UseCase nonRepeating = createUseCase(NON_REPEATING);
-
-        mCamera2CameraImpl.attachUseCases(singletonList(nonRepeating));
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
-
-        mCamera2CameraImpl.detachUseCases(singletonList(nonRepeating));
-    }
-
-    @Test
-    public void attachImageCapture_meteringRepeatingIsAttached() {
-        // attaching ImageCapture will allow StreamUseCase to be enabled in supported devices
-        UseCase imageCapture = createImageCapture();
-
-        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
-    }
-
-    @Test
-    public void attachStreamSharingWithNonRepeatingChildren_meteringRepeatingIsNotAttached() {
-        // StreamSharing use case adds a repeating surface by default, no need for MeteringRepeating
-        Set<UseCase> useCases = new HashSet<>();
-
-        Preview preview = new Preview.Builder().build();
-        // No repeating surface is added for Preview when surface provider is not set
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> preview.setSurfaceProvider(null));
-        useCases.add(preview);
-
-        useCases.add(new VideoCapture.Builder<>(new Recorder.Builder().build()).build());
-
-        StreamSharing streamSharing = createStreamSharingUseCase(useCases);
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mCamera2CameraImpl.attachUseCases(singletonList(streamSharing)));
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mCamera2CameraImpl.detachUseCases(singletonList(streamSharing)));
-    }
-
-    @Test
-    public void exceedSupportedUseCaseCount_meteringRepeatingIsNotAttached() {
-        // adding a lot of use cases will ensure surface combination is no longer supported
-        List<UseCase> useCases = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            useCases.add(createUseCase(NON_REPEATING));
-        }
-        mCamera2CameraImpl.attachUseCases(useCases);
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
-
-        mCamera2CameraImpl.detachUseCases(useCases);
-    }
-
-    @Test
-    public void exceedSupportedUseCaseCountLater_meteringRepeatingIsRemoved() {
-        UseCase imageCapture = createImageCapture();
-        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
-
-        // adding a lot of use cases will ensure surface combination is no longer supported
-        List<UseCase> useCases = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            useCases.add(createUseCase(NON_REPEATING));
-        }
-        mCamera2CameraImpl.attachUseCases(useCases);
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
-        mCamera2CameraImpl.detachUseCases(useCases);
-    }
-
-    @Test
     public void attachRepeatingUseCaseLater_meteringRepeatingIsRemoved() {
         UseCase nonRepeating = createUseCase(NON_REPEATING);
         UseCase repeating = createUseCase(REPEATING);
@@ -634,36 +542,6 @@ public final class Camera2CameraImplTest {
         assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
 
         mCamera2CameraImpl.detachUseCases(asList(nonRepeating, repeating));
-    }
-
-    @Test
-    public void attachStreamSharingUseCaseLater_meteringRepeatingIsRemoved() {
-        UseCase nonRepeating = createUseCase(NON_REPEATING);
-
-        mCamera2CameraImpl.attachUseCases(singletonList(nonRepeating));
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
-
-        // StreamSharing use case adds a repeating surface by default, no need for MeteringRepeating
-        Set<UseCase> useCases = new HashSet<>();
-
-        Preview preview = new Preview.Builder().build();
-        // No repeating surface is added for Preview when surface provider is not set
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> preview.setSurfaceProvider(null));
-        useCases.add(preview);
-
-        useCases.add(new VideoCapture.Builder<>(new Recorder.Builder().build()).build());
-
-        StreamSharing streamSharing = createStreamSharingUseCase(useCases);
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mCamera2CameraImpl.attachUseCases(singletonList(streamSharing)));
-
-        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mCamera2CameraImpl.detachUseCases(asList(nonRepeating, streamSharing)));
     }
 
     @Test
@@ -923,61 +801,9 @@ public final class Camera2CameraImplTest {
                 surfaceOption
         );
 
-        testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(
-                new Size(640, 480)).setImplementationOptions(
-                StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build());
+        testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
         mFakeUseCases.add(testUseCase);
         return testUseCase;
-    }
-
-    @NonNull
-    private ImageCapture createImageCapture() {
-        UseCaseConfigFactory useCaseConfigFactory =
-                new Camera2UseCaseConfigFactory(ApplicationProvider.getApplicationContext());
-
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
-
-        FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
-                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase");
-        new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
-        UseCaseConfig<?> config = configBuilder.getUseCaseConfig();
-
-        imageCapture.bindToCamera(mCamera2CameraImpl, null, imageCapture.getDefaultConfig(true,
-                useCaseConfigFactory));
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(
-                        new Size(640, 480)).setImplementationOptions(
-                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
-        imageCapture.notifyState();
-
-        return imageCapture;
-    }
-
-    @NonNull
-    private StreamSharing createStreamSharingUseCase(@NonNull Set<UseCase> children) {
-        UseCaseConfigFactory useCaseConfigFactory =
-                new Camera2UseCaseConfigFactory(ApplicationProvider.getApplicationContext());
-
-        StreamSharing streamSharing =
-                new StreamSharing(mCamera2CameraImpl, children, useCaseConfigFactory);
-
-        FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
-                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase");
-        new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
-        UseCaseConfig<?> config = configBuilder.getUseCaseConfig();
-
-        streamSharing.bindToCamera(mCamera2CameraImpl, null, streamSharing.getDefaultConfig(true,
-                useCaseConfigFactory));
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(
-                        new Size(640, 480)).setImplementationOptions(
-                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
-
-        return streamSharing;
     }
 
     @Test
@@ -1287,7 +1113,6 @@ public final class Camera2CameraImplTest {
             Camera2CameraInfoImpl pairedCamera2CameraInfo = new Camera2CameraInfoImpl(
                     mPairedCameraId, cameraManagerCompat);
             Camera2CameraImpl pairedCamera2CameraImpl = new Camera2CameraImpl(
-                    (Context) ApplicationProvider.getApplicationContext(),
                     cameraManagerCompat, mPairedCameraId, pairedCamera2CameraInfo,
                     mCameraCoordinator,
                     mCameraStateRegistry, sCameraExecutor, sCameraHandler,
@@ -1331,10 +1156,7 @@ public final class Camera2CameraImplTest {
     }
 
     private void changeUseCaseSurface(UseCase useCase) {
-        useCase.updateSuggestedStreamSpec(StreamSpec.builder(
-                new Size(640, 480)).setImplementationOptions(
-                StreamUseCaseUtil.getStreamSpecImplementationOptions(
-                        useCase.getCurrentConfig())).build());
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
     }
 
     private static boolean getDefaultZslDisabled(int templateType) {
@@ -1382,9 +1204,7 @@ public final class Camera2CameraImplTest {
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
             bindToCamera(camera, null, null);
-            updateSuggestedStreamSpec(StreamSpec.builder(
-                    new Size(640, 480)).setImplementationOptions(
-                    StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build());
+            updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
         }
 
         public void close() {
