@@ -34,12 +34,12 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.wear.R;
 import androidx.wear.widget.util.WakeLockRule;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -55,16 +55,13 @@ public class ConfirmationOverlayTest {
     public final ActivityTestRule<ConfirmationOverlayTestActivity> mActivityRule =
             new ActivityTestRule<>(ConfirmationOverlayTestActivity.class, true, true);
 
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
     @Mock
     private ConfirmationOverlay.OnAnimationFinishedListener mOnAnimationFinishedListener;
 
     private LinearLayout mLinearLayout;
     private TextView mActualTextView;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     private Activity setupActivity() {
         Activity activity = mActivityRule.getActivity();
