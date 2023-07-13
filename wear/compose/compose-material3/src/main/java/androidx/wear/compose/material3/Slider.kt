@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.ripple.rememberRipple
@@ -122,7 +123,7 @@ fun InlineSlider(
                 value, enabled, onValueChange, valueRange, steps
             )
             .height(InlineSliderDefaults.SliderHeight)
-            .clip(MaterialTheme.shapes.full)
+            .clip(CircleShape) // TODO(b/290625297) Replace with tokens
     ) {
         val visibleSegments = if (segmented) steps + 1 else 1
 
@@ -172,7 +173,7 @@ fun InlineSlider(
                     modifier = Modifier
                         .height(InlineSliderDefaults.BarHeight)
                         .weight(1f)
-                        .clip(MaterialTheme.shapes.full)
+                        .clip(CircleShape) // TODO(b/290625297) Replace with token
                         .drawProgressBar(
                             selectedBarColor = selectedBarColor,
                             unselectedBarColor = unselectedBarColor,

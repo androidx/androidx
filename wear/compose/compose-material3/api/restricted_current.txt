@@ -305,38 +305,30 @@ package androidx.wear.compose.material3 {
   public final class ShapeDefaults {
     method public androidx.compose.foundation.shape.RoundedCornerShape getExtraLarge();
     method public androidx.compose.foundation.shape.RoundedCornerShape getExtraSmall();
-    method public androidx.compose.foundation.shape.RoundedCornerShape getFull();
     method public androidx.compose.foundation.shape.RoundedCornerShape getLarge();
     method public androidx.compose.foundation.shape.RoundedCornerShape getMedium();
-    method public androidx.compose.ui.graphics.Shape getNone();
     method public androidx.compose.foundation.shape.RoundedCornerShape getSmall();
     property public final androidx.compose.foundation.shape.RoundedCornerShape ExtraLarge;
     property public final androidx.compose.foundation.shape.RoundedCornerShape ExtraSmall;
-    property public final androidx.compose.foundation.shape.RoundedCornerShape Full;
     property public final androidx.compose.foundation.shape.RoundedCornerShape Large;
     property public final androidx.compose.foundation.shape.RoundedCornerShape Medium;
-    property public final androidx.compose.ui.graphics.Shape None;
     property public final androidx.compose.foundation.shape.RoundedCornerShape Small;
     field public static final androidx.wear.compose.material3.ShapeDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class Shapes {
-    ctor public Shapes(optional androidx.compose.ui.graphics.Shape none, optional androidx.compose.ui.graphics.Shape extraSmall, optional androidx.compose.ui.graphics.Shape small, optional androidx.compose.ui.graphics.Shape medium, optional androidx.compose.ui.graphics.Shape large, optional androidx.compose.ui.graphics.Shape extraLarge, optional androidx.compose.ui.graphics.Shape full);
-    method public androidx.wear.compose.material3.Shapes copy(optional androidx.compose.ui.graphics.Shape none, optional androidx.compose.ui.graphics.Shape extraSmall, optional androidx.compose.ui.graphics.Shape small, optional androidx.compose.ui.graphics.Shape medium, optional androidx.compose.ui.graphics.Shape large, optional androidx.compose.ui.graphics.Shape extraLarge, optional androidx.compose.ui.graphics.Shape full);
-    method public androidx.compose.ui.graphics.Shape getExtraLarge();
-    method public androidx.compose.ui.graphics.Shape getExtraSmall();
-    method public androidx.compose.ui.graphics.Shape getFull();
-    method public androidx.compose.ui.graphics.Shape getLarge();
-    method public androidx.compose.ui.graphics.Shape getMedium();
-    method public androidx.compose.ui.graphics.Shape getNone();
-    method public androidx.compose.ui.graphics.Shape getSmall();
-    property public final androidx.compose.ui.graphics.Shape extraLarge;
-    property public final androidx.compose.ui.graphics.Shape extraSmall;
-    property public final androidx.compose.ui.graphics.Shape full;
-    property public final androidx.compose.ui.graphics.Shape large;
-    property public final androidx.compose.ui.graphics.Shape medium;
-    property public final androidx.compose.ui.graphics.Shape none;
-    property public final androidx.compose.ui.graphics.Shape small;
+    ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
+    method public androidx.wear.compose.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
+    method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
+    method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
+    method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
+    property public final androidx.compose.foundation.shape.CornerBasedShape extraLarge;
+    property public final androidx.compose.foundation.shape.CornerBasedShape extraSmall;
+    property public final androidx.compose.foundation.shape.CornerBasedShape large;
+    property public final androidx.compose.foundation.shape.CornerBasedShape medium;
+    property public final androidx.compose.foundation.shape.CornerBasedShape small;
   }
 
   public final class SliderKt {

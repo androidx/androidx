@@ -69,7 +69,7 @@ public fun MaterialTheme(
     val rippleIndication = rememberRipple()
     val selectionColors = rememberTextSelectionColors(rememberedColors)
     CompositionLocalProvider(
-        LocalColors provides rememberedColors,
+        LocalColorScheme provides rememberedColors,
         LocalShapes provides shapes,
         LocalTypography provides typography,
         LocalContentAlpha provides ContentAlpha.high,
@@ -87,7 +87,7 @@ public object MaterialTheme {
     public val colorScheme: ColorScheme
         @ReadOnlyComposable
         @Composable
-        get() = LocalColors.current
+        get() = LocalColorScheme.current
 
     public val typography: Typography
         @ReadOnlyComposable
