@@ -323,27 +323,44 @@ public interface Config {
             // If any options need special handling, this is the place to do it. For now we'll
             // just copy over all options.
             for (Config.Option<?> opt : extendedConfig.listOptions()) {
-                @SuppressWarnings("unchecked") // Options/values are being copied directly
-                Config.Option<Object> objectOpt = (Config.Option<Object>) opt;
-
-                // ResolutionSelector needs special handling to merge the underlying settings.
-                if (Objects.equals(objectOpt, ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)) {
-                    ResolutionSelector resolutionSelectorToOverride =
-                            (ResolutionSelector) extendedConfig.retrieveOption(objectOpt);
-                    ResolutionSelector baseResolutionSelector =
-                            (ResolutionSelector) baseConfig.retrieveOption(objectOpt);
-                    mergedConfig.insertOption(objectOpt,
-                            extendedConfig.getOptionPriority(opt),
-                            ResolutionSelectorUtil.overrideResolutionSelectors(
-                                    baseResolutionSelector, resolutionSelectorToOverride));
-                } else {
-                    mergedConfig.insertOption(objectOpt,
-                            extendedConfig.getOptionPriority(opt),
-                            extendedConfig.retrieveOption(objectOpt));
-                }
+                mergeOptionValue(mergedConfig, baseConfig, extendedConfig, opt);
             }
         }
 
         return OptionsBundle.from(mergedConfig);
+    }
+
+    /**
+     * Merges a specific option value from two configs.
+     *
+     * @param mergedConfig   the final output config
+     * @param baseConfig     the base config contains the option value which might be overridden by
+     *                       the corresponding option value in the extend config.
+     * @param extendedConfig the extended config contains the option value which might override
+     *                       the corresponding option value in the base config.
+     * @param opt            the option to merge
+     */
+    static void mergeOptionValue(@NonNull MutableOptionsBundle mergedConfig,
+            @NonNull Config baseConfig,
+            @NonNull Config extendedConfig,
+            @NonNull Option<?> opt) {
+        @SuppressWarnings("unchecked") // Options/values are being copied directly
+        Config.Option<Object> objectOpt = (Config.Option<Object>) opt;
+
+        // ResolutionSelector needs special handling to merge the underlying settings.
+        if (Objects.equals(objectOpt, ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)) {
+            ResolutionSelector resolutionSelectorToOverride =
+                    (ResolutionSelector) extendedConfig.retrieveOption(objectOpt, null);
+            ResolutionSelector baseResolutionSelector =
+                    (ResolutionSelector) baseConfig.retrieveOption(objectOpt, null);
+            mergedConfig.insertOption(objectOpt,
+                    extendedConfig.getOptionPriority(opt),
+                    ResolutionSelectorUtil.overrideResolutionSelectors(
+                            baseResolutionSelector, resolutionSelectorToOverride));
+        } else {
+            mergedConfig.insertOption(objectOpt,
+                    extendedConfig.getOptionPriority(opt),
+                    extendedConfig.retrieveOption(objectOpt));
+        }
     }
 }
