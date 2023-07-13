@@ -36,6 +36,7 @@ import java.util.UUID
  *
  */
 class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) {
+
     /** Remote Bluetooth device found. */
     val device: BluetoothDevice
         get() = BluetoothDevice.of(fwkScanResult.device)
@@ -72,7 +73,7 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
      * Returns the service data associated with the service UUID.
      *
      * @param serviceUuid The service UUID of the service data
-     * @return the service data associated with the specified service UUID, or {@code null}
+     * @return the service data associated with the specified service UUID, or `null`
      * if the service UUID is not found
      */
     fun getServiceData(serviceUuid: UUID): ByteArray? {

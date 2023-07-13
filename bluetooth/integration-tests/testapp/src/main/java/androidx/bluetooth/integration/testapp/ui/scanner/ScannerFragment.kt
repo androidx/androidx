@@ -16,7 +16,6 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.AdvertiseParams
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log

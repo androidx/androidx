@@ -27,31 +27,31 @@ import java.util.UUID
  * scan results to only those that are of interest to them.
  */
 class ScanFilter(
-    /** The scan filter for the remote device address. {@code null} if filter is not set. */
+    /** The scan filter for the remote device address. `null` if filter is not set. */
     val deviceAddress: BluetoothAddress? = null,
 
     /** The scan filter for manufacturer id. [MANUFACTURER_FILTER_NONE] if filter is not set. */
     val manufacturerId: Int = MANUFACTURER_FILTER_NONE,
 
-    /** The scan filter for manufacturer data. {@code null} if filter is not set. */
+    /** The scan filter for manufacturer data. `null` if filter is not set. */
     val manufacturerData: ByteArray? = null,
 
-    /** The partial filter on manufacturerData. {@code null} if filter is not set. */
+    /** The partial filter on manufacturerData. `null` if filter is not set. */
     val manufacturerDataMask: ByteArray? = null,
 
-    /** The scan filter for service data uuid. {@code null} if filter is not set. */
+    /** The scan filter for service data uuid. `null` if filter is not set. */
     val serviceDataUuid: UUID? = null,
 
-    /** The scan filter for service data. {@code null} if filter is not set. */
+    /** The scan filter for service data. `null` if filter is not set. */
     val serviceData: ByteArray? = null,
 
-    /** The partial filter on service data. {@code null} if filter is not set. */
+    /** The partial filter on service data. `null` if filter is not set. */
     val serviceDataMask: ByteArray? = null,
 
-    /** The scan filter for service uuid. {@code null} if filter is not set. */
+    /** The scan filter for service uuid. `null` if filter is not set. */
     val serviceUuid: UUID? = null,
 
-    /** The partial filter on service uuid. {@code null} if filter is not set. */
+    /** The partial filter on service uuid. `null` if filter is not set. */
     val serviceUuidMask: UUID? = null
 ) {
     companion object {
@@ -60,35 +60,35 @@ class ScanFilter(
 
     init {
         if (manufacturerId < 0 && manufacturerId != MANUFACTURER_FILTER_NONE) {
-            throw IllegalArgumentException("invalid manufacturerId")
+            throw IllegalArgumentException("Invalid manufacturerId")
         }
 
         if (manufacturerDataMask != null) {
             if (manufacturerData == null) {
                 throw IllegalArgumentException(
-                    "manufacturerData is null while manufacturerDataMask is not null")
+                    "ManufacturerData is null while manufacturerDataMask is not null")
             }
 
             if (manufacturerData.size != manufacturerDataMask.size) {
                 throw IllegalArgumentException(
-                    "size mismatch for manufacturerData and manufacturerDataMask")
+                    "Size mismatch for manufacturerData and manufacturerDataMask")
             }
         }
 
         if (serviceDataMask != null) {
             if (serviceData == null) {
                 throw IllegalArgumentException(
-                    "serviceData is null while serviceDataMask is not null")
+                    "ServiceData is null while serviceDataMask is not null")
             }
 
             if (serviceData.size != serviceDataMask.size) {
                 throw IllegalArgumentException(
-                    "size mismatch for service data and service data mask")
+                    "Size mismatch for service data and service data mask")
             }
         }
 
-        if (serviceUuidMask != null && serviceUuid == null) {
-            throw IllegalArgumentException("uuid is null while uuidMask is not null")
+        if (serviceUuid == null && serviceUuidMask != null) {
+            throw IllegalArgumentException("ServiceUuid is null while ServiceUuidMask is not null")
         }
     }
 
@@ -97,8 +97,7 @@ class ScanFilter(
         FwkScanFilter.Builder().run {
             deviceAddress?.let { setDeviceAddress(it.address) }
 
-            if (manufacturerId != MANUFACTURER_FILTER_NONE &&
-                manufacturerData != null) {
+            if (manufacturerId != MANUFACTURER_FILTER_NONE && manufacturerData != null) {
                 if (Build.VERSION.SDK_INT >= 33) {
                     setManufacturerData(
                         manufacturerId,
