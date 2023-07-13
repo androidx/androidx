@@ -69,7 +69,7 @@ fun IconButtonDemo() {
         }
         item {
             ListHeader {
-                Text("FilledTonalIconButton")
+                Text("Filled Tonal")
             }
         }
         item {
@@ -86,7 +86,7 @@ fun IconButtonDemo() {
         }
         item {
             ListHeader {
-                Text("FilledIconButton")
+                Text("Filled")
             }
         }
         item {
@@ -103,7 +103,7 @@ fun IconButtonDemo() {
         }
         item {
             ListHeader {
-                Text("OutlinedIconButton")
+                Text("Outlined")
             }
         }
         item {
