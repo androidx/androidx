@@ -66,11 +66,13 @@ import androidx.wear.watchface.complications.rendering.ComplicationRenderer.Pain
 import com.google.common.truth.Truth;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.Instant;
@@ -92,6 +94,8 @@ public class ComplicationRendererTest {
     private ComplicationRenderer mComplicationRenderer;
     private Rect mComplicationBounds;
 
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
     @Mock private Icon mMockIcon;
     @Mock private Icon mMockBurnInProtectionIcon;
     @Mock private Icon mMockSmallImage;
@@ -100,10 +104,8 @@ public class ComplicationRendererTest {
     @Mock private OnInvalidateListener mMockInvalidateListener;
     private final Resources mResurces = ApplicationProvider.getApplicationContext().getResources();
 
-    @SuppressWarnings("deprecation") // b/251211092
     @Before
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         mComplicationBounds = new Rect(0, 0, BOUNDS_WIDTH, BOUNDS_HEIGHT);
 
         mComplicationRenderer = createRendererWithBounds(mComplicationBounds);
