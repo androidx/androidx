@@ -204,6 +204,9 @@ public class CredentialManagerJavaTest {
 
     @Test
     public void testClearCredentialSessionAsync_throws() throws InterruptedException {
+        if (isPostFrameworkApiLevel()) {
+            return; // TODO(b/290950671) enable test in the future when supported
+        }
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<ClearCredentialException> loadedResult = new AtomicReference<>();
 
@@ -225,10 +228,6 @@ public class CredentialManagerJavaTest {
                 });
 
         latch.await(100L, TimeUnit.MILLISECONDS);
-        if (loadedResult.get() == null) {
-            return; // A strange flow occurred where an exception wasn't propagated up
-        }
-
         assertThat(loadedResult.get().getClass()).isEqualTo(
                 ClearCredentialProviderConfigurationException.class);
     }
