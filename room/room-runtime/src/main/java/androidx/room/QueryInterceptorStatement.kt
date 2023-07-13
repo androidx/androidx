@@ -67,7 +67,7 @@ internal class QueryInterceptorStatement(
     }
 
     override fun bindNull(index: Int) {
-        saveArgsToCache(index, arrayOf(*bindArgsCache.toTypedArray()))
+        saveArgsToCache(index, null)
         delegate.bindNull(index)
     }
 
