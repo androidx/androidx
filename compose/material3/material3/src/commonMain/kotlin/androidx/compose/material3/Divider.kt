@@ -113,5 +113,5 @@ object DividerDefaults {
     val Thickness: Dp = DividerTokens.Thickness
 
     /** Default color of a divider. */
-    val color: Color @Composable get() = DividerTokens.Color.toColor()
+    val color: Color @Composable get() = DividerTokens.Color.value
 }

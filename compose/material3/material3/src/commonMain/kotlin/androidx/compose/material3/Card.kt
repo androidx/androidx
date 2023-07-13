@@ -352,13 +352,13 @@ fun OutlinedCard(
 object CardDefaults {
     // shape Defaults
     /** Default shape for a card. */
-    val shape: Shape @Composable get() = FilledCardTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = FilledCardTokens.ContainerShape.value
 
     /** Default shape for an elevated card. */
-    val elevatedShape: Shape @Composable get() = ElevatedCardTokens.ContainerShape.toShape()
+    val elevatedShape: Shape @Composable get() = ElevatedCardTokens.ContainerShape.value
 
     /** Default shape for an outlined card. */
-    val outlinedShape: Shape @Composable get() = OutlinedCardTokens.ContainerShape.toShape()
+    val outlinedShape: Shape @Composable get() = OutlinedCardTokens.ContainerShape.value
 
     /**
      * Creates a [CardElevation] that will animate between the provided values according to the
@@ -454,10 +454,10 @@ object CardDefaults {
      */
     @Composable
     fun cardColors(
-        containerColor: Color = FilledCardTokens.ContainerColor.toColor(),
+        containerColor: Color = FilledCardTokens.ContainerColor.value,
         contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color =
-            FilledCardTokens.DisabledContainerColor.toColor()
+            FilledCardTokens.DisabledContainerColor.value
                 .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
                 .compositeOver(
                     MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -483,10 +483,10 @@ object CardDefaults {
      */
     @Composable
     fun elevatedCardColors(
-        containerColor: Color = ElevatedCardTokens.ContainerColor.toColor(),
+        containerColor: Color = ElevatedCardTokens.ContainerColor.value,
         contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color =
-            ElevatedCardTokens.DisabledContainerColor.toColor()
+            ElevatedCardTokens.DisabledContainerColor.value
                 .copy(alpha = ElevatedCardTokens.DisabledContainerOpacity)
                 .compositeOver(
                     MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -513,7 +513,7 @@ object CardDefaults {
      */
     @Composable
     fun outlinedCardColors(
-        containerColor: Color = OutlinedCardTokens.ContainerColor.toColor(),
+        containerColor: Color = OutlinedCardTokens.ContainerColor.value,
         contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color = containerColor,
         disabledContentColor: Color = contentColor.copy(DisabledAlpha),
@@ -533,9 +533,9 @@ object CardDefaults {
     @Composable
     fun outlinedCardBorder(enabled: Boolean = true): BorderStroke {
         val color = if (enabled) {
-            OutlinedCardTokens.OutlineColor.toColor()
+            OutlinedCardTokens.OutlineColor.value
         } else {
-            OutlinedCardTokens.DisabledOutlineColor.toColor()
+            OutlinedCardTokens.DisabledOutlineColor.value
                 .copy(alpha = OutlinedCardTokens.DisabledOutlineOpacity)
                 .compositeOver(
                     MaterialTheme.colorScheme.surfaceColorAtElevation(

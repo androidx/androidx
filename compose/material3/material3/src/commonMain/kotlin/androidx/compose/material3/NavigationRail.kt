@@ -224,9 +224,9 @@ fun NavigationRailItem(
         }
 
         val indicatorShape = if (label != null) {
-            NavigationRailTokens.ActiveIndicatorShape.toShape()
+            NavigationRailTokens.ActiveIndicatorShape.value
         } else {
-            NavigationRailTokens.NoLabelActiveIndicatorShape.toShape()
+            NavigationRailTokens.NoLabelActiveIndicatorShape.value
         }
 
         // The indicator has a width-expansion animation which interferes with the timing of the
@@ -264,7 +264,7 @@ fun NavigationRailItem(
 /** Defaults used in [NavigationRail] */
 object NavigationRailDefaults {
     /** Default container color of a navigation rail. */
-    val ContainerColor: Color @Composable get() = NavigationRailTokens.ContainerColor.toColor()
+    val ContainerColor: Color @Composable get() = NavigationRailTokens.ContainerColor.value
 
     /**
      * Default window insets for navigation rail.
@@ -292,11 +292,11 @@ object NavigationRailItemDefaults {
      */
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.toColor(),
-        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.toColor(),
-        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.toColor(),
-        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.toColor(),
-        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.toColor(),
+        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.value,
+        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.value,
+        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.value,
+        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.value,
         disabledIconColor: Color = unselectedIconColor.copy(alpha = DisabledAlpha),
         disabledTextColor: Color = unselectedTextColor.copy(alpha = DisabledAlpha),
     ): NavigationRailItemColors = NavigationRailItemColors(
@@ -315,11 +315,11 @@ object NavigationRailItemDefaults {
     )
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.toColor(),
-        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.toColor(),
-        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.toColor(),
-        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.toColor(),
-        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.toColor(),
+        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.value,
+        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.value,
+        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.value,
+        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.value,
     ): NavigationRailItemColors = NavigationRailItemColors(
         selectedIconColor = selectedIconColor,
         selectedTextColor = selectedTextColor,

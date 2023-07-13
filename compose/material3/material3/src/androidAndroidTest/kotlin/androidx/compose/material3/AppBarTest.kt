@@ -1435,7 +1435,7 @@ class AppBarTest {
             scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
             // Using the mediumTopAppBarColors for both Medium and Large top app bars, as the
             // current content color settings are the same.
-            expandedAppBarBackgroundColor = TopAppBarMediumTokens.ContainerColor.toColor()
+            expandedAppBarBackgroundColor = TopAppBarMediumTokens.ContainerColor.value
             fullyCollapsedContainerColor =
                 TopAppBarDefaults.mediumTopAppBarColors()
                     .containerColor(colorTransitionFraction = 1f)

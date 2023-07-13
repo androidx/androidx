@@ -920,31 +920,31 @@ object SliderDefaults {
      */
     @Composable
     fun colors(
-        thumbColor: Color = SliderTokens.HandleColor.toColor(),
-        activeTrackColor: Color = SliderTokens.ActiveTrackColor.toColor(),
+        thumbColor: Color = SliderTokens.HandleColor.value,
+        activeTrackColor: Color = SliderTokens.ActiveTrackColor.value,
         activeTickColor: Color = SliderTokens.TickMarksActiveContainerColor
-            .toColor()
+            .value
             .copy(alpha = SliderTokens.TickMarksActiveContainerOpacity),
-        inactiveTrackColor: Color = SliderTokens.InactiveTrackColor.toColor(),
-        inactiveTickColor: Color = SliderTokens.TickMarksInactiveContainerColor.toColor()
+        inactiveTrackColor: Color = SliderTokens.InactiveTrackColor.value,
+        inactiveTickColor: Color = SliderTokens.TickMarksInactiveContainerColor.value
             .copy(alpha = SliderTokens.TickMarksInactiveContainerOpacity),
         disabledThumbColor: Color = SliderTokens.DisabledHandleColor
-            .toColor()
+            .value
             .copy(alpha = SliderTokens.DisabledHandleOpacity)
             .compositeOver(MaterialTheme.colorScheme.surface),
         disabledActiveTrackColor: Color =
             SliderTokens.DisabledActiveTrackColor
-                .toColor()
+                .value
                 .copy(alpha = SliderTokens.DisabledActiveTrackOpacity),
         disabledActiveTickColor: Color = SliderTokens.TickMarksDisabledContainerColor
-            .toColor()
+            .value
             .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity),
         disabledInactiveTrackColor: Color =
             SliderTokens.DisabledInactiveTrackColor
-                .toColor()
+                .value
                 .copy(alpha = SliderTokens.DisabledInactiveTrackOpacity),
 
-        disabledInactiveTickColor: Color = SliderTokens.TickMarksDisabledContainerColor.toColor()
+        disabledInactiveTickColor: Color = SliderTokens.TickMarksDisabledContainerColor.value
             .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity)
     ): SliderColors = SliderColors(
         thumbColor = thumbColor,
@@ -999,7 +999,7 @@ object SliderDefaults {
         } else {
             ThumbDefaultElevation
         }
-        val shape = SliderTokens.HandleShape.toShape()
+        val shape = SliderTokens.HandleShape.value
 
         Spacer(
             modifier

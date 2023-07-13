@@ -235,7 +235,7 @@ fun RowScope.NavigationBarItem(
             Box(
                 Modifier
                     .layoutId(IndicatorRippleLayoutIdTag)
-                    .clip(NavigationBarTokens.ActiveIndicatorShape.toShape())
+                    .clip(NavigationBarTokens.ActiveIndicatorShape.value)
                     .indication(offsetInteractionSource, rememberRipple())
             )
         }
@@ -245,7 +245,7 @@ fun RowScope.NavigationBarItem(
                     .layoutId(IndicatorLayoutIdTag)
                     .background(
                         color = colors.indicatorColor.copy(alpha = animationProgress),
-                        shape = NavigationBarTokens.ActiveIndicatorShape.toShape(),
+                        shape = NavigationBarTokens.ActiveIndicatorShape.value,
                     )
             )
         }
@@ -267,7 +267,7 @@ object NavigationBarDefaults {
     val Elevation: Dp = NavigationBarTokens.ContainerElevation
 
     /** Default color for a navigation bar. */
-    val containerColor: Color @Composable get() = NavigationBarTokens.ContainerColor.toColor()
+    val containerColor: Color @Composable get() = NavigationBarTokens.ContainerColor.value
 
     /**
      * Default window insets to be used and consumed by navigation bar
@@ -296,11 +296,11 @@ object NavigationBarItemDefaults {
      */
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationBarTokens.ActiveIconColor.toColor(),
-        selectedTextColor: Color = NavigationBarTokens.ActiveLabelTextColor.toColor(),
-        indicatorColor: Color = NavigationBarTokens.ActiveIndicatorColor.toColor(),
-        unselectedIconColor: Color = NavigationBarTokens.InactiveIconColor.toColor(),
-        unselectedTextColor: Color = NavigationBarTokens.InactiveLabelTextColor.toColor(),
+        selectedIconColor: Color = NavigationBarTokens.ActiveIconColor.value,
+        selectedTextColor: Color = NavigationBarTokens.ActiveLabelTextColor.value,
+        indicatorColor: Color = NavigationBarTokens.ActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationBarTokens.InactiveIconColor.value,
+        unselectedTextColor: Color = NavigationBarTokens.InactiveLabelTextColor.value,
         disabledIconColor: Color = unselectedIconColor.copy(alpha = DisabledAlpha),
         disabledTextColor: Color = unselectedTextColor.copy(alpha = DisabledAlpha),
     ): NavigationBarItemColors = NavigationBarItemColors(
@@ -319,11 +319,11 @@ object NavigationBarItemDefaults {
     )
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationBarTokens.ActiveIconColor.toColor(),
-        selectedTextColor: Color = NavigationBarTokens.ActiveLabelTextColor.toColor(),
-        indicatorColor: Color = NavigationBarTokens.ActiveIndicatorColor.toColor(),
-        unselectedIconColor: Color = NavigationBarTokens.InactiveIconColor.toColor(),
-        unselectedTextColor: Color = NavigationBarTokens.InactiveLabelTextColor.toColor(),
+        selectedIconColor: Color = NavigationBarTokens.ActiveIconColor.value,
+        selectedTextColor: Color = NavigationBarTokens.ActiveLabelTextColor.value,
+        indicatorColor: Color = NavigationBarTokens.ActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationBarTokens.InactiveIconColor.value,
+        unselectedTextColor: Color = NavigationBarTokens.InactiveLabelTextColor.value,
     ): NavigationBarItemColors = NavigationBarItemColors(
         selectedIconColor = selectedIconColor,
         selectedTextColor = selectedTextColor,

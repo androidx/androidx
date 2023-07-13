@@ -386,17 +386,17 @@ object ListItemDefaults {
     /** The default shape of a list item */
     val shape: Shape
         @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.toShape()
+        @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.value
 
     /** The container color of a list item */
     val containerColor: Color
         @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.toColor()
+        @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.value
 
     /** The content color of a list item */
     val contentColor: Color
         @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.toColor()
+        @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.value
 
     /**
      * Creates a [ListItemColors] that represents the default container and content colors used in a
@@ -417,17 +417,17 @@ object ListItemDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = ListTokens.ListItemContainerColor.toColor(),
-        headlineColor: Color = ListTokens.ListItemLabelTextColor.toColor(),
-        leadingIconColor: Color = ListTokens.ListItemLeadingIconColor.toColor(),
-        overlineColor: Color = ListTokens.ListItemOverlineColor.toColor(),
-        supportingColor: Color = ListTokens.ListItemSupportingTextColor.toColor(),
-        trailingIconColor: Color = ListTokens.ListItemTrailingIconColor.toColor(),
-        disabledHeadlineColor: Color = ListTokens.ListItemDisabledLabelTextColor.toColor()
+        containerColor: Color = ListTokens.ListItemContainerColor.value,
+        headlineColor: Color = ListTokens.ListItemLabelTextColor.value,
+        leadingIconColor: Color = ListTokens.ListItemLeadingIconColor.value,
+        overlineColor: Color = ListTokens.ListItemOverlineColor.value,
+        supportingColor: Color = ListTokens.ListItemSupportingTextColor.value,
+        trailingIconColor: Color = ListTokens.ListItemTrailingIconColor.value,
+        disabledHeadlineColor: Color = ListTokens.ListItemDisabledLabelTextColor.value
             .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = ListTokens.ListItemDisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = ListTokens.ListItemDisabledLeadingIconColor.value
             .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = ListTokens.ListItemDisabledTrailingIconColor.toColor()
+        disabledTrailingIconColor: Color = ListTokens.ListItemDisabledTrailingIconColor.value
             .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity)
     ): ListItemColors =
         ListItemColors(

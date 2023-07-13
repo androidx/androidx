@@ -440,7 +440,7 @@ fun InputChip(
     var shapedAvatar: @Composable (() -> Unit)? = null
     if (avatar != null) {
         val avatarOpacity = if (enabled) 1f else InputChipTokens.DisabledAvatarOpacity
-        val avatarShape = InputChipTokens.AvatarShape.toShape()
+        val avatarShape = InputChipTokens.AvatarShape.value
         shapedAvatar = @Composable {
             Box(
                 modifier = Modifier.graphicsLayer {
@@ -646,14 +646,14 @@ object AssistChipDefaults {
     @Composable
     fun assistChipColors(
         containerColor: Color = Color.Transparent,
-        labelColor: Color = AssistChipTokens.LabelTextColor.toColor(),
-        leadingIconContentColor: Color = AssistChipTokens.IconColor.toColor(),
+        labelColor: Color = AssistChipTokens.LabelTextColor.value,
+        leadingIconContentColor: Color = AssistChipTokens.IconColor.value,
         trailingIconContentColor: Color = leadingIconContentColor,
         disabledContainerColor: Color = Color.Transparent,
-        disabledLabelColor: Color = AssistChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = AssistChipTokens.DisabledLabelTextColor.value
             .copy(alpha = AssistChipTokens.DisabledLabelTextOpacity),
         disabledLeadingIconContentColor: Color =
-            AssistChipTokens.DisabledIconColor.toColor()
+            AssistChipTokens.DisabledIconColor.value
                 .copy(alpha = AssistChipTokens.DisabledIconOpacity),
         disabledTrailingIconContentColor: Color = disabledLeadingIconContentColor,
     ): ChipColors = ChipColors(
@@ -705,8 +705,8 @@ object AssistChipDefaults {
      */
     @Composable
     fun assistChipBorder(
-        borderColor: Color = AssistChipTokens.FlatOutlineColor.toColor(),
-        disabledBorderColor: Color = AssistChipTokens.FlatDisabledOutlineColor.toColor()
+        borderColor: Color = AssistChipTokens.FlatOutlineColor.value,
+        disabledBorderColor: Color = AssistChipTokens.FlatDisabledOutlineColor.value
             .copy(alpha = AssistChipTokens.FlatDisabledOutlineOpacity),
         borderWidth: Dp = AssistChipTokens.FlatOutlineWidth,
     ): ChipBorder = ChipBorder(
@@ -730,16 +730,16 @@ object AssistChipDefaults {
      */
     @Composable
     fun elevatedAssistChipColors(
-        containerColor: Color = AssistChipTokens.ElevatedContainerColor.toColor(),
-        labelColor: Color = AssistChipTokens.LabelTextColor.toColor(),
-        leadingIconContentColor: Color = AssistChipTokens.IconColor.toColor(),
+        containerColor: Color = AssistChipTokens.ElevatedContainerColor.value,
+        labelColor: Color = AssistChipTokens.LabelTextColor.value,
+        leadingIconContentColor: Color = AssistChipTokens.IconColor.value,
         trailingIconContentColor: Color = leadingIconContentColor,
-        disabledContainerColor: Color = AssistChipTokens.ElevatedDisabledContainerColor.toColor()
+        disabledContainerColor: Color = AssistChipTokens.ElevatedDisabledContainerColor.value
             .copy(alpha = AssistChipTokens.ElevatedDisabledContainerOpacity),
-        disabledLabelColor: Color = AssistChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = AssistChipTokens.DisabledLabelTextColor.value
             .copy(alpha = AssistChipTokens.DisabledLabelTextOpacity),
         disabledLeadingIconContentColor: Color =
-            AssistChipTokens.DisabledIconColor.toColor()
+            AssistChipTokens.DisabledIconColor.value
                 .copy(alpha = AssistChipTokens.DisabledIconOpacity),
         disabledTrailingIconContentColor: Color = disabledLeadingIconContentColor,
     ): ChipColors = ChipColors(
@@ -783,7 +783,7 @@ object AssistChipDefaults {
     )
 
     /** Default shape of an assist chip. */
-    val shape: Shape @Composable get() = AssistChipTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = AssistChipTokens.ContainerShape.value
 }
 
 /**
@@ -823,20 +823,20 @@ object FilterChipDefaults {
     @Composable
     fun filterChipColors(
         containerColor: Color = Color.Transparent,
-        labelColor: Color = FilterChipTokens.UnselectedLabelTextColor.toColor(),
-        iconColor: Color = FilterChipTokens.LeadingIconUnselectedColor.toColor(),
+        labelColor: Color = FilterChipTokens.UnselectedLabelTextColor.value,
+        iconColor: Color = FilterChipTokens.LeadingIconUnselectedColor.value,
         disabledContainerColor: Color = Color.Transparent,
-        disabledLabelColor: Color = FilterChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = FilterChipTokens.DisabledLabelTextColor.value
             .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = FilterChipTokens.DisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = FilterChipTokens.DisabledLeadingIconColor.value
             .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
         disabledTrailingIconColor: Color = disabledLeadingIconColor,
-        selectedContainerColor: Color = FilterChipTokens.FlatSelectedContainerColor.toColor(),
+        selectedContainerColor: Color = FilterChipTokens.FlatSelectedContainerColor.value,
         disabledSelectedContainerColor: Color =
-            FilterChipTokens.FlatDisabledSelectedContainerColor.toColor()
+            FilterChipTokens.FlatDisabledSelectedContainerColor.value
                 .copy(alpha = FilterChipTokens.FlatDisabledSelectedContainerOpacity),
-        selectedLabelColor: Color = FilterChipTokens.SelectedLabelTextColor.toColor(),
-        selectedLeadingIconColor: Color = FilterChipTokens.SelectedLeadingIconColor.toColor(),
+        selectedLabelColor: Color = FilterChipTokens.SelectedLabelTextColor.value,
+        selectedLeadingIconColor: Color = FilterChipTokens.SelectedLeadingIconColor.value,
         selectedTrailingIconColor: Color = selectedLeadingIconColor
     ): SelectableChipColors = SelectableChipColors(
         containerColor = containerColor,
@@ -898,9 +898,9 @@ object FilterChipDefaults {
      */
     @Composable
     fun filterChipBorder(
-        borderColor: Color = FilterChipTokens.FlatUnselectedOutlineColor.toColor(),
+        borderColor: Color = FilterChipTokens.FlatUnselectedOutlineColor.value,
         selectedBorderColor: Color = Color.Transparent,
-        disabledBorderColor: Color = FilterChipTokens.FlatDisabledUnselectedOutlineColor.toColor()
+        disabledBorderColor: Color = FilterChipTokens.FlatDisabledUnselectedOutlineColor.value
             .copy(alpha = FilterChipTokens.FlatDisabledUnselectedOutlineOpacity),
         disabledSelectedBorderColor: Color = Color.Transparent,
         borderWidth: Dp = FilterChipTokens.FlatUnselectedOutlineWidth,
@@ -934,20 +934,20 @@ object FilterChipDefaults {
      */
     @Composable
     fun elevatedFilterChipColors(
-        containerColor: Color = FilterChipTokens.ElevatedUnselectedContainerColor.toColor(),
-        labelColor: Color = FilterChipTokens.UnselectedLabelTextColor.toColor(),
-        iconColor: Color = FilterChipTokens.LeadingIconUnselectedColor.toColor(),
-        disabledContainerColor: Color = FilterChipTokens.ElevatedDisabledContainerColor.toColor()
+        containerColor: Color = FilterChipTokens.ElevatedUnselectedContainerColor.value,
+        labelColor: Color = FilterChipTokens.UnselectedLabelTextColor.value,
+        iconColor: Color = FilterChipTokens.LeadingIconUnselectedColor.value,
+        disabledContainerColor: Color = FilterChipTokens.ElevatedDisabledContainerColor.value
             .copy(alpha = FilterChipTokens.ElevatedDisabledContainerOpacity),
-        disabledLabelColor: Color = FilterChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = FilterChipTokens.DisabledLabelTextColor.value
             .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = FilterChipTokens.DisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = FilterChipTokens.DisabledLeadingIconColor.value
             .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
         disabledTrailingIconColor: Color = disabledLeadingIconColor,
-        selectedContainerColor: Color = FilterChipTokens.ElevatedSelectedContainerColor.toColor(),
+        selectedContainerColor: Color = FilterChipTokens.ElevatedSelectedContainerColor.value,
         disabledSelectedContainerColor: Color = disabledContainerColor,
-        selectedLabelColor: Color = FilterChipTokens.SelectedLabelTextColor.toColor(),
-        selectedLeadingIconColor: Color = FilterChipTokens.SelectedLeadingIconColor.toColor(),
+        selectedLabelColor: Color = FilterChipTokens.SelectedLabelTextColor.value,
+        selectedLeadingIconColor: Color = FilterChipTokens.SelectedLeadingIconColor.value,
         selectedTrailingIconColor: Color = selectedLeadingIconColor
     ): SelectableChipColors = SelectableChipColors(
         containerColor = containerColor,
@@ -995,7 +995,7 @@ object FilterChipDefaults {
     )
 
     /** Default shape of a filter chip. */
-    val shape: Shape @Composable get() = FilterChipTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = FilterChipTokens.ContainerShape.value
 }
 
 /**
@@ -1041,23 +1041,23 @@ object InputChipDefaults {
     @Composable
     fun inputChipColors(
         containerColor: Color = Color.Transparent,
-        labelColor: Color = InputChipTokens.UnselectedLabelTextColor.toColor(),
-        leadingIconColor: Color = InputChipTokens.UnselectedLeadingIconColor.toColor(),
-        trailingIconColor: Color = InputChipTokens.UnselectedTrailingIconColor.toColor(),
+        labelColor: Color = InputChipTokens.UnselectedLabelTextColor.value,
+        leadingIconColor: Color = InputChipTokens.UnselectedLeadingIconColor.value,
+        trailingIconColor: Color = InputChipTokens.UnselectedTrailingIconColor.value,
         disabledContainerColor: Color = Color.Transparent,
-        disabledLabelColor: Color = InputChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = InputChipTokens.DisabledLabelTextColor.value
             .copy(alpha = InputChipTokens.DisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = InputChipTokens.DisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = InputChipTokens.DisabledLeadingIconColor.value
             .copy(alpha = InputChipTokens.DisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = InputChipTokens.DisabledTrailingIconColor.toColor()
+        disabledTrailingIconColor: Color = InputChipTokens.DisabledTrailingIconColor.value
             .copy(alpha = InputChipTokens.DisabledTrailingIconOpacity),
-        selectedContainerColor: Color = InputChipTokens.SelectedContainerColor.toColor(),
+        selectedContainerColor: Color = InputChipTokens.SelectedContainerColor.value,
         disabledSelectedContainerColor: Color =
-            InputChipTokens.DisabledSelectedContainerColor.toColor()
+            InputChipTokens.DisabledSelectedContainerColor.value
                 .copy(alpha = InputChipTokens.DisabledSelectedContainerOpacity),
-        selectedLabelColor: Color = InputChipTokens.SelectedLabelTextColor.toColor(),
-        selectedLeadingIconColor: Color = InputChipTokens.SelectedLeadingIconColor.toColor(),
-        selectedTrailingIconColor: Color = InputChipTokens.SelectedTrailingIconColor.toColor()
+        selectedLabelColor: Color = InputChipTokens.SelectedLabelTextColor.value,
+        selectedLeadingIconColor: Color = InputChipTokens.SelectedLeadingIconColor.value,
+        selectedTrailingIconColor: Color = InputChipTokens.SelectedTrailingIconColor.value
     ): SelectableChipColors = SelectableChipColors(
         containerColor = containerColor,
         labelColor = labelColor,
@@ -1117,9 +1117,9 @@ object InputChipDefaults {
      */
     @Composable
     fun inputChipBorder(
-        borderColor: Color = InputChipTokens.UnselectedOutlineColor.toColor(),
+        borderColor: Color = InputChipTokens.UnselectedOutlineColor.value,
         selectedBorderColor: Color = Color.Transparent,
-        disabledBorderColor: Color = InputChipTokens.DisabledUnselectedOutlineColor.toColor()
+        disabledBorderColor: Color = InputChipTokens.DisabledUnselectedOutlineColor.value
             .copy(alpha = InputChipTokens.DisabledUnselectedOutlineOpacity),
         disabledSelectedBorderColor: Color = Color.Transparent,
         borderWidth: Dp = InputChipTokens.UnselectedOutlineWidth,
@@ -1134,7 +1134,7 @@ object InputChipDefaults {
     )
 
     /** Default shape of an input chip. */
-    val shape: Shape @Composable get() = InputChipTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = InputChipTokens.ContainerShape.value
 }
 
 /**
@@ -1166,12 +1166,12 @@ object SuggestionChipDefaults {
     @Composable
     fun suggestionChipColors(
         containerColor: Color = Color.Transparent,
-        labelColor: Color = SuggestionChipTokens.LabelTextColor.toColor(),
-        iconContentColor: Color = SuggestionChipTokens.LeadingIconColor.toColor(),
+        labelColor: Color = SuggestionChipTokens.LabelTextColor.value,
+        iconContentColor: Color = SuggestionChipTokens.LeadingIconColor.value,
         disabledContainerColor: Color = Color.Transparent,
-        disabledLabelColor: Color = SuggestionChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = SuggestionChipTokens.DisabledLabelTextColor.value
             .copy(alpha = SuggestionChipTokens.DisabledLabelTextOpacity),
-        disabledIconContentColor: Color = SuggestionChipTokens.DisabledLeadingIconColor.toColor()
+        disabledIconContentColor: Color = SuggestionChipTokens.DisabledLeadingIconColor.value
             .copy(alpha = SuggestionChipTokens.DisabledLeadingIconOpacity)
     ): ChipColors = ChipColors(
         containerColor = containerColor,
@@ -1222,8 +1222,8 @@ object SuggestionChipDefaults {
      */
     @Composable
     fun suggestionChipBorder(
-        borderColor: Color = SuggestionChipTokens.FlatOutlineColor.toColor(),
-        disabledBorderColor: Color = SuggestionChipTokens.FlatDisabledOutlineColor.toColor()
+        borderColor: Color = SuggestionChipTokens.FlatOutlineColor.value,
+        disabledBorderColor: Color = SuggestionChipTokens.FlatDisabledOutlineColor.value
             .copy(alpha = SuggestionChipTokens.FlatDisabledOutlineOpacity),
         borderWidth: Dp = SuggestionChipTokens.FlatOutlineWidth,
     ): ChipBorder = ChipBorder(
@@ -1245,15 +1245,15 @@ object SuggestionChipDefaults {
      */
     @Composable
     fun elevatedSuggestionChipColors(
-        containerColor: Color = SuggestionChipTokens.ElevatedContainerColor.toColor(),
-        labelColor: Color = SuggestionChipTokens.LabelTextColor.toColor(),
+        containerColor: Color = SuggestionChipTokens.ElevatedContainerColor.value,
+        labelColor: Color = SuggestionChipTokens.LabelTextColor.value,
         // TODO(b/229778210) Read from the tokens when available
         //  (i.e. SuggestionChipTokens.IconColor.toColor()).
         iconContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledContainerColor: Color =
-            SuggestionChipTokens.ElevatedDisabledContainerColor.toColor()
+            SuggestionChipTokens.ElevatedDisabledContainerColor.value
                 .copy(alpha = SuggestionChipTokens.ElevatedDisabledContainerOpacity),
-        disabledLabelColor: Color = SuggestionChipTokens.DisabledLabelTextColor.toColor()
+        disabledLabelColor: Color = SuggestionChipTokens.DisabledLabelTextColor.value
             .copy(alpha = SuggestionChipTokens.DisabledLabelTextOpacity),
         // TODO(b/229778210): Read from the tokens when available.
         disabledIconContentColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -1298,7 +1298,7 @@ object SuggestionChipDefaults {
     )
 
     /** Default shape of a suggestion chip. */
-    val shape: Shape @Composable get() = SuggestionChipTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = SuggestionChipTokens.ContainerShape.value
 }
 
 @Composable
