@@ -59,7 +59,7 @@ fun TextButtonDemo() {
         }
         item {
             ListHeader {
-                Text("FilledTonalTextButton")
+                Text("Filled Tonal")
             }
         }
         item {
@@ -77,7 +77,7 @@ fun TextButtonDemo() {
         }
         item {
             ListHeader {
-                Text("FilledTextButton")
+                Text("Filled")
             }
         }
         item {
@@ -95,7 +95,7 @@ fun TextButtonDemo() {
         }
         item {
             ListHeader {
-                Text("OutlinedTextButton")
+                Text("Outlined")
             }
         }
         item {

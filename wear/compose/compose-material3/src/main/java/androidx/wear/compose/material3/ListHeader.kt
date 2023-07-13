@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
  * @param content Slot for [ListHeader] content, expected to be a single line of text.
  */
 @Composable
-public fun ListHeader(
+fun ListHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -67,7 +67,7 @@ public fun ListHeader(
             .wrapContentSize()
             .background(backgroundColor)
             .padding(contentPadding)
-            .semantics { heading() }
+            .semantics(mergeDescendants = true) { heading() }
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
@@ -100,7 +100,7 @@ public fun ListHeader(
  * @param label A slot for providing label to the [ListSubheader].
  */
 @Composable
-public fun ListSubheader(
+fun ListSubheader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colorScheme.onBackground,
@@ -115,7 +115,7 @@ public fun ListSubheader(
             .wrapContentSize()
             .background(backgroundColor)
             .padding(contentPadding)
-            .semantics { heading() }
+            .semantics(mergeDescendants = true) { heading() }
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,

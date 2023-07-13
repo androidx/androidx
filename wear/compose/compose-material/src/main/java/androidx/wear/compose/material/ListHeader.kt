@@ -54,7 +54,7 @@ public fun ListHeader(
             .wrapContentSize()
             .background(backgroundColor)
             .padding(horizontal = 14.dp)
-            .semantics { heading() }
+            .semantics(mergeDescendants = true) { heading() }
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
