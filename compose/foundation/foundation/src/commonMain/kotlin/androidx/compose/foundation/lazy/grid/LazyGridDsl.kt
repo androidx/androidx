@@ -207,14 +207,14 @@ private fun rememberRowHeightSums(
 }
 
 /** measurement cache to avoid recalculating row/column sizes on each scroll. */
-private class GridSlotCache(
-    private val calculation: Density.(Constraints) -> LazyGridSlots
+private fun GridSlotCache(
+    calculation: Density.(Constraints) -> LazyGridSlots
 ) : (Density, Constraints) -> LazyGridSlots {
-    private var cachedConstraints = Constraints()
-    private var cachedDensity: Float = 0f
-    private var cachedSizes: LazyGridSlots? = null
+    var cachedConstraints = Constraints()
+    var cachedDensity: Float = 0f
+    var cachedSizes: LazyGridSlots? = null
 
-    override fun invoke(density: Density, constraints: Constraints): LazyGridSlots {
+    fun invoke(density: Density, constraints: Constraints): LazyGridSlots {
         with(density) {
             if (
                 cachedSizes != null &&
@@ -231,6 +231,8 @@ private class GridSlotCache(
             }
         }
     }
+
+    return ::invoke
 }
 
 /**

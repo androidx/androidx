@@ -210,14 +210,14 @@ private fun rememberRowSlots(
 }
 
 /** measurement cache to avoid recalculating row/column sizes on each scroll. */
-private class LazyStaggeredGridSlotCache(
-    private val calculation: Density.(Constraints) -> LazyStaggeredGridSlots
+private fun LazyStaggeredGridSlotCache(
+    calculation: Density.(Constraints) -> LazyStaggeredGridSlots
 ) : (Density, Constraints) -> LazyStaggeredGridSlots {
-    private var cachedConstraints = Constraints()
-    private var cachedDensity: Float = 0f
-    private var cachedSizes: LazyStaggeredGridSlots? = null
+    var cachedConstraints = Constraints()
+    var cachedDensity: Float = 0f
+    var cachedSizes: LazyStaggeredGridSlots? = null
 
-    override fun invoke(density: Density, constraints: Constraints): LazyStaggeredGridSlots {
+    fun invoke(density: Density, constraints: Constraints): LazyStaggeredGridSlots {
         with(density) {
             if (
                 cachedSizes != null &&
@@ -234,6 +234,8 @@ private class LazyStaggeredGridSlotCache(
             }
         }
     }
+
+    return ::invoke
 }
 
 /** Dsl marker for [LazyStaggeredGridScope] below **/
