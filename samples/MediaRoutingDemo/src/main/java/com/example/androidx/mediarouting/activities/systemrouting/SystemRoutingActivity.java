@@ -103,16 +103,17 @@ public final class SystemRoutingActivity extends AppCompatActivity {
     }
 
     private void refreshSystemRoutesList() {
-        List<SystemRouteItem> systemRoutes = new ArrayList<>();
+        List<SystemRoutesAdapterItem> systemRoutesSourceItems = new ArrayList<>();
         for (SystemRoutesSource source : mSystemRoutesSources) {
-            systemRoutes.addAll(source.fetchRoutes());
+            systemRoutesSourceItems.add(source.getSourceItem());
+            systemRoutesSourceItems.addAll(source.fetchSourceRouteItems());
         }
-        mSystemRoutesAdapter.setItems(systemRoutes);
+        mSystemRoutesAdapter.setItems(systemRoutesSourceItems);
     }
 
     private boolean hasBluetoothPermission() {
         return ContextCompat.checkSelfPermission(
-                        /* context= */ this, Manifest.permission.BLUETOOTH_CONNECT)
+                /* context= */ this, Manifest.permission.BLUETOOTH_CONNECT)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
