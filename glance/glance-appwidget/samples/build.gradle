@@ -28,7 +28,8 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.core:core:1.5.0")
-
+    implementation("androidx.work:work-runtime:2.8.1")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
     compileOnly(project(":annotation:annotation-sampled"))
 
     implementation(project(":glance:glance"))
