@@ -56,9 +56,9 @@ import androidx.compose.ui.semantics.semantics
  * and customize the appearance / behavior of this tab in different states.
  * @param content content of the [Tab]
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
+@ExperimentalTvMaterial3Api
 @Composable
-fun Tab(
+fun TabRowScope.Tab(
     selected: Boolean,
     onFocus: () -> Unit,
     modifier: Modifier = Modifier,
@@ -68,7 +68,6 @@ fun Tab(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit
 ) {
-    val isTabRowActive = LocalTabRowHasFocus.current
     Surface(
         checked = selected,
         onCheckedChange = { onClick() },
@@ -83,7 +82,7 @@ fun Tab(
                 this.role = Role.Tab
             },
         colors = colors.toToggleableSurfaceColors(
-            isTabRowActive = isTabRowActive,
+            isActivated = isActivated,
             enabled = enabled,
         ),
         enabled = enabled,
@@ -110,39 +109,39 @@ fun Tab(
 @ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 class TabColors
 internal constructor(
-    internal val activeContentColor: Color,
-    internal val contentColor: Color = activeContentColor.copy(alpha = 0.4f),
+    internal val contentColor: Color,
+    internal val inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
     internal val selectedContentColor: Color,
     internal val focusedContentColor: Color,
     internal val focusedSelectedContentColor: Color,
-    internal val disabledActiveContentColor: Color,
-    internal val disabledContentColor: Color = disabledActiveContentColor.copy(alpha = 0.4f),
+    internal val disabledContentColor: Color,
+    internal val disabledInactiveContentColor: Color = disabledContentColor.copy(alpha = 0.4f),
     internal val disabledSelectedContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is TabColors) return false
 
-        if (activeContentColor != other.activeContentColor) return false
         if (contentColor != other.contentColor) return false
+        if (inactiveContentColor != other.inactiveContentColor) return false
         if (selectedContentColor != other.selectedContentColor) return false
         if (focusedContentColor != other.focusedContentColor) return false
         if (focusedSelectedContentColor != other.focusedSelectedContentColor) return false
-        if (disabledActiveContentColor != other.disabledActiveContentColor) return false
         if (disabledContentColor != other.disabledContentColor) return false
+        if (disabledInactiveContentColor != other.disabledInactiveContentColor) return false
         if (disabledSelectedContentColor != other.disabledSelectedContentColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = activeContentColor.hashCode()
-        result = 31 * result + contentColor.hashCode()
+        var result = contentColor.hashCode()
+        result = 31 * result + inactiveContentColor.hashCode()
         result = 31 * result + selectedContentColor.hashCode()
         result = 31 * result + focusedContentColor.hashCode()
         result = 31 * result + focusedSelectedContentColor.hashCode()
-        result = 31 * result + disabledActiveContentColor.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
+        result = 31 * result + disabledInactiveContentColor.hashCode()
         result = 31 * result + disabledSelectedContentColor.hashCode()
         return result
     }
@@ -153,74 +152,74 @@ object TabDefaults {
     /**
      * [Tab]'s content colors to in conjunction with underlined indicator
      *
-     * @param activeContentColor applied when the any of the other tabs is focused
-     * @param contentColor the default color of the tab's content when none of the tabs are focused
+     * @param contentColor applied when the any of the other tabs is focused
+     * @param inactiveContentColor the default color of the tab's content when none of the tabs are focused
      * @param selectedContentColor applied when the current tab is selected
      * @param focusedContentColor applied when the current tab is focused
      * @param focusedSelectedContentColor applied when the current tab is both focused and selected
-     * @param disabledActiveContentColor applied when any of the other tabs is focused and the
+     * @param disabledContentColor applied when any of the other tabs is focused and the
      * current tab is disabled
-     * @param disabledContentColor applied when the current tab is disabled and none of the tabs are
+     * @param disabledInactiveContentColor applied when the current tab is disabled and none of the tabs are
      * focused
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
     @OptIn(ExperimentalTvMaterial3Api::class)
     @Composable
     fun underlinedIndicatorTabColors(
-        activeContentColor: Color = LocalContentColor.current,
-        contentColor: Color = activeContentColor.copy(alpha = 0.4f),
+        contentColor: Color = LocalContentColor.current,
+        inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
         selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         focusedContentColor: Color = MaterialTheme.colorScheme.primary,
         focusedSelectedContentColor: Color = focusedContentColor,
-        disabledActiveContentColor: Color = activeContentColor,
-        disabledContentColor: Color = disabledActiveContentColor.copy(alpha = 0.4f),
+        disabledContentColor: Color = contentColor,
+        disabledInactiveContentColor: Color = disabledContentColor.copy(alpha = 0.4f),
         disabledSelectedContentColor: Color = selectedContentColor,
     ): TabColors =
         TabColors(
-            activeContentColor = activeContentColor,
             contentColor = contentColor,
+            inactiveContentColor = inactiveContentColor,
             selectedContentColor = selectedContentColor,
             focusedContentColor = focusedContentColor,
             focusedSelectedContentColor = focusedSelectedContentColor,
-            disabledActiveContentColor = disabledActiveContentColor,
             disabledContentColor = disabledContentColor,
+            disabledInactiveContentColor = disabledInactiveContentColor,
             disabledSelectedContentColor = disabledSelectedContentColor,
         )
 
     /**
      * [Tab]'s content colors to in conjunction with pill indicator
      *
-     * @param activeContentColor applied when the any of the other tabs is focused
-     * @param contentColor the default color of the tab's content when none of the tabs are focused
+     * @param contentColor applied when the any of the other tabs is focused
+     * @param inactiveContentColor the default color of the tab's content when none of the tabs are focused
      * @param selectedContentColor applied when the current tab is selected
      * @param focusedContentColor applied when the current tab is focused
      * @param focusedSelectedContentColor applied when the current tab is both focused and selected
-     * @param disabledActiveContentColor applied when any of the other tabs is focused and the
+     * @param disabledContentColor applied when any of the other tabs is focused and the
      * current tab is disabled
-     * @param disabledContentColor applied when the current tab is disabled and none of the tabs are
+     * @param disabledInactiveContentColor applied when the current tab is disabled and none of the tabs are
      * focused
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
     @OptIn(ExperimentalTvMaterial3Api::class)
     @Composable
     fun pillIndicatorTabColors(
-        activeContentColor: Color = LocalContentColor.current,
-        contentColor: Color = activeContentColor.copy(alpha = 0.4f),
+        contentColor: Color = LocalContentColor.current,
+        inactiveContentColor: Color = contentColor.copy(alpha = 0.4f),
         selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         focusedContentColor: Color = MaterialTheme.colorScheme.surfaceVariant,
         focusedSelectedContentColor: Color = focusedContentColor,
-        disabledActiveContentColor: Color = activeContentColor,
-        disabledContentColor: Color = disabledActiveContentColor.copy(alpha = 0.4f),
+        disabledContentColor: Color = contentColor,
+        disabledInactiveContentColor: Color = disabledContentColor.copy(alpha = 0.4f),
         disabledSelectedContentColor: Color = selectedContentColor,
     ): TabColors =
         TabColors(
-            activeContentColor = activeContentColor,
             contentColor = contentColor,
+            inactiveContentColor = inactiveContentColor,
             selectedContentColor = selectedContentColor,
             focusedContentColor = focusedContentColor,
             focusedSelectedContentColor = focusedSelectedContentColor,
-            disabledActiveContentColor = disabledActiveContentColor,
             disabledContentColor = disabledContentColor,
+            disabledInactiveContentColor = disabledInactiveContentColor,
             disabledSelectedContentColor = disabledSelectedContentColor,
         )
 }
@@ -228,16 +227,16 @@ object TabDefaults {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun TabColors.toToggleableSurfaceColors(
-    isTabRowActive: Boolean,
+    isActivated: Boolean,
     enabled: Boolean,
 ) =
     ToggleableSurfaceDefaults.colors(
-        contentColor = if (isTabRowActive) activeContentColor else contentColor,
+        contentColor = if (isActivated) contentColor else inactiveContentColor,
         selectedContentColor = if (enabled) selectedContentColor else disabledSelectedContentColor,
         focusedContentColor = focusedContentColor,
         focusedSelectedContentColor = focusedSelectedContentColor,
         disabledContentColor =
-        if (isTabRowActive) disabledActiveContentColor else disabledContentColor,
+        if (isActivated) disabledContentColor else disabledInactiveContentColor,
         containerColor = Color.Transparent,
         focusedContainerColor = Color.Transparent,
         pressedContainerColor = Color.Transparent,
