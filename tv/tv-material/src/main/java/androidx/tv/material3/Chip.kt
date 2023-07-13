@@ -427,6 +427,7 @@ private fun SelectableChip(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ChipContent(
     label: @Composable () -> Unit,
