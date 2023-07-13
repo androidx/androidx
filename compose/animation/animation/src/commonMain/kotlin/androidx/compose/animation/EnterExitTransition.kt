@@ -197,7 +197,8 @@ sealed class ExitTransition {
                 fade = data.fade ?: exit.data.fade,
                 slide = data.slide ?: exit.data.slide,
                 changeSize = data.changeSize ?: exit.data.changeSize,
-                scale = data.scale ?: exit.data.scale
+                scale = data.scale ?: exit.data.scale,
+                hold = data.hold || exit.data.hold
             )
         )
     }
@@ -207,13 +208,14 @@ sealed class ExitTransition {
     }
 
     override fun toString(): String =
-        if (this == None) {
-            "ExitTransition.None"
-        } else {
-            data.run {
+        when (this) {
+            None -> "ExitTransition.None"
+            Hold -> "ExitTransition.Hold"
+            else -> data.run {
                 "ExitTransition: \n" + "Fade - " + fade?.toString() + ",\nSlide - " +
                     slide?.toString() + ",\nShrink - " + changeSize?.toString() +
-                    ",\nScale - " + scale?.toString()
+                    ",\nScale - " + scale?.toString() +
+                    ",\nHold - " + hold
             }
         }
 
@@ -232,6 +234,14 @@ sealed class ExitTransition {
          * @sample androidx.compose.animation.samples.AVScopeAnimateEnterExit
          */
         val None: ExitTransition = ExitTransitionImpl(TransitionData())
+
+        /**
+         * Keep this type of exit transition internal and only expose it in AnimatedContent, as
+         * holding only makes sense when there's enter and exit at the same time. In other words,
+         * when dealing with one set of content entering OR exiting, such as AnimatedVisibility,
+         * holding would not be meaningful.
+         */
+        internal val Hold: ExitTransition = ExitTransitionImpl(TransitionData(hold = true))
     }
 }
 
@@ -811,7 +821,8 @@ internal data class TransitionData(
     val fade: Fade? = null,
     val slide: Slide? = null,
     val changeSize: ChangeSize? = null,
-    val scale: Scale? = null
+    val scale: Scale? = null,
+    val hold: Boolean = false
 )
 
 @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
@@ -823,17 +834,30 @@ internal fun Transition<EnterExitState>.createModifier(
     label: String
 ): Modifier {
 
-    var shouldAnimateSlide by remember(this) { mutableStateOf(false) }
-    var shouldAnimateSizeChange by remember(this) { mutableStateOf(false) }
-    // Animate if the enter or exit transition for the type is defined. Once the shouldAnimateFoo
-    // is set, it'll stay true until the transition is complete.  This would ensure the removal of
-    // any of type animation in the enter/exit amid a transition doesn't result in a
-    // jump. Reset shouldAnimateFoo to false when the transition is finished.
-    val isTransitioning = currentState != targetState || isSeeking
-    shouldAnimateSlide = isTransitioning &&
-        (shouldAnimateSlide || enter.data.slide != null || exit.data.slide != null)
-    shouldAnimateSizeChange = isTransitioning &&
-        (shouldAnimateSizeChange || enter.data.changeSize != null || exit.data.changeSize != null)
+    // Active enter & active exit reference the enter and exit transition that is currently being
+    // used. It is important to preserve the active enter/exit that was previously used before
+    // changing target state, such that if the previous enter/exit is interrupted, we still hold
+    // reference to the enter/exit that define those animations and therefore could recover.
+    var activeEnter by remember(this) { mutableStateOf(enter) }
+    var activeExit by remember(this) { mutableStateOf(exit) }
+    if (currentState == targetState && currentState == EnterExitState.Visible) {
+        if (isSeeking) {
+            // When seeking, the timing is different and there's no need to handle interruptions.
+            activeEnter = enter
+            activeExit = exit
+        } else {
+            activeEnter = EnterTransition.None
+            activeExit = ExitTransition.None
+        }
+    } else if (targetState == EnterExitState.Visible) {
+        activeEnter += enter
+    } else {
+        activeExit += exit
+    }
+
+    val shouldAnimateSlide = activeEnter.data.slide != null || activeExit.data.slide != null
+    val shouldAnimateSizeChange =
+        activeEnter.data.changeSize != null || activeExit.data.changeSize != null
 
     val slideAnimation = if (shouldAnimateSlide) {
         createDeferredAnimation(IntOffset.VectorConverter, remember { "$label slide" })
@@ -851,17 +875,17 @@ internal fun Transition<EnterExitState>.createModifier(
         )
     } else null
 
-    val disableClip = (enter.data.changeSize?.clip == false ||
-        exit.data.changeSize?.clip == false) || !shouldAnimateSizeChange
+    val disableClip = (activeEnter.data.changeSize?.clip == false ||
+        activeExit.data.changeSize?.clip == false) || !shouldAnimateSizeChange
 
-    val graphicsLayerBlock = createGraphicsLayerBlock(enter, exit, label)
+    val graphicsLayerBlock = createGraphicsLayerBlock(activeEnter, activeExit, label)
 
     return Modifier
         .graphicsLayer(clip = !disableClip)
         .then(
             EnterExitTransitionElement(
                 this, sizeAnimation, offsetAnimation, slideAnimation,
-                enter, exit, graphicsLayerBlock
+                activeEnter, activeExit, graphicsLayerBlock
             )
         )
 }
@@ -873,14 +897,8 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
     label: String
 ): GraphicsLayerScope.() -> Unit {
 
-    var shouldAnimateAlpha by remember(this) { mutableStateOf(false) }
-    var shouldAnimateScale by remember(this) { mutableStateOf(false) }
-
-    val isTransitioning = currentState != targetState || isSeeking
-    shouldAnimateAlpha = isTransitioning &&
-        (shouldAnimateAlpha || enter.data.fade != null || exit.data.fade != null)
-    shouldAnimateScale = isTransitioning &&
-        (shouldAnimateScale || enter.data.scale != null || exit.data.scale != null)
+    val shouldAnimateAlpha = enter.data.fade != null || exit.data.fade != null
+    val shouldAnimateScale = enter.data.scale != null || exit.data.scale != null
 
     // Fade - it's important to put fade in the end. Otherwise fade will clip slide.
     // We'll animate if at any point during the transition fadeIn/fadeOut becomes non-null. This

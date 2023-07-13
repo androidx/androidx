@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -598,6 +599,135 @@ class AnimatedContentTest {
         rule.runOnIdle {
             flag = false
         }
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun testExitHold() {
+        var target by mutableStateOf(true)
+        var box1Disposed = false
+        var box2EnterFinished = false
+        rule.setContent {
+            AnimatedContent(
+                targetState = target,
+                transitionSpec = {
+                    fadeIn(tween(200)) togetherWith
+                        fadeOut(tween(5)) + ExitTransition.Hold
+                }
+            ) {
+                if (it) {
+                    Box(Modifier.size(200.dp)) {
+                        DisposableEffect(key1 = Unit) {
+                            onDispose {
+                                box1Disposed = true
+                            }
+                        }
+                    }
+                } else {
+                    Box(Modifier.size(200.dp)) {
+                        box2EnterFinished =
+                            transition.targetState == transition.currentState &&
+                                transition.targetState == EnterExitState.Visible
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            target = !target
+        }
+
+        rule.waitForIdle()
+        repeat(10) {
+            rule.mainClock.advanceTimeByFrame()
+            assertFalse(box1Disposed)
+            assertFalse(box2EnterFinished)
+        }
+
+        repeat(10) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            assertEquals(box1Disposed, box2EnterFinished)
+        }
+
+        assertTrue(box1Disposed)
+        assertTrue(box2EnterFinished)
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun testExitHoldDefersUntilAllFinished() {
+        var target by mutableStateOf(true)
+        var box1Disposed = false
+        var box2EnterFinished = false
+        var transitionFinished = false
+        rule.setContent {
+            val outerTransition = updateTransition(targetState = target)
+            transitionFinished = !outerTransition.targetState && !outerTransition.currentState
+            outerTransition.AnimatedContent(
+                transitionSpec = {
+                    fadeIn(tween(160)) togetherWith
+                        fadeOut(tween(5)) + ExitTransition.Hold using
+                        SizeTransform { _, _ ->
+                            tween(300)
+                        }
+                }
+            ) {
+                if (it) {
+                    Box(Modifier.size(200.dp)) {
+                        DisposableEffect(key1 = Unit) {
+                            onDispose {
+                                box1Disposed = true
+                            }
+                        }
+                    }
+                } else {
+                    Box(Modifier.size(400.dp)) {
+                        box2EnterFinished =
+                            transition.targetState == transition.currentState &&
+                                transition.targetState == EnterExitState.Visible
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            target = !target
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        repeat(10) {
+            rule.mainClock.advanceTimeByFrame()
+            assertFalse(box1Disposed)
+            assertFalse(box2EnterFinished)
+        }
+
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            assertTrue(box2EnterFinished)
+            // Enter finished, but box1 is only disposed when the transition is completely finished,
+            // which includes enter, exit & size change.
+            assertFalse(box1Disposed)
+            assertFalse(transitionFinished)
+        }
+
+        repeat(10) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            assertTrue(box2EnterFinished)
+            // Enter finished, but box1 is only disposed when the transition is completely finished,
+            // which includes enter, exit & size change.
+            assertEquals(box1Disposed, transitionFinished)
+        }
+
+        assertTrue(box1Disposed)
+        assertTrue(box2EnterFinished)
     }
 
     @OptIn(InternalAnimationApi::class)
