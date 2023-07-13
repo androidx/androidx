@@ -109,8 +109,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
 
                         PublicKeyCredentialCreationOptions actualResponse =
                                 convertRequestToPlayServices(
-                                        activity,
-                                        MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
+                                        activity, MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
                         JSONObject actualJson =
                                 createJsonObjectFromPublicKeyCredentialCreationOptions(
                                         actualResponse);
@@ -164,8 +163,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                     try {
                         PublicKeyCredentialCreationOptions actualResponse =
                                 convertRequestToPlayServices(
-                                        activity,
-                                        MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
+                                        activity, MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
 
                         CreatePublicKeyCredentialRequest pubKeyRequest =
                                 new CreatePublicKeyCredentialRequest(
@@ -193,8 +191,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                             JSONException.class,
                             () ->
                                     convertRequestToPlayServices(
-                                            activity,
-                                            MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY));
+                                            activity, MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY));
                 });
     }
 
@@ -207,8 +204,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                             JSONException.class,
                             () ->
                                     convertRequestToPlayServices(
-                                            activity,
-                                            OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD));
+                                            activity, OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD));
                 });
     }
 
@@ -221,8 +217,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                             JSONException.class,
                             () ->
                                     convertRequestToPlayServices(
-                                            activity,
-                                            OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD));
+                                            activity, OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD));
                 });
     }
 
@@ -236,8 +231,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
 
                         PublicKeyCredentialCreationOptions actualResponse =
                                 convertRequestToPlayServices(
-                                        activity,
-                                        OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD);
+                                        activity, OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD);
                         JSONObject actualJson =
                                 createJsonObjectFromPublicKeyCredentialCreationOptions(
                                         actualResponse);
@@ -252,6 +246,18 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
+                });
+    }
+
+    @Test
+    public void getInstanceRepeatedTest() {
+        launchTestActivity(
+                a -> {
+                    CredentialProviderCreatePublicKeyCredentialController firstInstance =
+                            CredentialProviderCreatePublicKeyCredentialController.getInstance(a);
+                    CredentialProviderCreatePublicKeyCredentialController secondInstance =
+                            CredentialProviderCreatePublicKeyCredentialController.getInstance(a);
+                    assertThat(firstInstance).isEqualTo(secondInstance);
                 });
     }
 }
