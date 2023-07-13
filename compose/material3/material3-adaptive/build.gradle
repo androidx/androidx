@@ -108,7 +108,7 @@ androidx {
     name = "Material Adaptive"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
 }
