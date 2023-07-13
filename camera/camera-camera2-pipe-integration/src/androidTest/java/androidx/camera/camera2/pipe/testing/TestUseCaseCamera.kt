@@ -100,7 +100,7 @@ class TestUseCaseCamera(
 
     override val requestControl: UseCaseCameraRequestControl = UseCaseCameraRequestControlImpl(
         configAdapter = CaptureConfigAdapter(
-            CameraPipeCameraProperties(cameraPipe, cameraConfig),
+            CameraPipeCameraProperties(cameraConfig, cameraMetadata),
             useCaseCameraGraphConfig,
             threads
         ),
