@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.internal.keyEvent
@@ -28,6 +29,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyPress
@@ -41,12 +43,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Rule
-import org.junit.runners.JUnit4
-import org.junit.runner.RunWith
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DesktopMenuTest {
@@ -318,5 +321,41 @@ class DesktopMenuTest {
         }
 
         assertThat(state.status == DropdownMenuState.Status.Closed)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `pass scroll state`() {
+        val scrollState = ScrollState(0)
+        rule.setContent {
+            DropdownMenu(
+                true,
+                onDismissRequest = {},
+                modifier = Modifier.testTag("menu"),
+                scrollState = scrollState
+            ) {
+                Box(Modifier.testTag("box").size(10000.dp, 10000.dp))
+                Box(Modifier.size(10000.dp, 10000.dp))
+            }
+        }
+
+        val initialPosition = rule.onNodeWithTag("box").getUnclippedBoundsInRoot().top
+
+        runBlocking {
+            scrollState.scroll {
+                scrollBy(10000f)
+            }
+        }
+        assertThat(
+            rule.onNodeWithTag("box").getUnclippedBoundsInRoot().top
+        ).isLessThan(initialPosition)
+
+        rule.onNodeWithTag("menu").performMouseInput {
+            enter(center)
+            scroll(-10000f)
+        }
+        assertThat(
+            rule.onNodeWithTag("box").getUnclippedBoundsInRoot().top
+        ).isEqualTo(initialPosition)
     }
 }

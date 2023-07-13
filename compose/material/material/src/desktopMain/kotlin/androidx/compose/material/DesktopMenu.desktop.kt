@@ -18,6 +18,7 @@ package androidx.compose.material
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.contextMenuOpenDetector
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
@@ -89,7 +90,76 @@ import java.awt.event.KeyEvent
  * @param expanded Whether the menu is currently open and visible to the user
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
  * tapping outside the menu's bounds
+ * @param focusable Whether the dropdown can capture focus
+ * @param modifier Modifier for the menu
  * @param offset [DpOffset] to be added to the position of the menu
+ * @param content content lambda
+ */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "DropdownMenu(expanded,onDismissRequest, focusable, modifier, offset, " +
+            "rememberScrollState(), content)",
+        "androidx.compose.foundation.rememberScrollState"
+    ),
+    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
+)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    focusable: Boolean = true,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    focusable = focusable,
+    modifier = modifier,
+    offset = offset,
+    scrollState = rememberScrollState(),
+    content = content
+)
+
+/**
+ * A Material Design [dropdown menu](https://material.io/components/menus#dropdown-menu).
+ *
+ * A [DropdownMenu] behaves similarly to a [Popup], and will use the position of the parent layout
+ * to position itself on screen. Commonly a [DropdownMenu] will be placed in a [Box] with a sibling
+ * that will be used as the 'anchor'. Note that a [DropdownMenu] by itself will not take up any
+ * space in a layout, as the menu is displayed in a separate window, on top of other content.
+ *
+ * The [content] of a [DropdownMenu] will typically be [DropdownMenuItem]s, as well as custom
+ * content. Using [DropdownMenuItem]s will result in a menu that matches the Material
+ * specification for menus. Also note that the [content] is placed inside a scrollable [Column],
+ * so using a [LazyColumn] as the root layout inside [content] is unsupported.
+ *
+ * [onDismissRequest] will be called when the menu should close - for example when there is a
+ * tap outside the menu, or when the back key is pressed.
+ *
+ * [DropdownMenu] changes its positioning depending on the available space, always trying to be
+ * fully visible. It will try to expand horizontally, depending on layout direction, to the end of
+ * its parent, then to the start of its parent, and then screen end-aligned. Vertically, it will
+ * try to expand to the bottom of its parent, then from the top of its parent, and then screen
+ * top-aligned. An [offset] can be provided to adjust the positioning of the menu for cases when
+ * the layout bounds of its parent do not coincide with its visual bounds. Note the offset will
+ * be applied in the direction in which the menu will decide to expand.
+ *
+ * Example usage:
+ * @sample androidx.compose.material.samples.MenuSample
+ *
+ * Example usage with a [ScrollState] to control the menu items scroll position:
+ * @sample androidx.compose.material.samples.MenuWithScrollStateSample
+ *
+ * @param expanded Whether the menu is currently open and visible to the user
+ * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
+ * tapping outside the menu's bounds
+ * @param focusable Whether the dropdown can capture focus
+ * @param modifier [Modifier] to be applied to the menu's content
+ * @param offset [DpOffset] to be added to the position of the menu
+ * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+ * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
 fun DropdownMenu(
@@ -98,6 +168,7 @@ fun DropdownMenu(
     focusable: Boolean = true,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
@@ -121,6 +192,7 @@ fun DropdownMenu(
             expandedStates = expandedStates,
             popupPositionProvider = popupPositionProvider,
             transformOriginState = transformOriginState,
+            scrollState = scrollState,
             onDismissRequest = onDismissRequest,
             focusable = focusable,
             modifier = modifier,
@@ -139,6 +211,49 @@ fun DropdownMenu(
  * tapping outside the menu's bounds
  *
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "DropdownMenu(expanded,onDismissRequest, focusable, modifier, offset, " +
+            "rememberScrollState(), content)",
+        "androidx.compose.foundation.rememberScrollState"
+    ),
+    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
+)
+@Composable
+fun DropdownMenu(
+    state: DropdownMenuState,
+    onDismissRequest: () -> Unit = { state.status = DropdownMenuState.Status.Closed },
+    focusable: Boolean = true,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    DropdownMenu(
+        state,
+        onDismissRequest,
+        focusable,
+        modifier,
+        rememberScrollState(),
+        content
+    )
+}
+
+/**
+ * A variant of a dropdown menu that accepts a [DropdownMenuState] to allow precise positioning.
+ *
+ * Typically, it should be combined with [Modifier.contextMenuOpenDetector] via state-hoisting.
+ *
+ * Example usage with a [ScrollState] to control the menu items scroll position:
+ * @sample androidx.compose.material.samples.MenuWithScrollStateSample
+ *
+ * @param state The open/closed state of the menu
+ * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
+ * tapping outside the menu's bounds
+ * @param focusable Whether the dropdown can capture focus
+ * @param modifier [Modifier] to be applied to the menu's content
+ * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+ * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DropdownMenu(
@@ -146,6 +261,7 @@ fun DropdownMenu(
     onDismissRequest: () -> Unit = { state.status = DropdownMenuState.Status.Closed },
     focusable: Boolean = true,
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val status = state.status
@@ -162,6 +278,7 @@ fun DropdownMenu(
         OpenDropdownMenu(
             expandedStates = expandedStates,
             popupPositionProvider = rememberPopupPositionProviderAtPosition(position!!),
+            scrollState = scrollState,
             onDismissRequest = onDismissRequest,
             focusable = focusable,
             modifier = modifier,
@@ -179,6 +296,7 @@ private fun OpenDropdownMenu(
     popupPositionProvider: PopupPositionProvider,
     transformOriginState: MutableState<TransformOrigin> =
         remember { mutableStateOf(TransformOrigin.Center) },
+    scrollState: ScrollState,
     onDismissRequest: () -> Unit,
     focusable: Boolean = true,
     modifier: Modifier = Modifier,
@@ -200,8 +318,7 @@ private fun OpenDropdownMenu(
         DropdownMenuContent(
             expandedStates = expandedStates,
             transformOriginState = transformOriginState,
-            // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-169/Merge-DesktopMenu.desktop.kt): Fix after merge
-            scrollState = rememberScrollState(),
+            scrollState = scrollState,
             modifier = modifier,
             content = content
         )
@@ -271,6 +388,45 @@ private fun handlePopupOnKeyEvent(
         false
     }
 }
+/**
+ * A [CursorDropdownMenu] behaves similarly to [Popup] and will use the current position of the mouse
+ * cursor to position itself on screen.
+ *
+ * The [content] of a [CursorDropdownMenu] will typically be [DropdownMenuItem]s, as well as custom
+ * content. Using [DropdownMenuItem]s will result in a menu that matches the Material
+ * specification for menus.
+ *
+ * @param expanded Whether the menu is currently open and visible to the user
+ * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
+ * tapping outside the menu's bounds
+ * @param focusable Sets the ability for the menu to capture focus
+ * @param modifier The modifier for this layout.
+ * @param content The content lambda.
+ */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "CursorDropdownMenu(expanded, onDismissRequest, focusable, modifier, " +
+            "rememberScrollState(), content)",
+        "androidx.compose.foundation.rememberScrollState"
+    ),
+    message = "Replaced by a CursorDropdownMenu function with a ScrollState parameter"
+)
+@Composable
+fun CursorDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    focusable: Boolean = true,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) = CursorDropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    focusable = focusable,
+    modifier = modifier,
+    scrollState = rememberScrollState(),
+    content = content
+)
 
 /**
  * A [CursorDropdownMenu] behaves similarly to [Popup] and will use the current position of the mouse
@@ -283,6 +439,10 @@ private fun handlePopupOnKeyEvent(
  * @param expanded Whether the menu is currently open and visible to the user
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
  * tapping outside the menu's bounds
+ * @param focusable Whether the dropdown can capture focus
+ * @param modifier [Modifier] to be applied to the menu's content
+ * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+ * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
 fun CursorDropdownMenu(
@@ -290,6 +450,7 @@ fun CursorDropdownMenu(
     onDismissRequest: () -> Unit,
     focusable: Boolean = true,
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
@@ -299,6 +460,7 @@ fun CursorDropdownMenu(
         OpenDropdownMenu(
             expandedStates = expandedStates,
             popupPositionProvider = rememberCursorPositionProvider(),
+            scrollState = scrollState,
             onDismissRequest = onDismissRequest,
             focusable = focusable,
             modifier = modifier,
@@ -460,4 +622,3 @@ internal data class DesktopDropdownMenuPositionProvider(
         return IntOffset(x, y)
     }
 }
-
