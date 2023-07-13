@@ -570,9 +570,10 @@ class TextFieldCursorHandleTest {
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
 
         swipeToLeft(fontSizePx)
-        rule.waitForIdle()
 
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        }
     }
 
     @Test

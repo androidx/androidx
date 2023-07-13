@@ -25,13 +25,15 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 internal data class TextFieldHandleState(
     val visible: Boolean,
     val position: Offset,
-    val direction: ResolvedTextDirection
+    val direction: ResolvedTextDirection,
+    val handlesCrossed: Boolean
 ) {
     companion object {
         val Hidden = TextFieldHandleState(
             visible = false,
             position = Offset.Unspecified,
-            direction = ResolvedTextDirection.Ltr
+            direction = ResolvedTextDirection.Ltr,
+            handlesCrossed = false
         )
     }
 }
