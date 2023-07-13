@@ -1408,6 +1408,86 @@ class XAnnotationTest(
         }
     }
 
+    @Test
+    fun typeParameterAnnotations() {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package foo.bar
+
+            @Target(AnnotationTarget.TYPE_PARAMETER)
+            annotation class A(val value: Int)
+
+            class Subject<@A(42) T>
+            """.trimIndent()
+        )
+        val javaSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Target;
+            import java.lang.annotation.Repeatable;
+
+            @Target(ElementType.TYPE_PARAMETER)
+            @interface A {
+                int value();
+            }
+
+            class Subject<@A(42) T> {}
+            """.trimIndent()
+        )
+
+        fun test(invocation: XTestInvocation) {
+            val subject = invocation.processingEnv.requireTypeElement(
+                "foo.bar.Subject")
+            assertThat(
+                subject.typeParameters.first().getAllAnnotations().first().name
+            ).isEqualTo("A")
+
+            assertThat(
+                subject.typeParameters.first().getAllAnnotations()
+                    .first().get("value") as Int
+            ).isEqualTo(42)
+        }
+
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runTest(
+                sources = listOf(source)
+            ) { invocation ->
+                if (invocation.isKsp) { // doesn't work
+                    if (source === javaSource) {
+                        if (preCompiled) {
+                            // test(invocation)
+                        } else {
+                            // test(invocation)
+                        }
+                    } else {
+                        if (preCompiled) {
+                            // test(invocation)
+                        } else {
+                            // test(invocation)
+                        }
+                    }
+                } else {
+                    if (source === javaSource) {
+                        if (preCompiled) {
+                            test(invocation)
+                        } else {
+                            test(invocation)
+                        }
+                    } else {
+                        if (preCompiled) {
+                            test(invocation)
+                        } else {
+                            // test(invocation) // doesn't work
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // helper function to read what we need
     private fun XAnnotated.getSuppressValues(): List<String>? {
         return this.findAnnotation<TestSuppressWarnings>()
