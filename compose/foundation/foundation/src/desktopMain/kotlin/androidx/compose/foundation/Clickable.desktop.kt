@@ -28,6 +28,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -128,7 +130,7 @@ fun Modifier.mouseClickable(
         val onClickState = rememberUpdatedState(onClick)
         val centreOffset = remember { mutableStateOf(Offset.Zero) }
         val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
-        val (focusRequester, focusRequesterModifier) = focusRequesterAndModifier()
+        val focusRequester = remember { FocusRequester() }
         val gesture = if (enabled) {
             Modifier.pointerInput(Unit) {
                 centreOffset.value = size.center.toOffset()
@@ -148,7 +150,7 @@ fun Modifier.mouseClickable(
             Modifier
         }
         Modifier
-            .then(focusRequesterModifier)
+            .focusRequester(focusRequester)
             .genericClickableWithoutGesture(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
