@@ -20,8 +20,7 @@ import androidx.annotation.IntRange
 import java.util.UUID
 
 /**
- * A single class to provide a way to adjust advertising preferences and advertise data packet.
- *
+ * A class to provide a way to adjust advertising preferences and advertise data packet.
  */
 class AdvertiseParams(
     /* Whether the device address will be included in the advertisement packet. */
@@ -34,7 +33,12 @@ class AdvertiseParams(
     val shouldIncludeDeviceName: Boolean = false,
     /* Whether the advertisement will indicate connectable. */
     val isConnectable: Boolean = false,
-    /* Whether the advertisement will be discoverable. */
+    /**
+     * Whether the advertisement will be discoverable.
+     *
+     * Please note that it would be ignored under API level 34 and [isConnectable] would be
+     * used instead.
+     */
     val isDiscoverable: Boolean = false,
     /**
      * Advertising duration in milliseconds
@@ -45,27 +49,19 @@ class AdvertiseParams(
     @IntRange(from = 0, to = 655350) val durationMillis: Int = 0,
 
     /**
-     * A map of manufacturer specific data.
+     * A map of company identifiers to manufacturer specific data.
      * <p>
      * Please refer to the Bluetooth Assigned Numbers document provided by the <a
-     * href="https://www.bluetooth.org">Bluetooth SIG</a> for a list of existing company
+     * href="https://www.bluetooth.org">Bluetooth SIG</a> for the list of existing company
      * identifiers.
-     *
-     * Map<Int> Manufacturer ID assigned by Bluetooth SIG.
-     * Map<ByteArray> Manufacturer specific data
      */
     val manufacturerData: Map<Int, ByteArray> = emptyMap(),
     /**
-     * A map of service data to advertise data.
-     *
-     * UUID 16-bit UUID of the service the data is associated with
-     * ByteArray serviceData Service data
+     * A map of 16-bit UUIDs of the services to corresponding additional service data.
      */
     val serviceData: Map<UUID, ByteArray> = emptyMap(),
     /**
-     * A list of service UUID to advertise data.
-     *
-     * UUID A service UUID to be advertised.
+     * A list of service UUIDs to advertise.
      */
     val serviceUuids: List<UUID> = emptyList()
 )

@@ -25,8 +25,11 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.os.Build
 import android.os.ParcelUuid
 import android.util.Log
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -49,6 +52,19 @@ class BluetoothLe constructor(private val context: Context) {
 
     private companion object {
         private const val TAG = "BluetoothLe"
+    }
+
+    @RequiresApi(34)
+    private object BluetoothLeApi34Impl {
+        @JvmStatic
+        @DoNotInline
+        fun setDiscoverable(
+            builder: AdvertiseSettings.Builder,
+            isDiscoverable: Boolean
+        ): AdvertiseSettings.Builder {
+            builder.setDiscoverable(isDiscoverable)
+            return builder
+        }
     }
 
     private val bluetoothManager =
@@ -122,8 +138,9 @@ class BluetoothLe constructor(private val context: Context) {
                     throw IllegalArgumentException("advertise duration must be in [0, 655350]")
                 setTimeout(it)
             }
-            // TODO(b/290697177) Add when AndroidX is targeting Android U
-//            setDiscoverable(advertiseParams.isDiscoverable)
+            if (Build.VERSION.SDK_INT >= 34) {
+                BluetoothLeApi34Impl.setDiscoverable(this, advertiseParams.isDiscoverable)
+            }
             build()
         }
 
