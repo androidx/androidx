@@ -20,13 +20,11 @@ import android.content.Context
 import android.graphics.Rect
 import android.graphics.Region
 import android.os.Build
-import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -48,6 +46,9 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.Owner
+import androidx.compose.ui.node.OwnerScope
+import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.composeToViewOffset
 import androidx.compose.ui.platform.compositionContext
@@ -69,6 +70,9 @@ import kotlinx.coroutines.launch
  * A base class used to host a [View] inside Compose.
  * This API is not designed to be used directly, but rather using the [AndroidView] and
  * `AndroidViewBinding` APIs, which are built on top of [AndroidViewHolder].
+ *
+ * @param view The view hosted by this holder.
+ * @param owner The [Owner] of the composition that this holder lives in.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 internal open class AndroidViewHolder(
@@ -76,11 +80,9 @@ internal open class AndroidViewHolder(
     parentContext: CompositionContext?,
     private val compositeKeyHash: Int,
     private val dispatcher: NestedScrollDispatcher,
-    /**
-     * The view hosted by this holder.
-     */
-    val view: View
-) : ViewGroup(context), NestedScrollingParent3, ComposeNodeLifecycleCallback {
+    val view: View,
+    private val owner: Owner,
+) : ViewGroup(context), NestedScrollingParent3, ComposeNodeLifecycleCallback, OwnerScope {
 
     init {
         // Any [Abstract]ComposeViews that are descendants of this view will host
@@ -161,13 +163,17 @@ internal open class AndroidViewHolder(
             }
         }
 
-    private val snapshotObserver = SnapshotStateObserver { command ->
-        if (handler.looper === Looper.myLooper()) {
-            command()
-        } else {
-            handler.post(command)
+    /**
+     * The [OwnerSnapshotObserver] of this holder's [Owner]. Will be null when this view is not
+     * attached, since the observer is not valid unless the view is attached.
+     */
+    private val snapshotObserver: OwnerSnapshotObserver
+        get() {
+            check(isAttachedToWindow) {
+                "Expected AndroidViewHolder to be attached when observing reads."
+            }
+            return owner.snapshotObserver
         }
-    }
 
     private val onCommitAffectingUpdate: (AndroidViewHolder) -> Unit = {
         handler.post(runUpdate)
@@ -196,6 +202,9 @@ internal open class AndroidViewHolder(
         NestedScrollingParentHelper(this)
 
     private var isDrawing = false
+
+    override val isValidOwnerScope: Boolean
+        get() = isAttachedToWindow
 
     override fun onReuse() {
         // We reset at the same time we remove the view. So if the view was removed, we can just
@@ -261,15 +270,13 @@ internal open class AndroidViewHolder(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        snapshotObserver.start()
         runUpdate()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        snapshotObserver.stop()
         // remove all observations:
-        snapshotObserver.clear()
+        snapshotObserver.clear(this)
     }
 
     // When there is no hardware acceleration invalidates are intercepted using this method,
@@ -349,7 +356,8 @@ internal open class AndroidViewHolder(
                         isDrawing = false
                     }
                 }
-            }.onGloballyPositioned {
+            }
+            .onGloballyPositioned {
                 // The global position of this LayoutNode can change with it being replaced. For
                 // these cases, we need to inform the View.
                 layoutAccordingTo(layoutNode)
