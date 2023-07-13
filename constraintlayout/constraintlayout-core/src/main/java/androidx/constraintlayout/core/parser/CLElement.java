@@ -208,11 +208,7 @@ public class CLElement implements Cloneable {
     @Override
     public CLElement clone() {
         try {
-            CLElement clone = (CLElement) super.clone();
-            if (mContainer != null) {
-                clone.mContainer = (CLContainer) mContainer.clone();
-            }
-            return clone;
+            return (CLElement) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
