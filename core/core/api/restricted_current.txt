@@ -3864,6 +3864,8 @@ package androidx.core.view.accessibility {
     method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! getRecord(android.view.accessibility.AccessibilityEvent!, int);
     method @Deprecated public static int getRecordCount(android.view.accessibility.AccessibilityEvent!);
+    method public static boolean isAccessibilityDataSensitive(android.view.accessibility.AccessibilityEvent);
+    method public static void setAccessibilityDataSensitive(android.view.accessibility.AccessibilityEvent, boolean);
     method public static void setAction(android.view.accessibility.AccessibilityEvent, int);
     method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, @androidx.core.view.accessibility.AccessibilityEventCompat.ContentChangeType int);
     method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
@@ -3908,6 +3910,7 @@ package androidx.core.view.accessibility {
     method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
     method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
     method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
+    method public static boolean isRequestFromAccessibilityTool(android.view.accessibility.AccessibilityManager);
     method @Deprecated public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
     method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
@@ -3980,6 +3983,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getWindow();
     method public int getWindowId();
     method public boolean hasRequestInitialAccessibilityFocus();
+    method public boolean isAccessibilityDataSensitive();
     method public boolean isAccessibilityFocused();
     method public boolean isCheckable();
     method public boolean isChecked();
@@ -4015,6 +4019,7 @@ package androidx.core.view.accessibility {
     method public boolean removeAction(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat!);
     method public boolean removeChild(android.view.View!);
     method public boolean removeChild(android.view.View!, int);
+    method public void setAccessibilityDataSensitive(boolean);
     method public void setAccessibilityFocused(boolean);
     method public void setAvailableExtraData(java.util.List<java.lang.String!>);
     method @Deprecated public void setBoundsInParent(android.graphics.Rect!);
