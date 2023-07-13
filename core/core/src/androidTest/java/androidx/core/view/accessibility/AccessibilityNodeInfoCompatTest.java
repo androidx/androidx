@@ -150,6 +150,17 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isTextEntryKey(), is(false));
     }
 
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testGetSetAccessibilityDataSensitive() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+
+        accessibilityNodeInfoCompat.setAccessibilityDataSensitive(true);
+        assertThat(accessibilityNodeInfoCompat.isAccessibilityDataSensitive(), equalTo(true));
+        accessibilityNodeInfoCompat.setAccessibilityDataSensitive(false);
+        assertThat(accessibilityNodeInfoCompat.isAccessibilityDataSensitive(), equalTo(false));
+    }
+
     @Test
     public void testGetSetUniqueId() {
         final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
