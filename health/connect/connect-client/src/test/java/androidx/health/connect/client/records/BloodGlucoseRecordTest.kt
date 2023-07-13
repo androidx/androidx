@@ -27,7 +27,7 @@ class BloodGlucoseRecordTest {
     @Test
     fun relationToMealEnums_existInMapping() {
         val allEnums =
-            BloodGlucoseRecord.Companion::class.allIntDefEnumsWithPrefix("RELATION_TO_MEAL")
+            getAllIntDefEnums<BloodGlucoseRecord>("""RELATION_TO_MEAL.*(?<!UNKNOWN)$""")
 
         assertThat(BloodGlucoseRecord.RELATION_TO_MEAL_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)
@@ -37,8 +37,7 @@ class BloodGlucoseRecordTest {
 
     @Test
     fun specimenSourceEnums_existInMapping() {
-        val allEnums =
-            BloodGlucoseRecord.Companion::class.allIntDefEnumsWithPrefix("SPECIMEN_SOURCE")
+        val allEnums = getAllIntDefEnums<BloodGlucoseRecord>("""SPECIMEN_SOURCE.*(?<!UNKNOWN)$""")
 
         assertThat(BloodGlucoseRecord.SPECIMEN_SOURCE_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

@@ -28,6 +28,7 @@ import androidx.health.connect.client.permission.HealthPermission.Companion.getR
 import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.StepsRecord.Companion.COUNT_TOTAL
@@ -296,6 +297,10 @@ class HealthConnectClientImplTest {
                     .setEndTimeMillis(5678L)
                     .putValues("vitaminC", DataProto.Value.newBuilder().setDoubleVal(20.0).build())
                     .putValues("vitaminE", DataProto.Value.newBuilder().setDoubleVal(10.0).build())
+                    .putValues(
+                        "mealType",
+                        DataProto.Value.newBuilder().setEnumVal(MealType.UNKNOWN).build()
+                    )
                     .setDataType(DataProto.DataType.newBuilder().setName("Nutrition"))
                     .build()
             )
