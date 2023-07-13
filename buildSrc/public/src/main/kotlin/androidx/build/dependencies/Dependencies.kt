@@ -28,6 +28,10 @@ lateinit var kotlinNativeVersion: String
 val KOTLIN_NATIVE_VERSION
     get() = kotlinNativeVersion
 
+lateinit var kotlinGradlePluginVersion: String
+val KOTLIN_GRADLE_PLUGIN_VERSION
+    get() = kotlinGradlePluginVersion
+
 lateinit var agpVersion: String
 val AGP_LATEST
     get() = "com.android.tools.build:gradle:$agpVersion"
