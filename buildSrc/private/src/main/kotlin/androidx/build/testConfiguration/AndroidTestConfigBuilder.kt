@@ -92,6 +92,7 @@ class ConfigBuilder {
             .append(WIFI_DISABLE_OPTION)
             .append(FLAKY_TEST_OPTION)
         if (isBenchmark) {
+            sb.append(benchmarkPostInstallCommandOption(applicationId))
             if (isPostsubmit) {
                 sb.append(BENCHMARK_POSTSUBMIT_OPTIONS)
             } else {
@@ -232,6 +233,16 @@ private val WIFI_DISABLE_OPTION =
 
 """
         .trimIndent()
+
+private fun benchmarkPostInstallCommandOption(packageName: String) =
+    """
+    <option name="app-setup:post-install-cmd" value="${benchmarkPostInstallCommand(packageName)}" />
+
+""".trimIndent()
+
+private fun benchmarkPostInstallCommand(packageName: String): String {
+    return "cmd package compile -f -m speed $packageName"
+}
 
 private val SETUP_INCLUDE =
     """
