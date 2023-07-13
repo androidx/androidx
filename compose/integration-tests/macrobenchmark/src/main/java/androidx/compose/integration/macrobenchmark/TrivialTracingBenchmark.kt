@@ -23,6 +23,8 @@ import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -55,8 +57,7 @@ class TrivialTracingBenchmark(private val composableName: String) {
             iterations = 1, // we are only verifying the presence of entries (not the timing data)
             setupBlock = {
                 PerfettoCapture().enableAndroidxTracingPerfetto(
-                    PACKAGE_NAME,
-                    provideBinariesIfMissing = true
+                    PerfettoSdkConfig(PACKAGE_NAME, InitialProcessState.Alive)
                 )
             }
         ) {

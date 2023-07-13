@@ -33,6 +33,8 @@ import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoTrace
@@ -174,7 +176,7 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
-    userspaceTracingPackage: String?,
+    perfettoSdkConfig: PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
@@ -258,7 +260,7 @@ private fun macrobenchmark(
                         },
                         useStackSamplingConfig = true
                     ),
-                    userspaceTracingPackage = userspaceTracingPackage
+                    perfettoSdkConfig = perfettoSdkConfig
                 ) {
                     try {
                         trace("start metrics") {
@@ -389,13 +391,17 @@ fun macrobenchmarkWithStartupMode(
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
-    val userspaceTracingPackage = if (Arguments.fullTracingEnable &&
-        startupMode != StartupMode.COLD // can't use with COLD, since the broadcast wakes up target
-    ) {
-        packageName
-    } else {
-        null
-    }
+    val perfettoSdkConfig =
+        if (Arguments.fullTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            PerfettoSdkConfig(
+                packageName,
+                when (startupMode) {
+                    null -> InitialProcessState.Unknown
+                    StartupMode.COLD -> InitialProcessState.NotAlive
+                    StartupMode.HOT, StartupMode.WARM -> InitialProcessState.Alive
+                }
+            )
+        } else null
     macrobenchmark(
         uniqueName = uniqueName,
         className = className,
@@ -405,7 +411,7 @@ fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
-        userspaceTracingPackage = userspaceTracingPackage,
+        perfettoSdkConfig = perfettoSdkConfig,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 // Run setup before killing process

@@ -47,6 +47,19 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".TrivialStartupTracingActivity"
+            android:label="C TrivialTracing"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.TRIVIAL_STARTUP_TRACING_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".FullyDrawnStartupActivity"
             android:exported="true">
             <intent-filter>
