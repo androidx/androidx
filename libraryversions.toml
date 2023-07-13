@@ -9,7 +9,7 @@ APPSEARCH = "1.1.0-alpha04"
 ARCH_CORE = "2.3.0-alpha01"
 ASYNCLAYOUTINFLATER = "1.1.0-alpha02"
 AUTOFILL = "1.3.0-alpha02"
-BENCHMARK = "1.2.0-alpha16"
+BENCHMARK = "1.2.0-beta01"
 BIOMETRIC = "1.2.0-alpha06"
 BLUETOOTH = "1.0.0-alpha01"
 BROWSER = "1.6.0-rc01"
@@ -133,7 +133,7 @@ TESTSCREENSHOT = "1.0.0-alpha01"
 TEST_UIAUTOMATOR = "2.3.0-alpha04"
 TEXT = "1.0.0-alpha01"
 TRACING = "1.3.0-alpha02"
-TRACING_PERFETTO = "1.0.0-alpha17"
+TRACING_PERFETTO = "1.0.0-beta01"
 TRANSITION = "1.5.0-alpha01"
 TV = "1.0.0-alpha08"
 TVPROVIDER = "1.1.0-alpha02"
@@ -266,6 +266,7 @@ TESTSCREENSHOT = { group = "androidx.test.screenshot", atomicGroupVersion = "ver
 TEST_UIAUTOMATOR = { group = "androidx.test.uiautomator", atomicGroupVersion = "versions.TEST_UIAUTOMATOR" }
 TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
 TRACING = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING" }
+TRACING_PERFETTO = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING_PERFETTO", overrideInclude = [ ":tracing:tracing-perfetto", ":tracing:tracing-perfetto-binary", ":tracing:tracing-perfetto-handshake" ] }
 TRANSITION = { group = "androidx.transition", atomicGroupVersion = "versions.TRANSITION" }
 TV = { group = "androidx.tv", atomicGroupVersion = "versions.TV" }
 TVPROVIDER = { group = "androidx.tvprovider", atomicGroupVersion = "versions.TVPROVIDER" }
