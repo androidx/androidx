@@ -226,7 +226,7 @@ class ButtonTest {
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.buttonMedium
+            expectedTextStyle = MaterialTheme.typography.labelMedium
             Button(
                 onClick = {},
             ) {
@@ -245,8 +245,8 @@ class ButtonTest {
         var expectedSecondaryTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.buttonMedium
-            expectedSecondaryTextStyle = MaterialTheme.typography.captionLarge
+            expectedTextStyle = MaterialTheme.typography.labelMedium
+            expectedSecondaryTextStyle = MaterialTheme.typography.labelSmall
             Button(
                 onClick = {},
                 label = {

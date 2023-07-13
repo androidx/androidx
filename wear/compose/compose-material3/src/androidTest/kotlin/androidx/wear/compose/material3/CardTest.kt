@@ -413,8 +413,8 @@ public class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedAppTextStyle = MaterialTheme.typography.captionLarge
-            expectedTimeTextStyle = MaterialTheme.typography.captionLarge
+            expectedAppTextStyle = MaterialTheme.typography.labelSmall
+            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
             expectedTitleTextStyle = MaterialTheme.typography.titleSmall
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
@@ -450,7 +450,7 @@ public class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTimeTextStyle = MaterialTheme.typography.captionLarge
+            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
             expectedTitleTextStyle = MaterialTheme.typography.titleSmall
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
@@ -485,8 +485,8 @@ public class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedAppTextStyle = MaterialTheme.typography.captionLarge
-            expectedTimeTextStyle = MaterialTheme.typography.captionLarge
+            expectedAppTextStyle = MaterialTheme.typography.labelSmall
+            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
             expectedTitleTextStyle = MaterialTheme.typography.titleSmall
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
