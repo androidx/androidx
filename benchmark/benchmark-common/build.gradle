@@ -70,7 +70,7 @@ dependencies {
     api("androidx.annotation:annotation-experimental:1.0.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(project(":tracing:tracing-perfetto-handshake"))
-    implementation(libs.testMonitor)
+    implementation("androidx.test:monitor:1.6.1")
     implementation(libs.wireRuntime)
 
     androidTestImplementation(libs.testRules)

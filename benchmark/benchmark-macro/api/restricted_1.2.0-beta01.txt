@@ -1,0 +1,283 @@
+// Signature format: 4.0
+package androidx.benchmark.macro {
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class AudioUnderrunMetric extends androidx.benchmark.macro.Metric {
+    ctor public AudioUnderrunMetric();
+  }
+
+  public enum BaselineProfileMode {
+    method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.BaselineProfileMode[] values();
+    enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Disable;
+    enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Require;
+    enum_constant public static final androidx.benchmark.macro.BaselineProfileMode UseIfAvailable;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class BatteryCharge {
+    method public boolean hasMinimumCharge(optional boolean throwOnMissingMetrics);
+    field public static final androidx.benchmark.macro.BatteryCharge INSTANCE;
+  }
+
+  public abstract sealed class CompilationMode {
+    field public static final androidx.benchmark.macro.CompilationMode.Companion Companion;
+    field public static final androidx.benchmark.macro.CompilationMode DEFAULT;
+  }
+
+  public static final class CompilationMode.Companion {
+  }
+
+  public static final class CompilationMode.Full extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Full();
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMacrobenchmarkApi public static final class CompilationMode.Ignore extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Ignore();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class CompilationMode.Interpreted extends androidx.benchmark.macro.CompilationMode {
+    field public static final androidx.benchmark.macro.CompilationMode.Interpreted INSTANCE;
+  }
+
+  @RequiresApi(24) public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.None();
+  }
+
+  @RequiresApi(24) public static final class CompilationMode.Partial extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Partial();
+    ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode);
+    ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode, optional @IntRange(from=0L) int warmupIterations);
+    method public androidx.benchmark.macro.BaselineProfileMode getBaselineProfileMode();
+    method public int getWarmupIterations();
+    property public final androidx.benchmark.macro.BaselineProfileMode baselineProfileMode;
+    property public final int warmupIterations;
+  }
+
+  public final class CompilationModeKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Macrobenchmark API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMacrobenchmarkApi {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Metric API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMetricApi {
+  }
+
+  public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingMetric();
+  }
+
+  public final class MacrobenchmarkScope {
+    ctor public MacrobenchmarkScope(String packageName, boolean launchWithClearTask);
+    method public void dropKernelPageCache();
+    method public void dropShaderCache();
+    method public androidx.test.uiautomator.UiDevice getDevice();
+    method public Integer? getIteration();
+    method public String getPackageName();
+    method public void killProcess();
+    method public void killProcess(optional boolean useKillAll);
+    method public void pressHome();
+    method public void pressHome(optional long delayDurationMs);
+    method public void startActivityAndWait();
+    method public void startActivityAndWait(android.content.Intent intent);
+    method public void startActivityAndWait(optional kotlin.jvm.functions.Function1<? super android.content.Intent,kotlin.Unit> block);
+    property public final androidx.test.uiautomator.UiDevice device;
+    property public final Integer? iteration;
+    property public final String packageName;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryCountersMetric extends androidx.benchmark.macro.TraceMetric {
+    ctor public MemoryCountersMetric();
+    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryUsageMetric extends androidx.benchmark.macro.TraceMetric {
+    ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode, optional java.util.List<? extends androidx.benchmark.macro.MemoryUsageMetric.SubMetric> subMetrics);
+    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+  }
+
+  public enum MemoryUsageMetric.Mode {
+    method public static androidx.benchmark.macro.MemoryUsageMetric.Mode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.MemoryUsageMetric.Mode[] values();
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.Mode Last;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.Mode Max;
+  }
+
+  public enum MemoryUsageMetric.SubMetric {
+    method public static androidx.benchmark.macro.MemoryUsageMetric.SubMetric valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.MemoryUsageMetric.SubMetric[] values();
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric Gpu;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric HeapSize;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssAnon;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssFile;
+    enum_constant public static final androidx.benchmark.macro.MemoryUsageMetric.SubMetric RssShmem;
+  }
+
+  public abstract sealed class Metric {
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class Metric.CaptureInfo {
+    ctor public Metric.CaptureInfo(int apiLevel, String targetPackageName, String testPackageName, androidx.benchmark.macro.StartupMode? startupMode);
+    method public int component1();
+    method public String component2();
+    method public String component3();
+    method public androidx.benchmark.macro.StartupMode? component4();
+    method public androidx.benchmark.macro.Metric.CaptureInfo copy(int apiLevel, String targetPackageName, String testPackageName, androidx.benchmark.macro.StartupMode? startupMode);
+    method public int getApiLevel();
+    method public androidx.benchmark.macro.StartupMode? getStartupMode();
+    method public String getTargetPackageName();
+    method public String getTestPackageName();
+    property public final int apiLevel;
+    property public final androidx.benchmark.macro.StartupMode? startupMode;
+    property public final String targetPackageName;
+    property public final String testPackageName;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class Metric.Measurement {
+    ctor public Metric.Measurement(String name, double data);
+    ctor public Metric.Measurement(String name, java.util.List<java.lang.Double> dataSamples);
+    method public String component1();
+    method public java.util.List<java.lang.Double> component2();
+    method public boolean component3();
+    method public androidx.benchmark.macro.Metric.Measurement copy(String name, java.util.List<java.lang.Double> data, boolean requireSingleValue);
+    method public java.util.List<java.lang.Double> getData();
+    method public String getName();
+    method public boolean getRequireSingleValue();
+    property public final java.util.List<java.lang.Double> data;
+    property public final String name;
+    property public final boolean requireSingleValue;
+  }
+
+  public final class MetricResultExtensionsKt {
+    method @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static void assertEqualMeasurements(java.util.List<androidx.benchmark.macro.Metric.Measurement> expected, java.util.List<androidx.benchmark.macro.Metric.Measurement> observed, double threshold);
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public enum PowerCategory {
+    method public static androidx.benchmark.macro.PowerCategory valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.PowerCategory[] values();
+    enum_constant public static final androidx.benchmark.macro.PowerCategory CPU;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory DISPLAY;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory GPS;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory GPU;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory MACHINE_LEARNING;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory MEMORY;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory NETWORK;
+    enum_constant public static final androidx.benchmark.macro.PowerCategory UNCATEGORIZED;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public enum PowerCategoryDisplayLevel {
+    method public static androidx.benchmark.macro.PowerCategoryDisplayLevel valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.PowerCategoryDisplayLevel[] values();
+    enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel BREAKDOWN;
+    enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel TOTAL;
+  }
+
+  @SuppressCompatibility @RequiresApi(29) @androidx.benchmark.macro.ExperimentalMetricApi public final class PowerMetric extends androidx.benchmark.macro.Metric {
+    ctor public PowerMetric(androidx.benchmark.macro.PowerMetric.Type type);
+    method public static androidx.benchmark.macro.PowerMetric.Type.Battery Battery();
+    method public static androidx.benchmark.macro.PowerMetric.Type.Energy Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method public static androidx.benchmark.macro.PowerMetric.Type.Power Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    field public static final androidx.benchmark.macro.PowerMetric.Companion Companion;
+  }
+
+  public static final class PowerMetric.Companion {
+    method public androidx.benchmark.macro.PowerMetric.Type.Battery Battery();
+    method public androidx.benchmark.macro.PowerMetric.Type.Energy Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method public androidx.benchmark.macro.PowerMetric.Type.Power Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+  }
+
+  public abstract static sealed class PowerMetric.Type {
+    method public final java.util.Map<androidx.benchmark.macro.PowerCategory,androidx.benchmark.macro.PowerCategoryDisplayLevel> getCategories();
+    method public final void setCategories(java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel>);
+    property public final java.util.Map<androidx.benchmark.macro.PowerCategory,androidx.benchmark.macro.PowerCategoryDisplayLevel> categories;
+  }
+
+  public static final class PowerMetric.Type.Battery extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Battery();
+  }
+
+  public static final class PowerMetric.Type.Energy extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> energyCategories);
+  }
+
+  public static final class PowerMetric.Type.Power extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> powerCategories);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PowerRail {
+    method public boolean hasMetrics(optional boolean throwOnMissingMetrics);
+    field public static final androidx.benchmark.macro.PowerRail INSTANCE;
+  }
+
+  public enum StartupMode {
+    method public static androidx.benchmark.macro.StartupMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.StartupMode[] values();
+    enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
+    enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
+    enum_constant public static final androidx.benchmark.macro.StartupMode WARM;
+  }
+
+  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class StartupTimingLegacyMetric extends androidx.benchmark.macro.Metric {
+    ctor public StartupTimingLegacyMetric();
+  }
+
+  public final class StartupTimingMetric extends androidx.benchmark.macro.Metric {
+    ctor public StartupTimingMetric();
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public abstract class TraceMetric extends androidx.benchmark.macro.Metric {
+    ctor public TraceMetric();
+    method public abstract java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+  }
+
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class TraceSectionMetric extends androidx.benchmark.macro.Metric {
+    ctor public TraceSectionMetric(String sectionName, optional androidx.benchmark.macro.TraceSectionMetric.Mode mode);
+  }
+
+  public enum TraceSectionMetric.Mode {
+    method public static androidx.benchmark.macro.TraceSectionMetric.Mode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.benchmark.macro.TraceSectionMetric.Mode[] values();
+    enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode First;
+    enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode Sum;
+  }
+
+}
+
+package androidx.benchmark.perfetto {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoTraceProcessorApi {
+  }
+
+  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class PerfettoTraceProcessor {
+    ctor public PerfettoTraceProcessor();
+    method public <T> T loadTrace(androidx.benchmark.perfetto.PerfettoTrace trace, kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor.Session,? extends T> block);
+    method public static <T> T runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
+    field public static final androidx.benchmark.perfetto.PerfettoTraceProcessor.Companion Companion;
+  }
+
+  public static final class PerfettoTraceProcessor.Companion {
+    method public <T> T runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
+  }
+
+  public static final class PerfettoTraceProcessor.Session {
+    method public kotlin.sequences.Sequence<androidx.benchmark.perfetto.Row> query(@org.intellij.lang.annotations.Language("sql") String query);
+    method public byte[] rawQuery(@org.intellij.lang.annotations.Language("sql") String query);
+  }
+
+  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object> {
+    ctor public Row(java.util.Map<java.lang.String,?> map);
+    method public byte[] bytes(String columnName);
+    method public double double(String columnName);
+    method public long long(String columnName);
+    method public byte[]? nullableBytes(String columnName);
+    method public Double? nullableDouble(String columnName);
+    method public Long? nullableLong(String columnName);
+    method public String? nullableString(String columnName);
+    method public String string(String columnName);
+  }
+
+  public final class RowKt {
+    method @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public static androidx.benchmark.perfetto.Row rowOf(kotlin.Pair<java.lang.String,?>... pairs);
+  }
+
+}
+
