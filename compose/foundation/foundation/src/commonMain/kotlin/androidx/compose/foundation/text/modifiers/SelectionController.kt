@@ -29,7 +29,10 @@ import androidx.compose.foundation.text.selection.mouseSelectionDetector
 import androidx.compose.foundation.text.textPointerHoverIcon
 import androidx.compose.foundation.text.textPointerIcon
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -341,8 +344,12 @@ private fun SelectionRegistrar.makeSelectionModifier(
                 return true
             }
         }
-        Modifier.pointerInput(mouseSelectionObserver) {
-            mouseSelectionDetector(mouseSelectionObserver)
+        Modifier.composed {
+            // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-79) how we can rewrite this without `composed`?
+            val currentMouseSelectionObserver by rememberUpdatedState(mouseSelectionObserver)
+            pointerInput(Unit) {
+                mouseSelectionDetector(currentMouseSelectionObserver)
+            }
         }.pointerHoverIcon(textPointerIcon)
     }
 }
