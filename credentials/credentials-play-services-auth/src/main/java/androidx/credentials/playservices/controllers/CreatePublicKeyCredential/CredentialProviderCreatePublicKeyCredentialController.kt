@@ -217,7 +217,6 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
     companion object {
         private const val TAG = "CreatePublicKey"
         private var controller: CredentialProviderCreatePublicKeyCredentialController? = null
-        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the

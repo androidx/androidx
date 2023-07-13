@@ -195,4 +195,14 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest(val useFragmentA
             }
         }
     }
+
+    @Test
+    fun getInstanceRepeatedTest() {
+        launchTestActivity { activity: Activity ->
+
+            val firstInstance = getInstance(activity)
+            val secondInstance = getInstance(activity)
+            assertThat(firstInstance).isEqualTo(secondInstance)
+        }
+    }
 }
