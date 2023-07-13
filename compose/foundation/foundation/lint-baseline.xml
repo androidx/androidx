@@ -2010,6 +2010,42 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TransformableElement has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
+        errorLine1="    private val canPan: (Offset) -> Boolean,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TransformableNode has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
+        errorLine1="    private var canPan: (Offset) -> Boolean,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
+        errorLine1="        canPan: (Offset) -> Boolean,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectZoom has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
+        errorLine1="    canPan: (Offset) -> Boolean"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method TransformableState has parameter &apos;onTransformation&apos; with type Function3&lt;? super Float, ? super Offset, ? super Float, Unit>."
         errorLine1="    onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
