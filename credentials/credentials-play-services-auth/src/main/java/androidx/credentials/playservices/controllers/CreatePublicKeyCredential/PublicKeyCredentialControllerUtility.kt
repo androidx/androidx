@@ -139,7 +139,6 @@ internal class PublicKeyCredentialControllerUtility {
         fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
             val json = JSONObject()
             val authenticatorResponse = cred.response
-            // TODO(b/262924507) : Look for FIDO changes in conditional mediation available
             if (authenticatorResponse is AuthenticatorAttestationResponse) {
                 val responseJson = JSONObject()
                 responseJson.put(
@@ -260,7 +259,6 @@ internal class PublicKeyCredentialControllerUtility {
                     JSON_KEY_USER_HANDLE, b64Encode(authenticatorResponse.userHandle!!)
                 )
             }
-            // TODO(b/262924507) : attestation object missing in fido impl
             json.put(JSON_KEY_RESPONSE, responseJson)
             json.put(JSON_KEY_ID, publicKeyCred.id)
             json.put(JSON_KEY_RAW_ID, b64Encode(publicKeyCred.rawId))
@@ -438,7 +436,6 @@ internal class PublicKeyCredentialControllerUtility {
                         )
                     )
                 }
-                // TODO(b/262924507) : Fido implementation lacks userVerification in current impl
                 builder.setAuthenticatorSelection(
                     authSelectionBuilder.build()
                 )
@@ -497,8 +494,7 @@ internal class PublicKeyCredentialControllerUtility {
                             descriptorType,
                             descriptorId, transports
                         )
-                    ) // TODO(b/262924507) : Ensure spec changes (i.e. int algorithm) in current
-                    // fido impl stays that way - edit if fido modifies
+                    )
                 }
             }
             builder.setExcludeList(excludeCredentialsList)
@@ -519,7 +515,6 @@ internal class PublicKeyCredentialControllerUtility {
             val rp = json.getJSONObject(JSON_KEY_RP)
             val rpId = rp.getString(JSON_KEY_ID)
             val rpName = rp.optString(JSON_KEY_NAME, "")
-            // TODO(b/262924507) : Fido and spec differ; always keep re-checking if aligns
             var rpIcon: String? = rp.optString(JSON_KEY_ICON, "")
             if (rpIcon!!.isEmpty()) {
                 rpIcon = null

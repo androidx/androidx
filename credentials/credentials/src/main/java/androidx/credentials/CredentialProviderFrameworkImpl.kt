@@ -221,7 +221,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
                     FrameworkImplHelper.getFinalCreateCredentialData(request, context),
                     request.candidateQueryData)
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
-                // TODO("change to taking value from the request when ready")
                 .setAlwaysSendAppInfoToProvider(true)
         setOriginForCreateRequest(request, createCredentialRequestBuilder)
         return createCredentialRequestBuilder.build()
@@ -242,8 +241,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         val builder = android.credentials.GetCredentialRequest.Builder(
             GetCredentialRequest.toRequestDataBundle(request))
         request.credentialOptions.forEach {
-            // TODO(b/278308121): clean up the temporary bundle value injection after the Beta 2
-            // release.
             if (request.preferImmediatelyAvailableCredentials &&
                 it is GetPublicKeyCredentialOption) {
                 it.requestData.putBoolean(
