@@ -20,13 +20,15 @@ import androidx.hilt.ClassNames
 import androidx.hilt.ext.S
 import androidx.hilt.ext.T
 import androidx.hilt.ext.addGeneratedAnnotation
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.addOriginatingElement
+import androidx.room.compiler.processing.writeTo
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
 /**
@@ -52,13 +54,13 @@ import javax.lang.model.element.Modifier
  * ```
  */
 internal class WorkerGenerator(
-    private val processingEnv: ProcessingEnvironment,
-    private val injectedWorker: WorkerElements
+    private val processingEnv: XProcessingEnv,
+    private val injectedWorker: WorkerElement
 ) {
     fun generate() {
         val assistedFactoryTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.factoryClassName)
             .addOriginatingElement(injectedWorker.typeElement)
-            .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
+            .addGeneratedAnnotation(processingEnv)
             .addAnnotation(ClassNames.ASSISTED_FACTORY)
             .addModifiers(Modifier.PUBLIC)
             .addSuperinterface(injectedWorker.factorySuperTypeName)
@@ -69,7 +71,7 @@ internal class WorkerGenerator(
 
         val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.moduleClassName)
             .addOriginatingElement(injectedWorker.typeElement)
-            .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
+            .addGeneratedAnnotation(processingEnv)
             .addAnnotation(ClassNames.MODULE)
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
