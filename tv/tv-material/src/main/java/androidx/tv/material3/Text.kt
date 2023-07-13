@@ -86,6 +86,7 @@ import androidx.tv.material3.tokens.DefaultTextStyle
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun Text(
     text: String,
@@ -183,6 +184,7 @@ fun Text(
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun Text(
     text: AnnotatedString,
@@ -238,6 +240,9 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@ExperimentalTvMaterial3Api
+@get:ExperimentalTvMaterial3Api
 val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO(b/156598010): remove this and replace with fold definition on the backing CompositionLocal
@@ -248,6 +253,7 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
  *
  * @see LocalTextStyle
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)

@@ -74,11 +74,11 @@ fun MaterialTheme(
  * Contains functions to access the current theme values provided at the call site's position in
  * the hierarchy.
  */
+@ExperimentalTvMaterial3Api
 object MaterialTheme {
     /**
      * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
      */
-    @ExperimentalTvMaterial3Api
     val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable
