@@ -48,6 +48,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
@@ -58,6 +60,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -122,6 +125,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlin.test.assertIs
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
@@ -443,7 +447,124 @@ class AndroidViewTest {
     }
 
     @Test
-    fun androidView_updateObservesStateChanges() {
+    fun androidView_updateIsRanInitially() {
+        rule.setContent {
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = 1
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesMultipleStateChanges() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        counter = 2
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(counter)
+        }
+
+        counter = 3
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(counter)
+        }
+
+        counter = 4
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(counter)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesStateChanges_fromDisposableEffect() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            DisposableEffect(Unit) {
+                counter = 2
+                onDispose {}
+            }
+
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesStateChanges_fromLaunchedEffect() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            LaunchedEffect(Unit) {
+                counter = 2
+            }
+
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesMultipleStateChanges_fromEffect() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            LaunchedEffect(Unit) {
+                counter = 2
+                withFrameNanos {
+                    counter = 3
+                }
+            }
+
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesLayoutStateChanges() {
         var size by mutableStateOf(20)
         var obtainedSize: IntSize = IntSize.Zero
         rule.setContent {
@@ -1522,7 +1643,11 @@ class AndroidViewTest {
                     },
                 )
 
-                Box(Modifier.size(viewSizeDp).testTag("box"))
+                Box(
+                    Modifier
+                        .size(viewSizeDp)
+                        .testTag("box")
+                )
             }
         }
 
@@ -1635,6 +1760,10 @@ class AndroidViewTest {
             super.onRestoreInstanceState((state as Bundle).getParcelable("superState"))
             onRestoredValue(state.getString(key)!!)
         }
+    }
+
+    private class UpdateTestView(context: Context) : View(context) {
+        var counter = 0
     }
 
     private fun Dp.toPx(displayMetrics: DisplayMetrics) =
