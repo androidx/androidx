@@ -23,6 +23,7 @@ import androidx.compose.runtime.Immutable
  * [firstPane], [secondPane] and [thirdPane] have to be different, otherwise
  * [IllegalArgumentException] will be thrown.
  *
+ * @constructor create an instance of [ThreePaneScaffoldArrangement]
  * @param firstPane The first pane from the start of the [ThreePaneScaffold]
  * @param secondPane The second pane from the start of the [ThreePaneScaffold]
  * @param thirdPane The third pane from the start of the [ThreePaneScaffold]

@@ -24,32 +24,27 @@ import androidx.compose.runtime.Immutable
  * the hinge area. We suggest to use [calculatePosture] to retrieve instances of this class in
  * applications, unless you have a strong need of customization that cannot be fulfilled by the
  * default implementation.
+ *
+ * @constructor create an instance of [Posture]
+ * @param hasVerticalHinge `true` if at least one vertical hinge is present in the middle of
+ *        the current window. When this is `true`, it means the current window is separated into
+ *        multiple partitions along the horizontal axis and developers may consider separating
+ *        the layout into multiple partitions accordingly.
+ * @param isTabletop `true` if the current window is considered as in the table top mode, i.e. there
+ *        is one half-opened horizontal hinge in the middle of the current window. When this is
+ *        `true` it usually means it's hard for users to interact with the window area around
+ *        the hinge and developers may consider separating the layout along the hinge and show
+ *        software keyboard or other controls in the bottom half of the window.
+ * @param hasSeparatingHinge `true` if at least one hinge present in the current window is
+ *        separating, i.e., content cannot be displayed on the hinge area. When this is `true`
+ *        developer may want to avoid showing anything around the hinge area because the content
+ *        will be cut or not visible.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class Posture(
-    /**
-     * `true` if at least one vertical hinge is present in the middle of the current window. When
-     * this is `true`, it means the current window is separated into multiple partitions along the
-     * horizontal axis and developers may consider separating the layout into multiple partitions
-     * accordingly.
-     */
     val hasVerticalHinge: Boolean = false,
-
-    /**
-     * `true` if the current window is considered as in the table top mode, i.e. there is
-     * one half-opened horizontal hinge in the middle of the current window. When this is `true` it
-     * usually means it's hard for users to interact with the window area around the hinge and
-     * developers may consider separating the layout along the hinge and show software keyboard or
-     * other controls in the bottom half of the window.
-     */
     val isTabletop: Boolean = false,
-
-    /**
-     * `true` if at least one hinge present in the current window is separating, i.e., content
-     * cannot be displayed on the hinge area. When this is `true` developer may want to avoid
-     * showing anything around the hinge area because the content will be cut or not visible.
-     */
     val hasSeparatingHinge: Boolean = false
 ) {
     override fun equals(other: Any?): Boolean {

@@ -79,6 +79,7 @@ fun calculateThreePaneScaffoldValue(
  * For a Material-opinionated layout, it's suggested to use [calculateThreePaneScaffoldValue] to
  * calculate the current scaffold value.
  *
+ * @constructor create an instance of [ThreePaneScaffoldValue]
  * @param primary [PaneAdaptedValue] of the primary pane of [ThreePaneScaffold]
  * @param secondary [PaneAdaptedValue] of the secondary pane of [ThreePaneScaffold]
  * @param tertiary [PaneAdaptedValue] of the tertiary pane of [ThreePaneScaffold]
