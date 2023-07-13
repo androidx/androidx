@@ -119,7 +119,6 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                                         TestUtils.Companion.isSubsetJson(
                                                 expectedJson, actualJson, requiredKeys))
                                 .isTrue();
-                        // TODO("Add remaining tests in detail after discussing ideal form")
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -149,7 +148,6 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                                         TestUtils.Companion.isSubsetJson(
                                                 expectedJson, actualJson, requiredKeys))
                                 .isTrue();
-                        // TODO("Add remaining tests in detail after discussing ideal form")
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -242,7 +240,6 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                                         TestUtils.Companion.isSubsetJson(
                                                 expectedJson, actualJson, requiredKeys))
                                 .isTrue();
-                        // TODO("Add remaining tests in detail after discussing ideal form")
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }

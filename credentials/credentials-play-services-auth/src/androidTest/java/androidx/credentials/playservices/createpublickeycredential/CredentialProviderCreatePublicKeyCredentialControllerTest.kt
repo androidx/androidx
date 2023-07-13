@@ -88,7 +88,6 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest(val useFragmentA
                     JSONObject(ALL_REQUIRED_FIELDS_SIGNATURE)
 
                 assertThat(isSubsetJson(expectedJson, actualJson, requiredKeys)).isTrue()
-                // TODO("Add remaining tests in detail after discussing ideal form")
             } catch (e: JSONException) {
                 throw RuntimeException(e)
             }
@@ -111,7 +110,6 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest(val useFragmentA
                     JSONObject(ALL_REQUIRED_AND_OPTIONAL_SIGNATURE)
 
                 assertThat(isSubsetJson(expectedJson, actualJson, requiredKeys)).isTrue()
-                // TODO("Add remaining tests in detail after discussing ideal form")
             } catch (e: JSONException) {
                 throw java.lang.RuntimeException(e)
             }
@@ -189,7 +187,6 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest(val useFragmentA
                     JSONObject(OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE)
 
                 assertThat(isSubsetJson(expectedJson, actualJson, requiredKeys)).isTrue()
-                // TODO("Add remaining tests in detail after discussing ideal form")
             } catch (e: JSONException) {
                 throw java.lang.RuntimeException(e)
             }
