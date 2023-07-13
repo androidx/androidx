@@ -2395,6 +2395,7 @@ package androidx.constraintlayout.core.state {
     method public boolean hasPositionKeyframes();
     method public void interpolate(int, int, float);
     method public boolean isEmpty();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isFirstDownAccepted(float, float);
     method public boolean isTouchNotDone(float);
     method public void setTouchUp(float, long, float, float);
     method public void setTransitionProperties(androidx.constraintlayout.core.motion.utils.TypedBundle!);

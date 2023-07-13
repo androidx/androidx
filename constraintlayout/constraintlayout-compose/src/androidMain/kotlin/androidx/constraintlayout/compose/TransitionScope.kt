@@ -261,6 +261,9 @@ class TransitionScope internal constructor(
             it.dragAround?.id?.let { id ->
                 onSwipeObject.putString("around", id.toString())
             }
+            it.limitBoundsTo?.id?.let { id ->
+                onSwipeObject.putString("limitBounds", id.toString())
+            }
             onSwipeObject.putNumber("threshold", it.dragThreshold)
             onSwipeObject.putString("anchor", it.anchor.id.toString())
             onSwipeObject.putString("side", it.side.name)
