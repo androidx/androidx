@@ -140,9 +140,8 @@ class BluetoothLe(private val context: Context) {
         }
 
         val bleScanner = bluetoothAdapter?.bluetoothLeScanner
-        val scanSettings = ScanSettings.Builder().build()
-
         val fwkFilters = filters.map { it.fwkScanFilter }
+        val scanSettings = ScanSettings.Builder().build()
         bleScanner?.startScan(fwkFilters, scanSettings, callback)
 
         awaitClose {
