@@ -31,6 +31,7 @@ class SdkResourceGeneratorTest {
     fun `All SDK properties are resolved`() {
         androidx.build.dependencies.agpVersion = "1.2.3"
         androidx.build.dependencies.kspVersion = "3.4.5"
+        androidx.build.dependencies.kotlinGradlePluginVersion = "1.7.10"
 
         val project = ProjectBuilder.builder().build()
         project.extensions.create(

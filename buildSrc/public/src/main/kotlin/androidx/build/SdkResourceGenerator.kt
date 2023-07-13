@@ -17,6 +17,7 @@
 package androidx.build
 
 import androidx.build.dependencies.AGP_LATEST
+import androidx.build.dependencies.KOTLIN_GRADLE_PLUGIN_VERSION
 import androidx.build.dependencies.KSP_VERSION
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
@@ -63,7 +64,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
     @get:Input abstract val kotlinStdlib: Property<String>
 
-    @get:Input abstract val kotlinVersion: Property<String>
+    @get:Input abstract val kgpVersion: Property<String>
 
     @get:Input val kspVersion: String = KSP_VERSION
 
@@ -99,7 +100,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("compileSdkVersion=${compileSdkVersion.get()}\n")
             writer.write("buildToolsVersion=${buildToolsVersion.get()}\n")
             writer.write("minSdkVersion=${minSdkVersion.get()}\n")
-            writer.write("kotlinVersion=${kotlinVersion.get()}\n")
+            writer.write("kgpVersion=${kgpVersion.get()}\n")
             writer.write("kspVersion=$kspVersion\n")
             writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
         }
@@ -134,7 +135,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
                         "org.jetbrains.kotlin:kotlin-stdlib:$version"
                     }
                 )
-                it.kotlinVersion.set(project.androidXConfiguration.kotlinBomVersion)
+                it.kgpVersion.set(KOTLIN_GRADLE_PLUGIN_VERSION)
                 it.buildSrcOutRelativePath =
                     (project.properties["buildSrcOut"] as File).toRelativeString(project.projectDir)
                 // Copy repositories used for the library project so that it can replicate the same
