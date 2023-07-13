@@ -174,7 +174,9 @@ internal open class AndroidViewHolder(
     }
 
     private val runUpdate: () -> Unit = {
-        if (hasUpdateBlock) {
+        // If we're not attached, the observer isn't started, so don't bother running it.
+        // onAttachedToWindow will run an update the next time the view is attached.
+        if (hasUpdateBlock && isAttachedToWindow) {
             snapshotObserver.observeReads(this, onCommitAffectingUpdate, update)
         }
     }
@@ -260,6 +262,7 @@ internal open class AndroidViewHolder(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         snapshotObserver.start()
+        runUpdate()
     }
 
     override fun onDetachedFromWindow() {
