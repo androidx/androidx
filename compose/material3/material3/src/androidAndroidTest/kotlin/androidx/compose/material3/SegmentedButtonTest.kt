@@ -178,7 +178,7 @@ class SegmentedButtonTest {
         lateinit var border: BorderStroke
         var specColor: Color = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            specColor = OutlinedSegmentedButtonTokens.OutlineColor.toColor()
+            specColor = OutlinedSegmentedButtonTokens.OutlineColor.value
             border = SegmentedButtonDefaults.Border.borderStroke(
                 checked = true,
                 enabled = true,

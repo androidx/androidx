@@ -186,9 +186,9 @@ fun Badge(
 ) {
     val size = if (content != null) BadgeTokens.LargeSize else BadgeTokens.Size
     val shape = if (content != null) {
-        BadgeTokens.LargeShape.toShape()
+        BadgeTokens.LargeShape.value
     } else {
-        BadgeTokens.Shape.toShape()
+        BadgeTokens.Shape.value
     }
 
     // Draw badge container.
@@ -229,7 +229,7 @@ fun Badge(
 @ExperimentalMaterial3Api
 object BadgeDefaults {
     /** Default container color for a badge. */
-    val containerColor: Color @Composable get() = BadgeTokens.Color.toColor()
+    val containerColor: Color @Composable get() = BadgeTokens.Color.value
 }
 
 /*@VisibleForTesting*/
