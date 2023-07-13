@@ -50,7 +50,14 @@ object Arguments {
      *
      * Currently internal/experimental
      */
-    val fullTracingEnable: Boolean
+    private val _fullTracingEnable: Boolean
+    val fullTracingEnable: Boolean get() = fullTracingEnableOverride ?: _fullTracingEnable
+
+    /**
+     * Allows tests to override whether full tracing is enabled
+     */
+    @VisibleForTesting
+    var fullTracingEnableOverride: Boolean? = null
 
     val enabledRules: Set<RuleType>
 
@@ -121,7 +128,7 @@ object Arguments {
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
 
-        fullTracingEnable =
+        _fullTracingEnable =
             (arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean() ?: false)
 
         // Transform comma-delimited list into set of suppressed errors

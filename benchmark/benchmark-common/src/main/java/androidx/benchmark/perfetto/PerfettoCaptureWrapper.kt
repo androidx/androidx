@@ -55,17 +55,14 @@ class PerfettoCaptureWrapper {
     @RequiresApi(23)
     private fun start(
         config: PerfettoConfig,
-        userspaceTracingPackage: String?
+        perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?
     ): Boolean {
         capture?.apply {
             Log.d(LOG_TAG, "Recording perfetto trace")
-            if (userspaceTracingPackage != null &&
+            if (perfettoSdkConfig != null &&
                 Build.VERSION.SDK_INT >= 30
             ) {
-                val result = enableAndroidxTracingPerfetto(
-                    targetPackage = userspaceTracingPackage,
-                    provideBinariesIfMissing = true
-                ) ?: "Success"
+                val result = enableAndroidxTracingPerfetto(perfettoSdkConfig) ?: "Success"
                 Log.d(LOG_TAG, "Enable full tracing result=$result")
             }
             start(config)
@@ -93,7 +90,7 @@ class PerfettoCaptureWrapper {
     fun record(
         fileLabel: String,
         config: PerfettoConfig,
-        userspaceTracingPackage: String?,
+        perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
         traceCallback: ((String) -> Unit)? = null,
         enableTracing: Boolean = true,
         block: () -> Unit
@@ -124,7 +121,7 @@ class PerfettoCaptureWrapper {
         val path: String
         try {
             propOverride?.forceValue()
-            start(config, userspaceTracingPackage)
+            start(config, perfettoSdkConfig)
             try {
                 block()
             } finally {
