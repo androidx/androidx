@@ -203,9 +203,10 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                    indicator = { tabPositions ->
+                    indicator = { tabPositions, isisActivated ->
                         TabRowDefaults.UnderlinedIndicator(
-                            currentTabPosition = tabPositions[selectedTabIndex]
+                            currentTabPosition = tabPositions[selectedTabIndex],
+                            isActivated = isisActivated,
                         )
                     }
                 ) {
@@ -246,9 +247,10 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                    indicator = { tabPositions ->
+                    indicator = { tabPositions, isActivated ->
                         TabRowDefaults.UnderlinedIndicator(
-                            currentTabPosition = tabPositions[selectedTabIndex]
+                            currentTabPosition = tabPositions[selectedTabIndex],
+                            isActivated = isActivated,
                         )
                     }
                 ) {
@@ -295,9 +297,10 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                    indicator = { tabPositions ->
+                    indicator = { tabPositions, isActivated ->
                         TabRowDefaults.UnderlinedIndicator(
-                            currentTabPosition = tabPositions[selectedTabIndex]
+                            currentTabPosition = tabPositions[selectedTabIndex],
+                            isActivated = isActivated,
                         )
                     },
                 ) {
