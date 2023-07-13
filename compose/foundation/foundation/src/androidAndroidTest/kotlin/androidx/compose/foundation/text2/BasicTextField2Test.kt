@@ -907,6 +907,9 @@ internal class BasicTextField2Test {
         // hide it again.
         keyboardHelper.hideKeyboardIfShown()
         rule.onNodeWithTag(Tag).assertIsFocused()
+
+        rule.mainClock.advanceTimeBy(1000) // to not cause double click
+
         rule.onNodeWithTag(Tag).performClick()
 
         // expect keyboard to show up again.

@@ -261,7 +261,6 @@ fun BasicTextField2(
 
                 if (enabled && isFocused && textFieldSelectionState.isInTouchMode) {
                     TextFieldSelectionHandles(
-                        textFieldState = state,
                         selectionState = textFieldSelectionState
                     )
                     if (!readOnly) {
@@ -297,10 +296,8 @@ internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun TextFieldSelectionHandles(
-    textFieldState: TextFieldState,
     selectionState: TextFieldSelectionState
 ) {
     val startHandleState = selectionState.startSelectionHandle
@@ -309,8 +306,10 @@ internal fun TextFieldSelectionHandles(
             position = startHandleState.position,
             isStartHandle = true,
             direction = startHandleState.direction,
-            handlesCrossed = textFieldState.text.selectionInChars.reversed,
-            modifier = Modifier,
+            handlesCrossed = startHandleState.handlesCrossed,
+            modifier = Modifier.pointerInput(selectionState) {
+                with(selectionState) { detectSelectionHandleDrag(true) }
+            },
             content = null
         )
     }
@@ -321,8 +320,10 @@ internal fun TextFieldSelectionHandles(
             position = endHandleState.position,
             isStartHandle = false,
             direction = endHandleState.direction,
-            handlesCrossed = textFieldState.text.selectionInChars.reversed,
-            modifier = Modifier,
+            handlesCrossed = endHandleState.handlesCrossed,
+            modifier = Modifier.pointerInput(selectionState) {
+                with(selectionState) { detectSelectionHandleDrag(false) }
+            },
             content = null
         )
     }

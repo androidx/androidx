@@ -18,7 +18,9 @@ package androidx.compose.foundation.text2.selection
 
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,12 +39,15 @@ import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -52,6 +57,7 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -59,6 +65,8 @@ import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 
@@ -74,6 +82,7 @@ class TextFieldSelectionHandlesTest {
     private val TAG = "BasicTextField2"
 
     private val fontSize = 10.sp
+    private val fontSizePx = with(rule.density) { fontSize.toPx() }
 
     @Test
     fun selectionHandles_doNotShow_whenFieldNotFocused() {
@@ -357,6 +366,337 @@ class TextFieldSelectionHandlesTest {
         }
     }
 
+    @Test
+    fun dragStartSelectionHandle_toExtendSelection() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToLeft(Handle.SelectionStart, fontSizePx * 4)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 7))
+        }
+    }
+
+    @Test
+    fun dragEndSelectionHandle_toExtendSelection() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToRight(Handle.SelectionEnd, fontSizePx * 4)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 11))
+        }
+    }
+
+    @Test
+    fun doubleClickOnWord_toSelectWord() {
+        state = TextFieldState("abc def ghj")
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            doubleClick(Offset(fontSizePx * 5, fontSizePx / 2)) // middle word
+        }
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 7))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun doubleClickOnWhitespace_toSelectNextWord() {
+        state = TextFieldState("abc def ghj")
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            // space between first and second words
+            doubleClick(Offset(fontSizePx * 3.5f, fontSizePx / 2))
+        }
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 7))
+        }
+    }
+
+    @Test
+    fun dragStartSelectionHandle_outOfBounds_horizontally() {
+        state = TextFieldState("abc def ".repeat(10), initialSelectionInChars = TextRange(77, 80))
+        val scrollState = ScrollState(0)
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                scrollState = scrollState,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.waitForIdle()
+        scope.launch { scrollState.scrollTo(scrollState.maxValue) } // scroll to the most right
+        focusAndWait() // selection handles show up
+
+        repeat(80) {
+            swipeToLeft(Handle.SelectionStart, fontSizePx)
+        }
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 80))
+        }
+    }
+
+    @Test
+    fun dragStartSelectionHandle_outOfBounds_vertically() {
+        state = TextFieldState("abc def ".repeat(10), initialSelectionInChars = TextRange(77, 80))
+        val scrollState = ScrollState(0)
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
+                scrollState = scrollState,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(50.dp)
+            )
+        }
+
+        rule.waitForIdle()
+        scope.launch { scrollState.scrollTo(scrollState.maxValue) } // scroll to the bottom
+        focusAndWait() // selection handles show up
+
+        swipeUp(Handle.SelectionStart, scrollState.maxValue.toFloat() * 2)
+        // make sure that we also swipe to start on the first line
+        swipeToLeft(Handle.SelectionStart, fontSizePx * 10)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 80))
+        }
+    }
+
+    @Test
+    fun dragEndSelectionHandle_outOfBounds_horizontally() {
+        state = TextFieldState("abc def ".repeat(10), initialSelectionInChars = TextRange(0, 3))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.waitForIdle()
+        focusAndWait() // selection handles show up
+
+        repeat(80) {
+            swipeToRight(Handle.SelectionEnd, fontSizePx)
+        }
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 80))
+        }
+    }
+
+    @Test
+    fun dragEndSelectionHandle_outOfBounds_vertically() {
+        state = TextFieldState("abc def ".repeat(10), initialSelectionInChars = TextRange(0, 3))
+        lateinit var layoutResult: TextLayoutResult
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
+                onTextLayout = { layoutResult = it },
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.waitForIdle()
+        focusAndWait() // selection handles show up
+
+        swipeDown(Handle.SelectionEnd, layoutResult.size.height.toFloat())
+        swipeToRight(Handle.SelectionEnd, layoutResult.size.width.toFloat())
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 80))
+        }
+    }
+
+    @Test
+    fun dragStartSelectionHandle_extendsByWord() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToLeft(Handle.SelectionStart, fontSizePx * 2) // only move by 2 characters
+        rule.runOnIdle {
+            // selection extends by a word
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 7))
+        }
+    }
+
+    @Test
+    fun dragEndSelectionHandle_extendsByWord() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToRight(Handle.SelectionEnd, fontSizePx * 2) // only move by 2 characters
+        rule.runOnIdle {
+            // selection extends by a word
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 11))
+        }
+    }
+
+    @Test
+    fun dragStartSelectionHandle_shrinksByCharacter() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToRight(Handle.SelectionStart, fontSizePx) // only move by a single character
+        rule.runOnIdle {
+            // selection shrinks by a character
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5, 7))
+        }
+    }
+
+    @Test
+    fun dragEndSelectionHandle_shrinksByCharacter() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToLeft(Handle.SelectionEnd, fontSizePx) // only move by a single character
+        rule.runOnIdle {
+            // selection shrinks by a character
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 6))
+        }
+    }
+
+    @Test
+    fun dragStartSelectionHandle_cannotExtendSelectionPastEndHandle() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToRight(Handle.SelectionStart, fontSizePx * 7)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(7))
+        }
+    }
+
+    @Test
+    fun dragEndSelectionHandle_cannotExtendSelectionPastStartHandle() {
+        state = TextFieldState("abc def ghj", initialSelectionInChars = TextRange(4, 7))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        focusAndWait()
+
+        swipeToLeft(Handle.SelectionEnd, fontSizePx * 7)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(4))
+        }
+    }
+
     private fun focusAndWait() {
         rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.RequestFocus)
     }
@@ -382,6 +722,59 @@ class TextFieldSelectionHandlesTest {
         }
         if (assertEndHandle) {
             rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertDoesNotExist()
+        }
+    }
+
+    private fun swipeUp(handle: Handle, swipeDistance: Float) =
+        performHandleDrag(handle, true, swipeDistance, Orientation.Vertical)
+
+    private fun swipeDown(handle: Handle, swipeDistance: Float) =
+        performHandleDrag(handle, false, swipeDistance, Orientation.Vertical)
+
+    private fun swipeToLeft(handle: Handle, swipeDistance: Float) =
+        performHandleDrag(handle, true, swipeDistance)
+
+    private fun swipeToRight(handle: Handle, swipeDistance: Float) =
+        performHandleDrag(handle, false, swipeDistance)
+
+    private fun performHandleDrag(
+        handle: Handle,
+        toStart: Boolean,
+        swipeDistance: Float = 1f,
+        orientation: Orientation = Orientation.Horizontal
+    ) {
+        val handleNode = rule.onNode(isSelectionHandle(handle))
+
+        handleNode.performTouchInput {
+            if (orientation == Orientation.Horizontal) {
+                if (toStart) {
+                    swipeLeft(
+                        startX = centerX,
+                        endX = centerX - viewConfiguration.touchSlop - swipeDistance,
+                        durationMillis = 1000
+                    )
+                } else {
+                    swipeRight(
+                        startX = centerX,
+                        endX = centerX + viewConfiguration.touchSlop + swipeDistance,
+                        durationMillis = 1000
+                    )
+                }
+            } else {
+                if (toStart) {
+                    swipeUp(
+                        startY = centerY,
+                        endY = centerY - viewConfiguration.touchSlop - swipeDistance,
+                        durationMillis = 1000
+                    )
+                } else {
+                    swipeDown(
+                        startY = centerY,
+                        endY = centerY + viewConfiguration.touchSlop + swipeDistance,
+                        durationMillis = 1000
+                    )
+                }
+            }
         }
     }
 }
