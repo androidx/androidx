@@ -21,8 +21,8 @@ AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
 
 BuilderSetStyle: androidx.kruth.SimpleSubjectBuilder#that(T):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.SimpleSubjectBuilder.that(T)
-BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<T,? extends S>):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.Subject.Factory<T,? extends S>)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<? extends S,T>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.Subject.Factory<? extends S,T>)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#fail():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.fail()
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Boolean):
