@@ -236,7 +236,9 @@ private val WIFI_DISABLE_OPTION =
 
 private fun benchmarkPostInstallCommandOption(packageName: String) =
     """
-    <option name="app-setup:post-install-cmd" value="${benchmarkPostInstallCommand(packageName)}" />
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="${benchmarkPostInstallCommand(packageName)}" />
+    </target_preparer>
 
 """.trimIndent()
 

@@ -349,7 +349,9 @@ private val goldenDefaultConfigBenchmark = """
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
-    <option name="app-setup:post-install-cmd" value="cmd package compile -f -m speed com.androidx.placeholder.Placeholder" />
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="cmd package compile -f -m speed com.androidx.placeholder.Placeholder" />
+    </target_preparer>
     <option name="instrumentation-arg" key="androidx.benchmark.output.enable" value="true" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <include name="google/unbundled/common/setup" />
