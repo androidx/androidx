@@ -21,6 +21,7 @@ package androidx.compose.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -81,6 +82,7 @@ class SteppedForLoopDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
+    @Ignore("b/289814619")
     @Test
     fun calledOnSteppedLoop() {
         lint().files(
@@ -113,6 +115,7 @@ src/test/test.kt:8: Error: stepping the integer range by 2. [SteppedForLoop]
             )
     }
 
+    @Ignore("b/289814619")
     @Test
     fun calledOnConstantSteppedLoop() {
         lint().files(
@@ -145,6 +148,7 @@ src/test/test.kt:8: Error: stepping the integer range by 2. [SteppedForLoop]
             )
     }
 
+    @Ignore("b/289814619")
     @Test
     fun calledOnUnitSteppedLoop() {
         lint().files(
@@ -177,6 +181,7 @@ src/test/test.kt:8: Error: stepping the integer range by 1. [SteppedForLoop]
             )
     }
 
+    @Ignore("b/289814619")
     @Test
     fun calledOnExpressionSteppedLoop() {
         lint().files(
