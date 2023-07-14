@@ -2605,7 +2605,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal fun onEngineDetached() {
             synchronized(lock) {
-                forEachListener("onWatchFaceColorsChanged") {
+                forEachListener("onEngineDetached") {
                     if (it.apiVersion >= 2) {
                         it.onEngineDetached()
                     }
