@@ -71,25 +71,6 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
     private val editCommands = mutableListOf<EditCommand>()
 
     /**
-     * If this InputConnection itself is active. This value becomes false only if [closeConnection]
-     * gets called.
-     */
-    private var isICActive: Boolean = true
-
-    /**
-     * Returns whether this input connection is still active and also executes the given lambda if
-     * it is active.
-     */
-    private inline fun ensureActive(block: () -> Unit): Boolean {
-        val combinedActive = isICActive
-        return combinedActive.also {
-            if (it) {
-                block()
-            }
-        }
-    }
-
-    /**
      * Add edit op to internal list with wrapping batch edit. It's not guaranteed by IME that
      * batch editing will be used for every operation. Instead, [StatelessInputConnection] creates
      * its own mini batches for every edit op. These batches are only applied when batch depth
@@ -106,7 +87,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
     }
 
     // region Methods for batch editing and session control
-    override fun beginBatchEdit(): Boolean = ensureActive {
+    override fun beginBatchEdit(): Boolean {
         logDebug("beginBatchEdit()")
         return beginBatchEditInternal()
     }
@@ -135,58 +116,57 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         logDebug("closeConnection()")
         editCommands.clear()
         batchDepth = 0
-        isICActive = false
     }
 
     //endregion
 
     // region Callbacks for text editing
 
-    override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean = ensureActive {
+    override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("commitText(\"$text\", $newCursorPosition)")
         addEditCommandWithBatch(CommitTextCommand(text.toString(), newCursorPosition))
+        return true
     }
 
-    override fun setComposingRegion(start: Int, end: Int): Boolean = ensureActive {
+    override fun setComposingRegion(start: Int, end: Int): Boolean {
         logDebug("setComposingRegion($start, $end)")
         addEditCommandWithBatch(SetComposingRegionCommand(start, end))
+        return true
     }
 
-    override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean =
-        ensureActive {
-            logDebug("setComposingText(\"$text\", $newCursorPosition)")
-            addEditCommandWithBatch(SetComposingTextCommand(text.toString(), newCursorPosition))
-        }
+    override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
+        logDebug("setComposingText(\"$text\", $newCursorPosition)")
+        addEditCommandWithBatch(SetComposingTextCommand(text.toString(), newCursorPosition))
+        return true
+    }
 
-    override fun deleteSurroundingTextInCodePoints(beforeLength: Int, afterLength: Int): Boolean =
-        ensureActive {
-            logDebug("deleteSurroundingTextInCodePoints($beforeLength, $afterLength)")
-            addEditCommandWithBatch(
-                DeleteSurroundingTextInCodePointsCommand(beforeLength, afterLength)
-            )
-            return true
-        }
+    override fun deleteSurroundingTextInCodePoints(beforeLength: Int, afterLength: Int): Boolean {
+        logDebug("deleteSurroundingTextInCodePoints($beforeLength, $afterLength)")
+        addEditCommandWithBatch(
+            DeleteSurroundingTextInCodePointsCommand(beforeLength, afterLength)
+        )
+        return true
+    }
 
-    override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean =
-        ensureActive {
-            logDebug("deleteSurroundingText($beforeLength, $afterLength)")
-            addEditCommandWithBatch(DeleteSurroundingTextCommand(beforeLength, afterLength))
-            return true
-        }
+    override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
+        logDebug("deleteSurroundingText($beforeLength, $afterLength)")
+        addEditCommandWithBatch(DeleteSurroundingTextCommand(beforeLength, afterLength))
+        return true
+    }
 
-    override fun setSelection(start: Int, end: Int): Boolean = ensureActive {
+    override fun setSelection(start: Int, end: Int): Boolean {
         logDebug("setSelection($start, $end)")
         addEditCommandWithBatch(SetSelectionCommand(start, end))
         return true
     }
 
-    override fun finishComposingText(): Boolean = ensureActive {
+    override fun finishComposingText(): Boolean {
         logDebug("finishComposingText()")
         addEditCommandWithBatch(FinishComposingTextCommand)
         return true
     }
 
-    override fun sendKeyEvent(event: KeyEvent): Boolean = ensureActive {
+    override fun sendKeyEvent(event: KeyEvent): Boolean {
         logDebug("sendKeyEvent($event)")
         session.sendKeyEvent(event)
         return true
@@ -222,7 +202,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         return result
     }
 
-    override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean = ensureActive {
+    override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean {
         logDebug("requestCursorUpdates($cursorUpdateMode)")
         return false
     }
@@ -247,7 +227,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
 
     // region Editor action and Key events.
 
-    override fun performContextMenuAction(id: Int): Boolean = ensureActive {
+    override fun performContextMenuAction(id: Int): Boolean {
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
@@ -273,7 +253,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, code))
     }
 
-    override fun performEditorAction(editorAction: Int): Boolean = ensureActive {
+    override fun performEditorAction(editorAction: Int): Boolean {
         logDebug("performEditorAction($editorAction)")
 
         val imeAction = when (editorAction) {
@@ -336,7 +316,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         return false // This value is ignored according to the API docs.
     }
 
-    override fun performPrivateCommand(action: String?, data: Bundle?): Boolean = ensureActive {
+    override fun performPrivateCommand(action: String?, data: Bundle?): Boolean {
         logDebug("performPrivateCommand($action, $data)")
         return true // API doc says we should return true even if we didn't understand the command.
     }
@@ -345,7 +325,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         inputContentInfo: InputContentInfo,
         flags: Int,
         opts: Bundle?
-    ): Boolean = ensureActive {
+    ): Boolean {
         logDebug("commitContent($inputContentInfo, $flags, $opts)")
         // TODO(halilibo): Support commit content in BasicTextField2
         return false
@@ -355,7 +335,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
 
     private fun logDebug(message: String) {
         if (SIC_DEBUG) {
-            Log.d(TAG, "$DEBUG_CLASS.$message, $isICActive")
+            Log.d(TAG, "$DEBUG_CLASS.$message")
         }
     }
 }
