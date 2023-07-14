@@ -99,8 +99,9 @@ sealed class CompilationMode {
                         val output = Shell.executeScriptCaptureStdout(
                             "cmd package compile --reset $packageName"
                         )
+
                         check(output.trim() == "Success" || output.contains("PERFORMED")) {
-                            "Unable to recompile $packageName (out=$output)"
+                            compileResetErrorString(packageName, output, DeviceInfo.isEmulator)
                         }
                     } else {
                         // User builds pre-U. Kick off a full uninstall-reinstall
@@ -433,6 +434,21 @@ sealed class CompilationMode {
             check(stdout.trim() == "Success" || stdout.contains("PERFORMED")) {
                 "Failed to compile (out=$stdout)"
             }
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // enable testing
+        fun compileResetErrorString(
+            packageName: String,
+            output: String,
+            isEmulator: Boolean
+        ): String {
+            return "Unable to reset compilation of $packageName (out=$output)." +
+                if (output.contains("could not be compiled") && isEmulator) {
+                    " Try updating your emulator -" +
+                        " see https://issuetracker.google.com/issue?id=251540646"
+                } else {
+                    ""
+                }
         }
     }
 }

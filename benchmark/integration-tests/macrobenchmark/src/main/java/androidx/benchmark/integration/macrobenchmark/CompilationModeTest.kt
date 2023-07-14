@@ -25,10 +25,12 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.testutils.getStartupMetrics
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -132,6 +134,38 @@ class CompilationModeTest {
         }
 
         return COMPILATION_PROFILE_UNKNOWN
+    }
+
+    @SmallTest
+    @Test
+    fun compileResetErrorString() {
+        assertEquals(
+            expected = "Unable to reset compilation of pkg (out=out).",
+            actual = CompilationMode.compileResetErrorString(
+                packageName = "pkg",
+                output = "out",
+                isEmulator = true
+            )
+        )
+        assertEquals(
+            expected = "Unable to reset compilation of pkg (out=pkg could not be compiled).",
+            actual = CompilationMode.compileResetErrorString(
+                packageName = "pkg",
+                output = "pkg could not be compiled",
+                isEmulator = false
+            )
+        )
+        // verbose message requires emulator + specific "could not be compiled" output from --reset
+        assertEquals(
+            expected = "Unable to reset compilation of pkg (out=pkg could not be compiled)." +
+                " Try updating your emulator - see" +
+                " https://issuetracker.google.com/issue?id=251540646",
+            actual = CompilationMode.compileResetErrorString(
+                packageName = "pkg",
+                output = "pkg could not be compiled",
+                isEmulator = true
+            )
+        )
     }
 
     companion object {
