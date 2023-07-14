@@ -47,15 +47,96 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public class AccessibilityNodeInfoCompatTest {
     @Test
-    public void testSetCollectionInfoIsNullable() throws Exception {
+    public void testSetCollectionInfoIsNullable() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setCollectionInfo(null);
     }
 
     @Test
-    public void testSetCollectionItemInfoIsNullable() throws Exception {
+    public void testSetCollectionItemInfoIsNullable() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setCollectionItemInfo(null);
+    }
+
+    @Test
+    public void testSetCollectionItemInfoCompatBuilder_withDefaultValues() {
+        AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
+                new AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder().build();
+
+        assertThat(collectionItemInfoCompat.getColumnIndex()).isEqualTo(0);
+        assertThat(collectionItemInfoCompat.getColumnSpan()).isEqualTo(0);
+        assertThat(collectionItemInfoCompat.getColumnTitle()).isNull();
+
+        assertThat(collectionItemInfoCompat.getRowIndex()).isEqualTo(0);
+        assertThat(collectionItemInfoCompat.getRowSpan()).isEqualTo(0);
+        assertThat(collectionItemInfoCompat.getRowTitle()).isNull();
+        assertThat(collectionItemInfoCompat.isSelected()).isFalse();
+        assertThat(collectionItemInfoCompat.isHeading()).isFalse();
+    }
+
+    @Test
+    public void testSetCollectionInfoCompatBuilder_withRealValues() {
+        AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
+                new AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder()
+                        .setColumnIndex(2)
+                        .setColumnSpan(1)
+                        .setColumnTitle("Column title")
+                        .setRowIndex(1)
+                        .setRowSpan(2)
+                        .setRowTitle("Row title")
+                        .setSelected(true)
+                        .setHeading(true)
+                        .build();
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            assertThat(collectionItemInfoCompat.getColumnTitle()).isEqualTo("Column title");
+            assertThat(collectionItemInfoCompat.getRowTitle()).isEqualTo("Row title");
+        }
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertThat(collectionItemInfoCompat.isSelected()).isTrue();
+        }
+
+        assertThat(collectionItemInfoCompat.getColumnIndex()).isEqualTo(2);
+        assertThat(collectionItemInfoCompat.getColumnSpan()).isEqualTo(1);
+        assertThat(collectionItemInfoCompat.getRowIndex()).isEqualTo(1);
+        assertThat(collectionItemInfoCompat.getRowSpan()).isEqualTo(2);
+        assertThat(collectionItemInfoCompat.isHeading()).isTrue();
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testRangeInfoCompatConstructor_always_returnsRangeInfoCompat() {
+        AccessibilityNodeInfoCompat.RangeInfoCompat rangeInfoCompat =
+                new AccessibilityNodeInfoCompat.RangeInfoCompat(
+                        AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_INT, 0, 100, 50);
+        assertThat(rangeInfoCompat.getType()).isEqualTo(
+                AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_INT);
+        assertThat(rangeInfoCompat.getMin()).isEqualTo(0f);
+        assertThat(rangeInfoCompat.getMax()).isEqualTo(100f);
+        assertThat(rangeInfoCompat.getCurrent()).isEqualTo(50f);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void testGetChild_withPrefetchingStrategy_returnsChild() {
+        AccessibilityNodeInfo accessibilityNodeInfo = mock(AccessibilityNodeInfo.class);
+        AccessibilityNodeInfoCompat nodeCompat = AccessibilityNodeInfoCompat.wrap(
+                accessibilityNodeInfo);
+        nodeCompat.getChild(0, AccessibilityNodeInfoCompat.FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST);
+        verify(accessibilityNodeInfo).getChild(0,
+                AccessibilityNodeInfoCompat.FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void testGetChild_withPrefetchingStrategy_returnsParent() {
+        AccessibilityNodeInfo accessibilityNodeInfo = mock(AccessibilityNodeInfo.class);
+        AccessibilityNodeInfoCompat nodeCompat = AccessibilityNodeInfoCompat.wrap(
+                accessibilityNodeInfo);
+        nodeCompat.getParent(AccessibilityNodeInfoCompat.FLAG_PREFETCH_ANCESTORS);
+        verify(accessibilityNodeInfo).getParent(
+                AccessibilityNodeInfoCompat.FLAG_PREFETCH_ANCESTORS);
     }
 
     @Test
