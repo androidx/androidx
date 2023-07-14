@@ -1488,6 +1488,83 @@ class XTypeElementTest(
     }
 
     @Test
+    fun constructorsWithOverloads() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class DefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double, z: Long = 1) {}
+            class NoDefaultArgs @JvmOverloads constructor(x:Int, y: Double, z: Long) {}
+            class AllDefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double = 0.0, z: Long = 1) {}
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) { invocation ->
+            val defaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("DefaultArgs")
+                    .getConstructorSignatures()
+            val noDefaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("NoDefaultArgs")
+                    .getConstructorSignatures()
+            val allDefaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("AllDefaultArgs")
+                    .getConstructorSignatures()
+
+            if (isPreCompiled) {
+                assertThat(defaultArgsConstructors)
+                    .containsExactly(
+                        "DefaultArgs(int,double,long)",
+                        "DefaultArgs(int,double)",
+                        "DefaultArgs(double)"
+                    ).inOrder()
+                assertThat(noDefaultArgsConstructors)
+                    .containsExactly(
+                        "NoDefaultArgs(int,double,long)"
+                    ).inOrder()
+                assertThat(allDefaultArgsConstructors)
+                    .containsExactly(
+                        "AllDefaultArgs(int,double,long)",
+                        "AllDefaultArgs(int,double)",
+                        "AllDefaultArgs(int)",
+                        "AllDefaultArgs()"
+                    ).inOrder()
+            } else {
+                assertThat(defaultArgsConstructors)
+                    .containsExactly(
+                        "DefaultArgs(int,double,long)",
+                        "DefaultArgs(double)",
+                        "DefaultArgs(int,double)"
+                    ).inOrder()
+                assertThat(noDefaultArgsConstructors)
+                    .containsExactly(
+                        "NoDefaultArgs(int,double,long)"
+                    ).inOrder()
+                assertThat(allDefaultArgsConstructors)
+                    .containsExactly(
+                        "AllDefaultArgs(int,double,long)",
+                        "AllDefaultArgs()",
+                        "AllDefaultArgs(int)",
+                        "AllDefaultArgs(int,double)"
+                    ).inOrder()
+            }
+
+            val subjects = listOf("DefaultArgs", "NoDefaultArgs", "AllDefaultArgs")
+            if (invocation.isKsp) {
+                val syntheticConstructorCounts = subjects.map {
+                    it to invocation.processingEnv.requireTypeElement(it)
+                        .getConstructors()
+                        .filter { it.isSyntheticConstructorForJvmOverloads() }
+                        .size
+                }
+                assertThat(syntheticConstructorCounts)
+                    .containsExactly(
+                        "DefaultArgs" to 2,
+                        "NoDefaultArgs" to 0,
+                        "AllDefaultArgs" to 3,
+                    )
+            }
+        }
+    }
+
+    @Test
     fun constructorsWithDefaultValues() {
         val src = Source.kotlin(
             "Subject.kt",
@@ -2242,6 +2319,17 @@ class XTypeElementTest(
     private fun List<XMethodElement>.jvmNames() = map {
         it.jvmName
     }.toList()
+
+    private fun XTypeElement.getConstructorSignatures(): List<String> =
+        getConstructors().map { it.signature() }
+
+    private fun XConstructorElement.signature(): String {
+        val params = executableType.parameterTypes.joinToString(",") {
+            it.asTypeName().java.toString()
+        }
+        val enclosingName = enclosingElement.name
+        return "$enclosingName($params)"
+    }
 
     private fun XMethodElement.signature(owner: XType): String {
         val methodType = this.asMemberOf(owner)
