@@ -16,13 +16,14 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -99,7 +100,7 @@ class XExecutableTypeTest {
                 vararg subjects: XTypeElement,
                 callback: (XMethodType) -> Unit
             ) {
-                assertThat(subjects).isNotEmpty()
+                Truth.assertThat(subjects).isNotEmpty() // Kruth doesn't support arrays yet
                 subjects.forEach {
                     callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
                     callback(it.getMethodByJvmName(methodName).asMemberOf(it.type))
@@ -440,7 +441,7 @@ class XExecutableTypeTest {
                 vararg subjects: XTypeElement,
                 callback: (XMethodType) -> Unit
             ) {
-                assertThat(subjects).isNotEmpty()
+                Truth.assertThat(subjects).isNotEmpty() // Kruth doesn't support arrays yet
                 subjects.forEach {
                     callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
                     callback(it.getMethodByJvmName(methodName).asMemberOf(it.type))

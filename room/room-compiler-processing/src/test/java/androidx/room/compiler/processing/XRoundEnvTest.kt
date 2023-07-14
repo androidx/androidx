@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.testcode.OtherAnnotation
@@ -23,8 +25,6 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.javapoet.JTypeName

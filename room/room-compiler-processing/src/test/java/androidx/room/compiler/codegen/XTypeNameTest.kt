@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.codegen
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.XNullability
-import com.google.common.truth.Truth.assertThat
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.javapoet.JClassName
