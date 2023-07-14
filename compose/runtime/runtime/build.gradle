@@ -203,16 +203,37 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             tvosSimulatorArm64Main.dependsOn(tvOsMain)
             tvosSimulatorArm64Test.dependsOn(tvOsTest)
 
-            jvmTest.dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.kotlinCoroutinesTest)
+            nonEmulatorCommonTest {
+                dependsOn(commonTest)
+                dependencies {
+                }
+            }
+            nonEmulatorJvmTest {
+                dependsOn(nonEmulatorCommonTest)
+                dependencies {
+                }
+            }
+
+
+            jvmTest {
+                dependsOn(nonEmulatorJvmTest)
+                dependencies {
+                    implementation(libs.kotlinTestJunit)
+                    implementation(libs.kotlinCoroutinesTest)
+                }
+            }
+
+            desktopTest {
+                dependsOn(jvmTest)
             }
             jsTest {
+                dependsOn(nonEmulatorCommonTest)
                 dependencies {
                     implementation(libs.kotlinTestJs)
                 }
             }
             nativeTest {
+                dependsOn(nonEmulatorCommonTest)
                 kotlin.srcDir("src/nativeTest/kotlin")
             }
         }

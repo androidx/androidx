@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.test.IgnoreJsTarget
 
 class SnapshotStateObserverTestsCommon {
 
@@ -722,6 +723,7 @@ class SnapshotStateObserverTestsCommon {
     }
 
     @Test
+    @IgnoreJsTarget
     fun readingDerivedState_invalidatesWhenValueNotChanged() {
         var changes = 0
         val changeBlock: (Any) -> Unit = { changes++ }
@@ -746,6 +748,7 @@ class SnapshotStateObserverTestsCommon {
     }
 
     @Test
+    @IgnoreJsTarget
     fun readingDerivedState_invalidatesIfReadBeforeSnapshotAdvance() {
         var changes = 0
         val changeBlock: (Any) -> Unit = {

@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.collection
 
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.identityHashCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,6 +28,7 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@OptIn(InternalComposeApi::class)
 class IdentityArraySetTest {
     private val set: IdentityArraySet<Stuff> = IdentityArraySet()
 

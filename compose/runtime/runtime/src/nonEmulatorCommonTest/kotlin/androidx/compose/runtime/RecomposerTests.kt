@@ -271,7 +271,7 @@ class RecomposerTests {
         compose {
             if (state) {
                 TestSubcomposition {
-                    assert(state) { "Subcomposition should be disposed if state is false" }
+                    assertTrue(state, "Subcomposition should be disposed if state is false" )
                 }
             }
         }

@@ -30,13 +30,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import androidx.compose.runtime.runTest
 import kotlinx.test.IgnoreJsAndNative
@@ -586,10 +579,10 @@ class SnapshotStateMapTests {
         }
     }
 
-    @Test(timeout = 30_000)
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_set(): Unit = runTest {
+    fun concurrentMixingWriteApply_set() = runTest(timeoutMs = 30_000) {
         repeat(10) {
             val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
             val channel = Channel<Unit>(Channel.CONFLATED)
@@ -618,10 +611,10 @@ class SnapshotStateMapTests {
         // Should only get here if the above doesn't deadlock.
     }
 
-    @Test(timeout = 30_000)
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_clear(): Unit = runTest {
+    fun concurrentMixingWriteApply_clear() = runTest(timeoutMs = 30_000) {
         repeat(10) {
             val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
             val channel = Channel<Unit>(Channel.CONFLATED)
