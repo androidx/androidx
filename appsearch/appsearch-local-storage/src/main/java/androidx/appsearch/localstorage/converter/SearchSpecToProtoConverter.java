@@ -65,7 +65,15 @@ public final class SearchSpecToProtoConverter {
     private static final String TAG = "AppSearchSearchSpecConv";
     private final String mQueryExpression;
     private final SearchSpec mSearchSpec;
-    private final Set<String> mPrefixes;
+    /**
+     * The union of allowed prefixes for the top-level SearchSpec and any nested SearchSpecs.
+     */
+    private final Set<String> mAllAllowedPrefixes;
+    /**
+     * The intersection of mAllAllowedPrefixes and prefixes requested in the SearchSpec currently
+     * being handled.
+     */
+    private final Set<String> mCurrentSearchSpecPrefixFilters;
     /**
      * The intersected prefixed namespaces that are existing in AppSearch and also accessible to the
      * client.
@@ -107,7 +115,9 @@ public final class SearchSpecToProtoConverter {
      *
      * @param queryExpression                Query String to search.
      * @param searchSpec    The spec we need to convert from.
-     * @param prefixes      Set of database prefix which the caller want to access.
+     * @param allAllowedPrefixes Superset of database prefixes which the {@link SearchSpec} and all
+     *                           nested SearchSpecs are allowed to access. An empty set means no
+     *                           database prefixes are allowed, so nothing will be searched.
      * @param namespaceMap  The cached Map of {@code <Prefix, Set<PrefixedNamespace>>} stores
      *                      all prefixed namespace filters which are stored in AppSearch.
      * @param schemaMap     The cached Map of {@code <Prefix, Map<PrefixedSchemaType, schemaProto>>}
@@ -116,25 +126,51 @@ public final class SearchSpecToProtoConverter {
     public SearchSpecToProtoConverter(
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
-            @NonNull Set<String> prefixes,
+            @NonNull Set<String> allAllowedPrefixes,
             @NonNull Map<String, Set<String>> namespaceMap,
             @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
             @NonNull IcingOptionsConfig icingOptionsConfig) {
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);
-        mPrefixes = Preconditions.checkNotNull(prefixes);
+        mAllAllowedPrefixes = Preconditions.checkNotNull(allAllowedPrefixes);
         mNamespaceMap = Preconditions.checkNotNull(namespaceMap);
         mSchemaMap = Preconditions.checkNotNull(schemaMap);
         mIcingOptionsConfig = Preconditions.checkNotNull(icingOptionsConfig);
+
+        // This field holds the prefix filters for the SearchSpec currently being handled, which
+        // could be an outer or inner SearchSpec. If this constructor is called from outside of
+        // SearchSpecToProtoConverter, it will be handling an outer SearchSpec. If this SearchSpec
+        // contains a JoinSpec, the nested SearchSpec will be handled in the creation of
+        // mNestedConverter. This is useful as the two SearchSpecs could have different package
+        // filters.
+        List<String> packageFilters = searchSpec.getFilterPackageNames();
+        if (packageFilters.isEmpty()) {
+            mCurrentSearchSpecPrefixFilters = mAllAllowedPrefixes;
+        } else {
+            mCurrentSearchSpecPrefixFilters = new ArraySet<>();
+            for (String prefix : mAllAllowedPrefixes) {
+                String packageName = getPackageName(prefix);
+                if (packageFilters.contains(packageName)) {
+                    // This performs an intersection of allowedPrefixes with prefixes requested
+                    // in the SearchSpec currently being handled. The same operation is done
+                    // on the nested SearchSpecs when mNestedConverter is created.
+                    mCurrentSearchSpecPrefixFilters.add(prefix);
+                }
+            }
+        }
+
         mTargetPrefixedNamespaceFilters =
                 SearchSpecToProtoConverterUtil.generateTargetNamespaceFilters(
-                        prefixes, namespaceMap, searchSpec.getFilterNamespaces());
+                        mCurrentSearchSpecPrefixFilters, namespaceMap,
+                        searchSpec.getFilterNamespaces());
+
         // If the target namespace filter is empty, the user has nothing to search for. We can skip
         // generate the target schema filter.
         if (!mTargetPrefixedNamespaceFilters.isEmpty()) {
             mTargetPrefixedSchemaFilters =
                     SearchSpecToProtoConverterUtil.generateTargetSchemaFilters(
-                            prefixes, schemaMap, searchSpec.getFilterSchemas());
+                            mCurrentSearchSpecPrefixFilters, schemaMap,
+                            searchSpec.getFilterSchemas());
         } else {
             mTargetPrefixedSchemaFilters = new ArraySet<>();
         }
@@ -147,7 +183,7 @@ public final class SearchSpecToProtoConverter {
         mNestedConverter = new SearchSpecToProtoConverter(
                 joinSpec.getNestedQuery(),
                 joinSpec.getNestedSearchSpec(),
-                mPrefixes,
+                mAllAllowedPrefixes,
                 namespaceMap,
                 schemaMap,
                 mIcingOptionsConfig);
@@ -361,41 +397,41 @@ public final class SearchSpecToProtoConverter {
                 ResultSpecProto.ResultGroupingType.NONE;
         switch (groupingType) {
             case SearchSpec.GROUPING_TYPE_PER_PACKAGE :
-                addPerPackageResultGroupings(mPrefixes, mSearchSpec.getResultGroupingLimit(),
-                        namespaceMap, resultSpecBuilder);
+                addPerPackageResultGroupings(mCurrentSearchSpecPrefixFilters,
+                        mSearchSpec.getResultGroupingLimit(), namespaceMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE;
                 break;
             case SearchSpec.GROUPING_TYPE_PER_NAMESPACE:
-                addPerNamespaceResultGroupings(mPrefixes, mSearchSpec.getResultGroupingLimit(),
-                        namespaceMap, resultSpecBuilder);
+                addPerNamespaceResultGroupings(mCurrentSearchSpecPrefixFilters,
+                        mSearchSpec.getResultGroupingLimit(), namespaceMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE;
                 break;
             case SearchSpec.GROUPING_TYPE_PER_SCHEMA:
-                addPerSchemaResultGrouping(mPrefixes, mSearchSpec.getResultGroupingLimit(),
-                        schemaMap, resultSpecBuilder);
+                addPerSchemaResultGrouping(mCurrentSearchSpecPrefixFilters,
+                        mSearchSpec.getResultGroupingLimit(), schemaMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.SCHEMA_TYPE;
                 break;
             case SearchSpec.GROUPING_TYPE_PER_PACKAGE | SearchSpec.GROUPING_TYPE_PER_NAMESPACE:
-                addPerPackagePerNamespaceResultGroupings(mPrefixes,
+                addPerPackagePerNamespaceResultGroupings(mCurrentSearchSpecPrefixFilters,
                         mSearchSpec.getResultGroupingLimit(),
                         namespaceMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE;
                 break;
             case SearchSpec.GROUPING_TYPE_PER_PACKAGE | SearchSpec.GROUPING_TYPE_PER_SCHEMA:
-                addPerPackagePerSchemaResultGroupings(mPrefixes,
+                addPerPackagePerSchemaResultGroupings(mCurrentSearchSpecPrefixFilters,
                         mSearchSpec.getResultGroupingLimit(),
                         schemaMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.SCHEMA_TYPE;
                 break;
             case SearchSpec.GROUPING_TYPE_PER_NAMESPACE | SearchSpec.GROUPING_TYPE_PER_SCHEMA:
-                addPerNamespaceAndSchemaResultGrouping(mPrefixes,
+                addPerNamespaceAndSchemaResultGrouping(mCurrentSearchSpecPrefixFilters,
                         mSearchSpec.getResultGroupingLimit(),
                         namespaceMap, schemaMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE_AND_SCHEMA_TYPE;
                 break;
             case SearchSpec.GROUPING_TYPE_PER_PACKAGE | SearchSpec.GROUPING_TYPE_PER_NAMESPACE
                 | SearchSpec.GROUPING_TYPE_PER_SCHEMA:
-                addPerPackagePerNamespacePerSchemaResultGrouping(mPrefixes,
+                addPerPackagePerNamespacePerSchemaResultGrouping(mCurrentSearchSpecPrefixFilters,
                         mSearchSpec.getResultGroupingLimit(),
                         namespaceMap, schemaMap, resultSpecBuilder);
                 resultGroupingType = ResultSpecProto.ResultGroupingType.NAMESPACE_AND_SCHEMA_TYPE;
@@ -415,7 +451,7 @@ public final class SearchSpecToProtoConverter {
             boolean isWildcard =
                     unprefixedType.equals(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD);
             // Qualify the given schema types
-            for (String prefix : mPrefixes) {
+            for (String prefix : mCurrentSearchSpecPrefixFilters) {
                 String prefixedType = isWildcard ? unprefixedType : prefix + unprefixedType;
                 if (isWildcard || mTargetPrefixedSchemaFilters.contains(prefixedType)) {
                     resultSpecBuilder.addTypePropertyMasks(typePropertyMaskBuilders.get(i)
@@ -923,7 +959,7 @@ public final class SearchSpecToProtoConverter {
 
         for (Map.Entry<String, Map<String, Double>> typePropertyWeight :
                 typePropertyWeightsMap.entrySet()) {
-            for (String prefix : mPrefixes) {
+            for (String prefix : mCurrentSearchSpecPrefixFilters) {
                 String prefixedSchemaType = prefix + typePropertyWeight.getKey();
                 if (mTargetPrefixedSchemaFilters.contains(prefixedSchemaType)) {
                     TypePropertyWeights.Builder typePropertyWeightsBuilder =
