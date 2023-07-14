@@ -1,7 +1,5 @@
-// ktlint-disable filename
-
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.input.pointer
 
 import kotlinx.coroutines.CancellationException
 
-internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
-
-internal actual typealias AtomicLong = java.util.concurrent.atomic.AtomicLong
-
-internal actual abstract class PlatformOptimizedCancellationException actual constructor(
-    message: String?
-) : CancellationException(message) {
+actual class PointerEventTimeoutCancellationException actual constructor(
+    time: Long
+) : CancellationException("Timed out waiting for $time ms") {
 
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace

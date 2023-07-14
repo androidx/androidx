@@ -20,6 +20,7 @@ import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
+import kotlin.coroutines.cancellation.CancellationException
 import org.jetbrains.skiko.SkikoInputModifiers
 
 internal actual fun NativeKeyEvent.toPointerKeyboardModifiers(): PointerKeyboardModifiers {
@@ -39,3 +40,7 @@ internal actual fun InspectorInfo.tryPopulateReflectively(
     element: ModifierNodeElement<*>
 ) {
 }
+
+internal actual abstract class PlatformOptimizedCancellationException actual constructor(
+    message: String?
+) : CancellationException(message)

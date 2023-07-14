@@ -21,6 +21,7 @@ import androidx.compose.runtime.internal.emptyThreadMap
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ThreadContextElement
 
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
@@ -76,4 +77,16 @@ internal actual class SnapshotContextElementImpl actual constructor(
     override fun restoreThreadContext(context: CoroutineContext, oldState: Snapshot?) {
         snapshot.unsafeLeave(oldState)
     }
+}
+
+internal actual abstract class PlatformOptimizedCancellationException actual constructor(
+    message: String?
+) : CancellationException(message) {
+
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+
 }

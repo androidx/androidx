@@ -1,7 +1,5 @@
-// ktlint-disable filename
-
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.animation.core.internal
 
 import kotlinx.coroutines.CancellationException
-
-expect class AtomicReference<V>(value: V) {
-    fun get(): V
-    fun set(value: V)
-    fun getAndSet(value: V): V
-    fun compareAndSet(expect: V, newValue: V): Boolean
-}
-
-expect class AtomicLong(value: Long) {
-    fun get(): Long
-    fun set(value: Long)
-    fun getAndIncrement(): Long
-}
 
 /**
  * Represents a platform-optimized cancellation exception.

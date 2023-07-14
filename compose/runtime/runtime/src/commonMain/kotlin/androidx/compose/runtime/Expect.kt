@@ -18,6 +18,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
+import kotlinx.coroutines.CancellationException
 
 internal expect fun getCurrentThreadId(): Long
 
@@ -106,3 +107,11 @@ internal expect class SnapshotContextElementImpl(
 ) : SnapshotContextElement
 
 internal expect fun logError(message: String, e: Throwable)
+
+/**
+ * Represents a platform-optimized cancellation exception.
+ * This allows us to configure exceptions separately on JVM and other platforms.
+ */
+internal expect abstract class PlatformOptimizedCancellationException(
+    message: String? = null
+) : CancellationException

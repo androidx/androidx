@@ -17,6 +17,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.SnapshotMutableState
+import kotlin.coroutines.cancellation.CancellationException
 
 internal actual fun <T> createSnapshotMutableState(
     value: T,
@@ -38,3 +39,7 @@ internal actual fun createSnapshotMutableFloatState(
 internal actual fun createSnapshotMutableDoubleState(
     value: Double
 ): MutableDoubleState = SnapshotMutableDoubleStateImpl(value)
+
+internal actual abstract class PlatformOptimizedCancellationException actual constructor(
+    message: String?
+) : CancellationException(message)
