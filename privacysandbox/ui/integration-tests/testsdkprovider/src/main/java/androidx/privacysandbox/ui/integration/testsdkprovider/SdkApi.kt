@@ -24,6 +24,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
 import android.view.View
@@ -54,11 +55,12 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
         SandboxedUiAdapter {
         override fun openSession(
             context: Context,
+            windowInputToken: IBinder,
             initialWidth: Int,
             initialHeight: Int,
             isZOrderOnTop: Boolean,
             clientExecutor: Executor,
-            client: SandboxedUiAdapter.SessionClient
+            client: SandboxedUiAdapter.SessionClient,
         ) {
             Log.d(TAG, "Session requested")
             lateinit var adView: View
@@ -90,7 +92,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
 
             override fun notifyResized(width: Int, height: Int) {
                 Log.i(TAG, "Resized $width $height")
-                view.layoutParams = ViewGroup.LayoutParams(width, height)
+                view.layoutParams.width = width
+                view.layoutParams.height = height
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
