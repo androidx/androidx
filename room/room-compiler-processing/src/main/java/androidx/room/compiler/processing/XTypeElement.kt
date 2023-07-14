@@ -189,7 +189,10 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     }
 
     /**
-     * Returns the list of constructors in this type element
+     * Returns the list of constructors in this type element.
+     *
+     * May return synthetic constructors in KSP due to @JvmOverloads. You may filter out synthetic
+     * constructors with XConstructorElement#isSyntheticConstructorFromJvmOverloads
      */
     fun getConstructors(): List<XConstructorElement>
 
