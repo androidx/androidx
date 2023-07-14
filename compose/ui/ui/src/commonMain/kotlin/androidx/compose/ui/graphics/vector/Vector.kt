@@ -214,6 +214,7 @@ internal class PathComponent : VNode() {
     var strokeLineWidth = DefaultStrokeLineWidth
         set(value) {
             field = value
+            isStrokeDirty = true
             invalidate()
         }
 

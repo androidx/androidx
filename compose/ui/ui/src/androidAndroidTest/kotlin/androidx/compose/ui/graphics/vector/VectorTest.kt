@@ -543,6 +543,25 @@ class VectorTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorStrokeWidth() {
+        val strokeWidth = mutableStateOf(100)
+        rule.setContent {
+            VectorStroke(strokeWidth = strokeWidth.value)
+        }
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 25))
+            assertEquals(Color.Blue.toArgb(), getPixel(100, 75))
+        }
+        rule.runOnUiThread { strokeWidth.value = 200 }
+        rule.waitForIdle()
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 25))
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 75))
+        }
+    }
+
     @Composable
     private fun VectorTint(
         size: Int = 200,
@@ -672,6 +691,47 @@ class VectorTest {
                     trimPathStart = 0.25f,
                     trimPathEnd = 0.75f,
                     trimPathOffset = 0.5f
+                )
+            },
+            alignment = alignment
+        )
+        AtLeastSize(size = minimumSize, modifier = background) {
+        }
+    }
+
+    @Composable
+    private fun VectorStroke(
+        size: Int = 200,
+        strokeWidth: Int = 100,
+        minimumSize: Int = size,
+        alignment: Alignment = Alignment.Center
+    ) {
+        val sizePx = size.toFloat()
+        val sizeDp = (size / LocalDensity.current.density).dp
+        val strokeWidthPx = strokeWidth.toFloat()
+        val background = Modifier.paint(
+            rememberVectorPainter(
+                defaultWidth = sizeDp,
+                defaultHeight = sizeDp,
+                autoMirror = false
+            ) { _, _ ->
+                Path(
+                    pathData = PathData {
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx)
+                        lineTo(0.0f, sizePx)
+                        close()
+                    },
+                    fill = SolidColor(Color.Blue)
+                )
+                // A thick stroke
+                Path(
+                    pathData = PathData {
+                        moveTo(0.0f, 0.0f)
+                        lineTo(sizePx, 0.0f)
+                    },
+                    stroke = SolidColor(Color.Yellow),
+                    strokeLineWidth = strokeWidthPx,
                 )
             },
             alignment = alignment
