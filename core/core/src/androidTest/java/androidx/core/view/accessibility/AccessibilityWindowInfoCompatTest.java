@@ -19,6 +19,7 @@ package androidx.core.view.accessibility;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.annotation.TargetApi;
@@ -68,7 +69,7 @@ public class AccessibilityWindowInfoCompatTest {
         assertThat(accessibilityWindowInfoCompat.unwrap()).isEqualTo(accessibilityWindowInfo);
     }
 
-    @SdkSuppress(minSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 26)
     @SmallTest
     @Test
     public void testIsPictureInPictureMode() {
@@ -132,5 +133,17 @@ public class AccessibilityWindowInfoCompatTest {
                 ? LocaleListCompat.wrap(new LocaleList(Locale.ENGLISH))
                 : LocaleListCompat.getEmptyLocaleList();
         assertThat(windowInfoCompat.getLocales()).isEqualTo(localeListCompat);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testGetRoot_withPrefetchingStrategy_returnsRoot() {
+        AccessibilityWindowInfo accessibilityWindowInfo = mock(AccessibilityWindowInfo.class);
+        AccessibilityWindowInfoCompat windowCompat =
+                AccessibilityWindowInfoCompat.wrapNonNullInstance(accessibilityWindowInfo);
+        windowCompat.getRoot(AccessibilityNodeInfoCompat.FLAG_PREFETCH_ANCESTORS);
+        verify(accessibilityWindowInfo).getRoot(
+                AccessibilityNodeInfoCompat.FLAG_PREFETCH_ANCESTORS);
     }
 }

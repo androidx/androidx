@@ -1231,6 +1231,169 @@ public class AccessibilityNodeInfoCompat {
                 return false;
             }
         }
+
+        /**
+         * Gets the row title at which the item is located.
+         *
+         * @return The row title.
+         */
+        @Nullable
+        public String getRowTitle() {
+            if (Build.VERSION.SDK_INT >= 33) {
+                return Api33Impl.getCollectionItemRowTitle(mInfo);
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the column title at which the item is located.
+         *
+         * @return The column title.
+         */
+        @Nullable
+        public String getColumnTitle() {
+            if (Build.VERSION.SDK_INT >= 33) {
+                return Api33Impl.getCollectionItemColumnTitle(mInfo);
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Builder for creating {@link CollectionItemInfoCompat} objects.
+         */
+        public static final class Builder {
+            private boolean mHeading;
+            private int mColumnIndex;
+            private int mRowIndex;
+            private int mColumnSpan;
+            private int mRowSpan;
+            private boolean mSelected;
+            private String mRowTitle;
+            private String mColumnTitle;
+
+            /**
+             * Creates a new Builder.
+             */
+            public Builder() {
+            }
+
+            /**
+             * Sets the collection item is a heading.
+             *
+             * @param heading The heading state
+             * @return This builder
+             */
+            @NonNull
+            public Builder setHeading(boolean heading) {
+                mHeading = heading;
+                return this;
+            }
+
+            /**
+             * Sets the column index at which the item is located.
+             *
+             * @param columnIndex The column index
+             * @return This builder
+             */
+            @NonNull
+            public Builder setColumnIndex(int columnIndex) {
+                mColumnIndex = columnIndex;
+                return this;
+            }
+
+            /**
+             * Sets the row index at which the item is located.
+             *
+             * @param rowIndex The row index
+             * @return This builder
+             */
+            @NonNull
+            public Builder setRowIndex(int rowIndex) {
+                mRowIndex = rowIndex;
+                return this;
+            }
+
+            /**
+             * Sets the number of columns the item spans.
+             *
+             * @param columnSpan The number of columns spans
+             * @return This builder
+             */
+            @NonNull
+            public Builder setColumnSpan(int columnSpan) {
+                mColumnSpan = columnSpan;
+                return this;
+            }
+
+            /**
+             * Sets the number of rows the item spans.
+             *
+             * @param rowSpan The number of rows spans
+             * @return This builder
+             */
+            @NonNull
+            public Builder setRowSpan(int rowSpan) {
+                mRowSpan = rowSpan;
+                return this;
+            }
+
+            /**
+             * Sets the collection item is selected.
+             *
+             * @param selected The number of rows spans
+             * @return This builder
+             */
+            @NonNull
+            public Builder setSelected(boolean selected) {
+                mSelected = selected;
+                return this;
+            }
+
+            /**
+             * Sets the row title at which the item is located.
+             *
+             * @param rowTitle The row title
+             * @return This builder
+             */
+            @NonNull
+            public Builder setRowTitle(@Nullable String rowTitle) {
+                mRowTitle = rowTitle;
+                return this;
+            }
+
+            /**
+             * Sets the column title at which the item is located.
+             *
+             * @param columnTitle The column title
+             * @return This builder
+             */
+            @NonNull
+            public Builder setColumnTitle(@Nullable String columnTitle) {
+                mColumnTitle = columnTitle;
+                return this;
+            }
+
+            /**
+             * Builds and returns a {@link AccessibilityNodeInfo.CollectionItemInfo}.
+             */
+            @NonNull
+            public CollectionItemInfoCompat build() {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    return Api33Impl.buildCollectionItemInfoCompat(mHeading, mColumnIndex,
+                            mRowIndex, mColumnSpan, mRowSpan, mSelected, mRowTitle, mColumnTitle);
+                } else if (Build.VERSION.SDK_INT >= 21) {
+                    return Api21Impl.createCollectionItemInfo(mRowIndex, mRowSpan, mColumnIndex,
+                            mColumnSpan, mHeading, mSelected);
+                } else if (Build.VERSION.SDK_INT >= 19) {
+                    return Api19Impl.createCollectionItemInfo(mRowIndex, mRowSpan, mColumnIndex,
+                            mColumnSpan, mHeading);
+                } else {
+                    return new CollectionItemInfoCompat(null);
+                }
+            }
+        }
     }
 
     /**
@@ -1266,6 +1429,26 @@ public class AccessibilityNodeInfoCompat {
 
         RangeInfoCompat(Object info) {
             mInfo = info;
+        }
+
+        /**
+         * Creates a new range.
+         *
+         * @param type The type of the range.
+         * @param min The minimum value. Use {@code Float.NEGATIVE_INFINITY} if the range has no
+         *            minimum.
+         * @param max The maximum value. Use {@code Float.POSITIVE_INFINITY} if the range has no
+         *            maximum.
+         * @param current The current value.
+         */
+        public RangeInfoCompat(int type, float min, float max, float current) {
+            if (Build.VERSION.SDK_INT >= 30) {
+                mInfo = Api30Impl.createRangeInfo(type, min, max, current);
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                mInfo = Api19Impl.createRangeInfo(type, min, max, current);
+            } else {
+                mInfo = null;
+            }
         }
 
         /**
@@ -2026,6 +2209,73 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final int EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_MAX_LENGTH = 20000;
 
+    /**
+     * Prefetching strategy that prefetches the ancestors of the requested node.
+     * <p> Ancestors will be prefetched before siblings and descendants.
+     *
+     * @see #getChild(int, int)
+     * @see #getParent(int)
+     * @see AccessibilityWindowInfoCompat#getRoot(int)
+     * @see AccessibilityService#getRootInActiveWindow(int)
+     * @see AccessibilityEvent#getSource(int)
+     */
+    public static final int FLAG_PREFETCH_ANCESTORS = 0x00000001;
+
+    /**
+     * Prefetching strategy that prefetches the siblings of the requested node.
+     * <p> To avoid disconnected trees, this flag will also prefetch the parent. Siblings will be
+     * prefetched before descendants.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_SIBLINGS = 0x00000002;
+
+    /**
+     * Prefetching strategy that prefetches the descendants in a hybrid depth first and breadth
+     * first approach.
+     * <p> The children of the root node is prefetched before recursing on the children. This
+     * must not be combined with {@link #FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST} or
+     * {@link #FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST} or this will trigger an
+     * IllegalArgumentException.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_DESCENDANTS_HYBRID = 0x00000004;
+
+    /**
+     * Prefetching strategy that prefetches the descendants of the requested node depth-first.
+     * <p> This must not be combined with {@link #FLAG_PREFETCH_DESCENDANTS_HYBRID} or
+     * {@link #FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST} or this will trigger an
+     * IllegalArgumentException.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST = 0x00000008;
+
+    /**
+     * Prefetching strategy that prefetches the descendants of the requested node breadth-first.
+     * <p> This must not be combined with {@link #FLAG_PREFETCH_DESCENDANTS_HYBRID} or
+     * {@link #FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST} or this will trigger an
+     * IllegalArgumentException.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST = 0x00000010;
+
+    /**
+     * Prefetching flag that specifies prefetching should not be interrupted by a request to
+     * retrieve a node or perform an action on a node.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_UNINTERRUPTIBLE = 0x00000020;
+
+    /**
+     * Maximum batch size of prefetched nodes for a request.
+     */
+    @SuppressLint("MinMaxConstant")
+    public static final int MAX_NUMBER_OF_PREFETCHED_NODES = 50;
+
     private static int sClickableSpanId = 0;
 
     /**
@@ -2245,6 +2495,26 @@ public class AccessibilityNodeInfoCompat {
      */
     public AccessibilityNodeInfoCompat getChild(int index) {
         return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getChild(index));
+    }
+
+    /**
+     * Get the child at given index.
+     *
+     * @param index The child index.
+     * @param prefetchingStrategy the prefetching strategy.
+     * @return The child node.
+     *
+     * @throws IllegalStateException If called outside of an {@link AccessibilityService} and before
+     *                               calling {@link #setQueryFromAppProcessEnabled}.
+     *
+     * @see AccessibilityNodeInfoCompat#getParent(int) for a description of prefetching.
+     */
+    @Nullable
+    public AccessibilityNodeInfoCompat getChild(int index, int prefetchingStrategy) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getChild(mInfo, index, prefetchingStrategy);
+        }
+        return getChild(index);
     }
 
     /**
@@ -2509,6 +2779,41 @@ public class AccessibilityNodeInfoCompat {
      */
     public AccessibilityNodeInfoCompat getParent() {
         return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getParent());
+    }
+
+    /**
+     * Gets the parent.
+     *
+     * <p>
+     * Use {@code prefetchingStrategy} to determine the types of
+     * nodes prefetched from the app if the requested node is not in the cache and must be retrieved
+     * by the app. The default strategy for {@link #getParent()} is a combination of ancestor and
+     * sibling strategies. The app will prefetch until all nodes fulfilling the strategies are
+     * fetched, another node request is sent, or the maximum prefetch batch size of
+     * {@link #MAX_NUMBER_OF_PREFETCHED_NODES} nodes is reached. To prevent interruption by another
+     * request and to force prefetching of the max batch size, use
+     * {@link AccessibilityNodeInfoCompat#FLAG_PREFETCH_UNINTERRUPTIBLE}.
+     * </p>
+     *
+     * @param prefetchingStrategy the prefetching strategy.
+     * @return The parent.
+     *
+     * @throws IllegalStateException If called outside of an {@link AccessibilityService} and before
+     *                               calling {@link #setQueryFromAppProcessEnabled}.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS
+     * @see #FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST
+     * @see #FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST
+     * @see #FLAG_PREFETCH_DESCENDANTS_HYBRID
+     * @see #FLAG_PREFETCH_SIBLINGS
+     * @see #FLAG_PREFETCH_UNINTERRUPTIBLE
+     */
+    @Nullable
+    public AccessibilityNodeInfoCompat getParent(int prefetchingStrategy) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getParent(mInfo, prefetchingStrategy);
+        }
+        return getParent();
     }
 
     /**
@@ -5090,6 +5395,34 @@ public class AccessibilityNodeInfoCompat {
         public static Bundle getExtras(AccessibilityNodeInfo info) {
             return info.getExtras();
         }
+
+        @DoNotInline
+        public static Object createRangeInfo(int type, float min, float max, float current) {
+            return AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current);
+        }
+
+        @DoNotInline
+        public static CollectionItemInfoCompat createCollectionItemInfo(int rowIndex, int rowSpan,
+                int columnIndex, int columnSpan, boolean heading) {
+            return new CollectionItemInfoCompat(
+                    AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                            columnSpan, heading));
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static CollectionItemInfoCompat createCollectionItemInfo(int rowIndex, int rowSpan,
+                int columnIndex, int columnSpan, boolean heading, boolean selected) {
+            return new CollectionItemInfoCompat(
+                    AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                            columnSpan, heading, selected));
+        }
     }
 
     @RequiresApi(30)
@@ -5107,6 +5440,11 @@ public class AccessibilityNodeInfoCompat {
         @DoNotInline
         public static CharSequence getStateDescription(AccessibilityNodeInfo info) {
             return info.getStateDescription();
+        }
+
+        @DoNotInline
+        public static Object createRangeInfo(int type, float min, float max, float current) {
+            return new AccessibilityNodeInfo.RangeInfo(type, min, max, current);
         }
     }
 
@@ -5133,6 +5471,36 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @DoNotInline
+        public static CollectionItemInfoCompat buildCollectionItemInfoCompat(
+                boolean heading, int columnIndex, int rowIndex, int columnSpan,
+                int rowSpan, boolean selected, String rowTitle, String columnTitle) {
+            return new CollectionItemInfoCompat(
+                    new AccessibilityNodeInfo.CollectionItemInfo.Builder()
+                    .setHeading(heading).setColumnIndex(columnIndex)
+                    .setRowIndex(rowIndex)
+                    .setColumnSpan(columnSpan)
+                    .setRowSpan(rowSpan)
+                    .setSelected(selected)
+                    .setRowTitle(rowTitle)
+                    .setColumnTitle(columnTitle)
+                    .build());
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfoCompat getChild(AccessibilityNodeInfo info, int index,
+                int prefetchingStrategy) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(info.getChild(index,
+                    prefetchingStrategy));
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfoCompat getParent(AccessibilityNodeInfo info,
+                int prefetchingStrategy) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(info.getParent(
+                    prefetchingStrategy));
+        }
+
+        @DoNotInline
         public static String getUniqueId(AccessibilityNodeInfo info) {
             return info.getUniqueId();
         }
@@ -5140,6 +5508,17 @@ public class AccessibilityNodeInfoCompat {
         @DoNotInline
         public static void setUniqueId(AccessibilityNodeInfo info, String uniqueId) {
             info.setUniqueId(uniqueId);
+        }
+
+        @DoNotInline
+        public static String getCollectionItemRowTitle(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowTitle();
+
+        }
+
+        @DoNotInline
+        public static String getCollectionItemColumnTitle(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnTitle();
         }
     }
 
