@@ -58,6 +58,7 @@ private class BinderAdapterDelegate(
 
     fun openSession(
         context: Context,
+        windowInputToken: IBinder,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -65,13 +66,13 @@ private class BinderAdapterDelegate(
         client: SandboxedUiAdapter.SessionClient
     ) {
         adapter.openSession(
-            context, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
+            context, windowInputToken, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
             client
         )
     }
 
     override fun openRemoteSession(
-        hostToken: IBinder,
+        windowInputToken: IBinder,
         displayId: Int,
         initialWidth: Int,
         initialHeight: Int,
@@ -87,13 +88,13 @@ private class BinderAdapterDelegate(
                     sandboxContext.createDisplayContext(mDisplayManager.getDisplay(displayId))
                 val surfaceControlViewHost = SurfaceControlViewHost(
                     windowContext,
-                    mDisplayManager.getDisplay(displayId), hostToken
+                    mDisplayManager.getDisplay(displayId), windowInputToken
                 )
                 val sessionClient = SessionClientProxy(
                     surfaceControlViewHost, initialWidth, initialHeight, remoteSessionClient
                 )
                 openSession(
-                    windowContext, initialWidth, initialHeight, isZOrderOnTop,
+                    windowContext, windowInputToken, initialWidth, initialHeight, isZOrderOnTop,
                     Runnable::run, sessionClient
                 )
             } catch (exception: Throwable) {
