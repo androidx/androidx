@@ -801,6 +801,8 @@ private fun Modifier.animateTooltip(
     )
 }
 
+@Composable
+@ExperimentalMaterial3Api
 internal expect fun TooltipPopup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: () -> Unit,

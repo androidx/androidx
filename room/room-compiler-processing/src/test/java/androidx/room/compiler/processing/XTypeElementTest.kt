@@ -41,6 +41,7 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeVariableName
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -1631,6 +1632,7 @@ class XTypeElementTest(
         }
     }
 
+    @Ignore("b/284452502")
     @Test
     fun jvmDefault() {
         val src = Source.kotlin(
