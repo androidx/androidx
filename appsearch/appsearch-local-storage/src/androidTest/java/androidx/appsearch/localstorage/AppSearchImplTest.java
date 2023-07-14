@@ -918,8 +918,8 @@ public class AppSearchImplTest {
         // Insert package1 schema
         List<AppSearchSchema> personAndCallSchema =
                 ImmutableList.of(new AppSearchSchema.Builder("personSchema").build(),
-                new AppSearchSchema.Builder("callSchema")
-                .addProperty(personField).build());
+                        new AppSearchSchema.Builder("callSchema")
+                                .addProperty(personField).build());
         InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
