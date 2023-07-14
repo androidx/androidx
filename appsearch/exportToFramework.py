@@ -169,6 +169,7 @@ class ExportToFramework:
             .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
             .replace('/*@exportToFramework:UnsupportedAppUsage*/', '@UnsupportedAppUsage')
             .replace('<!--@exportToFramework:hide-->', '@hide')
+            .replace('@exportToFramework:hide', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
         contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)
