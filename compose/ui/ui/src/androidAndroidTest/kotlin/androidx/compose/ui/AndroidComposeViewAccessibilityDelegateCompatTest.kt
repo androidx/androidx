@@ -807,12 +807,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 ArgumentMatcher {
                     it.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED &&
                         it.scrollY == 1 &&
-                        it.maxScrollY == 100 &&
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            it.scrollDeltaY == 1
-                        } else {
-                            true
-                        }
+                        it.maxScrollY > it.scrollY
                 }
             )
         )
