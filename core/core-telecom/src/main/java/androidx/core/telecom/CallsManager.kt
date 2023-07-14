@@ -236,7 +236,11 @@ class CallsManager constructor(context: Context) {
 
             /* at this point in time we have CallControl object */
             val scope =
-                CallSession.CallControlScopeImpl(openResult.getCompleted(), callChannels)
+                CallSession.CallControlScopeImpl(
+                    openResult.getCompleted(),
+                    callChannels,
+                    coroutineContext
+                )
 
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
@@ -255,8 +259,11 @@ class CallsManager constructor(context: Context) {
 
             pauseExecutionUntilCallIsReady_orTimeout(openResult, request)
 
-            val scope =
-                CallSessionLegacy.CallControlScopeImpl(openResult.getCompleted(), callChannels)
+            val scope = CallSessionLegacy.CallControlScopeImpl(
+                openResult.getCompleted(),
+                callChannels,
+                coroutineContext
+            )
 
             // Run the clients code with the session active and exposed via the
             // CallControlScope interface implementation declared above.

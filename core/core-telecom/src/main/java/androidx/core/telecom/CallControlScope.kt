@@ -17,6 +17,7 @@
 package androidx.core.telecom
 
 import android.os.ParcelUuid
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -36,13 +37,13 @@ import kotlinx.coroutines.flow.Flow
  *         }
  *
  *         // Collect updates
- *         currentCallEndpoint
- *           .onEach { // access the new [CallEndpoint] here }
- *           .launchIn(coroutineScope)
+ *         launch {
+ *             currentCallEndpoint.collect { // access the new [CallEndpoint] here }
+ *         }
  *     }
  *
  */
-interface CallControlScope {
+interface CallControlScope : CoroutineScope {
     /**
      * This method should be the first method called within the [CallControlScope] and your VoIP
      * application should pass in a valid implementation of [CallControlCallback].  Failing to call

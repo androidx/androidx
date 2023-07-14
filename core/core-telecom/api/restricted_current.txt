@@ -42,7 +42,7 @@ package androidx.core.telecom {
     method public suspend Object? onSetInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
   }
 
-  public interface CallControlScope {
+  public interface CallControlScope extends kotlinx.coroutines.CoroutineScope {
     method public suspend Object? answer(@androidx.core.telecom.CallAttributesCompat.Companion.CallType int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableEndpoints();
