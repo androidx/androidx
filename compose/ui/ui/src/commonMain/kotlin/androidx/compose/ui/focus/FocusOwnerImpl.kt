@@ -51,7 +51,10 @@ import androidx.compose.ui.util.fastForEachReversed
  * The focus manager is used by different [Owner][androidx.compose.ui.node.Owner] implementations
  * to control focus.
  */
-internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Unit) : FocusOwner {
+internal class FocusOwnerImpl(
+    private val parent: FocusManager? = null,
+    onRequestApplyChangesListener: (() -> Unit) -> Unit
+) : FocusOwner {
 
     internal var rootFocusNode = FocusTargetNode()
 
@@ -136,6 +139,7 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
                 Active, ActiveParent, Captured -> Active
                 Inactive -> Inactive
             }
+            parent?.clearFocus(force)
         }
     }
 
@@ -173,8 +177,11 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
                 }
             }
         // If we didn't find a potential next item, try to wrap around.
-        return !isCancelled && (foundNextItem || wrapAroundFocus(focusDirection))
+        return !isCancelled && (foundNextItem || moveParentFocus(focusDirection) || wrapAroundFocus(focusDirection))
     }
+
+    private fun moveParentFocus(focusDirection: FocusDirection) =
+        parent?.moveFocus(focusDirection) == true
 
     /**
      * Dispatches a key event through the compose hierarchy.

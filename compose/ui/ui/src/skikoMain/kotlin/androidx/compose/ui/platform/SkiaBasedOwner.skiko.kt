@@ -111,7 +111,7 @@ internal class SkiaBasedOwner(
     //  Check if ComposePanel/SwingPanel focus interop work correctly with new features of
     //  the focus system (it works with the old features like moveFocus/clearFocus)
     override val focusOwner: FocusOwner = FocusOwnerImpl(
-        //parent = parentFocusManager https://youtrack.jetbrains.com/issue/COMPOSE-162
+        parent = parentFocusManager
     ) {
         registerOnEndApplyChangesListener(it)
     }.apply {
