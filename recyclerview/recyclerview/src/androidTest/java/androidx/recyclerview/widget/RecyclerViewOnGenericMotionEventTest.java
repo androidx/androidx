@@ -18,6 +18,7 @@ package androidx.recyclerview.widget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -46,10 +47,13 @@ import org.junit.runner.RunWith;
 public class RecyclerViewOnGenericMotionEventTest {
 
     TestRecyclerView mRecyclerView;
+    TestDifferentialMotionFlingHelper mFlingHelper;
 
     @Before
     public void setUp() throws Exception {
         mRecyclerView = new TestRecyclerView(getContext());
+        mFlingHelper = createDummyFlingHelper();
+        mRecyclerView.mDifferentialMotionFlingHelper = mFlingHelper;
     }
 
     private Context getContext() {
@@ -72,6 +76,8 @@ public class RecyclerViewOnGenericMotionEventTest {
 
         assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()),
                 /* assertSmoothScroll= */ false);
+        assertEquals(MotionEvent.AXIS_SCROLL, mFlingHelper.mLastAxis);
+        assertEquals(mRecyclerView.mLastGenericMotionEvent, mFlingHelper.mLastMotionEvent);
     }
 
     @Test
@@ -88,6 +94,8 @@ public class RecyclerViewOnGenericMotionEventTest {
 
         assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0,
                 /* assertSmoothScroll= */ false);
+        assertEquals(MotionEvent.AXIS_SCROLL, mFlingHelper.mLastAxis);
+        assertEquals(mRecyclerView.mLastGenericMotionEvent, mFlingHelper.mLastMotionEvent);
     }
 
     @Test
@@ -100,6 +108,7 @@ public class RecyclerViewOnGenericMotionEventTest {
                 MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
         assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()),
                 /* assertSmoothScroll= */ true);
+        assertNull(mFlingHelper.mLastMotionEvent);
     }
 
     @Test
@@ -135,6 +144,7 @@ public class RecyclerViewOnGenericMotionEventTest {
                 MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
         assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0,
                 /* assertSmoothScroll= */ true);
+        assertNull(mFlingHelper.mLastMotionEvent);
     }
 
     @Test
@@ -304,8 +314,16 @@ public class RecyclerViewOnGenericMotionEventTest {
         int mTotalSmoothX = 0;
         int mTotalSmoothY = 0;
 
+        MotionEvent mLastGenericMotionEvent;
+
         TestRecyclerView(Context context) {
             super(context);
+        }
+
+        @Override
+        public boolean onGenericMotionEvent(MotionEvent ev) {
+            mLastGenericMotionEvent = ev;
+            return super.onGenericMotionEvent(ev);
         }
 
         boolean scrollByInternal(int x, int y, MotionEvent ev, int type) {
@@ -321,4 +339,26 @@ public class RecyclerViewOnGenericMotionEventTest {
             super.smoothScrollBy(dx, dy, interpolator, duration, withNestedScrolling);
         }
     }
+
+    private TestDifferentialMotionFlingHelper createDummyFlingHelper() {
+        return new TestDifferentialMotionFlingHelper(
+                mRecyclerView.getContext(), new TestDifferentialMotionFlingTarget());
+    }
+
+    private static class TestDifferentialMotionFlingHelper extends DifferentialMotionFlingHelper {
+        MotionEvent mLastMotionEvent;
+        int mLastAxis;
+
+        TestDifferentialMotionFlingHelper(Context context,
+                DifferentialMotionFlingHelper.DifferentialMotionFlingTarget target) {
+            super(context, target);
+        }
+
+        @Override
+        public void onMotionEvent(MotionEvent event, int axis) {
+            mLastMotionEvent = event;
+            mLastAxis = axis;
+        }
+    }
+
 }

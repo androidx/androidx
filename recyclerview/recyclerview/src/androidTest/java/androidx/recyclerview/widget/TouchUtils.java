@@ -165,15 +165,21 @@ class TouchUtils {
     }
 
     static void scrollView(int axis, int axisValue, int inputDevice, View v) {
+        MotionEvent e = createMotionEvent(/* inputDeviceId= */ 0, inputDevice, axis, axisValue);
+        v.onGenericMotionEvent(e);
+        e.recycle();
+    }
+
+    /** Creates a {@link MotionEvent} with provided input and motion values. */
+    static MotionEvent createMotionEvent(
+            int inputDeviceId, int inputSource, int axis, int axisValue) {
         MotionEvent.PointerProperties[] pointerProperties = {new MotionEvent.PointerProperties()};
         MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
         coords.setAxisValue(axis, axisValue);
         MotionEvent.PointerCoords[] pointerCoords = {coords};
-        MotionEvent e = MotionEvent.obtain(
+        return MotionEvent.obtain(
                 0, System.currentTimeMillis(), MotionEvent.ACTION_SCROLL,
-                1, pointerProperties, pointerCoords, 0, 0, 1, 1, 0, 0, inputDevice, 0);
-        v.onGenericMotionEvent(e);
-        e.recycle();
+                1, pointerProperties, pointerCoords, 0, 0, 1, 1, inputDeviceId, 0, inputSource, 0);
     }
 
     static void dragViewToTop(Instrumentation inst, View v) {
