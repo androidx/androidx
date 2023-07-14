@@ -27,9 +27,10 @@ import androidx.compose.foundation.EdgeEffectCompat.onReleaseWithOppositeDelta
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
@@ -123,7 +124,9 @@ internal class AndroidEdgeEffectOverscrollEffect(
         allEffects.fastForEach { it.color = overscrollConfig.glowColor.toArgb() }
     }
 
-    private val redrawSignal = mutableStateOf(Unit, neverEqualPolicy())
+    // TODO replace with mutableStateOf(Unit, neverEqualPolicy()) after b/291647821 is addressed
+    private var consumeCount = -1
+    private var invalidateCount by mutableIntStateOf(0)
 
     @VisibleForTesting
     internal var invalidationEnabled = true
@@ -349,7 +352,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
             return
         }
         this.drawIntoCanvas {
-            redrawSignal.value // <-- value read to redraw if needed
+            consumeCount = invalidateCount // <-- value read to redraw if needed
             val canvas = it.nativeCanvas
             var needsInvalidate = false
             // each side workflow:
@@ -435,7 +438,9 @@ internal class AndroidEdgeEffectOverscrollEffect(
 
     private fun invalidateOverscroll() {
         if (invalidationEnabled) {
-            redrawSignal.value = Unit
+            if (consumeCount == invalidateCount) {
+                invalidateCount++
+            }
         }
     }
 

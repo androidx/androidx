@@ -219,6 +219,7 @@ class VectorPainter internal constructor() : Painter() {
         return next
     }
 
+    // TODO replace with mutableStateOf(Unit, neverEqualPolicy()) after b/291647821 is addressed
     private var invalidateCount by mutableIntStateOf(0)
 
     @Composable
