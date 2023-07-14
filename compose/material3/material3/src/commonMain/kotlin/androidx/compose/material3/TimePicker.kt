@@ -1075,13 +1075,12 @@ private fun ToggleItem(
 
 @Composable
 private fun DisplaySeparator(modifier: Modifier) {
-    val style = copyAndSetFontPadding(
-        style = LocalTextStyle.current.copy(
-            textAlign = TextAlign.Center,
-            lineHeightStyle = LineHeightStyle(
-                alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.Both
-            )
-        ), includeFontPadding = false
+    val style = LocalTextStyle.current.copy(
+        textAlign = TextAlign.Center,
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Center,
+            trim = LineHeightStyle.Trim.Both
+        )
     )
 
     Box(
@@ -1316,10 +1315,7 @@ private fun Modifier.clockDial(state: TimePickerState, autoSwitchToMinute: Boole
 
 @Composable
 private fun ClockText(state: TimePickerState, value: Int, autoSwitchToMinute: Boolean) {
-    val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont).let {
-        copyAndSetFontPadding(style = it, false)
-    }
-
+    val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont)
     val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
     var center by remember { mutableStateOf(Offset.Zero) }
     val scope = rememberCoroutineScope()
