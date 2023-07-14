@@ -108,15 +108,28 @@ import org.jetbrains.annotations.TestOnly
  * the platform default, which is smaller than the screen width.
  */
 @Immutable
-class PopupProperties @ExperimentalComposeUiApi constructor(
-    val focusable: Boolean = false,
-    val dismissOnBackPress: Boolean = true,
-    val dismissOnClickOutside: Boolean = true,
+actual class PopupProperties @ExperimentalComposeUiApi constructor(
+    actual val focusable: Boolean = false,
+    actual val dismissOnBackPress: Boolean = true,
+    actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val excludeFromSystemGesture: Boolean = true,
     val clippingEnabled: Boolean = true,
     val usePlatformDefaultWidth: Boolean = false
 ) {
+    actual constructor(
+        focusable: Boolean,
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean
+    ) : this (
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = SecureFlagPolicy.Inherit,
+        excludeFromSystemGesture = true,
+        clippingEnabled = true
+    )
+
     @OptIn(ExperimentalComposeUiApi::class)
     constructor(
         focusable: Boolean = false,
@@ -184,11 +197,11 @@ class PopupProperties @ExperimentalComposeUiApi constructor(
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-fun Popup(
-    alignment: Alignment = Alignment.TopStart,
-    offset: IntOffset = IntOffset(0, 0),
-    onDismissRequest: (() -> Unit)? = null,
-    properties: PopupProperties = PopupProperties(),
+actual fun Popup(
+    alignment: Alignment,
+    offset: IntOffset,
+    onDismissRequest: (() -> Unit)?,
+    properties: PopupProperties,
     content: @Composable () -> Unit
 ) {
     val popupPositioner = remember(alignment, offset) {
@@ -219,10 +232,10 @@ fun Popup(
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-fun Popup(
+actual fun Popup(
     popupPositionProvider: PopupPositionProvider,
-    onDismissRequest: (() -> Unit)? = null,
-    properties: PopupProperties = PopupProperties(),
+    onDismissRequest: (() -> Unit)?,
+    properties: PopupProperties,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
