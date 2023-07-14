@@ -212,10 +212,7 @@ fun Badge(
             CompositionLocalProvider(
                 LocalContentColor provides contentColor
             ) {
-                val style = copyAndSetFontPadding(
-                    style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont),
-                    includeFontPadding = false
-                )
+                val style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont)
                 ProvideTextStyle(
                     value = style,
                     content = { content() }
