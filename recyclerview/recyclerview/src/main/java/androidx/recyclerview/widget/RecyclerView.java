@@ -615,8 +615,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     private final int mMaxFlingVelocity;
 
     // This value is used when handling rotary encoder generic motion events.
-    private float mScaledHorizontalScrollFactor = Float.MIN_VALUE;
-    private float mScaledVerticalScrollFactor = Float.MIN_VALUE;
+    float mScaledHorizontalScrollFactor = Float.MIN_VALUE;
+    float mScaledVerticalScrollFactor = Float.MIN_VALUE;
 
     private boolean mPreserveFocusAfterLayout = true;
 
@@ -750,22 +750,49 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             };
 
     private final DifferentialMotionFlingHelper.DifferentialMotionFlingTarget
-            mGenericMotionFlingTarget =
+            mDifferentialMotionFlingTarget =
             new DifferentialMotionFlingHelper.DifferentialMotionFlingTarget() {
                 @Override
-                public boolean startDifferentialMotionFling(int velocity) {
-                    // TODO(b/290680625): implement logic to start generic motion fling.
-                    return false;
+                public boolean startDifferentialMotionFling(float velocity) {
+                    int vx = 0;
+                    int vy = 0;
+                    if (mLayout.canScrollVertically()) {
+                        vy = (int) velocity;
+                    } else if (mLayout.canScrollHorizontally()) {
+                        vx = (int) velocity;
+                    }
+
+                    if (vx == 0 && vy == 0) {
+                        return false;
+                    }
+
+                    stopScroll();
+                    // Fling with no threshold check, since the DifferentialMotionFlingHelper should
+                    //  have handled this already.
+                    return flingNoThresholdCheck(vx, vy);
                 }
 
                 @Override
                 public void stopDifferentialMotionFling() {
-                    // TODO(b/290680625): implement logic to stop generic motion fling.
+                    stopScroll();
                 }
+
+                @Override
+                public float getScaledScrollFactor() {
+                    if (mLayout.canScrollVertically()) {
+                        return -mScaledVerticalScrollFactor;
+                    }
+                    if (mLayout.canScrollHorizontally()) {
+                        return -mScaledHorizontalScrollFactor;
+                    }
+                    return 0;
+                }
+
             };
 
-    private final DifferentialMotionFlingHelper mGenericMotionFlingHelper =
-            new DifferentialMotionFlingHelper(mGenericMotionFlingTarget);
+    @VisibleForTesting
+    DifferentialMotionFlingHelper mDifferentialMotionFlingHelper =
+            new DifferentialMotionFlingHelper(getContext(), mDifferentialMotionFlingTarget);
     public RecyclerView(@NonNull Context context) {
         this(context, null);
     }
@@ -2836,6 +2863,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @see LayoutManager#canScrollHorizontally()
      */
     public boolean fling(int velocityX, int velocityY) {
+        return fling(velocityX, velocityY, mMinFlingVelocity, mMaxFlingVelocity);
+    }
+
+    /** Flings without checking fling velocity thresholds. */
+    boolean flingNoThresholdCheck(int velocityX, int velocityY) {
+        return fling(velocityX, velocityY, 0, Integer.MAX_VALUE);
+    }
+
+    private boolean fling(int velocityX, int velocityY, int minFlingVelocity,
+            int maxFlingVelocity) {
         if (mLayout == null) {
             Log.e(TAG, "Cannot fling without a LayoutManager set. "
                     + "Call setLayoutManager with a non-null argument.");
@@ -2848,10 +2885,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         final boolean canScrollHorizontal = mLayout.canScrollHorizontally();
         final boolean canScrollVertical = mLayout.canScrollVertically();
 
-        if (!canScrollHorizontal || Math.abs(velocityX) < mMinFlingVelocity) {
+        if (!canScrollHorizontal || Math.abs(velocityX) < minFlingVelocity) {
             velocityX = 0;
         }
-        if (!canScrollVertical || Math.abs(velocityY) < mMinFlingVelocity) {
+        if (!canScrollVertical || Math.abs(velocityY) < minFlingVelocity) {
             velocityY = 0;
         }
         if (velocityX == 0 && velocityY == 0) {
@@ -2898,8 +2935,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
         }
         if (flingX != 0 || flingY != 0) {
-            flingX = Math.max(-mMaxFlingVelocity, Math.min(flingX, mMaxFlingVelocity));
-            flingY = Math.max(-mMaxFlingVelocity, Math.min(flingY, mMaxFlingVelocity));
+            flingX = Math.max(-maxFlingVelocity, Math.min(flingX, maxFlingVelocity));
+            flingY = Math.max(-maxFlingVelocity, Math.min(flingY, maxFlingVelocity));
             startNestedScrollForType(TYPE_NON_TOUCH);
             mViewFlinger.fling(flingX, flingY);
         }
@@ -2917,8 +2954,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
             if (canScroll) {
                 startNestedScrollForType(TYPE_NON_TOUCH);
-                velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));
-                velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));
+                velocityX = Math.max(-maxFlingVelocity, Math.min(velocityX, maxFlingVelocity));
+                velocityY = Math.max(-maxFlingVelocity, Math.min(velocityY, maxFlingVelocity));
                 mViewFlinger.fling(velocityX, velocityY);
                 return true;
             }
@@ -4100,8 +4137,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 nestedScrollByInternal(scaledHScroll, scaledVScroll, event, TYPE_NON_TOUCH);
             }
 
-            if (flingAxis != 0) {
-                mGenericMotionFlingHelper.onMotionEvent(event, flingAxis);
+            if (flingAxis != 0 && !useSmoothScroll) {
+                mDifferentialMotionFlingHelper.onMotionEvent(event, flingAxis);
             }
         }
         return false;
