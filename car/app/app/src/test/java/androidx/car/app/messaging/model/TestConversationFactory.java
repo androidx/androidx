@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.ListTemplate;
 import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 
@@ -46,6 +47,9 @@ public final class TestConversationFactory {
                 public void onTextReply(@NonNull String replyText) {
                 }
             };
+
+    public static String MULTIMEDIA_MESSAGE_MIME_TYPE = "coolmimetypes/mycooldataformat";
+    public static Uri MULTIMEDIA_MESSAGE_URI = new Uri.Builder().path("foo/bar/test/uri").build();
 
     // region Person
     /**
@@ -113,10 +117,32 @@ public final class TestConversationFactory {
     /**
      * Creates a {@link CarMessage.Builder} instance for testing
      *
+     * <p>This method fills in the minimum required data to create a valid {@link CarMessage}.
+     */
+    public static CarMessage.Builder createMinimalMultimediaMessageBuilder() {
+        return new CarMessage.Builder()
+                .setMultimediaMimeType(MULTIMEDIA_MESSAGE_MIME_TYPE)
+                .setMultimediaUri(MULTIMEDIA_MESSAGE_URI);
+    }
+
+    /**
+     * Creates a {@link CarMessage} instance for testing
+     *
+     * <p>This method fills in the minimum required data to create a valid {@link CarMessage}.
+     */
+    public static CarMessage createMinimalMultimediaMessage() {
+        return createMinimalMultimediaMessageBuilder().build();
+    }
+
+    /**
+     * Creates a {@link CarMessage.Builder} instance for testing
+     *
      * <p>This method populates every field in  {@link CarMessage.Builder}.
      */
     public static CarMessage.Builder createFullyPopulatedMessageBuilder() {
         return createMinimalMessageBuilder()
+                .setMultimediaMimeType(MULTIMEDIA_MESSAGE_MIME_TYPE)
+                .setMultimediaUri(MULTIMEDIA_MESSAGE_URI)
                 .setSender(createFullyPopulatedPerson())
                 .setRead(true)
                 .setReceivedTimeEpochMillis(12345);
@@ -185,6 +211,12 @@ public final class TestConversationFactory {
 
     public static ItemList createItemListWithConversationItem() {
         return new ItemList.Builder().addItem(createMinimalConversationItem()).build();
+    }
+
+    public static ListTemplate createListTemplateWithConversationItem() {
+        return new ListTemplate.Builder()
+            .setSingleList(createItemListWithConversationItem())
+            .build();
     }
 
     private TestConversationFactory() {

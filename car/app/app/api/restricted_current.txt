@@ -874,7 +874,9 @@ package androidx.car.app.messaging {
 package androidx.car.app.messaging.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class CarMessage {
-    method public androidx.car.app.model.CarText getBody();
+    method public androidx.car.app.model.CarText? getBody();
+    method public String? getMultimediaMimeType();
+    method public android.net.Uri? getMultimediaUri();
     method public long getReceivedTimeEpochMillis();
     method public androidx.core.app.Person? getSender();
     method public boolean isRead();
@@ -883,7 +885,9 @@ package androidx.car.app.messaging.model {
   public static final class CarMessage.Builder {
     ctor public CarMessage.Builder();
     method public androidx.car.app.messaging.model.CarMessage build();
-    method public androidx.car.app.messaging.model.CarMessage.Builder setBody(androidx.car.app.model.CarText);
+    method public androidx.car.app.messaging.model.CarMessage.Builder setBody(androidx.car.app.model.CarText?);
+    method public androidx.car.app.messaging.model.CarMessage.Builder setMultimediaMimeType(String?);
+    method public androidx.car.app.messaging.model.CarMessage.Builder setMultimediaUri(android.net.Uri?);
     method public androidx.car.app.messaging.model.CarMessage.Builder setRead(boolean);
     method public androidx.car.app.messaging.model.CarMessage.Builder setReceivedTimeEpochMillis(long);
     method public androidx.car.app.messaging.model.CarMessage.Builder setSender(androidx.core.app.Person?);

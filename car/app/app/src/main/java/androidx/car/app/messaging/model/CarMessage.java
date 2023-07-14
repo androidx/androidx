@@ -18,8 +18,7 @@ package androidx.car.app.messaging.model;
 
 import static androidx.car.app.messaging.model.ConversationItem.validateSender;
 
-import static java.util.Objects.requireNonNull;
-
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -41,8 +40,12 @@ import java.util.Objects;
 public class CarMessage {
     @Nullable
     private final Bundle mSender;
-    @NonNull
+    @Nullable
     private final CarText mBody;
+    @Nullable
+    private final String mMultimediaMimeType;
+    @Nullable
+    private final Uri mMultimediaUri;
     private final long mReceivedTimeEpochMillis;
     private final boolean mIsRead;
 
@@ -75,7 +78,9 @@ public class CarMessage {
 
     CarMessage(@NonNull Builder builder) {
         this.mSender = builder.mSender == null ? null : validateSender(builder.mSender).toBundle();
-        this.mBody = requireNonNull(builder.mBody);
+        this.mBody = builder.mBody;
+        this.mMultimediaMimeType = builder.mMultimediaMimeType;
+        this.mMultimediaUri = builder.mMultimediaUri;
         this.mReceivedTimeEpochMillis = builder.mReceivedTimeEpochMillis;
         this.mIsRead = builder.mIsRead;
     }
@@ -83,7 +88,9 @@ public class CarMessage {
     /** Default constructor for serialization. */
     private CarMessage() {
         this.mSender = null;
-        this.mBody = new CarText.Builder("").build();
+        this.mBody = null;
+        this.mMultimediaMimeType = null;
+        this.mMultimediaUri = null;
         this.mReceivedTimeEpochMillis = 0;
         this.mIsRead = false;
     }
@@ -100,10 +107,55 @@ public class CarMessage {
         return mSender == null ? null : Person.fromBundle(mSender);
     }
 
-    /** Returns a {@link CarText} representing the message body */
-    @NonNull
+    /**
+     * Returns a {@link CarText} representing the message body
+     *
+     * <p> Messages must have one or both of the following:
+     * <ul>
+     *     <li> A message body (text)
+     *     <li> A MIME type + URI (image, audio, etc.)
+     * </ul>
+     *
+     * @see #getMultimediaMimeType()
+     * @see #getMultimediaUri()
+     */
+    @Nullable
     public CarText getBody() {
         return mBody;
+    }
+
+    /**
+     * Returns a {@link String} representing the MIME type of a multimedia message
+     *
+     * <p> Messages must have one or both of the following:
+     * <ul>
+     *     <li> A message body (text)
+     *     <li> A MIME type + URI (image, audio, etc.)
+     * </ul>
+     *
+     * @see #getBody()
+     * @see #getMultimediaUri()
+     */
+    @Nullable
+    public String getMultimediaMimeType() {
+        return mMultimediaMimeType;
+    }
+
+    /**
+     * Returns a {@link Uri} pointing to the contents of a multimedia message.
+     *
+     * <p> Messages must have one or both of the following:
+     * <ul>
+     *     <li> A message body (text)
+     *     <li> A MIME type + URI (image, audio, etc.)
+     * </ul>
+     *
+     * @see #getBody()
+     * @see #getMultimediaMimeType()
+     */
+    @Nullable
+    public Uri getMultimediaUri() {
+        return mMultimediaUri;
     }
 
     /** Returns a {@code long} representing the message timestamp (in epoch millis) */
@@ -122,6 +174,10 @@ public class CarMessage {
         Person mSender;
         @Nullable
         CarText mBody;
+        @Nullable
+        String mMultimediaMimeType;
+        @Nullable
+        Uri mMultimediaUri;
         long mReceivedTimeEpochMillis;
         boolean mIsRead;
 
@@ -137,9 +193,54 @@ public class CarMessage {
             return this;
         }
 
-        /** Sets a {@link CarText} representing the message body */
-        public @NonNull Builder setBody(@NonNull CarText body) {
+        /**
+         * Sets a {@link CarText} representing the message body
+         *
+         * <p> Messages must have one or both of the following:
+         * <ul>
+         *     <li> A message body (text)
+         *     <li> A MIME type + URI (image, audio, etc.)
+         * </ul>
+         *
+         * @see #setMultimediaMimeType(String)
+         * @see #setMultimediaUri(Uri)
+         */
+        public @NonNull Builder setBody(@Nullable CarText body) {
             mBody = body;
+            return this;
+        }
+
+        /**
+         * Sets a {@link String} representing the MIME type of a multimedia message
+         *
+         * <p> Messages must have one or both of the following:
+         * <ul>
+         *     <li> A message body (text)
+         *     <li> A MIME type + URI (image, audio, etc.)
+         * </ul>
+         *
+         * @see #setBody(CarText)
+         * @see #setMultimediaUri(Uri)
+         */
+        public @NonNull Builder setMultimediaMimeType(@Nullable String multimediaMimeType) {
+            this.mMultimediaMimeType = multimediaMimeType;
+            return this;
+        }
+
+        /**
+         * Sets a {@link Uri} pointing to the contents of a multimedia message.
+         *
+         * <p> Messages must have one or both of the following:
+         * <ul>
+         *     <li> A message body (text)
+         *     <li> A MIME type + URI (image, audio, etc.)
+         * </ul>
+         *
+         * @see #setBody(CarText)
+         * @see #setMultimediaMimeType(String)
+         */
+        public @NonNull Builder setMultimediaUri(@Nullable Uri multimediaUri) {
+            this.mMultimediaUri = multimediaUri;
             return this;
         }
 
@@ -157,6 +258,20 @@ public class CarMessage {
 
         /** Returns a new {@link CarMessage} instance defined by this builder */
         public @NonNull CarMessage build() {
+            if (mMultimediaMimeType == null ^ mMultimediaUri == null) {
+                throw new IllegalStateException("Incomplete multimedia data detected in "
+                        + "CarMessage. Please be sure to provide both MIME type and URI for "
+                        + "multimedia messages.");
+            }
+
+            // Conceptually, we're checking that body text and multimedia data (mime type or URI)
+            // are null.
+            // The compiler complains if I check both mime type and URI, due to previous validation.
+            if (mBody == null && mMultimediaMimeType == null) {
+                throw new IllegalStateException("Message must have content. Please provide body "
+                        + "text, multimedia data (URI + MIME type), or both.");
+            }
+
             return new CarMessage(this);
         }
     }
