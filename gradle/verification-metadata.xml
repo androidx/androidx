@@ -6,6 +6,7 @@
       <verify-signatures>true</verify-signatures>
       <key-servers enabled="false">
          <key-server uri="https://keyserver.ubuntu.com"/>
+         <key-server uri="https://keys.openpgp.org"/>
       </key-servers>
       <trusted-artifacts>
          <trust group="com.google.android.datatransport" reason="b/215442095"/>
@@ -356,6 +357,7 @@
          <trusted-key id="bcc135fc7ed8214f823d73e97fe9900f412d622e" group="com.google.flatbuffers"/>
          <trusted-key id="bdb5fa4fe719d787fb3d3197f6d4a1d411e9d1ae" group="com.google.guava"/>
          <trusted-key id="be685132afd2740d9095f9040cc0b712fee75827" group="org.assertj"/>
+         <trusted-key id="c1cba75ec9bd0baf8061935459e05ce618187ed4" group="org.xerial"/>
          <trusted-key id="c5aa57f4a38eba7b7f9156ddab2da4527f6ffc0b" group="com.squareup"/>
          <trusted-key id="c6f7d1c804c821f49af3bfc13ad93c3c677a106e" group="io.perfmark"/>
          <trusted-key id="c70b844f002f21f6d2b9c87522e44ac0622b91c3" group="com.beust"/>
