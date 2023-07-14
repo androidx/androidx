@@ -117,13 +117,15 @@ fun GetComposablesCommand(
 fun GetUpdateSettingsCommand(
     includeRecomposeCounts: Boolean = false,
     keepRecomposeCounts: Boolean = false,
-    delayParameterExtractions: Boolean = false
+    delayParameterExtractions: Boolean = false,
+    reduceChildNesting: Boolean = false
 ): Command =
     Command.newBuilder().apply {
         updateSettingsCommand = UpdateSettingsCommand.newBuilder().apply {
             this.includeRecomposeCounts = includeRecomposeCounts
             this.keepRecomposeCounts = keepRecomposeCounts
             this.delayParameterExtractions = delayParameterExtractions
+            this.reduceChildNesting = reduceChildNesting
         }.build()
     }.build()
 

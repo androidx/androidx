@@ -25,6 +25,7 @@ import androidx.compose.ui.inspection.framework.flatten
 import androidx.compose.ui.inspection.inspector.InspectorNode
 import androidx.compose.ui.inspection.inspector.LayoutInspectorTree
 import androidx.compose.ui.inspection.inspector.NodeParameterReference
+import androidx.compose.ui.inspection.proto.ConversionContext
 import androidx.compose.ui.inspection.proto.StringTable
 import androidx.compose.ui.inspection.proto.convert
 import androidx.compose.ui.inspection.proto.toComposableRoot
@@ -95,6 +96,9 @@ class ComposeLayoutInspector(
     private val layoutInspectorTree = LayoutInspectorTree()
     private val recompositionHandler = RecompositionHandler(environment.artTooling())
     private var delayParameterExtractions = false
+    // Reduce the protobuf nesting of ComposableNode by storing nested nodes with only 1 child each
+    // as children under the top node. This limits the stack used when computing the protobuf size.
+    private var reduceChildNesting = false
 
     // Sidestep threading concerns by only ever accessing cachedNodes on the inspector thread
     private val inspectorThread = Thread.currentThread()
@@ -163,8 +167,10 @@ class ComposeLayoutInspector(
         val windowPos = IntOffset(location[0], location[1])
 
         val stringTable = StringTable()
+        val context =
+            ConversionContext(stringTable, windowPos, recompositionHandler, reduceChildNesting)
         val trees = data?.trees ?: emptyList()
-        val roots = trees.map { it.toComposableRoot(stringTable, windowPos, recompositionHandler) }
+        val roots = trees.map { it.toComposableRoot(context) }
 
         callback.reply {
             getComposablesResponse = GetComposablesResponse.newBuilder().apply {
@@ -304,6 +310,7 @@ class ComposeLayoutInspector(
             updateSettingsCommand.keepRecomposeCounts
         )
         delayParameterExtractions = updateSettingsCommand.delayParameterExtractions
+        reduceChildNesting = updateSettingsCommand.reduceChildNesting
         callback.reply {
             updateSettingsResponse = UpdateSettingsResponse.newBuilder().apply {
                 canDelayParameterExtractions = true
