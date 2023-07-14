@@ -1325,3 +1325,6 @@ WARNING: The option setting 'android\.r[0-9]+\.maxWorkers=[0-9]+' is experimenta
 e: Daemon compilation failed: Could not connect to Kotlin compile daemon
 java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
 Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
+# :benchmark:benchmark-baseline-profile-gradle-plugin:jar https://github.com/gradle/gradle/issues/22545
+# TODO(aurimas): remove when upgrading to Gradle 8.3
+.*No valid plugin descriptors were found in META\-INF/gradle-plugins.*
