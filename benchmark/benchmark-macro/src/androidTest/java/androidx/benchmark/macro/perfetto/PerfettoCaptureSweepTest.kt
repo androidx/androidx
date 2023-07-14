@@ -23,7 +23,7 @@ import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.LargeTest
@@ -49,7 +49,7 @@ import org.junit.runners.Parameterized
  * Note: this test is defined in benchmark-macro instead of benchmark-common so that it can
  * validate trace contents with TraceProcessor
  */
-@SdkSuppress(minSdkVersion = 23)
+@SdkSuppress(minSdkVersion = MIN_BUNDLED_SDK_VERSION)
 @LargeTest
 @RunWith(Parameterized::class)
 class PerfettoCaptureSweepTest(
@@ -66,7 +66,7 @@ class PerfettoCaptureSweepTest(
     }
 
     @Ignore("b/258216025")
-    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED, maxSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = MIN_BUNDLED_SDK_VERSION, maxSdkVersion = 33)
     @Test
     fun captureAndValidateTrace_bundled() {
         if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
