@@ -62,7 +62,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractSchedule] if you need to extend this type.
  */
-@Document(name = "bit:Schedule")
+@Document(
+  name = "bit:Schedule",
+  parent = [Intangible::class],
+)
 public interface Schedule : Intangible {
   /**
    * Defines the day(s) of the week on which a recurring Event takes place.
@@ -174,7 +177,7 @@ public interface Schedule : Intangible {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ScheduleImpl.Builder()
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = ScheduleImpl.Builder()
   }
 
   /**
