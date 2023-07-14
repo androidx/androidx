@@ -30,7 +30,7 @@ internal actual fun getCurrentThreadId(): Long = Thread.currentThread().id
 @InternalComposeApi
 actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)
 
-internal actual typealias TestOnly = org.jetbrains.annotations.TestOnly
+actual typealias TestOnly = org.jetbrains.annotations.TestOnly
 
 internal actual fun invokeComposable(composer: Composer, composable: @Composable () -> Unit) {
     @Suppress("UNCHECKED_CAST")
