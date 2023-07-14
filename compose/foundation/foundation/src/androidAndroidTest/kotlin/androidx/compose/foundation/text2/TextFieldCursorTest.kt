@@ -647,6 +647,64 @@ class TextFieldCursorTest {
             )
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun readOnly_cursorIsNotDrawn() {
+        state = TextFieldState("test", initialSelectionInChars = TextRange(4))
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                readOnly = true,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertDoesNotContainColor(cursorColor)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun toggling_readOnly_drawsCursorAgain() {
+        var readOnly by mutableStateOf(true)
+        state = TextFieldState("test", initialSelectionInChars = TextRange(4))
+        rule.setTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                readOnly = readOnly,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertDoesNotContainColor(cursorColor)
+
+        readOnly = false
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+    }
+
     private fun focusAndWait() {
         rule.onNode(hasSetTextAction()).requestFocus()
         rule.mainClock.advanceTimeUntil { isFocused }

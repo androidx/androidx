@@ -23,7 +23,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
@@ -31,6 +33,7 @@ import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +42,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -82,6 +86,9 @@ fun BasicTextField2Demos() {
 
         TagLine(tag = "State toggling BasicTextField2")
         StateTogglingBasicTextField2()
+
+        TagLine(tag = "BasicTextField2 Edit Controls")
+        BasicTextField2EditControls()
     }
 }
 
@@ -116,4 +123,32 @@ fun StateTogglingBasicTextField2() {
     })
 
     BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun BasicTextField2EditControls() {
+    var enabled by remember { mutableStateOf(true) }
+    var readOnly by remember { mutableStateOf(false) }
+    val state = remember { TextFieldState("Content goes here") }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Enabled")
+            Checkbox(checked = enabled, onCheckedChange = { enabled = it })
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Readonly")
+            Checkbox(checked = readOnly, onCheckedChange = { readOnly = it })
+        }
+
+        BasicTextField2(
+            state,
+            demoTextFieldModifiers,
+            textStyle = LocalTextStyle.current,
+            enabled = enabled,
+            readOnly = readOnly
+        )
+    }
 }
