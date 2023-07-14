@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle.observers
 
-package androidx.lifecycle.observers;
-
-public class DerivedSequence1 extends Base {
-
-    public void something() {
-    }
+open class DerivedSequence1 : Base() {
+    fun something() {}
 }
