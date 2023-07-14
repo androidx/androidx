@@ -74,13 +74,13 @@ class TextActionsTest {
     @Test
     fun testPerformTextInput() {
         rule.setContent {
-            TestTextField("hello")
+            TestTextField("compose")
         }
 
         with(rule.onNodeWithTag("tag")){
-            assertTextEquals("hello")
-            performTextInput(" compose")
-            assertTextEquals("hello compose")
+            assertTextEquals("compose")
+            performTextInput("hello ")
+            assertTextEquals("hello compose")  // The caret is at 0 initially
         }
     }
 
@@ -92,9 +92,9 @@ class TextActionsTest {
 
         with(rule.onNodeWithTag("tag")){
             assertTextEquals("hello")
-            performTextInputSelection(TextRange(0))
-            performTextInput("compose ")
-            assertTextEquals("compose hello")
+            performTextInputSelection(TextRange(5))
+            performTextInput(" compose")
+            assertTextEquals("hello compose")
         }
     }
 }
