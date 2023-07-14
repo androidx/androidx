@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.test
 
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.identityHashCode
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
@@ -64,6 +66,7 @@ internal expect fun createInputDispatcher(
  * Chaining methods:
  * * [advanceEventTime]
  */
+@OptIn(InternalComposeApi::class)
 internal abstract class InputDispatcher(
     private val testContext: TestContext,
     private val root: RootForTest,

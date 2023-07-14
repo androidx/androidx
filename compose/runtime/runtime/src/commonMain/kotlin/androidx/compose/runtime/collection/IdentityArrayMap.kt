@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.collection
 
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.identityHashCode
 
 internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
@@ -160,6 +161,7 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
      * Returns the index into [keys] of the found [key], or the negative index - 1 of the
      * position in which it would be if it were found.
      */
+    @OptIn(InternalComposeApi::class)
     private fun find(key: Any?): Int {
         val keyIdentity = identityHashCode(key)
         var low = 0
@@ -187,6 +189,7 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
      * If no match is found, the negative index - 1 of the position in which it would be will
      * be returned, which is always after the last key with the same [identityHashCode].
      */
+    @OptIn(InternalComposeApi::class)
     private fun findExactIndex(midIndex: Int, key: Any?, keyHash: Int): Int {
         val keys = keys
         val size = size

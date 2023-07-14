@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.collection
 
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.identityHashCode
 import kotlin.contracts.ExperimentalContracts
 
@@ -271,6 +272,7 @@ internal class IdentityScopeMap<T : Any> {
      * Returns the index into [valueOrder] of the found [value] of the
      * value, or the negative index - 1 of the position in which it would be if it were found.
      */
+    @OptIn(InternalComposeApi::class)
     private fun find(value: Any?): Int {
         val valueIdentity = identityHashCode(value)
         var low = 0
@@ -299,6 +301,7 @@ internal class IdentityScopeMap<T : Any> {
      * If no match is found, the negative index - 1 of the position in which it would be will
      * be returned, which is always after the last item with the same [identityHashCode].
      */
+    @OptIn(InternalComposeApi::class)
     private fun findExactIndex(midIndex: Int, value: Any?, valueHash: Int): Int {
         val values = values
         val valueOrder = valueOrder

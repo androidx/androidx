@@ -63,7 +63,8 @@ actual class AtomicReference<V> actual constructor(private var value: V) {
         }
 }
 
-internal actual fun identityHashCode(instance: Any?): Int {
+@InternalComposeApi
+actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
         return 0
     }

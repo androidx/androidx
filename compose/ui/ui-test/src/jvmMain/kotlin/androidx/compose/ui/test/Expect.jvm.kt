@@ -19,5 +19,3 @@ package androidx.compose.ui.test
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun commonAssert(value: Boolean, lazyMessage: () -> Any) =
     assert(value, lazyMessage)
-
-internal actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)

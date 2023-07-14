@@ -36,7 +36,8 @@ internal expect fun getCurrentThreadId(): Long
  * if (identityHashCode(midVal) < identityHashCode(leftVal)) ...
  * ```
  */
-internal expect fun identityHashCode(instance: Any?): Int
+@InternalComposeApi
+expect fun identityHashCode(instance: Any?): Int
 
 expect class AtomicReference<V>(value: V) {
     fun get(): V

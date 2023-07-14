@@ -72,7 +72,8 @@ internal actual class WeakReference<T : Any> actual constructor(reference: T) {
     actual fun get(): T? = kotlinNativeReference.get()
 }
 
-internal actual fun identityHashCode(instance: Any?): Int =
+@InternalComposeApi
+actual fun identityHashCode(instance: Any?): Int =
     instance.identityHashCode()
 
 actual annotation class TestOnly

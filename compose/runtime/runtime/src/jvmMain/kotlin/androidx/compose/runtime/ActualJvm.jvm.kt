@@ -27,7 +27,8 @@ internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.Atomi
 
 internal actual fun getCurrentThreadId(): Long = Thread.currentThread().id
 
-internal actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)
+@InternalComposeApi
+actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)
 
 internal actual typealias TestOnly = org.jetbrains.annotations.TestOnly
 
