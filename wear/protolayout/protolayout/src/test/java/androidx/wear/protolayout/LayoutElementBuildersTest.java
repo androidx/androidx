@@ -122,7 +122,6 @@ public class LayoutElementBuildersTest {
         LayoutElementBuilders.Arc arc =
                 new LayoutElementBuilders.Arc.Builder()
                         .setAnchorAngle(DEGREES_PROP)
-                        .setLayoutConstraintsForDynamicAnchorAngle(DEGREES_PROP_CONSTRAINT)
                         .build();
 
         DimensionProto.DegreesProp anchorAngleProto = arc.toProto().getAnchorAngle();
@@ -130,17 +129,6 @@ public class LayoutElementBuildersTest {
         assertThat(anchorAngleProto.getValue()).isEqualTo(DEGREES_PROP.getValue());
         assertThat(anchorAngleProto.getDynamicValue().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
-        assertThat(anchorAngleProto.getValueForLayout())
-                .isEqualTo(DEGREES_PROP_CONSTRAINT.getValue());
-        assertThat(anchorAngleProto.getAngularAlignmentForLayoutValue())
-                .isEqualTo(DEGREES_PROP_CONSTRAINT.getAngularAlignment());
-    }
-
-    @Test
-    public void arcSetAnchorAngle_withoutLayoutConstraint_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new LayoutElementBuilders.Arc.Builder().setAnchorAngle(DEGREES_PROP).build());
     }
 
     @Test
