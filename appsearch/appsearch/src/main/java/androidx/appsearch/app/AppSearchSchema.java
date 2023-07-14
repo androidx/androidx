@@ -145,6 +145,11 @@ public final class AppSearchSchema {
 
     /**
      * Returns the list of parent types of this schema for polymorphism.
+     *
+     * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+     * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via Mainline
+     *   are possible.
+     * -->
      */
     @NonNull
     public List<String> getParentTypes() {
@@ -264,8 +269,12 @@ public final class AppSearchSchema {
          * of its parents based on the above rules. For example, if LocalBusiness is defined as a
          * subtype of both Place and Organization, then the compatibility of LocalBusiness with
          * Place and the compatibility of LocalBusiness with Organization will both be checked.
+         *
+         * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+         * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+         *   Mainline are possible.
+         * -->
          */
-        // TODO(b/280698873): Disallow polymorphism in AppSearch framework for Android T.
         @CanIgnoreReturnValue
         @NonNull
         // @exportToFramework:startStrip()
@@ -318,6 +327,7 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
          *
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
@@ -369,6 +379,7 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.PropertyConfigProto.Cardinality.Code.
          *
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
@@ -594,6 +605,7 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.IndexingConfig.TokenizerType.Code.
          *
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
@@ -1210,7 +1222,14 @@ public final class AppSearchSchema {
             return mBundle.getBoolean(INDEX_NESTED_PROPERTIES_FIELD);
         }
 
-        /** Returns the list of indexable nested properties for the nested document. */
+        /**
+         * Returns the list of indexable nested properties for the nested document.
+         *
+         * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+         * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+         *   Mainline are possible.
+         * -->
+         */
         @NonNull
         public List<String> getIndexableNestedProperties() {
             List<String> indexableNestedPropertiesList =
@@ -1306,6 +1325,11 @@ public final class AppSearchSchema {
              * required to be false if any indexable nested property is added this way for the
              * document property. Attempting to build a DocumentPropertyConfig when this is not
              * true throws {@link IllegalArgumentException}.
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
              */
             @CanIgnoreReturnValue
             @NonNull
@@ -1324,6 +1348,11 @@ public final class AppSearchSchema {
              * Adds one or more property paths for indexing from the nested document property.
              *
              * @see #addIndexableNestedProperties(String...)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
              */
             @CanIgnoreReturnValue
             @SuppressLint("MissingGetterMatchingBuilder")
@@ -1343,6 +1372,11 @@ public final class AppSearchSchema {
              * Adds one or more properties for indexing from the nested document property.
              *
              * @see #addIndexableNestedProperties(String...)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
              */
             @CanIgnoreReturnValue
             @NonNull
@@ -1362,6 +1396,11 @@ public final class AppSearchSchema {
              * Adds one or more property paths for indexing from the nested document property.
              *
              * @see #addIndexableNestedProperties(String...)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
              */
             @CanIgnoreReturnValue
             @SuppressLint("MissingGetterMatchingBuilder")
