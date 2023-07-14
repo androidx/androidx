@@ -29,6 +29,8 @@ import com.google.android.icing.proto.TermMatchType;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class SchemaToProtoConverterTest {
     @Test
     public void testGetProto_Email() {
@@ -202,7 +204,7 @@ public class SchemaToProtoConverterTest {
                         "Organization")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setShouldIndexNestedProperties(false)
-                        .addIndexableNestedProperties("orgName", "notes")
+                        .addIndexableNestedProperties(Arrays.asList("orgName", "notes"))
                         .build())
                 .build();
 

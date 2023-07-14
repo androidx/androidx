@@ -219,11 +219,8 @@ public final class SchemaToProtoConverter {
                         .setCardinality(proto.getCardinality().getNumber())
                         .setShouldIndexNestedProperties(
                                 proto.getDocumentIndexingConfig().getIndexNestedProperties());
-        List<String> indexableNestedPropertiesList =
-                proto.getDocumentIndexingConfig().getIndexableNestedPropertiesListList();
-        for (int i = 0; i < indexableNestedPropertiesList.size(); i++) {
-            builder.addIndexableNestedProperties(indexableNestedPropertiesList.get(i));
-        }
+        builder.addIndexableNestedProperties(
+                proto.getDocumentIndexingConfig().getIndexableNestedPropertiesListList());
         return builder.build();
     }
 
