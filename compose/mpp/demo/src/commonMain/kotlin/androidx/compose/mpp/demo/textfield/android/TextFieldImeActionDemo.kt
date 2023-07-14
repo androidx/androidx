@@ -18,24 +18,24 @@ package androidx.compose.mpp.demo.textfield.android
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 
 @Composable
-fun KeyboardTypeDemo() {
+fun ImeActionDemo() {
     LazyColumn {
-        item { Item(KeyboardType.Text) }
-        item { Item(KeyboardType.Ascii) }
-        item { Item(KeyboardType.Number) }
-        item { Item(KeyboardType.Phone) }
-        item { Item(KeyboardType.Uri) }
-        item { Item(KeyboardType.Email) }
-        item { Item(KeyboardType.Password) }
-        item { Item(KeyboardType.NumberPassword) }
+        item { Item(ImeAction.None) }
+        item { Item(ImeAction.Default) }
+        item { Item(ImeAction.Go) }
+        item { Item(ImeAction.Search) }
+        item { Item(ImeAction.Send) }
+        item { Item(ImeAction.Previous) }
+        item { Item(ImeAction.Next) }
+        item { Item(ImeAction.Done) }
     }
 }
 
 @Composable
-private fun Item(keyboardType: KeyboardType) {
-    TagLine(tag = "Keyboard Type: $keyboardType")
-    EditLine(keyboardType = keyboardType)
+private fun Item(imeAction: ImeAction) {
+    TagLine(tag = "Ime Action: $imeAction")
+    EditLine(imeAction = imeAction)
 }

@@ -35,6 +35,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
+@Composable
+fun ImeSingleLineDemo() {
+    LazyColumn {
+        items(ImeOptionsList) {
+            TagLine(tag = "${it.name}")
+            MyTextField(it)
+        }
+    }
+}
+
 internal class ImeOptionsData(
     val keyboardOptions: KeyboardOptions,
     val singleLine: Boolean = false,
@@ -117,16 +127,6 @@ private val ImeOptionsList = listOf(
         name = "multiLine/Decimal"
     )
 )
-
-@Composable
-fun ImeSingleLineDemo() {
-    LazyColumn {
-        items(ImeOptionsList) {
-            TagLine(tag = "${it.name}")
-            MyTextField(it)
-        }
-    }
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

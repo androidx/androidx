@@ -16,26 +16,10 @@
 
 package androidx.compose.mpp.demo.textfield.android
 
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
-fun KeyboardTypeDemo() {
-    LazyColumn {
-        item { Item(KeyboardType.Text) }
-        item { Item(KeyboardType.Ascii) }
-        item { Item(KeyboardType.Number) }
-        item { Item(KeyboardType.Phone) }
-        item { Item(KeyboardType.Uri) }
-        item { Item(KeyboardType.Email) }
-        item { Item(KeyboardType.Password) }
-        item { Item(KeyboardType.NumberPassword) }
-    }
-}
-
-@Composable
-private fun Item(keyboardType: KeyboardType) {
-    TagLine(tag = "Keyboard Type: $keyboardType")
-    EditLine(keyboardType = keyboardType)
+fun TextFieldsInDialogDemo() {
+    Text("Compose Multiplatform currently not have Dialog() like on Android")
 }
