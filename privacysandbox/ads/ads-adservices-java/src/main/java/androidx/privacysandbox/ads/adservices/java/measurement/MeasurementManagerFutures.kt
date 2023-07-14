@@ -22,10 +22,12 @@ import android.net.Uri
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresPermission
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager
 import androidx.privacysandbox.ads.adservices.measurement.MeasurementManager.Companion.obtain
+import androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest
 import androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest
 import com.google.common.util.concurrent.ListenableFuture
@@ -73,6 +75,19 @@ abstract class MeasurementManagerFutures internal constructor() {
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun registerTriggerAsync(trigger: Uri): ListenableFuture<Unit>
+
+    /**
+     * Register attribution sources(click or view). This API will not process any redirects, all
+     * registration URLs should be supplied with the request.
+     *
+     * @param request source registration request
+     */
+    @ExperimentalFeatures.RegisterSourceOptIn
+    @SuppressWarnings("MissingNullability")
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
+    abstract fun registerSourceAsync(
+        request: SourceRegistrationRequest
+    ): ListenableFuture<Unit>
 
     /**
      * Register an attribution source(click or view) from web context. This API will not process any
@@ -131,6 +146,17 @@ abstract class MeasurementManagerFutures internal constructor() {
         ): ListenableFuture<Unit> {
             return CoroutineScope(Dispatchers.Default).async {
                 mMeasurementManager.registerSource(attributionSource, inputEvent)
+            }.asListenableFuture()
+        }
+
+        @DoNotInline
+        @ExperimentalFeatures.RegisterSourceOptIn
+        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
+        override fun registerSourceAsync(
+            request: SourceRegistrationRequest
+        ): ListenableFuture<Unit> {
+            return CoroutineScope(Dispatchers.Default).async {
+                mMeasurementManager.registerSource(request)
             }.asListenableFuture()
         }
 
