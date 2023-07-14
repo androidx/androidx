@@ -20,4 +20,9 @@ import androidx.compose.ui.input.key.KeyEvent
 
 internal actual fun KeyEvent.cancelsTextSelection(): Boolean = false
 
-internal actual fun showCharacterPalette():Unit = TODO("implement native showCharacterPalette")
+internal actual fun showCharacterPalette() {
+    // There is no browser API to make such a system call neither directly nor indirectly:
+    // NSApplication* app = [NSApplication sharedApplication];
+    // [app orderFrontCharacterPalette:nil];
+    // Also, see https://github.com/whatwg/html/issues/8358 for any updates or progress
+}
