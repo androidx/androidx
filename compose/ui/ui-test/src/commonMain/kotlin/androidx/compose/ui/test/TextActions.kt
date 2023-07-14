@@ -91,7 +91,7 @@ fun SemanticsNodeInteraction.performImeAction() {
 
     wrapAssertionErrorsWithNodeInfo(selector, node) {
         performSemanticsAction(PerformImeAction) {
-            assert(it()) {
+            commonAssert(it()) {
                 buildGeneralErrorMessage(
                     "Failed to perform IME action, handler returned false.",
                     selector,
