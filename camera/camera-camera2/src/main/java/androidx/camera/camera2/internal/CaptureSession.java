@@ -91,7 +91,7 @@ final class CaptureSession implements CaptureSessionInterface {
     /** The Opener to help on creating the SynchronizedCaptureSession. */
     @Nullable
     @GuardedBy("mSessionLock")
-    SynchronizedCaptureSessionOpener mSynchronizedCaptureSessionOpener;
+    SynchronizedCaptureSession.Opener mSynchronizedCaptureSessionOpener;
     /** The framework camera capture session held by this session. */
     @Nullable
     @GuardedBy("mSessionLock")
@@ -201,7 +201,7 @@ final class CaptureSession implements CaptureSessionInterface {
     @Override
     public ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
             @NonNull CameraDevice cameraDevice,
-            @NonNull SynchronizedCaptureSessionOpener opener) {
+            @NonNull SynchronizedCaptureSession.Opener opener) {
         synchronized (mSessionLock) {
             switch (mState) {
                 case INITIALIZED:

@@ -61,8 +61,8 @@ public class SynchronizedCaptureSessionTest {
     private SynchronizedCaptureSession.StateCallback mMockStateCallback;
     private List<OutputConfigurationCompat> mOutputs;
     private CaptureSessionRepository mCaptureSessionRepository;
-    private SynchronizedCaptureSessionOpener mSynchronizedCaptureSessionOpener;
-    private SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
+    private SynchronizedCaptureSession.Opener mSynchronizedCaptureSessionOpener;
+    private SynchronizedCaptureSession.OpenerBuilder mCaptureSessionOpenerBuilder;
     private ScheduledExecutorService mScheduledExecutorService =
             Executors.newSingleThreadScheduledExecutor();
 
@@ -83,7 +83,7 @@ public class SynchronizedCaptureSessionTest {
         mFakeDeferrableSurfaces.add(mDeferrableSurface1);
         mFakeDeferrableSurfaces.add(mDeferrableSurface2);
 
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(
                 android.os.AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService,
                 mock(Handler.class), mCaptureSessionRepository,
                 new Quirks(Arrays.asList(new PreviewOrientationIncorrectQuirk(),
@@ -122,7 +122,7 @@ public class SynchronizedCaptureSessionTest {
         CameraCaptureSession mockCaptureSession1 = mock(CameraCaptureSession.class);
         SynchronizedCaptureSession.StateCallback mockStateCallback1 = mock(
                 SynchronizedCaptureSession.StateCallback.class);
-        SynchronizedCaptureSessionOpener captureSessionUtil1 =
+        SynchronizedCaptureSession.Opener captureSessionUtil1 =
                 mCaptureSessionOpenerBuilder.build();
         SessionConfigurationCompat sessionConfigurationCompat1 =
                 captureSessionUtil1.createSessionConfigurationCompat(

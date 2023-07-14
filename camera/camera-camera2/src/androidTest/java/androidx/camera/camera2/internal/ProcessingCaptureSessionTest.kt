@@ -133,7 +133,7 @@ class ProcessingCaptureSessionTest(
 
     private lateinit var cameraDeviceHolder: CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
-    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSessionOpener.Builder
+    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSession.OpenerBuilder
     private lateinit var sessionProcessor: FakeSessionProcessor
     private lateinit var executor: Executor
     private lateinit var handler: Handler
@@ -160,7 +160,7 @@ class ProcessingCaptureSessionTest(
         val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
         camera2CameraInfo = Camera2CameraInfoImpl(cameraId, cameraManagerCompat)
         captureSessionRepository = CaptureSessionRepository(executor)
-        captureSessionOpenerBuilder = SynchronizedCaptureSessionOpener.Builder(
+        captureSessionOpenerBuilder = SynchronizedCaptureSession.OpenerBuilder(
             executor,
             executor as ScheduledExecutorService,
             handler,

@@ -183,7 +183,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     private final CaptureSessionRepository mCaptureSessionRepository;
     @NonNull
-    private final SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
+    private final SynchronizedCaptureSession.OpenerBuilder mCaptureSessionOpenerBuilder;
     private final Set<String> mNotifyStateAttachedSet = new HashSet<>();
 
     @NonNull
@@ -257,7 +257,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 DynamicRangesCompat.fromCameraCharacteristics(mCameraCharacteristicsCompat);
         mCaptureSession = newCaptureSession();
 
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutorService, schedulerHandler, mCaptureSessionRepository,
                 cameraInfoImpl.getCameraQuirks(), DeviceQuirks.getAll());
 
