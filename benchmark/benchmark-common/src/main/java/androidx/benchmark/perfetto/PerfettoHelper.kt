@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo.deviceSummaryString
 import androidx.benchmark.Shell
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_SDK_VERSION
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
@@ -36,14 +37,14 @@ import org.jetbrains.annotations.TestOnly
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(23)
+@RequiresApi(MIN_SDK_VERSION)
 public class PerfettoHelper(
-    private val unbundled: Boolean = Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED
+    private val unbundled: Boolean = Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION
 ) {
     init {
-        require(unbundled || Build.VERSION.SDK_INT >= LOWEST_BUNDLED_VERSION_SUPPORTED) {
+        require(unbundled || Build.VERSION.SDK_INT >= MIN_BUNDLED_SDK_VERSION) {
             "Perfetto capture using the os version of perfetto requires API " +
-                "$LOWEST_BUNDLED_VERSION_SUPPORTED or greater."
+                "$MIN_BUNDLED_SDK_VERSION or greater."
         }
     }
 
@@ -366,7 +367,8 @@ public class PerfettoHelper(
     companion object {
         internal const val LOG_TAG = "PerfettoCapture"
 
-        const val LOWEST_BUNDLED_VERSION_SUPPORTED = 29
+        const val MIN_SDK_VERSION = 23
+        const val MIN_BUNDLED_SDK_VERSION = 29
 
         // Command to start the perfetto tracing in the background.
         // perfetto --background -c /data/misc/perfetto-traces/trace_config.pb -o
@@ -451,7 +453,7 @@ public class PerfettoHelper(
             // this there as well. Can't use bundled /system/bin/traced_probes, as that requires
             // root, and unbundled tracebox otherwise not used/installed on higher APIs, outside
             // of tests.
-            if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
+            if (Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION) {
                 val output = Shell.executeScriptCaptureStdoutStderr(
                     "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
                 )

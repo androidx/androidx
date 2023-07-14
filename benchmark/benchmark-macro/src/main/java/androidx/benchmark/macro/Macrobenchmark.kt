@@ -138,25 +138,41 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                 """.trimIndent()
             ),
             conditionalError(
+                hasError = DeviceInfo.misconfiguredForTracing,
+                id = "DEVICE-TRACING-MISCONFIGURED",
+                summary = "This ${DeviceInfo.typeLabel}'s OS is misconfigured for tracing",
+                message = """
+                    This ${DeviceInfo.typeLabel}'s OS image has not correctly mounted the tracing
+                    file system, which prevents macrobenchmarking, and Perfetto/atrace trace capture
+                    in general. You can try a different device, or experiment with an emulator
+                    (though that will not give timing measurements representative of real device
+                    experience).
+                    This error may not be suppressed.
+                """.trimIndent()
+            ),
+            conditionalError(
                 hasError = Arguments.methodTracingEnabled(),
                 id = "METHOD-TRACING-ENABLED",
                 summary = "Method tracing is enabled during a Macrobenchmark",
                 message = """
                     The Macrobenchmark run for $packageName has method tracing enabled.
-                    This causes the VM will run more slowly than usual, so the metrics from the
+                    This causes the VM to run more slowly than usual, so the metrics from the
                     trace files should only be considered in relative terms
                     (e.g. was run #1 faster than run #2). Also, these metrics cannot be compared
                     with benchmark runs that don't have method tracing enabled.
                 """.trimIndent()
-            )
+            ),
         ).sortedBy { it.id }
 
     // These error ids are really warnings. In that, we don't need developers to have to
     // explicitly suppress them using test instrumentation arguments.
     // TODO: Introduce a better way to surface warnings.
-    val warnings = setOf("METHOD-TRACING-ENABLED")
+    val alwaysSuppressed = setOf("METHOD-TRACING-ENABLED")
+    val neverSuppressed = setOf("DEVICE-TRACING-MISCONFIGURED")
 
-    return errors.checkAndGetSuppressionState(Arguments.suppressedErrors + warnings)
+    return errors.checkAndGetSuppressionState(
+        Arguments.suppressedErrors + alwaysSuppressed - neverSuppressed
+    )
 }
 
 /**

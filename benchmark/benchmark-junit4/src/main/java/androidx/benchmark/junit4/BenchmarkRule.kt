@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkState
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
@@ -218,9 +219,10 @@ public class BenchmarkRule internal constructor(
                 ),
                 userspaceTracingPackage = null,
 
-                // optimize throughput in dryRunMode, since trace isn't useful, and extremely
-                // expensive on some emulators. Could alternately use UserspaceTracing if desired
-                enableTracing = !Arguments.dryRunMode
+                // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                //   expensive on some emulators. Could alternately use UserspaceTracing if desired
+                // Additionally, skip on misconfigured devices to still enable benchmarking.
+                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer
 
