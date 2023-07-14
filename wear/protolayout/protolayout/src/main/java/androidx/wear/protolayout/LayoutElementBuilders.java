@@ -4065,18 +4065,13 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
-         * #getAnchorAngle()}.
+         * This is a No-Op as using constraints for dynamic AnchorAngle has no effect.
          *
          * @since 1.2
          */
         @Nullable
         public AngularLayoutConstraint getLayoutConstraintsForDynamicAnchorAngle() {
-            if (mImpl.hasAnchorAngle()) {
-                return AngularLayoutConstraint.fromProto(mImpl.getAnchorAngle());
-            } else {
-                return null;
-            }
+            throw new UnsupportedOperationException("This method is No-Op. Do not use!");
         }
 
         /**
@@ -4208,11 +4203,6 @@ public final class LayoutElementBuilders {
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code
-             * setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@code
-             * build()} fails.
-             *
              * @since 1.0
              */
             @NonNull
@@ -4224,19 +4214,13 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the bounding constraints for the layout affected by the dynamic value from
-             * {@link #setAnchorAngle(DegreesProp)}}.
+             * This is a No-Op as using constraints for dynamic AnchorAngle has no effect.
              *
              * @since 1.2
              */
             @NonNull
             public Builder setLayoutConstraintsForDynamicAnchorAngle(
                     @NonNull DimensionBuilders.AngularLayoutConstraint angularLayoutConstraint) {
-                mImpl.mergeAnchorAngle(angularLayoutConstraint.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        2,
-                        checkNotNull(angularLayoutConstraint.getFingerprint())
-                                .aggregateValueAsInt());
                 return this;
             }
 
@@ -4311,12 +4295,6 @@ public final class LayoutElementBuilders {
             @Override
             @NonNull
             public Arc build() {
-                DimensionProto.DegreesProp anchorAngle = mImpl.getAnchorAngle();
-                if (anchorAngle.hasDynamicValue() && !anchorAngle.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "anchorAngle with dynamic value requires "
-                                    + "layoutConstraintsForDynamicAnchorAngle to be present.");
-                }
                 return new Arc(mImpl.build(), mFingerprint);
             }
         }
