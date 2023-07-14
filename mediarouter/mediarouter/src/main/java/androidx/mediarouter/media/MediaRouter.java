@@ -2310,8 +2310,7 @@ public final class MediaRouter {
         @NonNull
         @Override
         public String toString() {
-            return "MediaRouter.RouteProviderInfo{ packageName=" + getPackageName()
-                    + " }";
+            return "MediaRouter.RouteProviderInfo{ packageName=" + getPackageName() + " }";
         }
     }
 
