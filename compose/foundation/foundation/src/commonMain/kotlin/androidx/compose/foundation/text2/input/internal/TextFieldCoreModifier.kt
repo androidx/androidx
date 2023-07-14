@@ -91,7 +91,7 @@ internal data class TextFieldCoreModifier(
         textFieldState = textFieldState,
         textFieldSelectionState = textFieldSelectionState,
         cursorBrush = cursorBrush,
-        writable = writeable,
+        writeable = writeable,
         scrollState = scrollState,
         orientation = orientation,
     )
@@ -122,7 +122,7 @@ internal class TextFieldCoreModifierNode(
     private var textFieldState: TextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
     private var cursorBrush: Brush,
-    private var writable: Boolean,
+    private var writeable: Boolean,
     private var scrollState: ScrollState,
     private var orientation: Orientation,
 ) : Modifier.Node(),
@@ -142,7 +142,7 @@ internal class TextFieldCoreModifierNode(
      * and brush at a given time.
      */
     private val showCursor: Boolean
-        get() = writable && isFocused && cursorBrush.isSpecified
+        get() = writeable && isFocused && cursorBrush.isSpecified
 
     /**
      * Observes the [textFieldState] for any changes to content or selection. If a change happens,
@@ -168,6 +168,7 @@ internal class TextFieldCoreModifierNode(
         scrollState: ScrollState,
         orientation: Orientation,
     ) {
+        val previousShowCursor = this.showCursor
         val wasFocused = this.isFocused
         val previousTextFieldState = this.textFieldState
         val previousTextLayoutState = this.textLayoutState
@@ -178,7 +179,7 @@ internal class TextFieldCoreModifierNode(
         this.textFieldState = textFieldState
         this.textFieldSelectionState = textFieldSelectionState
         this.cursorBrush = cursorBrush
-        this.writable = writeable
+        this.writeable = writeable
         this.scrollState = scrollState
         this.orientation = orientation
 
@@ -186,7 +187,10 @@ internal class TextFieldCoreModifierNode(
             changeObserverJob?.cancel()
             changeObserverJob = null
             coroutineScope.launch { cursorAlpha.snapTo(0f) }
-        } else if (!wasFocused || previousTextFieldState != textFieldState) {
+        } else if (!wasFocused ||
+            previousTextFieldState != textFieldState ||
+            !previousShowCursor
+        ) {
             // this node is writeable, focused and gained that focus just now.
             // start the state value observation
             changeObserverJob = coroutineScope.launch {
