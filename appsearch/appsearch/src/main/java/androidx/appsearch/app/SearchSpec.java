@@ -214,6 +214,11 @@ public final class SearchSpec {
     /**
      * Results should be grouped together by schema type for the purpose of enforcing a limit on the
      * number of results returned per schema type.
+     *
+     * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+     * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+     *   Mainline are possible.
+     * -->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
