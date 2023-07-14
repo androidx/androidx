@@ -21,9 +21,11 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup.LayoutParams
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.GridLayout
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.math.roundToInt
 
@@ -111,12 +113,17 @@ internal class EmojiViewHolder(
                 emojiView.context.resources
                     .getDimensionPixelSize(R.dimen.emoji_picker_popup_view_elevation)
                     .toFloat()
-            showAtLocation(
-                popupView,
-                Gravity.NO_GRAVITY,
-                x.roundToInt(),
-                y
-            )
+            try {
+                showAtLocation(
+                    emojiView,
+                    Gravity.NO_GRAVITY,
+                    x.roundToInt(),
+                    y
+                )
+            } catch (e: WindowManager.BadTokenException) {
+                Toast.makeText(
+                    context, "Don't use EmojiPickerView inside a Popup", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
