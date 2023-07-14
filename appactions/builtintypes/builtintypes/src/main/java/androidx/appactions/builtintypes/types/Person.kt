@@ -38,7 +38,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractPerson] if you need to extend this type.
  */
-@Document(name = "bit:Person")
+@Document(
+  name = "bit:Person",
+  parent = [Thing::class],
+)
 public interface Person : Thing {
   /**
    * Email address.
@@ -50,16 +53,16 @@ public interface Person : Thing {
   /**
    * The telephone number.
    *
-   * See http://schema.org/telephone for more context.
+   * See https://schema.org/telephone for more context.
    */
-  @get:Document.StringProperty public val telephone: String?
+  @get:Document.StringProperty(name = "telephone") public val telephoneNumber: String?
 
   /** Converts this [Person] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = PersonImpl.Builder()
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = PersonImpl.Builder()
   }
 
   /**
@@ -75,8 +78,8 @@ public interface Person : Thing {
     /** Sets the `email`. */
     public fun setEmail(text: String?): Self
 
-    /** Sets the `telephone`. */
-    public fun setTelephone(text: String?): Self
+    /** Sets the `telephoneNumber`. */
+    public fun setTelephoneNumber(text: String?): Self
   }
 }
 
@@ -121,7 +124,7 @@ public abstract class AbstractPerson<
 internal constructor(
   public final override val namespace: String?,
   public final override val email: String?,
-  public final override val telephone: String?,
+  public final override val telephoneNumber: String?,
   public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String?,
   public final override val name: Name?,
@@ -146,7 +149,7 @@ internal constructor(
   ) : this(
     person.namespace,
     person.email,
-    person.telephone,
+    person.telephoneNumber,
     person.disambiguatingDescription,
     person.identifier,
     person.name
@@ -159,7 +162,7 @@ internal constructor(
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
       .setEmail(email)
-      .setTelephone(telephone)
+      .setTelephoneNumber(telephoneNumber)
       .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
@@ -170,7 +173,7 @@ internal constructor(
     other as Self
     if (namespace != other.namespace) return false
     if (email != other.email) return false
-    if (telephone != other.telephone) return false
+    if (telephoneNumber != other.telephoneNumber) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
@@ -182,7 +185,7 @@ internal constructor(
     Objects.hash(
       namespace,
       email,
-      telephone,
+      telephoneNumber,
       disambiguatingDescription,
       identifier,
       name,
@@ -197,8 +200,8 @@ internal constructor(
     if (email != null) {
       attributes["email"] = email
     }
-    if (telephone != null) {
-      attributes["telephone"] = telephone
+    if (telephoneNumber != null) {
+      attributes["telephoneNumber"] = telephoneNumber
     }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
@@ -287,7 +290,7 @@ internal constructor(
 
     private var email: String? = null
 
-    private var telephone: String? = null
+    private var telephoneNumber: String? = null
 
     private var disambiguatingDescription: DisambiguatingDescription? = null
 
@@ -307,7 +310,7 @@ internal constructor(
 
     public final override fun build(): Built =
       buildFromPerson(
-        PersonImpl(namespace, email, telephone, disambiguatingDescription, identifier, name)
+        PersonImpl(namespace, email, telephoneNumber, disambiguatingDescription, identifier, name)
       )
 
     public final override fun setNamespace(namespace: String?): Self {
@@ -320,8 +323,8 @@ internal constructor(
       return this as Self
     }
 
-    public final override fun setTelephone(text: String?): Self {
-      this.telephone = text
+    public final override fun setTelephoneNumber(text: String?): Self {
+      this.telephoneNumber = text
       return this as Self
     }
 
@@ -349,7 +352,7 @@ internal constructor(
       other as Self
       if (namespace != other.namespace) return false
       if (email != other.email) return false
-      if (telephone != other.telephone) return false
+      if (telephoneNumber != other.telephoneNumber) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
@@ -362,7 +365,7 @@ internal constructor(
       Objects.hash(
         namespace,
         email,
-        telephone,
+        telephoneNumber,
         disambiguatingDescription,
         identifier,
         name,
@@ -378,8 +381,8 @@ internal constructor(
       if (email != null) {
         attributes["email"] = email!!
       }
-      if (telephone != null) {
-        attributes["telephone"] = telephone!!
+      if (telephoneNumber != null) {
+        attributes["telephoneNumber"] = telephoneNumber!!
       }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
@@ -409,11 +412,11 @@ private class PersonImpl : AbstractPerson<PersonImpl, PersonImpl.Builder> {
   public constructor(
     namespace: String?,
     email: String?,
-    telephone: String?,
+    telephoneNumber: String?,
     disambiguatingDescription: DisambiguatingDescription?,
     identifier: String?,
     name: Name?,
-  ) : super(namespace, email, telephone, disambiguatingDescription, identifier, name)
+  ) : super(namespace, email, telephoneNumber, disambiguatingDescription, identifier, name)
 
   public constructor(person: Person) : super(person)
 

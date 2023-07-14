@@ -39,7 +39,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractAlarm] if you need to extend this type.
  */
-@Document(name = "bit:Alarm")
+@Document(
+  name = "bit:Alarm",
+  parent = [Thing::class],
+)
 public interface Alarm : Thing {
   /**
    * Associates an Alarm with a Schedule.
@@ -51,7 +54,9 @@ public interface Alarm : Thing {
   /**
    * Specifies if the alarm enabled or disabled.
    *
-   * See http://schema.googleapis.com/isAlarmEnabled for more context.
+   * Should be left unset in contexts where there is no notion of enabled/disabled alarms.
+   *
+   * See https://schema.googleapis.com/isAlarmEnabled for more context.
    */
   @get:Document.BooleanProperty @get:Suppress("AutoBoxing") public val isAlarmEnabled: Boolean?
 
@@ -60,7 +65,7 @@ public interface Alarm : Thing {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = AlarmImpl.Builder()
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = AlarmImpl.Builder()
   }
 
   /**

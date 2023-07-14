@@ -39,7 +39,10 @@ import kotlin.jvm.JvmStatic
  * using [Companion.Builder] or see [AbstractUnsupportedOperationStatus] if you need to extend this
  * type.
  */
-@Document(name = "bit:UnsupportedOperationStatus")
+@Document(
+  name = "bit:UnsupportedOperationStatus",
+  parent = [ExecutionStatus::class],
+)
 public interface UnsupportedOperationStatus : ExecutionStatus {
   /**
    * Converts this [UnsupportedOperationStatus] to its builder with all the properties copied over.
@@ -48,7 +51,9 @@ public interface UnsupportedOperationStatus : ExecutionStatus {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = UnsupportedOperationStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = UnsupportedOperationStatusImpl.Builder()
   }
 
   /**

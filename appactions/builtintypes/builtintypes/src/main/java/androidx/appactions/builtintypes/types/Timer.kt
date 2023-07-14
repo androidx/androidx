@@ -39,7 +39,10 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractTimer] if you need to extend this type.
  */
-@Document(name = "bit:Timer")
+@Document(
+  name = "bit:Timer",
+  parent = [Thing::class],
+)
 public interface Timer : Thing {
   /**
    * The duration of the item (movie, audio recording, event, etc.).
@@ -53,7 +56,7 @@ public interface Timer : Thing {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = TimerImpl.Builder()
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = TimerImpl.Builder()
   }
 
   /**

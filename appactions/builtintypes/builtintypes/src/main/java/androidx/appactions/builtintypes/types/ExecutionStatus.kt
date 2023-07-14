@@ -42,14 +42,19 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractExecutionStatus] if you need to extend this type.
  */
-@Document(name = "bit:ExecutionStatus")
+@Document(
+  name = "bit:ExecutionStatus",
+  parent = [Intangible::class],
+)
 public interface ExecutionStatus : Intangible {
   /** Converts this [ExecutionStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = ExecutionStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = ExecutionStatusImpl.Builder()
   }
 
   /**

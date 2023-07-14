@@ -42,14 +42,19 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractCommonExecutionStatus] if you need to extend this type.
  */
-@Document(name = "bit:CommonExecutionStatus")
+@Document(
+  name = "bit:CommonExecutionStatus",
+  parent = [ExecutionStatus::class],
+)
 public interface CommonExecutionStatus : ExecutionStatus {
   /** Converts this [CommonExecutionStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**

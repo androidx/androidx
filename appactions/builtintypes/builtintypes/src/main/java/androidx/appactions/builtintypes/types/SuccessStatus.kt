@@ -38,14 +38,19 @@ import kotlin.jvm.JvmStatic
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractSuccessStatus] if you need to extend this type.
  */
-@Document(name = "bit:SuccessStatus")
+@Document(
+  name = "bit:SuccessStatus",
+  parent = [CommonExecutionStatus::class],
+)
 public interface SuccessStatus : CommonExecutionStatus {
   /** Converts this [SuccessStatus] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = SuccessStatusImpl.Builder()
+    @JvmStatic
+    @Document.BuilderProducer
+    public fun Builder(): Builder<*> = SuccessStatusImpl.Builder()
   }
 
   /**
