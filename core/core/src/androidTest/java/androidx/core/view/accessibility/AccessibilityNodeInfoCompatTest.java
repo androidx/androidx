@@ -16,11 +16,12 @@
 
 package androidx.core.view.accessibility;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
 import android.view.View;
@@ -62,7 +63,7 @@ public class AccessibilityNodeInfoCompatTest {
         final CharSequence hintText = (Build.VERSION.SDK_INT >= 19) ? "hint text" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHintText(hintText);
-        assertThat(nodeCompat.getHintText(), equalTo(hintText));
+        assertThat(nodeCompat.getHintText()).isEqualTo(hintText);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class AccessibilityNodeInfoCompatTest {
         final CharSequence paneTitle = (Build.VERSION.SDK_INT >= 19) ? "pane title" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setPaneTitle(paneTitle);
-        assertThat(nodeCompat.getPaneTitle(), equalTo(paneTitle));
+        assertThat(nodeCompat.getPaneTitle()).isEqualTo(paneTitle);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class AccessibilityNodeInfoCompatTest {
         final CharSequence tooltipText = (Build.VERSION.SDK_INT >= 19) ? "tooltip" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setTooltipText(tooltipText);
-        assertThat(nodeCompat.getTooltipText(), equalTo(tooltipText));
+        assertThat(nodeCompat.getTooltipText()).isEqualTo(tooltipText);
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -86,9 +87,9 @@ public class AccessibilityNodeInfoCompatTest {
     public void testGetSetShowingHintText() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setShowingHintText(true);
-        assertThat(nodeCompat.isShowingHintText(), is(true));
+        assertThat(nodeCompat.isShowingHintText()).isTrue();
         nodeCompat.setShowingHintText(false);
-        assertThat(nodeCompat.isShowingHintText(), is(false));
+        assertThat(nodeCompat.isShowingHintText()).isFalse();
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -96,9 +97,9 @@ public class AccessibilityNodeInfoCompatTest {
     public void testGetSetScreenReaderFocusable() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setScreenReaderFocusable(true);
-        assertThat(nodeCompat.isScreenReaderFocusable(), is(true));
+        assertThat(nodeCompat.isScreenReaderFocusable()).isTrue();
         nodeCompat.setScreenReaderFocusable(false);
-        assertThat(nodeCompat.isScreenReaderFocusable(), is(false));
+        assertThat(nodeCompat.isScreenReaderFocusable()).isFalse();
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -106,24 +107,54 @@ public class AccessibilityNodeInfoCompatTest {
     public void testGetSetMinDurationBetweenContentChanges() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setMinDurationBetweenContentChangesMillis(200L);
-        assertThat(nodeCompat.getMinDurationBetweenContentChangesMillis(), equalTo(200L));
+        assertThat(nodeCompat.getMinDurationBetweenContentChangesMillis()).isEqualTo(200L);
     }
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
-    public void testGetHasRequestInitialAccessibilityFocus() {
+    public void testGetSetRequestInitialAccessibilityFocus() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setRequestInitialAccessibilityFocus(true);
-        assertThat(nodeCompat.hasRequestInitialAccessibilityFocus(), is(true));
+        assertThat(nodeCompat.hasRequestInitialAccessibilityFocus()).isTrue();
+
+    }
+
+    @Test
+    public void testGetSetContainerTitle() {
+        final CharSequence containerTitle = (Build.VERSION.SDK_INT >= 19) ? "title" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setContainerTitle(containerTitle);
+        assertThat(nodeCompat.getContainerTitle()).isEqualTo(containerTitle);
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testGetBoundsInWindow() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        Rect bounds = new Rect(0, 0, 50, 50);
+        nodeCompat.setBoundsInWindow(bounds);
+        Rect outBounds = new Rect();
+        nodeCompat.getBoundsInWindow(outBounds);
+        assertThat(bounds).isEqualTo(outBounds);
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    public void testSetQueryFromAppProcessEnabled() {
+        AccessibilityNodeInfo accessibilityNodeInfo = mock(AccessibilityNodeInfo.class);
+        AccessibilityNodeInfoCompat nodeCompat = AccessibilityNodeInfoCompat.wrap(
+                accessibilityNodeInfo);
+        nodeCompat.setQueryFromAppProcessEnabled(null, true);
+        verify(accessibilityNodeInfo).setQueryFromAppProcessEnabled(null, true);
     }
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testisGranularScrollingSupported() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
-        assertThat(nodeCompat.isGranularScrollingSupported(), is(false));
+        assertThat(nodeCompat.isGranularScrollingSupported()).isFalse();
         nodeCompat.setGranularScrollingSupported(true);
-        assertThat(nodeCompat.isGranularScrollingSupported(), is(true));
+        assertThat(nodeCompat.isGranularScrollingSupported()).isTrue();
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -131,13 +162,13 @@ public class AccessibilityNodeInfoCompatTest {
     public void testGetSetHeading() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
-        assertThat(nodeCompat.isHeading(), is(true));
+        assertThat(nodeCompat.isHeading()).isTrue();
         nodeCompat.setHeading(false);
-        assertThat(nodeCompat.isHeading(), is(false));
+        assertThat(nodeCompat.isHeading()).isFalse();
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo =
                 AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(0, 1, 0, 1, true);
         nodeCompat.setCollectionItemInfo(collectionItemInfo);
-        assertThat(nodeCompat.isHeading(), is(true));
+        assertThat(nodeCompat.isHeading()).isTrue();
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -145,9 +176,9 @@ public class AccessibilityNodeInfoCompatTest {
     public void testGetSetTextEntryKey() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setTextEntryKey(true);
-        assertThat(nodeCompat.isTextEntryKey(), is(true));
+        assertThat(nodeCompat.isTextEntryKey()).isTrue();
         nodeCompat.setTextEntryKey(false);
-        assertThat(nodeCompat.isTextEntryKey(), is(false));
+        assertThat(nodeCompat.isTextEntryKey()).isFalse();
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -156,9 +187,9 @@ public class AccessibilityNodeInfoCompatTest {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
 
         accessibilityNodeInfoCompat.setAccessibilityDataSensitive(true);
-        assertThat(accessibilityNodeInfoCompat.isAccessibilityDataSensitive(), equalTo(true));
+        assertThat(accessibilityNodeInfoCompat.isAccessibilityDataSensitive()).isTrue();
         accessibilityNodeInfoCompat.setAccessibilityDataSensitive(false);
-        assertThat(accessibilityNodeInfoCompat.isAccessibilityDataSensitive(), equalTo(false));
+        assertThat(accessibilityNodeInfoCompat.isAccessibilityDataSensitive()).isFalse();
     }
 
     @Test
@@ -166,7 +197,7 @@ public class AccessibilityNodeInfoCompatTest {
         final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setUniqueId(uniqueId);
-        assertThat(nodeCompat.getUniqueId(), equalTo(uniqueId));
+        assertThat(nodeCompat.getUniqueId()).isEqualTo(uniqueId);
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -175,44 +206,44 @@ public class AccessibilityNodeInfoCompatTest {
         try {
             AccessibilityActionCompat actionCompat;
             actionCompat = AccessibilityActionCompat.ACTION_SHOW_ON_SCREEN;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionShowOnScreen)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionShowOnScreen));
             actionCompat = AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionScrollToPosition)));
+            assertThat(actionCompat.getId()).isEqualTo(
+                    getExpectedActionId(android.R.id.accessibilityActionScrollToPosition));
             actionCompat = AccessibilityActionCompat.ACTION_SCROLL_UP;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionScrollUp)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionScrollUp));
             actionCompat = AccessibilityActionCompat.ACTION_SCROLL_LEFT;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionScrollLeft)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionScrollLeft));
             actionCompat = AccessibilityActionCompat.ACTION_SCROLL_DOWN;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionScrollDown)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionScrollDown));
             actionCompat = AccessibilityActionCompat.ACTION_SCROLL_RIGHT;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionScrollRight)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionScrollRight));
             actionCompat = AccessibilityActionCompat.ACTION_CONTEXT_CLICK;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionContextClick)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionContextClick));
             actionCompat = AccessibilityActionCompat.ACTION_SET_PROGRESS;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionSetProgress)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionSetProgress));
             actionCompat = AccessibilityActionCompat.ACTION_MOVE_WINDOW;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionMoveWindow)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionMoveWindow));
             actionCompat = AccessibilityActionCompat.ACTION_SHOW_TOOLTIP;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionShowTooltip)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionShowTooltip));
             actionCompat = AccessibilityActionCompat.ACTION_HIDE_TOOLTIP;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionHideTooltip)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionHideTooltip));
             actionCompat = AccessibilityActionCompat.ACTION_PRESS_AND_HOLD;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionPressAndHold)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionPressAndHold));
             actionCompat = AccessibilityActionCompat.ACTION_IME_ENTER;
-            assertThat(actionCompat.getId(),
-                    is(getExpectedActionId(android.R.id.accessibilityActionImeEnter)));
+            assertThat(actionCompat.getId())
+                    .isEqualTo(getExpectedActionId(android.R.id.accessibilityActionImeEnter));
         } catch (NullPointerException e) {
             Assert.fail("Expected no NullPointerException, but got: " + e.getMessage());
         }
@@ -224,10 +255,11 @@ public class AccessibilityNodeInfoCompatTest {
         AccessibilityActionCompat actionCompat;
         actionCompat = AccessibilityActionCompat.ACTION_SHOW_ON_SCREEN;
         final String showOnScreen = "AccessibilityActionCompat: ACTION_SHOW_ON_SCREEN";
-        assertThat(actionCompat.toString(), is(showOnScreen));
+        assertThat(actionCompat.toString()).isEqualTo(showOnScreen);
         final String customAction = "CustomAction";
         actionCompat = new AccessibilityActionCompat(123123123, customAction);
-        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: " + customAction));
+        assertThat(actionCompat.toString()).isEqualTo("AccessibilityActionCompat: "
+                + customAction);
     }
 
     @Test
@@ -242,15 +274,15 @@ public class AccessibilityNodeInfoCompatTest {
         final TouchDelegateInfoCompat touchDelegateInfoResult =
                 accessibilityNodeInfoCompat.getTouchDelegateInfo();
         if (Build.VERSION.SDK_INT >= 29) {
-            assertThat(touchDelegateInfoResult.getRegionCount(), is(1));
-            assertThat(touchDelegateInfoResult.getRegionAt(0), is(region));
+            assertThat(touchDelegateInfoResult.getRegionCount()).isEqualTo(1);
+            assertThat(touchDelegateInfoResult.getRegionAt(0)).isEqualTo(region);
             // getTargetForRegion return null, since we are not a11y service
-            assertThat(touchDelegateInfoResult.getTargetForRegion(region), is(nullValue()));
+            assertThat(touchDelegateInfoResult.getTargetForRegion(region)).isNull();
         } else {
-            assertThat(touchDelegateInfoResult, is(nullValue()));
-            assertThat(delegateInfo.getRegionCount(), is(0));
-            assertThat(delegateInfo.getRegionAt(0), is(nullValue()));
-            assertThat(delegateInfo.getTargetForRegion(region), is(nullValue()));
+            assertThat(touchDelegateInfoResult).isNull();
+            assertThat(delegateInfo.getRegionCount()).isEqualTo(0);
+            assertThat(delegateInfo.getRegionAt(0)).isNull();
+            assertThat(delegateInfo.getTargetForRegion(region)).isNull();
         }
     }
 
@@ -263,8 +295,8 @@ public class AccessibilityNodeInfoCompatTest {
         // Wrapped AccessibilityAction
         AccessibilityActionCompat wrappedAction = new AccessibilityActionCompat(
                         AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK);
-        assertThat(staticAction.equals(wrappedAction), equalTo(true));
-        assertThat(staticAction.hashCode() == wrappedAction.hashCode(), equalTo(true));
+        assertThat(staticAction.equals(wrappedAction)).isTrue();
+        assertThat(staticAction.hashCode() == wrappedAction.hashCode()).isTrue();
     }
 
     @SdkSuppress(minSdkVersion = 21)
@@ -275,8 +307,8 @@ public class AccessibilityNodeInfoCompatTest {
         // AccessibilityActionCompat defined by id and label
         AccessibilityActionCompat wrappedIdAndLabelAction = new AccessibilityActionCompat(
                 AccessibilityNodeInfoCompat.ACTION_LONG_CLICK, "label", null);
-        assertThat(staticAction.equals(wrappedIdAndLabelAction), equalTo(true));
-        assertThat(staticAction.hashCode() == wrappedIdAndLabelAction.hashCode(), equalTo(true));
+        assertThat(staticAction.equals(wrappedIdAndLabelAction)).isTrue();
+        assertThat(staticAction.hashCode() == wrappedIdAndLabelAction.hashCode()).isTrue();
     }
 
     @SdkSuppress(minSdkVersion = 21)
@@ -286,23 +318,23 @@ public class AccessibilityNodeInfoCompatTest {
                 AccessibilityActionCompat.ACTION_LONG_CLICK;
         AccessibilityActionCompat staticClickAction = AccessibilityActionCompat.ACTION_CLICK;
 
-        assertThat(staticLongClickAction.equals(staticClickAction), equalTo(false));
-        assertThat(staticLongClickAction.hashCode() == staticClickAction.hashCode(),
-                equalTo(false));
+        assertThat(staticLongClickAction.equals(staticClickAction)).isFalse();
+        assertThat(staticLongClickAction.hashCode() == staticClickAction.hashCode())
+                .isFalse();
 
         // AccessibilityActionCompat defined by id
         AccessibilityActionCompat wrappedIdLongClickAction = new AccessibilityActionCompat(
                 AccessibilityNodeInfoCompat.ACTION_LONG_CLICK, null, null);
-        assertThat(wrappedIdLongClickAction.equals(staticClickAction), equalTo(false));
-        assertThat(wrappedIdLongClickAction.hashCode() == staticClickAction.hashCode(),
-                equalTo(false));
+        assertThat(wrappedIdLongClickAction.equals(staticClickAction)).isFalse();
+        assertThat(wrappedIdLongClickAction.hashCode() == staticClickAction.hashCode())
+                .isFalse();
 
         // Wrapped AccessibilityAction
         AccessibilityActionCompat wrappedLongClickAction = new AccessibilityActionCompat(
                 AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK);
-        assertThat(wrappedLongClickAction.equals(staticClickAction), equalTo(false));
-        assertThat(wrappedLongClickAction.hashCode() == staticClickAction.hashCode(),
-                equalTo(false));
+        assertThat(wrappedLongClickAction.equals(staticClickAction)).isFalse();
+        assertThat(wrappedLongClickAction.hashCode() == staticClickAction.hashCode())
+                .isFalse();
     }
 
     private AccessibilityNodeInfoCompat obtainedWrappedNodeCompat() {
@@ -322,7 +354,7 @@ public class AccessibilityNodeInfoCompatTest {
         final List<String> testData = Arrays.asList(new String[]{"A", "B"});
 
         accessibilityNodeInfoCompat.setAvailableExtraData(testData);
-        assertThat(accessibilityNodeInfoCompat.getAvailableExtraData(), equalTo(testData));
+        assertThat(accessibilityNodeInfoCompat.getAvailableExtraData()).isEqualTo(testData);
     }
 
     @SdkSuppress(minSdkVersion = 33)
@@ -331,8 +363,8 @@ public class AccessibilityNodeInfoCompatTest {
     public void testGetExtraRenderingInfo() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         assertThat(
-                accessibilityNodeInfoCompat.getExtraRenderingInfo(),
-                equalTo(accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo()));
+                accessibilityNodeInfoCompat.getExtraRenderingInfo()).isEqualTo(
+                        accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo());
     }
 
     @SdkSuppress(minSdkVersion = 19)
@@ -341,9 +373,9 @@ public class AccessibilityNodeInfoCompatTest {
     public void testSetGetTextSelectable() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setTextSelectable(false);
-        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(false));
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable()).isFalse();
         accessibilityNodeInfoCompat.setTextSelectable(true);
-        assertThat(accessibilityNodeInfoCompat.isTextSelectable(), equalTo(true));
+        assertThat(accessibilityNodeInfoCompat.isTextSelectable()).isTrue();
     }
 
     @SmallTest
@@ -351,9 +383,9 @@ public class AccessibilityNodeInfoCompatTest {
     public void testActionScrollInDirection() {
         AccessibilityActionCompat actionCompat =
                 AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION;
-        assertThat(actionCompat.getId(),
-                is(getExpectedActionId(android.R.id.accessibilityActionScrollInDirection)));
-        assertThat(actionCompat.toString(), is("AccessibilityActionCompat: "
-                + "ACTION_SCROLL_IN_DIRECTION"));
+        assertThat(actionCompat.getId()).isEqualTo(getExpectedActionId(
+                android.R.id.accessibilityActionScrollInDirection));
+        assertThat(actionCompat.toString()).isEqualTo("AccessibilityActionCompat: "
+                + "ACTION_SCROLL_IN_DIRECTION");
     }
 }

@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.os.Build;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityRecord;
 import android.widget.EditText;
 
@@ -191,20 +190,20 @@ public final class AccessibilityEventCompat {
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
      * The node's text changed.
      */
-    public static final int CONTENT_CHANGE_TYPE_TEXT = 0x00000002;
+    public static final int CONTENT_CHANGE_TYPE_TEXT = 1 << 1;
 
     /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
      * The node's content description changed.
      */
-    public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 0x00000004;
+    public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 1 << 2;
 
     /**
      * Change type for {@link AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED} event:
      * The node's pane title changed.
      * @see androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)
      */
-    public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 0x00000008;
+    public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 1 << 3;
 
     /**
      * Change type for {@link AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED} event:
@@ -212,7 +211,7 @@ public final class AccessibilityEventCompat {
      * had none before.
      * @see androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)
      */
-    public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 0x00000010;
+    public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 1 << 4;
 
     /**
      * Change type for {@link AccessibilityEvent#TYPE_WINDOW_STATE_CHANGED} event:
@@ -224,14 +223,14 @@ public final class AccessibilityEventCompat {
      * value that would have been returned by {@code getSource().getPaneTitle()}.
      * @see androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)
      */
-    public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 0x00000020;
+    public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 1 << 5;
 
     /**
      * Change type for {@link AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED} event:
      * state description of the node as returned by
-     * {@link AccessibilityNodeInfo#getStateDescription} was changed.
+     * {@link AccessibilityNodeInfoCompat#getStateDescription} was changed.
      */
-    public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 0x00000040;
+    public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 1 << 6;
 
     /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
@@ -239,18 +238,18 @@ public final class AccessibilityEventCompat {
      * AccessibilityAction, or via touch events. This is sent from the source that initiated the
      * drag.
      *
-     * @see AccessibilityNodeInfo.AccessibilityAction#ACTION_DRAG_START
+     * @see AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_DRAG_START
      */
-    public static final int CONTENT_CHANGE_TYPE_DRAG_STARTED = 0x00000080;
+    public static final int CONTENT_CHANGE_TYPE_DRAG_STARTED = 1 << 7;
 
     /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
      * A drag in with accessibility enabled has ended. This means the content has been
      * successfully dropped. This is sent from the target that accepted the dragged content.
      *
-     * @see AccessibilityNodeInfo.AccessibilityAction#ACTION_DRAG_DROP
+     * @see AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_DRAG_DROP
      */
-    public static final int CONTENT_CHANGE_TYPE_DRAG_DROPPED = 0x00000100;
+    public static final int CONTENT_CHANGE_TYPE_DRAG_DROPPED = 1 << 8;
 
     /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
@@ -259,9 +258,46 @@ public final class AccessibilityEventCompat {
      * no drop has been detected within a timeout and the drag was automatically cancelled. This is
      * sent from the source that initiated the drag.
      *
-     * @see AccessibilityNodeInfo.AccessibilityAction#ACTION_DRAG_CANCEL
+     * @see AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_DRAG_CANCEL
      */
-    public static final int CONTENT_CHANGE_TYPE_DRAG_CANCELLED = 0x0000200;
+    public static final int CONTENT_CHANGE_TYPE_DRAG_CANCELLED = 1 << 9;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * The source node changed its content validity returned by
+     * {@link AccessibilityNodeInfoCompat#isContentInvalid()}.
+     * The view changing content validity should call
+     * {@link AccessibilityNodeInfoCompat#setContentInvalid(boolean)} and then send this event.
+     *
+     * @see AccessibilityNodeInfoCompat#isContentInvalid()
+     * @see AccessibilityNodeInfoCompat#setContentInvalid(boolean)
+     */
+    public static final int CONTENT_CHANGE_TYPE_CONTENT_INVALID = 1 << 10;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * The source node changed its erroneous content's error message returned by
+     * {@link AccessibilityNodeInfoCompat#getError()}.
+     * The view changing erroneous content's error message should call
+     * {@link AccessibilityNodeInfoCompat#setError(CharSequence)} and then send this event.
+     *
+     * @see AccessibilityNodeInfoCompat#getError()
+     * @see AccessibilityNodeInfoCompat#setError(CharSequence)
+     */
+    public static final int CONTENT_CHANGE_TYPE_ERROR = 1 << 11;
+
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * The source node changed its ability to interact returned by
+     * {@link AccessibilityNodeInfoCompat#isEnabled()}.
+     * The view changing content's ability to interact should call
+     * {@link AccessibilityNodeInfoCompat#setEnabled(boolean)} and then send this event.
+     *
+     * @see AccessibilityNodeInfoCompat#isEnabled()
+     * @see AccessibilityNodeInfoCompat#setEnabled(boolean)
+     */
+    public static final int CONTENT_CHANGE_TYPE_ENABLED = 1 << 12;
 
     /**
      * Mask for {@link AccessibilityEvent} all types.
@@ -303,7 +339,10 @@ public final class AccessibilityEventCompat {
                     CONTENT_CHANGE_TYPE_UNDEFINED,
                     CONTENT_CHANGE_TYPE_DRAG_STARTED,
                     CONTENT_CHANGE_TYPE_DRAG_DROPPED,
-                    CONTENT_CHANGE_TYPE_DRAG_CANCELLED
+                    CONTENT_CHANGE_TYPE_DRAG_CANCELLED,
+                    CONTENT_CHANGE_TYPE_CONTENT_INVALID,
+                    CONTENT_CHANGE_TYPE_ERROR,
+                    CONTENT_CHANGE_TYPE_ENABLED
             })
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
