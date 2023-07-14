@@ -18,7 +18,6 @@ package androidx.mediarouter.media;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
 
@@ -34,11 +33,6 @@ import java.util.List;
 @RequiresApi(16)
 final class MediaRouterJellybean {
     private static final String TAG = "MediaRouterJellybean";
-
-    // android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP = 0x80;
-    // android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES = 0x100;
-    // android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER = 0x200;
-    public static final int DEVICE_OUT_BLUETOOTH = 0x80 | 0x100 | 0x200;
 
     public static final int ROUTE_TYPE_LIVE_AUDIO = 0x1;
     public static final int ROUTE_TYPE_LIVE_VIDEO = 0x2;
@@ -60,17 +54,6 @@ final class MediaRouterJellybean {
         List out = new ArrayList(count);
         for (int i = 0; i < count; i++) {
             out.add(router.getRouteAt(i));
-        }
-        return out;
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static List getCategories(Object routerObj) {
-        final android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
-        final int count = router.getCategoryCount();
-        List out = new ArrayList(count);
-        for (int i = 0; i < count; i++) {
-            out.add(router.getCategoryAt(i));
         }
         return out;
     }
@@ -133,23 +116,8 @@ final class MediaRouterJellybean {
             return ((android.media.MediaRouter.RouteInfo) routeObj).getName(context);
         }
 
-        @NonNull
-        public static CharSequence getStatus(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getStatus();
-        }
-
         public static int getSupportedTypes(@NonNull Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo) routeObj).getSupportedTypes();
-        }
-
-        @Nullable
-        public static Object getCategory(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getCategory();
-        }
-
-        @Nullable
-        public static Drawable getIconDrawable(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getIconDrawable();
         }
 
         public static int getPlaybackType(@NonNull Object routeObj) {
@@ -189,48 +157,13 @@ final class MediaRouterJellybean {
             ((android.media.MediaRouter.RouteInfo) routeObj).requestUpdateVolume(direction);
         }
 
-        @Nullable
-        public static Object getGroup(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getGroup();
-        }
-
-        public static boolean isGroup(@NonNull Object routeObj) {
-            return routeObj instanceof android.media.MediaRouter.RouteGroup;
-        }
-
         private RouteInfo() {
-        }
-    }
-
-    public static final class RouteGroup {
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        @NonNull
-        public static List getGroupedRoutes(@NonNull Object groupObj) {
-            final android.media.MediaRouter.RouteGroup group =
-                    (android.media.MediaRouter.RouteGroup) groupObj;
-            final int count = group.getRouteCount();
-            List out = new ArrayList(count);
-            for (int i = 0; i < count; i++) {
-                out.add(group.getRouteAt(i));
-            }
-            return out;
-        }
-
-        private RouteGroup() {
         }
     }
 
     public static final class UserRouteInfo {
         public static void setName(@NonNull Object routeObj, @NonNull CharSequence name) {
             ((android.media.MediaRouter.UserRouteInfo) routeObj).setName(name);
-        }
-
-        public static void setStatus(@NonNull Object routeObj, @NonNull CharSequence status) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setStatus(status);
-        }
-
-        public static void setIconDrawable(@NonNull Object routeObj, @Nullable Drawable icon) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setIconDrawable(icon);
         }
 
         public static void setPlaybackType(@NonNull Object routeObj, int type) {
@@ -266,32 +199,6 @@ final class MediaRouterJellybean {
         }
 
         private UserRouteInfo() {
-        }
-    }
-
-    public static final class RouteCategory {
-        @Nullable
-        public static CharSequence getName(@NonNull Object categoryObj, @NonNull Context context) {
-            return ((android.media.MediaRouter.RouteCategory) categoryObj).getName(context);
-        }
-
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        @NonNull
-        public static List getRoutes(@NonNull Object categoryObj) {
-            ArrayList out = new ArrayList();
-            ((android.media.MediaRouter.RouteCategory) categoryObj).getRoutes(out);
-            return out;
-        }
-
-        public static int getSupportedTypes(@NonNull Object categoryObj) {
-            return ((android.media.MediaRouter.RouteCategory) categoryObj).getSupportedTypes();
-        }
-
-        public static boolean isGroupable(@NonNull Object categoryObj) {
-            return ((android.media.MediaRouter.RouteCategory) categoryObj).isGroupable();
-        }
-
-        private RouteCategory() {
         }
     }
 
