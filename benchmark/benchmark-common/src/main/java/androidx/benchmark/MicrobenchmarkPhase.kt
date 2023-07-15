@@ -103,7 +103,7 @@ internal class MicrobenchmarkPhase(
         private val THROTTLE_BACKOFF_S = Arguments.thermalThrottleSleepDurationSeconds
 
         // static instance ensures there's only one, and we don't leak native memory
-        private val cpuEventCounter: CpuEventCounter by lazy {
+        internal val cpuEventCounter: CpuEventCounter by lazy {
             // As this is only ever enabled by experimental arguments, we force enable this
             // permanently once the first benchmark uses it, for local runs only.
             CpuEventCounter.forceEnable()?.let { errorMessage ->
@@ -146,19 +146,12 @@ internal class MicrobenchmarkPhase(
             loopMode: LoopMode,
             measurementCount: Int,
             simplifiedTimingOnlyMode: Boolean,
-            cpuEventCountersMask: Int,
+            metrics: Array<MetricCapture>
         ) = MicrobenchmarkPhase(
             label = "Benchmark Time",
             measurementCount = measurementCount,
             loopMode = loopMode,
-            metrics = if (cpuEventCountersMask != 0) {
-                arrayOf(
-                    TimeCapture(),
-                    CpuEventCounterCapture(cpuEventCounter, cpuEventCountersMask)
-                )
-            } else {
-                arrayOf(TimeCapture())
-            },
+            metrics = metrics,
             thermalThrottleSleepsMax = if (simplifiedTimingOnlyMode) 0 else 2
         )
 
@@ -205,7 +198,7 @@ internal class MicrobenchmarkPhase(
         val profiler: Profiler?,
         val warmupCount: Int?,
         val measurementCount: Int?,
-        val cpuEventCountersMask: Int,
+        val metrics: Array<MetricCapture>,
     ) {
         val warmupManager = WarmupManager(overrideCount = warmupCount)
         init {
@@ -237,14 +230,16 @@ internal class MicrobenchmarkPhase(
                         // only timing phase has a complex impl of pause/resume, then behavior
                         // changes drastically, and the warmupManager will estimate a far faster
                         // impl of `measureRepeated { runWithTimingDisabled }`
-                        collectCpuEventInstructions = cpuEventCountersMask != 0
+                        collectCpuEventInstructions = metrics.any {
+                            it is CpuEventCounterCapture && it.names.isNotEmpty()
+                        }
                     ),
                     // Regular timing phase
                     timingMeasurementPhase(
                         measurementCount = measurementCount ?: 50,
                         loopMode = loopMode,
-                        simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
-                        cpuEventCountersMask = cpuEventCountersMask
+                        metrics = metrics,
+                        simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
                     ),
                     if (simplifiedTimingOnlyMode || profiler == null) {
                         null

@@ -287,47 +287,46 @@ class BenchmarkStateTest {
     }
 
     private fun validateProfilerUsage(simplifiedTimingOnlyMode: Boolean?) {
-        try {
-            profilerOverride = StackSamplingLegacy
+        val config = MicrobenchmarkConfig(profiler = ProfilerConfig.StackSamplingLegacy())
 
-            val benchmarkState = if (simplifiedTimingOnlyMode != null) {
-                BenchmarkState(simplifiedTimingOnlyMode = simplifiedTimingOnlyMode)
+        val benchmarkState = if (simplifiedTimingOnlyMode != null) {
+            BenchmarkState(
+                config = config,
+                simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
+            )
+        } else {
+            BenchmarkState(config)
+        }
+
+        // count iters with profiler enabled vs disabled
+        var profilerDisabledIterations = 0
+        var profilerEnabledIterations = 0
+        var profilerAllocationIterations = 0
+        while (benchmarkState.keepRunning()) {
+            if (StackSamplingLegacy.isRunning) {
+                profilerEnabledIterations++
             } else {
-                BenchmarkState()
-            }
+                profilerDisabledIterations++
 
-            // count iters with profiler enabled vs disabled
-            var profilerDisabledIterations = 0
-            var profilerEnabledIterations = 0
-            var profilerAllocationIterations = 0
-            while (benchmarkState.keepRunning()) {
-                if (StackSamplingLegacy.isRunning) {
-                    profilerEnabledIterations++
-                } else {
-                    profilerDisabledIterations++
-
-                    if (profilerEnabledIterations != 0) {
-                        // profiler will only be disabled after running during allocation phase
-                        profilerAllocationIterations++
-                    }
+                if (profilerEnabledIterations != 0) {
+                    // profiler will only be disabled after running during allocation phase
+                    profilerAllocationIterations++
                 }
             }
+        }
 
-            if (simplifiedTimingOnlyMode == true) {
-                // profiler should be always disabled
-                assertNotEquals(0, profilerDisabledIterations)
-                assertEquals(0, profilerEnabledIterations)
-                assertEquals(0, profilerAllocationIterations)
-            } else {
-                // first, profiler disabled (timing) ...
-                assertNotEquals(0, profilerDisabledIterations)
-                // then enabled (profiling) ...
-                assertNotEquals(0, profilerEnabledIterations)
-                // then disabled again (allocs)
-                assertNotEquals(0, profilerAllocationIterations)
-            }
-        } finally {
-            profilerOverride = null
+        if (simplifiedTimingOnlyMode == true) {
+            // profiler should be always disabled
+            assertNotEquals(0, profilerDisabledIterations)
+            assertEquals(0, profilerEnabledIterations)
+            assertEquals(0, profilerAllocationIterations)
+        } else {
+            // first, profiler disabled (timing) ...
+            assertNotEquals(0, profilerDisabledIterations)
+            // then enabled (profiling) ...
+            assertNotEquals(0, profilerEnabledIterations)
+            // then disabled again (allocs)
+            assertNotEquals(0, profilerAllocationIterations)
         }
     }
 

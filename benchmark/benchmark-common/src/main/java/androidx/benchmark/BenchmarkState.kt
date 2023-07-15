@@ -77,21 +77,28 @@ class BenchmarkState internal constructor(
      * Constructor used for standard uses of BenchmarkState, e.g. in BenchmarkRule
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor() : this(warmupCount = null, simplifiedTimingOnlyMode = false)
+    constructor(
+        config: MicrobenchmarkConfig? = null
+    ) : this(
+        warmupCount = null,
+        simplifiedTimingOnlyMode = false,
+        config = config
+    )
 
     internal constructor(
         warmupCount: Int? = null,
         measurementCount: Int? = null,
-        simplifiedTimingOnlyMode: Boolean = false
+        simplifiedTimingOnlyMode: Boolean = false,
+        config: MicrobenchmarkConfig? = null
     ) : this(
         MicrobenchmarkPhase.Config(
             dryRunMode = Arguments.dryRunMode,
             startupMode = Arguments.startupMode,
-            profiler = Arguments.profiler,
+            profiler = config?.profiler?.profiler ?: Arguments.profiler,
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
             simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
-            cpuEventCountersMask = Arguments.cpuEventCounterMask
+            metrics = config?.metrics?.toTypedArray() ?: DEFAULT_METRICS
         )
     )
 
@@ -543,6 +550,19 @@ class BenchmarkState internal constructor(
             TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds)
 
         private var firstBenchmark = true
+
+        private val DEFAULT_METRICS: Array<MetricCapture> =
+            if (Arguments.cpuEventCounterMask != 0) {
+                arrayOf(
+                    TimeCapture(),
+                    CpuEventCounterCapture(
+                        MicrobenchmarkPhase.cpuEventCounter,
+                        Arguments.cpuEventCounterMask
+                    )
+                )
+            } else {
+                arrayOf(TimeCapture())
+            }
 
         @RequiresOptIn
         @Retention(AnnotationRetention.BINARY)
