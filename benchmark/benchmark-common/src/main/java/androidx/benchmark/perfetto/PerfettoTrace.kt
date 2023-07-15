@@ -21,7 +21,7 @@ import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProc
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
-@RequiresApi(23)
+@RequiresApi(23) // should match PerfettoHelper.MIN_SDK_VERSION
 @ExperimentalPerfettoCaptureApi
 class PerfettoTrace(
     /**

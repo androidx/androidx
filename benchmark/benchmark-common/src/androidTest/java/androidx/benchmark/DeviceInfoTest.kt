@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark
 
-import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import kotlin.test.assertFailsWith
-import org.junit.Assume.assumeTrue
+import kotlin.test.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests for PerfettoCapture
- */
-@SdkSuppress(minSdkVersion = 23)
+@SmallTest
 @RunWith(AndroidJUnit4::class)
-class PerfettoCaptureTest {
-    @SdkSuppress(
-        minSdkVersion = 23,
-        maxSdkVersion = MIN_BUNDLED_SDK_VERSION - 1
-    )
-    @SmallTest
+class DeviceInfoTest {
+    @SdkSuppress(minSdkVersion = PerfettoHelper.MIN_SDK_VERSION)
     @Test
-    fun bundledNotSupported() {
-        assumeTrue(isAbiSupported())
-
-        assertFailsWith<IllegalArgumentException> {
-            PerfettoCapture(false)
-        }
+    fun misconfiguredForTracing() {
+        // NOTE: tests device capability, not implementation of DeviceInfo
+        assertFalse(
+            DeviceInfo.misconfiguredForTracing,
+            "${DeviceInfo.typeLabel} is incorrectly configured for tracing," +
+                " and is not CTS compatible. All Perfetto/Atrace capture will fail."
+        )
     }
 }
