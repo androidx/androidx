@@ -38,7 +38,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(MaterialImportDetector.UsingMaterialAndMaterial3Libraries)
 
-    private val ButtonStub = bytecodeStub(
+    private val MaterialButtonStub = bytecodeStub(
         filename = "Button.kt",
         filepath = "androidx/compose/material",
         checksum = 0x94880e7a,
@@ -62,6 +62,34 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         Z12Q2+rUx84XhtC41akgdMdSiccqn4nilc8yqwQvuirm4k66IXqulJG5mMhS
         WvdaKW24kVqVGIGhgfqdCE34th/YKUJd9PlvHVp0FmyY4ch9jX0c2z6yassu
         tqfwEnQSBAm2sJ1gB7sJuginoBI97E3BSjRL9P8AKS93K3cBAAA=
+        """
+    )
+
+    private val Material3ButtonStub = bytecodeStub(
+        filename = "Button.kt",
+        filepath = "androidx/compose/material3",
+        checksum = 0x8bce80e4,
+        """
+            package androidx.compose.material3
+
+            fun Button() {}
+        """,
+"""
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
+        dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
+        ANpB3LXcAAAA
+        """,
+        """
+        androidx/compose/material3/ButtonKt.class:
+        H4sIAAAAAAAA/yVOTU/CQBB9s4UC9YMifpWrF71YUG+e1MSkETVRw4XTQjdm
+        ge6adks48pe8ejCc/VHGXTuHN2/ee5OZn9+vbwBXiAgnXKW5lukqnursQxci
+        zrgRueSLy/i2NEarB9MAEcIZX/J4wdV7/DyZialVPYJfZQje6dmI0BnOtVlI
+        FT8Kw1Nu+DWBZUvPXiMHTQcg0NwRZs2VdKxvWTogdDdrP9isAxaynh9u1j3W
+        J2ddkNtqVcfO54ZQu9OpILSHUomnMpuI/I1PFlYJXnWZT8W9dEP0UiojMzGS
+        hbTujVLacCO1KjAAQw3VOxHq8G0/sFOEqujz3zq06CzYMMOR+xr7OLZ9YNWG
+        XWyO4SVoJQgSbGE7wQ52E7QRjkEFOtgbgxWoF+j+AX2HBh54AQAA
         """
     )
 
@@ -152,13 +180,14 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         )
 
     @Test
-    fun imports() {
+    fun material_imports() {
         lint().files(
             kotlin(
                 """
                 package foo
 
                 import androidx.compose.material.Button
+                import androidx.compose.material3.Button
                 import androidx.compose.material.ripple.rememberRipple
                 import androidx.compose.material.icons.Icons
                 import androidx.compose.material.pullrefresh.pullRefresh
@@ -166,7 +195,8 @@ class MaterialImportDetectorTest : LintDetectorTest() {
                 fun test() {}
             """
             ),
-            ButtonStub,
+            MaterialButtonStub,
+            Material3ButtonStub,
             RippleStub,
             IconsStub,
             PullRefreshStub
@@ -183,13 +213,14 @@ src/foo/test.kt:4: Warning: Using a material import while also using the materia
     }
 
     @Test
-    fun wildcardImports() {
+    fun material_wildcardImports() {
         lint().files(
             kotlin(
                 """
                 package foo
 
                 import androidx.compose.material.*
+                import androidx.compose.material3.*
                 import androidx.compose.material.ripple.*
                 import androidx.compose.material.icons.*
                 import androidx.compose.material.pullrefresh.*
@@ -197,7 +228,8 @@ src/foo/test.kt:4: Warning: Using a material import while also using the materia
                 fun test() {}
             """
             ),
-            ButtonStub,
+            MaterialButtonStub,
+            Material3ButtonStub,
             RippleStub,
             IconsStub,
             PullRefreshStub
