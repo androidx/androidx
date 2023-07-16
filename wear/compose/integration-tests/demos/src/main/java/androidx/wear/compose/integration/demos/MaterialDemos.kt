@@ -52,6 +52,7 @@ import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.CurvedTextProviderDemo
+import androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material.samples.FixedFontSize
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
@@ -70,7 +71,9 @@ import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
+import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithCustomSemanticsSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
@@ -554,6 +557,14 @@ val WearMaterialDemos = DemoCategory(
                         },
                     )
                 )
+            )
+        ),
+        DemoCategory(
+            title = "Swipe To Dismiss",
+            listOf(
+                ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
+                ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
             )
         ),
         DemoCategory(
