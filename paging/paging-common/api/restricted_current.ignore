@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedJvmDefaultWithCompatibility: androidx.paging.Logger:
+    Cannot remove @kotlin.jvm.JvmDefaultWithCompatibility annotation from class androidx.paging.Logger: Incompatible change
