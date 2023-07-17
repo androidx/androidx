@@ -45,17 +45,22 @@ class MaterialImportDetector : Detector(), SourceCodeScanner {
             val reference = node.importReference ?: return
             val importString = reference.asSourceString()
 
-            // Ignore non-material imports
-            if (!importString.contains(MaterialPackage)) return
-            // Ignore explicitly allowed imports
-            if (AllowlistedSubpackages.any { importString.contains(it) }) return
+            if (
+                // Wildcard reference - so the import string is exactly androidx.compose.material
+                importString == MaterialPackage ||
+                // The prefix is androidx.compose.material - ignore material3* and other prefixes
+                importString.contains("$MaterialPackage.")
+            ) {
+                // Ignore explicitly allowed imports
+                if (AllowlistedSubpackages.any { importString.contains(it) }) return
 
-            context.report(
-                UsingMaterialAndMaterial3Libraries,
-                reference,
-                context.getLocation(reference),
-                "Using a material import while also using the material3 library"
-            )
+                context.report(
+                    UsingMaterialAndMaterial3Libraries,
+                    reference,
+                    context.getLocation(reference),
+                    "Using a material import while also using the material3 library"
+                )
+            }
         }
     }
 
