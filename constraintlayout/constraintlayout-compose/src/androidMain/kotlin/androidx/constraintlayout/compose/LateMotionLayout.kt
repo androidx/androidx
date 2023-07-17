@@ -130,8 +130,7 @@ private fun lateMotionLayoutMeasurePolicy(
             measurables = measurables,
             optimizationLevel = optimizationLevel,
             progress = motionProgress.value,
-            compositionSource = compositionSource.value ?: CompositionSource.Unknown,
-            invalidateOnConstraintsCallback = null
+            compositionSource = compositionSource.value ?: CompositionSource.Unknown
         )
         compositionSource.value = CompositionSource.Unknown // Reset after measuring
 
