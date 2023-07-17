@@ -26,11 +26,18 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
 import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 
 /**
  * Wear Material 3 [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
  * slot for the background (only displayed during the swipe gesture) and the foreground content.
+ *
+ * Example of a [SwipeToDismissBox] with stateful composables:
+ * @sample androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
+ *
+ * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]:
+ * @sample androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
  *
  * For more information, see the
  * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
@@ -85,6 +92,12 @@ public fun SwipeToDismissBox(
  * Wear Material 3 [SwipeToDismissBox] that handles the swipe-to-dismiss gesture.
  * This overload takes an [onDismissed] parameter which is used to execute a command when the
  * swipe to dismiss has completed, such as navigating to another screen.
+ *
+ * Example of a simple SwipeToDismissBox:
+ * @sample androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
+ *
+ * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]:
+ * @sample androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
  *
  * For more information, see the
  * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
