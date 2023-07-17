@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,16 @@ import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement.InnerCase;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
+import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
+import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
@@ -55,12 +59,14 @@ import androidx.wear.protolayout.renderer.inflater.RenderedMetadata;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers;
 import androidx.wear.protolayout.renderer.inflater.StandardResourceResolvers;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.SettableFuture;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -89,7 +95,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     private static final int DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS = 4;
-
+    static final int MAX_LAYOUT_ELEMENT_DEPTH = 30;
     @NonNull private static final String TAG = "ProtoLayoutViewInstance";
 
     @NonNull private final Context mUiContext;
@@ -132,6 +138,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
      * For interactive layouts, the diffing should already handle this.
      */
     @Nullable private Layout mPrevLayout = null;
+
+    /**
+     * This field is used to avoid unnecessarily checking layout depth if the layout was previously
+     * failing the check.
+     */
+    private boolean mPrevLayoutAlreadyFailingDepthCheck = false;
 
     /**
      * This is used as the Future for the currently running inflation session. The first time
@@ -703,6 +715,21 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return new FailedRenderResult();
         }
 
+        boolean sameFingerprint =
+                prevRenderedMetadata != null
+                        && ProtoLayoutDiffer.areSameFingerprints(
+                                prevRenderedMetadata.getTreeFingerprint(), layout.getFingerprint());
+
+        if (sameFingerprint) {
+            if (mPrevLayoutAlreadyFailingDepthCheck) {
+                throwExceptionForLayoutDepthCheckFailure();
+            }
+        } else {
+            checkLayoutDepth(layout.getRoot(), MAX_LAYOUT_ELEMENT_DEPTH);
+        }
+
+        mPrevLayoutAlreadyFailingDepthCheck = false;
+
         ProtoLayoutInflater.Config.Builder inflaterConfigBuilder =
                 new ProtoLayoutInflater.Config.Builder(mUiContext, layout, resolvers)
                         .setLoadActionExecutor(mUiExecutorService)
@@ -1057,6 +1084,52 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 mWasFullyVisibleBefore = false;
             }
         }
+    }
+
+    /** Returns true if the layout element depth doesn't exceed the given {@code allowedDepth}. */
+    private void checkLayoutDepth(LayoutElement layoutElement, int allowedDepth) {
+        if (allowedDepth <= 0) {
+            throwExceptionForLayoutDepthCheckFailure();
+        }
+        List<LayoutElement> children = ImmutableList.of();
+        switch (layoutElement.getInnerCase()) {
+            case COLUMN:
+                children = layoutElement.getColumn().getContentsList();
+                break;
+            case ROW:
+                children = layoutElement.getRow().getContentsList();
+                break;
+            case BOX:
+                children = layoutElement.getBox().getContentsList();
+                break;
+            case ARC:
+                List<ArcLayoutElement> arcElements = layoutElement.getArc().getContentsList();
+                if (!arcElements.isEmpty() && allowedDepth == 1) {
+                    throwExceptionForLayoutDepthCheckFailure();
+                }
+                for (ArcLayoutElement element : arcElements) {
+                    if (element.getInnerCase() == InnerCase.ADAPTER) {
+                        checkLayoutDepth(element.getAdapter().getContent(), allowedDepth - 1);
+                    }
+                }
+                break;
+            case SPANNABLE:
+                if (layoutElement.getSpannable().getSpansCount() > 0 && allowedDepth == 1) {
+                    throwExceptionForLayoutDepthCheckFailure();
+                }
+                break;
+            default:
+                // Other LayoutElements have depth of one.
+        }
+        for (LayoutElement child : children) {
+            checkLayoutDepth(child, allowedDepth - 1);
+        }
+    }
+
+    private void throwExceptionForLayoutDepthCheckFailure() {
+        mPrevLayoutAlreadyFailingDepthCheck = true;
+        throw new IllegalStateException(
+                "Layout depth exceeds maximum allowed depth: " + MAX_LAYOUT_ELEMENT_DEPTH);
     }
 
     @Override

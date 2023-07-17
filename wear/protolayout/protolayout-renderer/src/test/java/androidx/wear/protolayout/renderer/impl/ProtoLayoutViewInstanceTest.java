@@ -17,10 +17,16 @@
 package androidx.wear.protolayout.renderer.impl;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.wear.protolayout.renderer.helper.TestDsl.arc;
+import static androidx.wear.protolayout.renderer.helper.TestDsl.arcAdapter;
+import static androidx.wear.protolayout.renderer.helper.TestDsl.box;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.column;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.dynamicFixedText;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.layout;
+import static androidx.wear.protolayout.renderer.helper.TestDsl.spanText;
+import static androidx.wear.protolayout.renderer.helper.TestDsl.spannable;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.text;
+import static androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.MAX_LAYOUT_ELEMENT_DEPTH;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -39,6 +45,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto.Resources;
+import androidx.wear.protolayout.renderer.helper.TestDsl.LayoutNode;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config;
 
 import com.google.common.collect.ImmutableList;
@@ -55,6 +62,7 @@ import org.robolectric.Robolectric;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -388,6 +396,107 @@ public class ProtoLayoutViewInstanceTest {
         mInstanceUnderTest.close();
 
         assertThat(mRootContainer.getChildCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void layoutDepthExceedsMaximumDepth_renderingFail() throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
+        assertThrows(
+                ExecutionException.class,
+                () -> renderAndAttachLayout(layout(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH + 1))));
+    }
+
+    @Test
+    public void layoutDepthIsEqualToMaximumDepth_renderingPass() throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
+
+        LayoutNode[] children = new LayoutNode[MAX_LAYOUT_ELEMENT_DEPTH];
+        for (int i = 0; i < children.length; i++) {
+            children[i] = recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH - 1);
+        }
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        // MAX_LAYOUT_ELEMENT_DEPTH branches of depth MAX_LAYOUT_ELEMENT_DEPTH - 1.
+                        // Total depth is MAX_LAYOUT_ELEMENT_DEPTH (if we count the head).
+                        layout(box(children)), RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(mRootContainer.getChildCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void layoutDepthForLayoutWithSpanner() throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
+
+        assertThrows(
+                ExecutionException.class,
+                () ->
+                        renderAndAttachLayout(
+                                // Total number of views is = MAX_LAYOUT_ELEMENT_DEPTH  + 1 (span
+                                // text)
+                                layout(
+                                        recursiveBox(
+                                                MAX_LAYOUT_ELEMENT_DEPTH,
+                                                spannable(spanText("Hello"))))));
+
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        // Total number of views is = (MAX_LAYOUT_ELEMENT_DEPTH -1)  + 1 (span text)
+                        layout(
+                                recursiveBox(
+                                        MAX_LAYOUT_ELEMENT_DEPTH - 1,
+                                        spannable(spanText("Hello")))),
+                        RESOURCES,
+                        mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(mRootContainer.getChildCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void layoutDepthForLayoutWithArcAdapter() throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
+        assertThrows(
+                ExecutionException.class,
+                () ->
+                        renderAndAttachLayout(
+                                // Total number of views is = 1 (Arc) + (MAX_LAYOUT_ELEMENT_DEPTH)
+                                layout(arc(arcAdapter(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH))))));
+
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        // Total number of views is = 1 (Arc) + (MAX_LAYOUT_ELEMENT_DEPTH - 1)
+                        // = MAX_LAYOUT_ELEMENT_DEPTH
+                        layout(arc(arcAdapter(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH - 1)))),
+                        RESOURCES,
+                        mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(mRootContainer.getChildCount()).isEqualTo(1);
+    }
+
+    private void renderAndAttachLayout(Layout layout) throws Exception {
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+    }
+
+    private static LayoutNode recursiveBox(int depth) {
+        if (depth == 1) {
+            return box();
+        }
+        return box(recursiveBox(depth - 1));
+    }
+
+    private static LayoutNode recursiveBox(int depth, LayoutNode leaf) {
+        if (depth == 1) {
+            return leaf;
+        }
+        return box(recursiveBox(depth - 1, leaf));
     }
 
     private void setupInstance(boolean adaptiveUpdateRatesEnabled) {
