@@ -16,10 +16,11 @@
 
 package androidx.compose.material3
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
 
-internal actual val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
-    @Composable
-    get() = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+// TODO(b/237588251) remove this once the default includeFontPadding is false
+/* NOOP includeFontPadding doesn't exist on desktop */
+internal actual fun copyAndSetFontPadding(
+    style: TextStyle,
+    includeFontPadding: Boolean
+): TextStyle = style
