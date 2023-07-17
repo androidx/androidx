@@ -21,7 +21,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 
 @Immutable
-@JvmInline
+@kotlin.jvm.JvmInline
 internal value class Strings private constructor(
     @Suppress("unused") private val value: Int = nextId()
 ) {

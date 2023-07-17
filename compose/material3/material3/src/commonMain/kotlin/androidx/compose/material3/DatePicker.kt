@@ -790,7 +790,7 @@ class DatePickerFormatter constructor(
  * Represents the different modes that a date picker can be at.
  */
 @Immutable
-@JvmInline
+@kotlin.jvm.JvmInline
 @ExperimentalMaterial3Api
 value class DisplayMode internal constructor(internal val value: Int) {
 
