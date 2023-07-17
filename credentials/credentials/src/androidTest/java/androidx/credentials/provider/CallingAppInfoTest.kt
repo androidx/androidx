@@ -24,7 +24,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -348,5 +350,23 @@ class CallingAppInfoTest {
 
         assertThat(callingAppInfo.origin).isNull()
         assertThat(callingAppInfo.getOrigin(ALLOWLIST_NO_MATCH_CERT_JSON)).isNull()
+    }
+
+    fun isOriginPopulated_originPopulated_returnsTrue() {
+        val callingAppInfo = CallingAppInfo(packageName, signingInfo, ORIGIN)
+
+        assertTrue(callingAppInfo.isOriginPopulated())
+    }
+
+    fun isOriginPopulated_originNotPopulated_returnsFalse() {
+        val callingAppInfo = CallingAppInfo(packageName, signingInfo)
+
+        assertFalse(callingAppInfo.isOriginPopulated())
+    }
+
+    fun isOriginPopulated_originPopulatedAsNull_returnsFalse() {
+        val callingAppInfo = CallingAppInfo(packageName, signingInfo, null)
+
+        assertFalse(callingAppInfo.isOriginPopulated())
     }
 }
