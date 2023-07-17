@@ -280,4 +280,14 @@ class RecyclerViewKeyEventTest {
         MatcherAssert.assertThat(layoutManager.findFirstCompletelyVisibleItemPosition(),
             CoreMatchers.`is`(0))
     }
+
+    @Test
+    fun dispatchKeyEvent_withNoLayoutManager_doesNotCrash() {
+        val context = mActivityTestRule.activity
+        val recyclerView = RecyclerView(context)
+
+        recyclerView.layoutParams = ViewGroup.LayoutParams(viewWidth, viewHeight)
+        val event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_PAGE_DOWN)
+        recyclerView.dispatchKeyEvent(event)
+    }
 }
