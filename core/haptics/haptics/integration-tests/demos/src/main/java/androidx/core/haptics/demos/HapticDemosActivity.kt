@@ -19,6 +19,7 @@ package androidx.core.haptics.demos
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.haptics.HapticAttributes
 import androidx.core.haptics.HapticManager
 import androidx.core.haptics.signal.CompositionSignal.Companion.click
 import androidx.core.haptics.signal.CompositionSignal.Companion.compositionOf
@@ -38,10 +39,16 @@ class HapticDemosActivity : AppCompatActivity() {
 
         val hapticManager = HapticManager.create(this)
         findViewById<Button>(R.id.standard_click_btn).setOnClickListener {
-            hapticManager.play(predefinedClick())
+            hapticManager.play(
+                predefinedClick(),
+                HapticAttributes(HapticAttributes.USAGE_TOUCH),
+            )
         }
         findViewById<Button>(R.id.scaled_click_btn).setOnClickListener {
-            hapticManager.play(compositionOf(click().withAmplitudeScale(0.8f)))
+            hapticManager.play(
+                compositionOf(click().withAmplitudeScale(0.8f)),
+                HapticAttributes(HapticAttributes.USAGE_TOUCH),
+            )
         }
         findViewById<Button>(R.id.on_off_pattern_btn).setOnClickListener {
             hapticManager.play(
@@ -49,7 +56,8 @@ class HapticDemosActivity : AppCompatActivity() {
                     on(durationMillis = 350),
                     off(durationMillis = 250),
                     on(durationMillis = 350),
-                )
+                ),
+                HapticAttributes(HapticAttributes.USAGE_NOTIFICATION),
             )
         }
         findViewById<Button>(R.id.repeating_waveform_btn).setOnClickListener {
@@ -70,7 +78,8 @@ class HapticDemosActivity : AppCompatActivity() {
                     on(durationMillis = 100, amplitude = 0.76f),
                     // 400ms at max amplitude
                     on(durationMillis = 400, amplitude = 1f),
-                )
+                ),
+                HapticAttributes(HapticAttributes.USAGE_RINGTONE),
             )
         }
     }

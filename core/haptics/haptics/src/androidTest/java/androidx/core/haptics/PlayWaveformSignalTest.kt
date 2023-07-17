@@ -41,8 +41,14 @@ class PlayWaveformSignalSdk26AndAboveTest {
 
     @Test
     fun play_withOneShot_vibratesWithOneShotEffect() {
-        hapticManager.play(waveformOf(on(durationMillis = 10)))
-        hapticManager.play(waveformOf(on(durationMillis = 20, amplitude = 0.2f)))
+        hapticManager.play(
+            waveformOf(on(durationMillis = 10)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
+        hapticManager.play(
+            waveformOf(on(durationMillis = 20, amplitude = 0.2f)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(timings = longArrayOf(10), amplitudes = intArrayOf(-1)),
             vibration(timings = longArrayOf(20), amplitudes = intArrayOf(51)),
@@ -57,7 +63,8 @@ class PlayWaveformSignalSdk26AndAboveTest {
                 on(durationMillis = 20, amplitude = 0.8f),
                 on(durationMillis = 30, amplitude = 0f),
                 on(durationMillis = 40, amplitude = 1f),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(
@@ -75,7 +82,8 @@ class PlayWaveformSignalSdk26AndAboveTest {
                 off(durationMillis = 20),
                 on(durationMillis = 30),
                 off(durationMillis = 40),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(
@@ -94,7 +102,8 @@ class PlayWaveformSignalSdk26AndAboveTest {
             ).thenRepeat(
                 on(durationMillis = 30, amplitude = 0.6f),
                 on(durationMillis = 40, amplitude = 0.8f),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(
@@ -115,9 +124,18 @@ class PlayWaveformSignalBelowSdk26Test {
 
     @Test
     fun play_withOneShot_vibratesWithPatternForDefaultAndMaxAmplitudes() {
-        hapticManager.play(waveformOf(on(durationMillis = 10)))
-        hapticManager.play(waveformOf(on(durationMillis = 20, amplitude = 1f)))
-        hapticManager.play(waveformOf(on(durationMillis = 30, amplitude = 0.2f)))
+        hapticManager.play(
+            waveformOf(on(durationMillis = 10)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
+        hapticManager.play(
+            waveformOf(on(durationMillis = 20, amplitude = 1f)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
+        hapticManager.play(
+            waveformOf(on(durationMillis = 30, amplitude = 0.2f)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(pattern = longArrayOf(0, 10)),
             vibration(pattern = longArrayOf(0, 20)),
@@ -133,7 +151,8 @@ class PlayWaveformSignalBelowSdk26Test {
                 on(durationMillis = 20, amplitude = 0.8f),
                 on(durationMillis = 30, amplitude = 0f),
                 on(durationMillis = 40, amplitude = 1f),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).neverVibrated()
     }
@@ -148,7 +167,8 @@ class PlayWaveformSignalBelowSdk26Test {
                 on(durationMillis = 40),
                 off(durationMillis = 50),
                 off(durationMillis = 60),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             // OFF(0ms), ON(10ms), OFF(20ms), ON(30+40ms), OFF(50+60ms)
@@ -165,7 +185,8 @@ class PlayWaveformSignalBelowSdk26Test {
                 off(durationMillis = 30),
                 on(durationMillis = 40, amplitude = 0f),
                 on(durationMillis = 50),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             // OFF(0ms), ON(10+20ms), OFF(30+40ms), ON(50ms)
@@ -183,7 +204,8 @@ class PlayWaveformSignalBelowSdk26Test {
                 off(durationMillis = 40),
                 on(durationMillis = 50),
                 on(durationMillis = 60),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(
@@ -207,7 +229,8 @@ class PlayWaveformSignalBelowSdk26Test {
                 on(durationMillis = 60),
                 off(durationMillis = 70),
                 off(durationMillis = 80),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(
@@ -228,8 +251,14 @@ class PlayWaveformSignalAllSdksTest {
 
     @Test
     fun play_withZeroDurationSignal_doesNotVibrate() {
-        hapticManager.play(waveformOf(on(durationMillis = 0)))
-        hapticManager.play(waveformOf(on(durationMillis = 0, amplitude = 0.2f)))
+        hapticManager.play(
+            waveformOf(on(durationMillis = 0)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
+        hapticManager.play(
+            waveformOf(on(durationMillis = 0, amplitude = 0.2f)),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
         hapticManager.play(
             waveformOf(
                 on(durationMillis = 0, amplitude = 0.2f),
@@ -237,7 +266,8 @@ class PlayWaveformSignalAllSdksTest {
                 on(durationMillis = 0, amplitude = 0f),
                 on(durationMillis = 0, amplitude = 1f),
                 off(durationMillis = 0),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).neverVibrated()
     }

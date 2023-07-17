@@ -19,6 +19,7 @@ package androidx.core.haptics.testing
 import android.os.Build
 import android.os.VibrationEffect
 import androidx.annotation.RequiresApi
+import androidx.core.haptics.AttributesWrapper
 import androidx.core.haptics.PatternVibrationWrapper
 import androidx.core.haptics.VibrationEffectWrapper
 import androidx.core.haptics.VibrationWrapper
@@ -35,7 +36,7 @@ internal sealed class FakeVibrator(
     private val effectsSupported: IntArray? = null,
     private val primitivesSupported: IntArray = intArrayOf(),
 ) : VibratorWrapper {
-    private val vibrations: MutableList<VibrationWrapper> = mutableListOf()
+    private val vibrations: MutableList<AttributedVibration> = mutableListOf()
 
     override fun hasVibrator(): Boolean = true
 
@@ -55,8 +56,8 @@ internal sealed class FakeVibrator(
     override fun arePrimitivesSupported(primitives: IntArray): BooleanArray =
         primitives.map { primitivesSupported.contains(it) }.toBooleanArray()
 
-    override fun vibrate(vibration: VibrationWrapper) {
-        vibrations.add(vibration)
+    override fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper?) {
+        vibrations.add(AttributedVibration(vibration, attrs))
     }
 
     override fun cancel() {
@@ -64,8 +65,16 @@ internal sealed class FakeVibrator(
     }
 
     /** Returns all requests sent to the [android.os.Vibrator], in order. */
-    internal fun vibrations(): List<VibrationWrapper> = vibrations
+    internal fun vibrations(): List<AttributedVibration> = vibrations
 }
+
+/**
+ * Represents different API levels of support for vibrations with attributes.
+ */
+internal data class AttributedVibration(
+    val vibration: VibrationWrapper,
+    val attrs: AttributesWrapper?,
+)
 
 /**
  * Vibrator that only supports on-off patterns.

@@ -18,6 +18,7 @@ package androidx.core.haptics.impl
 
 import android.os.Vibrator
 import androidx.annotation.RequiresPermission
+import androidx.core.haptics.HapticAttributes
 import androidx.core.haptics.HapticManager
 import androidx.core.haptics.VibratorWrapper
 import androidx.core.haptics.signal.HapticSignal
@@ -30,9 +31,9 @@ internal class HapticManagerImpl internal constructor(
 ) : HapticManager {
 
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    override fun play(signal: HapticSignal) {
-        signal.toVibration()?.let {
-                vibration -> vibrator.vibrate(vibration)
+    override fun play(signal: HapticSignal, attrs: HapticAttributes) {
+        signal.toVibration()?.let { vibration ->
+            vibrator.vibrate(vibration, attrs.toAttributes())
         }
     }
 }

@@ -17,13 +17,18 @@
 package androidx.core.haptics.impl
 
 import android.annotation.SuppressLint
+import android.media.AudioAttributes
 import android.os.Build
+import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.core.haptics.AttributesWrapper
+import androidx.core.haptics.AudioAttributesWrapper
 import androidx.core.haptics.PatternVibrationWrapper
+import androidx.core.haptics.VibrationAttributesWrapper
 import androidx.core.haptics.VibrationEffectWrapper
 import androidx.core.haptics.VibrationWrapper
 import androidx.core.haptics.VibratorWrapper
@@ -59,24 +64,72 @@ internal class VibratorWrapperImpl(
         }
 
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    override fun vibrate(vibration: VibrationWrapper) {
+    override fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper?) {
         when (vibration) {
             is VibrationEffectWrapper -> {
                 check(Build.VERSION.SDK_INT >= 26) {
-                    "Attempting to vibrate with VibrationEffect before Android O is not supported"
+                    "Attempting to vibrate with VibrationEffect before" +
+                        " Android O (API 26+), not supported"
                 }
-                if (Build.VERSION.SDK_INT >= 26) {
-                    Api26Impl.vibrate(vibrator, vibration)
+                if (Build.VERSION.SDK_INT >= 33) {
+                    check(attrs is VibrationAttributesWrapper) {
+                        "Attempting to vibrate without VibrationAttributes after" +
+                            " Android T (API 33+), not allowed"
+                    }
+                    Api33Impl.vibrate(vibrator, vibration, attrs)
+                } else if (Build.VERSION.SDK_INT >= 26) {
+                    check(attrs is AudioAttributesWrapper) {
+                        "Attempting to vibrate without AudioAttributes after" +
+                            " Android O (API 26+), not allowed"
+                    }
+                    Api26Impl.vibrate(vibrator, vibration, attrs)
                 }
             }
-            is PatternVibrationWrapper ->
-                ApiImpl.vibrate(vibrator, vibration)
+
+            is PatternVibrationWrapper -> {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    check(attrs is AudioAttributesWrapper) {
+                        "Attempting to vibrate without AudioAttributes after" +
+                            " Android Lollipop (API 21+), not allowed"
+                    }
+                    Api21Impl.vibrate(vibrator, vibration, attrs)
+                } else {
+                    check(attrs == null) {
+                        "Attempting to vibrate with AudioAttributes before" +
+                            " Android Lollipop (< API 21), not supported"
+                    }
+                    ApiImpl.vibrate(vibrator, vibration)
+                }
+            }
         }
     }
 
     @RequiresPermission(android.Manifest.permission.VIBRATE)
     override fun cancel() {
         ApiImpl.cancel(vibrator)
+    }
+
+    /** Version-specific static inner class. */
+    @RequiresApi(33)
+    private object Api33Impl {
+
+        @JvmStatic
+        @DoNotInline
+        @RequiresPermission(android.Manifest.permission.VIBRATE)
+        fun vibrate(
+            vibrator: Vibrator,
+            effect: VibrationEffectWrapper,
+            attrs: VibrationAttributesWrapper,
+        ) {
+            check(effect.vibrationEffect is VibrationEffect) {
+                "Attempting to vibrate with unexpected VibrationEffect ${effect.vibrationEffect}"
+            }
+            check(attrs.vibrationAttributes is VibrationAttributes) {
+                "Attempting to vibrate with unexpected VibrationAttributes" +
+                    " ${attrs.vibrationAttributes}"
+            }
+            vibrator.vibrate(effect.vibrationEffect, attrs.vibrationAttributes)
+        }
     }
 
     /** Version-specific static inner class. */
@@ -120,12 +173,40 @@ internal class VibratorWrapperImpl(
 
         @JvmStatic
         @DoNotInline
+        @Suppress("DEPRECATION") // ApkVariant for compatibility
         @RequiresPermission(android.Manifest.permission.VIBRATE)
-        fun vibrate(vibrator: Vibrator, effect: VibrationEffectWrapper) {
+        fun vibrate(
+            vibrator: Vibrator,
+            effect: VibrationEffectWrapper,
+            attrs: AudioAttributesWrapper,
+        ) {
             check(effect.vibrationEffect is VibrationEffect) {
-                "Attempting to vibrate with unexpected vibration effect ${effect.vibrationEffect}"
+                "Attempting to vibrate with unexpected VibrationEffect ${effect.vibrationEffect}"
             }
-            vibrator.vibrate(effect.vibrationEffect)
+            check(attrs.audioAttributes is AudioAttributes) {
+                "Attempting to vibrate with unexpected AudioAttributes ${attrs.audioAttributes}"
+            }
+            vibrator.vibrate(effect.vibrationEffect, attrs.audioAttributes)
+        }
+    }
+
+    /** Version-specific static inner class. */
+    @RequiresApi(21)
+    private object Api21Impl {
+
+        @JvmStatic
+        @DoNotInline
+        @Suppress("DEPRECATION") // ApkVariant for compatibility
+        @RequiresPermission(android.Manifest.permission.VIBRATE)
+        fun vibrate(
+            vibrator: Vibrator,
+            pattern: PatternVibrationWrapper,
+            attrs: AudioAttributesWrapper,
+        ) {
+            check(attrs.audioAttributes is AudioAttributes) {
+                "Attempting to vibrate with unexpected AudioAttributes ${attrs.audioAttributes}"
+            }
+            vibrator.vibrate(pattern.timings, pattern.repeatIndex, attrs.audioAttributes)
         }
     }
 
