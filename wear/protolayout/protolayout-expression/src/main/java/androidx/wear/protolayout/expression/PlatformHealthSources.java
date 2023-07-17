@@ -103,11 +103,11 @@ public class PlatformHealthSources {
                 new PlatformDataKey<>("Daily Distance");
 
         /**
-         * The data source key for daily calories data from platform health sources. This is the
-         * total number of calories over a day (including both BMR and active calories) and it
-         * resets when 00:00 is reached (in whatever is the timezone set at that time). This can
-         * result in the DAILY period being greater than or less than 24 hours when the timezone of
-         * the device is changed.
+         * The data source key for daily calories (kcal) data from platform health sources. This is
+         * the total number of kilocalories over a day (including both BMR and active calories)
+         * and it resets when 00:00 is reached (in whatever is the timezone set at that time).
+         * This can result in the DAILY period being greater than or less than 24 hours when the
+         * timezone of the device is changed.
          */
         @NonNull
         @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
