@@ -39,6 +39,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
 android {
