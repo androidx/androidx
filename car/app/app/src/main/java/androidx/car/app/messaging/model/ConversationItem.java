@@ -29,13 +29,16 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Item;
+import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.core.app.Person;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,6 +61,8 @@ public class ConversationItem implements Item {
     private final List<CarMessage> mMessages;
     @NonNull
     private final ConversationCallbackDelegate mConversationCallbackDelegate;
+    @NonNull
+    private final List<Action> mActions;
 
     @Override
     public int hashCode() {
@@ -67,7 +72,8 @@ public class ConversationItem implements Item {
                 mTitle,
                 mIcon,
                 mIsGroupConversation,
-                mMessages
+                mMessages,
+                mActions
         );
     }
 
@@ -89,6 +95,7 @@ public class ConversationItem implements Item {
                         .arePersonsEqual(getSelf(), otherConversationItem.getSelf())
                         && mIsGroupConversation == otherConversationItem.mIsGroupConversation
                         && Objects.equals(mMessages, otherConversationItem.mMessages)
+                        && Objects.equals(mActions, otherConversationItem.mActions)
                 ;
     }
 
@@ -101,6 +108,7 @@ public class ConversationItem implements Item {
         this.mMessages = requireNonNull(CollectionUtils.unmodifiableCopy(builder.mMessages));
         checkState(!mMessages.isEmpty(), "Message list cannot be empty.");
         this.mConversationCallbackDelegate = requireNonNull(builder.mConversationCallbackDelegate);
+        this.mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Default constructor for serialization. */
@@ -123,6 +131,7 @@ public class ConversationItem implements Item {
                         // Do nothing
                     }
                 });
+        mActions = Collections.emptyList();
     }
 
     /**
@@ -175,6 +184,16 @@ public class ConversationItem implements Item {
     }
 
     /**
+     * Returns the list of additional actions.
+     *
+     * @see ConversationItem.Builder#addAction(Action)
+     */
+    @NonNull
+    public List<Action> getActions() {
+        return mActions;
+    }
+
+    /**
      * Verifies that a given {@link Person} has the required fields to be a message sender. Returns
      * the input {@link Person} if valid, or throws an exception if invalid.
      *
@@ -202,6 +221,7 @@ public class ConversationItem implements Item {
         List<CarMessage> mMessages;
         @Nullable
         ConversationCallbackDelegate mConversationCallbackDelegate;
+        final List<Action> mActions;
 
         /**
          * Specifies a unique identifier for the conversation
@@ -278,6 +298,23 @@ public class ConversationItem implements Item {
             return this;
         }
 
+        /**
+         * Adds an additional action for the conversation.
+         *
+         * @throws NullPointerException     if {@code action} is {@code null}
+         * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
+         *                                  exceeds the maximum number of allowed actions (1) or
+         *                                  does not contain a valid {@link CarIcon}.
+         */
+        @NonNull
+        public Builder addAction(@NonNull Action action) {
+            List<Action> mActionsCopy = new ArrayList<>(mActions);
+            mActionsCopy.add(requireNonNull(action));
+            ActionsConstraints.ACTIONS_CONSTRAINTS_CONVERSATION_ITEM.validateOrThrow(mActionsCopy);
+            mActions.add(action);
+            return this;
+        }
+
         /** Returns a new {@link ConversationItem} instance defined by this builder */
         @NonNull
         public ConversationItem build() {
@@ -286,6 +323,7 @@ public class ConversationItem implements Item {
 
         /** Returns an empty {@link Builder} instance. */
         public Builder() {
+            mActions = new ArrayList<>();
         }
 
         /** Returns a builder from the given {@link ConversationItem}. */
@@ -297,6 +335,7 @@ public class ConversationItem implements Item {
             this.mIsGroupConversation = other.isGroupConversation();
             this.mConversationCallbackDelegate = other.getConversationCallbackDelegate();
             this.mMessages = other.getMessages();
+            this.mActions = new ArrayList<>(other.getActions());
         }
     }
 }

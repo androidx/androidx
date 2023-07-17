@@ -145,6 +145,19 @@ public final class ActionsConstraints {
                     .build();
 
     /**
+     * Constraints for additional ConversationItem actions. Only allows custom actions.
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_CONVERSATION_ITEM =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .setMaxCustomTitles(1)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setRequireActionIcons(true)
+                    .setOnClickListenerAllowed(true)
+                    .build();
+
+    /**
      * Constraints for floating action buttons.
      *
      * <p>Only buttons with icons and background color are allowed.
