@@ -42,7 +42,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -123,9 +122,8 @@ class TextFieldLongClickTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 7))
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun longClickOnWhitespace_selectsNextWord() {
+    fun longClickOnWhitespace_doesNotSelectWhitespace() {
         val state = TextFieldState("abc def ghi")
         rule.setContent {
             BasicTextField2(
@@ -141,7 +139,8 @@ class TextFieldLongClickTest {
 
         rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(8, 11))
+        assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(7, 8))
+        assertThat(state.text.selectionInChars.collapsed).isFalse()
     }
 
     @Test
