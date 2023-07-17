@@ -671,36 +671,16 @@ internal class MotionLayoutTest {
         rule.setContent {
             MotionLayout(
                 motionScene = remember {
-                    MotionScene {
-                        val boxRef = createRefFor(boxId)
-
-                        defaultTransition(
-                            from = constraintSet {
-                                constrain(boxRef) {
-                                    width = boxSizePx.toDp().asDimension()
-                                    height = boxSizePx.toDp().asDimension()
-
-                                    top.linkTo(parent.top)
-                                    start.linkTo(parent.start)
-                                }
-                            },
-                            to = constraintSet {
-                                constrain(boxRef) {
-                                    width = boxSizePx.toDp().asDimension()
-                                    height = boxSizePx.toDp().asDimension()
-
-                                    top.linkTo(parent.top)
-                                    end.linkTo(parent.end)
-                                }
-                            }
-                        ) {
-                            onSwipe = OnSwipe(
-                                anchor = boxRef,
-                                side = SwipeSide.End,
-                                direction = SwipeDirection.End,
-                                limitBoundsTo = boxRef
-                            )
-                        }
+                    createCornerToCornerMotionScene(
+                        boxId = boxId,
+                        boxSizePx = boxSizePx
+                    ) { boxRef ->
+                        onSwipe = OnSwipe(
+                            anchor = boxRef,
+                            side = SwipeSide.End,
+                            direction = SwipeDirection.End,
+                            limitBoundsTo = boxRef
+                        )
                     }
                 },
                 progress = 0f,
@@ -756,7 +736,7 @@ internal class MotionLayoutTest {
         // Then wait for it to end
         rule.waitForIdle()
         // Box moved to end
-        assertEquals(IntOffset(rootSizePx - boxSizePx, 0), boxPosition)
+        assertEquals(IntOffset(rootSizePx - boxSizePx, rootSizePx - boxSizePx), boxPosition)
     }
 
     @Test
@@ -844,6 +824,71 @@ internal class MotionLayoutTest {
         assertEquals(25, actualTextSize.height.value.roundToInt())
     }
 
+    @Test
+    fun testOnSwipe_withDragScale() = with(rule.density) {
+        val rootSizePx = 300
+        val boxSizePx = 30
+        val boxId = "box"
+        val dragScale = 3f
+        var boxPosition = IntOffset.Zero
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = remember {
+                    createCornerToCornerMotionScene(
+                        boxId = boxId,
+                        boxSizePx = boxSizePx
+                    ) { boxRef ->
+                        onSwipe = OnSwipe(
+                            anchor = boxRef,
+                            side = SwipeSide.Middle,
+                            direction = SwipeDirection.Down,
+                            onTouchUp = SwipeTouchUp.ToStart,
+                            dragScale = dragScale
+                        )
+                    }
+                },
+                progress = 0f,
+                modifier = Modifier
+                    .layoutTestId("MyMotion")
+                    .size(rootSizePx.toDp())
+            ) {
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .layoutTestId(boxId)
+                        .onGloballyPositioned {
+                            boxPosition = it
+                                .positionInParent()
+                                .round()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+        val motionSemantic = rule.onNodeWithTag("MyMotion")
+
+        motionSemantic
+            .assertExists()
+            .performSwipe(
+                from = {
+                    Offset(center.x, top + (boxSizePx / 2f))
+                },
+                to = {
+                    // Move only half-way, with a dragScale of 1f, it would be forced to
+                    // return to the start position
+                    val off = ((bottom - (boxSizePx / 2f)) - (top + (boxSizePx / 2f))) * 0.5f
+                    Offset(center.x, (top + (boxSizePx / 2f)) + off)
+                }
+            )
+        // Wait a frame for the Touch Up animation to start
+        rule.mainClock.advanceTimeByFrame()
+        // Then wait for it to end
+        rule.waitForIdle()
+        // Box is at the ending position because of the increased dragScale
+        assertEquals(IntOffset(rootSizePx - boxSizePx, rootSizePx - boxSizePx), boxPosition)
+    }
+
     private fun Color.toHexString(): String = toArgb().toUInt().toString(16)
 }
 
@@ -911,4 +956,35 @@ private fun WithConsistentTextStyle(
         ),
         content = content
     )
+}
+
+private fun Density.createCornerToCornerMotionScene(
+    boxId: String,
+    boxSizePx: Int,
+    transitionContent: TransitionScope.(boxRef: ConstrainedLayoutReference) -> Unit
+) = MotionScene {
+    val boxRef = createRefFor(boxId)
+
+    defaultTransition(
+        from = constraintSet {
+            constrain(boxRef) {
+                width = boxSizePx.toDp().asDimension()
+                height = boxSizePx.toDp().asDimension()
+
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+            }
+        },
+        to = constraintSet {
+            constrain(boxRef) {
+                width = boxSizePx.toDp().asDimension()
+                height = boxSizePx.toDp().asDimension()
+
+                bottom.linkTo(parent.bottom)
+                end.linkTo(parent.end)
+            }
+        }
+    ) {
+        transitionContent(boxRef)
+    }
 }
