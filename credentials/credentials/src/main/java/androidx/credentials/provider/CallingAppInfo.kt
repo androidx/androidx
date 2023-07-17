@@ -119,6 +119,16 @@ class CallingAppInfo @JvmOverloads constructor(
             "match the privileged allowlist")
     }
 
+    /**
+     * Returns true if the [origin] is populated, and false otherwise.
+     *
+     * Note that the [origin] is only populated if a privileged app like a browser calls
+     * Credential Manager APIs on behalf of another application.
+     */
+    fun isOriginPopulated(): Boolean {
+        return origin != null
+    }
+
     private fun isAppPrivileged(
         candidateApps: List<PrivilegedApp>
     ): Boolean {
