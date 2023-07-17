@@ -18,6 +18,9 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.layout.Measurable
+import androidx.constraintlayout.core.parser.CLObject
+import androidx.constraintlayout.core.state.ConstraintSetParser
+import androidx.constraintlayout.core.state.ConstraintSetParser.LayoutVariables
 import androidx.constraintlayout.core.state.Transition
 
 @JvmDefaultWithCompatibility
@@ -297,4 +300,38 @@ internal interface DerivedConstraintSet : ConstraintSet {
      * Inheritors should implement this function so that derived constraints are applied properly.
      */
     fun applyToState(state: State)
+}
+
+/**
+ * [ConstraintSet] defined solely on the given [clObject]. Only meant to be used to extract a copy
+ * of the underlying ConstraintSet of ConstraintLayout with the inline Modifier DSL.
+ *
+ * You likely don't mean to use this.
+ */
+@Immutable
+@PublishedApi
+internal class RawConstraintSet(private val clObject: CLObject) : ConstraintSet {
+    private val layoutVariables = LayoutVariables()
+    override fun applyTo(state: State, measurables: List<Measurable>) {
+        ConstraintSetParser.populateState(
+            clObject,
+            state,
+            layoutVariables
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as RawConstraintSet
+
+        if (clObject != other.clObject) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return clObject.hashCode()
+    }
 }
