@@ -30,6 +30,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertTrue;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -163,7 +164,7 @@ public final class Camera2CameraImplTest {
             new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     );
 
-    private final ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
+    private final ArrayList<UseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
     private static HandlerThread sCameraHandlerThread;
     private static Handler sCameraHandler;
@@ -216,10 +217,13 @@ public final class Camera2CameraImplTest {
 
     @After
     public void teardown() throws InterruptedException, ExecutionException {
-        for (FakeUseCase fakeUseCase : mFakeUseCases) {
-            fakeUseCase.unbindFromCamera(mCamera2CameraImpl);
-            fakeUseCase.onUnbind();
+        for (UseCase fakeUseCase : mFakeUseCases) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                fakeUseCase.unbindFromCamera(mCamera2CameraImpl);
+            });
         }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
         // Need to release the camera no matter what is done, otherwise the CameraDevice is not
         // closed.
         // When the CameraDevice is not closed, then it can cause problems with interferes with
@@ -540,6 +544,9 @@ public final class Camera2CameraImplTest {
 
     @Test
     public void attachNonRepeatingUseCase_whenCameraModeConcurrent_meteringRepeatingIsAttached() {
+        PackageManager pm = ApplicationProvider.getApplicationContext().getPackageManager();
+        assumeTrue(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT));
+
         mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
         UseCase nonRepeating = createUseCase(NON_REPEATING);
 
@@ -951,8 +958,8 @@ public final class Camera2CameraImplTest {
                 () -> imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(
                         new Size(640, 480)).setImplementationOptions(
                         StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
-        imageCapture.notifyState();
 
+        mFakeUseCases.add(imageCapture);
         return imageCapture;
     }
 
@@ -978,6 +985,7 @@ public final class Camera2CameraImplTest {
                         new Size(640, 480)).setImplementationOptions(
                         StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
 
+        mFakeUseCases.add(streamSharing);
         return streamSharing;
     }
 

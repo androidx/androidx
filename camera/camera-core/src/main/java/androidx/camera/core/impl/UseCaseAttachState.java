@@ -90,12 +90,16 @@ public final class UseCaseAttachState {
      */
     public void setUseCaseAttached(@NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> userCaseConfig,
+            @NonNull UseCaseConfig<?> useCaseConfig,
             @Nullable StreamSpec streamSpec,
             @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
-                sessionConfig, userCaseConfig, streamSpec, captureTypes);
+                sessionConfig, useCaseConfig, streamSpec, captureTypes);
         useCaseAttachInfo.setAttached(true);
+
+        // use case may become active before being attached, some info may have changed after
+        // the active state notification
+        updateUseCase(useCaseId, sessionConfig, useCaseConfig, streamSpec, captureTypes);
     }
 
     /**
