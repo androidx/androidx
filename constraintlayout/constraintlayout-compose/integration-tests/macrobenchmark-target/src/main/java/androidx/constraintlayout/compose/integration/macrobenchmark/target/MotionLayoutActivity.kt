@@ -32,7 +32,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.constraintlayout.compose.integration.macrobenchmark.target.graphs.DynamicGraphsPreview
 import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreview
 import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreviewWithDsl
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreviewWithDslOptimized
 import androidx.constraintlayout.compose.integration.macrobenchmark.target.toolbar.MotionCollapseToolbarPreview
 
 class MotionLayoutActivity : ComponentActivity() {
@@ -56,23 +55,15 @@ class MotionLayoutActivity : ComponentActivity() {
                         "NewMessageJson" -> {
                             NewMotionMessagePreview()
                         }
-
                         "NewMessageDsl" -> {
                             NewMotionMessagePreviewWithDsl()
                         }
-
-                        "OptimizedNewMessageDsl" -> {
-                            NewMotionMessagePreviewWithDslOptimized()
-                        }
-
                         "CollapsibleToolbar" -> {
                             MotionCollapseToolbarPreview()
                         }
-
                         "DynamicGraphs" -> {
                             DynamicGraphsPreview()
                         }
-
                         else -> {
                             throw IllegalArgumentException("No Composable with name: $name")
                         }
