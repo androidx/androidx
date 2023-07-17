@@ -270,7 +270,7 @@ internal class DateInputValidator(
  * when validating the user input, and especially when validating an input range.
  */
 @Immutable
-@JvmInline
+@kotlin.jvm.JvmInline
 internal value class InputIdentifier internal constructor(internal val value: Int) {
 
     companion object {
