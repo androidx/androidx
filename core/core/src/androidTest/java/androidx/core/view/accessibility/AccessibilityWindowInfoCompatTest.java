@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Locale;
 
+@SdkSuppress(minSdkVersion = 21)
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class AccessibilityWindowInfoCompatTest {
