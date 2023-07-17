@@ -168,7 +168,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
                 @Override
                 public void onFailure(@NonNull Throwable t) {
-                    SynchronizedCaptureSessionBaseImpl.this.finishClose();
+                    finishClose();
                     mCaptureSessionRepository.onCaptureSessionConfigureFail(
                             SynchronizedCaptureSessionBaseImpl.this);
                 }

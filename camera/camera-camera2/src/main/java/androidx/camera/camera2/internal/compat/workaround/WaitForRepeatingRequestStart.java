@@ -134,6 +134,13 @@ public class WaitForRepeatingRequestStart {
         }
     }
 
+    /**
+     * This should be called when SynchronizedCaptureSession#finishClose is called.
+     */
+    public void onFinishClosed() {
+        mStartStreamingFuture.cancel(true);
+    }
+
     private final CameraCaptureSession.CaptureCallback mCaptureCallback =
             new CameraCaptureSession.CaptureCallback() {
                 @Override

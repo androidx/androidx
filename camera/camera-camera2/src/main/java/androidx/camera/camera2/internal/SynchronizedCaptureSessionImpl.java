@@ -169,6 +169,12 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         super.onClosed(session);
     }
 
+    @Override
+    public void finishClose() {
+        super.finishClose();
+        mWaitForOtherSessionCompleteQuirk.onFinishClosed();
+    }
+
     void debugLog(String message) {
         Logger.d(TAG, "[" + SynchronizedCaptureSessionImpl.this + "] " + message);
     }
