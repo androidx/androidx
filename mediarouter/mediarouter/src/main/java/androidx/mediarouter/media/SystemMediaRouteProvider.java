@@ -220,7 +220,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             IntentFilter f = new IntentFilter();
             f.addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
 
-            LIVE_AUDIO_CONTROL_FILTERS = new ArrayList<IntentFilter>();
+            LIVE_AUDIO_CONTROL_FILTERS = new ArrayList<>();
             LIVE_AUDIO_CONTROL_FILTERS.add(f);
         }
 
@@ -230,13 +230,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             IntentFilter f = new IntentFilter();
             f.addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
 
-            LIVE_VIDEO_CONTROL_FILTERS = new ArrayList<IntentFilter>();
+            LIVE_VIDEO_CONTROL_FILTERS = new ArrayList<>();
             LIVE_VIDEO_CONTROL_FILTERS.add(f);
         }
 
         private final SyncCallback mSyncCallback;
 
-        protected final Object mRouterObj;
+        protected final android.media.MediaRouter mRouter;
         protected final Object mCallbackObj;
         protected final Object mVolumeCallbackObj;
         protected final Object mUserRouteCategoryObj;
@@ -249,11 +249,11 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         // have published its own user routes to the framework media router and already
         // used the tag for its own purposes.
         protected final ArrayList<SystemRouteRecord> mSystemRouteRecords =
-                new ArrayList<SystemRouteRecord>();
+                new ArrayList<>();
 
         // Maintains an association from support library routes to framework routes.
         protected final ArrayList<UserRouteRecord> mUserRouteRecords =
-                new ArrayList<UserRouteRecord>();
+                new ArrayList<>();
 
         private MediaRouterJellybean.SelectRouteWorkaround mSelectRouteWorkaround;
         private MediaRouterJellybean.GetDefaultRouteWorkaround mGetDefaultRouteWorkaround;
@@ -261,13 +261,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         public JellybeanImpl(Context context, SyncCallback syncCallback) {
             super(context);
             mSyncCallback = syncCallback;
-            mRouterObj = MediaRouterJellybean.getMediaRouter(context);
+            mRouter = MediaRouterJellybean.getMediaRouter(context);
             mCallbackObj = createCallbackObj();
             mVolumeCallbackObj = createVolumeCallbackObj();
 
             Resources r = context.getResources();
             mUserRouteCategoryObj = MediaRouterJellybean.createRouteCategory(
-                    mRouterObj, r.getString(R.string.mr_user_route_category_name), false);
+                    mRouter, r.getString(R.string.mr_user_route_category_name), false);
 
             updateSystemRoutes();
         }
@@ -320,7 +320,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         private void updateSystemRoutes() {
             updateCallback();
             boolean changed = false;
-            for (Object routeObj : MediaRouterJellybean.getRoutes(mRouterObj)) {
+            for (Object routeObj : MediaRouterJellybean.getRoutes(mRouter)) {
                 changed |= addSystemRouteNoPublish(routeObj);
             }
             if (changed) {
@@ -401,7 +401,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @Override
         public void onRouteSelected(int type, @NonNull Object routeObj) {
-            if (routeObj != MediaRouterJellybean.getSelectedRoute(mRouterObj,
+            if (routeObj != MediaRouterJellybean.getSelectedRoute(mRouter,
                     MediaRouterJellybean.ALL_ROUTE_TYPES)) {
                 // The currently selected route has already changed so this callback
                 // is stale.  Drop it to prevent getting into sync loops.
@@ -458,19 +458,19 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         public void onSyncRouteAdded(MediaRouter.RouteInfo route) {
             if (route.getProviderInstance() != this) {
                 Object routeObj = MediaRouterJellybean.createUserRoute(
-                        mRouterObj, mUserRouteCategoryObj);
+                        mRouter, mUserRouteCategoryObj);
                 UserRouteRecord record = new UserRouteRecord(route, routeObj);
                 MediaRouterJellybean.RouteInfo.setTag(routeObj, record);
                 MediaRouterJellybean.UserRouteInfo.setVolumeCallback(routeObj, mVolumeCallbackObj);
                 updateUserRouteProperties(record);
                 mUserRouteRecords.add(record);
-                MediaRouterJellybean.addUserRoute(mRouterObj, routeObj);
+                MediaRouterJellybean.addUserRoute(mRouter, routeObj);
             } else {
                 // If the newly added route is the counterpart of the currently selected
                 // route in the framework media router then ensure it is selected in
                 // the compat media router.
                 Object routeObj = MediaRouterJellybean.getSelectedRoute(
-                        mRouterObj, MediaRouterJellybean.ALL_ROUTE_TYPES);
+                        mRouter, MediaRouterJellybean.ALL_ROUTE_TYPES);
                 int index = findSystemRouteRecord(routeObj);
                 if (index >= 0) {
                     SystemRouteRecord record = mSystemRouteRecords.get(index);
@@ -489,7 +489,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     UserRouteRecord record = mUserRouteRecords.remove(index);
                     MediaRouterJellybean.RouteInfo.setTag(record.mRouteObj, null);
                     MediaRouterJellybean.UserRouteInfo.setVolumeCallback(record.mRouteObj, null);
-                    MediaRouterJellybean.removeUserRoute(mRouterObj, record.mRouteObj);
+                    MediaRouterJellybean.removeUserRoute(mRouter, record.mRouteObj);
                 }
             }
         }
@@ -633,12 +633,12 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         protected void updateCallback() {
             if (mCallbackRegistered) {
                 mCallbackRegistered = false;
-                MediaRouterJellybean.removeCallback(mRouterObj, mCallbackObj);
+                MediaRouterJellybean.removeCallback(mRouter, mCallbackObj);
             }
 
             if (mRouteTypes != 0) {
                 mCallbackRegistered = true;
-                MediaRouterJellybean.addCallback(mRouterObj, mRouteTypes, mCallbackObj);
+                MediaRouterJellybean.addCallback(mRouter, mRouteTypes, mCallbackObj);
             }
         }
 
@@ -654,7 +654,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             if (mSelectRouteWorkaround == null) {
                 mSelectRouteWorkaround = new MediaRouterJellybean.SelectRouteWorkaround();
             }
-            mSelectRouteWorkaround.selectRoute(mRouterObj,
+            mSelectRouteWorkaround.selectRoute(mRouter,
                     MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
         }
 
@@ -662,7 +662,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             if (mGetDefaultRouteWorkaround == null) {
                 mGetDefaultRouteWorkaround = new MediaRouterJellybean.GetDefaultRouteWorkaround();
             }
-            return mGetDefaultRouteWorkaround.getDefaultRoute(mRouterObj);
+            return mGetDefaultRouteWorkaround.getDefaultRoute(mRouter);
         }
 
         /**
@@ -815,14 +815,14 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         @DoNotInline
         @Override
         protected void selectRoute(Object routeObj) {
-            MediaRouterJellybean.selectRoute(mRouterObj,
+            MediaRouterJellybean.selectRoute(mRouter,
                     MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
         }
 
         @DoNotInline
         @Override
         protected Object getDefaultRoute() {
-            return ((android.media.MediaRouter) mRouterObj).getDefaultRoute();
+            return mRouter.getDefaultRoute();
         }
 
         @DoNotInline
@@ -837,13 +837,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         @Override
         protected void updateCallback() {
             if (mCallbackRegistered) {
-                MediaRouterJellybean.removeCallback(mRouterObj, mCallbackObj);
+                MediaRouterJellybean.removeCallback(mRouter, mCallbackObj);
             }
 
             mCallbackRegistered = true;
             int flags = MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS
                     | (mActiveScan ? MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN : 0);
-            ((android.media.MediaRouter) mRouterObj).addCallback(mRouteTypes,
+            mRouter.addCallback(mRouteTypes,
                     (android.media.MediaRouter.Callback) mCallbackObj, flags);
         }
 
