@@ -468,10 +468,10 @@ object DatePickerDefaults {
             }
 
             val headlineDescription = when (displayMode.value) {
-                DisplayMode.Picker -> getString(Strings.DatePickerHeadlineDescription)
-                DisplayMode.Input -> getString(Strings.DateInputHeadlineDescription)
+                DisplayMode.Picker -> getString(Strings.DatePickerHeadlineDescription).format(verboseDateDescription)
+                DisplayMode.Input -> getString(Strings.DateInputHeadlineDescription).format(verboseDateDescription)
                 else -> ""
-            }.format(verboseDateDescription)
+            }
 
             Text(
                 text = headlineText,

@@ -19,8 +19,6 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
-import java.util.Locale
-
 @Composable
 @ReadOnlyComposable
 internal actual fun getString(string: Strings): String {
@@ -91,7 +89,15 @@ internal actual fun getString(string: Strings): String {
         else -> ""
     }
 }
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: Strings, vararg formatArgs: Any): String =
-    String.format(getString(string), Locale.getDefault(), *formatArgs)
+
+// TODO check if we should replace it by a more performant implementation
+//  (without creating intermediate strings)
+// TODO current implementation doesn't support sophisticated formatting like %.2f,
+//  but currently we use it only for integers and strings
+internal actual fun String.format(vararg formatArgs: Any?): String {
+    val result = this
+    formatArgs.forEachIndexed { index, arg ->
+        result.replace("%$index\$", arg.toString())
+    }
+    return result
+}
