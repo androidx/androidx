@@ -1964,7 +1964,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return true;
         }
 
-        if (getLayoutManager().canScrollVertically()) {
+        LayoutManager layoutManager = getLayoutManager();
+        // If there is no layout manager, then there is nothing to handle key events for.
+        if (layoutManager == null) {
+            return false;
+        }
+
+        if (layoutManager.canScrollVertically()) {
             final int keyCode = event.getKeyCode();
             switch (keyCode) {
                 case KeyEvent.KEYCODE_PAGE_DOWN:
@@ -1979,7 +1985,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
                 case KeyEvent.KEYCODE_MOVE_HOME:
                 case KeyEvent.KEYCODE_MOVE_END:
-                    final boolean isReversed = getLayoutManager().isLayoutReversed();
+                    final boolean isReversed = layoutManager.isLayoutReversed();
 
                     final int targetOffset;
                     if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
@@ -1991,7 +1997,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     smoothScrollToPosition(targetOffset);
                     return true;
             }
-        } else if (getLayoutManager().canScrollHorizontally()) {
+        } else if (layoutManager.canScrollHorizontally()) {
             final int keyCode = event.getKeyCode();
             switch (keyCode) {
                 case KeyEvent.KEYCODE_PAGE_DOWN:
@@ -2006,7 +2012,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
                 case KeyEvent.KEYCODE_MOVE_HOME:
                 case KeyEvent.KEYCODE_MOVE_END:
-                    final boolean isReversed = getLayoutManager().isLayoutReversed();
+                    final boolean isReversed = layoutManager.isLayoutReversed();
 
                     final int targetOffset;
                     if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
