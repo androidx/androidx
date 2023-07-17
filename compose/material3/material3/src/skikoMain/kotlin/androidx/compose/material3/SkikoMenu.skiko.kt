@@ -34,9 +34,11 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
@@ -192,22 +194,22 @@ fun DropdownMenuItem(
 
 @ExperimentalComposeUiApi
 private fun handlePopupOnKeyEvent(
-    keyEvent: androidx.compose.ui.input.key.KeyEvent,
+    keyEvent: KeyEvent,
     onDismissRequest: () -> Unit,
     focusManager: FocusManager,
     inputModeManager: InputModeManager
 ): Boolean {
-    return if (keyEvent.type == KeyEventType.KeyDown && keyEvent.isEsc) {
+    return if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Escape) {
         onDismissRequest()
         true
     } else if (keyEvent.type == KeyEventType.KeyDown) {
         when {
-            keyEvent.isDirectionDown -> {
+            keyEvent.key == Key.DirectionDown -> {
                 inputModeManager.requestInputMode(InputMode.Keyboard)
                 focusManager.moveFocus(FocusDirection.Next)
                 true
             }
-            keyEvent.isDirectionUp -> {
+            keyEvent.key == Key.DirectionUp -> {
                 inputModeManager.requestInputMode(InputMode.Keyboard)
                 focusManager.moveFocus(FocusDirection.Previous)
                 true
