@@ -52,9 +52,6 @@ def writeTestPropsTask = tasks.register("prepareTestConfiguration", WritePropert
     property("kspVersion", libs.versions.ksp.get())
 }
 
-// Remove upon updating to version 8.0 of lint plugin, b/253219347
-tasks.named("compileKotlin").configure { it.dependsOn(writeTestPropsTask) }
-
 java {
     sourceSets {
         main {
