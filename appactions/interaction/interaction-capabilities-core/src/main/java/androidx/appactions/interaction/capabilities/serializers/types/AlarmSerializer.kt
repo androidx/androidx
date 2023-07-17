@@ -63,8 +63,8 @@ val ALARM_TYPE_SPEC: TypeSpec<Alarm> = TypeSpecBuilder.newBuilder(
   NAME_TYPE_SPEC
 ).bindStringField(
   "identifier",
-  { it.identifier },
+  { it.identifier.ifEmpty { null } },
   Alarm.Builder<*>::setIdentifier
 ).bindIdentifier {
-  it.identifier
+  it.identifier.ifEmpty { null }
 }.build()

@@ -39,8 +39,8 @@ TypeSpecBuilder.newBuilder(
   NAME_TYPE_SPEC
 ).bindStringField(
   "identifier",
-  { it.identifier },
+  { it.identifier.ifEmpty { null } },
   ObjectCreationLimitReachedStatus.Builder<*>::setIdentifier
 ).bindIdentifier {
-  it.identifier
+  it.identifier.ifEmpty { null }
 }.build()
