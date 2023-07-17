@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouter;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
+import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,15 @@ public final class AndroidXMediaRouterSystemRoutesSource implements SystemRoutes
 
     @NonNull
     @Override
-    public List<SystemRouteItem> fetchRoutes() {
+    public SystemRoutesSourceItem getSourceItem() {
+        return new SystemRoutesSourceItem.Builder(
+                SystemRoutesSourceItem.ROUTE_SOURCE_ANDROIDX_ROUTER)
+                .build();
+    }
+
+    @NonNull
+    @Override
+    public List<SystemRouteItem> fetchSourceRouteItems() {
         List<SystemRouteItem> out = new ArrayList<>();
 
         for (MediaRouter.RouteInfo routeInfo : mMediaRouter.getRoutes()) {
@@ -53,8 +62,7 @@ public final class AndroidXMediaRouterSystemRoutesSource implements SystemRoutes
                 continue;
             }
 
-            SystemRouteItem.Builder builder = new SystemRouteItem.Builder(routeInfo.getId(),
-                    SystemRouteItem.ROUTE_SOURCE_ANDROIDX_ROUTER)
+            SystemRouteItem.Builder builder = new SystemRouteItem.Builder(routeInfo.getId())
                     .setName(routeInfo.getName());
 
             String description = routeInfo.getDescription();

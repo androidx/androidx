@@ -39,21 +39,21 @@ public final class SystemRouteUtils {
     }
 
     /**
-     * Converts {@link SystemRouteItem.Type} to a human-readable string.
+     * Converts {@link SystemRoutesSourceItem.Type} to a human-readable string.
      */
     @NonNull
-    public static String getDescriptionForSource(@SystemRouteItem.Type int type) {
+    public static String getDescriptionForSource(@SystemRoutesSourceItem.Type int type) {
         switch (type) {
-            case SystemRouteItem.ROUTE_SOURCE_MEDIA_ROUTER:
-                return "Media Router";
-            case SystemRouteItem.ROUTE_SOURCE_MEDIA_ROUTER2:
-                return "Media Router 2";
-            case SystemRouteItem.ROUTE_SOURCE_BLUETOOTH_MANAGER:
-                return "Bluetooth Manager";
-            case SystemRouteItem.ROUTE_SOURCE_ANDROIDX_ROUTER:
-                return "Androidx Router";
-            case SystemRouteItem.ROUTE_SOURCE_AUDIO_MANAGER:
-                return "Audio Manager";
+            case SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER:
+                return "Legacy MediaRouter";
+            case SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER2:
+                return "MediaRouter2";
+            case SystemRoutesSourceItem.ROUTE_SOURCE_BLUETOOTH_MANAGER:
+                return "BluetoothManager";
+            case SystemRoutesSourceItem.ROUTE_SOURCE_ANDROIDX_ROUTER:
+                return "AndroidX MediaRouter";
+            case SystemRoutesSourceItem.ROUTE_SOURCE_AUDIO_MANAGER:
+                return "AudioManager";
             default:
                 throw new IllegalArgumentException("Unknown system route type: " + type);
         }
