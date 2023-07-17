@@ -31,8 +31,10 @@ internal fun rememberLazyStaggeredGridSemanticState(
 ): LazyLayoutSemanticState =
     remember(state, reverseScrolling) {
         object : LazyLayoutSemanticState {
-            override val currentPosition: Float
-                get() = state.firstVisibleItemIndex + state.firstVisibleItemScrollOffset / 100_000f
+            override val firstVisibleItemScrollOffset: Int
+                get() = state.firstVisibleItemScrollOffset
+            override val firstVisibleItemIndex: Int
+                get() = state.firstVisibleItemIndex
             override val canScrollForward: Boolean
                 get() = state.canScrollForward
 
