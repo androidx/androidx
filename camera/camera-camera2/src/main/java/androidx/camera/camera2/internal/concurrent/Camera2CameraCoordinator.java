@@ -159,8 +159,8 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
                 if (!mConcurrentCameraIdMap.containsKey(cameraId2)) {
                     mConcurrentCameraIdMap.put(cameraId2, new ArrayList<>());
                 }
-                mConcurrentCameraIdMap.get(cameraIdList.get(0)).add(cameraIdList.get(1));
-                mConcurrentCameraIdMap.get(cameraIdList.get(1)).add(cameraIdList.get(0));
+                mConcurrentCameraIdMap.get(cameraId1).add(cameraIdList.get(1));
+                mConcurrentCameraIdMap.get(cameraId2).add(cameraIdList.get(0));
             }
         }
     }
