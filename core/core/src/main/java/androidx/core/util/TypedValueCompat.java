@@ -44,17 +44,6 @@ public class TypedValueCompat {
     private TypedValueCompat() {}
 
     /**
-     * Return the complex unit type for the given complex dimension. For example, a dimen type
-     * with value 12sp will return {@link TypedValue#COMPLEX_UNIT_SP}.
-     *
-     * @param complexDimension the dimension, typically {@link TypedValue#data}
-     * @return The complex unit type
-     */
-    public static int getUnitFromComplexDimension(int complexDimension) {
-        return TypedValue.COMPLEX_UNIT_MASK & (complexDimension >> TypedValue.COMPLEX_UNIT_SHIFT);
-    }
-
-    /**
      * Converts a pixel value to the given dimension, e.g. PX to DP.
      *
      * <p>This is the inverse of {@link TypedValue#applyDimension(int, float, DisplayMetrics)}
