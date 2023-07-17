@@ -18,11 +18,12 @@
 
 package androidx.compose.material3.tokens
 
+import androidx.compose.material3.defaultPlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 
 internal object TypographyTokens {
     val BodyLarge =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.BodyLargeFont,
             fontWeight = TypeScaleTokens.BodyLargeWeight,
             fontSize = TypeScaleTokens.BodyLargeSize,
@@ -30,7 +31,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.BodyLargeTracking,
         )
     val BodyMedium =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.BodyMediumFont,
             fontWeight = TypeScaleTokens.BodyMediumWeight,
             fontSize = TypeScaleTokens.BodyMediumSize,
@@ -38,7 +39,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.BodyMediumTracking,
         )
     val BodySmall =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.BodySmallFont,
             fontWeight = TypeScaleTokens.BodySmallWeight,
             fontSize = TypeScaleTokens.BodySmallSize,
@@ -46,7 +47,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.BodySmallTracking,
         )
     val DisplayLarge =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.DisplayLargeFont,
             fontWeight = TypeScaleTokens.DisplayLargeWeight,
             fontSize = TypeScaleTokens.DisplayLargeSize,
@@ -54,7 +55,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.DisplayLargeTracking,
         )
     val DisplayMedium =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.DisplayMediumFont,
             fontWeight = TypeScaleTokens.DisplayMediumWeight,
             fontSize = TypeScaleTokens.DisplayMediumSize,
@@ -62,7 +63,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.DisplayMediumTracking,
         )
     val DisplaySmall =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.DisplaySmallFont,
             fontWeight = TypeScaleTokens.DisplaySmallWeight,
             fontSize = TypeScaleTokens.DisplaySmallSize,
@@ -70,7 +71,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.DisplaySmallTracking,
         )
     val HeadlineLarge =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.HeadlineLargeFont,
             fontWeight = TypeScaleTokens.HeadlineLargeWeight,
             fontSize = TypeScaleTokens.HeadlineLargeSize,
@@ -78,7 +79,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.HeadlineLargeTracking,
         )
     val HeadlineMedium =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.HeadlineMediumFont,
             fontWeight = TypeScaleTokens.HeadlineMediumWeight,
             fontSize = TypeScaleTokens.HeadlineMediumSize,
@@ -86,7 +87,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.HeadlineMediumTracking,
         )
     val HeadlineSmall =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.HeadlineSmallFont,
             fontWeight = TypeScaleTokens.HeadlineSmallWeight,
             fontSize = TypeScaleTokens.HeadlineSmallSize,
@@ -94,7 +95,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.HeadlineSmallTracking,
         )
     val LabelLarge =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.LabelLargeFont,
             fontWeight = TypeScaleTokens.LabelLargeWeight,
             fontSize = TypeScaleTokens.LabelLargeSize,
@@ -102,7 +103,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.LabelLargeTracking,
         )
     val LabelMedium =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.LabelMediumFont,
             fontWeight = TypeScaleTokens.LabelMediumWeight,
             fontSize = TypeScaleTokens.LabelMediumSize,
@@ -110,7 +111,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.LabelMediumTracking,
         )
     val LabelSmall =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.LabelSmallFont,
             fontWeight = TypeScaleTokens.LabelSmallWeight,
             fontSize = TypeScaleTokens.LabelSmallSize,
@@ -118,7 +119,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.LabelSmallTracking,
         )
     val TitleLarge =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.TitleLargeFont,
             fontWeight = TypeScaleTokens.TitleLargeWeight,
             fontSize = TypeScaleTokens.TitleLargeSize,
@@ -126,7 +127,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.TitleLargeTracking,
         )
     val TitleMedium =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.TitleMediumFont,
             fontWeight = TypeScaleTokens.TitleMediumWeight,
             fontSize = TypeScaleTokens.TitleMediumSize,
@@ -134,7 +135,7 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.TitleMediumTracking,
         )
     val TitleSmall =
-        TextStyle(
+        DefaultTextStyle.copy(
             fontFamily = TypeScaleTokens.TitleSmallFont,
             fontWeight = TypeScaleTokens.TitleSmallWeight,
             fontSize = TypeScaleTokens.TitleSmallSize,
@@ -142,3 +143,5 @@ internal object TypographyTokens {
             letterSpacing = TypeScaleTokens.TitleSmallTracking,
         )
 }
+
+internal val DefaultTextStyle = TextStyle.Default.copy(platformStyle = defaultPlatformTextStyle())

@@ -351,6 +351,30 @@ class DatePickerTest {
     }
 
     @Test
+    fun state_resetSelection() {
+        lateinit var defaultHeadline: String
+        lateinit var datePickerState: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            defaultHeadline = getString(string = Strings.DatePickerHeadline)
+            // 04/12/2022
+            datePickerState = rememberDatePickerState(initialSelectedDateMillis = 1649721600000L)
+            DatePicker(state = datePickerState)
+        }
+        rule.onNodeWithText("Apr 12, 2022").assertExists()
+        with(datePickerState) {
+            assertThat(selectedDateMillis).isEqualTo(1649721600000L)
+            assertThat(stateData.displayedMonth).isEqualTo(
+                stateData.calendarModel.getMonth(year = 2022, month = 4)
+            )
+            // Reset the selection
+            datePickerState.setSelection(null)
+            assertThat(selectedDateMillis).isNull()
+            rule.onNodeWithText("Apr 12, 2022").assertDoesNotExist()
+            rule.onNodeWithText(defaultHeadline).assertExists()
+        }
+    }
+
+    @Test
     fun state_restoresDatePickerState() {
         val restorationTester = StateRestorationTester(rule)
         var datePickerState: DatePickerState? = null
@@ -377,6 +401,23 @@ class DatePickerTest {
                 assertThat(datePickerState!!.selectedDateMillis).isEqualTo(1649721600000L)
             }
         }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun setSelection_outOfYearsBound() {
+        lateinit var datePickerState: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            datePickerState = rememberDatePickerState(yearRange = IntRange(2000, 2050))
+        }
+
+        // Setting the selection to a year that is out of range.
+        datePickerState.setSelection(
+            dayInUtcMilliseconds(
+                year = 1999,
+                month = 5,
+                dayOfMonth = 11
+            )
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
