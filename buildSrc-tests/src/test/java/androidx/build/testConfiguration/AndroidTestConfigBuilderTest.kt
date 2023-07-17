@@ -349,9 +349,6 @@ private val goldenDefaultConfigBenchmark = """
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
-    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
-    <option name="run-command" value="cmd package compile -f -m speed com.androidx.placeholder.Placeholder" />
-    </target_preparer>
     <option name="instrumentation-arg" key="androidx.benchmark.output.enable" value="true" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <include name="google/unbundled/common/setup" />
@@ -359,6 +356,9 @@ private val goldenDefaultConfigBenchmark = """
     <option name="cleanup-apks" value="true" />
     <option name="install-arg" value="-t" />
     <option name="test-file-name" value="placeholder.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="cmd package compile -f -m speed com.androidx.placeholder.Placeholder" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
     <option name="runner" value="com.example.Runner"/>
