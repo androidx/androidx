@@ -50,9 +50,6 @@ class MotionLayoutBenchmark {
     @Test
     fun messageDsl() = benchmarkRule.testNewMessage(NewMessageMode.Dsl)
 
-    @Test
-    fun messageOptimizedDsl() = benchmarkRule.testNewMessage(NewMessageMode.OptimizedDsl)
-
     /**
      * Transitions the Layout through its three different ConstraintSets using the MotionScene JSON.
      */
@@ -161,8 +158,7 @@ class MotionLayoutBenchmark {
 
     internal enum class NewMessageMode(val composableName: String) {
         Json("NewMessageJson"),
-        Dsl("NewMessageDsl"),
-        OptimizedDsl("OptimizedNewMessageDsl")
+        Dsl("NewMessageDsl")
     }
 
     private fun UiDevice.waitForComposeIdle(timeoutMs: Long = 3000) {
