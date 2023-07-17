@@ -18,7 +18,6 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +38,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import kotlin.jvm.JvmName
 import kotlin.math.max
 
 /**
@@ -446,6 +444,10 @@ class Transition<S> @PublishedApi internal constructor(
         }
     }
 
+    override fun toString(): String {
+        return animations.fold("Transition animation values: ") { acc, anim -> "$acc$anim, " }
+    }
+
     private fun onChildAnimationUpdated() {
         updateChildrenNeeded = true
         if (isSeeking) {
@@ -565,6 +567,10 @@ class Transition<S> @PublishedApi internal constructor(
 
         internal fun resetAnimation() {
             needsReset = true
+        }
+
+        override fun toString(): String {
+            return "current value: $value, target: $targetValue, spec: $animationSpec"
         }
 
         // This gets called *during* composition

@@ -380,6 +380,21 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
         ),
         targetOffset: (offsetForFullSlide: Int) -> Int = { it }
     ): ExitTransition
+
+    /**
+     * [ExitTransition.Hold] defers the disposal of the exiting content till both enter and
+     * exit animations have finished. It can be combined with other [ExitTransition]s using
+     * [+][ExitTransition.plus].
+     *
+     * **Important**: [ExitTransition.Hold] works the best when the
+     * [zIndex][ContentTransform.targetContentZIndex] for the incoming and outgoing content are
+     * specified. Otherwise, if the content gets interrupted from entering and switching to exiting
+     * using [ExitTransition.Hold], the holding pattern may render exiting content on top of the
+     * entering content, unless the z-order is specified.
+     *
+     * @sample androidx.compose.animation.samples.SlideIntoContainerSample
+     */
+    val ExitTransition.Companion.Hold: ExitTransition get() = Hold
 }
 
 internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
@@ -754,7 +769,8 @@ fun <S> Transition<S>.AnimatedContent(
                 }
                 // TODO: Will need a custom impl of this to: 1) get the signal for when
                 // the animation is finished, 2) get the target size properly
-                AnimatedVisibility(
+                AnimatedEnterExitImpl(
+                    this,
                     { it == stateForContent },
                     enter = specOnEnter.targetContentEnter,
                     exit = exit,
@@ -765,7 +781,12 @@ fun <S> Transition<S>.AnimatedContent(
                                 placeable.place(0, 0, zIndex = specOnEnter.targetContentZIndex)
                             }
                         }
-                        .then(childData.apply { isTarget = stateForContent == targetState })
+                        .then(childData.apply { isTarget = stateForContent == targetState }),
+                    shouldDisposeBlock = { currentState, targetState ->
+                        currentState == EnterExitState.PostExit &&
+                            targetState == EnterExitState.PostExit &&
+                            !exit.data.hold
+                    }
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
                     DisposableEffect(this) {

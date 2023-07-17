@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package androidx.compose.animation
 
 import androidx.compose.animation.EnterExitState.PostExit
@@ -31,10 +33,12 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -50,7 +54,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxBy
-import kotlinx.coroutines.flow.collect
 
 /**
  * [AnimatedVisibility] composable animates the appearance and disappearance of its content, as
@@ -126,7 +129,7 @@ fun AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visible, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content)
+    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -201,7 +204,7 @@ fun RowScope.AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visible, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content)
+    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -274,7 +277,7 @@ fun ColumnScope.AnimatedVisibility(
     content: @Composable AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visible, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content)
+    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -380,7 +383,7 @@ fun AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visibleState, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content)
+    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -455,7 +458,7 @@ fun RowScope.AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visibleState, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content)
+    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -531,7 +534,7 @@ fun ColumnScope.AnimatedVisibility(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = updateTransition(visibleState, label)
-    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content)
+    AnimatedEnterExitImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
 /**
@@ -604,7 +607,7 @@ fun <T> Transition<T>.AnimatedVisibility(
     enter: EnterTransition = fadeIn() + expandIn(),
     exit: ExitTransition = shrinkOut() + fadeOut(),
     content: @Composable() AnimatedVisibilityScope.() -> Unit
-) = AnimatedEnterExitImpl(this, visible, modifier, enter, exit, content)
+) = AnimatedEnterExitImpl(this, visible, modifier, enter, exit, content = content)
 
 /**
  * This is the scope for the content of [AnimatedVisibility]. In this scope, direct and
@@ -721,68 +724,62 @@ fun AnimatedVisibility(
 @OptIn(
     ExperimentalTransitionApi::class,
     InternalAnimationApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalAnimationApi::class,
 )
 @Composable
-private fun <T> AnimatedEnterExitImpl(
+internal fun <T> AnimatedEnterExitImpl(
     transition: Transition<T>,
     visible: (T) -> Boolean,
     modifier: Modifier,
     enter: EnterTransition,
     exit: ExitTransition,
+    shouldDisposeBlock: (EnterExitState, EnterExitState) -> Boolean = { current, target ->
+        current == target && target == PostExit
+    },
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
-    val isAnimationVisible = remember(transition) {
-        mutableStateOf(visible(transition.currentState))
-    }
-
-    if (visible(transition.targetState) || isAnimationVisible.value || transition.isSeeking) {
+    if (visible(transition.targetState) || visible(transition.currentState) ||
+        transition.isSeeking
+    ) {
         val childTransition = transition.createChildTransition(label = "EnterExitTransition") {
             transition.targetEnterExit(visible, it)
         }
 
-        LaunchedEffect(childTransition) {
+        val shouldDisposeBlockUpdated by rememberUpdatedState(shouldDisposeBlock)
+
+        val shouldDisposeAfterExit by produceState(
+            initialValue = shouldDisposeBlock(
+                childTransition.currentState,
+                childTransition.targetState
+            )
+        ) {
             snapshotFlow {
-                childTransition.currentState == EnterExitState.Visible ||
-                    childTransition.targetState == EnterExitState.Visible
+                childTransition.exitFinished
             }.collect {
-                isAnimationVisible.value = it
+                value = if (it) {
+                    shouldDisposeBlockUpdated(
+                        childTransition.currentState,
+                        childTransition.targetState
+                    )
+                } else {
+                    false
+                }
             }
         }
 
-        AnimatedEnterExitImpl(
-            childTransition,
-            modifier,
-            enter = enter,
-            exit = exit,
-            content = content
-        )
+        if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
+            val scope = remember(transition) { AnimatedVisibilityScopeImpl(childTransition) }
+            Layout(
+                content = { scope.content() },
+                modifier = modifier.then(childTransition.createModifier(enter, exit, "Built-in")),
+                measurePolicy = remember { AnimatedEnterExitMeasurePolicy(scope) }
+            )
+        }
     }
 }
 
-@ExperimentalAnimationApi
-@Composable
-private inline fun AnimatedEnterExitImpl(
-    transition: Transition<EnterExitState>,
-    modifier: Modifier,
-    enter: EnterTransition,
-    exit: ExitTransition,
-    content: @Composable AnimatedVisibilityScope.() -> Unit
-) {
-    // TODO: Get some feedback on whether there's a need to observe this state change in user
-    //  code. If there is, this if check will need to be moved to measure stage, along with some
-    //  structural changes.
-    if (transition.currentState == EnterExitState.Visible ||
-        transition.targetState == EnterExitState.Visible
-    ) {
-        val scope = remember(transition) { AnimatedVisibilityScopeImpl(transition) }
-        Layout(
-            content = { scope.content() },
-            modifier = modifier.then(transition.createModifier(enter, exit, "Built-in")),
-            measurePolicy = remember { AnimatedEnterExitMeasurePolicy(scope) }
-        )
-    }
-}
+private val Transition<EnterExitState>.exitFinished
+    get() = currentState == PostExit && targetState == PostExit
 
 @OptIn(ExperimentalAnimationApi::class)
 private class AnimatedEnterExitMeasurePolicy(
