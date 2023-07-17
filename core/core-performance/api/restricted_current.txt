@@ -1,6 +1,11 @@
 // Signature format: 4.0
 package androidx.core.performance {
 
+  public final class DefaultDevicePerformanceRetriever implements androidx.core.performance.DevicePerformanceRetriever {
+    ctor public DefaultDevicePerformanceRetriever();
+    method public int getPerformanceClass();
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
     method public static androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
     method public int getMediaPerformanceClass();
@@ -12,9 +17,22 @@ package androidx.core.performance {
     method public androidx.core.performance.DevicePerformance create(androidx.core.performance.DevicePerformanceSupplier devicePerformanceSupplier);
   }
 
+  public interface DevicePerformanceRetriever {
+    method public int getPerformanceClass();
+  }
+
   public interface DevicePerformanceSupplier {
     method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getMediaPerformanceClassFlow();
     property public abstract kotlinx.coroutines.flow.Flow<java.lang.Integer> mediaPerformanceClassFlow;
+  }
+
+  public interface MediaPerformance {
+    method public static int getPerformanceClass(optional androidx.core.performance.DevicePerformanceRetriever retriever);
+    field public static final androidx.core.performance.MediaPerformance.Companion Companion;
+  }
+
+  public static final class MediaPerformance.Companion {
+    method public int getPerformanceClass(optional androidx.core.performance.DevicePerformanceRetriever retriever);
   }
 
   public final class StaticDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
