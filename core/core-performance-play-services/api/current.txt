@@ -1,6 +1,19 @@
 // Signature format: 4.0
 package androidx.core.performance.play.services {
 
+  public final class PlayServicesDevicePerformanceRetriever implements androidx.core.performance.DevicePerformanceRetriever {
+    ctor public PlayServicesDevicePerformanceRetriever(android.content.Context context);
+    method public android.content.Context getContext();
+    method public int getPerformanceClass();
+    method public static int getPerformanceClass(android.content.Context context);
+    property public final android.content.Context context;
+    field public static final androidx.core.performance.play.services.PlayServicesDevicePerformanceRetriever.Companion Companion;
+  }
+
+  public static final class PlayServicesDevicePerformanceRetriever.Companion {
+    method public int getPerformanceClass(android.content.Context context);
+  }
+
   public final class PlayServicesDevicePerformanceSupplier implements androidx.core.performance.DevicePerformanceSupplier {
     ctor public PlayServicesDevicePerformanceSupplier();
     method public static androidx.core.performance.DevicePerformance createDevicePerformance(android.content.Context context);
