@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,6 +62,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -783,6 +785,25 @@ class OverscrollTest {
         rule.runOnIdle {
             assertThat(overscrollController.applyToFlingCount).isGreaterThan(0)
             assertThat(overscrollController.applyToScrollCount).isGreaterThan(0)
+        }
+    }
+
+    @MediumTest
+    @Test
+    fun testOverscrollModifierDrawsOnce() {
+        var drawCount = 0
+        rule.setContent {
+            Spacer(
+                modifier = Modifier.testTag(boxTag)
+                    .size(100.dp)
+                    .overscroll(ScrollableDefaults.overscrollEffect())
+                    .drawBehind {
+                        drawCount++
+                    }
+            )
+        }
+        rule.runOnIdle {
+            assertEquals(1, drawCount)
         }
     }
 
