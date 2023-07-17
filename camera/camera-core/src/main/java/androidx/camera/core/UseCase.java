@@ -248,6 +248,11 @@ public abstract class UseCase {
             // If any options need special handling, this is the place to do it. For now we'll
             // just copy over all options.
             for (Option<?> opt : extendedConfig.listOptions()) {
+                @SuppressWarnings("unchecked") // Options/values are being copied directly
+                Option<Object> objectOpt = (Option<Object>) opt;
+                if (objectOpt.getId().equals(TargetConfig.OPTION_TARGET_NAME.getId())) {
+                    continue;
+                }
                 Config.mergeOptionValue(mergedConfig, mergedConfig, extendedConfig, opt);
             }
         }
