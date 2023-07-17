@@ -25,6 +25,7 @@ import android.util.LayoutDirection
 import android.util.Pair as AndroidPair
 import android.view.WindowMetrics
 import androidx.window.WindowSdkExtensions
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -51,6 +52,8 @@ import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRu
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
+import androidx.window.extensions.embedding.SplitPinRule as OEMSplitPinRule
+import androidx.window.extensions.embedding.SplitPinRule.Builder as SplitPinRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
 import androidx.window.layout.WindowMetricsCalculator
@@ -191,6 +194,24 @@ internal class EmbeddingAdapter(
             }
             return builder.build()
         }
+    }
+
+    @OptIn(ExperimentalWindowApi::class)
+    fun translateSplitPinRule(context: Context, splitPinRule: SplitPinRule): OEMSplitPinRule {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        val windowMetricsPredicate = Predicate<WindowMetrics> { windowMetrics ->
+            splitPinRule.checkParentMetrics(context, windowMetrics)
+        }
+        val builder = SplitPinRuleBuilder(
+            translateSplitAttributes(splitPinRule.defaultSplitAttributes),
+            windowMetricsPredicate
+        )
+        builder.setSticky(splitPinRule.isSticky)
+        val tag = splitPinRule.tag
+        if (tag != null) {
+            builder.setTag(tag)
+        }
+        return builder.build()
     }
 
     fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {

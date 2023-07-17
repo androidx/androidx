@@ -53,6 +53,7 @@ import androidx.window.embedding.SplitController;
 import androidx.window.embedding.SplitInfo;
 import androidx.window.embedding.SplitPairFilter;
 import androidx.window.embedding.SplitPairRule;
+import androidx.window.embedding.SplitPinRule;
 import androidx.window.embedding.SplitPlaceholderRule;
 import androidx.window.java.embedding.SplitControllerCallbackAdapter;
 
@@ -170,6 +171,23 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.launchExpandedDialogButton.setOnClickListener((View v) ->
                 startActivity(new Intent(this, ExpandedDialogActivity.class)));
 
+        final SplitController splitController = SplitController.getInstance(this);
+        if (WindowSdkExtensions.getInstance().getExtensionVersion() < 5) {
+            mViewBinding.pinTopActivityStackButton.setEnabled(false);
+            mViewBinding.unpinTopActivityStackButton.setEnabled(false);
+        } else {
+            mViewBinding.pinTopActivityStackButton.setOnClickListener((View v) -> {
+                        splitController.pinTopActivityStack(getTaskId(),
+                                new SplitPinRule.Builder().setSticky(
+                                        mViewBinding.stickyPinRule.isChecked()).build());
+                    }
+            );
+            mViewBinding.unpinTopActivityStackButton.setOnClickListener((View v) -> {
+                        splitController.unpinTopActivityStack(getTaskId());
+                    }
+            );
+        }
+
         // Listen for split configuration checkboxes to update the rules before launching
         // activities.
         mViewBinding.splitMainCheckBox.setOnCheckedChangeListener(this);
@@ -180,7 +198,6 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
-        final SplitController splitController = SplitController.getInstance(this);
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
         if (splitController.getSplitSupportStatus() != SPLIT_AVAILABLE) {
             Toast.makeText(this, R.string.toast_split_not_support,

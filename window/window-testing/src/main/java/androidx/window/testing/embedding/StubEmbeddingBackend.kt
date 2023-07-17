@@ -20,6 +20,7 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.os.IBinder
 import androidx.core.util.Consumer
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingRule
@@ -28,6 +29,7 @@ import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_UNAVAILABLE
 import androidx.window.embedding.SplitInfo
+import androidx.window.embedding.SplitPinRule
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -148,6 +150,15 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
 
     override fun isActivityEmbedded(activity: Activity): Boolean =
         embeddedActivities.contains(activity)
+
+    @OptIn(ExperimentalWindowApi::class)
+    override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun unpinTopActivityStack(taskId: Int) {
+        TODO("Not yet implemented")
+    }
 
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes

@@ -86,6 +86,57 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
         get() = embeddingBackend.splitSupportStatus
 
     /**
+     * Pins the top-most [ActivityStack] to keep the stack of the Activities to be always
+     * positioned on top. The rest of the activities in the Task will be split with the pinned
+     * [ActivityStack]. The pinned [ActivityStack] would also have isolated activity
+     * navigation in which only the activities that are started from the pinned
+     * [ActivityStack] can be added on top of the [ActivityStack].
+     *
+     * The pinned [ActivityStack] is unpinned whenever the pinned [ActivityStack] is expanded.
+     * Use [SplitPinRule.Builder.setSticky] if the same [ActivityStack] should be pinned
+     * again whenever the [ActivityStack] is on top and split with another [ActivityStack] again.
+     *
+     * The caller **must** make sure if [WindowSdkExtensions.extensionVersion] is greater than
+     * or equal to 5.
+     *
+     * @param taskId The id of the Task that top [ActivityStack] should be pinned.
+     * @param splitPinRule The SplitRule that specifies how the top [ActivityStack] should
+     *                     be split with others.
+     * @return Returns `true` if the top [ActivityStack] is successfully pinned.
+     *         Otherwise, `false`. Few examples are:
+     *         1. There's no [ActivityStack].
+     *         2. There is already an existing pinned [ActivityStack].
+     *         3. There's no other [ActivityStack] to split with the top [ActivityStack].
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 5.
+     */
+    @RequiresWindowSdkExtension(5)
+    @ExperimentalWindowApi
+    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+        return embeddingBackend.pinTopActivityStack(taskId, splitPinRule)
+    }
+
+    /**
+     * Unpins the pinned [ActivityStack]. The [ActivityStack] will still be the
+     * top-most [ActivityStack] right after unpinned, and the [ActivityStack] could
+     * be expanded or continue to be split with the next top [ActivityStack] if the current
+     * state matches any of the existing [SplitPairRule]. It is a no-op call if the task
+     * does not have a pinned [ActivityStack].
+     *
+     * The caller **must** make sure if [WindowSdkExtensions.extensionVersion] is greater than
+     * or equal to 5.
+     *
+     * @param taskId The id of the Task that top [ActivityStack] should be unpinned.
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 5.
+     */
+    @RequiresWindowSdkExtension(5)
+    @ExperimentalWindowApi
+    fun unpinTopActivityStack(taskId: Int) {
+        embeddingBackend.unpinTopActivityStack(taskId)
+    }
+
+    /**
      * Sets or replaces the previously registered [SplitAttributes] calculator.
      *
      * **Note** that it's callers' responsibility to check if this API is supported by checking
