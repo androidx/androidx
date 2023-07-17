@@ -25,10 +25,13 @@ import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.samples.AppCardSample
 import androidx.wear.compose.material3.samples.AppCardWithIconSample
 import androidx.wear.compose.material3.samples.CardSample
+import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.OutlinedAppCardSample
 import androidx.wear.compose.material3.samples.OutlinedCardSample
 import androidx.wear.compose.material3.samples.OutlinedTitleCardSample
+import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StepperSample
 import androidx.wear.compose.material3.samples.StepperWithIntegerSample
 import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
@@ -129,6 +132,14 @@ val WearMaterial3Demos = DemoCategory(
         DemoCategory(
             title = "Selection Controls",
             selectionControlsDemos
-        )
+        ),
+        DemoCategory(
+            title = "Swipe To Dismiss",
+            listOf(
+                ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
+                ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
+            )
+        ),
     )
 )
