@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
         mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
-        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(200, 200)
+        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(400, 400)
         runOnUiThread {
             findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
         }
