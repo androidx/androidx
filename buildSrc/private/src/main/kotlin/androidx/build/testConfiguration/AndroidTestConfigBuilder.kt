@@ -92,7 +92,6 @@ class ConfigBuilder {
             .append(WIFI_DISABLE_OPTION)
             .append(FLAKY_TEST_OPTION)
         if (isBenchmark) {
-            sb.append(benchmarkPostInstallCommandOption(applicationId))
             if (isPostsubmit) {
                 sb.append(BENCHMARK_POSTSUBMIT_OPTIONS)
             } else {
@@ -105,7 +104,11 @@ class ConfigBuilder {
         if (!appApkName.isNullOrEmpty())
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
         sb.append(TARGET_PREPARER_CLOSE)
-            .append(TEST_BLOCK_OPEN)
+        // Post install commands after SuiteApkInstaller is declared
+        if (isBenchmark) {
+            sb.append(benchmarkPostInstallCommandOption(applicationId))
+        }
+        sb.append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
             .append(TEST_BLOCK_CLOSE)
