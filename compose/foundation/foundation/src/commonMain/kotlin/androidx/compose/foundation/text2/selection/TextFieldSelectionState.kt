@@ -33,6 +33,7 @@ import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.derivedStateOf
@@ -52,6 +53,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
@@ -704,15 +706,60 @@ internal class TextFieldSelectionState(
     }
 
     /**
+     * The method for cutting text.
+     *
+     * If there is no selection, return.
+     * Put the selected text into the [ClipboardManager].
+     * The new text should be the text before the selection plus the text after the selection.
+     * And the new cursor offset should be between the text before the selection, and the text
+     * after the selection.
+     */
+    internal fun cut() {
+        val text = textFieldState.text
+        if (text.selectionInChars.collapsed) return
+
+        clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
+
+        editWithFilter {
+            replace(selectionInChars.min, selectionInChars.max, "")
+            selectCharsIn(TextRange(selectionInChars.min))
+        }
+        // TODO(halilibo): undoManager force snapshot
+    }
+
+    /**
+     * The method for copying text.
+     *
+     * If there is no selection, return.
+     * Put the selected text into the [ClipboardManager], and cancel the selection, if
+     * [cancelSelection] is true.
+     * The text in the text field should be unchanged.
+     * If [cancelSelection] is true, the new cursor offset should be at the end of the previous
+     * selected text.
+     */
+    fun copy(cancelSelection: Boolean = true) {
+        val text = textFieldState.text
+        if (text.selectionInChars.collapsed) return
+
+        clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
+
+        if (!cancelSelection) return
+
+        editWithFilter {
+            selectCharsIn(TextRange(selectionInChars.max))
+        }
+    }
+
+    /**
      * The method for pasting text.
      *
      * Get the text from [ClipboardManager]. If it's null, return.
-     * The new text should be the text before the selected text, plus the text from the
+     * The new content should be the text before the selected text, plus the text from the
      * [ClipboardManager], and plus the text after the selected text.
-     * Then the selection should collapse, and the new cursor offset should be the end of the
+     * Then the selection should collapse, and the new cursor offset should be at the end of the
      * newly added text.
      */
-    private fun paste() {
+    fun paste() {
         val clipboardText = clipboardManager?.getText()?.text ?: return
 
         editWithFilter {

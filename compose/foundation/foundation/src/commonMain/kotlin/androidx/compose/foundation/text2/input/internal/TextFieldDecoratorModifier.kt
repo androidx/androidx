@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
 import androidx.compose.foundation.text2.selection.TextFieldSelectionState
@@ -45,6 +44,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -53,17 +53,19 @@ import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.textInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.copyText
+import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
+import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -230,6 +232,8 @@ internal class TextFieldDecoratorModifierNode(
         // Find the diff: current previous and new values before updating current.
         val previousWriteable = this.enabled && !this.readOnly
         val writeable = enabled && !readOnly
+
+        val previousEnabled = this.enabled
         val previousTextFieldState = this.textFieldState
         val previousKeyboardOptions = this.keyboardOptions
         val previousTextFieldSelectionState = this.textFieldSelectionState
@@ -260,6 +264,10 @@ internal class TextFieldDecoratorModifierNode(
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
             }
+        }
+
+        if (previousEnabled != enabled) {
+            invalidateSemantics()
         }
 
         textFieldKeyEventHandler.setFilter(filter)
@@ -306,12 +314,9 @@ internal class TextFieldDecoratorModifierNode(
             } else if (start.coerceAtMost(end) >= 0 &&
                 start.coerceAtLeast(end) <= text.length
             ) {
-                // reset is required to make sure IME gets the update.
-                textFieldState.editProcessor.reset(
-                    TextFieldCharSequence(
-                        text = textFieldState.text,
-                        selection = TextRange(start, end)
-                    )
+                textFieldState.editProcessor.update(
+                    listOf(SetSelectionCommand(start, end)),
+                    filter
                 )
                 true
             } else {
@@ -339,8 +344,28 @@ internal class TextFieldDecoratorModifierNode(
             // even if the state is 'disabled'
             if (!isFocused) {
                 requestFocus()
+            } else if (!readOnly) {
+                requireKeyboardController().show()
             }
             true
+        }
+        if (!selection.collapsed) {
+            copyText {
+                textFieldSelectionState.copy()
+                true
+            }
+            if (enabled && !readOnly) {
+                cutText {
+                    textFieldSelectionState.cut()
+                    true
+                }
+            }
+        }
+        if (enabled && !readOnly) {
+            pasteText {
+                textFieldSelectionState.paste()
+                true
+            }
         }
     }
 
