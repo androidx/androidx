@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteUtils;
+import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,14 @@ public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
 
     @NonNull
     @Override
-    public List<SystemRouteItem> fetchRoutes() {
+    public SystemRoutesSourceItem getSourceItem() {
+        return new SystemRoutesSourceItem.Builder(SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER)
+                .build();
+    }
+
+    @NonNull
+    @Override
+    public List<SystemRouteItem> fetchSourceRouteItems() {
         int count = mMediaRouter.getRouteCount();
 
         List<SystemRouteItem> out = new ArrayList<>();
@@ -65,8 +73,7 @@ public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
             }
 
             SystemRouteItem.Builder builder =
-                    new SystemRouteItem.Builder(info.getName().toString() /* id */,
-                            SystemRouteItem.ROUTE_SOURCE_MEDIA_ROUTER)
+                    new SystemRouteItem.Builder(/* id= */ info.getName().toString())
                             .setName(info.getName().toString());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -94,6 +101,5 @@ public final class MediaRouterSystemRoutesSource implements SystemRoutesSource {
         static CharSequence getDescription(MediaRouter.RouteInfo routeInfo) {
             return routeInfo.getDescription();
         }
-
     }
 }

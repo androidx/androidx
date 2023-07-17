@@ -18,11 +18,8 @@ package com.example.androidx.mediarouting.activities.systemrouting;
 
 import android.text.TextUtils;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -32,30 +29,10 @@ import javax.annotation.Nullable;
  *
  * Can represent media routers' routes, bluetooth routes, or audio routes.
  */
-public final class SystemRouteItem {
-
-    public static final int ROUTE_SOURCE_MEDIA_ROUTER = 0;
-    public static final int ROUTE_SOURCE_MEDIA_ROUTER2 = 1;
-    public static final int ROUTE_SOURCE_ANDROIDX_ROUTER = 2;
-    public static final int ROUTE_SOURCE_BLUETOOTH_MANAGER = 3;
-    public static final int ROUTE_SOURCE_AUDIO_MANAGER = 4;
-
-    @IntDef({
-            ROUTE_SOURCE_MEDIA_ROUTER,
-            ROUTE_SOURCE_MEDIA_ROUTER2,
-            ROUTE_SOURCE_ANDROIDX_ROUTER,
-            ROUTE_SOURCE_BLUETOOTH_MANAGER,
-            ROUTE_SOURCE_AUDIO_MANAGER
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface Type {
-    }
+public final class SystemRouteItem implements SystemRoutesAdapterItem {
 
     @NonNull
     private final String mId;
-
-    @Type
-    private final int mType;
 
     @NonNull
     private final String mName;
@@ -72,7 +49,6 @@ public final class SystemRouteItem {
 
         mId = builder.mId;
         mName = builder.mName;
-        mType = builder.mType;
 
         mAddress = builder.mAddress;
         mDescription = builder.mDescription;
@@ -84,15 +60,6 @@ public final class SystemRouteItem {
     @NonNull
     public String getId() {
         return mId;
-    }
-
-    /**
-     * Returns a route source.
-     *
-     * see {@link SystemRouteItem.Type}
-     */
-    public int getType() {
-        return mType;
     }
 
     /**
@@ -124,14 +91,14 @@ public final class SystemRouteItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SystemRouteItem that = (SystemRouteItem) o;
-        return mType == that.mType && mId.equals(that.mId) && mName.equals(that.mName)
+        return mId.equals(that.mId) && mName.equals(that.mName)
                 && Objects.equals(mAddress, that.mAddress) && Objects.equals(
                 mDescription, that.mDescription);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mId, mType, mName, mAddress, mDescription);
+        return Objects.hash(mId, mName, mAddress, mDescription);
     }
 
     /**
@@ -141,8 +108,6 @@ public final class SystemRouteItem {
 
         @NonNull
         private final String mId;
-        @Type
-        private final int mType;
 
         @NonNull
         private String mName;
@@ -153,9 +118,8 @@ public final class SystemRouteItem {
         @Nullable
         private String mDescription;
 
-        public Builder(@NonNull String id, @Type int type) {
+        public Builder(@NonNull String id) {
             mId = id;
-            mType = type;
         }
 
         /**

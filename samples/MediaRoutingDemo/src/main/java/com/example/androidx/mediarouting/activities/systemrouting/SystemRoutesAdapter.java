@@ -32,72 +32,59 @@ import com.example.androidx.mediarouting.R;
 
 import java.util.List;
 
-class SystemRoutesAdapter extends RecyclerView.Adapter<SystemRoutesAdapter.ViewHolder> {
+/**
+ * @link RecyclerView.Adapter} for showing system route sources and the routes discovered by each
+ * source.
+ */
+class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final AsyncListDiffer<SystemRouteItem> mListDiffer =
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
+
+    private final AsyncListDiffer<SystemRoutesAdapterItem> mListDiffer =
             new AsyncListDiffer<>(this, new ItemCallback());
 
-    public void setItems(@NonNull List<SystemRouteItem> newItems) {
+    public void setItems(@NonNull List<SystemRoutesAdapterItem> newItems) {
         mListDiffer.submitList(newItems);
     }
 
     @NonNull
-    public List<SystemRouteItem> getItems() {
+    public List<SystemRoutesAdapterItem> getItems() {
         return mListDiffer.getCurrentList();
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        View view = LayoutInflater.from(context).inflate(R.layout.item_system_route, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        SystemRouteItem route = getItems().get(position);
-
-        holder.mRouteSourceTextView.setText(
-                SystemRouteUtils.getDescriptionForSource(route.getType()));
-        holder.mRouteNameTextView.setText(route.getName());
-        holder.mRouteIdTextView.setText(route.getId());
-
-        showViewIfNotNull(holder.mRouteAddressTextView, route.getAddress());
-        holder.mRouteAddressTextView.setText(route.getAddress());
-
-        showViewIfNotNull(holder.mRouteDescriptionTextView, route.getDescription());
-        holder.mRouteDescriptionTextView.setText(route.getDescription());
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position,
-            @NonNull List<Object> payloads) {
-        if (payloads.isEmpty()) {
-            onBindViewHolder(holder, position);
-            return;
+        if (viewType == VIEW_TYPE_HEADER) {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_system_route_header,
+                    parent, false);
+            return new HeaderViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(context).inflate(R.layout.item_system_route, parent,
+                    false);
+            return new ItemViewHolder(view);
         }
+    }
 
-        for (Object rawPayload : payloads) {
-            if (!(rawPayload instanceof Payload)) {
-                continue;
-            }
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        SystemRoutesAdapterItem routeItem = getItems().get(position);
+        if (routeItem instanceof SystemRoutesSourceItem && holder instanceof HeaderViewHolder) {
+            ((HeaderViewHolder) holder).bind((SystemRoutesSourceItem) routeItem);
+        } else if (routeItem instanceof SystemRouteItem && holder instanceof ItemViewHolder) {
+            ((ItemViewHolder) holder).bind((SystemRouteItem) routeItem);
+        }
+    }
 
-            Payload payload = (Payload) rawPayload;
-
-            if (payload.mName != null) {
-                holder.mRouteNameTextView.setText(payload.mName);
-            }
-
-            showViewIfNotNull(holder.mRouteAddressTextView, payload.mAddress);
-            if (payload.mAddress != null) {
-                holder.mRouteAddressTextView.setText(payload.mAddress);
-            }
-
-            showViewIfNotNull(holder.mRouteDescriptionTextView, payload.mDescription);
-            if (payload.mDescription != null) {
-                holder.mRouteDescriptionTextView.setText(payload.mDescription);
-            }
+    @Override
+    public int getItemViewType(int position) {
+        SystemRoutesAdapterItem routeItem = getItems().get(position);
+        if (routeItem instanceof SystemRoutesSourceItem) {
+            return VIEW_TYPE_HEADER;
+        } else {
+            return VIEW_TYPE_ITEM;
         }
     }
 
@@ -106,67 +93,81 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<SystemRoutesAdapter.ViewH
         return getItems().size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    static class HeaderViewHolder extends RecyclerView.ViewHolder {
 
-        final AppCompatTextView mRouteSourceTextView;
-        final AppCompatTextView mRouteNameTextView;
-        final AppCompatTextView mRouteIdTextView;
-        final AppCompatTextView mRouteAddressTextView;
-        final AppCompatTextView mRouteDescriptionTextView;
+        private final AppCompatTextView mHeaderTitleTextView;
 
-        ViewHolder(@NonNull View itemView) {
+        HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            mRouteSourceTextView = itemView.findViewById(R.id.route_source);
+            mHeaderTitleTextView = itemView.findViewById(R.id.header_title);
+        }
+
+        void bind(SystemRoutesSourceItem systemRoutesSourceItem) {
+            mHeaderTitleTextView.setText(
+                    SystemRouteUtils.getDescriptionForSource(systemRoutesSourceItem.getType()));
+        }
+    }
+
+    static class ItemViewHolder extends RecyclerView.ViewHolder {
+
+        private final AppCompatTextView mRouteNameTextView;
+        private final AppCompatTextView mRouteIdTextView;
+        private final AppCompatTextView mRouteAddressTextView;
+        private final AppCompatTextView mRouteDescriptionTextView;
+
+        ItemViewHolder(@NonNull View itemView) {
+            super(itemView);
+
             mRouteNameTextView = itemView.findViewById(R.id.route_name);
             mRouteIdTextView = itemView.findViewById(R.id.route_id);
             mRouteAddressTextView = itemView.findViewById(R.id.route_address);
             mRouteDescriptionTextView = itemView.findViewById(R.id.route_description);
         }
-    }
 
-    private static class ItemCallback extends DiffUtil.ItemCallback<SystemRouteItem> {
+        void bind(SystemRouteItem systemRouteItem) {
+            mRouteNameTextView.setText(systemRouteItem.getName());
+            mRouteIdTextView.setText(systemRouteItem.getId());
 
-        @Override
-        public boolean areItemsTheSame(@NonNull SystemRouteItem oldItem,
-                @NonNull SystemRouteItem newItem) {
-            return oldItem.getId().equals(newItem.getId())
-                    && oldItem.getType() == newItem.getType();
-        }
+            showViewIfNotNull(mRouteAddressTextView, systemRouteItem.getAddress());
+            if (systemRouteItem.getAddress() != null) {
+                mRouteAddressTextView.setText(systemRouteItem.getAddress());
+            }
 
-        @Override
-        public boolean areContentsTheSame(@NonNull SystemRouteItem oldItem,
-                @NonNull SystemRouteItem newItem) {
-            return oldItem.equals(newItem);
-        }
-
-        @Nullable
-        @Override
-        public Payload getChangePayload(@NonNull SystemRouteItem oldItem,
-                @NonNull SystemRouteItem newItem) {
-            return new Payload(takeIfChanged(oldItem.getName(), newItem.getName()),
-                    takeIfChanged(oldItem.getAddress(), newItem.getAddress()),
-                    takeIfChanged(oldItem.getDescription(), newItem.getDescription()));
+            showViewIfNotNull(mRouteDescriptionTextView, systemRouteItem.getDescription());
+            if (systemRouteItem.getDescription() != null) {
+                mRouteDescriptionTextView.setText(systemRouteItem.getDescription());
+            }
         }
     }
 
-    private static class Payload {
+    private static class ItemCallback extends DiffUtil.ItemCallback<SystemRoutesAdapterItem> {
+        @Override
+        public boolean areItemsTheSame(@NonNull SystemRoutesAdapterItem oldItem,
+                @NonNull SystemRoutesAdapterItem newItem) {
+            if (oldItem instanceof SystemRouteItem && newItem instanceof SystemRouteItem) {
+                return ((SystemRouteItem) oldItem).getId().equals(
+                        ((SystemRouteItem) newItem).getId());
+            } else if (oldItem instanceof SystemRoutesSourceItem
+                    && newItem instanceof SystemRoutesSourceItem) {
+                return ((SystemRoutesSourceItem) oldItem).getType()
+                        == ((SystemRoutesSourceItem) newItem).getType();
+            } else {
+                return false;
+            }
+        }
 
-        @Nullable
-        final String mName;
-
-        @Nullable
-        final String mAddress;
-
-        @Nullable
-        final String mDescription;
-
-
-        Payload(@Nullable String name, @Nullable String address,
-                @Nullable String description) {
-            mName = name;
-            mAddress = address;
-            mDescription = description;
+        @Override
+        public boolean areContentsTheSame(@NonNull SystemRoutesAdapterItem oldItem,
+                @NonNull SystemRoutesAdapterItem newItem) {
+            if (oldItem instanceof SystemRouteItem && newItem instanceof SystemRouteItem) {
+                return oldItem.equals(newItem);
+            } else if (oldItem instanceof SystemRoutesSourceItem
+                    && newItem instanceof SystemRoutesSourceItem) {
+                return oldItem.equals(newItem);
+            } else {
+                return false;
+            }
         }
     }
 
@@ -176,22 +177,5 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<SystemRoutesAdapter.ViewH
         } else {
             view.setVisibility(View.VISIBLE);
         }
-    }
-
-    @Nullable
-    private static <T> T takeIfChanged(@Nullable T oldObj, @Nullable T newObj) {
-        if (oldObj == null && newObj == null) {
-            return null;
-        }
-
-        if (oldObj == null || newObj == null) {
-            return newObj;
-        }
-
-        if (oldObj.equals(newObj)) {
-            return null;
-        }
-
-        return newObj;
     }
 }

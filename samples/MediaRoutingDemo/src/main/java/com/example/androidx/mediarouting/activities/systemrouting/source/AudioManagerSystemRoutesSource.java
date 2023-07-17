@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
+import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,14 +51,20 @@ public final class AudioManagerSystemRoutesSource implements SystemRoutesSource 
 
     @NonNull
     @Override
-    public List<SystemRouteItem> fetchRoutes() {
+    public SystemRoutesSourceItem getSourceItem() {
+        return new SystemRoutesSourceItem.Builder(SystemRoutesSourceItem.ROUTE_SOURCE_AUDIO_MANAGER)
+                .build();
+    }
+
+    @NonNull
+    @Override
+    public List<SystemRouteItem> fetchSourceRouteItems() {
         List<SystemRouteItem> out = new ArrayList<>();
 
-        for (AudioDeviceInfo audioDeviceInfo :
-                mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)) {
+        AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        for (AudioDeviceInfo audioDeviceInfo : deviceInfos) {
             SystemRouteItem.Builder builder = new SystemRouteItem.Builder(
-                    String.valueOf(audioDeviceInfo.getId()),
-                    SystemRouteItem.ROUTE_SOURCE_AUDIO_MANAGER)
+                    String.valueOf(audioDeviceInfo.getId()))
                     .setName(audioDeviceInfo.getProductName().toString());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
