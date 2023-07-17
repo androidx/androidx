@@ -2733,9 +2733,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     event.scrollY = newYState.value().toInt()
                     event.maxScrollY = newYState.maxValue().toInt()
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    Api28Impl.setScrollEventDelta(event, deltaX.toInt(), deltaY.toInt())
-                }
                 sendEvent(event)
             }
 
@@ -3297,16 +3294,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     )
                 }
             }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.P)
-    private object Api28Impl {
-        @JvmStatic
-        @DoNotInline
-        fun setScrollEventDelta(event: AccessibilityEvent, deltaX: Int, deltaY: Int) {
-            event.scrollDeltaX = deltaX
-            event.scrollDeltaY = deltaY
         }
     }
 
