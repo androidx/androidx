@@ -32,10 +32,8 @@ import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.concurrent.CameraCoordinator
-import androidx.camera.core.concurrent.CameraCoordinator.ConcurrentCameraModeListener
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
@@ -73,6 +71,8 @@ internal class CameraFactoryAdapter(
     }
     private var mAvailableCamerasSelector: CameraSelector? = availableCamerasSelector
     private var mAvailableCameraIds: List<String>
+    private val cameraCoordinator: CameraCoordinatorAdapter = CameraCoordinatorAdapter(
+        appComponent.getCameraDevices(), appComponent.getCameraGraphCreator())
 
     init {
         debug { "Created CameraFactoryAdapter" }
@@ -91,47 +91,21 @@ internal class CameraFactoryAdapter(
      * The [getCamera] method is responsible for providing CameraInternal object based on cameraID.
      * Use cameraId from set of cameraIds provided by [getAvailableCameraIds] method.
      */
-    override fun getCamera(cameraId: String): CameraInternal =
-        appComponent.cameraBuilder()
+    override fun getCamera(cameraId: String): CameraInternal {
+        val cameraInternal = appComponent.cameraBuilder()
             .config(CameraConfig(CameraId(cameraId)))
             .build()
             .getCameraInternal()
+        cameraCoordinator.registerCamera(cameraId, cameraInternal)
+        return cameraInternal
+    }
 
     override fun getAvailableCameraIds(): Set<String> =
         // Use a LinkedHashSet to preserve order
         LinkedHashSet(mAvailableCameraIds)
 
     override fun getCameraCoordinator(): CameraCoordinator {
-        // TODO(b/262772650): camera-pipe support for concurrent camera.
-        return object : CameraCoordinator {
-            override fun getConcurrentCameraSelectors(): MutableList<MutableList<CameraSelector>> {
-                return mutableListOf()
-            }
-
-            override fun getActiveConcurrentCameraInfos(): MutableList<CameraInfo> {
-                return mutableListOf()
-            }
-
-            override fun setActiveConcurrentCameraInfos(cameraInfos: MutableList<CameraInfo>) {
-            }
-
-            override fun getPairedConcurrentCameraId(cameraId: String): String? {
-                return null
-            }
-
-            override fun getCameraOperatingMode(): Int {
-                return CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
-            }
-
-            override fun setCameraOperatingMode(cameraOperatingMode: Int) {
-            }
-
-            override fun addListener(listener: ConcurrentCameraModeListener) {
-            }
-
-            override fun removeListener(listener: ConcurrentCameraModeListener) {
-            }
-        }
+        return cameraCoordinator
     }
 
     override fun getCameraManager(): Any = appComponent

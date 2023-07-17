@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Component
@@ -77,6 +78,8 @@ interface CameraAppComponent {
     fun cameraBuilder(): CameraComponent.Builder
     fun getCameraPipe(): CameraPipe
     fun getCameraDevices(): CameraDevices
+
+    fun getCameraGraphCreator(): CameraGraphCreator
 
     @Component.Builder
     interface Builder {

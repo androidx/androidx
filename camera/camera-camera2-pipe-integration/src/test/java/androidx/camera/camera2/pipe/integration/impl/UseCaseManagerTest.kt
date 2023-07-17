@@ -16,11 +16,13 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -28,6 +30,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera.RunningUseCasesChangeListener
+import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
@@ -53,6 +56,9 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowCameraCharacteristics
+import org.robolectric.shadows.ShadowCameraManager
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
@@ -325,12 +331,21 @@ class UseCaseManagerTest {
         val characteristicsMap: Map<CameraCharacteristics.Key<*>, Any?> = mapOf(
             CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap,
         )
+
+        val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
+        (Shadow.extract<Any>(
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE)
+        ) as ShadowCameraManager).addCamera("0", characteristics)
+
         val fakeCameraMetadata = FakeCameraMetadata(
             cameraId = cameraId,
             characteristics = characteristicsMap
         )
         val fakeCamera = FakeCamera()
         return UseCaseManager(
+            cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+            cameraGraphCreator = CameraGraphCreator(),
             cameraConfig = CameraConfig(cameraId),
             builder = useCaseCameraComponentBuilder,
             controls = controls as java.util.Set<UseCaseCameraControl>,
