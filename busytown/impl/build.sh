@@ -113,13 +113,17 @@ else
     cd -
   else
     if [ "$DIAGNOSE" == "true" ]; then
-     # see if diagnose-build-failure.sh can identify the root cauase
+      # see if diagnose-build-failure.sh can identify the root cauase
       echo "running diagnose-build-failure.sh, see build.log" >&2
       # Specify a short timeout in case we're running on a remote server, so we don't take too long.
       # We probably won't have enough time to fully diagnose the problem given this timeout, but
       # we might be able to determine whether this problem is reproducible enough for a developer to
       # more easily investigate further
-      ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
+      ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*" || true
+      # Temporary workaround for b/291623531
+      # If the failure was interesting enough to try to diagnose, we also try to fix it
+      # Delete a specific cache file if it is older than this script (build.sh)
+      rm -f $OUT_DIR/gradle-project-cache/8.0/executionHistory/executionHistory.bin
     fi
   fi
   BUILD_STATUS=1 # failure
