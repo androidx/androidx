@@ -125,6 +125,10 @@ val WearMaterial3Demos = DemoCategory(
             title = "Fixed Font Size"
         ) {
             Centralize { FixedFontSize() }
-        }
+        },
+        DemoCategory(
+            title = "Selection Controls",
+            selectionControlsDemos
+        )
     )
 )

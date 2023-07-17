@@ -90,6 +90,30 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.CardColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? time, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  @androidx.compose.runtime.Immutable public final class CheckboxColors {
+    method public long getCheckedBoxColor();
+    method public long getCheckedCheckmarkColor();
+    method public long getDisabledCheckedBoxColor();
+    method public long getDisabledCheckedCheckmarkColor();
+    method public long getDisabledUncheckedBoxColor();
+    method public long getDisabledUncheckedCheckmarkColor();
+    method public long getUncheckedBoxColor();
+    method public long getUncheckedCheckmarkColor();
+    property public final long checkedBoxColor;
+    property public final long checkedCheckmarkColor;
+    property public final long disabledCheckedBoxColor;
+    property public final long disabledCheckedCheckmarkColor;
+    property public final long disabledUncheckedBoxColor;
+    property public final long disabledUncheckedCheckmarkColor;
+    property public final long uncheckedBoxColor;
+    property public final long uncheckedCheckmarkColor;
+  }
+
+  public final class CheckboxDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CheckboxColors colors(optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedBoxColor, optional long uncheckedCheckmarkColor);
+    field public static final androidx.wear.compose.material3.CheckboxDefaults INSTANCE;
+  }
+
   @androidx.compose.runtime.Stable public final class ColorScheme {
     ctor public ColorScheme(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceDim, optional long surface, optional long surfaceBright, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError);
     method public androidx.wear.compose.material3.ColorScheme copy(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceDim, optional long surface, optional long surfaceBright, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError);
@@ -300,8 +324,30 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.wear.compose.material3.ColorScheme colorScheme, optional androidx.wear.compose.material3.Typography typography, optional androidx.wear.compose.material3.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  @androidx.compose.runtime.Immutable public final class RadioButtonColors {
+    method public long getDisabledSelectedColor();
+    method public long getDisabledUnselectedColor();
+    method public long getSelectedColor();
+    method public long getUnselectedColor();
+    property public final long disabledSelectedColor;
+    property public final long disabledUnselectedColor;
+    property public final long selectedColor;
+    property public final long unselectedColor;
+  }
+
+  public final class RadioButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors colors(optional long selectedColor, optional long unselectedColor);
+    field public static final androidx.wear.compose.material3.RadioButtonDefaults INSTANCE;
+  }
+
   public final class RangeSemanticsKt {
     method public static androidx.compose.ui.Modifier rangeSemantics(androidx.compose.ui.Modifier, float value, boolean enabled, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, int steps);
+  }
+
+  public final class SelectionControlsKt {
+    method @androidx.compose.runtime.Composable public static void Checkbox(boolean checked, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.CheckboxColors colors, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.RadioButtonColors colors, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.SwitchColors colors, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
   public final class ShapeDefaults {
@@ -354,6 +400,46 @@ package androidx.wear.compose.material3 {
   public final class SwipeToDismissBoxKt {
     method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Immutable public final class SwitchColors {
+    method public long getCheckedThumbColor();
+    method public long getCheckedThumbIconColor();
+    method public long getCheckedTrackBorderColor();
+    method public long getCheckedTrackColor();
+    method public long getDisabledCheckedThumbColor();
+    method public long getDisabledCheckedThumbIconColor();
+    method public long getDisabledCheckedTrackBorderColor();
+    method public long getDisabledCheckedTrackColor();
+    method public long getDisabledUncheckedThumbColor();
+    method public long getDisabledUncheckedThumbIconColor();
+    method public long getDisabledUncheckedTrackBorderColor();
+    method public long getDisabledUncheckedTrackColor();
+    method public long getUncheckedThumbColor();
+    method public long getUncheckedThumbIconColor();
+    method public long getUncheckedTrackBorderColor();
+    method public long getUncheckedTrackColor();
+    property public final long checkedThumbColor;
+    property public final long checkedThumbIconColor;
+    property public final long checkedTrackBorderColor;
+    property public final long checkedTrackColor;
+    property public final long disabledCheckedThumbColor;
+    property public final long disabledCheckedThumbIconColor;
+    property public final long disabledCheckedTrackBorderColor;
+    property public final long disabledCheckedTrackColor;
+    property public final long disabledUncheckedThumbColor;
+    property public final long disabledUncheckedThumbIconColor;
+    property public final long disabledUncheckedTrackBorderColor;
+    property public final long disabledUncheckedTrackColor;
+    property public final long uncheckedThumbColor;
+    property public final long uncheckedThumbIconColor;
+    property public final long uncheckedTrackBorderColor;
+    property public final long uncheckedTrackColor;
+  }
+
+  public final class SwitchDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackStrokeColor, optional long uncheckedThumbColor, optional long uncheckedThumbIconColor, optional long uncheckedTrackColor, optional long uncheckedTrackStrokeColor);
+    field public static final androidx.wear.compose.material3.SwitchDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class TextButtonColors {

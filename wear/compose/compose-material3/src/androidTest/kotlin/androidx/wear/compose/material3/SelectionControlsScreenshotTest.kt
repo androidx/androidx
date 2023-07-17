@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material
+package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.background
@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class ToggleControlScreenshotTest {
-
+class SelectionControlsScreenshotTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -167,10 +166,14 @@ class ToggleControlScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName, MSSIMMatcher(threshold))
     }
+
     @Composable
     private fun testBackgroundModifier(): Modifier =
-        Modifier.testTag(TEST_TAG).background(
-            MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                .compositeOver(MaterialTheme.colors.surface)
-        )
+        Modifier
+            .testTag(TEST_TAG)
+            .background(
+                MaterialTheme.colorScheme.primary
+                    .copy(alpha = 0.5f)
+                    .compositeOver(MaterialTheme.colorScheme.surface)
+            )
 }
