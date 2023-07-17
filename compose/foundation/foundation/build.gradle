@@ -199,6 +199,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(commonTest)
                 dependencies {
                     implementation(project(":compose:ui:ui-test-junit4"))
+                    implementation(project(":internal-testutils-kmp"))
                     implementation(libs.skikoCommon)
                 }
             }

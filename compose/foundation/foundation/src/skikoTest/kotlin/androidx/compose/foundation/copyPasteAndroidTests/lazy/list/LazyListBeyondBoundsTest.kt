@@ -16,12 +16,6 @@
 
 package androidx.compose.foundation.copyPasteAndroidTests.lazy.list
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.assertThat
-import androidx.compose.foundation.containsAtLeast
-import androidx.compose.foundation.containsExactly
-import androidx.compose.foundation.isEqualTo
-import androidx.compose.foundation.isLessThan
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,6 +53,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
+import androidx.kruth.assertThat
 import kotlin.test.Test
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)

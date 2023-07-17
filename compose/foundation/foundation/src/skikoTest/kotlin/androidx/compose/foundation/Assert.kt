@@ -23,6 +23,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+// TODO: may be replace it with :internal-testutils-kmp?
+//  So tests copied from androidx will work properly
+
 internal class AssertThat<T>(val t: T?, val message: String? = null)
 
 internal class AssertMessage(private val message: String) {
