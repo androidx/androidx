@@ -16,6 +16,8 @@
 
 package androidx.constraintlayout.compose.demos
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,9 +46,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.system.exitProcess
 
 data class ComposeDemo(val title: String, val content: @Composable () -> Unit)
 
@@ -56,6 +60,9 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
         ComposeDemo("Simple OnSwipe") { SimpleOnSwipe() },
         ComposeDemo("Multiple OnSwipe") { MultiSwipeDsl() },
         ComposeDemo("AnimatedChainOrientation") { ChainsAnimatedOrientationDemo() },
+        ComposeDemo("AnimatedChainOrientation w/ Modifier DSL") {
+            ChainsAnimatedOrientationDemo1()
+        },
         ComposeDemo("CollapsibleToolbar w/ Column") { ToolBarDslDemo() },
         ComposeDemo("CollapsibleToolbar w/ LazyColumn") { ToolBarLazyDslDemo() },
         ComposeDemo("MotionLayout in LazyList") { MotionInLazyColumnDslDemo() },
@@ -148,6 +155,16 @@ fun ComposeConstraintLayoutDemos() {
                     }
                 }
             }
+        }
+    }
+
+    val activity = LocalContext.current as? Activity
+    // If there's a demo being displayed, return to demo list, otherwise, exit app
+    BackHandler {
+        if (displayedDemoIndex >= 0) {
+            displayedDemoIndex = -1
+        } else {
+            activity?.finishAffinity() ?: exitProcess(0)
         }
     }
 }

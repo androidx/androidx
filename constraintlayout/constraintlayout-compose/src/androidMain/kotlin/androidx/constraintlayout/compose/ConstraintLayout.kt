@@ -64,6 +64,7 @@ import androidx.compose.ui.layout.MultiMeasureLayout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -353,13 +354,83 @@ import org.intellij.lang.annotations.Language
  * variables or configuration changes, consider using the [ConstraintSet] pattern instead, makes it
  * clearer to distinguish different layouts and allows you to automatically animate the layout when
  * the provided [ConstraintSet] is different.
+ *
+ * @param modifier Modifier to apply to this layout node.
+ * @param optimizationLevel Optimization flags for ConstraintLayout. The default is
+ * [Optimizer.OPTIMIZATION_STANDARD].
+ * @param animateChanges When enabled, ConstraintLayout will animate the layout if there were any
+ * changes on the constraints during recomposition. If there's a change while the layout is still
+ * animating the current animation will always complete before animating to the latest changes.
+ * @param animationSpec The [AnimationSpec] used for [animateChanges]. [tween] by default.
+ * @param finishedAnimationListener Lambda called whenever an animation due to [animateChanges]
+ * finishes.
+ * @param content Content of this layout node.
  */
+@SuppressLint("AutoboxingStateCreation")
 @Composable
 inline fun ConstraintLayout(
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    animateChanges: Boolean = false,
+    animationSpec: AnimationSpec<Float> = tween<Float>(),
+    noinline finishedAnimationListener: (() -> Unit)? = null,
     crossinline content: @Composable ConstraintLayoutScope.() -> Unit
 ) {
+    if (animateChanges) {
+        val start: MutableState<ConstraintSet?> = remember { mutableStateOf(null) }
+        val end: MutableState<ConstraintSet?> = remember { mutableStateOf(null) }
+        val scope = remember { ConstraintLayoutScope().apply { isAnimateChanges = true } }
+        val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+        val compositionSource =
+            remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
+        val channel = remember { Channel<ConstraintSet>(Channel.CONFLATED) }
+
+        val contentDelegate: @Composable () -> Unit = {
+            // Perform a reassignment to the State tracker, this will force readers to recompose at
+            // the same pass as the content. The only expected reader is our MeasurePolicy.
+            contentTracker.value = Unit
+
+            if (compositionSource.value == CompositionSource.Unknown) {
+                // Set the content as the original composition source if the MotionLayout was not
+                // recomposed by the caller or by itself
+                compositionSource.value = CompositionSource.Content
+            }
+
+            // Resetting the scope also resets the underlying ConstraintSet
+            scope.reset()
+            content(scope) // The ConstraintSet is built at this step
+
+            SideEffect {
+                // Extract a copy of the underlying ConstraintSet and send it through the channel
+                // We do it within a SideEffect to avoid a recomposition loop from reading and
+                // writing the State variables for `end` and `start`
+                val cSet = RawConstraintSet(scope.containerObject.clone())
+                if (start.value == null || end.value == null) {
+                    // guarantee first constraintSet here
+                    start.value = cSet
+                    end.value = start.value
+                } else {
+                    // send to channel
+                    channel.trySend(cSet)
+                }
+            }
+        }
+
+        LateMotionLayout(
+            start = start,
+            end = end,
+            animationSpec = animationSpec,
+            channel = channel,
+            contentTracker = contentTracker,
+            compositionSource = compositionSource,
+            optimizationLevel = optimizationLevel,
+            finishedAnimationListener = finishedAnimationListener,
+            modifier = modifier,
+            content = contentDelegate
+        )
+        return
+    }
+
     val density = LocalDensity.current
     val measurer = remember { Measurer(density) }
     val scope = remember { ConstraintLayoutScope() }
@@ -663,6 +734,19 @@ internal class ConstraintSetForInlineDsl(
  *
  * If more control is needed, we recommend using [MotionLayout] instead, which has a very similar
  * pattern through the [MotionScene] object.
+ *
+ * @param constraintSet The [ConstraintSet] that describes the expected layout, defined references
+ * should be bound to Composables with [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
+ * @param modifier Modifier to apply to this layout node.
+ * @param optimizationLevel Optimization flags for ConstraintLayout. The default is
+ * [Optimizer.OPTIMIZATION_STANDARD].
+ * @param animateChanges When enabled, ConstraintLayout will animate the layout if there were any
+ * changes on the constraints during recomposition. If there's a change while the layout is still
+ * animating the current animation will always complete before animating to the latest changes.
+ * @param animationSpec The [AnimationSpec] used for [animateChanges]. [tween] by default.
+ * @param finishedAnimationListener Lambda called whenever an animation due to [animateChanges]
+ * finishes.
+ * @param content Content of this layout node.
  */
 @OptIn(ExperimentalMotionApi::class)
 @Suppress("NOTHING_TO_INLINE")
@@ -797,6 +881,14 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
     fun createRefs(): ConstraintLayoutScope.ConstrainedLayoutReferences =
         referencesObject ?: ConstrainedLayoutReferences().also { referencesObject = it }
 
+    /**
+     * Indicates whether we expect to animate changes. This is important since normally
+     * ConstraintLayout evaluates constraints at the measure step, but MotionLayout needs to know
+     * the constraints to enter the measure step.
+     */
+    @PublishedApi
+    internal var isAnimateChanges = false
+
     private var referencesObject: ConstrainedLayoutReferences? = null
 
     private val ChildrenStartIndex = 0
@@ -837,7 +929,15 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
     fun Modifier.constrainAs(
         ref: ConstrainedLayoutReference,
         constrainBlock: ConstrainScope.() -> Unit
-    ) = this.then(ConstrainAsModifier(ref, constrainBlock))
+    ): Modifier {
+        if (isAnimateChanges) {
+            // When we are expecting to animate changes, we need to preemptively obtain the
+            // constraints from the DSL since MotionLayout is not designed to evaluate the DSL
+            val container = ref.asCLContainer()
+            ConstrainScope(ref.id, container).constrainBlock()
+        }
+        return this.then(ConstrainAsModifier(ref, constrainBlock))
+    }
 
     @Stable
     private class ConstrainAsModifier(
