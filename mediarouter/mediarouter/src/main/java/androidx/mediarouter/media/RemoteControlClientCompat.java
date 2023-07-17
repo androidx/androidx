@@ -126,7 +126,7 @@ abstract class RemoteControlClientCompat {
      */
     @RequiresApi(16)
     static class JellybeanImpl extends RemoteControlClientCompat {
-        private final Object mRouterObj;
+        private final android.media.MediaRouter mRouter;
         private final Object mUserRouteCategoryObj;
         private final Object mUserRouteObj;
         private boolean mRegistered;
@@ -134,11 +134,11 @@ abstract class RemoteControlClientCompat {
         public JellybeanImpl(Context context, Object rcc) {
             super(context, rcc);
 
-            mRouterObj = MediaRouterJellybean.getMediaRouter(context);
+            mRouter = MediaRouterJellybean.getMediaRouter(context);
             mUserRouteCategoryObj = MediaRouterJellybean.createRouteCategory(
-                    mRouterObj, "", false);
+                    mRouter, "", false);
             mUserRouteObj = MediaRouterJellybean.createUserRoute(
-                    mRouterObj, mUserRouteCategoryObj);
+                    mRouter, mUserRouteCategoryObj);
         }
 
         @Override

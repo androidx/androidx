@@ -44,12 +44,11 @@ final class MediaRouterJellybean {
                     | MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO
                     | MediaRouterJellybean.ROUTE_TYPE_USER;
 
-    public static Object getMediaRouter(Context context) {
-        return context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+    public static android.media.MediaRouter getMediaRouter(Context context) {
+        return (android.media.MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
     }
 
-    public static List<MediaRouter.RouteInfo> getRoutes(Object routerObj) {
-        final android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
+    public static List<MediaRouter.RouteInfo> getRoutes(android.media.MediaRouter router) {
         final int count = router.getRouteCount();
         List<MediaRouter.RouteInfo> out = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -58,44 +57,39 @@ final class MediaRouterJellybean {
         return out;
     }
 
-    public static Object getSelectedRoute(Object routerObj, int type) {
-        return ((android.media.MediaRouter) routerObj).getSelectedRoute(type);
+    public static Object getSelectedRoute(android.media.MediaRouter router, int type) {
+        return router.getSelectedRoute(type);
     }
 
-    public static void selectRoute(Object routerObj, int types, Object routeObj) {
-        ((android.media.MediaRouter) routerObj).selectRoute(types,
-                (android.media.MediaRouter.RouteInfo) routeObj);
+    public static void selectRoute(android.media.MediaRouter router, int types, Object routeObj) {
+        router.selectRoute(types, (android.media.MediaRouter.RouteInfo) routeObj);
     }
 
-    public static void addCallback(Object routerObj, int types, Object callbackObj) {
-        ((android.media.MediaRouter) routerObj).addCallback(types,
-                (android.media.MediaRouter.Callback) callbackObj);
+    public static void addCallback(android.media.MediaRouter router, int types,
+            Object callbackObj) {
+        router.addCallback(types, (android.media.MediaRouter.Callback) callbackObj);
     }
 
-    public static void removeCallback(Object routerObj, Object callbackObj) {
-        ((android.media.MediaRouter) routerObj).removeCallback(
-                (android.media.MediaRouter.Callback) callbackObj);
+    public static void removeCallback(android.media.MediaRouter router, Object callbackObj) {
+        router.removeCallback((android.media.MediaRouter.Callback) callbackObj);
     }
 
-    public static Object createRouteCategory(Object routerObj,
+    public static Object createRouteCategory(android.media.MediaRouter router,
             String name, boolean isGroupable) {
-        return ((android.media.MediaRouter) routerObj).createRouteCategory(name, isGroupable);
+        return router.createRouteCategory(name, isGroupable);
     }
 
-    public static Object createUserRoute(Object routerObj, Object categoryObj) {
-        return ((android.media.MediaRouter) routerObj).createUserRoute(
-                (android.media.MediaRouter.RouteCategory) categoryObj);
+    public static Object createUserRoute(android.media.MediaRouter router, Object categoryObj) {
+        return router.createUserRoute((android.media.MediaRouter.RouteCategory) categoryObj);
     }
 
-    public static void addUserRoute(Object routerObj, Object routeObj) {
-        ((android.media.MediaRouter) routerObj).addUserRoute(
-                (android.media.MediaRouter.UserRouteInfo) routeObj);
+    public static void addUserRoute(android.media.MediaRouter router, Object routeObj) {
+        router.addUserRoute((android.media.MediaRouter.UserRouteInfo) routeObj);
     }
 
-    public static void removeUserRoute(Object routerObj, Object routeObj) {
+    public static void removeUserRoute(android.media.MediaRouter router, Object routeObj) {
         try {
-            ((android.media.MediaRouter) routerObj).removeUserRoute(
-                    (android.media.MediaRouter.UserRouteInfo) routeObj);
+            router.removeUserRoute((android.media.MediaRouter.UserRouteInfo) routeObj);
         } catch (IllegalArgumentException e) {
             // Work around for https://issuetracker.google.com/issues/202931542.
             Log.w(TAG, "Failed to remove user route", e);
@@ -103,11 +97,11 @@ final class MediaRouterJellybean {
     }
 
     public static Object createCallback(Callback callback) {
-        return new CallbackProxy<Callback>(callback);
+        return new CallbackProxy<>(callback);
     }
 
     public static Object createVolumeCallback(VolumeCallback callback) {
-        return new VolumeCallbackProxy<VolumeCallback>(callback);
+        return new VolumeCallbackProxy<>(callback);
     }
 
     public static final class RouteInfo {
@@ -248,8 +242,8 @@ final class MediaRouterJellybean {
         // code: the reflection is used for a specific Android version and the real Android API
         // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
         @SuppressLint("BanUncheckedReflection")
-        public void selectRoute(@NonNull Object routerObj, int types, @NonNull Object routeObj) {
-            android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
+        public void selectRoute(@NonNull android.media.MediaRouter router, int types,
+                @NonNull Object routeObj) {
             android.media.MediaRouter.RouteInfo route =
                     (android.media.MediaRouter.RouteInfo) routeObj;
 
@@ -306,9 +300,7 @@ final class MediaRouterJellybean {
         // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
         @SuppressLint("BanUncheckedReflection")
         @NonNull
-        public Object getDefaultRoute(@NonNull Object routerObj) {
-            android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
-
+        public Object getDefaultRoute(@NonNull android.media.MediaRouter router) {
             if (mGetSystemAudioRouteMethod != null) {
                 try {
                     return mGetSystemAudioRouteMethod.invoke(router);
