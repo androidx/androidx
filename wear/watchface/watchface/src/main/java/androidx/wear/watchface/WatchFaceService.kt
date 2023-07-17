@@ -1320,7 +1320,12 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var immutableSystemStateDone = false
         internal var immutableChinHeightDone = false
         internal var systemHasSentWatchUiState = false
-        internal var resourceOnlyWatchFacePackageName: String? = headlessComponentName?.packageName
+        internal var resourceOnlyWatchFacePackageName: String? =
+            if (this@WatchFaceService is WatchFaceRuntimeService) {
+                headlessComponentName?.packageName
+            } else {
+                null
+            }
 
         private var asyncWatchFaceConstructionPending = false
 
@@ -2103,7 +2108,10 @@ public abstract class WatchFaceService : WallpaperService() {
                 setWatchUiState(params.watchUiState, fromSysUi = false)
                 initialUserStyle = params.userStyle
 
-                resourceOnlyWatchFacePackageName = params.auxiliaryComponentPackageName
+                // For a resource only watch face, the auxiliaryComponentPackageName will be null.
+                if (this@WatchFaceService is WatchFaceRuntimeService) {
+                    resourceOnlyWatchFacePackageName = params.auxiliaryComponentPackageName
+                }
 
                 mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
                 val watchState = mutableWatchState.asWatchState()
