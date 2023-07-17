@@ -480,29 +480,6 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.VerticalAnchorable start;
   }
 
-  public final class InvalidationStrategy {
-    ctor public InvalidationStrategy(optional androidx.constraintlayout.compose.InvalidationStrategy.OnIncomingConstraints? onIncomingConstraints, kotlin.jvm.functions.Function0<kotlin.Unit>? onObservedStateChange);
-    method public androidx.constraintlayout.compose.InvalidationStrategy.OnIncomingConstraints? getOnIncomingConstraints();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnObservedStateChange();
-    property public final androidx.constraintlayout.compose.InvalidationStrategy.OnIncomingConstraints? onIncomingConstraints;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onObservedStateChange;
-    field public static final androidx.constraintlayout.compose.InvalidationStrategy.Companion Companion;
-  }
-
-  public static final class InvalidationStrategy.Companion {
-    method public androidx.constraintlayout.compose.InvalidationStrategy getDefaultInvalidationStrategy();
-    property public final androidx.constraintlayout.compose.InvalidationStrategy DefaultInvalidationStrategy;
-  }
-
-  public static fun interface InvalidationStrategy.OnIncomingConstraints {
-    method public operator boolean invoke(androidx.constraintlayout.compose.InvalidationStrategyScope, long old, long new);
-  }
-
-  public final class InvalidationStrategyScope {
-    method public boolean fixedHeightRate(long oldConstraints, long newConstraints, int skipCount, int threshold);
-    method public boolean fixedWidthRate(long oldConstraints, long newConstraints, int skipCount, int threshold);
-  }
-
   public final class KeyAttributeScope extends androidx.constraintlayout.compose.BaseKeyFrameScope {
     method public float getAlpha();
     method public float getRotationX();
@@ -662,9 +639,9 @@ package androidx.constraintlayout.compose {
   }
 
   public final class MotionLayoutKt {
-    method @androidx.compose.runtime.Composable public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional int debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional int debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, String? constraintSetName, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, optional int debugFlags, optional int optimizationLevel, optional androidx.constraintlayout.compose.InvalidationStrategy invalidationStrategy, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, String? constraintSetName, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker public final class MotionLayoutScope {
