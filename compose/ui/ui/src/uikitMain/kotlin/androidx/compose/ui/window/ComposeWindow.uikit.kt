@@ -434,7 +434,7 @@ internal actual class ComposeWindow : UIViewController {
         val topLeftPoint =
             view.coordinateSpace().convertPoint(
                 point = CGPointMake(0.0, 0.0),
-                toCoordinateSpace = UIScreen.mainScreen.coordinateSpace()
+                toCoordinateSpace = view.window?.coordinateSpace() ?: UIScreen.mainScreen.coordinateSpace()
             )
         return topLeftPoint.useContents { DpOffset(x.dp, y.dp).toOffset(density) }
     }
