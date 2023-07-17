@@ -43,6 +43,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.copyText
+import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
@@ -162,7 +164,11 @@ fun BasicSecureTextField(
     }
 
     val secureTextFieldModifier = modifier
-        .semantics(mergeDescendants = true) { password() }
+        .semantics(mergeDescendants = true) {
+            password()
+            copyText { false }
+            cutText { false }
+        }
         .then(
             if (revealLastTypedEnabled) {
                 secureTextFieldController.focusChangeModifier
