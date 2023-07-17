@@ -18,6 +18,7 @@ package androidx.mediarouter.media;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.MediaRouter;
 import android.os.Build;
 import android.util.Log;
 
@@ -47,11 +48,10 @@ final class MediaRouterJellybean {
         return context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static List getRoutes(Object routerObj) {
+    public static List<MediaRouter.RouteInfo> getRoutes(Object routerObj) {
         final android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
         final int count = router.getRouteCount();
-        List out = new ArrayList(count);
+        List<MediaRouter.RouteInfo> out = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             out.add(router.getRouteAt(i));
         }
