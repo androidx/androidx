@@ -197,6 +197,10 @@ class CallsManager constructor(context: Context) {
         // Setup channels for the CallEventCallbacks that only provide info updates
         val callChannels = CallChannels()
         callAttributes.mHandle = getPhoneAccountHandleForPackage()
+        // This variable controls the addCall execution in the calling activity. AddCall will block
+        // for the duration of the session.  When the session is terminated via a disconnect or
+        // exception, addCall will unblock.
+        val blockingSessionExecution = CompletableDeferred<Unit>(parent = coroutineContext.job)
 
         // create a call session based off the build version
         @RequiresApi(34)
@@ -206,7 +210,7 @@ class CallsManager constructor(context: Context) {
             val openResult = CompletableDeferred<CallSession>(parent = coroutineContext.job)
             // CallSession is responsible for handling both CallControl responses from the Platform
             // and propagates CallControlCallbacks that originate in the Platform out to the client.
-            val callSession = CallSession(coroutineContext)
+            val callSession = CallSession(coroutineContext, blockingSessionExecution)
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -243,6 +247,7 @@ class CallsManager constructor(context: Context) {
                 CallSession.CallControlScopeImpl(
                     openResult.getCompleted(),
                     callChannels,
+                    blockingSessionExecution,
                     coroutineContext
                 )
 
@@ -256,7 +261,7 @@ class CallsManager constructor(context: Context) {
                 CompletableDeferred<CallSessionLegacy>(parent = coroutineContext.job)
 
             val request = JetpackConnectionService.PendingConnectionRequest(
-                callAttributes, callChannels, coroutineContext, openResult
+                callAttributes, callChannels, coroutineContext, openResult, blockingSessionExecution
             )
 
             mConnectionService.createConnectionRequest(mTelecomManager, request)
@@ -266,6 +271,7 @@ class CallsManager constructor(context: Context) {
             val scope = CallSessionLegacy.CallControlScopeImpl(
                 openResult.getCompleted(),
                 callChannels,
+                blockingSessionExecution,
                 coroutineContext
             )
 
@@ -273,6 +279,7 @@ class CallsManager constructor(context: Context) {
             // CallControlScope interface implementation declared above.
             scope.block()
         }
+        blockingSessionExecution.await()
     }
 
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(

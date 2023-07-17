@@ -26,7 +26,6 @@ import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -114,8 +113,7 @@ class InCallAudioTest : BaseTelecomTest() {
      */
     private fun runBlocking_addCall_assertAudioModeInCommunication() {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+            assertWithinTimeout_addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
                 launch {
                     while (isActive /* aka  within timeout window */ &&
                         mAudioManager.mode != MODE_IN_COMMUNICATION) {
@@ -123,7 +121,6 @@ class InCallAudioTest : BaseTelecomTest() {
                         delay(1) // sleep x millisecond(s) instead of spamming check
                     }
                     Assert.assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
         }
