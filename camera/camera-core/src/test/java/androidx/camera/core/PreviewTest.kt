@@ -28,12 +28,14 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import android.view.Surface.ROTATION_90
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
@@ -45,6 +47,7 @@ import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
@@ -63,6 +66,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -162,6 +167,23 @@ class PreviewTest {
         for (handler in handlersToRelease) {
             handler.looper.quitSafely()
         }
+    }
+
+    @Test
+    fun attachPreview_receiveTransformationInfoOnlyOnce() {
+        // Arrange.
+        val semaphore = Semaphore(0)
+
+        // Act: create preview and listen to transformation info.
+        createPreview(surfaceProvider = {
+            it.setTransformationInfoListener(directExecutor()) {
+                semaphore.release()
+            }
+        })
+
+        // Assert: only receive transformation info once.
+        assertThat(semaphore.tryAcquire(1, 1, TimeUnit.SECONDS)).isTrue()
+        assertThat(semaphore.tryAcquire(2, 1, TimeUnit.SECONDS)).isFalse()
     }
 
     @Test
@@ -477,7 +499,7 @@ class PreviewTest {
         val preview = createPreview(
             effect,
             frontCamera,
-            targetRotation = Surface.ROTATION_90
+            targetRotation = ROTATION_90
         )
         assertThat(preview.cameraEdge.hasCameraTransform()).isTrue()
         // Assert: rotationDegrees is not flipped.
@@ -491,7 +513,7 @@ class PreviewTest {
         val preview = createPreview(
             effect,
             frontCamera,
-            targetRotation = Surface.ROTATION_90
+            targetRotation = ROTATION_90
         )
         // Assert: rotationDegrees is 0.
         assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
@@ -504,7 +526,7 @@ class PreviewTest {
         val preview = createPreview(
             effect,
             frontCamera,
-            targetRotation = Surface.ROTATION_90
+            targetRotation = ROTATION_90
         )
         // Assert
         assertThat(preview.cameraEdge.hasCameraTransform()).isFalse()
@@ -518,7 +540,7 @@ class PreviewTest {
         val preview = createPreview(
             effect,
             frontCamera,
-            targetRotation = Surface.ROTATION_90
+            targetRotation = ROTATION_90
         )
         // Assert
         assertThat(preview.cameraEdge.mirroring).isFalse()
@@ -802,13 +824,15 @@ class PreviewTest {
     private fun createPreview(
         effect: CameraEffect? = null,
         camera: FakeCamera = backCamera,
-        targetRotation: Int = Surface.ROTATION_0
+        targetRotation: Int = ROTATION_90,
+        surfaceProvider: SurfaceProvider = SurfaceProvider {
+        }
     ): Preview {
         previewToDetach = Preview.Builder()
             .setTargetRotation(targetRotation)
             .build()
         previewToDetach.effect = effect
-        previewToDetach.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
+        previewToDetach.setSurfaceProvider(directExecutor(), surfaceProvider)
         val previewConfig = PreviewConfig(
             cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
                 UseCaseConfigFactory.CaptureType.PREVIEW,

@@ -454,11 +454,14 @@ public final class Preview extends UseCase {
     }
 
     private void sendSurfaceRequest() {
+        // App receives TransformationInfo when 1) the listener is set or 2) the info is sent. We
+        // should send the info before the listen is set so the app only receives once.
+        sendTransformationInfoIfReady();
+
+        // Send the SurfaceRequest.
         final SurfaceProvider surfaceProvider = checkNotNull(mSurfaceProvider);
         final SurfaceRequest surfaceRequest = checkNotNull(mCurrentSurfaceRequest);
-
         mSurfaceProviderExecutor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-        sendTransformationInfoIfReady();
     }
 
     /**
