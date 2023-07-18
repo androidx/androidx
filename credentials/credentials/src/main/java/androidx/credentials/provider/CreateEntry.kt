@@ -60,8 +60,10 @@ class CreateEntry internal constructor(
      *
      * @param accountName the name of the account where the credential will be saved
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
-     * system to attach the final request
+     * entry, must be created with a unique request code per entry,
+     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+     * times
      * @param description the localized description shown on UI about where the credential is stored
      * @param icon the icon to be displayed with this entry on the UI, must be created using
      * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
@@ -146,8 +148,11 @@ class CreateEntry internal constructor(
      * @constructor constructs an instance of [CreateEntry.Builder]
      *
      * @param accountName the name of the account where the credential will be registered
-     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
-     * this entry
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with a unique request code per entry,
+     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+     * times
      */
     class Builder constructor(
         private val accountName: CharSequence,
