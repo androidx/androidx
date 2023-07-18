@@ -33,18 +33,18 @@ import androidx.compose.ui.graphics.luminance
  * body text.
  *
  */
-public val LocalContentAlpha: ProvidableCompositionLocal<Float> = compositionLocalOf { 1f }
+val LocalContentAlpha: ProvidableCompositionLocal<Float> = compositionLocalOf { 1f }
 
 /**
  * Default alpha levels used by Material components.
  *
  * See [LocalContentAlpha].
  */
-public object ContentAlpha {
+object ContentAlpha {
     /**
      * A high level of content alpha, used to represent high emphasis text.
      */
-    public val high: Float
+    val high: Float
         @Composable
         get() = contentAlpha(
             highContrastAlpha = HighContrastContentAlpha.high,
@@ -55,7 +55,7 @@ public object ContentAlpha {
      * A medium level of content alpha, used to represent medium emphasis text such as
      * placeholder text.
      */
-    public val medium: Float
+    val medium: Float
         @Composable
         get() = contentAlpha(
             highContrastAlpha = HighContrastContentAlpha.medium,
@@ -66,7 +66,7 @@ public object ContentAlpha {
      * A low level of content alpha used to represent disabled components, such as text in a
      * disabled Button.
      */
-    public val disabled: Float
+    val disabled: Float
         @Composable
         get() = contentAlpha(
             highContrastAlpha = HighContrastContentAlpha.disabled,
@@ -123,4 +123,5 @@ private object LowContrastContentAlpha {
     const val disabled: Float = 0.38f
 }
 
-internal const val DisabledBorderAndContainerAlpha = 0.12f
+internal const val DisabledContainerAlpha = 0.12f
+internal const val DisabledBorderAlpha = 0.20f

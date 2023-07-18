@@ -328,13 +328,13 @@ object InlineSliderDefaults {
         unselectedBarColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.3f),
         barSeparatorColor: Color = MaterialTheme.colorScheme.primaryDim,
         disabledContainerColor: Color = containerColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         ),
         disabledButtonIconColor: Color = buttonIconColor.toDisabledColor(),
         disabledSelectedBarColor: Color = selectedBarColor.toDisabledColor(),
         disabledUnselectedBarColor: Color = unselectedBarColor.toDisabledColor(),
         disabledBarSeparatorColor: Color = barSeparatorColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         )
     ): InlineSliderColors = InlineSliderColors(
         containerColor = containerColor,

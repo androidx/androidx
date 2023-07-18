@@ -34,6 +34,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -80,14 +82,16 @@ fun Button(
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
-                role = Role.Button,
+                role = null, // provide the role via Modifier.semantics
                 interactionSource = interactionSource,
                 indication = rememberRipple(),
             )
             .then(
                 // Make sure modifier ordering is clip > clickable > padding > size,
                 // so that the ripple applies to the entire button shape and size.
+                // Then, apply semantics to apply the default semantic role (can be overridden)
                 modifier
+                    .semantics { role = Role.Button }
             )
             .size(buttonSize)
             .clip(shape) // Clip for the painted background area after size has been applied.

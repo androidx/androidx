@@ -491,11 +491,11 @@ object CheckboxDefaults {
         uncheckedBoxColor = uncheckedBoxColor,
         uncheckedCheckmarkColor = uncheckedCheckmarkColor,
         disabledCheckedBoxColor = checkedBoxColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         ),
         disabledCheckedCheckmarkColor = checkedCheckmarkColor.toDisabledColor(),
         disabledUncheckedBoxColor = uncheckedBoxColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         ),
         disabledUncheckedCheckmarkColor = uncheckedCheckmarkColor.toDisabledColor()
     )
@@ -539,18 +539,18 @@ object SwitchDefaults {
         disabledCheckedThumbColor = checkedThumbColor.toDisabledColor(),
         disabledCheckedThumbIconColor = checkedThumbIconColor.toDisabledColor(),
         disabledCheckedTrackColor = checkedTrackColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         ),
         disabledCheckedTrackBorderColor = checkedTrackStrokeColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledBorderAlpha
         ),
         disabledUncheckedThumbColor = uncheckedThumbColor.toDisabledColor(),
         disabledUncheckedThumbIconColor = uncheckedThumbIconColor.toDisabledColor(),
         disabledUncheckedTrackColor = uncheckedTrackColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         ),
         disabledUncheckedTrackBorderColor = uncheckedTrackStrokeColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledBorderAlpha
         )
     )
 }
