@@ -416,11 +416,13 @@ internal class TextFieldSelectionManager(
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
                 currentDragPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
                 state?.isInTouchMode = true
+                state?.showFloatingToolbar = false
             }
 
             override fun onUp() {
                 draggingHandle = null
                 currentDragPosition = null
+                state?.showFloatingToolbar = true
             }
 
             override fun onStart(startPoint: Offset) {

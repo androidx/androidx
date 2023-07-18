@@ -852,7 +852,7 @@ internal class TextFieldState(
     /**
      * A flag to check if the floating toolbar should show.
      */
-    var showFloatingToolbar = false
+    var showFloatingToolbar by mutableStateOf(false)
 
     /**
      * True if the position of the selection start handle is within a visible part of the window
