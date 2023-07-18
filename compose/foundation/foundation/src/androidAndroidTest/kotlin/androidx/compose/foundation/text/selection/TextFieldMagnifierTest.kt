@@ -70,8 +70,8 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
     }
 
     @Test
-    fun magnifier_appears_whileStartCursorTouched() {
-        checkMagnifierAppears_whileHandleTouched(Handle.Cursor)
+    fun magnifier_appears_whenCursorStartDrag() {
+        checkMagnifierAppears_whenCursorHandleDragged()
     }
 
     @Test

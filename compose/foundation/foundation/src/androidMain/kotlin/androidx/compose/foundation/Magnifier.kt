@@ -462,6 +462,7 @@ internal class MagnifierNode(
         val view = view ?: return
         val density = density ?: return
         magnifier = platformMagnifierFactory.create(style, view, density, zoom)
+        updateSizeIfNecessary()
     }
 
     private fun updateMagnifier() {
@@ -490,14 +491,20 @@ internal class MagnifierNode(
                 },
                 zoom = zoom
             )
-
-            if (magnifier.size != previousSize) {
-                onSizeChanged?.invoke(with(density) { magnifier.size.toSize().toDpSize() })
-                previousSize = magnifier.size
-            }
+            updateSizeIfNecessary()
         } else {
             // Can't place the magnifier at an unspecified location, so just hide it.
             magnifier.dismiss()
+        }
+    }
+
+    private fun updateSizeIfNecessary() {
+        val magnifier = magnifier ?: return
+        val density = density ?: return
+
+        if (magnifier.size != previousSize) {
+            onSizeChanged?.invoke(with(density) { magnifier.size.toSize().toDpSize() })
+            previousSize = magnifier.size
         }
     }
 
