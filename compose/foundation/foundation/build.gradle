@@ -226,6 +226,10 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             nativeTest.dependsOn(jsNativeTest)
             jsTest.dependsOn(jsNativeTest)
+
+            configureEach {
+                languageSettings.optIn("androidx.compose.foundation.ExperimentalFoundationApi")
+            }
         }
     }
     dependencies {
