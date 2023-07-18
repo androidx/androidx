@@ -60,8 +60,7 @@ fun Project.createTestConfigurationGenerationTask(
 ) {
     val xmlName = "${path.asFilenamePrefix()}$variantName.xml"
     val jsonName = "_${path.asFilenamePrefix()}$variantName.json"
-    rootProject.tasks.named("createModuleInfo").configure {
-        it as ModuleInfoGenerator
+    rootProject.tasks.named<ModuleInfoGenerator>("createModuleInfo").configure {
         it.testModules.add(
             TestModule(
                 name = xmlName,
@@ -284,10 +283,57 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
 ) {
     val mediaPrefix = getMediaConfigTaskPrefix(isMedia2)
     val mediaTask = getOrCreateMediaTestConfigTask(this, isMedia2)
+
+    fun getJsonName(clientToT: Boolean, serviceToT: Boolean, clientTests: Boolean): String {
+        return "_${mediaPrefix}Client${
+            if (clientToT) "ToT" else "Previous"
+        }Service${
+            if (serviceToT) "ToT" else "Previous"
+        }${
+            if (clientTests) "Client" else "Service"
+        }Tests$variantName.json"
+    }
+
+    fun ModuleInfoGenerator.addTestModule(clientToT: Boolean, serviceToT: Boolean) {
+        // We don't test the combination of previous versions of service and client as that is not
+        // useful data. We always want at least one tip of tree project.
+        if (!clientToT && !serviceToT) return
+        testModules.add(
+            TestModule(
+                name = getJsonName(
+                    clientToT = clientToT,
+                    serviceToT = serviceToT,
+                    clientTests = true
+                ),
+                path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
+            )
+        )
+        testModules.add(
+            TestModule(
+                name = getJsonName(
+                    clientToT = clientToT,
+                    serviceToT = serviceToT,
+                    clientTests = false
+                ),
+                path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
+            )
+        )
+    }
+    val isClient = this.name.contains("client")
+    val isPrevious = this.name.contains("previous")
+
+    rootProject.tasks.named<ModuleInfoGenerator>("createModuleInfo").configure {
+        if (isClient) {
+            it.addTestModule(clientToT = !isPrevious, serviceToT = false)
+            it.addTestModule(clientToT = !isPrevious, serviceToT = true)
+        } else {
+            it.addTestModule(clientToT = true, serviceToT = !isPrevious)
+            it.addTestModule(clientToT = false, serviceToT = !isPrevious)
+        }
+    }
     mediaTask.configure {
-        it as GenerateMediaTestConfigurationTask
-        if (this.name.contains("client")) {
-            if (this.name.contains("previous")) {
+        if (isClient) {
+            if (isPrevious) {
                 it.clientPreviousFolder.set(artifacts.get(SingleArtifact.APK))
                 it.clientPreviousLoader.set(artifacts.getBuiltArtifactsLoader())
             } else {
@@ -295,7 +341,7 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
                 it.clientToTLoader.set(artifacts.getBuiltArtifactsLoader())
             }
         } else {
-            if (this.name.contains("previous")) {
+            if (isPrevious) {
                 it.servicePreviousFolder.set(artifacts.get(SingleArtifact.APK))
                 it.servicePreviousLoader.set(artifacts.getBuiltArtifactsLoader())
             } else {
@@ -305,32 +351,32 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
         }
         it.jsonClientPreviousServiceToTClientTests.set(
             getFileInTestConfigDirectory(
-                "_${mediaPrefix}ClientPreviousServiceToTClientTests$variantName.json"
+                getJsonName(clientToT = false, serviceToT = true, clientTests = true)
             )
         )
         it.jsonClientPreviousServiceToTServiceTests.set(
             getFileInTestConfigDirectory(
-                "_${mediaPrefix}ClientPreviousServiceToTServiceTests$variantName.json"
+                getJsonName(clientToT = false, serviceToT = true, clientTests = false)
             )
         )
         it.jsonClientToTServicePreviousClientTests.set(
             getFileInTestConfigDirectory(
-                "_${mediaPrefix}ClientToTServicePreviousClientTests$variantName.json"
+                getJsonName(clientToT = true, serviceToT = false, clientTests = true)
             )
         )
         it.jsonClientToTServicePreviousServiceTests.set(
             getFileInTestConfigDirectory(
-                "_${mediaPrefix}ClientToTServicePreviousServiceTests$variantName.json"
+                getJsonName(clientToT = true, serviceToT = false, clientTests = false)
             )
         )
         it.jsonClientToTServiceToTClientTests.set(
             getFileInTestConfigDirectory(
-                "_${mediaPrefix}ClientToTServiceToTClientTests$variantName.json"
+                getJsonName(clientToT = true, serviceToT = true, clientTests = true)
             )
         )
         it.jsonClientToTServiceToTServiceTests.set(
             getFileInTestConfigDirectory(
-                "_${mediaPrefix}ClientToTServiceToTServiceTests$variantName.json"
+                getJsonName(clientToT = true, serviceToT = true, clientTests = false)
             )
         )
         it.totClientApk.set(getFileInTestConfigDirectory("${mediaPrefix}ClientToT$variantName.apk"))
