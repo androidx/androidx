@@ -20,13 +20,15 @@ import androidx.build.KmpPlatformsKt
 
 plugins {
     id("AndroidXPlugin")
+    id("java")
     id("AndroidXComposePlugin")
+    id("kotlin-multiplatform")
 }
 
 def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
 if (desktopEnabled) {
-    androidXMultiplatform {
+    kotlin {
         jvm()
 
         sourceSets {
@@ -110,7 +112,7 @@ if (desktopEnabled) {
 }
 
 if (!desktopEnabled) {
-    androidXMultiplatform {
+    kotlin {
         jvm("disabled") {
             withJava()
         }

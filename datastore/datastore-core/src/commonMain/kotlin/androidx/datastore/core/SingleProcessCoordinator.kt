@@ -16,7 +16,6 @@
 
 package androidx.datastore.core
 
-import kotlin.contracts.ExperimentalContracts
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
@@ -41,7 +40,6 @@ internal class SingleProcessCoordinator() : InterProcessCoordinator {
 
     // run block with an attempt to get the exclusive lock, still run even if
     // attempt fails. Pass a boolean to indicate if the attempt succeeds.
-    @OptIn(ExperimentalContracts::class) // withTryLock
     override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
         return mutex.withTryLock {
             block(it)
