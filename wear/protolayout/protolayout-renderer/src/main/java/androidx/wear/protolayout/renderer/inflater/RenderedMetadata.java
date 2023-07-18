@@ -43,7 +43,7 @@ public final class RenderedMetadata {
     }
 
     @NonNull
-    TreeFingerprint getTreeFingerprint() {
+    public TreeFingerprint getTreeFingerprint() {
         return mTreeFingerprint;
     }
 
