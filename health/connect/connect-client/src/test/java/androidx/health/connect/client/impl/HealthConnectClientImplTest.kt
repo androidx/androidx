@@ -24,6 +24,7 @@ import android.content.pm.PackageInfo
 import android.os.Looper
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -209,6 +210,20 @@ class HealthConnectClientImplTest {
                 getReadPermission(StepsRecord::class),
                 getWritePermission(HeartRateRecord::class)
             )
+    }
+
+    @Test
+    fun getGrantedPermissions_exerciseRoute() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
+                    .build()
+            )
+        )
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response).containsExactly(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
     }
 
     @Test
