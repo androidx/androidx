@@ -38,7 +38,6 @@ import org.jetbrains.skiko.*
 internal class ComposeLayer(
     internal val layer: SkiaLayer,
     platform: Platform,
-    private val getTopLeftOffset: () -> Offset,
     private val input: SkikoInput,
 ) {
     private var isDisposed = false
@@ -71,7 +70,7 @@ internal class ComposeLayer(
         @OptIn(ExperimentalComposeUiApi::class)
         private fun onPointerEventWithMultitouch(event: SkikoPointerEvent) {
             val scale = density.density
-            val topLeftOffset = getTopLeftOffset()
+
             scene.sendPointerEvent(
                 eventType = event.kind.toCompose(),
                 pointers = event.pointers.map {
@@ -80,7 +79,7 @@ internal class ComposeLayer(
                         position = Offset(
                             x = it.x.toFloat() * scale,
                             y = it.y.toFloat() * scale
-                        ) - topLeftOffset,
+                        ),
                         pressed = it.pressed,
                         type = it.device.toCompose(),
                         pressure = it.pressure.toFloat(),
@@ -99,7 +98,7 @@ internal class ComposeLayer(
                 position = Offset(
                     x = event.x.toFloat() * scale,
                     y = event.y.toFloat() * scale
-                ) - getTopLeftOffset(),
+                ),
                 timeMillis = currentMillis(),
                 type = PointerType.Mouse,
                 nativeEvent = event

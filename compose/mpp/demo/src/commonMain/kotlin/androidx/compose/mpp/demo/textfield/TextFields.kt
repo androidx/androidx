@@ -35,12 +35,6 @@ val TextFields = Screen.Selection(
     Screen.Example("AlmostFullscreen") {
         AlmostFullscreen()
     },
-    Screen.Example("Android Capitalization/AutoCorrect") {
-        CapitalizationAutoCorrectDemo()
-    },
-    Screen.Example("Android Keyboard Types") {
-        KeyboardTypeDemo()
-    },
     Screen.Example("Keyboard Actions") {
         KeyboardActionsExample()
     },

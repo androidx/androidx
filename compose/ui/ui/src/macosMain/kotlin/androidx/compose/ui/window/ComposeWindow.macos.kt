@@ -35,7 +35,6 @@ internal actual class ComposeWindow actual constructor() {
     val layer = ComposeLayer(
         layer = createSkiaLayer(),
         platform = platform,
-        getTopLeftOffset = { Offset.Zero },
         input = macosTextInputService.input
     )
 
