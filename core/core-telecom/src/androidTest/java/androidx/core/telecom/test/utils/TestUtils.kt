@@ -17,6 +17,7 @@
 package androidx.core.telecom.test.utils
 
 import android.content.Context
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build.VERSION_CODES
 import android.os.UserHandle
@@ -223,6 +224,19 @@ object TestUtils {
             LOG_TAG,
             "setDefaultDialer=[${runShellCommand((COMMAND_SET_DEFAULT_DIALER + packageName))}]"
         )
+    }
+
+    fun getAudioModeName(mode: Int): String {
+        return when (mode) {
+            AudioManager.MODE_NORMAL -> "MODE_NORMAL"
+            AudioManager.MODE_RINGTONE -> "MODE_RINGTONE"
+            AudioManager.MODE_IN_CALL -> "MODE_IN_CALL"
+            AudioManager.MODE_IN_COMMUNICATION -> "MODE_IN_COMMUNICATION"
+            AudioManager.MODE_CALL_SCREENING -> "MODE_CALL_SCREENING"
+            AudioManager.MODE_CALL_REDIRECT -> "MODE_CALL_REDIRECT"
+            AudioManager.MODE_COMMUNICATION_REDIRECT -> "MODE_COMMUNICATION_REDIRECT"
+            else -> "UNKNOWN mode = <$mode>"
+        }
     }
 
     fun enablePhoneAccountHandle(context: Context, phoneAccountHandle: PhoneAccountHandle) {
