@@ -214,6 +214,7 @@ final class Camera2CameraImpl implements CameraInternal {
      *                            Used as a fence to ensure the number of simultaneously
      *                            opened cameras is limited.
      * @param executor            the executor for on which all camera operations run
+     * @param cameraOpenRetryMaxTimeoutInMs the max timeout for camera open retry.
      * @throws CameraUnavailableException if the {@link CameraCharacteristics} is unavailable. This
      *                                    could occur if the camera was disconnected.
      */
@@ -225,13 +226,15 @@ final class Camera2CameraImpl implements CameraInternal {
             @NonNull CameraStateRegistry cameraStateRegistry,
             @NonNull Executor executor,
             @NonNull Handler schedulerHandler,
-            @NonNull DisplayInfoManager displayInfoManager) throws CameraUnavailableException {
+            @NonNull DisplayInfoManager displayInfoManager,
+            long cameraOpenRetryMaxTimeoutInMs) throws CameraUnavailableException {
         mCameraManager = cameraManager;
         mCameraCoordinator = cameraCoordinator;
         mCameraStateRegistry = cameraStateRegistry;
         mScheduledExecutorService = CameraXExecutors.newHandlerExecutor(schedulerHandler);
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
-        mStateCallback = new StateCallback(mExecutor, mScheduledExecutorService);
+        mStateCallback = new StateCallback(mExecutor, mScheduledExecutorService,
+                cameraOpenRetryMaxTimeoutInMs);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
         mCameraStateMachine = new CameraStateMachine(cameraStateRegistry);
@@ -1652,13 +1655,15 @@ final class Camera2CameraImpl implements CameraInternal {
         private ScheduledReopen mScheduledReopenRunnable;
         @SuppressWarnings("WeakerAccess") // synthetic accessor
         ScheduledFuture<?> mScheduledReopenHandle;
-        @NonNull
-        private final CameraReopenMonitor mCameraReopenMonitor = new CameraReopenMonitor();
+        @NonNull private final CameraReopenMonitor mCameraReopenMonitor;
 
-        StateCallback(@NonNull @CameraExecutor Executor executor, @NonNull ScheduledExecutorService
-                scheduler) {
+        StateCallback(
+                @NonNull @CameraExecutor Executor executor,
+                @NonNull ScheduledExecutorService scheduler,
+                long cameraOpenRetryMaxTimeoutInMs) {
             this.mExecutor = executor;
             this.mScheduler = scheduler;
+            this.mCameraReopenMonitor = new CameraReopenMonitor(cameraOpenRetryMaxTimeoutInMs);
         }
 
         @Override
@@ -1963,7 +1968,13 @@ final class Camera2CameraImpl implements CameraInternal {
             static final int ACTIVE_REOPEN_DELAY_BASE_MS = 1000;
             static final int ACTIVE_REOPEN_LIMIT_MS = 30 * 60 * 1000; // 30 minutes
             static final int INVALID_TIME = -1;
+
+            private final long mCameraOpenRetryMaxTimeoutInMs;
             private long mFirstReopenTime = INVALID_TIME;
+
+            CameraReopenMonitor(long cameraOpenRetryMaxTimeoutInMs) {
+                mCameraOpenRetryMaxTimeoutInMs = cameraOpenRetryMaxTimeoutInMs;
+            }
 
             int getReopenDelayMs() {
                 if (!shouldActiveResume()) {
@@ -1982,9 +1993,13 @@ final class Camera2CameraImpl implements CameraInternal {
 
             int getReopenLimitMs() {
                 if (!shouldActiveResume()) {
-                    return REOPEN_LIMIT_MS;
+                    return mCameraOpenRetryMaxTimeoutInMs > 0
+                            ? Math.min((int) mCameraOpenRetryMaxTimeoutInMs,
+                            REOPEN_LIMIT_MS) : REOPEN_LIMIT_MS;
                 } else {
-                    return ACTIVE_REOPEN_LIMIT_MS;
+                    return mCameraOpenRetryMaxTimeoutInMs > 0
+                            ? Math.min((int) mCameraOpenRetryMaxTimeoutInMs,
+                            ACTIVE_REOPEN_LIMIT_MS) : ACTIVE_REOPEN_LIMIT_MS;
                 }
             }
 
