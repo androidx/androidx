@@ -437,11 +437,9 @@ fun BottomSheetScaffold(
     content: @Composable (PaddingValues) -> Unit
 ) {
     // b/278692145 Remove this once deprecated methods without density are removed
-    if (scaffoldState.bottomSheetState.density == null) {
-        val density = LocalDensity.current
-        SideEffect {
-            scaffoldState.bottomSheetState.density = density
-        }
+    val density = LocalDensity.current
+    SideEffect {
+        scaffoldState.bottomSheetState.density = density
     }
 
     val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
