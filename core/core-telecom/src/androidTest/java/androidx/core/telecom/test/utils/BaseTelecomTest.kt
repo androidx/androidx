@@ -165,7 +165,7 @@ abstract class BaseTelecomTest {
         } catch (timeout: TimeoutCancellationException) {
             Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: reached timeout; dumping telecom")
             TestUtils.dumpTelecom()
-            callControlScope?.disconnect(DisconnectCause(DisconnectCause.ERROR, "timeout in test"))
+            callControlScope?.disconnect(DisconnectCause(DisconnectCause.LOCAL, "timeout in test"))
             Assert.fail(TestUtils.VERIFICATION_TIMEOUT_MSG)
         }
     }
