@@ -376,9 +376,9 @@ echo >&2
 # command for running a build
 buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
 # command for moving state, running build, and moving state back
-fullFiltererCommand="$(getTestStateCommand $buildCommand)"
+fullFiltererCommand="$(getTestStateCommand --invert $buildCommand)"
 
-if $supportRoot/development/file-utils/diff-filterer.py $timeoutArg --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
+if $supportRoot/development/file-utils/diff-filterer.py $timeoutArg --assume-input-states-are-correct --work-path $tempDir $tempDir/prev $successState "$fullFiltererCommand"; then
   echo >&2
   echo "There should be something wrong with the above file state" >&2
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong" >&2

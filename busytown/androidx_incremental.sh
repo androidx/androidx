@@ -46,7 +46,13 @@ function hashOutDir() {
 # reproducible
 DIAGNOSE_ARG=""
 if [ "$PRESUBMIT" == "false" ]; then
-  DIAGNOSE_ARG="--diagnose"
+  if [ "$BUILD_NUMBER" == "" ]; then
+    # This is a local build so we can diagnose without a timeout. The user can cancel it when they're satisfied.
+    DIAGNOSE_ARG="--diagnose"
+  else
+    # This is running on the build server so we should not spend long trying to diagnose it
+    DIAGNOSE_ARG="--diagnose --diagnose-timeout 600"
+  fi
 fi
 
 EXIT_VALUE=0
