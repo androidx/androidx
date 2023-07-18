@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.test
 
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -23,6 +24,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.SkiaRootForTest
@@ -40,7 +42,7 @@ private class TestInputEvent(
     val action: () -> Unit
 )
 
-@OptIn(InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class, ExperimentalComposeUiApi::class)
 internal class SkikoInputDispatcher(
     private val testContext: TestContext,
     private val root: SkiaRootForTest
@@ -57,28 +59,37 @@ internal class SkikoInputDispatcher(
     private var modifiers = 0
 
     override fun PartialGesture.enqueueDown(pointerId: Int) {
-        val position = lastPositions[pointerId]!!
         val timeMillis = currentTime
+        val pointers = lastPositions.map {
+            ComposeScene.Pointer(
+                id = PointerId(it.key.toLong()),
+                position = it.value,
+                pressed = true,
+                type = PointerType.Touch
+            )
+        }
         enqueue(timeMillis) {
             scene.sendPointerEvent(
                 PointerEventType.Press,
-                position = position,
-                type = PointerType.Touch,
+                pointers = pointers,
                 timeMillis = timeMillis
             )
         }
     }
     override fun PartialGesture.enqueueMove() {
-        val position = Offset(
-            lastPositions.values.map { it.x }.average().toFloat(),
-            lastPositions.values.map { it.y }.average().toFloat(),
-        )
         val timeMillis = currentTime
+        val pointers = lastPositions.map {
+            ComposeScene.Pointer(
+                id = PointerId(it.key.toLong()),
+                position = it.value,
+                pressed = true,
+                type = PointerType.Touch
+            )
+        }
         enqueue(timeMillis) {
             scene.sendPointerEvent(
                 PointerEventType.Move,
-                position = position,
-                type = PointerType.Touch,
+                pointers = pointers,
                 timeMillis = timeMillis
             )
         }
@@ -93,13 +104,19 @@ internal class SkikoInputDispatcher(
     }
 
     override fun PartialGesture.enqueueUp(pointerId: Int) {
-        val position = lastPositions[pointerId]!!
         val timeMillis = currentTime
+        val pointers = lastPositions.map {
+            ComposeScene.Pointer(
+                id = PointerId(it.key.toLong()),
+                position = it.value,
+                pressed = pointerId != it.key,
+                type = PointerType.Touch
+            )
+        }
         enqueue(timeMillis) {
             scene.sendPointerEvent(
                 PointerEventType.Release,
-                position = position,
-                type = PointerType.Touch,
+                pointers = pointers,
                 timeMillis = timeMillis
             )
         }

@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Scroll
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.PointerType.Companion.Mouse
 import androidx.compose.ui.input.pointer.pointerInput
@@ -369,7 +370,6 @@ class ComposeUiSkikoTestTest {
     }
 
     @Test
-    @Ignore // TODO(ivan.matkov): Bug in SkikoInputDispatcher - it uses overload for mouse input
     fun touch_press_multiple() = runComposeUiTest {
         setContent { TestEventBox() }
 
@@ -385,23 +385,23 @@ class ComposeUiSkikoTestTest {
         assertThat(events).hasSize(4)
         events[0].apply {
             assertThat(type).isEqualTo(Press)
-            assertThat(changes[0].position).isEqualTo(Offset(0f, 0f))
-            assertThat(changes[0].type).isEqualTo(PointerType.Touch)
+            assertThat(changes.find(0).position).isEqualTo(Offset(0f, 0f))
+            assertThat(changes.find(0).type).isEqualTo(PointerType.Touch)
         }
         events[1].apply {
             assertThat(type).isEqualTo(Press)
-            assertThat(changes[0].position).isEqualTo(Offset(10f, 20f))
-            assertThat(changes[0].type).isEqualTo(PointerType.Touch)
+            assertThat(changes.find(1).position).isEqualTo(Offset(10f, 20f))
+            assertThat(changes.find(1).type).isEqualTo(PointerType.Touch)
         }
         events[2].apply {
             assertThat(type).isEqualTo(Release)
-            assertThat(changes[0].position).isEqualTo(Offset(0f, 0f))
-            assertThat(changes[0].type).isEqualTo(PointerType.Touch)
+            assertThat(changes.find(0).position).isEqualTo(Offset(0f, 0f))
+            assertThat(changes.find(0).type).isEqualTo(PointerType.Touch)
         }
         events[3].apply {
             assertThat(type).isEqualTo(Release)
-            assertThat(changes[0].position).isEqualTo(Offset(10f, 20f))
-            assertThat(changes[0].type).isEqualTo(PointerType.Touch)
+            assertThat(changes.find(1).position).isEqualTo(Offset(10f, 20f))
+            assertThat(changes.find(1).type).isEqualTo(PointerType.Touch)
         }
     }
 
@@ -441,3 +441,6 @@ private fun <T : Collection<*>> AssertThat<T>.hasSize(size: Int) {
 private fun <T> assertThat(t: T): AssertThat<T> {
     return AssertThat(t)
 }
+
+private fun List<PointerInputChange>.find(id: Int) =
+    this.first { it.id.value.toInt() == id }
