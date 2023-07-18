@@ -35,6 +35,7 @@ import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -124,6 +125,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
+        project.configureLint()
         project.configureKtlint()
         project.configureKotlinVersion()
 
@@ -400,7 +402,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
             project.configureKmpTests()
             project.configureSourceJarForMultiplatform()
-            project.configureLintForMultiplatform(extension)
 
             // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
             // https://youtrack.jetbrains.com/issue/KT-55881
@@ -427,13 +428,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             onVariants {
                 it.configureTests()
                 it.artRewritingWorkaround()
-            }
-            finalizeDsl {
-                project.configureAndroidProjectForLint(
-                    it.lint,
-                    androidXExtension,
-                    isLibrary = false
-                )
             }
         }
     }
@@ -536,9 +530,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 it.configureTests()
                 it.artRewritingWorkaround()
             }
-            finalizeDsl {
-                project.configureAndroidProjectForLint(it.lint, androidXExtension, isLibrary = true)
-            }
         }
 
         project.configurePublicResourcesStub(libraryExtension)
@@ -613,10 +604,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        // Standard lint, docs, and Metalava configuration for AndroidX projects.
-        if (project.multiplatformExtension == null) {
-            project.configureNonAndroidProjectForLint(extension)
-        }
         val apiTaskConfig =
             if (project.multiplatformExtension != null) {
                 KmpApiTaskConfig
@@ -1104,6 +1091,11 @@ private fun Project.addToProjectMap(extension: AndroidXExtension) {
         }
     }
 }
+
+val Project.androidExtension: AndroidComponentsExtension<*, *, *>
+    get() = extensions.findByType<LibraryAndroidComponentsExtension>()
+        ?: extensions.findByType<ApplicationAndroidComponentsExtension>()
+        ?: throw IllegalArgumentException("Failed to find any registered Android extension")
 
 val Project.multiplatformExtension
     get() = extensions.findByType(KotlinMultiplatformExtension::class.java)
