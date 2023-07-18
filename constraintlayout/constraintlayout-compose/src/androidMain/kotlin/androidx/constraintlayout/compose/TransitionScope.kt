@@ -257,7 +257,7 @@ class TransitionScope internal constructor(
         onSwipe?.let {
             containerObject.put("onSwipe", onSwipeObject)
             onSwipeObject.putString("direction", it.direction.name)
-            onSwipeObject.putNumber("dragScale", it.dragScale)
+            onSwipeObject.putNumber("scale", it.dragScale)
             it.dragAround?.id?.let { id ->
                 onSwipeObject.putString("around", id.toString())
             }
