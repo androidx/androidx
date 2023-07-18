@@ -31,6 +31,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
+import androidx.glance.action.NoRippleOverride
 import androidx.glance.action.action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.R
@@ -343,16 +344,21 @@ fun CircleIconButton(
 private enum class IconButtonShape(
     @DrawableRes val shape: Int,
     @DimenRes val cornerRadius: Int,
+    @DrawableRes val ripple: Int,
     val defaultSize: Dp
 ) {
     Square(
         R.drawable.glance_component_btn_square,
         R.dimen.glance_component_square_icon_button_corners,
+        ripple = if (isAtLeastApi31) NoRippleOverride
+            else R.drawable.glance_component_square_button_ripple,
         defaultSize = 60.dp
     ),
     Circle(
         R.drawable.glance_component_btn_circle,
         R.dimen.glance_component_circle_icon_button_corners,
+        ripple = if (isAtLeastApi31) NoRippleOverride
+            else R.drawable.glance_component_circle_button_ripple,
         defaultSize = 48.dp
     )
 }
@@ -382,7 +388,7 @@ private fun M3IconButton(
             .size(shape.defaultSize) // acts as a default if not overridden by [modifier]
             .then(modifier)
             .then(backgroundModifier)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, rippleOverride = shape.ripple)
             .enabled(enabled)
             .then(maybeRoundCorners(shape.cornerRadius))
     ) {
@@ -423,7 +429,11 @@ private fun M3TextButton(
             .padding(start = 16.dp, end = totalHorizontalPadding, top = 10.dp, bottom = 10.dp)
             .background(ImageProvider(backgroundResource), tint = ColorFilter.tint(backgroundTint))
             .enabled(enabled)
-            .clickable(onClick = onClick)
+            .clickable(
+                onClick = onClick,
+                rippleOverride = if (isAtLeastApi31) NoRippleOverride
+                else R.drawable.glance_component_m3_button_ripple
+            )
             .then(maybeRoundCorners(R.dimen.glance_component_button_corners)),
         contentAlignment = Alignment.Center
     ) {

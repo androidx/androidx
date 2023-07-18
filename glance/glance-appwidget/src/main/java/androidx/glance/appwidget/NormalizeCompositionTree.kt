@@ -28,6 +28,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
+import androidx.glance.action.NoRippleOverride
+import androidx.glance.addChild
+import androidx.glance.addChildIfNotNull
 import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.extractModifier
 import androidx.glance.findModifier
@@ -263,9 +266,15 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
         targetModifiersMinusBg.extractModifier<ActionModifier>()
     boxModifiers += actionModifier
     if (actionModifier != null && !hasBuiltinRipple()) {
+        val maybeRippleOverride = actionModifier.rippleOverride
         val rippleImageProvider =
-            if (isButton) ImageProvider(R.drawable.glance_button_ripple)
-            else ImageProvider(R.drawable.glance_ripple)
+            if (maybeRippleOverride != NoRippleOverride) {
+                ImageProvider(maybeRippleOverride)
+            } else if (isButton) {
+                ImageProvider(R.drawable.glance_button_ripple)
+            } else {
+                ImageProvider(R.drawable.glance_ripple)
+            }
         rippleImage = EmittableImage().apply {
             modifier = GlanceModifier.fillMaxSize()
             provider = rippleImageProvider
@@ -289,11 +298,13 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
 
     return EmittableBox().apply {
         modifier = boxModifiers.collect()
+        target.modifier = targetModifiers.collect()
+
         if (isButton) contentAlignment = Alignment.Center
 
-        backgroundImage?.let { children += it }
-        children += target.apply { modifier = targetModifiers.collect() }
-        rippleImage?.let { children += it }
+        addChildIfNotNull(backgroundImage)
+        addChild(target)
+        addChildIfNotNull(rippleImage)
     }
 }
 
