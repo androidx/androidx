@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.annotation.IntRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
@@ -153,7 +154,7 @@ fun Slider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
@@ -249,7 +250,7 @@ fun Slider(
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0,
     thumb: @Composable (SliderState) -> Unit = {
         SliderDefaults.Thumb(
@@ -412,7 +413,7 @@ fun RangeSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors()
@@ -541,7 +542,7 @@ fun RangeSlider(
             rangeSliderState = rangeSliderState
         )
     },
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0
 ) {
     val state = remember(
@@ -1789,7 +1790,7 @@ class SliderPositions(
 class SliderState(
     initialValue: Float = 0f,
     initialOnValueChange: ((Float) -> Unit)? = null,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     val steps: Int = 0,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     var onValueChangeFinished: (() -> Unit)? = null
@@ -1909,7 +1910,7 @@ class RangeSliderState(
     initialActiveRangeStart: Float = 0f,
     initialActiveRangeEnd: Float = 1f,
     initialOnValueChange: ((FloatRange) -> Unit)? = null,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     val steps: Int = 0,
     val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     var onValueChangeFinished: (() -> Unit)? = null,
