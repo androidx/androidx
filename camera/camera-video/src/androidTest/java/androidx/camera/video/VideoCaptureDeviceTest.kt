@@ -28,8 +28,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
@@ -39,7 +41,9 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_480P
 import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
 import androidx.camera.testing.EncoderProfilesUtil.createFakeEncoderProfilesProxy
 import androidx.camera.testing.GLUtil
@@ -120,14 +124,18 @@ class VideoCaptureDeviceTest(
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
-    private val dynamicRange = DynamicRange.SDR
     private val supportedResolutionMap = mapOf(
-        DynamicRange.SDR to linkedMapOf(
+        SDR to mapOf(
             Quality.HIGHEST to RESOLUTION_2160P,
             Quality.UHD to RESOLUTION_2160P,
             Quality.HD to RESOLUTION_720P,
             Quality.LOWEST to RESOLUTION_720P
+        ),
+        HDR10_10_BIT to mapOf(
+            Quality.HIGHEST to RESOLUTION_1080P,
+            Quality.FHD to RESOLUTION_1080P,
+            Quality.SD to RESOLUTION_480P,
+            Quality.LOWEST to RESOLUTION_480P
         )
     )
 
@@ -230,43 +238,46 @@ class VideoCaptureDeviceTest(
         assumeExtraCroppingQuirk(implName)
 
         val videoCapabilities = createFakeVideoCapabilities(supportedResolutionMap)
-        assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
-        // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
-        assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
+        videoCapabilities.supportedDynamicRanges.forEach { dynamicRange ->
+            assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
+            // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
+            assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
-        // Arrange.
-        val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
-        qualityList.forEach loop@{ quality ->
-            val profile = videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
-            val targetResolution = Size(profile.width, profile.height)
-            val videoOutput = createTestVideoOutput(
-                mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.from(quality))
-                }.build(),
-                videoCapabilities = videoCapabilities
-            )
+            // Arrange.
+            val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
+            qualityList.forEach loop@{ quality ->
+                val profile =
+                    videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+                val targetResolution = Size(profile.width, profile.height)
+                val videoOutput = createTestVideoOutput(
+                    mediaSpec = MediaSpec.builder().configureVideo {
+                        it.setQualitySelector(QualitySelector.from(quality))
+                    }.build(),
+                    videoCapabilities = videoCapabilities
+                )
 
-            // Use custom VideoEncoderInfoFinder which always returns default FakeVideoEncoderInfo,
-            // which tolerance typical resolutions.
-            val videoCapture = VideoCapture.Builder(videoOutput)
-                .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }.build()
+                // Use custom VideoEncoderInfoFinder which always returns default
+                // FakeVideoEncoderInfo, which tolerance typical resolutions.
+                val videoCapture = VideoCapture.Builder(videoOutput)
+                    .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }.build()
 
-            // Act.
-            if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
-                return@loop
-            }
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
-            }
+                // Act.
+                if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
+                    return@loop
+                }
+                withContext(Dispatchers.Main) {
+                    cameraUseCaseAdapter.addUseCases(listOf(videoCapture))
+                }
 
-            // Assert.
-            assertWithMessage("Set quality value by $quality")
-                .that(videoCapture.attachedSurfaceResolution).isEqualTo(targetResolution)
+                // Assert.
+                assertWithMessage("Set quality value by $quality")
+                    .that(videoCapture.attachedSurfaceResolution).isEqualTo(targetResolution)
 
-            // Cleanup.
-            withContext(Dispatchers.Main) {
-                cameraUseCaseAdapter.apply {
-                    removeUseCases(listOf(videoCapture))
+                // Cleanup.
+                withContext(Dispatchers.Main) {
+                    cameraUseCaseAdapter.apply {
+                        removeUseCases(listOf(videoCapture))
+                    }
                 }
             }
         }
@@ -384,7 +395,7 @@ class VideoCaptureDeviceTest(
     @Test
     fun defaultDynamicRange_isSdr(): Unit = runBlocking {
         testDynamicRangeSelection { selectedDynamicRange ->
-            assertThat(selectedDynamicRange).isEqualTo(DynamicRange.SDR)
+            assertThat(selectedDynamicRange).isEqualTo(SDR)
         }
     }
 
@@ -527,7 +538,7 @@ class VideoCaptureDeviceTest(
      * Create a fake VideoCapabilities.
      */
     private fun createFakeVideoCapabilities(
-        resolutionMap: Map<DynamicRange, LinkedHashMap<Quality, Size>>
+        resolutionMap: Map<DynamicRange, Map<Quality, Size>>
     ): VideoCapabilities {
         return object : VideoCapabilities {
 
