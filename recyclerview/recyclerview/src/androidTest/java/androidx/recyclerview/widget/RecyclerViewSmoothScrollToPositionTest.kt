@@ -159,7 +159,9 @@ class RecyclerViewSmoothScrollToPositionTest {
             calledOnStop.await(30, TimeUnit.SECONDS)
         )
         Assert.assertNotNull(
-            "smoothScrollToPosition should succeed",
+            "smoothScrollToPosition should succeed " +
+                "(first visible item: " + layoutManager.findFirstVisibleItemPosition() +
+                ", last visible item: " + layoutManager.findLastVisibleItemPosition() + ")",
             recyclerView.findViewHolderForLayoutPosition(targetPosition)
         )
     }
