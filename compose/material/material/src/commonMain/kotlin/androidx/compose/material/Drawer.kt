@@ -648,11 +648,9 @@ fun BottomDrawer(
     content: @Composable () -> Unit
 ) {
     // b/278692145 Remove this once deprecated methods without density are removed
-    if (drawerState.density == null) {
-        val density = LocalDensity.current
-        SideEffect {
-            drawerState.density = density
-        }
+    val density = LocalDensity.current
+    SideEffect {
+        drawerState.density = density
     }
     val scope = rememberCoroutineScope()
 

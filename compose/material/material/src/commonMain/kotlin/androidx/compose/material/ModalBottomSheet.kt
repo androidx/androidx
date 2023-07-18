@@ -564,11 +564,9 @@ fun ModalBottomSheetLayout(
     content: @Composable () -> Unit
 ) {
     // b/278692145 Remove this once deprecated methods without density are removed
-    if (sheetState.density == null) {
-        val density = LocalDensity.current
-        SideEffect {
-            sheetState.density = density
-        }
+    val density = LocalDensity.current
+    SideEffect {
+        sheetState.density = density
     }
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical

@@ -253,6 +253,7 @@ class BottomSheetScaffoldTest {
             skipPartiallyExpanded = false,
             skipHiddenState = true,
             initialValue = SheetValue.PartiallyExpanded,
+            density = rule.density
         )
         rule.setContent {
             scope = rememberCoroutineScope()

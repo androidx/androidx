@@ -48,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +65,7 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
@@ -135,6 +137,11 @@ fun ModalBottomSheet(
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // b/291735717 Remove this once deprecated methods without density are removed
+    val density = LocalDensity.current
+    SideEffect {
+        sheetState.density = density
+    }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
         if (sheetState.swipeableState.confirmValueChange(Hidden)) {
@@ -247,8 +254,7 @@ fun ModalBottomSheet(
                                             }
                                         } else if (hasPartiallyExpandedState) {
                                             collapse(collapseActionLabel) {
-                                                if (
-                                                    swipeableState.confirmValueChange(
+                                                if (swipeableState.confirmValueChange(
                                                         PartiallyExpanded
                                                     )
                                                 ) {
@@ -329,12 +335,12 @@ private fun Modifier.modalBottomSheetSwipeable(
     screenHeight: Float,
     onDragStopped: CoroutineScope.(velocity: Float) -> Unit,
 ) = draggable(
-        state = sheetState.swipeableState.swipeDraggableState,
-        orientation = Orientation.Vertical,
-        enabled = sheetState.isVisible,
-        startDragImmediately = sheetState.swipeableState.isAnimationRunning,
-        onDragStopped = onDragStopped
-    )
+    state = sheetState.swipeableState.swipeDraggableState,
+    orientation = Orientation.Vertical,
+    enabled = sheetState.isVisible,
+    startDragImmediately = sheetState.swipeableState.isAnimationRunning,
+    onDragStopped = onDragStopped
+)
     .swipeAnchors(
         state = sheetState.swipeableState,
         anchorChangeHandler = anchorChangeHandler,
@@ -347,6 +353,7 @@ private fun Modifier.modalBottomSheetSwipeable(
                 sheetState.skipPartiallyExpanded -> null
                 else -> screenHeight / 2f
             }
+
             Expanded -> if (sheetSize.height != 0) {
                 max(0f, screenHeight - sheetSize.height)
             } else null
@@ -479,8 +486,8 @@ private class ModalBottomSheetWindow(
             // Flags specific to modal bottom sheet.
             flags = flags and (
                 WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
-                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-            ).inv()
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                ).inv()
 
             flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         }
