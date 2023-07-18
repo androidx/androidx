@@ -54,9 +54,11 @@ import java.util.Collections
  * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
  * the latter consumes more memory and may cause undefined behavior due to memory implications
  * on internal transactions; defaulted to a fallback public key credential icon if not provided
- * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
- * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
- * that the system can add the complete request to the extras of the associated intent
+ * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * entry, must be created with a unique request code per entry,
+ * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+ * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+ * times
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
  * to true does not guarantee this behavior. The developer must also set this
@@ -92,8 +94,10 @@ class PublicKeyCredentialEntry internal constructor(
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param username the username of the account holding the public key credential
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
-     * system to attach the final request
+     * entry, must be created with a unique request code per entry,
+     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+     * times
      * @param beginGetPublicKeyCredentialOption the option from the original
      * [BeginGetCredentialResponse], for which this credential entry is being added
      * @param displayName the displayName of the account holding the public key credential
