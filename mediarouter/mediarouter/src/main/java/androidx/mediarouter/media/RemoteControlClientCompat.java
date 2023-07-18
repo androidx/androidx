@@ -101,7 +101,7 @@ abstract class RemoteControlClientCompat {
          * Called when the volume for the route should be set to the given value.
          *
          * @param volume An integer indicating the new volume value that should be used,
-         * always between 0 and the value set by {@link PlaybackInfo#volumeMax}.
+         *               always between 0 and the value set by {@link PlaybackInfo#volumeMax}.
          */
         void onVolumeSetRequest(int volume);
     }
@@ -127,39 +127,39 @@ abstract class RemoteControlClientCompat {
     @RequiresApi(16)
     static class JellybeanImpl extends RemoteControlClientCompat {
         private final android.media.MediaRouter mRouter;
-        private final Object mUserRouteCategoryObj;
-        private final Object mUserRouteObj;
+        private final android.media.MediaRouter.RouteCategory mUserRouteCategory;
+        private final android.media.MediaRouter.UserRouteInfo mUserRoute;
         private boolean mRegistered;
 
         public JellybeanImpl(Context context, Object rcc) {
             super(context, rcc);
 
             mRouter = MediaRouterJellybean.getMediaRouter(context);
-            mUserRouteCategoryObj = MediaRouterJellybean.createRouteCategory(
+            mUserRouteCategory = MediaRouterJellybean.createRouteCategory(
                     mRouter, "", false);
-            mUserRouteObj = MediaRouterJellybean.createUserRoute(
-                    mRouter, mUserRouteCategoryObj);
+            mUserRoute = MediaRouterJellybean.createUserRoute(
+                    mRouter, mUserRouteCategory);
         }
 
         @Override
         public void setPlaybackInfo(PlaybackInfo info) {
             MediaRouterJellybean.UserRouteInfo.setVolume(
-                    mUserRouteObj, info.volume);
+                    mUserRoute, info.volume);
             MediaRouterJellybean.UserRouteInfo.setVolumeMax(
-                    mUserRouteObj, info.volumeMax);
+                    mUserRoute, info.volumeMax);
             MediaRouterJellybean.UserRouteInfo.setVolumeHandling(
-                    mUserRouteObj, info.volumeHandling);
+                    mUserRoute, info.volumeHandling);
             MediaRouterJellybean.UserRouteInfo.setPlaybackStream(
-                    mUserRouteObj, info.playbackStream);
+                    mUserRoute, info.playbackStream);
             MediaRouterJellybean.UserRouteInfo.setPlaybackType(
-                    mUserRouteObj, info.playbackType);
+                    mUserRoute, info.playbackType);
 
             if (!mRegistered) {
                 mRegistered = true;
-                MediaRouterJellybean.UserRouteInfo.setVolumeCallback(mUserRouteObj,
+                MediaRouterJellybean.UserRouteInfo.setVolumeCallback(mUserRoute,
                         MediaRouterJellybean.createVolumeCallback(
                                 new VolumeCallbackWrapper(this)));
-                MediaRouterJellybean.UserRouteInfo.setRemoteControlClient(mUserRouteObj, mRcc);
+                MediaRouterJellybean.UserRouteInfo.setRemoteControlClient(mUserRoute, mRcc);
             }
         }
 
@@ -172,11 +172,12 @@ abstract class RemoteControlClientCompat {
             private final WeakReference<JellybeanImpl> mImplWeak;
 
             public VolumeCallbackWrapper(JellybeanImpl impl) {
-                mImplWeak = new WeakReference<JellybeanImpl>(impl);
+                mImplWeak = new WeakReference<>(impl);
             }
 
             @Override
-            public void onVolumeUpdateRequest(@NonNull Object routeObj, int direction) {
+            public void onVolumeUpdateRequest(@NonNull android.media.MediaRouter.RouteInfo route,
+                    int direction) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
                     impl.mVolumeCallback.onVolumeUpdateRequest(direction);
@@ -184,7 +185,8 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeSetRequest(@NonNull Object routeObj, int volume) {
+            public void onVolumeSetRequest(@NonNull android.media.MediaRouter.RouteInfo route,
+                    int volume) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
                     impl.mVolumeCallback.onVolumeSetRequest(volume);
