@@ -23,9 +23,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.DimensionProto;
 
 import org.junit.Test;
@@ -117,4 +120,44 @@ public class DimensionBuildersTest {
                         new DimensionBuilders.WrappedDimensionProp.Builder()
                                 .setMinimumSize(minSizeDynamic));
     }
+
+   @Test
+    public void pivotDimensionWithDpValue() {
+       DimensionBuilders.PivotDimension pivotDimension =
+               new DimensionBuilders.DpProp.Builder(42)
+                       .setDynamicValue(
+                               DynamicBuilders.DynamicFloat.from(new AppDataKey<>("some-state")))
+                       .build();
+
+
+       DimensionProto.PivotDimension dimensionProto = pivotDimension.toPivotDimensionProto();
+       assertThat(dimensionProto.getInnerCase())
+               .isEqualTo(DimensionProto.PivotDimension.InnerCase.OFFSET_DP);
+       assertThat(dimensionProto.getOffsetDp().getValue())
+               .isEqualTo(42);
+       assertThat(dimensionProto.getOffsetDp().getDynamicValue().getStateSource().getSourceKey())
+               .isEqualTo("some-state");
+   }
+
+    @Test
+    public void pivotDimensionWithBoundingBoxRatio() {
+        DimensionBuilders.PivotDimension pivotDimension =
+                new DimensionBuilders.BoundingBoxRatio.Builder(
+                        new TypeBuilders.FloatProp.Builder(0.8f)
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicFloat.constant(0.2f))
+                                .build())
+                        .build();
+
+
+        DimensionProto.PivotDimension dimensionProto = pivotDimension.toPivotDimensionProto();
+        assertThat(dimensionProto.getInnerCase())
+                .isEqualTo(DimensionProto.PivotDimension.InnerCase.LOCATION_RATIO);
+        assertThat(dimensionProto.getLocationRatio().getRatio().getValue())
+                .isEqualTo(0.8f);
+        assertThat(dimensionProto.getLocationRatio()
+                .getRatio().getDynamicValue().getFixed().getValue())
+                .isEqualTo(0.2f);
+    }
+
 }

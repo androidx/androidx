@@ -29,8 +29,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ActionBuilders.Action;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
+import androidx.wear.protolayout.DimensionBuilders.DegreesProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
+import androidx.wear.protolayout.DimensionBuilders.PivotDimension;
 import androidx.wear.protolayout.TypeBuilders.BoolProp;
+import androidx.wear.protolayout.TypeBuilders.FloatProp;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.Fingerprint;
@@ -1317,6 +1320,279 @@ public final class ModifiersBuilders {
     }
 
     /**
+     * A modifier to apply transformations to the element. All of these transformations can be
+     * animated by setting dynamic values. This modifier is not layout affecting.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 400)
+    public static final class Transformation {
+        private final ModifiersProto.Transformation mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        Transformation(ModifiersProto.Transformation impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the horizontal offset of this element relative to the location where the element's
+         * layout placed it.
+         */
+        @Nullable
+        public DpProp getTranslationX() {
+            if (mImpl.hasTranslationX()) {
+                return DpProp.fromProto(mImpl.getTranslationX());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the vertical offset of this element in addition to the location where the element's
+         * layout placed it.
+         */
+        @Nullable
+        public DpProp getTranslationY() {
+            if (mImpl.hasTranslationY()) {
+                return DpProp.fromProto(mImpl.getTranslationY());
+            } else {
+                return null;
+            }
+        }
+
+
+        /**
+         * Gets the scale of this element in the x direction around the pivot point, as a proportion
+         * of the element's unscaled width .
+         */
+        @Nullable
+        public FloatProp getScaleX() {
+            if (mImpl.hasScaleX()) {
+                return FloatProp.fromProto(mImpl.getScaleX());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the scale of this element in the y direction around the pivot point, as a proportion
+         * of the element's unscaled height.
+         */
+        @Nullable
+        public FloatProp getScaleY() {
+            if (mImpl.hasScaleY()) {
+                return FloatProp.fromProto(mImpl.getScaleY());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the clockwise Degrees that the element is rotated around the pivot point. */
+        @Nullable
+        public DegreesProp getRotation() {
+            if (mImpl.hasRotation()) {
+                return DegreesProp.fromProto(mImpl.getRotation());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Sets the x offset of the point around which the element is rotated and scaled.
+         * Dynamic value is supported. By default, the pivot is centered on the element.
+         * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
+         * inscribes the entire circle and the default pivot is located at the center of the
+         * circle.
+         */
+        @Nullable
+        public PivotDimension getPivotX() {
+            if (mImpl.hasPivotX()) {
+                return DimensionBuilders.pivotDimensionFromProto(mImpl.getPivotX());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the y offset of the point around which the element is rotated and scaled.
+         * Dynamic value is supported. By default, the pivot is centered on the element.
+         * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+         * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
+         * inscribes the entire circle and the default pivot is located at the center of the
+         * circle.
+         */
+        @Nullable
+        public PivotDimension getPivotY() {
+            if (mImpl.hasPivotY()) {
+                return DimensionBuilders.pivotDimensionFromProto(mImpl.getPivotY());
+            } else {
+                return null;
+            }
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Transformation fromProto(
+                @NonNull ModifiersProto.Transformation proto, @Nullable Fingerprint fingerprint) {
+            return new Transformation(proto, fingerprint);
+        }
+
+        @NonNull
+        static Transformation fromProto(@NonNull ModifiersProto.Transformation proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Transformation toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Transformation{"
+                    + "translationX="
+                    + getTranslationX()
+                    + ", translationY="
+                    + getTranslationY()
+                    + ", scaleX="
+                    + getScaleX()
+                    + ", scaleY="
+                    + getScaleY()
+                    + ", rotation="
+                    + getRotation()
+                    + ", pivotX="
+                    + getPivotX()
+                    + ", pivotY="
+                    + getPivotY()
+                    + "}";
+        }
+
+        /** Builder for {@link Transformation} */
+        public static final class Builder {
+            private final ModifiersProto.Transformation.Builder mImpl =
+                    ModifiersProto.Transformation.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(369448770);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the horizontal offset of this element relative to the location where the
+             * element's layout placed it.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setTranslationX(@NonNull DpProp translationX) {
+                mImpl.setTranslationX(translationX.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(translationX.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+
+            /**
+             * Sets the vertical offset of this element in addition to the location where the
+             * element's layout placed it.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setTranslationY(@NonNull DpProp translationY) {
+                mImpl.setTranslationY(translationY.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(translationY.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the scale of this element in the x direction around the pivot point, as a
+             * proportion of the element's unscaled width .
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setScaleX(@NonNull FloatProp scaleX) {
+                mImpl.setScaleX(scaleX.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(scaleX.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the scale of this element in the y direction around the pivot point, as a
+             * proportion of the element's unscaled height.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setScaleY(@NonNull FloatProp scaleY) {
+                mImpl.setScaleY(scaleY.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(scaleY.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Sets the clockwise degrees that the element is rotated around the pivot point. */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setRotation(@NonNull DegreesProp rotation) {
+                mImpl.setRotation(rotation.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(rotation.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the x offset of the point around which the element is rotated and scaled.
+             * Dynamic value is supported. By default, the pivot is centered on the element.
+             * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+             * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
+             * inscribes the entire circle and the default pivot is located at the center of the
+             * circle.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setPivotX(@NonNull PivotDimension pivotX) {
+                mImpl.setPivotX(pivotX.toPivotDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(pivotX.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the y offset of the point around which the element is rotated and scaled.
+             * Dynamic value is supported. By default, the pivot is centered on the element.
+             * Note that, for {@link androidx.wear.protolayout.LayoutElementBuilders.ArcText} or
+             * {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the element
+             * inscribes the entire circle and the default pivot is located at the center of the
+             * circle.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setPivotY(@NonNull PivotDimension pivotY) {
+                mImpl.setPivotY(pivotY.toPivotDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(pivotY.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public Transformation build() {
+                return new Transformation(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * {@link Modifiers} for an element. These may change the way they are drawn (e.g. {@link
      * Padding} or {@link Background}), or change their behaviour (e.g. {@link Clickable}, or {@link
      * Semantics}).
@@ -1429,6 +1705,29 @@ public final class ModifiersBuilders {
             }
         }
 
+        /** Gets the transformation applied to the element post-layout. */
+        @Nullable
+        public Transformation getTransformation() {
+            if (mImpl.hasTransformation()) {
+                return Transformation.fromProto(mImpl.getTransformation());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the opacity of the element with a value from 0 to 1, where 0 means the view is the
+         * element is completely transparent and 1 means the element is completely opaque.
+         */
+        @Nullable
+        public FloatProp getOpacity() {
+            if (mImpl.hasOpacity()) {
+                return FloatProp.fromProto(mImpl.getOpacity());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -1482,6 +1781,10 @@ public final class ModifiersBuilders {
                     + getContentUpdateAnimation()
                     + ", visible="
                     + isVisible()
+                    + ", transformation="
+                    + getTransformation()
+                    + ", opacity="
+                    + getOpacity()
                     + "}";
         }
 
@@ -1600,6 +1903,31 @@ public final class ModifiersBuilders {
                         10, checkNotNull(visible.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
+            /** Sets the transformation applied to the element post-layout. */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setTransformation(@NonNull Transformation transformation) {
+                mImpl.setTransformation(transformation.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        11, checkNotNull(transformation.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the opacity of the element with a value from 0 to 1, where 0 means the element
+             * is completely transparent and 1 means the element is completely opaque. Dynamic value
+             * is supported.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setOpacity(@NonNull FloatProp opacity) {
+                mImpl.setOpacity(opacity.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        12, checkNotNull(opacity.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
 
             /** Builds an instance from accumulated values. */
             @NonNull
@@ -2644,6 +2972,31 @@ public final class ModifiersBuilders {
             }
         }
 
+
+        /** Gets the transformation applied to the element post-layout. */
+        @Nullable
+        public Transformation getTransformation() {
+            if (mImpl.hasTransformation()) {
+                return Transformation.fromProto(mImpl.getTransformation());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the opacity of the element with a value from 0 to 1, where 0 means the element
+         * is completely transparent and 1 means the element is completely opaque. Dynamic value
+         * is supported.
+         */
+        @Nullable
+        public FloatProp getOpacity() {
+            if (mImpl.hasOpacity()) {
+                return FloatProp.fromProto(mImpl.getOpacity());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -2679,6 +3032,10 @@ public final class ModifiersBuilders {
                     + getClickable()
                     + ", semantics="
                     + getSemantics()
+                    + ", transformation="
+                    + getTransformation()
+                    + ", opacity="
+                    + getOpacity()
                     + "}";
         }
 
@@ -2714,6 +3071,26 @@ public final class ModifiersBuilders {
                 mImpl.setSemantics(semantics.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(semantics.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Sets the transformation applied to the element post-layout. */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setTransformation(@NonNull Transformation transformation) {
+                mImpl.setTransformation(transformation.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(transformation.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Sets the opacity of the element. */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setOpacity(@NonNull FloatProp opacity) {
+                mImpl.setOpacity(opacity.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(opacity.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
