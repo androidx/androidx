@@ -27,6 +27,7 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.area.utils.DeviceUtils
 import androidx.window.core.BuildConfig
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.VerificationMode
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
  * [Build.VERSION_CODES.S] as that's the min level of support for
  * this functionality.
  */
+@ExperimentalWindowApi
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class WindowAreaControllerImpl(
     private val windowAreaComponent: WindowAreaComponent,

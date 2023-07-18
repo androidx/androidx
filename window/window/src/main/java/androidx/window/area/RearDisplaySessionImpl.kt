@@ -16,8 +16,10 @@
 
 package androidx.window.area
 
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 
+@ExperimentalWindowApi
 internal class RearDisplaySessionImpl(
     private val windowAreaComponent: WindowAreaComponent
 ) : WindowAreaSession {
