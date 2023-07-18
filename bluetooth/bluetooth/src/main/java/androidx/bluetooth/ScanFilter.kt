@@ -30,6 +30,9 @@ class ScanFilter(
     /** The scan filter for the remote device address. `null` if filter is not set. */
     val deviceAddress: BluetoothAddress? = null,
 
+    /** The scan filter for the remote device name. `null` if filter is not set. */
+    val deviceName: String? = null,
+
     /** The scan filter for manufacturer id. [MANUFACTURER_FILTER_NONE] if filter is not set. */
     val manufacturerId: Int = MANUFACTURER_FILTER_NONE,
 
@@ -96,6 +99,8 @@ class ScanFilter(
     internal val fwkScanFilter: FwkScanFilter by lazy(LazyThreadSafetyMode.PUBLICATION) {
         FwkScanFilter.Builder().run {
             deviceAddress?.let { setDeviceAddress(it.address) }
+
+            deviceName?.let { setDeviceName(it) }
 
             if (manufacturerId != MANUFACTURER_FILTER_NONE && manufacturerData != null) {
                 if (Build.VERSION.SDK_INT >= 33) {

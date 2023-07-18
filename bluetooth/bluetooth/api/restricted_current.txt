@@ -55,8 +55,9 @@ package androidx.bluetooth {
   }
 
   public final class ScanFilter {
-    ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask);
+    ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional String? deviceName, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask);
     method public androidx.bluetooth.BluetoothAddress? getDeviceAddress();
+    method public String? getDeviceName();
     method public byte[]? getManufacturerData();
     method public byte[]? getManufacturerDataMask();
     method public int getManufacturerId();
@@ -66,6 +67,7 @@ package androidx.bluetooth {
     method public java.util.UUID? getServiceUuid();
     method public java.util.UUID? getServiceUuidMask();
     property public final androidx.bluetooth.BluetoothAddress? deviceAddress;
+    property public final String? deviceName;
     property public final byte[]? manufacturerData;
     property public final byte[]? manufacturerDataMask;
     property public final int manufacturerId;
