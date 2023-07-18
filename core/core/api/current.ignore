@@ -1,3 +1,5 @@
 // Baseline format: 1.0
 AddedMethod: androidx.core.util.TypedValueCompat#getUnitFromComplexDimension(int):
     Added method androidx.core.util.TypedValueCompat.getUnitFromComplexDimension(int)
+AddedMethod: androidx.core.widget.TextViewCompat#setLineHeight(android.widget.TextView, int, float):
+    Added method androidx.core.widget.TextViewCompat.setLineHeight(android.widget.TextView,int,float)
