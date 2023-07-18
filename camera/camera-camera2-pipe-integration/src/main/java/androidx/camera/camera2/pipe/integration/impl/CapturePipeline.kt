@@ -37,7 +37,6 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics.CONTROL_AE_STATE_FLASH_REQUIRED
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
@@ -45,6 +44,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
@@ -296,22 +296,17 @@ class CapturePipelineImpl @Inject constructor(
                             completeSignal.complete(null)
                         }
 
-                        @Deprecated(
-                            message = "Migrating to using RequestFailureWrapper instead of " +
-                                "CaptureFailure",
-                            level = DeprecationLevel.WARNING,
-                            replaceWith = ReplaceWith("onFailed")
-                        )
                         @SuppressLint("ClassVerificationFailure")
                         override fun onFailed(
                             requestMetadata: RequestMetadata,
                             frameNumber: FrameNumber,
-                            captureFailure: CaptureFailure
+                            requestFailure: RequestFailure
                         ) {
                             completeSignal.completeExceptionally(
                                 ImageCaptureException(
                                     ERROR_CAPTURE_FAILED,
-                                    "Capture request failed with reason " + captureFailure.reason,
+                                    "Capture request failed with reason " +
+                                        requestFailure.reason,
                                     null
                                 )
                             )

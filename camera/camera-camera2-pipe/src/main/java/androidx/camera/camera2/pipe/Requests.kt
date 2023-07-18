@@ -142,7 +142,7 @@ data class Request(
         }
 
         @Deprecated(
-            message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+            message = "Migrating to using RequestFailure instead of CaptureFailure",
             level = DeprecationLevel.WARNING
         )
         fun onFailed(
@@ -160,13 +160,13 @@ data class Request(
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
-         * @param requestFailureWrapper the android [RequestFailureWrapper] data wrapper
+         * @param requestFailure the android [RequestFailure] data wrapper
          * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureFailed
          */
         fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            requestFailureWrapper: RequestFailureWrapper
+            requestFailure: RequestFailure
         ) {
         }
 
@@ -256,7 +256,7 @@ data class Request(
  * constructor prevents directly creating an instance of it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface RequestFailureWrapper {
+interface RequestFailure {
     val requestMetadata: RequestMetadata
 
     val frameNumber: FrameNumber
@@ -264,6 +264,8 @@ interface RequestFailureWrapper {
     val reason: Int
 
     val wasImageCaptured: Boolean
+
+    val captureFailure: CaptureFailure?
 }
 
 /**
