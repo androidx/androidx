@@ -27,6 +27,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.AnimationDurationScaleRule.Companion.createForAllTests
+import androidx.testutils.PollingCheck
 import androidx.transition.Transition.TransitionListener
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
@@ -43,7 +44,7 @@ import org.mockito.Mockito.timeout
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @MediumTest
 class SeekTransitionTest : BaseTest() {
     @get:Rule
@@ -69,7 +70,6 @@ class SeekTransitionTest : BaseTest() {
     @Test(expected = IllegalArgumentException::class)
     @UiThreadTest
     fun onlySeekingTransitions() {
-        if (Build.VERSION.SDK_INT < 34) throw IllegalArgumentException()
         transition = object : Visibility() {}
         TransitionManager.controlDelayedTransition(root, transition)
         fail("Expected IllegalArgumentException")
@@ -77,7 +77,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun waitForReady() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         @Suppress("UNCHECKED_CAST")
@@ -99,7 +98,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun waitForReadyNoChange() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         @Suppress("UNCHECKED_CAST")
@@ -120,7 +118,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun addListenerAfterReady() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         @Suppress("UNCHECKED_CAST")
@@ -148,7 +145,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekTransition() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -170,15 +166,60 @@ class SeekTransitionTest : BaseTest() {
 
             assertThat(seekController.durationMillis).isEqualTo(300)
             assertThat(seekController.currentPlayTimeMillis).isEqualTo(0)
+            assertThat(seekController.currentFraction).isEqualTo(0f)
 
             assertThat(view.transitionAlpha).isEqualTo(1f)
 
             seekController.currentPlayTimeMillis = 150
+            assertThat(seekController.currentFraction).isEqualTo(0.5f)
             assertThat(view.transitionAlpha).isEqualTo(0.5f)
             seekController.currentPlayTimeMillis = 299
+            assertThat(seekController.currentFraction).isWithin(0.001f).of(299f / 300f)
             assertThat(view.transitionAlpha).isWithin(0.001f).of(1f / 300f)
             seekController.currentPlayTimeMillis = 300
+            assertThat(seekController.currentFraction).isEqualTo(1f)
+            verify(listener, times(1)).onTransitionEnd(any())
 
+            assertThat(view.transitionAlpha).isEqualTo(1f)
+            assertThat(view.visibility).isEqualTo(View.GONE)
+        }
+    }
+
+    @Test
+    fun seekTransitionWithFraction() {
+        lateinit var seekController: TransitionSeekController
+
+        val listener = spy(TransitionListenerAdapter())
+        transition.addListener(listener)
+
+        rule.runOnUiThread {
+            val controller = TransitionManager.controlDelayedTransition(root, transition)
+            assertThat(controller).isNotNull()
+            seekController = controller!!
+            assertThat(seekController.isReady).isFalse()
+            view.visibility = View.GONE
+        }
+
+        verify(listener, timeout(1000)).onTransitionStart(any())
+        verify(listener, times(0)).onTransitionEnd(any())
+
+        rule.runOnUiThread {
+            assertThat(view.visibility).isEqualTo(View.VISIBLE)
+
+            assertThat(seekController.durationMillis).isEqualTo(300)
+            assertThat(seekController.currentPlayTimeMillis).isEqualTo(0)
+            assertThat(seekController.currentFraction).isEqualTo(0f)
+
+            assertThat(view.transitionAlpha).isEqualTo(1f)
+
+            seekController.currentFraction = 0.5f
+            assertThat(seekController.currentPlayTimeMillis).isEqualTo(150)
+            assertThat(view.transitionAlpha).isEqualTo(0.5f)
+            seekController.currentFraction = 299f / 300f
+            assertThat(seekController.currentPlayTimeMillis).isEqualTo(299)
+            assertThat(view.transitionAlpha).isWithin(0.001f).of(1f / 300f)
+            seekController.currentFraction = 1f
+            assertThat(seekController.currentPlayTimeMillis).isEqualTo(300)
             verify(listener, times(1)).onTransitionEnd(any())
 
             assertThat(view.transitionAlpha).isEqualTo(1f)
@@ -188,7 +229,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animationDoesNotTakeOverSeek() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -231,7 +271,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekCannotTakeOverAnimation() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -271,7 +310,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekCannotTakeOverSeek() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController1: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -317,7 +355,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun seekReplacesSeek() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController1: TransitionSeekController
 
         val stateListener1 = spy(TransitionListenerAdapter())
@@ -360,7 +397,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToEnd() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -387,7 +423,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToStart() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -428,7 +463,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToStartAfterAnimateToEnd() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -448,7 +482,7 @@ class SeekTransitionTest : BaseTest() {
             seekController.animateToStart()
         }
 
-        verify(listener, timeout(3000)).onTransitionEnd(any())
+        verify(listener, timeout(3000)).onTransitionEnd(any(), eq(true))
 
         rule.runOnUiThread {
             assertThat(view.visibility).isEqualTo(View.VISIBLE)
@@ -458,7 +492,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToEndAfterAnimateToStart() {
-        if (Build.VERSION.SDK_INT < 34) return
         lateinit var seekController: TransitionSeekController
 
         val listener = spy(TransitionListenerAdapter())
@@ -488,7 +521,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test(expected = IllegalStateException::class)
     fun seekAfterAnimate() {
-        if (Build.VERSION.SDK_INT < 34) throw IllegalStateException("Not supported before U")
         lateinit var seekController: TransitionSeekController
         transition.duration = 5000
 
@@ -507,9 +539,28 @@ class SeekTransitionTest : BaseTest() {
         }
     }
 
+    @Test(expected = IllegalStateException::class)
+    fun seekFractionAfterAnimate() {
+        lateinit var seekController: TransitionSeekController
+        transition.duration = 5000
+
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, transition)!!
+            view.visibility = View.GONE
+        }
+
+        rule.runOnUiThread {
+            seekController.currentFraction = 0.5f
+            seekController.animateToEnd()
+        }
+
+        rule.runOnUiThread {
+            seekController.currentFraction = 0.2f
+        }
+    }
+
     @Test
     fun seekTransitionSet() {
-        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -579,7 +630,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToEndTransitionSet() {
-        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -629,7 +679,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun animateToStartTransitionSet() {
-        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -695,7 +744,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun cancelPartOfTransitionSet() {
-        if (Build.VERSION.SDK_INT < 34) return
         transition = TransitionSet().also {
             it.addTransition(Fade(Fade.MODE_OUT))
                 .addTransition(Fade(Fade.MODE_IN))
@@ -763,7 +811,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun onTransitionCallsForwardAndReversed() {
-        if (Build.VERSION.SDK_INT < 34) return
         val listener = spy(TransitionListenerAdapter())
         transition = Fade()
         transition.addListener(listener)
@@ -792,7 +839,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun onTransitionCallsForwardAndReversedTransitionSet() {
-        if (Build.VERSION.SDK_INT < 34) return
         val fadeOut = Fade(Fade.MODE_OUT)
         val outListener = spy(TransitionListenerAdapter())
         fadeOut.addListener(outListener)
@@ -881,7 +927,6 @@ class SeekTransitionTest : BaseTest() {
 
     @Test
     fun pauseResumeOnSeek() {
-        if (Build.VERSION.SDK_INT < 34) return
         var pauseCount = 0
         var resumeCount = 0
         var setPauseCount = 0
@@ -940,6 +985,133 @@ class SeekTransitionTest : BaseTest() {
             assertThat(resumeCount).isEqualTo(1)
             assertThat(setPauseCount).isEqualTo(1)
             assertThat(setResumeCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun animationListener() {
+        lateinit var seekController: TransitionSeekController
+        var animatedFraction = -1f
+        var animatedMillis = -1L
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, Fade())!!
+            view.visibility = View.GONE
+
+            seekController.addOnProgressChangedListener {
+                animatedFraction = it.currentFraction
+                animatedMillis = it.currentPlayTimeMillis
+            }
+        }
+
+        rule.runOnUiThread {
+            assertThat(animatedFraction).isEqualTo(0f)
+            assertThat(animatedMillis).isEqualTo(0)
+            seekController.currentFraction = 0.25f
+            assertThat(animatedFraction).isEqualTo(0.25f)
+            assertThat(animatedMillis).isEqualTo(75)
+            seekController.animateToEnd()
+        }
+
+        PollingCheck.waitFor {
+            animatedFraction == 1f
+        }
+    }
+
+    @Test
+    fun animationListenerRemoval() {
+        lateinit var seekController: TransitionSeekController
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, Fade())!!
+            view.visibility = View.GONE
+        }
+
+        var animatedFraction = -1f
+        var animatedMillis = -1L
+        val removeListener = object : Consumer<TransitionSeekController> {
+            override fun accept(t: TransitionSeekController?) {
+                seekController.removeOnProgressChangedListener(this)
+            }
+        }
+        seekController.addOnProgressChangedListener(removeListener)
+        val changeListener = Consumer<TransitionSeekController> {
+            animatedFraction = it.currentFraction
+            animatedMillis = it.currentPlayTimeMillis
+        }
+        seekController.addOnProgressChangedListener(changeListener)
+
+        rule.runOnUiThread {
+            assertThat(animatedFraction).isEqualTo(0f)
+            assertThat(animatedMillis).isEqualTo(0)
+            seekController.removeOnProgressChangedListener(changeListener)
+            seekController.currentFraction = 0.25f
+            assertThat(animatedFraction).isEqualTo(0)
+            assertThat(animatedMillis).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun seekToScene() {
+        lateinit var seekController: TransitionSeekController
+        val scene1 = Scene(root, view)
+        val view2 = View(view.context)
+        val scene2 = Scene(root, view2)
+        rule.runOnUiThread {
+            TransitionManager.go(scene1)
+        }
+
+        rule.runOnUiThread {
+            val controller = TransitionManager.seekTo(scene2, Fade())
+            assertThat(controller).isNotNull()
+            seekController = controller!!
+        }
+
+        rule.runOnUiThread {
+            assertThat(seekController.currentFraction).isEqualTo(0f)
+            assertThat(view.visibility).isEqualTo(View.VISIBLE)
+            assertThat(view.transitionAlpha).isEqualTo(1f)
+            assertThat(view.isAttachedToWindow).isTrue()
+            assertThat(view2.visibility).isEqualTo(View.VISIBLE)
+            assertThat(view2.transitionAlpha).isEqualTo(0f)
+            assertThat(view2.isAttachedToWindow).isTrue()
+            seekController.currentFraction = 1f
+            assertThat(view.visibility).isEqualTo(View.VISIBLE)
+            assertThat(view.transitionAlpha).isEqualTo(1f)
+            assertThat(view.isAttachedToWindow).isFalse()
+            assertThat(view2.visibility).isEqualTo(View.VISIBLE)
+            assertThat(view2.transitionAlpha).isEqualTo(1f)
+            assertThat(view2.isAttachedToWindow).isTrue()
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun seekToScene_notSupportedTransition() {
+        class NoSeekingTransition : Fade() {
+            override fun isSeekingSupported(): Boolean = false
+        }
+        val scene1 = Scene(root, view)
+        val view2 = View(view.context)
+        val scene2 = Scene(root, view2)
+        rule.runOnUiThread {
+            TransitionManager.go(scene1)
+        }
+
+        rule.runOnUiThread {
+            TransitionManager.seekTo(scene2, NoSeekingTransition())
+        }
+    }
+
+    @Test
+    fun seekToScene_alreadyRunningTransition() {
+        val scene1 = Scene(root, view)
+        val view2 = View(view.context)
+        val scene2 = Scene(root, view2)
+        rule.runOnUiThread {
+            TransitionManager.go(scene1)
+        }
+
+        rule.runOnUiThread {
+            TransitionManager.go(scene2, Fade())
+            assertThat(TransitionManager.seekTo(scene1, Fade())).isNull()
         }
     }
 }

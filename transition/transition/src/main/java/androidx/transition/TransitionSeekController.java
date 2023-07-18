@@ -18,6 +18,8 @@ package androidx.transition;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.FloatRange;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 
@@ -31,13 +33,22 @@ public interface TransitionSeekController {
     /**
      * @return The total duration, in milliseconds, of the Transition's animations.
      */
+    @IntRange(from = 0)
     long getDurationMillis();
 
     /**
      * @return The time, in milliseconds, of the animation. This will be between 0
      * and {@link #getDurationMillis()}.
      */
+    @IntRange(from = 0)
     long getCurrentPlayTimeMillis();
+
+    /**
+     * @return The fraction, between 0 and 1, of the progress of the transition.
+     * @see #getCurrentPlayTimeMillis()
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    float getCurrentFraction();
 
     /**
      * Returns {@code true} when the Transition is ready to seek or {@code false}
@@ -73,14 +84,26 @@ public interface TransitionSeekController {
     void animateToEnd();
 
     /**
+     * Sets the position of the Transition's animation. {@code fraction} should be
+     * between 0 and 1, inclusive, where 0 indicates that the transition hasn't progressed and 1
+     * indicates that the transition is completed. Calling this before {@link #isReady()} is
+     * {@code true} will do nothing.
+     *
+     * @param fraction The fraction, between 0 and 1, inclusive, of the progress of the transition.
+     * @see #setCurrentPlayTimeMillis(long)
+     */
+    void setCurrentFraction(@FloatRange(from = 0.0, to = 1.0) float fraction);
+
+    /**
      * Sets the position of the Transition's animation. {@code playTimeMillis} should be
-     * between 0 and {@link #getDurationMillis()}. This should not be called when
-     * {@link #isReady()} is {@code false}.
+     * between 0 and {@link #getDurationMillis()}. Calling this before {@link #isReady()} is
+     * {@code true} will do nothing.
      *
      * @param playTimeMillis The time, between 0 and {@link #getDurationMillis()} that the
      *                       animation should play.
+     * @see #setCurrentFraction(float)
      */
-    void setCurrentPlayTimeMillis(long playTimeMillis);
+    void setCurrentPlayTimeMillis(@IntRange(from = 0) long playTimeMillis);
 
     /**
      * Adds a listener to know when {@link #isReady()} is {@code true}. The listener will
@@ -98,5 +121,20 @@ public interface TransitionSeekController {
      * @param onReadyListener The listener to be removed so that it won't be notified when ready.
      */
     void removeOnReadyListener(@NonNull Consumer<TransitionSeekController> onReadyListener);
+
+    /**
+     * Add a listener for whenever the progress of the transition is changed. This will be called
+     * when {@link #setCurrentPlayTimeMillis(long)} or {@link #setCurrentFraction(float)} are
+     * called as well as when the animation from {@link #animateToEnd()} or
+     * {@link #animateToStart()} changes the progress.
+     * @param consumer A method that accepts this TransitionSeekController.
+     */
+    void addOnProgressChangedListener(@NonNull Consumer<TransitionSeekController> consumer);
+
+    /**
+     * Remove a listener previously added in {@link #addOnProgressChangedListener(Consumer)}\
+     * @param consumer The listener to be removed.
+     */
+    void removeOnProgressChangedListener(@NonNull Consumer<TransitionSeekController> consumer);
 }
 
