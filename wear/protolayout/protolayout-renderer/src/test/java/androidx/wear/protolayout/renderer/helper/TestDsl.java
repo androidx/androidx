@@ -37,6 +37,7 @@ import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcAdapter;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcText;
 import androidx.wear.protolayout.proto.LayoutElementProto.Box;
@@ -433,6 +434,10 @@ public class TestDsl {
         return arcInternal(/* propsConsumer= */ null, nodes);
     }
 
+    public static LayoutNode arcAdapter(LayoutNode layoutNode) {
+        return arcAdapterInternal(layoutNode);
+    }
+
     private static LayoutNode arcInternal(
             @Nullable Consumer<ArcProps> propsConsumer, LayoutNode... nodes) {
         LayoutNode element = new LayoutNode();
@@ -446,6 +451,15 @@ public class TestDsl {
         }
         element.mLayoutElement = LayoutElement.newBuilder().setArc(builder.build());
         element.mFingerprint = fingerprint("arc", selfPropsFingerprint, nodes);
+        return element;
+    }
+
+    private static LayoutNode arcAdapterInternal(LayoutNode node) {
+        LayoutNode element = new LayoutNode();
+        ArcAdapter.Builder builder = ArcAdapter.newBuilder().setContent(node.mLayoutElement);
+        int selfPropsFingerprint = 0;
+        element.mArcLayoutElement = ArcLayoutElement.newBuilder().setAdapter(builder.build());
+        element.mFingerprint = fingerprint("arcAdapter", selfPropsFingerprint, node);
         return element;
     }
 
