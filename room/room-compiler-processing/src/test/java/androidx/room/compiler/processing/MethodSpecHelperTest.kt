@@ -43,7 +43,8 @@ class MethodSpecHelperTest(
     // if true, pre-compile sources then run the test to account for changes between .class files
     // and source files
     val preCompiledCode: Boolean,
-    val shouldMarkParamsFinal: Boolean
+    val shouldMarkParamsFinal: Boolean,
+    val ignoreOwner: Boolean
 ) {
     @Test
     fun javaOverrides() {
@@ -460,17 +461,15 @@ class MethodSpecHelperTest(
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
-                val func = if (shouldMarkParamsFinal)
-                    MethodSpecHelper::overridingWithFinalParams
-                else
-                    MethodSpecHelper::overriding
+                val subject =
+                    if (ignoreOwner)
+                        MethodSpecHelper.overriding(method)
+                    else if (shouldMarkParamsFinal)
+                        MethodSpecHelper.overridingWithFinalParams(method, target.type)
+                    else
+                        MethodSpecHelper.overriding(method, target.type)
 
-                val subject = func(
-                    method,
-                    target.type
-                ).toSignature()
-
-                assertThat(subject).isEqualTo(golden[index])
+                assertThat(subject.toSignature()).isEqualTo(golden[index])
             }
         }
     }
@@ -573,6 +572,9 @@ class MethodSpecHelperTest(
         owner: DeclaredType,
         typeUtils: Types
     ): MethodSpec.Builder {
+        if (ignoreOwner) {
+          return MethodSpec.overriding(elm)
+        }
         val baseSpec = MethodSpec.overriding(elm, owner, typeUtils)
             .build()
 
@@ -600,7 +602,10 @@ class MethodSpecHelperTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "preCompiledCode={0}, shouldMarkParamsFinal={1}")
-        fun params() = generateAllEnumerations(listOf(false, true), listOf(false, true))
+        @Parameterized.Parameters(
+            name = "preCompiledCode={0}, shouldMarkParamsFinal={1}, ignoreOwner={2}")
+        fun params() =
+            generateAllEnumerations(
+                listOf(false, true), listOf(false, true), listOf(false, true))
     }
 }
