@@ -158,7 +158,7 @@ private fun ColumnCardDemo(offset: Dp) {
                 )
         ) {
             val modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp / 2)
-            repeat(3) { i ->
+            repeat(10) { i ->
                 ExampleCard(modifier, i)
             }
         }
@@ -192,7 +192,7 @@ private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemInd
                 focusRequester = focusRequester
             )
         ) {
-            items(5) { i ->
+            items(10) { i ->
                 val modifier = Modifier.fillParentMaxHeight(0.5f)
                 ExampleCard(modifier = modifier, i = i)
             }
@@ -235,7 +235,7 @@ private fun ScalingLazyColumnCardDemo(
                 ListHeader { Text("Cards") }
             }
 
-            items(5) { i ->
+            items(10) { i ->
                 ExampleCard(Modifier.fillParentMaxHeight(0.5f), i)
             }
         }
@@ -276,7 +276,7 @@ private fun ScalingLazyColumnChipDemo(
                 ListHeader { Text("Chips") }
             }
 
-            items(5) { i ->
+            items(10) { i ->
                 ExampleChip(Modifier.fillMaxWidth(), i)
             }
         }
