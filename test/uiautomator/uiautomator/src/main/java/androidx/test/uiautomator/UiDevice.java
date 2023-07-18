@@ -586,7 +586,7 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Perform a click at arbitrary coordinates specified by the user
+     * Perform a click at arbitrary coordinates on the default display specified by the user.
      *
      * @param x coordinate
      * @param y coordinate
@@ -603,14 +603,14 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Performs a swipe from one coordinate to another using the number of steps
-     * to determine smoothness and speed. Each step execution is throttled to 5ms
-     * per step. So for a 100 steps, the swipe will take about 1/2 second to complete.
+     * Performs a swipe from one coordinate to another on the default display using the number of
+     * steps to determine smoothness and speed. Each step execution is throttled to 5ms per step.
+     * So for a 100 steps, the swipe will take about 1/2 second to complete.
      *
-     * @param startX
-     * @param startY
-     * @param endX
-     * @param endY
+     * @param startX X-axis value for the starting coordinate
+     * @param startY Y-axis value for the starting coordinate
+     * @param endX X-axis value for the ending coordinate
+     * @param endY Y-axis value for the ending coordinate
      * @param steps is the number of move steps sent to the system
      * @return false if the operation fails or the coordinates are invalid
      */
@@ -622,18 +622,18 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Performs a swipe from one coordinate to another coordinate. You can control
-     * the smoothness and speed of the swipe by specifying the number of steps.
-     * Each step execution is throttled to 5 milliseconds per step, so for a 100
-     * steps, the swipe will take around 0.5 seconds to complete.
+     * Performs a swipe from one coordinate to another coordinate on the default display. You can
+     * control the smoothness and speed of the swipe by specifying the number of steps. Each step
+     * execution is throttled to 5 milliseconds per step, so for a 100 steps, the swipe will take
+     * around 0.5 seconds to complete.
      *
      * @param startX X-axis value for the starting coordinate
      * @param startY Y-axis value for the starting coordinate
      * @param endX X-axis value for the ending coordinate
      * @param endY Y-axis value for the ending coordinate
      * @param steps is the number of steps for the swipe action
-     * @return true if swipe is performed, false if the operation fails
-     * or the coordinates are invalid
+     * @return true if swipe is performed, false if the operation fails or the coordinates are
+     * invalid
      */
     public boolean drag(int startX, int startY, int endX, int endY, int steps) {
         Log.d(TAG, String.format("Dragging from (%d, %d) to (%d, %d) in %d steps.", startX, startY,
@@ -643,8 +643,9 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Performs a swipe between points in the Point array. Each step execution is throttled
-     * to 5ms per step. So for a 100 steps, the swipe will take about 1/2 second to complete
+     * Performs a swipe between points in the Point array on the default display. Each step
+     * execution is throttled to 5ms per step. So for a 100 steps, the swipe will take about 1/2
+     * second to complete.
      *
      * @param segments is Point array containing at least one Point object
      * @param segmentSteps steps to inject between two Points
@@ -890,8 +891,7 @@ public class UiDevice implements Searchable {
      * @param orientation the desired orientation
      */
     public void setOrientation(@NonNull Orientation orientation) {
-        Log.d(TAG, String.format("Setting orientation to %s.",
-                orientation.name()));
+        Log.d(TAG, String.format("Setting orientation to %s.", orientation.name()));
         switch (orientation) {
             case ROTATION_90:
                 rotateWithUiAutomation(Surface.ROTATION_90);
@@ -1073,24 +1073,24 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * This method simulates pressing the power button if the screen is OFF else
-     * it does nothing if the screen is already ON.
+     * This method simulates pressing the power button if the default display is OFF, else it does
+     * nothing if the default display is already ON.
+     * <p>If the default display was OFF and it just got turned ON, this method will insert a 500ms
+     * delay for the device to wake up and accept input.
      *
-     * If the screen was OFF and it just got turned ON, this method will insert a 500ms delay
-     * to allow the device time to wake up and accept input.
      * @throws RemoteException
      */
     public void wakeUp() throws RemoteException {
         Log.d(TAG, "Turning on screen.");
         if(getInteractionController().wakeDevice()) {
-            // sync delay to allow the window manager to start accepting input
-            // after the device is awakened.
+            // Sync delay to allow the window manager to start accepting input after the device
+            // is awakened.
             SystemClock.sleep(500);
         }
     }
 
     /**
-     * Checks the power manager if the screen is ON.
+     * Checks the power manager if the default display is ON.
      *
      * @return true if the screen is ON else false
      * @throws RemoteException
@@ -1100,8 +1100,8 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * This method simply presses the power button if the screen is ON else
-     * it does nothing if the screen is already OFF.
+     * This method simply presses the power button if the default display is ON, else it does
+     * nothing if the default display is already OFF.
      *
      * @throws RemoteException
      */
