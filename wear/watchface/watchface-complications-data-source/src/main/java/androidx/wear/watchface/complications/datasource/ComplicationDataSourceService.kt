@@ -768,9 +768,11 @@ public abstract class ComplicationDataSourceService : Service() {
          * the [ComplicationData], but omitting the "TYPE_" prefix, e.g. `SHORT_TEXT`, `LONG_TEXT`,
          * `RANGED_VALUE`.
          *
-         * The order in which types are listed has no significance. In the case where a watch face
-         * supports multiple types in a single complication slot, the watch face will determine
-         * which types it prefers.
+         * The order of types in `METADATA_KEY_SUPPORTED_TYPES` has no significance. During
+         * complication data source selection, each item in the complication slot's supported types
+         * is checked against entries in the data source's `METADATA_KEY_SUPPORTED_TYPES` and the
+         * first matching entry from the slot's support types (if any) is chosen. If there are no
+         * matches then this data source is not eligible to be selected in that slot.
          *
          * For example, a complication data source that supports the RANGED_VALUE, SHORT_TEXT, and
          * ICON type would include the following in its manifest entry:
