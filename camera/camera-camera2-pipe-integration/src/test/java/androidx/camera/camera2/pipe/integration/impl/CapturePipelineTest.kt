@@ -612,12 +612,15 @@ class CapturePipelineTest {
         fakeCameraGraphSession.requestHandler = { requests ->
             requests.forEach { request ->
                 // Callback capture fail immediately.
-                @Suppress("DEPRECATION")
                 request.listeners.forEach {
+                    val requestMetadata = FakeRequestMetadata()
                     it.onFailed(
-                        requestMetadata = FakeRequestMetadata(),
+                        requestMetadata = requestMetadata,
                         frameNumber = FrameNumber(100L),
-                        captureFailure = mock(CaptureFailure::class.java),
+                        requestFailure = AndroidCaptureFailure(
+                            requestMetadata,
+                            mock(CaptureFailure::class.java)
+                        )
                     )
                 }
             }

@@ -16,13 +16,13 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CaptureFailure
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -84,18 +84,19 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
         }
     }
 
-    @Deprecated(
-        message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
-        level = DeprecationLevel.WARNING
-    )
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        captureFailure: CaptureFailure
+        requestFailure: RequestFailure
     ) {
-        @Suppress("DEPRECATION")
         listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onFailed(requestMetadata, frameNumber, captureFailure) }
+            executor.execute {
+                listener.onFailed(
+                    requestMetadata,
+                    frameNumber,
+                    requestFailure
+                )
+            }
         }
     }
 

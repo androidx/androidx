@@ -33,7 +33,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.RequestFailureWrapper
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -283,9 +283,9 @@ class CameraGraphSimulator private constructor(
             }
         }
 
-        fun simulateFailure(requestFailureWrapper: RequestFailureWrapper) {
+        fun simulateFailure(requestFailure: RequestFailure) {
             requestSequence.invokeOnRequest(requestMetadata) {
-                it.onFailed(requestMetadata, frameNumber, requestFailureWrapper)
+                it.onFailed(requestMetadata, frameNumber, requestFailure)
             }
         }
 

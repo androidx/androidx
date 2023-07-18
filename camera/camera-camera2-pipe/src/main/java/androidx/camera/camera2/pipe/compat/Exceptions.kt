@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraAccessException
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 
 /**
@@ -55,6 +56,7 @@ internal inline fun <T> catchAndReportCameraExceptions(
     try {
         return block()
     } catch (e: Exception) {
+        Log.warn { "Unexpected error: " + e.message }
         when (e) {
             is IllegalArgumentException,
             is IllegalStateException,
