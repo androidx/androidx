@@ -3838,6 +3838,53 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
+    fun testRow_withNoItems_hasCorrectIntrinsicMeasurements() = with(density) {
+        testIntrinsics(
+            @Composable {
+                Row(
+                    Modifier.width(IntrinsicSize.Max).height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+            @Composable {
+                Row(
+                    Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+            @Composable {
+                Column(
+                    Modifier.width(IntrinsicSize.Max).height(IntrinsicSize.Max),
+                    verticalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+            @Composable {
+                Column(
+                    Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
+                    verticalArrangement = Arrangement.spacedBy(
+                        48.dp
+                    ),
+                ) { }
+            },
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(0.toDp().roundToPx(), minIntrinsicWidth(0.toDp().roundToPx()))
+            // Min height.
+            assertEquals(0.toDp().roundToPx(), minIntrinsicHeight(0.toDp().roundToPx()))
+            // Max width.
+            assertEquals(0.toDp().roundToPx(), maxIntrinsicWidth(0.toDp().roundToPx()))
+            // Max height.
+            assertEquals(0.toDp().roundToPx(), maxIntrinsicHeight(0.toDp().roundToPx()))
+        }
+    }
+
+    @Test
     fun testRow_withWeightChildren_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(
             @Composable {
