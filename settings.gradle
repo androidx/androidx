@@ -667,6 +667,7 @@ includeProject(":constraintlayout:constraintlayout-compose-lint", [BuildType.COM
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:demos", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
+includeProject(":constraintlayout:constraintlayout-compose:integration-tests:compose-benchmark", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout", [BuildType.MAIN])
 includeProject(":constraintlayout:constraintlayout-core", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":contentpager:contentpager", [BuildType.MAIN])
