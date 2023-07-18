@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.hilt
+package androidx.hilt.ext
 
-import com.google.testing.compile.Compiler
-import com.google.testing.compile.Compiler.javac
-import com.google.testing.compile.JavaFileObjects
+import androidx.hilt.ClassNames
+import androidx.room.compiler.processing.util.Source
 import java.io.File
-import javax.tools.JavaFileObject
 
 val GENERATED_TYPE = try {
     Class.forName("javax.annotation.processing.Generated")
@@ -55,11 +53,7 @@ object Sources {
     }
 }
 
-fun loadJavaSource(fileName: String, qName: String): JavaFileObject {
-    val contents = File("src/test/data/sources/$fileName").readText(Charsets.UTF_8)
-    return JavaFileObjects.forSourceString(qName, contents)
-}
-
-fun compiler(): Compiler = javac().withProcessors(AndroidXHiltProcessor())
-
-fun String.toJFO(qName: String) = JavaFileObjects.forSourceString(qName, this.trimIndent())
+fun loadJavaSource(fileName: String, qName: String) = Source.loadJavaSource(
+    file = File("src/test/data/sources/$fileName"),
+    qName = qName
+)
