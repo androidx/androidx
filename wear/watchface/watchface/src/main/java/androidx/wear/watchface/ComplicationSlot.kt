@@ -345,8 +345,11 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
  *   content description labels.
  * @param bounds The complication slot's [ComplicationSlotBounds].
- * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot. Used
- *   during complication data source selection, this list should be non-empty.
+ * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot, must be
+ *   non-empty. During complication data source selection, each item in this list is compared in
+ *   turn with entries from a data source's data source's supported types. The first matching entry
+ *   from `supportedTypes` is chosen. If there are no matches then that data source is not eligible
+ *   to be selected in this slot.
  * @param defaultPolicy The [DefaultComplicationDataSourcePolicy] which controls the initial
  *   complication data source when the watch face is first installed.
  * @param defaultDataSourceType The default [ComplicationType] for the default complication data
