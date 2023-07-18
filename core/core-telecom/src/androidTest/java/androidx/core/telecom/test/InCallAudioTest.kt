@@ -19,10 +19,12 @@ package androidx.core.telecom.test
 import android.media.AudioManager.MODE_IN_COMMUNICATION
 import android.os.Build
 import android.telecom.DisconnectCause
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.test.utils.TestUtils.getAudioModeName
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -55,6 +57,7 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class InCallAudioTest : BaseTelecomTest() {
+    val LOG_TAG = "InCallAudioTest"
     @Before
     fun setUp() {
         Utils.resetUtils()
@@ -117,8 +120,12 @@ class InCallAudioTest : BaseTelecomTest() {
             val deferred = CompletableDeferred<Unit>()
             assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
                 launch {
+                    Log.i(LOG_TAG, "runBlocking_addCall_assertAudioModeInCommunication: " +
+                        "initial AudioManager mode = ${getAudioModeName(mAudioManager.mode)}")
                     while (isActive /* aka  within timeout window */ &&
                         mAudioManager.mode != MODE_IN_COMMUNICATION) {
+                        Log.d(LOG_TAG, "runBlocking_addCall_assertAudioModeInCommunication: " +
+                            "current AudioManager mode = ${getAudioModeName(mAudioManager.mode)}")
                         yield() // mechanism to stop the while loop if the coroutine is dead
                         delay(1) // sleep x millisecond(s) instead of spamming check
                     }

@@ -148,6 +148,7 @@ abstract class BaseTelecomTest {
         setCallback: Boolean = true,
         assertBlock: CallControlScope.() -> (Unit)
     ) {
+        Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall")
         var callControlScope: CallControlScope? = null
         try {
             withTimeout(TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT) {
@@ -155,6 +156,8 @@ abstract class BaseTelecomTest {
                     callControlScope = this
                     if (setCallback) {
                         setCallback(TestUtils.mCallControlCallbacksImpl)
+                        Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall: setCallback " +
+                            "to ${TestUtils.mCallControlCallbacksImpl}")
                     }
                     assertBlock()
                 }
