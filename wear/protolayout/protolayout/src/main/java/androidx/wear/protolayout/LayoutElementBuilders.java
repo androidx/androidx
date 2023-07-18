@@ -2834,10 +2834,16 @@ public final class LayoutElementBuilders {
              * Sets the style of font to use (size, bold etc). If not specified, defaults to the
              * platform's default body font.
              *
+             * DynamicColor is not supported for SpanText.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
+                ColorProp colorProp = fontStyle.getColor();
+                if (colorProp != null && colorProp.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("SpanText does not support DynamicColor.");
+                }
                 mImpl.setFontStyle(fontStyle.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(fontStyle.getFingerprint()).aggregateValueAsInt());
