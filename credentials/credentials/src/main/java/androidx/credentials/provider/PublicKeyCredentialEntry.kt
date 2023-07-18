@@ -332,6 +332,13 @@ class PublicKeyCredentialEntry internal constructor(
 
         private const val REVISION_ID = 1
 
+        /**
+         * Converts an instance of [PublicKeyCredentialEntry] to a [Slice].
+         *
+         * This method is only expected to be called on an API > 28
+         * impl, hence returning null for other levels as the
+         * visibility is only restricted to the library.
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun toSlice(
