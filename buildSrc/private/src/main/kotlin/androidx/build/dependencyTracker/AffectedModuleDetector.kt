@@ -566,10 +566,6 @@ constructor(
                     ":media2:media2-session:version-compat-tests:service",
                     ":media2:media2-session:version-compat-tests:client-previous",
                     ":media2:media2-session:version-compat-tests:service-previous"
-                ), // Link graphics and material to always run @Large in presubmit per b/160624022
-                setOf(
-                    ":compose:ui:ui-graphics",
-                    ":compose:material:material"
                 ), // Link material and material-ripple
                 setOf(":compose:material:material-ripple", ":compose:material:material"),
                 setOf(
