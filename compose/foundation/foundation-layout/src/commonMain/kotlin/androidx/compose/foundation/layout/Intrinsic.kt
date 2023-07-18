@@ -162,11 +162,12 @@ private class IntrinsicWidthNode(
         measurable: Measurable,
         constraints: Constraints
     ): Constraints {
-        val measuredWidth = if (width == IntrinsicSize.Min) {
+        var measuredWidth = if (width == IntrinsicSize.Min) {
             measurable.minIntrinsicWidth(constraints.maxHeight)
         } else {
             measurable.maxIntrinsicWidth(constraints.maxHeight)
         }
+        if (measuredWidth < 0) { measuredWidth = 0 }
         return Constraints.fixedWidth(measuredWidth)
     }
 
@@ -217,11 +218,12 @@ private class IntrinsicHeightNode(
         measurable: Measurable,
         constraints: Constraints
     ): Constraints {
-        val measuredHeight = if (height == IntrinsicSize.Min) {
+        var measuredHeight = if (height == IntrinsicSize.Min) {
             measurable.minIntrinsicHeight(constraints.maxWidth)
         } else {
             measurable.maxIntrinsicHeight(constraints.maxWidth)
         }
+        if (measuredHeight < 0) { measuredHeight = 0 }
         return Constraints.fixedHeight(measuredHeight)
     }
 
