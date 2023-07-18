@@ -46,8 +46,8 @@ object TestUtils {
     const val TEST_PACKAGE = "androidx.core.telecom.test"
     const val COMMAND_SET_DEFAULT_DIALER = "telecom set-default-dialer " // DO NOT REMOVE SPACE
     const val COMMAND_GET_DEFAULT_DIALER = "telecom get-default-dialer"
-    const val COMMAND_CLEANUP_STUCK_CALLS = "cleanup-stuck-calls"
     const val COMMAND_ENABLE_PHONE_ACCOUNT = "telecom set-phone-account-enabled "
+    const val COMMAND_CLEANUP_STUCK_CALLS = "telecom cleanup-stuck-calls"
     const val COMMAND_DUMP_TELECOM = "dumpsys telecom"
     const val TEST_CALL_ATTRIB_NAME = "Elon Musk"
     const val OUTGOING_NAME = "Larry Page"
