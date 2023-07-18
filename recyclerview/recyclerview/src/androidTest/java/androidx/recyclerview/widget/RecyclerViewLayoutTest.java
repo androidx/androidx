@@ -1897,12 +1897,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 any(int[].class), eq(ViewCompat.TYPE_TOUCH));
         verify(nsp, atLeastOnce()).onStopNestedScroll(eq(mRecyclerView), eq(ViewCompat.TYPE_TOUCH));
 
-        // Verify that the non-touch events were dispatched by the fling settle
-        verify(nsp, times(1)).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+        // Verify that no non-touch events were dispatched by the fling settle, because this is a
+        // drag, not a fling
+        verify(nsp, never()).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
                 eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_NON_TOUCH));
-        verify(nsp, times(1)).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+        verify(nsp, never()).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
                 eq(ViewCompat.SCROLL_AXIS_VERTICAL), eq(ViewCompat.TYPE_NON_TOUCH));
-        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+        verify(nsp, never()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
                 any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
     }
 
@@ -1923,12 +1924,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 any(int[].class), eq(ViewCompat.TYPE_TOUCH));
         verify(nsp, atLeastOnce()).onStopNestedScroll(eq(mRecyclerView), eq(ViewCompat.TYPE_TOUCH));
 
-        // Verify that the non-touch events were dispatched by the fling settle
-        verify(nsp, times(1)).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
+        // Verify that no non-touch events were dispatched by the fling settle, because this is a
+        // drag, not a fling
+        verify(nsp, never()).onStartNestedScroll(eq(mRecyclerView), eq(mRecyclerView),
                 eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_NON_TOUCH));
-        verify(nsp, times(1)).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
+        verify(nsp, never()).onNestedScrollAccepted(eq(mRecyclerView), eq(mRecyclerView),
                 eq(ViewCompat.SCROLL_AXIS_HORIZONTAL), eq(ViewCompat.TYPE_NON_TOUCH));
-        verify(nsp, atLeastOnce()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
+        verify(nsp, never()).onNestedPreScroll(eq(mRecyclerView), anyInt(), anyInt(),
                 any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
     }
 
