@@ -84,6 +84,7 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.ksp)
     testImplementation(libs.kotlinMetadataJvm)
+    testImplementation(libs.testParameterInjector)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-common"))
 }
