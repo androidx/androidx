@@ -22,7 +22,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileLock
-import kotlin.contracts.ExperimentalContracts
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -73,7 +72,6 @@ internal class MultiProcessCoordinator(
 
     // run block with an attempt to get the exclusive lock, still run even if
     // attempt fails. Pass a boolean to indicate if the attempt succeeds.
-    @OptIn(ExperimentalContracts::class) // withTryLock
     override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
         inMemoryMutex.withTryLock<T> {
             if (it == false) {
