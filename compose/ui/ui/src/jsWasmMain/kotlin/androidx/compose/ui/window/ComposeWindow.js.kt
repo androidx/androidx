@@ -66,7 +66,6 @@ internal actual class ComposeWindow(val canvasId: String)  {
     private val layer = ComposeLayer(
         layer = createSkiaLayer(),
         platform = platform,
-        getTopLeftOffset = { Offset.Zero },
         input = jsTextInputService.input
     )
 

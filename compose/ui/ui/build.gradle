@@ -315,6 +315,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:ui:ui-test-junit4"))
             }
+
+            configureEach {
+                languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
+            }
         }
     }
     dependencies {

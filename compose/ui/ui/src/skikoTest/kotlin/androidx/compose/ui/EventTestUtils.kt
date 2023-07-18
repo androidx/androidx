@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.PopupLayout
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
-import com.google.common.truth.Truth.assertThat
+import androidx.compose.ui.window.PopupProperties
 import kotlin.test.assertContentEquals
 
 fun Events.assertReceivedNoEvents() = assertThat(list).isEmpty()
@@ -129,8 +129,7 @@ class PopupState(
 
     @Composable
     fun Content() {
-        // TODO: Replace to public function once available
-        PopupLayout(
+        Popup(
             popupPositionProvider = object : PopupPositionProvider {
                 override fun calculatePosition(
                     anchorBounds: IntRect,
@@ -139,8 +138,11 @@ class PopupState(
                     popupContentSize: IntSize
                 ) = bounds.topLeft
             },
-            focusable = focusable,
-            onClickOutside = if (dismissOnClickOutside) onDismissRequest else null
+            onDismissRequest = onDismissRequest,
+            properties = PopupProperties(
+                focusable = focusable,
+                dismissOnClickOutside = dismissOnClickOutside
+            )
         ) {
             with(LocalDensity.current) {
                 Box(

@@ -166,6 +166,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.junit)
                 implementation(libs.skikoCurrentOs)
             }
+
+            configureEach {
+                languageSettings.optIn("androidx.compose.material3.ExperimentalMaterial3Api")
+            }
         }
     }
 }

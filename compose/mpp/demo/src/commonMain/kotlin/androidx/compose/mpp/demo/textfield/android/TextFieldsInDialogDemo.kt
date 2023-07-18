@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text
+package androidx.compose.mpp.demo.textfield.android
 
-import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 
-internal actual fun KeyEvent.cancelsTextSelection(): Boolean = false
-
-internal actual fun showCharacterPalette() {
-    // There is no browser API to make such a system call neither directly nor indirectly:
-    // NSApplication* app = [NSApplication sharedApplication];
-    // [app orderFrontCharacterPalette:nil];
-    // Also, see https://github.com/whatwg/html/issues/8358 for any updates or progress
+@Composable
+fun TextFieldsInDialogDemo() {
+    Text("Compose Multiplatform currently not have Dialog() like on Android")
 }

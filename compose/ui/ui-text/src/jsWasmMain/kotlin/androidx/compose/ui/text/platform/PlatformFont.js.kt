@@ -18,11 +18,13 @@ package androidx.compose.ui.text.platform
 import androidx.compose.ui.text.font.Font
 
 actual sealed class PlatformFont : Font {
-    abstract actual val identity: String
+    actual abstract val identity: String
+
     internal actual val cacheKey: String
-        get() {
-            println("TODO: implement proper js PlatformFont.cacheKey")
-            return identity
-        }
+        // Unlike k/jvm and k/native, `this::class.qualifiedName` API is not available for k/js and k/wasm.
+        // Example: given LoadedFont(identity="abc", ...), it will return "LoadedFont|abc"
+        // Such implementation is sufficient since PlatformFont is a sealed class, and
+        // we control all of its variants (subclasses).
+        get() = "${this::class.simpleName}|$identity"
 }
 

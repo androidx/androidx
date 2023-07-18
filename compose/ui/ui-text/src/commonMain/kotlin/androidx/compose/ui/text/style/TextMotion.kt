@@ -17,14 +17,12 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.ExperimentalTextApi
 
 /**
  * Defines ways to render and place glyphs to provide readability and smooth animations for text.
  *
  * @sample androidx.compose.ui.text.samples.TextMotionSample
  */
-@ExperimentalTextApi
 @Immutable
 expect class TextMotion {
     companion object {

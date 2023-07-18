@@ -68,7 +68,7 @@ private class FocusedBoundsObserverElement(
     }
 }
 
-fun interface InvokeOnLayoutCoordinates {
+private fun interface InvokeOnLayoutCoordinates {
     fun invoke(focusedBounds: LayoutCoordinates?)
 }
 
