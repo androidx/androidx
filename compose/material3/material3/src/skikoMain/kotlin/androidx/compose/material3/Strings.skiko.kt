@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3360) Support localization
 @Composable
 @ReadOnlyComposable
 internal actual fun getString(string: Strings): String {
