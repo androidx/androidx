@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.window.area.WindowAreaInfo.Type.Companion.TYPE_REAR_FACING
 import androidx.window.area.utils.DeviceUtils
 import androidx.window.core.BuildConfig
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import java.util.concurrent.Executor
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.Flow
  * displays or display areas on a device.
  *
  */
+@ExperimentalWindowApi
 interface WindowAreaController {
 
     /**
@@ -181,6 +183,7 @@ interface WindowAreaController {
  * Decorator that allows us to provide different functionality
  * in our window-testing artifact.
  */
+@ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface WindowAreaControllerDecorator {
     /**
@@ -190,6 +193,7 @@ interface WindowAreaControllerDecorator {
     public fun decorate(controller: WindowAreaController): WindowAreaController
 }
 
+@ExperimentalWindowApi
 private object EmptyDecorator : WindowAreaControllerDecorator {
     override fun decorate(controller: WindowAreaController): WindowAreaController {
         return controller

@@ -16,11 +16,14 @@
 
 package androidx.window.area
 
+import androidx.window.core.ExperimentalWindowApi
+
 /**
  * Session interface to represent an active window area feature.
  *
  * @see WindowAreaSessionCallback.onSessionStarted
  */
+@ExperimentalWindowApi
 interface WindowAreaSession {
 
     /**

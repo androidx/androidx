@@ -14,14 +14,14 @@ package androidx.window {
 
 package androidx.window.area {
 
-  public final class WindowAreaCapability {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaCapability {
     method public androidx.window.area.WindowAreaCapability.Operation getOperation();
     method public androidx.window.area.WindowAreaCapability.Status getStatus();
     property public final androidx.window.area.WindowAreaCapability.Operation operation;
     property public final androidx.window.area.WindowAreaCapability.Status status;
   }
 
-  public static final class WindowAreaCapability.Operation {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class WindowAreaCapability.Operation {
     field public static final androidx.window.area.WindowAreaCapability.Operation.Companion Companion;
     field public static final androidx.window.area.WindowAreaCapability.Operation OPERATION_PRESENT_ON_AREA;
     field public static final androidx.window.area.WindowAreaCapability.Operation OPERATION_TRANSFER_ACTIVITY_TO_AREA;
@@ -30,7 +30,7 @@ package androidx.window.area {
   public static final class WindowAreaCapability.Operation.Companion {
   }
 
-  public static final class WindowAreaCapability.Status {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class WindowAreaCapability.Status {
     field public static final androidx.window.area.WindowAreaCapability.Status.Companion Companion;
     field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_ACTIVE;
     field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_AVAILABLE;
@@ -41,7 +41,7 @@ package androidx.window.area {
   public static final class WindowAreaCapability.Status.Companion {
   }
 
-  public interface WindowAreaController {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaController {
     method public static androidx.window.area.WindowAreaController getOrCreate();
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
     method public void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
@@ -54,7 +54,7 @@ package androidx.window.area {
     method public androidx.window.area.WindowAreaController getOrCreate();
   }
 
-  public final class WindowAreaInfo {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaInfo {
     method public androidx.window.area.WindowAreaSession? getActiveSession(androidx.window.area.WindowAreaCapability.Operation operation);
     method public androidx.window.area.WindowAreaCapability? getCapability(androidx.window.area.WindowAreaCapability.Operation operation);
     method public androidx.window.layout.WindowMetrics getMetrics();
@@ -66,7 +66,7 @@ package androidx.window.area {
     property public final androidx.window.area.WindowAreaInfo.Type type;
   }
 
-  public static final class WindowAreaInfo.Type {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class WindowAreaInfo.Type {
     field public static final androidx.window.area.WindowAreaInfo.Type.Companion Companion;
     field public static final androidx.window.area.WindowAreaInfo.Type TYPE_REAR_FACING;
   }
@@ -74,22 +74,22 @@ package androidx.window.area {
   public static final class WindowAreaInfo.Type.Companion {
   }
 
-  public interface WindowAreaPresentationSessionCallback {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaPresentationSessionCallback {
     method public void onContainerVisibilityChanged(boolean isVisible);
     method public void onSessionEnded(Throwable? t);
     method public void onSessionStarted(androidx.window.area.WindowAreaSessionPresenter session);
   }
 
-  public interface WindowAreaSession {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSession {
     method public void close();
   }
 
-  public interface WindowAreaSessionCallback {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionCallback {
     method public void onSessionEnded(Throwable? t);
     method public void onSessionStarted(androidx.window.area.WindowAreaSession session);
   }
 
-  public interface WindowAreaSessionPresenter extends androidx.window.area.WindowAreaSession {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionPresenter extends androidx.window.area.WindowAreaSession {
     method public android.content.Context getContext();
     method public void setContentView(android.view.View view);
     property public abstract android.content.Context context;

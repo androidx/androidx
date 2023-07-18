@@ -17,10 +17,12 @@
 package androidx.window.area
 
 import android.app.Activity
+import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Represents a capability for a [WindowAreaInfo].
  */
+@ExperimentalWindowApi
 class WindowAreaCapability internal constructor(val operation: Operation, val status: Status) {
     override fun toString(): String {
         return "Operation: $operation: Status: $status"
@@ -29,6 +31,7 @@ class WindowAreaCapability internal constructor(val operation: Operation, val st
     /**
      * Represents the status of availability for a specific [WindowAreaCapability]
      */
+    @ExperimentalWindowApi
     class Status private constructor(private val description: String) {
         override fun toString(): String {
             return description
@@ -75,6 +78,7 @@ class WindowAreaCapability internal constructor(val operation: Operation, val st
     /**
      * Represents an operation that a [WindowAreaInfo] may support.
      */
+    @ExperimentalWindowApi
     class Operation private constructor(private val description: String) {
         override fun toString(): String {
             return description
