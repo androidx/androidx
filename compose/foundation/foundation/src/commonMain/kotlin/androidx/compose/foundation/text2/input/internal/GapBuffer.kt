@@ -243,7 +243,7 @@ internal class PartialGapBuffer(text: CharSequence) {
             val rightCopyCount = minOf(this.text.length - end, SURROUNDING_SIZE)
 
             // Copy left surrounding
-            this.text.toString().toCharArray(charArray, 0, start - leftCopyCount, start)
+            this.text.toCharArray(charArray, 0, start - leftCopyCount, start)
 
             // Copy right surrounding
             this.text.toCharArray(
