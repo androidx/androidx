@@ -2814,6 +2814,7 @@ package androidx.core.util {
   public class TypedValueCompat {
     method public static float deriveDimension(int, float, android.util.DisplayMetrics);
     method public static float dpToPx(float, android.util.DisplayMetrics);
+    method public static int getUnitFromComplexDimension(int);
     method public static float pxToDp(float, android.util.DisplayMetrics);
     method public static float pxToSp(float, android.util.DisplayMetrics);
     method public static float spToPx(float, android.util.DisplayMetrics);
