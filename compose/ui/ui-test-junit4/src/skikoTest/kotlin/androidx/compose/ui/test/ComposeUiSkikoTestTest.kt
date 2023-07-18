@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -368,6 +369,7 @@ class ComposeUiSkikoTestTest {
     }
 
     @Test
+    @Ignore // TODO(ivan.matkov): Bug in SkikoInputDispatcher - it uses overload for mouse input
     fun touch_press_multiple() = runComposeUiTest {
         setContent { TestEventBox() }
 

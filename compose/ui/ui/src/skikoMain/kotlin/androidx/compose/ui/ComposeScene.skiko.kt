@@ -583,21 +583,19 @@ class ComposeScene internal constructor(
     }
 
     private fun processRelease(event: PointerInputEvent) {
-        val owner = pressOwner ?: hoveredOwner(event)
-        if (focusedOwner.isAbove(owner)) {
-            return
-        }
-        owner?.processPointerInput(event)
+        // Send Release to pressOwner even if is not hovered or under focused.
+        pressOwner?.processPointerInput(event)
     }
 
     private fun processMove(event: PointerInputEvent) {
-        val owner = when {
+        var owner = when {
             event.buttons.areAnyPressed -> pressOwner
             event.eventType == PointerEventType.Exit -> null
             else -> hoveredOwner(event)
         }
         if (focusedOwner.isAbove(owner)) {
-            return
+            // If pressOwner is under focusedOwner, hover state must be updated
+            owner = null
         }
 
         // Cases:

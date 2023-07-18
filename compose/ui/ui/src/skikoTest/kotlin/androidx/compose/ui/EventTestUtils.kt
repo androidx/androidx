@@ -16,6 +16,7 @@
 
 package androidx.compose.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
@@ -30,6 +31,7 @@ import androidx.compose.ui.input.pointer.PointerInputEventData
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -39,7 +41,8 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlin.test.assertContentEquals
 
-fun Events.assertReceivedNoEvents() = assertThat(list).isEmpty()
+fun Events.assertReceivedNoEvents() =
+    require(list.isEmpty()) { "Received events:\n${list.joinToString("\n")}" }
 
 fun Events.assertReceived(type: PointerEventType, offset: Offset) =
     received().assertHas(type, offset)
@@ -105,15 +108,20 @@ class Events {
     }
 }
 
-class FillBox {
+class FillBox(
+    private val onClick: () -> Unit = {}
+) {
     val events = Events()
+    val tag = "background"
 
     @Composable
     fun Content() {
         Box(
             Modifier
                 .fillMaxSize()
+                .clickable(onClick = onClick)
                 .collectEvents(events)
+                .testTag(tag)
         )
     }
 }
@@ -126,6 +134,7 @@ class PopupState(
 ) {
     val origin get() = bounds.topLeft.toOffset()
     val events = Events()
+    val tag = "popup"
 
     @Composable
     fun Content() {
@@ -149,6 +158,7 @@ class PopupState(
                     Modifier
                         .requiredSize(bounds.width.toDp(), bounds.height.toDp())
                         .collectEvents(events)
+                        .testTag(tag)
                 )
             }
         }

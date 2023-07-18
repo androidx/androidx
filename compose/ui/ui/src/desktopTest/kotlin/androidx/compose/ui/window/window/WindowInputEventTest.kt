@@ -652,7 +652,7 @@ class WindowInputEventTest {
     }
 
     @Test
-    fun `send release into two boxes without intermediate move`() = runApplicationTest {
+    fun `send release into first box without intermediate move`() = runApplicationTest {
         var box1ReleaseCount = 0
         var box2ReleaseCount = 0
 
@@ -681,11 +681,11 @@ class WindowInputEventTest {
         }
         awaitIdle()
 
-        window.sendMouseEvent(id = MOUSE_PRESSED, x = 1, y = 1)
+        window.sendMouseEvent(id = MOUSE_PRESSED, x = 1, y = 1, modifiers = BUTTON1_DOWN_MASK)
         window.sendMouseEvent(id = MOUSE_RELEASED, x = 21, y = 1)
 
-        assertThat(box1ReleaseCount).isEqualTo(0)
-        assertThat(box2ReleaseCount).isEqualTo(1)
+        assertThat(box1ReleaseCount).isEqualTo(1)
+        assertThat(box2ReleaseCount).isEqualTo(0)
 
         window.dispose()
     }
