@@ -224,6 +224,11 @@ public final class Configurator {
     /**
      * Sets the current tool type to use for motion events.
      * @see MotionEvent#getToolType(int)
+     * @see MotionEvent#TOOL_TYPE_FINGER
+     * @see MotionEvent#TOOL_TYPE_STYLUS
+     * @see MotionEvent#TOOL_TYPE_MOUSE
+     * @see MotionEvent#TOOL_TYPE_ERASER
+     * @see MotionEvent#TOOL_TYPE_UNKNOWN
      */
     public @NonNull Configurator setToolType(final int toolType) {
         mToolType = toolType;
