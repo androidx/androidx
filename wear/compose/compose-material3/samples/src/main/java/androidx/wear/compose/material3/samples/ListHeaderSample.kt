@@ -29,7 +29,7 @@ import androidx.wear.compose.material3.Text
 @Composable
 fun ListHeaderSample() {
     ListHeader {
-        Text("List Header")
+        Text("Header")
     }
 }
 
@@ -37,7 +37,7 @@ fun ListHeaderSample() {
 @Composable
 fun ListSubheaderSample() {
     ListSubheader {
-        Text("List Subheader")
+        Text("Subheader")
     }
 }
 
@@ -45,7 +45,7 @@ fun ListSubheaderSample() {
 @Composable
 fun ListSubheaderWithIconSample() {
     ListSubheader(
-        label = { Text(text = "List Subheader") },
+        label = { Text(text = "Subheader") },
         icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
     )
 }
