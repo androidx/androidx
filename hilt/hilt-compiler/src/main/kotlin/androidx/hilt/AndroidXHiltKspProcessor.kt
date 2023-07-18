@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.hilt
-
 import androidx.hilt.work.WorkerStep
-import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import com.google.auto.service.AutoService
-import javax.annotation.processing.Processor
-import javax.lang.model.SourceVersion
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-/**
- * Annotation processor for the various AndroidX Hilt extensions.
- */
-@AutoService(Processor::class)
-@IncrementalAnnotationProcessor(ISOLATING)
-class AndroidXHiltProcessor : JavacBasicAnnotationProcessor() {
-
+class AndroidXHiltKspProcessor(
+    environment: SymbolProcessorEnvironment
+) : KspBasicAnnotationProcessor(environment) {
     override fun processingSteps() = listOf(WorkerStep())
 
-    override fun getSupportedSourceVersion() = SourceVersion.latest()
+    @AutoService(SymbolProcessorProvider::class)
+    class Provider : SymbolProcessorProvider {
+        override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+            return AndroidXHiltKspProcessor(environment)
+        }
+    }
 }

@@ -18,23 +18,23 @@ package androidx.hilt.work
 
 import androidx.hilt.ClassNames
 import androidx.hilt.assisted.toDependencyRequest
-import com.google.auto.common.MoreElements
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
 
 /**
  * Data class that represents a Hilt injected Worker
  */
-internal data class WorkerElements(
-    val typeElement: TypeElement,
-    val constructorElement: ExecutableElement
+internal data class WorkerElement(
+    val typeElement: XTypeElement,
+    val constructorElement: XConstructorElement
 ) {
-    val className = ClassName.get(typeElement)
+    val className = typeElement.asClassName().toJavaPoet()
 
     val factoryClassName = ClassName.get(
-        MoreElements.getPackage(typeElement).qualifiedName.toString(),
+        typeElement.packageName,
         "${className.simpleNames().joinToString("_")}_AssistedFactory"
     )
 
@@ -44,7 +44,7 @@ internal data class WorkerElements(
     )
 
     val moduleClassName = ClassName.get(
-        MoreElements.getPackage(typeElement).qualifiedName.toString(),
+        typeElement.packageName,
         "${className.simpleNames().joinToString("_")}_HiltModule"
     )
 
