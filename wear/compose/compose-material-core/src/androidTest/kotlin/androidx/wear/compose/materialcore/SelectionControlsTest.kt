@@ -242,7 +242,7 @@ class SelectionControlsTest {
     }
 
     @Test
-    fun checkbox_is_off_when_checked() {
+    fun checkbox_is_off_when_unchecked() {
         // This test only applies when onCheckedChange is defined.
         rule.setContent {
             CheckboxWithDefaults(
@@ -467,7 +467,7 @@ class SelectionControlsTest {
     }
 
     @Test
-    fun switch_is_off_when_checked() {
+    fun switch_is_off_when_unchecked() {
         // This test only applies when onCheckedChange is defined.
         rule.setContent {
             SwitchWithDefaults(
@@ -852,7 +852,7 @@ class SelectionControlsTest {
         enabled: Boolean = true,
         onCheckedChange: ((Boolean) -> Unit)? = null,
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-        drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _ -> },
+        drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _, _ -> },
         width: Dp = 24.dp,
         height: Dp = 24.dp
     ) = Checkbox(
@@ -1003,7 +1003,7 @@ class SelectionControlsTest {
                         disabledUncheckedColor = checkmarkColorDisabledUnchecked
                     )
                 },
-                drawBox = { drawScope, color, _ ->
+                drawBox = { drawScope, color, _, _ ->
                     drawScope.drawRoundRect(color)
                 })
         }

@@ -43,7 +43,7 @@ import androidx.wear.compose.materialcore.toRadians
 
 /**
  * [Checkbox] provides an animated checkbox for use as a selection control in
- * [SelectionButton] or [SplitSelectionButton].
+ * [ToggleButton] or [SplitToggleButton].
  *
  * Checkbox sample:
  * @sample androidx.wear.compose.material3.samples.CheckboxSample
@@ -56,7 +56,7 @@ import androidx.wear.compose.materialcore.toRadians
  * the color).
  * @param onCheckedChange Callback to be invoked when Checkbox is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
- * (such as [SelectionButton] or [SplitSelectionButton]).
+ * (such as [ToggleButton] or [SplitToggleButton]).
  * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
  * representing the stream of [Interaction]s for the "toggleable" tap area -
  * can be used to customise the appearance / behavior of the Checkbox.
@@ -87,10 +87,11 @@ fun Checkbox(
     enabled = enabled,
     onCheckedChange = onCheckedChange,
     interactionSource = interactionSource,
-    drawBox = { drawScope, color, progress ->
+    drawBox = { drawScope, color, progress, isRtl ->
         drawScope.drawBox(
             color = color,
-            progress = progress
+            progress = progress,
+            isRtl = isRtl
         )
     },
     progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
@@ -100,7 +101,7 @@ fun Checkbox(
 
 /**
  * [Switch] provides an animated switch for use as a selection control in
- * [SelectionButton] or [SplitSelectionButton].
+ * [ToggleButton] or [SplitToggleButton].
  *
  * Switch samples:
  * @sample androidx.wear.compose.material3.samples.SwitchSample
@@ -115,7 +116,7 @@ fun Checkbox(
  * the color).
  * @param onCheckedChange Callback to be invoked when Switch is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
- * (such as [SelectionButton] or [SplitSelectionButton]).
+ * (such as [ToggleButton] or [SplitToggleButton]).
  * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
  * representing the stream of [Interaction]s for the "toggleable" tap area -
  * can be used to customise the appearance / behavior of the Switch.
@@ -175,7 +176,7 @@ fun Switch(
 
 /**
  * [RadioButton] provides an animated radio button for use as a selection control in
- * [SelectionButton] or [SplitSelectionButton].
+ * [ToggleButton] or [SplitToggleButton].
  *
  * RadioButton sample:
  * @sample androidx.wear.compose.material3.samples.RadioButtonSample
@@ -188,7 +189,7 @@ fun Switch(
  * the color).
  * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
- * (such as [SelectionButton] or [SplitSelectionButton]).
+ * (such as [ToggleButton] or [SplitToggleButton]).
  * @param interactionSource When also providing [onClick], the [MutableInteractionSource]
  * representing the stream of [Interaction]s for the "toggleable" tap area -
  * can be used to customise the appearance / behavior of the RadioButton.
@@ -579,15 +580,15 @@ object RadioButtonDefaults {
     }
 }
 
-private fun DrawScope.drawBox(color: Color, progress: Float) {
+private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
     // Centering vertically.
     val topCornerPx = (HEIGHT - BOX_SIZE).toPx() / 2
     val strokeWidthPx = BOX_STROKE.toPx()
     val halfStrokeWidthPx = strokeWidthPx / 2.0f
     val radiusPx = BOX_RADIUS.toPx()
     val checkboxSizePx = BOX_SIZE.toPx()
-    // Aligning the box to the right.
-    val startXOffsetPx = (WIDTH - HEIGHT).toPx()
+    // Aligning the box to the end.
+    val startXOffsetPx = if (isRtl) 0f else (WIDTH - HEIGHT).toPx()
 
     // Draw the outline of the box.
     drawRoundRect(
