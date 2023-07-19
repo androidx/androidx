@@ -26,7 +26,7 @@ import androidx.compose.material.TextField
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Popup
 import org.junit.Ignore
 import org.junit.Rule
@@ -45,7 +45,7 @@ class FiltersTest {
     @Ignore  // TODO: Fix Dialog to have the dialog() semantic property
     fun testIsDialog() {
         rule.setContent {
-            Dialog(
+            DialogWindow(
                 onCloseRequest = {},
             ){
                 Text(

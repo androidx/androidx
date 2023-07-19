@@ -44,13 +44,13 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.rememberDialogState
 import java.awt.event.KeyEvent
-import androidx.compose.ui.window.Dialog as CoreDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.window.DialogWindow
 
 /**
  * The default padding for an [AlertDialog].
@@ -414,7 +414,7 @@ object UndecoratedWindowAlertDialogProvider : AlertDialogProvider {
         onDismissRequest: () -> Unit,
         content: @Composable () -> Unit
     ) {
-        CoreDialog(
+        DialogWindow(
             onCloseRequest = onDismissRequest,
             state = rememberDialogState(width = Dp.Unspecified, height = Dp.Unspecified),
             undecorated = true,

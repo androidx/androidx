@@ -65,7 +65,7 @@ import kotlin.system.exitProcess
  * example, from some event listener), use `GlobalScope.launchApplication` instead.
  *
  * Application can launch background tasks using [LaunchedEffect]
- * or create [Window], [Dialog], or [Tray] in a declarative Compose way:
+ * or create [Window], [DialogWindow], or [Tray] in a declarative Compose way:
  *
  * ```
  * fun main() = application {
@@ -86,7 +86,7 @@ import kotlin.system.exitProcess
  *
  * When there is no any active compositions, this function will end.
  * Active composition is a composition that have active coroutine (for example, launched in
- * [LaunchedEffect]) or that have child composition created inside [Window], [Dialog], or [Tray].
+ * [LaunchedEffect]) or that have child composition created inside [Window], [DialogWindow], or [Tray].
  *
  * Don't use any animation in this function
  * (for example, [withFrameNanos] or [androidx.compose.animation.core.animateFloatAsState]),
@@ -94,7 +94,7 @@ import kotlin.system.exitProcess
  * frames as fast as possible.
  *
  * All animation's should be created inside Composable content of the
- * [Window] / [Dialog] / [ComposePanel].
+ * [Window] / [DialogWindow] / [ComposePanel].
  *
  * @param exitProcessOnExit should `exitProcess(0)` be called after the application is closed.
  * exitProcess speedup process exit (instant instead of 1-4sec).
@@ -156,7 +156,7 @@ fun CoroutineScope.launchApplication(
  * An entry point for the Compose application.
  *
  * Application can launch background tasks using [LaunchedEffect]
- * or create [Window], [Dialog], or [Tray] in a declarative Compose way:
+ * or create [Window], [DialogWindow], or [Tray] in a declarative Compose way:
  *
  * ```
  * fun main() = runBlocking {
@@ -179,7 +179,7 @@ fun CoroutineScope.launchApplication(
  *
  * When there is no any active compositions, this function will end.
  * Active composition is a composition that have active coroutine (for example, launched in
- * [LaunchedEffect]) or that have child composition created inside [Window], [Dialog], or [Tray].
+ * [LaunchedEffect]) or that have child composition created inside [Window], [DialogWindow], or [Tray].
  *
  * Don't use any animation in this function
  * (for example, [withFrameNanos] or [androidx.compose.animation.core.animateFloatAsState]),
@@ -187,7 +187,7 @@ fun CoroutineScope.launchApplication(
  * frames as fast as possible.
  *
  * All animation's should be created inside Composable content of the
- * [Window] / [Dialog] / [ComposePanel].
+ * [Window] / [DialogWindow] / [ComposePanel].
  */
 suspend fun awaitApplication(
     content: @Composable ApplicationScope.() -> Unit

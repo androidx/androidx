@@ -46,7 +46,7 @@ import java.awt.Window
  *
  * [AwtWindow] is needed for creating window's / dialog's that still can't be created with
  * the default Compose functions [androidx.compose.ui.window.Window] or
- * [androidx.compose.ui.window.Dialog].
+ * [androidx.compose.ui.window.DialogWindow].
  *
  * @param visible Is [Window] visible to user.
  * Note that if we set `false` - native resources will not be released. They will be released

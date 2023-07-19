@@ -24,13 +24,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberDialogState
 import kotlinx.coroutines.delay
 
 fun main() = application {
-    Dialog(
+    DialogWindow(
         onCloseRequest = ::exitApplication,
         state = rememberDialogState(width = 400.dp, height = 600.dp),
         undecorated = true,
