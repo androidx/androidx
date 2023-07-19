@@ -18,6 +18,7 @@ package androidx.compose.material.icons.generator
 
 import androidx.compose.material.icons.generator.vector.FillType
 import androidx.compose.material.icons.generator.vector.PathNode
+import androidx.compose.material.icons.generator.vector.Vector
 import androidx.compose.material.icons.generator.vector.VectorNode
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -32,46 +33,89 @@ class IconParserTest {
 
     @Test
     fun parseVector() {
-        val icon = Icon("SimpleVector", "simple_vector", IconTheme.Filled, TestVector)
+        val icon = Icon(
+            "SimpleVector",
+            "simple_vector",
+            IconTheme.Filled,
+            TestVector,
+            autoMirrored = false
+        )
         val vector = IconParser(icon).parse()
 
-        val nodes = vector.nodes
-        Truth.assertThat(nodes.size).isEqualTo(2)
+        Truth.assertThat(vector.autoMirrored).isFalse()
 
-        val firstPath = nodes[0] as VectorNode.Path
-        Truth.assertThat(firstPath.fillAlpha).isEqualTo(0.3f)
-        Truth.assertThat(firstPath.strokeAlpha).isEqualTo(1f)
-        Truth.assertThat(firstPath.fillType).isEqualTo(FillType.NonZero)
-
-        val expectedFirstPathNodes = listOf(
-            PathNode.MoveTo(20f, 10f),
-            PathNode.RelativeLineTo(10f, 10f),
-            PathNode.RelativeLineTo(0f, 10f),
-            PathNode.RelativeLineTo(-10f, 0f),
-            PathNode.Close
-        )
-        Truth.assertThat(firstPath.nodes).isEqualTo(expectedFirstPathNodes)
-
-        val secondPath = nodes[1] as VectorNode.Path
-        Truth.assertThat(secondPath.fillAlpha).isEqualTo(1f)
-        Truth.assertThat(secondPath.strokeAlpha).isEqualTo(0.9f)
-        Truth.assertThat(secondPath.fillType).isEqualTo(FillType.EvenOdd)
-
-        val expectedSecondPathNodes = listOf(
-            PathNode.MoveTo(16.5f, 9.0f),
-            PathNode.RelativeHorizontalTo(3.5f),
-            PathNode.RelativeVerticalTo(9f),
-            PathNode.RelativeHorizontalTo(-3.5f),
-            PathNode.Close
-        )
-        Truth.assertThat(secondPath.nodes).isEqualTo(expectedSecondPathNodes)
+        assertVectorNodes(vector)
     }
+
+    @Test
+    fun parseAutoMirroredVector() {
+        val icon = Icon(
+            "SimpleAutoMirroredVector",
+            "simple_autoMirrored_vector",
+            IconTheme.Filled,
+            TestAutoMirroredVector,
+            autoMirrored = true
+        )
+        val vector = IconParser(icon).parse()
+
+        Truth.assertThat(vector.autoMirrored).isTrue()
+
+        assertVectorNodes(vector)
+    }
+}
+
+private fun assertVectorNodes(vector: Vector) {
+    val nodes = vector.nodes
+    Truth.assertThat(nodes.size).isEqualTo(2)
+
+    val firstPath = nodes[0] as VectorNode.Path
+    Truth.assertThat(firstPath.fillAlpha).isEqualTo(0.3f)
+    Truth.assertThat(firstPath.strokeAlpha).isEqualTo(1f)
+    Truth.assertThat(firstPath.fillType).isEqualTo(FillType.NonZero)
+
+    val expectedFirstPathNodes = listOf(
+        PathNode.MoveTo(20f, 10f),
+        PathNode.RelativeLineTo(10f, 10f),
+        PathNode.RelativeLineTo(0f, 10f),
+        PathNode.RelativeLineTo(-10f, 0f),
+        PathNode.Close
+    )
+    Truth.assertThat(firstPath.nodes).isEqualTo(expectedFirstPathNodes)
+
+    val secondPath = nodes[1] as VectorNode.Path
+    Truth.assertThat(secondPath.fillAlpha).isEqualTo(1f)
+    Truth.assertThat(secondPath.strokeAlpha).isEqualTo(0.9f)
+    Truth.assertThat(secondPath.fillType).isEqualTo(FillType.EvenOdd)
+
+    val expectedSecondPathNodes = listOf(
+        PathNode.MoveTo(16.5f, 9.0f),
+        PathNode.RelativeHorizontalTo(3.5f),
+        PathNode.RelativeVerticalTo(9f),
+        PathNode.RelativeHorizontalTo(-3.5f),
+        PathNode.Close
+    )
+    Truth.assertThat(secondPath.nodes).isEqualTo(expectedSecondPathNodes)
 }
 
 private val TestVector = """
     <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="24dp"
         android:height="24dp">
+        <path
+            android:fillAlpha=".3"
+            android:pathData="M20,10, l10,10 0,10 -10, 0z" />
+        <path
+            android:strokeAlpha=".9"
+            android:pathData="M16.5,9h3.5v9h-3.5z"
+            android:fillType="evenOdd" />
+    </vector>
+""".trimIndent()
+
+private val TestAutoMirroredVector = """
+    <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:autoMirrored="true">
         <path
             android:fillAlpha=".3"
             android:pathData="M20,10, l10,10 0,10 -10, 0z" />
