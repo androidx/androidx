@@ -557,8 +557,7 @@ class ComposeScene internal constructor(
             PointerEventType.Scroll -> processScroll(event)
         }
 
-        val isAnyPointerDown = event.pointers.fastAny { it.down }
-        if (!isAnyPointerDown) {
+        if (!event.isAnyPointerDown) {
             pressOwner = null
         }
     }
@@ -583,21 +582,19 @@ class ComposeScene internal constructor(
     }
 
     private fun processRelease(event: PointerInputEvent) {
-        val owner = pressOwner ?: hoveredOwner(event)
-        if (focusedOwner.isAbove(owner)) {
-            return
-        }
-        owner?.processPointerInput(event)
+        // Send Release to pressOwner even if is not hovered or under focused.
+        pressOwner?.processPointerInput(event)
     }
 
     private fun processMove(event: PointerInputEvent) {
-        val owner = when {
-            event.buttons.areAnyPressed -> pressOwner
+        var owner = when {
+            event.isAnyPointerDown -> pressOwner
             event.eventType == PointerEventType.Exit -> null
             else -> hoveredOwner(event)
         }
         if (focusedOwner.isAbove(owner)) {
-            return
+            // If pressOwner is under focusedOwner, hover state must be updated
+            owner = null
         }
 
         // Cases:
@@ -792,3 +789,5 @@ private fun pointerInputEvent(
 internal expect fun createSkiaLayer(): SkiaLayer
 
 internal expect fun NativeKeyEvent.toPointerKeyboardModifiers(): PointerKeyboardModifiers
+
+private val PointerInputEvent.isAnyPointerDown get() = pointers.fastAny { it.down }

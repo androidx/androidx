@@ -21,13 +21,13 @@ import java.awt.Window
 
 /**
  * Receiver scope which is used by [androidx.compose.ui.window.Window] and
- * [androidx.compose.ui.window.Dialog].
+ * [androidx.compose.ui.window.DialogWindow].
  */
 @Stable
 interface WindowScope {
     /**
      * [Window] that was created inside [androidx.compose.ui.window.Window]
-     * or [androidx.compose.ui.window.Dialog]
+     * or [androidx.compose.ui.window.DialogWindow]
      */
     val window: Window
 }

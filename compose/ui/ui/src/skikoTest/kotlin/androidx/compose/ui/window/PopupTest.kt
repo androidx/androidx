@@ -16,14 +16,24 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
@@ -352,7 +362,7 @@ class PopupTest {
     }
 
     @Test
-    fun caNotScrollOutsideOfFocusablePopup() = runSkikoComposeUiTest(
+    fun cannotScrollOutsideOfFocusablePopup() = runSkikoComposeUiTest(
         size = Size(100f, 100f)
     ) {
         val background = FillBox()
@@ -364,6 +374,83 @@ class PopupTest {
         }
 
         scene.sendPointerEvent(PointerEventType.Scroll, Offset(10f, 10f))
+        background.events.assertReceivedNoEvents()
+    }
+
+    @Test
+    fun openFocusablePopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val openPopup = mutableStateOf(false)
+        val background = FillBox {
+            openPopup.value = true
+        }
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = true,
+            onDismissRequest = {
+                openPopup.value = false
+            }
+        )
+
+        setContent {
+            background.Content()
+            if (openPopup.value) {
+                popup.Content()
+            }
+        }
+
+        // Click (Press-Release cycle) opens popup and sends all events to "background"
+        val buttons = PointerButtons(
+            isPrimaryPressed = true
+        )
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f), buttons = buttons, button = PointerButton.Primary)
+        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f), button = PointerButton.Primary)
+
+        background.events.assertReceived(PointerEventType.Press, Offset(10f, 10f))
+        background.events.assertReceivedLast(PointerEventType.Release, Offset(10f, 10f))
+        onNodeWithTag(popup.tag).assertIsDisplayed()
+    }
+
+    @Test
+    fun closeFocusablePopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val openPopup = mutableStateOf(false)
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = true,
+            onDismissRequest = {
+                openPopup.value = false
+            }
+        )
+
+        setContent {
+            background.Content()
+            if (openPopup.value) {
+                popup.Content()
+            }
+        }
+
+        // Moving without popup generates Enter because it's in bounds
+        scene.sendPointerEvent(PointerEventType.Move, Offset(15f, 15f))
+        background.events.assertReceivedLast(PointerEventType.Enter, Offset(15f, 15f))
+
+        // Open popup
+        openPopup.value = true
+        onNodeWithTag(popup.tag).assertIsDisplayed()
+        background.events.assertReceivedLast(PointerEventType.Exit, Offset(15f, 15f))
+
+        // Click (Press-Move-Release cycle) outside closes popup and sends only Enter event to background
+        val buttons = PointerButtons(
+            isPrimaryPressed = true
+        )
+        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f), buttons = buttons, button = PointerButton.Primary)
+        onNodeWithTag(popup.tag).assertDoesNotExist() // Wait that it's really closed before next events
+
+        scene.sendPointerEvent(PointerEventType.Move, Offset(11f, 11f), buttons = buttons)
+        scene.sendPointerEvent(PointerEventType.Release, Offset(11f, 11f), button = PointerButton.Primary)
         background.events.assertReceivedNoEvents()
     }
 }

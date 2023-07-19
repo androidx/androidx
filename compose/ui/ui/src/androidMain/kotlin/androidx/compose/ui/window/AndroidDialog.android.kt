@@ -85,13 +85,23 @@ import kotlin.math.roundToInt
  * set to `false` for Android [R][Build.VERSION_CODES.R] and earlier.
  */
 @Immutable
-class DialogProperties constructor(
-    val dismissOnBackPress: Boolean = true,
-    val dismissOnClickOutside: Boolean = true,
+actual class DialogProperties constructor(
+    actual val dismissOnBackPress: Boolean = true,
+    actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val usePlatformDefaultWidth: Boolean = true,
     val decorFitsSystemWindows: Boolean = true
 ) {
+    actual constructor(
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth = true,
+        decorFitsSystemWindows = true
+    )
 
     constructor(
         dismissOnBackPress: Boolean = true,
@@ -148,7 +158,7 @@ class DialogProperties constructor(
  * @param content The content to be displayed inside the dialog.
  */
 @Composable
-fun Dialog(
+actual fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit
