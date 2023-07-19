@@ -1,51 +1,5 @@
 // Baseline format: 1.0
-AddedClass: androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder:
-    Added class androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder
-
-
-AddedField: androidx.core.view.accessibility.AccessibilityEventCompat#CONTENT_CHANGE_TYPE_CONTENT_INVALID:
-    Added field androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_INVALID
-AddedField: androidx.core.view.accessibility.AccessibilityEventCompat#CONTENT_CHANGE_TYPE_ENABLED:
-    Added field androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ENABLED
-AddedField: androidx.core.view.accessibility.AccessibilityEventCompat#CONTENT_CHANGE_TYPE_ERROR:
-    Added field androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ERROR
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#FLAG_PREFETCH_ANCESTORS:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.FLAG_PREFETCH_ANCESTORS
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#FLAG_PREFETCH_DESCENDANTS_HYBRID:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.FLAG_PREFETCH_DESCENDANTS_HYBRID
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#FLAG_PREFETCH_SIBLINGS:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.FLAG_PREFETCH_SIBLINGS
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#FLAG_PREFETCH_UNINTERRUPTIBLE:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.FLAG_PREFETCH_UNINTERRUPTIBLE
-AddedField: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#MAX_NUMBER_OF_PREFETCHED_NODES:
-    Added field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MAX_NUMBER_OF_PREFETCHED_NODES
-AddedField: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#TYPE_MAGNIFICATION_OVERLAY:
-    Added field androidx.core.view.accessibility.AccessibilityWindowInfoCompat.TYPE_MAGNIFICATION_OVERLAY
-
-
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getBoundsInWindow(android.graphics.Rect):
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.getBoundsInWindow(android.graphics.Rect)
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getChild(int, int):
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.getChild(int,int)
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getContainerTitle():
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.getContainerTitle()
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getParent(int):
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.getParent(int)
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#setBoundsInWindow(android.graphics.Rect):
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.setBoundsInWindow(android.graphics.Rect)
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#setContainerTitle(CharSequence):
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.setContainerTitle(CharSequence)
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#setQueryFromAppProcessEnabled(android.view.View, boolean):
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.setQueryFromAppProcessEnabled(android.view.View,boolean)
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat#getColumnTitle():
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.getColumnTitle()
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat#getRowTitle():
-    Added method androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat.getRowTitle()
-AddedMethod: androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat#RangeInfoCompat(int, float, float, float):
-    Added constructor androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat(int,float,float,float)
-AddedMethod: androidx.core.view.accessibility.AccessibilityWindowInfoCompat#getRoot(int):
-    Added method androidx.core.view.accessibility.AccessibilityWindowInfoCompat.getRoot(int)
+AddedMethod: androidx.core.util.TypedValueCompat#getUnitFromComplexDimension(int):
+    Added method androidx.core.util.TypedValueCompat.getUnitFromComplexDimension(int)
+AddedMethod: androidx.core.widget.TextViewCompat#setLineHeight(android.widget.TextView, int, float):
+    Added method androidx.core.widget.TextViewCompat.setLineHeight(android.widget.TextView,int,float)

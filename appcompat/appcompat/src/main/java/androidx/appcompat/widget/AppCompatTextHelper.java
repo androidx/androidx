@@ -42,6 +42,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.util.TypedValueCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.widget.TextViewCompat;
@@ -326,8 +327,20 @@ class AppCompatTextHelper {
                 R.styleable.AppCompatTextView_firstBaselineToTopHeight, -1);
         final int lastBaselineToBottomHeight = a.getDimensionPixelSize(
                 R.styleable.AppCompatTextView_lastBaselineToBottomHeight, -1);
-        final int lineHeight = a.getDimensionPixelSize(
-                R.styleable.AppCompatTextView_lineHeight, -1);
+        float lineHeight = -1;
+        int lineHeightUnit = -1;
+        if (a.hasValue(R.styleable.AppCompatTextView_lineHeight)) {
+            TypedValue peekValue = a.peekValue(R.styleable.AppCompatTextView_lineHeight);
+            if (peekValue != null && peekValue.type == TypedValue.TYPE_DIMENSION) {
+                lineHeightUnit = TypedValueCompat.getUnitFromComplexDimension(peekValue.data);
+                lineHeight = TypedValue.complexToFloat(peekValue.data);
+            } else {
+                lineHeight = a.getDimensionPixelSize(
+                        R.styleable.AppCompatTextView_lineHeight,
+                        -1
+                );
+            }
+        }
 
         a.recycle();
         if (firstBaselineToTopHeight != -1) {
@@ -337,7 +350,11 @@ class AppCompatTextHelper {
             TextViewCompat.setLastBaselineToBottomHeight(mView, lastBaselineToBottomHeight);
         }
         if (lineHeight != -1) {
-            TextViewCompat.setLineHeight(mView, lineHeight);
+            if (lineHeightUnit == -1) {
+                TextViewCompat.setLineHeight(mView, (int) lineHeight);
+            } else {
+                TextViewCompat.setLineHeight(mView, lineHeightUnit, lineHeight);
+            }
         }
     }
 
