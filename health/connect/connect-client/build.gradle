@@ -40,7 +40,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.core:core-ktx:1.10.1")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
