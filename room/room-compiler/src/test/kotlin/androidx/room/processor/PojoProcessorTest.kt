@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.kruth.assertThat
 import androidx.room.Embedded
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
@@ -42,6 +41,7 @@ import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
+import com.google.common.truth.Truth
 import java.io.File
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -2092,7 +2092,7 @@ class PojoProcessorTest {
                 it.name
             }
             val stringType = invocation.context.COMMON_TYPES.STRING
-            assertThat(
+            Truth.assertThat(
                 fields["isbn"]?.getter
             ).isEqualTo(
                 FieldGetter(
@@ -2102,7 +2102,7 @@ class PojoProcessorTest {
                     callType = CallType.SYNTHETIC_METHOD
                 )
             )
-            assertThat(
+            Truth.assertThat(
                 fields["isbn"]?.setter
             ).isEqualTo(
                 FieldSetter(
@@ -2113,7 +2113,7 @@ class PojoProcessorTest {
                 )
             )
 
-            assertThat(
+            Truth.assertThat(
                 fields["isbn2"]?.getter
             ).isEqualTo(
                 FieldGetter(
@@ -2123,7 +2123,7 @@ class PojoProcessorTest {
                     callType = CallType.SYNTHETIC_METHOD
                 )
             )
-            assertThat(
+            Truth.assertThat(
                 fields["isbn2"]?.setter
             ).isEqualTo(
                 FieldSetter(

@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.kruth.assertThat
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isConstructor
@@ -27,6 +26,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -16,11 +16,10 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.kruth.assertThat
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.compat.XConverters.toXProcessing
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -339,8 +338,7 @@ class GeneratedCodeMatchTest internal constructor(
             }
         }
 
-        // Kruth doesn't support exceptions yet
-        Truth.assertThat(result.exceptionOrNull())
+        assertThat(result.exceptionOrNull())
             .hasCauseThat()
             .hasMessageThat()
             .contains(

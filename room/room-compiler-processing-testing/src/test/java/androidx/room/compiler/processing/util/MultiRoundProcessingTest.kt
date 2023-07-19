@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.kruth.assertThat
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec

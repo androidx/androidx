@@ -15,7 +15,7 @@
  */
 package androidx.room.parser
 
-import androidx.kruth.assertThat
+import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
@@ -277,31 +277,31 @@ class SqlParserTest {
     @Test
     fun hasTopStarProjection() {
         SqlParser.parse("SELECT * FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isTrue()
+            Truth.assertThat(it.hasTopStarProjection).isTrue()
         }
         SqlParser.parse("SELECT Foo.* FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isTrue()
+            Truth.assertThat(it.hasTopStarProjection).isTrue()
         }
         SqlParser.parse("SELECT 0 as new, Foo.* FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isTrue()
+            Truth.assertThat(it.hasTopStarProjection).isTrue()
         }
         SqlParser.parse("SELECT f.* FROM Foo f").let {
-            assertThat(it.hasTopStarProjection).isTrue()
+            Truth.assertThat(it.hasTopStarProjection).isTrue()
         }
         SqlParser.parse("SELECT id FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isFalse()
+            Truth.assertThat(it.hasTopStarProjection).isFalse()
         }
         SqlParser.parse("SELECT id FROM (SELECT * FROM Foo)").let {
-            assertThat(it.hasTopStarProjection).isFalse()
+            Truth.assertThat(it.hasTopStarProjection).isFalse()
         }
         SqlParser.parse("SELECT COUNT(*) FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isFalse()
+            Truth.assertThat(it.hasTopStarProjection).isFalse()
         }
         SqlParser.parse("SELECT (SELECT * FROM Foo LIMIT 1) == 1 as uno FROM Foo").let {
-            assertThat(it.hasTopStarProjection).isFalse()
+            Truth.assertThat(it.hasTopStarProjection).isFalse()
         }
         SqlParser.parse("INSERT INTO Foo VALUES (:param)").let {
-            assertThat(it.hasTopStarProjection).isNull()
+            Truth.assertThat(it.hasTopStarProjection).isNull()
         }
     }
 

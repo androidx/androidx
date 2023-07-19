@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_LONG
@@ -35,6 +34,7 @@ import androidx.room.vo.Fields
 import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.columnNames
+import com.google.common.truth.Truth.assertThat
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
