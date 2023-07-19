@@ -16,9 +16,11 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.kruth.FailureMetadata
-import androidx.kruth.Subject
-import androidx.kruth.assertAbout
+import com.google.common.truth.Fact.simpleFact
+import com.google.common.truth.FailureMetadata
+import com.google.common.truth.Subject
+import com.google.common.truth.Subject.Factory
+import com.google.common.truth.Truth
 
 /**
  * Truth subject for diagnostic messages
@@ -26,8 +28,8 @@ import androidx.kruth.assertAbout
 class DiagnosticMessagesSubject internal constructor(
     failureMetadata: FailureMetadata,
     private val diagnosticMessages: List<DiagnosticMessage>,
-) : Subject<List<DiagnosticMessage>>(
-    diagnosticMessages, failureMetadata
+) : Subject<DiagnosticMessagesSubject, List<DiagnosticMessage>>(
+    failureMetadata, diagnosticMessages
 ) {
 
     private val lineContents by lazy {
@@ -50,10 +52,15 @@ class DiagnosticMessagesSubject internal constructor(
      * Note that if there are multiple messages, any match will be sufficient.
      */
     fun onLine(lineNumber: Int) = apply {
-        if (locations.none { it.line == lineNumber }) {
+        if (locations.none {
+            it.line == lineNumber
+        }
+        ) {
             failWithActual(
-                "expected line $lineNumber but it was " +
-                    locations.joinToString(",")
+                simpleFact(
+                    "expected line $lineNumber but it was " +
+                        locations.joinToString(",")
+                )
             )
         }
     }
@@ -64,7 +71,7 @@ class DiagnosticMessagesSubject internal constructor(
     fun hasCount(expected: Int) = apply {
         if (diagnosticMessages.size != expected) {
             failWithActual(
-                "expected $expected messages, found ${diagnosticMessages.size}"
+                simpleFact("expected $expected messages, found ${diagnosticMessages.size}")
             )
         }
     }
@@ -75,7 +82,7 @@ class DiagnosticMessagesSubject internal constructor(
     fun onLineContaining(content: String) = apply {
         if (lineContents.isEmpty()) {
             failWithActual(
-                "Cannot validate line content due to missing location information"
+                simpleFact("Cannot validate line content due to missing location information")
             )
         }
         if (lineContents.none {
@@ -83,8 +90,10 @@ class DiagnosticMessagesSubject internal constructor(
         }
         ) {
             failWithActual(
-                "expected line content with $content but was " +
-                    lineContents.joinToString("\n")
+                simpleFact(
+                    "expected line content with $content but was " +
+                        lineContents.joinToString("\n")
+                )
             )
         }
     }
@@ -96,18 +105,28 @@ class DiagnosticMessagesSubject internal constructor(
     fun onSource(source: Source) = apply {
         if (locations.none { it.source == source }) {
             failWithActual(
-                """
+                simpleFact(
+                    """
                     Expected diagnostic to be on $source but found it on
                     ${locations.joinToString(",")}
-                """.trimIndent()
+                    """.trimIndent()
+                )
             )
         }
     }
 
     companion object {
+        private val FACTORY =
+            Factory<DiagnosticMessagesSubject, List<DiagnosticMessage>> { metadata, actual ->
+                DiagnosticMessagesSubject(metadata, actual)
+            }
+
         fun assertThat(
             diagnosticMessages: List<DiagnosticMessage>
-        ): DiagnosticMessagesSubject =
-            assertAbout(::DiagnosticMessagesSubject).that(diagnosticMessages)
+        ): DiagnosticMessagesSubject {
+            return Truth.assertAbout(FACTORY).that(
+                diagnosticMessages
+            )
+        }
     }
 }

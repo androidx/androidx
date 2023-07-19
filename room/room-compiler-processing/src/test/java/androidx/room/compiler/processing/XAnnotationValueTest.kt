@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.JArrayTypeName
 import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.util.Source
@@ -25,6 +24,7 @@ import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
+import com.google.common.truth.Truth.assertThat
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY

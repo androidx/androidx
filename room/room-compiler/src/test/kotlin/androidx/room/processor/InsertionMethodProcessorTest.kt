@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.kruth.assertThat
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.compiler.processing.XMethodElement
@@ -26,6 +25,7 @@ import androidx.room.processor.ProcessorErrors.INSERTION_DOES_NOT_HAVE_ANY_PARAM
 import androidx.room.processor.ProcessorErrors.INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
 import androidx.room.processor.ProcessorErrors.INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
 import androidx.room.vo.InsertionMethod
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

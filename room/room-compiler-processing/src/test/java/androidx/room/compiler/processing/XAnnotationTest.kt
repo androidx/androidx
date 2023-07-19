@@ -16,8 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.kruth.assertThat
-import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.compat.XConverters.toJavac
@@ -44,6 +42,8 @@ import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
 import com.squareup.kotlinpoet.javapoet.JClassName
 import org.junit.Test
@@ -1389,7 +1389,7 @@ class XAnnotationTest(
                             .that(type.getAllAnnotationTypeElements())
                             .isEmpty()
                     } else {
-                        assertWithMessage("$desc type: $type")
+                        assertWithMessage("%s type: %s", desc, type.toString())
                             .that(type.getAllAnnotationTypeElements())
                             .containsExactly(a, b)
                         assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")

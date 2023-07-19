@@ -16,8 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.kruth.assertThat
-import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.JArrayTypeName
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.createTypeReference
@@ -28,6 +26,8 @@ import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName

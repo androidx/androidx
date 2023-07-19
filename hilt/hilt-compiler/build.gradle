@@ -39,7 +39,7 @@ dependencies {
     testImplementation(project(":hilt:hilt-common"))
     testImplementation(project(":annotation:annotation"))
     testImplementation(libs.junit)
-    testImplementation(project(":kruth:kruth"))
+    testImplementation(libs.truth)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))

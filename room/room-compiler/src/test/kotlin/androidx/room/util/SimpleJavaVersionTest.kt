@@ -16,7 +16,7 @@
 
 package androidx.room.util
 
-import androidx.kruth.assertThat
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 

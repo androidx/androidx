@@ -86,7 +86,6 @@ dependencies {
     testImplementation(libs.kotlinMetadataJvm)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-common"))
-    testImplementation(project(":kruth:kruth"))
 }
 
 tasks.withType(KotlinCompile).configureEach {

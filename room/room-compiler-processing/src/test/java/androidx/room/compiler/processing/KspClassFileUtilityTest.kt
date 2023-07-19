@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.kruth.assertThat
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -24,6 +23,7 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
+import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.symbol.Origin
 import org.junit.Test
 import org.junit.runner.RunWith

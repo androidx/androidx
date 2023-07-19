@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -25,6 +24,7 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.testing.context
 import androidx.room.verifier.ColumnInfo
 import androidx.room.vo.DatabaseView
+import com.google.common.truth.Truth.assertThat
 import createVerifierFromEntitiesAndViews
 import org.junit.Test
 import org.junit.runner.RunWith
