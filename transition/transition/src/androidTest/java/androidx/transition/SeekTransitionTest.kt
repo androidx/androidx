@@ -1060,7 +1060,7 @@ class SeekTransitionTest : BaseTest() {
         }
 
         rule.runOnUiThread {
-            val controller = TransitionManager.seekTo(scene2, Fade())
+            val controller = TransitionManager.createSeekController(scene2, Fade())
             assertThat(controller).isNotNull()
             seekController = controller!!
         }
@@ -1096,7 +1096,7 @@ class SeekTransitionTest : BaseTest() {
         }
 
         rule.runOnUiThread {
-            TransitionManager.seekTo(scene2, NoSeekingTransition())
+            TransitionManager.createSeekController(scene2, NoSeekingTransition())
         }
     }
 
@@ -1111,7 +1111,7 @@ class SeekTransitionTest : BaseTest() {
 
         rule.runOnUiThread {
             TransitionManager.go(scene2, Fade())
-            assertThat(TransitionManager.seekTo(scene1, Fade())).isNull()
+            assertThat(TransitionManager.createSeekController(scene1, Fade())).isNull()
         }
     }
 }
