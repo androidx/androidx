@@ -134,10 +134,14 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
         configBuilder.isPostsubmit(!isPresubmit)
         // This section adds metadata tags that will help filter runners to specific modules.
         if (hasBenchmarkPlugin.get()) {
-            configBuilder.isBenchmark(true)
-            if (configBuilder.isPostsubmit) {
-                configBuilder.tag("microbenchmarks")
-            } else {
+            configBuilder.isMicrobenchmark(true)
+
+            // tag microbenchmarks as "microbenchmarks" in either build config, so that benchmark
+            // test configs will always have something to run, regardless of build (though presubmit
+            // builds will still set dry run, and not output metrics)
+            configBuilder.tag("microbenchmarks")
+
+            if (isPresubmit) {
                 // in presubmit, we treat micro benchmarks as regular correctness tests as
                 // they run with dryRunMode to check crashes don't happen, without measurement
                 configBuilder.tag("androidx_unit_tests")

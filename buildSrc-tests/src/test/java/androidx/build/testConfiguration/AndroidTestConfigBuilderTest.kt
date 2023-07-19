@@ -39,7 +39,7 @@ class AndroidTestConfigBuilderTest {
     fun init() {
         builder = ConfigBuilder()
         builder.configName("placeHolderAndroidTest.xml")
-            .isBenchmark(false)
+            .isMicrobenchmark(false)
             .applicationId("com.androidx.placeholder.Placeholder")
             .isPostsubmit(true)
             .minSdk("15")
@@ -59,7 +59,7 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testXmlAgainstGoldenDefaultBenchmark() {
-        builder.isBenchmark(true)
+        builder.isMicrobenchmark(true)
         MatcherAssert.assertThat(
             builder.buildXml(),
             CoreMatchers.`is`(goldenDefaultConfigBenchmark)
@@ -123,7 +123,7 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testJsonAgainstGoldenPresubmitBenchmark() {
-        builder.isBenchmark(true)
+        builder.isMicrobenchmark(true)
             .isPostsubmit(false)
         MatcherAssert.assertThat(
             builder.buildJson(),
@@ -241,7 +241,7 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testValidTestConfigXml_benchmarkTrue() {
-        builder.isBenchmark(true)
+        builder.isMicrobenchmark(true)
         validate(builder.buildXml())
     }
 
@@ -279,7 +279,7 @@ class AndroidTestConfigBuilderTest {
     @Test
     fun testValidTestConfigXml_presubmitBenchmark() {
         builder.isPostsubmit(false)
-            .isBenchmark(true)
+            .isMicrobenchmark(true)
         validate(builder.buildXml())
     }
 
@@ -349,7 +349,6 @@ private val goldenDefaultConfigBenchmark = """
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
-    <option name="instrumentation-arg" key="androidx.benchmark.output.enable" value="true" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
