@@ -16,10 +16,12 @@
 
 package com.example.androidx.mediarouting.activities.systemrouting;
 
-import android.Manifest;
+import static android.Manifest.permission.BLUETOOTH_CONNECT;
+import static android.Manifest.permission.BLUETOOTH_SCAN;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -94,7 +96,7 @@ public final class SystemRoutingActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_BLUETOOTH_CONNECT
                 && grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PERMISSION_GRANTED) {
                 onBluetoothPermissionGranted();
             } else {
                 onBluetoothPermissionDenied();
@@ -112,15 +114,15 @@ public final class SystemRoutingActivity extends AppCompatActivity {
     }
 
     private boolean hasBluetoothPermission() {
-        return ContextCompat.checkSelfPermission(
-                /* context= */ this, Manifest.permission.BLUETOOTH_CONNECT)
-                == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(/* context= */ this, BLUETOOTH_CONNECT)
+                == PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(/* context= */ this, BLUETOOTH_SCAN)
+                == PERMISSION_GRANTED;
     }
 
     private void requestBluetoothPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.BLUETOOTH_CONNECT},
-                REQUEST_CODE_BLUETOOTH_CONNECT);
+                new String[]{BLUETOOTH_CONNECT, BLUETOOTH_SCAN}, REQUEST_CODE_BLUETOOTH_CONNECT);
     }
 
     private void onBluetoothPermissionGranted() {
