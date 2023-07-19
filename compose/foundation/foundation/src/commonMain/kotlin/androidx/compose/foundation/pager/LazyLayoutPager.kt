@@ -123,12 +123,6 @@ internal fun Pager(
         PagerWrapperFlingBehavior(flingBehavior, state)
     }
 
-    val pagerSemantics = if (userScrollEnabled) {
-        Modifier.pagerSemantics(state, orientation == Orientation.Vertical)
-    } else {
-        Modifier
-    }
-
     val semanticState = rememberPagerSemanticState(
         state,
         reverseLayout,
@@ -141,7 +135,6 @@ internal fun Pager(
         modifier = modifier
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
-            .then(pagerSemantics)
             .lazyLayoutSemantics(
                 itemProviderLambda = pagerItemProvider,
                 state = semanticState,
