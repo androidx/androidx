@@ -23,6 +23,7 @@ import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
 import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.SleepSessionRecord
@@ -86,14 +87,14 @@ suspend fun ReadExerciseSessions(
 suspend fun ReadExerciseRoute(
     activityResultCaller: ActivityResultCaller,
     healthConnectClient: HealthConnectClient,
-    displayExerciseRoute: (ExerciseRoute.Data) -> Unit,
+    displayExerciseRoute: (ExerciseRoute) -> Unit,
     recordId: String
 ) {
     // See https://developer.android.com/training/basics/intents/result#launch for appropriately
     // handling ActivityResultContract.
     val requestExerciseRoute =
         activityResultCaller.registerForActivityResult(ExerciseRouteRequestContract()) {
-            exerciseRoute: ExerciseRoute.Data? ->
+            exerciseRoute: ExerciseRoute? ->
             if (exerciseRoute != null) {
                 displayExerciseRoute(exerciseRoute)
             } else {
@@ -105,10 +106,10 @@ suspend fun ReadExerciseRoute(
     val exerciseSessionRecord =
         healthConnectClient.readRecord(ExerciseSessionRecord::class, recordId).record
 
-    when (val exerciseRoute = exerciseSessionRecord.exerciseRoute) {
-        is ExerciseRoute.Data -> displayExerciseRoute(exerciseRoute)
-        is ExerciseRoute.ConsentRequired -> requestExerciseRoute.launch(recordId)
-        is ExerciseRoute.NoData -> Unit // No exercise route to show
+    when (val exerciseRouteResult = exerciseSessionRecord.exerciseRouteResult) {
+        is ExerciseRouteResult.Data -> displayExerciseRoute(exerciseRouteResult.exerciseRoute)
+        is ExerciseRouteResult.ConsentRequired -> requestExerciseRoute.launch(recordId)
+        is ExerciseRouteResult.NoData -> Unit // No exercise route to show
         else -> Unit
     }
 }

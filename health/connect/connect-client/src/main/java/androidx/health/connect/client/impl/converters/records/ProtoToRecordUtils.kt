@@ -119,17 +119,17 @@ internal fun DataProto.DataPoint.SubTypeDataList.toStageList(): List<SleepSessio
             startTime = Instant.ofEpochMilli(it.startTimeMillis),
             endTime = Instant.ofEpochMilli(it.endTimeMillis),
             stage = STAGE_TYPE_STRING_TO_INT_MAP[it.valuesMap["stage"]?.enumVal]
-                ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
+                    ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
         )
     }
 }
+
 internal fun DataProto.DataPoint.SubTypeDataList.toSegmentList(): List<ExerciseSegment> {
     return valuesList.map {
         ExerciseSegment(
             startTime = Instant.ofEpochMilli(it.startTimeMillis),
             endTime = Instant.ofEpochMilli(it.endTimeMillis),
-            segmentType = (it.valuesMap["type"]?.longVal
-                ?: EXERCISE_SEGMENT_TYPE_UNKNOWN).toInt(),
+            segmentType = (it.valuesMap["type"]?.longVal ?: EXERCISE_SEGMENT_TYPE_UNKNOWN).toInt(),
             repetitions = it.valuesMap["reps"]?.longVal?.toInt() ?: 0
         )
     }

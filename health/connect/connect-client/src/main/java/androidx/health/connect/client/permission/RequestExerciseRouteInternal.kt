@@ -32,8 +32,7 @@ import androidx.health.platform.client.service.HealthDataServiceConstants
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class RequestExerciseRouteInternal :
-    ActivityResultContract<String, ExerciseRoute.Data?>() {
+internal class RequestExerciseRouteInternal : ActivityResultContract<String, ExerciseRoute?>() {
     override fun createIntent(context: Context, input: String): Intent {
         require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return Intent(HealthDataServiceConstants.ACTION_REQUEST_ROUTE).apply {
@@ -42,7 +41,7 @@ internal class RequestExerciseRouteInternal :
     }
 
     @Suppress("DEPRECATION") // getParcelableExtra
-    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute.Data? {
+    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute? {
         val route =
             intent?.getParcelableExtra<androidx.health.platform.client.exerciseroute.ExerciseRoute>(
                 HealthDataServiceConstants.EXTRA_EXERCISE_ROUTE

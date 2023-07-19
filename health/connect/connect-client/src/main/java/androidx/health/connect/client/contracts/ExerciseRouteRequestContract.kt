@@ -32,9 +32,9 @@ import androidx.health.connect.client.records.ExerciseRoute
  *
  * @sample androidx.health.connect.client.samples.ReadExerciseRoute
  */
-class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRoute.Data?>() {
+class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRoute?>() {
 
-    private val delegate: ActivityResultContract<String, ExerciseRoute.Data?> =
+    private val delegate: ActivityResultContract<String, ExerciseRoute?> =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             RequestExerciseRouteUpsideDownCake()
         } else {
@@ -42,7 +42,7 @@ class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRout
         }
 
     /**
-     * Creates an intent to request an [ExerciseRoute.Data]. It receives the exercise session id as
+     * Creates an intent to request an [ExerciseRoute]. It receives the exercise session id as
      * [input].
      *
      * @param context the context
@@ -56,13 +56,13 @@ class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRout
     }
 
     /**
-     * Converts the activity result into [ExerciseRoute.Data], to return as output.
+     * Converts the activity result into [ExerciseRoute], to return as output.
      *
      * @return null if the user didn't grant access to the exercise route or if there's no exercise
      *   route for the session id passed on [createIntent].
      * @see ActivityResultContract.parseResult
      */
-    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute.Data? {
+    override fun parseResult(resultCode: Int, intent: Intent?): ExerciseRoute? {
         return delegate.parseResult(resultCode, intent)
     }
 }

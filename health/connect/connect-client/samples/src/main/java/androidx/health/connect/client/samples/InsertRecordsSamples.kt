@@ -113,9 +113,9 @@ suspend fun InsertExerciseRoute(healthConnectClient: HealthConnectClient) {
     val latitudeDeltaPerSecond = (endLatitude - startLatitude) / sessionDuration.seconds
     val longitudeDeltaPerSecond = (endLongitude - startLongitude) / sessionDuration.seconds
 
-    val exerciseRouteData =
+    val exerciseRoute =
         if (grantedPermissions.contains(PERMISSION_WRITE_EXERCISE_ROUTE)) {
-            ExerciseRoute.Data(
+            ExerciseRoute(
                 List(sessionDuration.seconds.toInt()) { timeSeconds ->
                     ExerciseRoute.Location(
                         time = sessionStartTime.plusSeconds(timeSeconds.toLong()),
@@ -140,7 +140,7 @@ suspend fun InsertExerciseRoute(healthConnectClient: HealthConnectClient) {
             exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
             title = "Morning Run",
             notes = "A nice run in a park",
-            exerciseRouteData = exerciseRouteData
+            exerciseRoute = exerciseRoute
         )
 
     healthConnectClient.insertRecords(listOf(exerciseSessionRecord))

@@ -74,7 +74,7 @@ class ExerciseRouteTest {
 
     @Test
     fun emptyRoute() {
-        assertThat(ExerciseRoute.Data(listOf())).isEqualTo(ExerciseRoute.Data(listOf()))
+        assertThat(ExerciseRoute(listOf())).isEqualTo(ExerciseRoute(listOf()))
     }
 
     @Test
@@ -94,8 +94,8 @@ class ExerciseRouteTest {
                 latitude = 34.8,
                 longitude = -34.8,
             )
-        assertThat(ExerciseRoute.Data(listOf(location1, location2)))
-            .isEqualTo(ExerciseRoute.Data(listOf(location1, location2)))
+        assertThat(ExerciseRoute(listOf(location1, location2)))
+            .isEqualTo(ExerciseRoute(listOf(location1, location2)))
     }
 
     @Test
@@ -112,8 +112,6 @@ class ExerciseRouteTest {
                 latitude = 34.8,
                 longitude = -34.8,
             )
-        assertFailsWith<IllegalArgumentException> {
-            ExerciseRoute.Data(listOf(location1, location2))
-        }
+        assertFailsWith<IllegalArgumentException> { ExerciseRoute(listOf(location1, location2)) }
     }
 }
