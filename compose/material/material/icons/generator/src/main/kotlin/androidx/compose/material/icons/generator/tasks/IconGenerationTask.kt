@@ -155,13 +155,12 @@ abstract class IconGenerationTask : DefaultTask() {
          * bitmap comparison test for every icon in both the core and extended project.
          */
         @JvmStatic
+        @Suppress("UNUSED_PARAMETER")
         fun registerExtendedIconThemeProject(
             project: Project,
             libraryExtension: LibraryExtension
         ) {
-            libraryExtension.libraryVariants.all { variant ->
-                ExtendedIconGenerationTask.register(project, variant)
-            }
+            ExtendedIconGenerationTask.register(project, null)
 
             // b/175401659 - disable lint as it takes a long time, and most errors should
             // be caught by lint on material-icons-core anyway
