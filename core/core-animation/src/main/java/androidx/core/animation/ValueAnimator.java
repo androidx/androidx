@@ -27,7 +27,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.tracing.Trace;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1164,7 +1163,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         }
         // mReversing needs to be reset *after* notifying the listeners for the end callbacks.
         mReversing = false;
-        Trace.endSection();
     }
 
     /**
@@ -1172,9 +1170,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      * called on the UI thread.
      */
     private void startAnimation() {
-
-        Trace.beginSection(getNameForTrace());
-
         mAnimationEndRequested = false;
         initAnimation();
         mRunning = true;
