@@ -153,6 +153,40 @@ class XAnnotationTest(
     }
 
     @Test
+    fun testJvmNameAnnotationValue() {
+        val kotlinSrc = Source.kotlin(
+            "MyAnnotation.kt",
+            """
+            @Target(AnnotationTarget.CLASS)
+            annotation class MyAnnotation(
+                @get:JvmName("stringParameter")
+                val stringParam: String,
+                val intParam: Int,
+                @get:JvmName("longParameter")
+                val longParam: Long
+            )
+            """.trimIndent()
+        )
+        val javaSrc = Source.java(
+            "Foo",
+            """
+            @MyAnnotation(stringParameter = "1", intParam = 2, longParameter = 3)
+            public class Foo {}
+            """.trimIndent()
+        )
+        runTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
+            val typeElement = invocation.processingEnv.requireTypeElement("Foo")
+            val annotation =
+                typeElement.getAllAnnotations().single { it.qualifiedName == "MyAnnotation" }
+            assertThat(
+                annotation.annotationValues.map { it.value }
+            ).containsExactly(
+                "1", 2, 3.toLong()
+            ).inOrder()
+        }
+    }
+
+    @Test
     fun readsAnnotationsDeclaredInSources() {
         val source = Source.kotlin(
             "MyClass.kt",
