@@ -354,7 +354,6 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getAnchorAngle();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
     method public java.util.List<androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement!> getContents();
-    method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicAnchorAngle();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
   }
@@ -366,7 +365,6 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorType(int);
-    method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setLayoutConstraintsForDynamicAnchorAngle(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.protolayout.LayoutElementBuilders.VerticalAlignmentProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
