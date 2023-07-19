@@ -50,16 +50,14 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     private val kotlinExtension: KotlinMultiplatformExtension by kotlinExtensionDelegate
 
     /**
-     * The list of platforms that have been requested in the build configuration.
+     * The list of platforms that have been declared as supported in the build configuration.
      *
-     * The list of enabled platforms in [targetPlatforms] will vary based on the build environment.
-     * For example, a project's build configuration may have requested `mac()` but this is not
-     * available when building on Linux.
+     * This may be a superset of the currently enabled platforms in [targetPlatforms].
      */
-    val requestedPlatforms: MutableSet<PlatformIdentifier> = mutableSetOf()
+    val supportedPlatforms: MutableSet<PlatformIdentifier> = mutableSetOf()
 
     /**
-     * The list of platforms that are enabled.
+     * The list of platforms that are currently enabled.
      *
      * This will vary across build environments. For example, a project's build configuration may
      * have requested `mac()` but this is not available when building on Linux.
@@ -91,14 +89,14 @@ open class AndroidXMultiplatformExtension(val project: Project) {
      * identifier for that platform.
      */
     var defaultPlatform: String? = null
-        get() = field ?: requestedPlatforms.singleOrNull()?.id
+        get() = field ?: supportedPlatforms.singleOrNull()?.id
         set(value) {
             if (value != null) {
-                if (requestedPlatforms.none { it.id == value }) {
+                if (supportedPlatforms.none { it.id == value }) {
                     throw GradleException(
                         "Platform $value has not been requested as a target. " +
                             "Available platforms are: " +
-                            requestedPlatforms.joinToString(", ") { it.id }
+                            supportedPlatforms.joinToString(", ") { it.id }
                     )
                 }
                 if (targetPlatforms.none { it == value }) {
@@ -145,7 +143,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun jvm(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
-        requestedPlatforms.add(PlatformIdentifier.JVM)
+        supportedPlatforms.add(PlatformIdentifier.JVM)
         return if (project.enableJvm()) {
             kotlinExtension.jvm {
                 block?.execute(this)
@@ -163,7 +161,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun android(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
-        requestedPlatforms.add(PlatformIdentifier.ANDROID)
+        supportedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
             kotlinExtension.androidTarget { block?.execute(this) }
         } else {
@@ -173,7 +171,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun desktop(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
-        requestedPlatforms.add(PlatformIdentifier.DESKTOP)
+        supportedPlatforms.add(PlatformIdentifier.DESKTOP)
         return if (project.enableDesktop()) {
             kotlinExtension.jvm("desktop") { block?.execute(this) }
         } else {
@@ -189,7 +187,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun macosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        requestedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
+        supportedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
         return if (project.enableMac()) {
             kotlinExtension.macosX64().also { block?.execute(it) }
         } else {
@@ -199,7 +197,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun macosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        requestedPlatforms.add(PlatformIdentifier.MAC_ARM_64)
+        supportedPlatforms.add(PlatformIdentifier.MAC_ARM_64)
         return if (project.enableMac()) {
             kotlinExtension.macosArm64().also { block?.execute(it) }
         } else {
@@ -209,7 +207,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun iosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        requestedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
+        supportedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
         return if (project.enableMac()) {
             kotlinExtension.iosArm64().also { block?.execute(it) }
         } else {
@@ -225,7 +223,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun iosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        requestedPlatforms.add(PlatformIdentifier.IOS_X_64)
+        supportedPlatforms.add(PlatformIdentifier.IOS_X_64)
         return if (project.enableMac()) {
             kotlinExtension.iosX64().also { block?.execute(it) }
         } else {
@@ -235,7 +233,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun iosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        requestedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
+        supportedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
         return if (project.enableMac()) {
             kotlinExtension.iosSimulatorArm64().also { block?.execute(it) }
         } else {
@@ -252,7 +250,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        requestedPlatforms.add(PlatformIdentifier.LINUX_64)
+        supportedPlatforms.add(PlatformIdentifier.LINUX_64)
         return if (project.enableLinux()) {
             kotlinExtension.linuxX64().also { block?.execute(it) }
         } else {
@@ -262,7 +260,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun js(block: Action<KotlinJsTargetDsl>? = null): KotlinJsTargetDsl? {
-        requestedPlatforms.add(PlatformIdentifier.JS)
+        supportedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
             kotlinExtension.js().also { block?.execute(it) }
         } else {
@@ -286,7 +284,7 @@ internal fun Project.hasKotlinNativeTarget(): Provider<Boolean> =
 
 fun Project.validatePublishedMultiplatformHasDefault() {
     val extension = project.extensions.getByType(AndroidXMultiplatformExtension::class.java)
-    if (extension.defaultPlatform == null && extension.requestedPlatforms.isNotEmpty()) {
+    if (extension.defaultPlatform == null && extension.supportedPlatforms.isNotEmpty()) {
         throw GradleException(
             "Project is published and multiple platforms are requested. You " +
                 "must explicitly specify androidXMultiplatform.defaultPlatform as one of: " +
