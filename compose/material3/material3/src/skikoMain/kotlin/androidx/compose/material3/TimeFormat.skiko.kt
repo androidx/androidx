@@ -19,6 +19,6 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
-internal actual val is24HourFormat: Boolean
-    @Composable
-    @ReadOnlyComposable get() = false
+@Composable
+@ReadOnlyComposable
+internal actual fun is24HourFormat(): Boolean = false

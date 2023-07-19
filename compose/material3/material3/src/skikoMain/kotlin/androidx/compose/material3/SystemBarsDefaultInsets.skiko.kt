@@ -21,6 +21,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 
 // TODO upstream to commonMain
-internal actual val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
-    @Composable
-    get() = WindowInsets.systemBars
+@Composable
+internal actual fun WindowInsets.Companion.systemBarsForVisualComponents(): WindowInsets =
+    WindowInsets.systemBars
