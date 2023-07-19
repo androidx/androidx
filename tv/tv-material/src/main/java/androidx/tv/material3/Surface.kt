@@ -645,7 +645,7 @@ internal const val EnabledContentAlpha = 1f
 @get:ExperimentalTvMaterial3Api
 val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
 
-private val AcceptableKeys = hashSetOf(
+private val AcceptableKeys = intArrayOf(
     NativeKeyEvent.KEYCODE_DPAD_CENTER,
     NativeKeyEvent.KEYCODE_ENTER,
     NativeKeyEvent.KEYCODE_NUMPAD_ENTER
