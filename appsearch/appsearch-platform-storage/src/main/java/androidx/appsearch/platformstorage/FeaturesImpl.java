@@ -63,7 +63,7 @@ final class FeaturesImpl implements Features {
 
             // Beyond Android U features
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
-                // TODO(b/258715421): Update to reflect support in Android U+ once this feature has
+                // TODO(b/258715421) : Update to reflect support in Android U+ once this feature has
                 // an extservices sdk that includes it.
                 // fall through
             case Features.SCHEMA_SET_DELETION_PROPAGATION:
