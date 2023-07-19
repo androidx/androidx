@@ -35,6 +35,7 @@ import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseLap
 import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
@@ -408,7 +409,7 @@ class RecordConvertersTest {
                             )
                         ),
                     exerciseRoute =
-                        ExerciseRoute.Data(
+                        ExerciseRoute(
                             listOf(
                                 ExerciseRoute.Location(
                                     START_TIME,
@@ -1261,17 +1262,19 @@ class RecordConvertersTest {
                         10
                     )
                 )
-            assertThat(exerciseRoute as ExerciseRoute.Data)
+            assertThat(exerciseRouteResult as ExerciseRouteResult.Data)
                 .isEqualTo(
-                    ExerciseRoute.Data(
-                        listOf(
-                            ExerciseRoute.Location(
-                                time = START_TIME,
-                                latitude = 23.4,
-                                longitude = -23.4,
-                                altitude = Length.meters(10.0),
-                                horizontalAccuracy = Length.meters(2.0),
-                                verticalAccuracy = Length.meters(3.0)
+                    ExerciseRouteResult.Data(
+                        ExerciseRoute(
+                            listOf(
+                                ExerciseRoute.Location(
+                                    time = START_TIME,
+                                    latitude = 23.4,
+                                    longitude = -23.4,
+                                    altitude = Length.meters(10.0),
+                                    horizontalAccuracy = Length.meters(2.0),
+                                    verticalAccuracy = Length.meters(3.0)
+                                )
                             )
                         )
                     )
@@ -1283,7 +1286,7 @@ class RecordConvertersTest {
                 as ExerciseSessionRecord
 
         assertSdkRecord(sdkExerciseSession) {
-            assertThat(exerciseRoute).isEqualTo(ExerciseRoute.NoData())
+            assertThat(exerciseRouteResult).isEqualTo(ExerciseRouteResult.NoData())
         }
     }
 

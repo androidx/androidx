@@ -80,7 +80,7 @@ class RequestExerciseRouteUpsideDownCakeTest {
         val intent = Intent()
         intent.putExtra(HealthConnectManager.EXTRA_EXERCISE_ROUTE, PlatformExerciseRoute(listOf()))
         val result = requestRouteContract.parseResult(0, intent)
-        assertThat(result).isEqualTo(ExerciseRoute.Data(listOf()))
+        assertThat(result).isEqualTo(ExerciseRoute(listOf()))
     }
 
     @Test
@@ -103,7 +103,7 @@ class RequestExerciseRouteUpsideDownCakeTest {
         val result = requestRouteContract.parseResult(0, intent)
         assertThat(result)
             .isEqualTo(
-                ExerciseRoute.Data(
+                ExerciseRoute(
                     listOf(
                         ExerciseRoute.Location(
                             time = Instant.ofEpochMilli(1234L),

@@ -643,7 +643,7 @@ class AllRecordsConverterTest {
                         )
                     ),
                 exerciseRoute =
-                    ExerciseRoute.Data(
+                    ExerciseRoute(
                         route =
                             listOf(
                                 ExerciseRoute.Location(
@@ -676,7 +676,7 @@ class AllRecordsConverterTest {
                 startZoneOffset = null,
                 endTime = END_TIME,
                 endZoneOffset = null,
-                exerciseRouteData = null,
+                exerciseRoute = null,
             )
 
         checkProtoAndRecordTypeNameMatch(data)

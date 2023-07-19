@@ -73,7 +73,7 @@ class RequestExerciseRouteInternalTest {
             )
         )
         val result = requestRouteContract.parseResult(0, intent)
-        assertThat(result).isEqualTo(ExerciseRoute.Data(listOf()))
+        assertThat(result).isEqualTo(ExerciseRoute(listOf()))
     }
 
     @Test
@@ -114,7 +114,7 @@ class RequestExerciseRouteInternalTest {
         val result = requestRouteContract.parseResult(0, intent)
         assertThat(result)
             .isEqualTo(
-                ExerciseRoute.Data(
+                ExerciseRoute(
                     listOf(
                         ExerciseRoute.Location(
                             time = Instant.ofEpochMilli(1234L),

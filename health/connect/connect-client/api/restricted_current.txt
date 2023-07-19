@@ -109,10 +109,10 @@ package androidx.health.connect.client.changes {
 
 package androidx.health.connect.client.contracts {
 
-  public final class ExerciseRouteRequestContract extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,androidx.health.connect.client.records.ExerciseRoute.Data> {
+  public final class ExerciseRouteRequestContract extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,androidx.health.connect.client.records.ExerciseRoute> {
     ctor public ExerciseRouteRequestContract();
     method public android.content.Intent createIntent(android.content.Context context, String input);
-    method public androidx.health.connect.client.records.ExerciseRoute.Data? parseResult(int resultCode, android.content.Intent? intent);
+    method public androidx.health.connect.client.records.ExerciseRoute? parseResult(int resultCode, android.content.Intent? intent);
   }
 
   public final class HealthPermissionsRequestContract extends androidx.activity.result.contract.ActivityResultContract<java.util.Set<? extends java.lang.String>,java.util.Set<? extends java.lang.String>> {
@@ -442,15 +442,8 @@ package androidx.health.connect.client.records {
     property public final java.time.Instant startTime;
   }
 
-  public abstract class ExerciseRoute {
-  }
-
-  public static final class ExerciseRoute.ConsentRequired extends androidx.health.connect.client.records.ExerciseRoute {
-    ctor public ExerciseRoute.ConsentRequired();
-  }
-
-  public static final class ExerciseRoute.Data extends androidx.health.connect.client.records.ExerciseRoute {
-    ctor public ExerciseRoute.Data(java.util.List<androidx.health.connect.client.records.ExerciseRoute.Location> route);
+  public final class ExerciseRoute {
+    ctor public ExerciseRoute(java.util.List<androidx.health.connect.client.records.ExerciseRoute.Location> route);
     method public java.util.List<androidx.health.connect.client.records.ExerciseRoute.Location> getRoute();
     property public final java.util.List<androidx.health.connect.client.records.ExerciseRoute.Location> route;
   }
@@ -475,8 +468,21 @@ package androidx.health.connect.client.records {
   public static final class ExerciseRoute.Location.Companion {
   }
 
-  public static final class ExerciseRoute.NoData extends androidx.health.connect.client.records.ExerciseRoute {
-    ctor public ExerciseRoute.NoData();
+  public abstract class ExerciseRouteResult {
+  }
+
+  public static final class ExerciseRouteResult.ConsentRequired extends androidx.health.connect.client.records.ExerciseRouteResult {
+    ctor public ExerciseRouteResult.ConsentRequired();
+  }
+
+  public static final class ExerciseRouteResult.Data extends androidx.health.connect.client.records.ExerciseRouteResult {
+    ctor public ExerciseRouteResult.Data(androidx.health.connect.client.records.ExerciseRoute exerciseRoute);
+    method public androidx.health.connect.client.records.ExerciseRoute getExerciseRoute();
+    property public final androidx.health.connect.client.records.ExerciseRoute exerciseRoute;
+  }
+
+  public static final class ExerciseRouteResult.NoData extends androidx.health.connect.client.records.ExerciseRouteResult {
+    ctor public ExerciseRouteResult.NoData();
   }
 
   public final class ExerciseSegment {
@@ -570,10 +576,10 @@ package androidx.health.connect.client.records {
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments);
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps);
-    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute.Data? exerciseRouteData);
+    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
-    method public androidx.health.connect.client.records.ExerciseRoute getExerciseRoute();
+    method public androidx.health.connect.client.records.ExerciseRouteResult getExerciseRouteResult();
     method public int getExerciseType();
     method public java.util.List<androidx.health.connect.client.records.ExerciseLap> getLaps();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
@@ -584,7 +590,7 @@ package androidx.health.connect.client.records {
     method public String? getTitle();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
-    property public final androidx.health.connect.client.records.ExerciseRoute exerciseRoute;
+    property public final androidx.health.connect.client.records.ExerciseRouteResult exerciseRouteResult;
     property public final int exerciseType;
     property public final java.util.List<androidx.health.connect.client.records.ExerciseLap> laps;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
