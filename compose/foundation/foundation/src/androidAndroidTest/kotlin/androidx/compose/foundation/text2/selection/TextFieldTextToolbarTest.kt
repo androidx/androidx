@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
@@ -52,8 +53,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.AnnotatedString
@@ -389,6 +392,142 @@ class TextFieldTextToolbarTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun toolbarDoesNotShowCopyOrCut_whenSelectionIsCollapsed() {
+        var cutOptionAvailable = false
+        var copyOptionAvailable = false
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
+                copyOptionAvailable = onCopyRequested != null
+                cutOptionAvailable = onCutRequested != null
+            },
+            onHideMenu = {}
+        )
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar, true)
+
+        rule.onNodeWithTag(TAG).requestFocus()
+        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(2, 2))
+
+        rule.runOnIdle {
+            assertThat(copyOptionAvailable).isFalse()
+            assertThat(cutOptionAvailable).isFalse()
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun toolbarShowsCopyAndCut_whenSelectionIsExpanded() {
+        var cutOptionAvailable = false
+        var copyOptionAvailable = false
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
+                copyOptionAvailable = onCopyRequested != null
+                cutOptionAvailable = onCutRequested != null
+            },
+            onHideMenu = {}
+        )
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar, true)
+
+        rule.onNodeWithTag(TAG).requestFocus()
+        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(2, 4))
+
+        rule.runOnIdle {
+            assertThat(copyOptionAvailable).isTrue()
+            assertThat(cutOptionAvailable).isTrue()
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun copyUpdatesClipboardManager_placesCursorAtTheEndOfSelectedRegion() {
+        var copyOption: (() -> Unit)? = null
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, onCopyRequested, _, _, _ ->
+                copyOption = onCopyRequested
+            },
+            onHideMenu = {}
+        )
+        val clipboardManager = FakeClipboardManager()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar, true, clipboardManager)
+
+        rule.onNodeWithTag(TAG).requestFocus()
+        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(0, 5))
+
+        rule.runOnIdle {
+            copyOption!!.invoke()
+        }
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cutUpdatesClipboardManager_placesCursorAtTheEndOfSelectedRegion_removesTheCutContent() {
+        var cutOption: (() -> Unit)? = null
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, _, _, onCutRequested, _ ->
+                cutOption = onCutRequested
+            },
+            onHideMenu = {}
+        )
+        val clipboardManager = FakeClipboardManager()
+        val state = TextFieldState("Hello World!")
+        setupContent(state, textToolbar, true, clipboardManager)
+
+        rule.onNodeWithTag(TAG).requestFocus()
+        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(1, 5))
+
+        rule.runOnIdle {
+            cutOption!!.invoke()
+        }
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
+            assertThat(state.text.toString()).isEqualTo("H World!")
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cutAppliesFilter() {
+        var cutOption: (() -> Unit)? = null
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, _, _, onCutRequested, _ ->
+                cutOption = onCutRequested
+            },
+            onHideMenu = {}
+        )
+        val clipboardManager = FakeClipboardManager()
+        val state = TextFieldState("Hello World!")
+        setupContent(state, textToolbar, true, clipboardManager) { original, changes ->
+            // only reject text changes, accept selection
+            val selection = changes.selectionInChars
+            changes.replace(0, changes.length, original.toString())
+            changes.selectCharsIn(selection)
+        }
+
+        rule.onNodeWithTag(TAG).requestFocus()
+        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(1, 5))
+
+        rule.runOnIdle {
+            cutOption!!.invoke()
+        }
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
+            assertThat(state.text.toString()).isEqualTo("Hello World!")
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
+        }
+    }
+
     @Test
     fun tappingTextField_hidesTheToolbar() {
         val textToolbar = FakeTextToolbar()
@@ -507,6 +646,7 @@ class TextFieldTextToolbarTest {
         toolbar: TextToolbar = FakeTextToolbar(),
         singleLine: Boolean = false,
         clipboardManager: ClipboardManager = FakeClipboardManager(),
+        filter: TextEditFilter? = null
     ) {
         rule.setContent {
             CompositionLocalProvider(
@@ -526,7 +666,8 @@ class TextFieldTextToolbarTest {
                         TextFieldLineLimits.SingleLine
                     } else {
                         TextFieldLineLimits.Default
-                    }
+                    },
+                    filter = filter
                 )
             }
         }

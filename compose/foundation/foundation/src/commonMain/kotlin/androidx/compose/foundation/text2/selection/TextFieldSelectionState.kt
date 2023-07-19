@@ -590,16 +590,17 @@ internal class TextFieldSelectionState(
                 // coordinates. Convert visibleBounds to root before checking the overlap.
                 val visibleBounds = innerCoordinates?.visibleBounds()
                 if (visibleBounds != null) {
-                    val visibleBoundsTopLeftInRoot = textLayoutState
-                        .innerTextFieldCoordinates
-                        ?.localToRoot(visibleBounds.topLeft)
-                    val visibleBoundsInRoot = Rect(visibleBoundsTopLeftInRoot!!, visibleBounds.size)
-                    val contentRect = getContentRect().takeIf { visibleBoundsInRoot.overlaps(it) }
-                        ?: Rect.Zero
+                    val visibleBoundsTopLeftInRoot =
+                        innerCoordinates?.localToRoot(visibleBounds.topLeft)
+                    val visibleBoundsInRoot =
+                        Rect(visibleBoundsTopLeftInRoot!!, visibleBounds.size)
 
-                    // contentRect can be very wide if a huge text content is selected. Our toolbar
+                    // contentRect can be very wide if a big part of text is selected. Our toolbar
                     // should be aligned only to visible region.
-                    contentRect.intersect(visibleBoundsInRoot)
+                    getContentRect()
+                        .takeIf { visibleBoundsInRoot.overlaps(it) }
+                        ?.intersect(visibleBoundsInRoot)
+                        ?: Rect.Zero
                 } else {
                     Rect.Zero
                 }
@@ -791,15 +792,32 @@ internal class TextFieldSelectionState(
             }
         } else null
 
+        val copy: (() -> Unit)? = if (!selection.collapsed) {
+            {
+                copy()
+                cursorHandleShowToolbar = false
+            }
+        } else null
+
+        val cut: (() -> Unit)? = if (!selection.collapsed && editable) {
+            {
+                cut()
+                cursorHandleShowToolbar = false
+            }
+        } else null
+
         val selectAll: (() -> Unit)? = if (selection.length != textFieldState.text.length) {
             {
                 editWithFilter { selectAll() }
+                cursorHandleShowToolbar = false
             }
         } else null
 
         textToolbar?.showMenu(
             rect = contentRect,
+            onCopyRequested = copy,
             onPasteRequested = paste,
+            onCutRequested = cut,
             onSelectAllRequested = selectAll
         )
     }
