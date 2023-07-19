@@ -88,6 +88,8 @@ import kotlinx.coroutines.runBlocking
 class UseCaseManager @Inject constructor(
     private val cameraPipe: CameraPipe,
     private val cameraGraphCreator: CameraGraphCreator,
+    private val callbackMap: CameraCallbackMap,
+    private val requestListener: ComboRequestListener,
     private val cameraConfig: CameraConfig,
     private val builder: UseCaseCameraComponent.Builder,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
@@ -310,8 +312,6 @@ class UseCaseManager @Inject constructor(
 
         val sessionConfigAdapter = SessionConfigAdapter(useCases)
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
-        val callbackMap = CameraCallbackMap()
-        val requestListener = ComboRequestListener()
 
         val graphConfig = createCameraGraphConfig(
             sessionConfigAdapter, streamConfigMap, callbackMap,
@@ -327,9 +327,7 @@ class UseCaseManager @Inject constructor(
                     sessionConfigAdapter,
                     cameraStateAdapter,
                     cameraGraph,
-                    streamConfigMap,
-                    callbackMap,
-                    requestListener,
+                    streamConfigMap
                 )
             )
                 .build()
