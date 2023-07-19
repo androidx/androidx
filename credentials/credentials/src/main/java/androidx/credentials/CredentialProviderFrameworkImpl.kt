@@ -241,14 +241,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         val builder = android.credentials.GetCredentialRequest.Builder(
             GetCredentialRequest.toRequestDataBundle(request))
         request.credentialOptions.forEach {
-            if (request.preferImmediatelyAvailableCredentials &&
-                it is GetPublicKeyCredentialOption) {
-                it.requestData.putBoolean(
-                    "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS",
-                    true,
-                )
-            }
-
             builder.addCredentialOption(
                 android.credentials.CredentialOption.Builder(
                     it.type, it.requestData, it.candidateQueryData
