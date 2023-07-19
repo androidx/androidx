@@ -1,6 +1,6 @@
 # API Guidelines for `@Composable` components in Jetpack Compose
 
-## Last updated: July 14, 2023
+## Last updated: July 19, 2023
 
 Set of guidelines and recommendations for building scalable and user-friendly @Composable components.
 
@@ -18,7 +18,48 @@ It is expected and desired that an ecosystem of external libraries will come to 
 
 App development is often subject to strong organizational priorities and norms and requirements to integrate with existing app architecture. This may call for not only stylistic deviation from these guidelines but structural deviation as well. Where possible, alternative approaches for app development will be listed in this document that may be more appropriate in these situations.
 
-### Note on vocabulary in this doc
+## Table of content
+- [Note on vocabulary in this doc](#note-on-vocabulary-in-this-doc)
+- [Before you create a component](#before-you-create-a-component)
+    - [Component’s purpose](#components-purpose)
+    - [Component layering](#component-layering)
+    - [Do you need a component?](#do-you-need-a-component)
+    - [Component or Modifier](#component-or-modifier)
+- [Name of a Component](#name-of-a-component)
+    - [BasicComponent vs Component](#basiccomponent-vs-component)
+    - [Design, Usecase or Company/Project specific prefixes](#design-usecase-or-companyproject-specific-prefixes)
+- [Component dependencies](#component-dependencies)
+    - [Prefer multiple components over style classes](#prefer-multiple-components-over-style-classes)
+    - [Explicit vs implicit dependencies](#explicit-vs-implicit-dependencies)
+- [Component parameters](#component-parameters)
+    - [Parameters vs. Modifier on the component](#parameters-vs-modifier-on-the-component)
+    - [`modifier` parameter](#modifier-parameter)
+    - [Parameters order](#parameters-order)
+    - [Nullable parameter](#nullable-parameter)
+    - [Default expressions](#default-expressions)
+    - [MutableState\<T\> as a parameter](#mutablestatet-as-a-parameter)
+    - [State\<T\> as a parameter](#statet-as-a-parameter)
+    - [Slot parameters](#slot-parameters)
+        - [What are slots](#what-are-slots)
+        - [Why slots](#why-slots)
+        - [Single “content” slot overloads](#single-content-slot-overloads)
+        - [Layout strategy scope for slot APIs](#layout-strategy-scope-for-slot-apis)
+        - [Lifecycle expectations for slot parameters](#lifecycle-expectations-for-slot-parameters)
+        - [DSL based slots](#dsl-based-slots)
+- [Component-related classes and functions](#component-related-classes-and-functions)
+    - [State](#state)
+    - [ComponentDefault object](#componentdefault-object)
+    - [ComponentColor/ComponentElevation objects](#componentcolorcomponentelevation-objects)
+- [Documentation for the component](#documentation-for-the-component)
+    - [Documentation structure and ordering](#documentation-structure-and-ordering)
+    - [Documentation example](#documentation-example)
+- [Accessibility of the component](#accessibility-of-the-component)
+    - [Semantics merging](#semantics-merging)
+    - [Accessibility related parameters](#accessibility-related-parameters)
+    - [Accessibility tuning](#accessibility-tuning)
+- [Evolution of the Component APIs](#evolution-of-the-component-apis)
+
+## Note on vocabulary in this doc
 
 **@Composable component** - A @Composable function that returns `Unit` and emits the UI when it is composed in a hierarchy (later: component).
 
@@ -735,7 +776,7 @@ object IconCardDefaults {
 
 **Note:** If your component has a limited number of parameters that have short and predictable defaults (``elevation = 0.dp``), `ComponentDefaults` object might be omitted in favor of simple inline constants.
 
-### MutableState<T> as a parameter
+### MutableState\<T\> as a parameter
 
 Parameters of type `MutableState<T>` are discouraged since it promotes joint ownership over a state between a component and its user. If possible, consider making the component stateless and concede the state change to the caller. If mutation of the parent’s owned property is required in the component, consider creating a `ComponentState` class with the domain specific meaningful field that is backed by `mutableStateOf()`.
 
@@ -770,7 +811,7 @@ fun Scroller(
 ) {}
 ```
 
-### State<T> as a parameter
+### State\<T\> as a parameter
 
 Parameters of type `State<T> `are discouraged since it unnecessarily narrows the type of objects that can be passed in the function. Given `param: State<Float>`, there are two better alternatives available, depending on the use case:
 
