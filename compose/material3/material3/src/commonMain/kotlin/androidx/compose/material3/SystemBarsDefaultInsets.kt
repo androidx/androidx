@@ -19,5 +19,9 @@ package androidx.compose.material3
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
 
-internal expect val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
-    @Composable get
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3373) revert to expect get()
+internal val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
+    @Composable get() = systemBarsForVisualComponents()
+
+@Composable
+internal expect fun WindowInsets.Companion.systemBarsForVisualComponents(): WindowInsets
