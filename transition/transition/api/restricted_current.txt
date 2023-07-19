@@ -242,10 +242,10 @@ package androidx.transition {
     method public static void beginDelayedTransition(android.view.ViewGroup);
     method public static void beginDelayedTransition(android.view.ViewGroup, androidx.transition.Transition?);
     method public static androidx.transition.TransitionSeekController? controlDelayedTransition(android.view.ViewGroup, androidx.transition.Transition);
+    method public static androidx.transition.TransitionSeekController? createSeekController(androidx.transition.Scene, androidx.transition.Transition);
     method public static void endTransitions(android.view.ViewGroup?);
     method public static void go(androidx.transition.Scene);
     method public static void go(androidx.transition.Scene, androidx.transition.Transition?);
-    method public static androidx.transition.TransitionSeekController? seekTo(androidx.transition.Scene, androidx.transition.Transition);
     method public void setTransition(androidx.transition.Scene, androidx.transition.Scene, androidx.transition.Transition?);
     method public void setTransition(androidx.transition.Scene, androidx.transition.Transition?);
     method public void transitionTo(androidx.transition.Scene);

@@ -44,7 +44,7 @@ public interface TransitionSeekController {
     long getCurrentPlayTimeMillis();
 
     /**
-     * @return The fraction, between 0 and 1, of the progress of the transition.
+     * @return The fraction, between 0 and 1, inclusive, of the progress of the transition.
      * @see #getCurrentPlayTimeMillis()
      */
     @FloatRange(from = 0.0, to = 1.0)
@@ -132,7 +132,7 @@ public interface TransitionSeekController {
     void addOnProgressChangedListener(@NonNull Consumer<TransitionSeekController> consumer);
 
     /**
-     * Remove a listener previously added in {@link #addOnProgressChangedListener(Consumer)}\
+     * Remove a listener previously added in {@link #addOnProgressChangedListener(Consumer)}
      * @param consumer The listener to be removed.
      */
     void removeOnProgressChangedListener(@NonNull Consumer<TransitionSeekController> consumer);
