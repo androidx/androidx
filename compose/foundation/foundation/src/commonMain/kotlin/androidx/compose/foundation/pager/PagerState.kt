@@ -26,7 +26,6 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
-import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
@@ -188,7 +187,7 @@ abstract class PagerState(
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
     internal var snapRemainingScrollOffset by mutableFloatStateOf(0f)
 
-    private val scrollPosition = PagerScrollPosition(initialPage, 0)
+    private val scrollPosition = PagerScrollPosition(initialPage, 0, this)
 
     internal val firstVisiblePage: Int get() = scrollPosition.firstVisiblePage
 
@@ -231,9 +230,22 @@ abstract class PagerState(
     private var wasScrollingForward = false
 
     /** Backing state for PagerLayoutInfo */
-    private var pagerLayoutInfoState = mutableStateOf(EmptyLayoutInfo)
+    private var pagerLayoutInfoState = mutableStateOf<PagerLayoutInfo>(EmptyLayoutInfo)
 
-    internal val layoutInfo: PagerLayoutInfo get() = pagerLayoutInfoState.value
+    /**
+     * A [PagerLayoutInfo] that contains useful information about the Pager's last layout pass.
+     * For instance, you can query which pages are currently visible in the layout.
+     *
+     * This property is observable and is updated after every scroll or remeasure.
+     * If you use it in the composable function it will be recomposed on every change causing
+     * potential performance issues including infinity recomposition loop.
+     * Therefore, avoid using it in the composition.
+     *
+     * If you want to run some side effects like sending an analytics event or updating a state
+     * based on this value consider using "snapshotFlow":
+     * @sample androidx.compose.foundation.samples.UsingPagerLayoutInfoForSideEffectSample
+     */
+    val layoutInfo: PagerLayoutInfo get() = pagerLayoutInfoState.value
 
     internal val pageSpacing: Int
         get() = pagerLayoutInfoState.value.pageSpacing
@@ -258,19 +270,6 @@ abstract class PagerState(
             val minThreshold = minOf(DefaultPositionThreshold.toPx(), pageSize / 2f)
             minThreshold / pageSize.toFloat()
         }
-
-    private val distanceToSnapPosition: Float
-        get() = layoutInfo.closestPageToSnapPosition?.let {
-            density.calculateDistanceToDesiredSnapPosition(
-                mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
-                beforeContentPadding = layoutInfo.beforeContentPadding,
-                afterContentPadding = layoutInfo.afterContentPadding,
-                itemSize = layoutInfo.pageSize,
-                itemOffset = it.offset,
-                itemIndex = it.index,
-                snapPositionInLayout = SnapAlignmentStartToStart
-            )
-        } ?: 0f
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
 
@@ -459,6 +458,7 @@ abstract class PagerState(
         }
         var currentPosition = currentPage
         val targetPage = page.coerceInPageRange()
+        var currentPositionOffsetFraction = currentPageOffsetFraction
         animationTargetPage = targetPage
         // If our future page is too far off, that is, outside of the current viewport
         val firstVisiblePageIndex = visiblePages.first().index
@@ -480,14 +480,21 @@ abstract class PagerState(
             // Pre-jump to 1 viewport away from destination page, if possible
             scrollToPage(preJumpPosition)
             currentPosition = preJumpPosition
+            currentPositionOffsetFraction = 0.0f
         }
 
         val targetOffset = targetPage * pageAvailableSpace
         val currentOffset = currentPosition * pageAvailableSpace
-        val pageOffsetToSnappedPosition =
-            distanceToSnapPosition + pageOffsetFraction * pageAvailableSpace
 
-        val displacement = targetOffset - currentOffset + pageOffsetToSnappedPosition
+        val targetPageOffsetToSnappedPosition = pageOffsetFraction * pageAvailableSpace
+
+        val offsetFromFraction = currentPositionOffsetFraction * pageAvailableSpace
+
+        // The final delta displacement will be the difference between the pages offsets
+        // discounting whatever offset the original page had scrolled plus the offset
+        // fraction requested by the user.
+        val displacement =
+            targetOffset - currentOffset - offsetFromFraction + targetPageOffsetToSnappedPosition
 
         debugLog { "animateScrollToPage $displacement pixels" }
         animateScrollBy(displacement, animationSpec)
@@ -588,7 +595,7 @@ abstract class PagerState(
                 info.visiblePagesInfo.first().index - 1
             }
             if (indexToPrefetch != this.indexToPrefetch &&
-                indexToPrefetch in 0 until info.pagesCount
+                indexToPrefetch in 0 until pageCount
             ) {
                 if (wasScrollingForward != scrollingForward) {
                     // the scrolling direction has been changed which means the last prefetched
@@ -656,10 +663,8 @@ internal val DefaultPositionThreshold = 56.dp
 private const val MaxPagesForAnimateScroll = 3
 
 @OptIn(ExperimentalFoundationApi::class)
-internal val EmptyLayoutInfo = object : PagerLayoutInfo {
+internal object EmptyLayoutInfo : PagerLayoutInfo {
     override val visiblePagesInfo: List<PageInfo> = emptyList()
-    override val closestPageToSnapPosition: PageInfo? = null
-    override val pagesCount: Int = 0
     override val pageSize: Int = 0
     override val pageSpacing: Int = 0
     override val beforeContentPadding: Int = 0

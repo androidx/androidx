@@ -19,7 +19,6 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.ui.Alignment
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -66,7 +64,6 @@ internal fun LazyLayoutMeasureScope.measurePager(
     return if (pageCount <= 0) {
         PagerMeasureResult(
             visiblePagesInfo = emptyList(),
-            pagesCount = 0,
             pageSize = pageAvailableSize,
             pageSpacing = spaceBetweenPages,
             afterContentPadding = afterContentPadding,
@@ -75,7 +72,6 @@ internal fun LazyLayoutMeasureScope.measurePager(
             viewportEndOffset = mainAxisAvailableSize + afterContentPadding,
             measureResult = layout(constraints.minWidth, constraints.minHeight) {},
             consumedScroll = 0f,
-            closestPageToSnapPosition = null,
             firstVisiblePage = null,
             firstVisiblePageOffset = 0,
             reverseLayout = false,
@@ -374,26 +370,10 @@ internal fun LazyLayoutMeasureScope.measurePager(
         val visiblePagesInfo = if (noExtraPages) positionedPages else positionedPages.fastFilter {
             (it.index >= visiblePages.first().index && it.index <= visiblePages.last().index)
         }
-        val viewPortSize = if (orientation == Orientation.Vertical) layoutHeight else layoutWidth
-
-        val closestPageToSnapPosition = visiblePagesInfo.fastMaxBy {
-            -abs(
-                calculateDistanceToDesiredSnapPosition(
-                    mainAxisViewPortSize = viewPortSize,
-                    beforeContentPadding = beforeContentPadding,
-                    afterContentPadding = afterContentPadding,
-                    itemSize = pageAvailableSize,
-                    itemOffset = it.offset,
-                    itemIndex = it.index,
-                    snapPositionInLayout = SnapAlignmentStartToStart
-                )
-            )
-        }
 
         return PagerMeasureResult(
             firstVisiblePage = firstPage,
             firstVisiblePageOffset = currentFirstPageScrollOffset,
-            closestPageToSnapPosition = closestPageToSnapPosition,
             consumedScroll = consumedScroll,
             measureResult = layout(layoutWidth, layoutHeight) {
                 positionedPages.fastForEach {
@@ -403,7 +383,6 @@ internal fun LazyLayoutMeasureScope.measurePager(
             viewportStartOffset = -beforeContentPadding,
             viewportEndOffset = maxOffset + afterContentPadding,
             visiblePagesInfo = visiblePagesInfo,
-            pagesCount = pageCount,
             reverseLayout = reverseLayout,
             orientation = orientation,
             pageSize = pageAvailableSize,
