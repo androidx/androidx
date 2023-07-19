@@ -21,17 +21,21 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import android.util.Log
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = 34)
-// @RunWith(AndroidJUnit4::class)
-// @SmallTest
+@RunWith(AndroidJUnit4::class)
+@SmallTest
 class CredentialProviderServiceTest {
 
     private val LOG_TAG = "CredentialProviderServiceTest"
 
-    // @Test
+    @Test
     fun test_createRequest() {
         var service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
@@ -54,49 +58,53 @@ class CredentialProviderServiceTest {
         assertThat(service.lastCreateRequest).isNotNull()
     }
 
-    // @Test
+    @Test
     fun test_getRequest() {
         var service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
-        var request = BeginGetCredentialRequest(listOf<BeginGetCredentialOption>())
-        val outcome = OutcomeReceiver<androidx.credentials.provider.BeginGetCredentialResponse,
-            androidx.credentials.exceptions.GetCredentialException> {
-            fun onResult(response: androidx.credentials.provider.BeginGetCredentialResponse) {
+        var option = android.service.credentials.BeginGetCredentialOption("id", "type", Bundle())
+        var request = android.service.credentials.BeginGetCredentialRequest.Builder()
+            .setBeginGetCredentialOptions(listOf(option)).build()
+        val outcome = OutcomeReceiver<
+            android.service.credentials.BeginGetCredentialResponse,
+            android.credentials.GetCredentialException> {
+            fun onResult(response: android.service.credentials.BeginGetCredentialResponse) {
                 Log.i(LOG_TAG, "get request: " + response.toString())
             }
 
-            fun onError(error: androidx.credentials.exceptions.GetCredentialException) {
+            fun onError(error: android.credentials.GetCredentialException) {
                 Log.e(LOG_TAG, "get request error", error)
             }
         }
 
         // Call the service.
         assertThat(service.lastGetRequest).isNull()
-        service.onBeginGetCredentialRequest(request, CancellationSignal(), outcome)
+        service.onBeginGetCredential(request, CancellationSignal(), outcome)
         assertThat(service.lastGetRequest).isNotNull()
     }
 
-    // @Test
+    @Test
     fun test_clearRequest() {
         var service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
-        var request = ProviderClearCredentialStateRequest(CallingAppInfo("name", SigningInfo()))
-        val outcome = OutcomeReceiver<Void?,
-            androidx.credentials.exceptions.ClearCredentialException> {
-            fun onResult(response: Void?) {
+        var request = android.service.credentials.ClearCredentialStateRequest(
+            android.service.credentials.CallingAppInfo("name", SigningInfo()), Bundle())
+        val outcome = OutcomeReceiver<Void,
+            android.credentials.ClearCredentialStateException> {
+            fun onResult(response: Void) {
                 Log.i(LOG_TAG, "clear request: " + response.toString())
             }
 
-            fun onError(error: androidx.credentials.exceptions.ClearCredentialException) {
+            fun onError(error: android.credentials.ClearCredentialStateException) {
                 Log.e(LOG_TAG, "clear request error", error)
             }
         }
 
         // Call the service.
         assertThat(service.lastClearRequest).isNull()
-        service.onClearCredentialStateRequest(request, CancellationSignal(), outcome)
+        service.onClearCredentialState(request, CancellationSignal(), outcome)
         assertThat(service.lastClearRequest).isNotNull()
     }
 }
