@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.catalog.model.Specification
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -63,7 +63,7 @@ fun SpecificationItem(
                 )
             }
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )

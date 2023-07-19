@@ -35,7 +35,7 @@ import androidx.compose.material.catalog.library.model.Example
 import androidx.compose.material.catalog.library.ui.common.BorderWidth
 import androidx.compose.material.catalog.library.ui.common.compositeBorderColor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -75,7 +75,7 @@ fun ExampleItem(
             }
             Spacer(modifier = Modifier.width(ExampleItemPadding))
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
