@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
@@ -27,12 +26,6 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("com.github.johnrengelman.shadow")
-}
-
-def antlrOut = "$buildDir/generated/antlr/grammar-gen/"
-sourceSets {
-    main.java.srcDirs += "src/main/grammar-gen"
-    main.java.srcDirs += antlrOut
 }
 
 configurations {
@@ -121,23 +114,27 @@ dependencies {
     testImplementation(project(":internal-testutils-common"))
 }
 
-def generateAntlrTask = task("generateAntlrGrammar", type: GenerateAntlrGrammar) {
-    sqliteFile = file("$projectDir/SQLite.g4")
-    antlrClasspath = configurations.compileClasspath
-    outputDirectory = file(antlrOut)
+def generateAntlrTask = tasks.register("generateAntlrGrammar", GenerateAntlrGrammar) { task ->
+    task.getSqliteFile().set(layout.projectDirectory.file("SQLite.g4"))
+    task.getAntlrClasspath().from(configurations.compileClasspath)
+    task.getOutputDirectory().set(layout.buildDirectory.dir("generated/antlr/grammar-gen/"))
+}
+
+sourceSets {
+    main.java.srcDirs += generateAntlrTask.map { it.outputDirectory }
 }
 
 @CacheableTask
 abstract class GenerateAntlrGrammar extends DefaultTask {
     @PathSensitive(PathSensitivity.NONE)
     @InputFile
-    File sqliteFile
+    abstract RegularFileProperty getSqliteFile()
 
     @Classpath
-    FileCollection antlrClasspath
+    abstract ConfigurableFileCollection getAntlrClasspath()
 
     @OutputDirectory
-    File outputDirectory
+    abstract DirectoryProperty getOutputDirectory()
 
     @Inject
     abstract ExecOperations getExecOperations()
@@ -152,10 +149,10 @@ abstract class GenerateAntlrGrammar extends DefaultTask {
     void generateAntlrGrammar() {
         execOperations.javaexec {
             mainClass.set("org.antlr.v4.Tool")
-            classpath = antlrClasspath
-            args "SQLite.g4",
+            classpath = getAntlrClasspath()
+            args getSqliteFile().asFile.get().absolutePath,
                  "-visitor",
-                 "-o", new File(outputDirectory, "androidx/room/parser").path,
+                 "-o", new File(getOutputDirectory().asFile.get(), "androidx/room/parser").path,
                  "-package", "androidx.room.parser"
         }
     }
@@ -270,11 +267,6 @@ afterEvaluate {
 
 // make sure we validate published artifacts on the build server.
 BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
-
-def tasksThatDependOnAntlr = ["compileKotlin", "sourceJar", "kotlinSourcesJar", "generateKmpDocs"]
-tasks.matching { tasksThatDependOnAntlr.contains(it.name) }.configureEach {
-    it.dependsOn(generateAntlrTask)
-}
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
