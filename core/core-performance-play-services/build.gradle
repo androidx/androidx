@@ -25,7 +25,12 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
+    implementation(libs.playServicesDevicePerformance)
+
+    // Coroutines
     implementation(libs.kotlinCoroutinesCore)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1")
+
     implementation(project(":core:core-performance"))
 
     testImplementation(libs.testCore)
@@ -37,6 +42,9 @@ dependencies {
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 24
+    }
     namespace "androidx.core.performance.play.services"
 }
 

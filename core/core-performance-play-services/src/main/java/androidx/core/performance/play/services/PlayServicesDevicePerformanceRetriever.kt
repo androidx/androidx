@@ -18,6 +18,9 @@ package androidx.core.performance.play.services
 
 import android.content.Context
 import androidx.core.performance.DevicePerformanceRetriever
+import com.google.android.gms.deviceperformance.DevicePerformanceClient
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 
 /**
  * A DevicePerformanceRetriever that uses Google Play Services to retrieve media performance class data.
@@ -31,10 +34,11 @@ class PlayServicesDevicePerformanceRetriever(val context: Context) : DevicePerfo
             );
 
         companion object {
-            @Suppress("UNUSED_PARAMETER")
             @JvmStatic
             fun getPerformanceClass(context: Context): Int {
-                return 0
+                val client: DevicePerformanceClient =
+                    com.google.android.gms.deviceperformance.DevicePerformance.getClient(context)
+                return runBlocking { client.mediaPerformanceClass().await() }
             }
         }
 }
