@@ -365,7 +365,7 @@ public class TransitionManager {
      * {@link Transition#isSeekingSupported()}.
      */
     @Nullable
-    public static TransitionSeekController seekTo(
+    public static TransitionSeekController createSeekController(
             @NonNull Scene scene,
             @NonNull Transition transition
     ) {
