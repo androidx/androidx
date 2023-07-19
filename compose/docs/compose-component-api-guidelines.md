@@ -501,19 +501,19 @@ Every component that emits UI should have a modifier parameter. Make sure that m
 **DON’T:**
 ```
 @Composable
-fun Image(
+fun Icon(
     bitmap: ImageBitmap,
     // no modifier parameter
-    clipToCircle: Boolean = false
+    tint: Color = Color.Black
 )
 ```
 
 **DON’T:**
 ```
 @Composable
-fun Image(
+fun Icon(
     bitmap: ImageBitmap,
-    clipToCircle: Boolean = false,
+    tint: Color = Color.Black,
     // 1: modifier is not the first optional parameter
     // 2: padding will be lost as soon as the user sets its own modifier
     modifier: Modifier = Modifier.padding(8.dp)
@@ -539,14 +539,15 @@ fun CheckboxRow(
 fun IconButton(
     buttonBitmap: ImageBitmap,
     modifier: Modifier = Modifier,
-    clipToCircle: Boolean = false
+    tint: Color = Color.Black
 ) {
     Box(Modifier.padding(16.dp)) {
         Icon(
             buttonBitmap,
             // modifier should be applied to the outer-most layout
             // and be the first one in the chain
-            modifier = Modifier.background().then(modifier)
+            modifier = Modifier.aspectRatio(1f).then(modifier),
+            tint = tint
         )
     }
 }
@@ -559,11 +560,11 @@ fun IconButton(
     buttonBitmap: ImageBitmap,
     // good: first optional parameter, single of its kind
     modifier: Modifier = Modifier,
-    clipToCircle: Boolean = false
+    tint: Color = Color.Black
 ) {
     // good: applied before other modifiers to the outer layout
     Box(modifier.padding(16.dp)) {
-        Icon(buttonBitmap, modifier = Modifier.background())
+        Icon(buttonBitmap, modifier = Modifier.aspectRatio(1f), tint = tint)
     }
 }
 ```
@@ -571,14 +572,14 @@ fun IconButton(
 **Also Do:**
 ```
 @Composable
-fun RedCanvas(
+fun ColoredCanvas(
     // ok: canvas has no intrinsic size, asking for size modifiers
     modifier: Modifier,
-    clipToCircle: Boolean = false,
+    color: Color = Color.White,
     ...
 ) {
     // good: applied before other modifiers to the outer layout
-    Box(modifier.background(Color.Red)) {
+    Box(modifier.background(color)) {
         ...
     }
 }
