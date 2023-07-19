@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.compat
 
-import androidx.kruth.assertThat
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.compat.XConverters.getProcessingEnv
 import androidx.room.compiler.processing.compat.XConverters.toJavac
@@ -34,6 +33,7 @@ import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.impl.KSNameImpl
 import com.squareup.javapoet.ClassName
