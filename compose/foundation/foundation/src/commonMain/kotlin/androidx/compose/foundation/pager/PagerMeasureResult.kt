@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.IntSize
 @OptIn(ExperimentalFoundationApi::class)
 internal class PagerMeasureResult(
     override val visiblePagesInfo: List<PageInfo>,
-    override val pagesCount: Int,
     override val pageSize: Int,
     override val pageSpacing: Int,
     override val afterContentPadding: Int,
@@ -34,7 +33,6 @@ internal class PagerMeasureResult(
     override val reverseLayout: Boolean,
     val consumedScroll: Float,
     val firstVisiblePage: MeasuredPage?,
-    override val closestPageToSnapPosition: PageInfo?,
     val firstVisiblePageOffset: Int,
     val canScrollForward: Boolean,
     measureResult: MeasureResult,

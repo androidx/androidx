@@ -65,7 +65,7 @@ internal class PagerBeyondBoundsState(
     }
 
     override val itemCount: Int
-        get() = state.layoutInfo.pagesCount
+        get() = state.pageCount
     override val hasVisibleItems: Boolean
         get() = state.layoutInfo.visiblePagesInfo.isNotEmpty()
     override val firstPlacedIndex: Int
