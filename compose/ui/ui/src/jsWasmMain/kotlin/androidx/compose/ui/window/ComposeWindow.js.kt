@@ -69,7 +69,8 @@ internal actual class ComposeWindow(val canvasId: String)  {
         input = jsTextInputService.input
     )
 
-    val canvas = document.getElementById(canvasId) as HTMLCanvasElement
+    var canvas = document.getElementById(canvasId) as HTMLCanvasElement
+        private set
 
     init {
         layer.layer.attachTo(canvas)
@@ -80,6 +81,12 @@ internal actual class ComposeWindow(val canvasId: String)  {
     }
 
     fun resize(newSize: IntSize) {
+        // TODO: avoid node cloning. We clone now to workaround multiple event listeners being applied on every resize event.
+        //  Consider fixing in skiko.
+        val oldCanvas = canvas
+        canvas = oldCanvas.cloneNode(true) as HTMLCanvasElement
+        oldCanvas.parentElement!!.replaceChild(canvas, oldCanvas)
+
         canvas.width = newSize.width
         canvas.height = newSize.height
         layer.layer.attachTo(canvas)
