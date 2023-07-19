@@ -347,6 +347,8 @@ class UseCaseManagerTest {
             cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
             cameraGraphCreator = CameraGraphCreator(),
             cameraConfig = CameraConfig(cameraId),
+            callbackMap = CameraCallbackMap(),
+            requestListener = ComboRequestListener(),
             builder = useCaseCameraComponentBuilder,
             controls = controls as java.util.Set<UseCaseCameraControl>,
             cameraProperties = FakeCameraProperties(

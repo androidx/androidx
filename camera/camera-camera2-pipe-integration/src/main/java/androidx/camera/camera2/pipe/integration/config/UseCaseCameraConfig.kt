@@ -26,11 +26,9 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
-import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
-import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraImpl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControlImpl
@@ -79,9 +77,7 @@ class UseCaseCameraConfig(
     private val sessionConfigAdapter: SessionConfigAdapter,
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraGraph: CameraGraph,
-    private val streamConfigMap: Map<CameraStream.Config, DeferrableSurface>,
-    private val callbackMap: CameraCallbackMap,
-    private val requestListener: ComboRequestListener,
+    private val streamConfigMap: Map<CameraStream.Config, DeferrableSurface>
 ) {
     @UseCaseCameraScope
     @Provides

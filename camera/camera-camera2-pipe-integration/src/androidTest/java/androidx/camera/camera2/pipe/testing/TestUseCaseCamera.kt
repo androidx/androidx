@@ -104,9 +104,7 @@ class TestUseCaseCamera(
             sessionConfigAdapter,
             CameraStateAdapter(),
             cameraGraph,
-            streamConfigMap,
-            callbackMap,
-            requestListener,
+            streamConfigMap
         ).provideUseCaseGraphConfig(
             useCaseSurfaceManager = useCaseSurfaceManager,
             cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
@@ -154,6 +152,7 @@ class TestUseCaseCamera(
     }
 
     override var runningUseCases = useCases.toSet()
+
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,
