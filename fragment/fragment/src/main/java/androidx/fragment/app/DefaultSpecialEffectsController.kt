@@ -69,7 +69,6 @@ internal class DefaultSpecialEffectsController(
         // and transitions that need to be executed
         val animations = mutableListOf<AnimationInfo>()
         val transitions = mutableListOf<TransitionInfo>()
-        val awaitingContainerChanges = operations.toMutableList()
 
         // sync animations together before we start loading them.
         syncAnimations(operations)
@@ -90,21 +89,16 @@ internal class DefaultSpecialEffectsController(
             // Ensure that if the Operation is synchronously complete, we still
             // apply the container changes before the Operation completes
             operation.addCompletionListener {
-                if (awaitingContainerChanges.contains(operation)) {
-                    awaitingContainerChanges.remove(operation)
-                    applyContainerChanges(operation)
-                }
+                applyContainerChangesToOperations { operations }
             }
         }
 
         // Start transition special effects
-        val startedTransitions = startTransitions(transitions, awaitingContainerChanges, isPop,
-            firstOut, lastIn)
+        val startedTransitions = startTransitions(transitions, isPop, firstOut, lastIn)
         val startedAnyTransition = startedTransitions.containsValue(true)
 
         // Collect Animation and Animator Effects
-        startAnimations(animations, awaitingContainerChanges, startedAnyTransition,
-            startedTransitions)
+        startAnimations(animations, startedAnyTransition, startedTransitions)
 
         // Run all of the Animation, Animator, and NoOp Effects we have collected
         for (i in operations.indices) {
@@ -116,13 +110,21 @@ internal class DefaultSpecialEffectsController(
             }
         }
 
-        for (operation: Operation in awaitingContainerChanges) {
-            applyContainerChanges(operation)
-        }
-        awaitingContainerChanges.clear()
+        applyContainerChangesToOperations { operations }
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(FragmentManager.TAG,
                 "Completed executing operations from $firstOut to $lastIn")
+        }
+    }
+
+    private inline fun applyContainerChangesToOperations(operationsInput: () -> List<Operation>) {
+        val operations = operationsInput.invoke()
+        for (i in operations.indices) {
+            val currentOperation = operations[i]
+            if (currentOperation.isAwaitingContainerChanges) {
+                applyContainerChanges(currentOperation)
+                currentOperation.isAwaitingContainerChanges = false
+            }
         }
     }
 
@@ -146,7 +148,6 @@ internal class DefaultSpecialEffectsController(
     @SuppressLint("NewApi", "PrereleaseSdkCoreDependency")
     private fun startAnimations(
         animationInfos: List<AnimationInfo>,
-        awaitingContainerChanges: MutableList<Operation>,
         startedAnyTransition: Boolean,
         startedTransitions: Map<Operation, Boolean>
     ) {
@@ -193,7 +194,7 @@ internal class DefaultSpecialEffectsController(
                 // We don't want to immediately applyState() to hide operations as that
                 // immediately stops the Animator. Instead we'll applyState() manually
                 // when the Animator ends.
-                awaitingContainerChanges.remove(operation)
+                operation.isAwaitingContainerChanges = false
             }
             operation.effects.add(AnimatorEffect(animatorInfo))
         }
@@ -227,7 +228,6 @@ internal class DefaultSpecialEffectsController(
 
     private fun startTransitions(
         transitionInfos: List<TransitionInfo>,
-        awaitingContainerChanges: MutableList<Operation>,
         isPop: Boolean,
         firstOut: Operation?,
         lastIn: Operation?
@@ -260,8 +260,8 @@ internal class DefaultSpecialEffectsController(
         }
 
         val transitionEffect =
-            TransitionEffect(transitionInfos, awaitingContainerChanges, isPop, firstOut,
-                lastIn, transitionImpl, startedTransitions)
+            TransitionEffect(transitionInfos, isPop, firstOut, lastIn, transitionImpl,
+                startedTransitions)
 
         transitionEffect.onStart(container)
         transitionEffect.onCommit(container)
@@ -565,7 +565,6 @@ internal class DefaultSpecialEffectsController(
 
     private class TransitionEffect(
         val transitionInfos: List<TransitionInfo>,
-        val awaitingContainerChanges: MutableList<Operation>,
         val isPop: Boolean,
         val firstOut: Operation?,
         val lastIn: Operation?,
@@ -816,7 +815,7 @@ internal class DefaultSpecialEffectsController(
                             // We're hiding the Fragment. This requires a bit of extra work
                             // First, we need to avoid immediately applying the container change as
                             // that will stop the Transition from occurring.
-                            awaitingContainerChanges.remove(operation)
+                            operation.isAwaitingContainerChanges = false
                             // Then schedule the actual hide of the fragment's view,
                             // essentially doing what applyState() would do for us
                             val transitioningViewsToHide = ArrayList(transitioningViews)
