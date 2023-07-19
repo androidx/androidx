@@ -27,12 +27,39 @@ class MathUtilsTest {
 
     @Test
     fun testAddExact() {
+        // zero + zero
         Assert.assertEquals(0, MathUtils.addExact(0, 0).toLong())
-        Assert.assertEquals(2, MathUtils.addExact(1, 1).toLong())
         Assert.assertEquals(0L, MathUtils.addExact(0L, 0L))
+        // positive + positive
+        Assert.assertEquals(2, MathUtils.addExact(1, 1).toLong())
         Assert.assertEquals(2L, MathUtils.addExact(1L, 1L))
+        // negative + negative
+        Assert.assertEquals(-2, MathUtils.addExact(-1, -1).toLong())
+        Assert.assertEquals(-2L, MathUtils.addExact(-1L, -1L))
+        // positive + negative
         Assert.assertEquals(0, MathUtils.addExact(1, -1).toLong())
         Assert.assertEquals(0L, MathUtils.addExact(1L, -1L))
+        Assert.assertEquals(-1, MathUtils.addExact(1, -2).toLong())
+        Assert.assertEquals(-1L, MathUtils.addExact(1L, -2L))
+        Assert.assertEquals(1, MathUtils.addExact(2, -1).toLong())
+        Assert.assertEquals(1L, MathUtils.addExact(2L, -1L))
+        // negative + positive
+        Assert.assertEquals(0, MathUtils.addExact(-1, 1).toLong())
+        Assert.assertEquals(0L, MathUtils.addExact(-1L, 1L))
+        Assert.assertEquals(1, MathUtils.addExact(-1, 2).toLong())
+        Assert.assertEquals(1L, MathUtils.addExact(-1L, 2L))
+        Assert.assertEquals(-1, MathUtils.addExact(-2, 1).toLong())
+        Assert.assertEquals(-1L, MathUtils.addExact(-2L, 1L))
+        // zero + positive, positive + zero
+        Assert.assertEquals(1, MathUtils.addExact(0, 1).toLong())
+        Assert.assertEquals(1L, MathUtils.addExact(0L, 1L))
+        Assert.assertEquals(1, MathUtils.addExact(1, 0).toLong())
+        Assert.assertEquals(1L, MathUtils.addExact(1L, 0L))
+        // zero + negative, negative + zero
+        Assert.assertEquals(-1, MathUtils.addExact(0, -1).toLong())
+        Assert.assertEquals(-1L, MathUtils.addExact(0L, -1L))
+        Assert.assertEquals(-1, MathUtils.addExact(-1, 0).toLong())
+        Assert.assertEquals(-1L, MathUtils.addExact(-1L, 0L))
         Assert.assertThrows(
             ArithmeticException::class.java
         ) {
@@ -63,18 +90,76 @@ class MathUtilsTest {
             MathUtils.addExact(
                 Long.MIN_VALUE,
                 -1L
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.addExact(
+                Integer.MIN_VALUE,
+                Integer.MIN_VALUE
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.addExact(
+                Long.MIN_VALUE,
+                Long.MIN_VALUE
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.addExact(
+                Integer.MAX_VALUE,
+                Integer.MAX_VALUE
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.addExact(
+                Long.MAX_VALUE,
+                Long.MAX_VALUE
             )
         }
     }
 
     @Test
     fun testSubtractExact() {
+        // zero - zero
         Assert.assertEquals(0, MathUtils.subtractExact(0, 0).toLong())
-        Assert.assertEquals(0, MathUtils.subtractExact(1, 1).toLong())
         Assert.assertEquals(0L, MathUtils.subtractExact(0L, 0L))
+        // positive - positive
+        Assert.assertEquals(0, MathUtils.subtractExact(1, 1).toLong())
         Assert.assertEquals(0L, MathUtils.subtractExact(1L, 1L))
+        Assert.assertEquals(1, MathUtils.subtractExact(2, 1).toLong())
+        Assert.assertEquals(1L, MathUtils.subtractExact(2L, 1L))
+        Assert.assertEquals(-1, MathUtils.subtractExact(1, 2).toLong())
+        Assert.assertEquals(-1L, MathUtils.subtractExact(1L, 2L))
+        // negative - negative
+        Assert.assertEquals(0, MathUtils.subtractExact(-1, -1).toLong())
+        Assert.assertEquals(0L, MathUtils.subtractExact(-1L, -1L))
+        Assert.assertEquals(-1, MathUtils.subtractExact(-2, -1).toLong())
+        Assert.assertEquals(-1L, MathUtils.subtractExact(-2L, -1L))
+        Assert.assertEquals(1, MathUtils.subtractExact(-1, -2).toLong())
+        Assert.assertEquals(1L, MathUtils.subtractExact(-1L, -2L))
+        // positive - negative, negative - positive
         Assert.assertEquals(2, MathUtils.subtractExact(1, -1).toLong())
         Assert.assertEquals(2L, MathUtils.subtractExact(1L, -1L))
+        Assert.assertEquals(-2, MathUtils.subtractExact(-1, 1).toLong())
+        Assert.assertEquals(-2L, MathUtils.subtractExact(-1L, 1L))
+        // zero - positive, positive - zero
+        Assert.assertEquals(-1, MathUtils.subtractExact(0, 1).toLong())
+        Assert.assertEquals(-1L, MathUtils.subtractExact(0L, 1L))
+        Assert.assertEquals(1, MathUtils.subtractExact(1, 0).toLong())
+        Assert.assertEquals(1L, MathUtils.subtractExact(1L, 0L))
+        // zero - negative, negative - zero
+        Assert.assertEquals(1, MathUtils.subtractExact(0, -1).toLong())
+        Assert.assertEquals(1L, MathUtils.subtractExact(0L, -1L))
+        Assert.assertEquals(-1, MathUtils.subtractExact(-1, 0).toLong())
+        Assert.assertEquals(-1L, MathUtils.subtractExact(-1L, 0))
         Assert.assertThrows(
             ArithmeticException::class.java
         ) {
@@ -105,6 +190,22 @@ class MathUtilsTest {
             MathUtils.subtractExact(
                 Long.MIN_VALUE,
                 1L
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.subtractExact(
+                0,
+                Int.MIN_VALUE
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.subtractExact(
+                0,
+                Long.MIN_VALUE
             )
         }
     }
@@ -149,6 +250,54 @@ class MathUtilsTest {
             MathUtils.multiplyExact(
                 Long.MIN_VALUE,
                 2L
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.multiplyExact(
+                Int.MAX_VALUE / 2 + 1,
+                2
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.multiplyExact(
+                Long.MAX_VALUE / 2L + 1L,
+                2L
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.multiplyExact(
+                Int.MIN_VALUE / 2 - 1,
+                2
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.multiplyExact(
+                Long.MIN_VALUE / 2L - 1L,
+                2L
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.multiplyExact(
+                Int.MIN_VALUE,
+                -1
+            )
+        }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) {
+            MathUtils.multiplyExact(
+                Long.MIN_VALUE,
+                -1L
             )
         }
     }
@@ -198,5 +347,8 @@ class MathUtilsTest {
         Assert.assertThrows(
             ArithmeticException::class.java
         ) { MathUtils.toIntExact(Long.MAX_VALUE) }
+        Assert.assertThrows(
+            ArithmeticException::class.java
+        ) { MathUtils.toIntExact(Long.MIN_VALUE) }
     }
 }

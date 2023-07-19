@@ -33,7 +33,13 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows an int
      */
     public static int addExact(int x, int y) {
-        throw new ArithmeticException("integer overflow");
+        int sum = x + y;
+        // If x and y have the same sign, their sum should have the same sign as well
+        if ((x >= 0 == y >= 0) && (x >= 0 != sum >= 0)) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return sum;
+        }
     }
 
     /**
@@ -46,7 +52,13 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows a long
      */
     public static long addExact(long x, long y) {
-        throw new ArithmeticException("integer overflow");
+        long sum = x + y;
+        // If x and y have the same sign, their sum should have the same sign as well
+        if ((x >= 0 == y >= 0) && (x >= 0 != sum >= 0)) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return sum;
+        }
     }
 
     /**
@@ -59,7 +71,12 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows an int
      */
     public static int subtractExact(int x, int y) {
-        throw new ArithmeticException("integer overflow");
+        int difference = x - y;
+        // If only one of x or y is negative, the difference should have the same sign as x
+        if ((x < 0 != y < 0) && (x < 0 != difference < 0)) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return difference;
     }
 
     /**
@@ -72,7 +89,12 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows a long
      */
     public static long subtractExact(long x, long y) {
-        throw new ArithmeticException("long overflow");
+        long difference = x - y;
+        // If only one of x or y is negative, the difference should have the same sign as x
+        if ((x < 0 != y < 0) && (x < 0 != difference < 0)) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return difference;
     }
 
     /**
@@ -85,7 +107,12 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows an int
      */
     public static int multiplyExact(int x, int y) {
-        throw new ArithmeticException("integer overflow");
+        int product = x * y;
+        // Dividing back by one of x or y should get the other back unless there was overflow
+        if (x != 0 && y != 0 && (product / x != y || product / y != x)) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return product;
     }
 
     /**
@@ -98,7 +125,12 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows a long
      */
     public static long multiplyExact(long x, long y) {
-        throw new ArithmeticException("long overflow");
+        long product = x * y;
+        // Dividing back by one of x or y should get the other back unless there was overflow
+        if (x != 0 && y != 0 && (product / x != y || product / y != x)) {
+            throw new ArithmeticException("integer overflow");
+        }
+        return product;
     }
 
     /**
@@ -110,7 +142,11 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows an int
      */
     public static int incrementExact(int a) {
-        throw new ArithmeticException("integer overflow");
+        if (a == Integer.MAX_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return a + 1;
+        }
     }
 
     /**
@@ -122,7 +158,11 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows a long
      */
     public static long incrementExact(long a) {
-        throw new ArithmeticException("long overflow");
+        if (a == Long.MAX_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return a + 1;
+        }
     }
 
     /**
@@ -134,7 +174,11 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows an int
      */
     public static int decrementExact(int a) {
-        throw new ArithmeticException("integer overflow");
+        if (a == Integer.MIN_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return a - 1;
+        }
     }
 
     /**
@@ -146,7 +190,11 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows a long
      */
     public static long decrementExact(long a) {
-        throw new ArithmeticException("long overflow");
+        if (a == Long.MIN_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return a - 1;
+        }
     }
 
     /**
@@ -158,7 +206,11 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows an int
      */
     public static int negateExact(int a) {
-        throw new ArithmeticException("integer overflow");
+        if (a == Integer.MIN_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return -a;
+        }
     }
 
     /**
@@ -170,7 +222,11 @@ public class MathUtils {
      * @throws ArithmeticException if the result overflows a long
      */
     public static long negateExact(long a) {
-        throw new ArithmeticException("long overflow");
+        if (a == Long.MIN_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return -a;
+        }
     }
 
     /**
@@ -182,7 +238,11 @@ public class MathUtils {
      * @throws ArithmeticException if the {@code argument} overflows an int
      */
     public static int toIntExact(long value) {
-        throw new ArithmeticException("integer overflow");
+        if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+            throw new ArithmeticException("integer overflow");
+        } else {
+            return (int) value;
+        }
     }
 
     /**
