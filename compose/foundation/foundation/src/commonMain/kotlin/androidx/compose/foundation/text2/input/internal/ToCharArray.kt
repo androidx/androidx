@@ -26,7 +26,7 @@ internal fun CharSequence.toCharArray(
 ) = toCharArray(destination, destinationOffset, startIndex = 0, endIndex = this.length)
 
 /**
- * Copies characters from this [String] into [destination].
+ * Copies characters from this [CharSequence] into [destination].
  *
  * Platform-specific implementations should use native functions for performing this operation if
  * they exist, since they will likely be more efficient than copying each character individually.
