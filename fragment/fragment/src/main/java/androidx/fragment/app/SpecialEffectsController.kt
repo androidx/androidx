@@ -243,7 +243,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 for (operation in newPendingOperations) {
                     operation.onStart()
                 }
-                executeOperations(newPendingOperations, operationDirectionIsPop)
+                collectEffects(newPendingOperations, operationDirectionIsPop)
+                commitEffects(newPendingOperations)
                 operationDirectionIsPop = false
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
@@ -340,10 +341,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
      * This can be used to control the direction of any special effects if they
      * are not symmetric.
      */
-    abstract fun executeOperations(
-        operations: List<@JvmSuppressWildcards Operation>,
-        isPop: Boolean
-    )
+    abstract fun collectEffects(operations: List<@JvmSuppressWildcards Operation>, isPop: Boolean)
+
+    open fun commitEffects(operations: List<@JvmSuppressWildcards Operation>) { }
 
     fun processProgress(backEvent: BackEventCompat) {
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -372,7 +372,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     /**
      * Class representing an ongoing special effects operation.
      *
-     * @see executeOperations
+     * @see collectEffects
      */
     internal open class Operation(
         /**

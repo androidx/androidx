@@ -46,7 +46,7 @@ import androidx.fragment.app.SpecialEffectsController.Operation.State.Companion.
 internal class DefaultSpecialEffectsController(
     container: ViewGroup
 ) : SpecialEffectsController(container) {
-    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
+    override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         // Shared element transitions are done between the first fragment leaving and
         // the last fragment coming in. Finding these operations is the first priority
         val firstOut = operations.firstOrNull { operation ->
@@ -94,15 +94,31 @@ internal class DefaultSpecialEffectsController(
         }
 
         // Start transition special effects
-        val startedTransitions = startTransitions(transitions, isPop, firstOut, lastIn)
+        val startedTransitions = createTransitionEffect(transitions, isPop, firstOut, lastIn)
         val startedAnyTransition = startedTransitions.containsValue(true)
 
         // Collect Animation and Animator Effects
-        startAnimations(animations, startedAnyTransition, startedTransitions)
+        collectAnimEffects(animations, startedAnyTransition, startedTransitions)
+    }
 
+    override fun commitEffects(operations: List<Operation>) {
+        val firstOut = operations.firstOrNull { operation ->
+            val currentState = operation.fragment.mView.asOperationState()
+            // The firstOut Operation is the first Operation moving from VISIBLE
+            currentState == Operation.State.VISIBLE &&
+                operation.finalState != Operation.State.VISIBLE
+        }
+        val lastIn = operations.lastOrNull { operation ->
+            val currentState = operation.fragment.mView.asOperationState()
+            // The last Operation that moves to VISIBLE is the lastIn Operation
+            currentState != Operation.State.VISIBLE &&
+                operation.finalState == Operation.State.VISIBLE
+        }
         // Run the transition Effects
-        transitions.first().operation.transitionEffect?.onStart(container)
-        transitions.first().operation.transitionEffect?.onCommit(container)
+        operations.first().transitionEffect?.apply {
+            onStart(container)
+            onCommit(container)
+        }
 
         // Run all of the Animation, Animator, and NoOp Effects we have collected
         for (i in operations.indices) {
@@ -150,7 +166,7 @@ internal class DefaultSpecialEffectsController(
     }
 
     @SuppressLint("NewApi", "PrereleaseSdkCoreDependency")
-    private fun startAnimations(
+    private fun collectAnimEffects(
         animationInfos: List<AnimationInfo>,
         startedAnyTransition: Boolean,
         startedTransitions: Map<Operation, Boolean>
@@ -230,7 +246,7 @@ internal class DefaultSpecialEffectsController(
         }
     }
 
-    private fun startTransitions(
+    private fun createTransitionEffect(
         transitionInfos: List<TransitionInfo>,
         isPop: Boolean,
         firstOut: Operation?,
