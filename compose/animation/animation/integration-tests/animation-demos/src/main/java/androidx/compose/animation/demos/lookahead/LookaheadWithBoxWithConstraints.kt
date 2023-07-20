@@ -18,7 +18,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.demos.gesture.pastelColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun LookaheadWithBoxWithConstraints() {
     Box(Modifier.fillMaxSize()) {
