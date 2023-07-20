@@ -305,4 +305,11 @@ internal class PartialGapBuffer(text: CharSequence) {
         sb.append(text, bufEnd, text.length)
         return sb.toString()
     }
+
+    /**
+     * Compares the contents of this buffer with the contents of [other].
+     */
+    fun contentEquals(other: CharSequence): Boolean {
+        return toString() == other.toString()
+    }
 }
