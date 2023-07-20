@@ -61,6 +61,9 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionItemInfo
+import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
+import androidx.compose.ui.platform.coreshims.ViewCompatShims
+import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -91,13 +94,11 @@ import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
-import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.core.view.children
-import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.Lifecycle
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -2765,8 +2766,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
-        ViewCompat.setImportantForContentCapture(this, ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES)
-        return ViewCompat.getContentCaptureSession(this)
+        ViewCompatShims.setImportantForContentCapture(
+            this,
+            ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES
+        )
+        return ViewCompatShims.getContentCaptureSession(this)
     }
 
     private fun SemanticsNode.toViewStructure(): ViewStructureCompat? {
@@ -2775,7 +2779,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return null
         }
 
-        val rootAutofillId = ViewCompat.getAutofillId(view) ?: return null
+        val rootAutofillId = ViewCompatShims.getAutofillId(view) ?: return null
         val parentNode = parent
         val parentAutofillId = if (parentNode != null) {
             session.newAutofillId(parentNode.id.toLong()) ?: return null
