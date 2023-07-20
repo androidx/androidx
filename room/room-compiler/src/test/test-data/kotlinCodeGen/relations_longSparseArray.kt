@@ -17,7 +17,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -149,7 +148,7 @@ public class MyDao_Impl(
         }
     }
 
-    private fun __fetchRelationshipArtistAsArtist(_map: LongSparseArray<Artist?>): Unit {
+    private fun __fetchRelationshipArtistAsArtist(_map: LongSparseArray<Artist?>) {
         if (_map.isEmpty()) {
             return
         }
@@ -196,7 +195,7 @@ public class MyDao_Impl(
         }
     }
 
-    private fun __fetchRelationshipSongAsSong(_map: LongSparseArray<ArrayList<Song>>): Unit {
+    private fun __fetchRelationshipSongAsSong(_map: LongSparseArray<ArrayList<Song>>) {
         if (_map.isEmpty()) {
             return
         }
@@ -247,7 +246,7 @@ public class MyDao_Impl(
         }
     }
 
-    private fun __fetchRelationshipSongAsSong_1(_map: LongSparseArray<ArrayList<Song>>): Unit {
+    private fun __fetchRelationshipSongAsSong_1(_map: LongSparseArray<ArrayList<Song>>) {
         if (_map.isEmpty()) {
             return
         }

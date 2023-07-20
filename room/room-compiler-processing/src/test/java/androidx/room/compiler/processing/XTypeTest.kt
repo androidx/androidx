@@ -89,7 +89,12 @@ class XTypeTest {
             if (it.isKsp) {
                 assertThat(type.asTypeName().kotlin).isEqualTo(
                     KClassName("foo.bar", "Parent")
-                        .parameterizedBy(KClassName("", "InputStreamType"))
+                        .parameterizedBy(
+                            KTypeVariableName(
+                                "InputStreamType",
+                                KClassName("java.io", "InputStream")
+                            )
+                        )
                 )
             }
 

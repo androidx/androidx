@@ -38,10 +38,12 @@ import com.squareup.kotlinpoet.asTypeName as asKTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import kotlin.reflect.KClass
 
@@ -255,6 +257,16 @@ open class XTypeName protected constructor(
                 } else {
                     UNAVAILABLE_KTYPE_NAME
                 }
+            )
+        }
+
+        /**
+         * Creates a type variable named with bounds.
+         */
+        fun getTypeVariableName(name: String, bounds: List<XTypeName> = emptyList()): XTypeName {
+            return XTypeName(
+                java = JTypeVariableName.get(name, *bounds.map { it.java }.toTypedArray()),
+                kotlin = KTypeVariableName(name, bounds.map { it.kotlin })
             )
         }
     }

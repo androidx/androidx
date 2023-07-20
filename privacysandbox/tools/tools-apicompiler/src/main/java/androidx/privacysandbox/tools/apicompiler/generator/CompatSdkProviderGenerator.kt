@@ -40,7 +40,7 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
         ClassName("androidx.privacysandbox.sdkruntime.core", "SandboxedSdkProviderCompat")
 
     override fun generateOnLoadSdkFunction() = FunSpec.builder("onLoadSdk").build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameter("params", bundleClass)
         returns(sandboxedSdkCompatClass)
 
