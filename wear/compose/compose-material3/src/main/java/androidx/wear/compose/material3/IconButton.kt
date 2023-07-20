@@ -358,7 +358,10 @@ object IconButtonDefaults {
     ): IconButtonColors {
         return iconButtonColors(
             containerColor = containerColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+                disabledAlpha = DisabledContainerAlpha
+            ),
         )
     }
 
@@ -378,7 +381,10 @@ object IconButtonDefaults {
     ): IconButtonColors {
         return iconButtonColors(
             containerColor = containerColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+                disabledAlpha = DisabledContainerAlpha
+            ),
         )
     }
 
@@ -396,7 +402,7 @@ object IconButtonDefaults {
     ): IconButtonColors {
         return iconButtonColors(
             containerColor = Color.Transparent,
-            contentColor = contentColor
+            contentColor = contentColor,
         )
     }
 
@@ -415,9 +421,7 @@ object IconButtonDefaults {
     fun iconButtonColors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
-        ),
+        disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): IconButtonColors = IconButtonColors(
         containerColor = containerColor,

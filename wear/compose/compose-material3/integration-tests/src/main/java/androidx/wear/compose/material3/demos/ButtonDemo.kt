@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.FilledTonalButton
@@ -310,13 +311,17 @@ fun AvatarButtonDemo() {
 @Composable
 private fun AvatarButton(enabled: Boolean) =
     MultilineButton(
-        enabled = enabled, icon = { AvatarIcon() }, label = { Text("Primary text") }
+        enabled = enabled,
+        colors = ButtonDefaults.filledTonalButtonColors(),
+        icon = { AvatarIcon() },
+        label = { Text("Primary text") }
     )
 
 @Composable
 private fun Avatar3SlotButton(enabled: Boolean) =
     Multiline3SlotButton(
         enabled = enabled,
+        colors = ButtonDefaults.filledTonalButtonColors(),
         icon = { AvatarIcon() },
         label = { Text("Primary text") },
         secondaryLabel = { Text("Secondary label") }
@@ -325,6 +330,7 @@ private fun Avatar3SlotButton(enabled: Boolean) =
 @Composable
 private fun MultilineButton(
     enabled: Boolean,
+    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit = {
         Text(
@@ -338,13 +344,15 @@ private fun MultilineButton(
         onClick = { /* Do something */ },
         icon = icon,
         label = label,
-        enabled = enabled
+        enabled = enabled,
+        colors = colors,
     )
 }
 
 @Composable
 private fun Multiline3SlotButton(
     enabled: Boolean,
+    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit = {
         Text(
@@ -366,7 +374,8 @@ private fun Multiline3SlotButton(
         icon = icon,
         label = label,
         secondaryLabel = secondaryLabel,
-        enabled = enabled
+        enabled = enabled,
+        colors = colors,
     )
 }
 

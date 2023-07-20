@@ -715,7 +715,7 @@ object ButtonDefaults {
         containerColor: Color = MaterialTheme.colorScheme.surface,
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         secondaryContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        iconColor: Color = MaterialTheme.colorScheme.onSurface
+        iconColor: Color = MaterialTheme.colorScheme.primary,
     ): ButtonColors {
         return buttonColors(
             containerColor = containerColor,
@@ -742,13 +742,14 @@ object ButtonDefaults {
     fun outlinedButtonColors(
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         secondaryContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        iconColor: Color = MaterialTheme.colorScheme.onSurface
+        iconColor: Color = MaterialTheme.colorScheme.primary,
     ): ButtonColors {
         return buttonColors(
             containerColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContainerColor = Color.Transparent,
         )
     }
 
@@ -769,13 +770,14 @@ object ButtonDefaults {
     fun childButtonColors(
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         secondaryContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        iconColor: Color = MaterialTheme.colorScheme.onSurface
+        iconColor: Color = MaterialTheme.colorScheme.primary
     ): ButtonColors {
         return buttonColors(
             containerColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContainerColor = Color.Transparent,
         )
     }
 
@@ -851,7 +853,7 @@ object ButtonDefaults {
         enabled: Boolean,
         borderColor: Color = MaterialTheme.colorScheme.outline,
         disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledBorderAlpha
         ),
         borderWidth: Dp = 1.dp
     ): BorderStroke {
@@ -901,7 +903,7 @@ object ButtonDefaults {
         secondaryContentColor: Color = contentColor,
         iconColor: Color = contentColor,
         disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+            disabledAlpha = DisabledContainerAlpha
         ),
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(),
         disabledSecondaryContentColor: Color =
