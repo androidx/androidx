@@ -30,12 +30,12 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import org.jetbrains.kotlin.descriptors.containingPackage
+import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.types.KtNonErrorClassType
+import org.jetbrains.kotlin.analysis.api.types.KtType
 import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.kotlin.KotlinUastResolveProviderService
 
 /**
  * [Detector] that checks `mutableStateOf` calls to warn if the type is a mutable collection, as
@@ -54,29 +54,28 @@ class MutableCollectionMutableStateDetector : Detector(), SourceCodeScanner {
 
         val expression = node.sourcePsi as? KtExpression ?: return
 
-        // PsiType will return the underlying JVM type for kotlin collections, so instead we need to
-        // use the KotlinType to preserve the actual Kotlin type declared in source - that way we
+        // [PsiType] will return the underlying JVM type for kotlin collections, so instead we need
+        // to use the [KtType] to preserve the actual Kotlin type declared in source - that way we
         // can disambiguate between MutableList and the underlying java.util.List that it will be
         // converted to.
-        val service = expression.project.getService(KotlinUastResolveProviderService::class.java)
-        val bindingContext = service.getBindingContext(expression)
-        val expressionType = bindingContext.getType(expression)
+        analyze(expression) {
+            val expressionType = expression.getKtType() as? KtNonErrorClassType ?: return
+            // expressionType will be MutableState<Foo>, so unwrap the argument to get the type we
+            // care about. We do this instead of looking at the inner expression type, to account
+            // for cases such as mutableStateOf<List<Int>>(mutableListOf(1)) or
+            // val foo: MutableState<List<Int>> = mutableStateOf(mutableListOf(1)) - the inner
+            // expression type is mutable but because the type of the mutableStateOf expression is
+            // not, we don't want to report a warning.
+            val type = expressionType.ownTypeArguments.firstOrNull()?.type ?: return
 
-        // expressionType will be MutableState<Foo>, so unwrap the argument to get the type we care
-        // about. We do this instead of looking at the inner expression type, to account for cases
-        // such as mutableStateOf<List<Int>>(mutableListOf(1)) or
-        // val foo: MutableState<List<Int>> = mutableStateOf(mutableListOf(1)) - the inner
-        // expression type is mutable but because the type of the mutableStateOf expression is not,
-        // we don't want to report a warning.
-        val type = expressionType?.arguments?.firstOrNull()?.type ?: return
-
-        if (type.isMutableCollection()) {
-            context.report(
-                MutableCollectionMutableState,
-                node,
-                context.getNameLocation(node),
-                "Creating a MutableState object with a mutable collection type"
-            )
+            if (isMutableCollection(type)) {
+                context.report(
+                    MutableCollectionMutableState,
+                    node,
+                    context.getNameLocation(node),
+                    "Creating a MutableState object with a mutable collection type"
+                )
+            }
         }
     }
 
@@ -115,7 +114,7 @@ class MutableCollectionMutableStateDetector : Detector(), SourceCodeScanner {
  * - [java.util.Collection]
  * - [java.util.Map]
  */
-private fun KotlinType.isMutableCollection(): Boolean {
+private fun KtAnalysisSession.isMutableCollection(ktType: KtType): Boolean {
     // MutableCollection::class.qualifiedName == Collection::class.qualifiedName, so using hardcoded
     // strings instead
     val kotlinImmutableTypes = listOf(
@@ -134,21 +133,19 @@ private fun KotlinType.isMutableCollection(): Boolean {
     )
 
     // Check `this`
-    if (kotlinMutableTypes.any { it == fqn }) return true
-    if (kotlinImmutableTypes.any { it == fqn }) return false
-    if (javaMutableTypes.any { it == fqn }) return true
+    if (kotlinMutableTypes.any { it == fqn(ktType) }) return true
+    if (kotlinImmutableTypes.any { it == fqn(ktType) }) return false
+    if (javaMutableTypes.any { it == fqn(ktType) }) return true
 
     // Check supertypes
-    val supertypes = supertypes()
-    if (supertypes.any { type -> kotlinMutableTypes.any { it == type.fqn } }) return true
-    if (supertypes.any { type -> kotlinImmutableTypes.any { it == type.fqn } }) return false
-    if (supertypes.any { type -> javaMutableTypes.any { it == type.fqn } }) return true
+    val supertypes = ktType.getAllSuperTypes()
+    if (supertypes.any { type -> kotlinMutableTypes.any { it == fqn(type) } }) return true
+    if (supertypes.any { type -> kotlinImmutableTypes.any { it == fqn(type) } }) return false
+    if (supertypes.any { type -> javaMutableTypes.any { it == fqn(type) } }) return true
 
     return false
 }
 
-private val KotlinType.fqn: String? get() {
-    val descriptor = constructor.declarationDescriptor ?: return null
-    val packageName = descriptor.containingPackage()?.asString() ?: return null
-    return packageName + "." + descriptor.name.asString()
+private fun KtAnalysisSession.fqn(ktType: KtType): String? {
+    return ktType.expandedClassSymbol?.classIdIfNonLocal?.asFqNameString()
 }
