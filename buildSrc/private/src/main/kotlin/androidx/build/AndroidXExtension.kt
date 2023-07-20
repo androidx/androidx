@@ -410,6 +410,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     override val kotlinBomVersion: Provider<String>
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
 
+    /**
+     * Whether to validate the androidx configuration block using validateProjectParser. This
+     * should always be set to true unless we are temporarily working around a bug.
+     */
+    var runProjectParser: Boolean = true
+
     companion object {
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
