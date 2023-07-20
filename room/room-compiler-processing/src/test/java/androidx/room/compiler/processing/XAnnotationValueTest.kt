@@ -18,7 +18,6 @@ package androidx.room.compiler.processing
 
 import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.JArrayTypeName
-import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
@@ -44,7 +43,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.SHORT_ARRAY
 import com.squareup.kotlinpoet.STAR
-import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
@@ -1354,7 +1352,7 @@ class XAnnotationValueTest(
 
     @Test
     fun testDefaultValues() {
-            runTest(
+        runTest(
             javaSource = Source.java(
                 "test.MyClass",
                 """
@@ -1389,43 +1387,30 @@ class XAnnotationValueTest(
             ) as Source.KotlinSource
         ) { invocation ->
             val annotation = getAnnotation(invocation)
-            if (sourceKind == SourceKind.JAVA && invocation.isKsp && !isPreCompiled) {
-                // TODO(https://github.com/google/ksp/issues/1392) Remove the condition
-                // when bugs are fixed in ksp/kapt.
-                assertThat(annotation.getAnnotationValue("stringParam").value)
-                    .isEqualTo("2")
-                assertThat(annotation.getAnnotationValue("stringParam2").value).isEqualTo("1")
-                assertThat(
-                    annotation.getAnnotationValue("stringArrayParam")
-                        .asAnnotationValueList().firstOrNull()?.value).isNull()
-            } else {
-                // Compare the AnnotationSpec string ignoring whitespace
-                assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
-                    .isEqualTo("""
+            // Compare the AnnotationSpec string ignoring whitespace
+            assertThat(annotation.toAnnotationSpec().toString().removeWhiteSpace())
+                .isEqualTo("""
                         @test.MyAnnotation(
-                            stringParam = "2",
-                            stringParam2 = "1",
-                            stringArrayParam = {"3", "5", "7"}
+                            stringParam="2",
+                            stringParam2="1",
+                            stringArrayParam={"3","5","7"}
                         )
                         """.removeWhiteSpace())
-                assertThat(
-                    annotation.toAnnotationSpec(
-                        includeDefaultValues = false).toString().removeWhiteSpace())
-                .isEqualTo("""
-                    @test.MyAnnotation(
-                    stringParam = "2"
-                    )
-                    """.removeWhiteSpace())
 
-                 if (!invocation.isKsp && !isTypeAnnotation) {
-                    // Check that "XAnnotation#toAnnotationSpec()" matches JavaPoet's
-                    // "AnnotationSpec.get(AnnotationMirror)"
-                    assertThat(annotation.toAnnotationSpec(includeDefaultValues = false))
-                      .isEqualTo(JAnnotationSpec.get(annotation.toJavac()))
-                    assertThat(annotation.toAnnotationSpec())
-                      .isNotEqualTo(JAnnotationSpec.get(annotation.toJavac()))
-                }
-            }
+            assertThat(
+                annotation.toAnnotationSpec(
+                    includeDefaultValues = false).toString().removeWhiteSpace())
+                .isEqualTo("""
+                        @test.MyAnnotation(stringParam="2")
+                        """.removeWhiteSpace())
+            assertThat(annotation.getAnnotationValue("stringParam").value)
+                .isEqualTo("2")
+            assertThat(annotation.getAnnotationValue("stringParam2").value)
+                .isEqualTo("1")
+            assertThat(
+                annotation.getAnnotationValue("stringArrayParam")
+                    .asAnnotationValueList().firstOrNull()?.value)
+                .isEqualTo("3")
         }
     }
 
