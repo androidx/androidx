@@ -61,10 +61,7 @@ class DateRangePickerBenchmark {
 
     @Test
     fun dateRangeInput_measure() {
-        benchmarkRule.benchmarkFirstMeasure(
-            caseFactory = dateRangeInputTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkMeasureUntilStable(dateRangeInputTestCaseFactory)
     }
 
     @Test
@@ -74,10 +71,7 @@ class DateRangePickerBenchmark {
 
     @Test
     fun dateRangeInput_layout() {
-        benchmarkRule.benchmarkFirstLayout(
-            caseFactory = dateRangeInputTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkLayoutUntilStable(dateRangeInputTestCaseFactory)
     }
 
     @Test
@@ -87,10 +81,7 @@ class DateRangePickerBenchmark {
 
     @Test
     fun dateRangeInput_draw() {
-        benchmarkRule.benchmarkFirstDraw(
-            caseFactory = dateRangeInputTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkDrawUntilStable(dateRangeInputTestCaseFactory)
     }
 }
 
