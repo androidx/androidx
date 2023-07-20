@@ -22,7 +22,6 @@ plugins {
 dependencies {
     api(project(":wear:watchface:watchface-complications-data-source"))
     api(libs.guavaAndroid)
-    api(libs.kotlinStdlib)
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.wear.protolayout:protolayout-expression:1.0.0-beta01")
 }
