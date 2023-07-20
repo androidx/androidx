@@ -21,7 +21,6 @@ package androidx.compose.runtime.lint
 import androidx.compose.lint.Name
 import androidx.compose.lint.Names
 import androidx.compose.lint.isInPackageName
-import androidx.compose.lint.resolveCall
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -34,7 +33,9 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import org.jetbrains.kotlin.js.descriptorUtils.getJetTypeFqName
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.calls.singleFunctionCallOrNull
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -133,11 +134,18 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     ): Name? {
         if (!usesStructuralEqualityPolicy(invocation)) return null
 
-        val resolvedCall = invocation.resolveCall() ?: return null
-        val stateType = resolvedCall.typeArguments.asIterable().single().value
-        return when {
-            stateType.isMarkedNullable -> null
-            else -> replacements[stateType.getJetTypeFqName(true)]
+        val sourcePsi = invocation.sourcePsi as? KtElement ?: return null
+        analyze(sourcePsi) {
+            val resolvedCall = sourcePsi.resolveCall()?.singleFunctionCallOrNull() ?: return null
+            val stateType = resolvedCall.typeArgumentsMapping.asIterable().single().value
+            return when {
+                stateType.isMarkedNullable -> null
+                else -> {
+                    // NB: use expanded class symbol for type alias
+                    val fqName = stateType.expandedClassSymbol?.classIdIfNonLocal?.asFqNameString()
+                    replacements[fqName]
+                }
+            }
         }
     }
 
