@@ -125,4 +125,13 @@ public class FakeCameraCoordinator implements CameraCoordinator {
     public void removeListener(@NonNull ConcurrentCameraModeListener listener) {
         mConcurrentCameraModeListeners.remove(listener);
     }
+
+    @Override
+    public void shutdown() {
+        mConcurrentCameraIdMap.clear();
+        mConcurrentCameraIds.clear();
+        mConcurrentCameraSelectors.clear();
+        mActiveConcurrentCameraInfos.clear();
+        mConcurrentCameraModeListeners.clear();
+    }
 }

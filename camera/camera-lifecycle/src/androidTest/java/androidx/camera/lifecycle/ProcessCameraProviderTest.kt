@@ -30,6 +30,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -63,6 +64,7 @@ class ProcessCameraProviderTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val lifecycleOwner0 = FakeLifecycleOwner()
     private val lifecycleOwner1 = FakeLifecycleOwner()
+    private val cameraCoordinator = FakeCameraCoordinator()
 
     private lateinit var provider: ProcessCameraProvider
 
@@ -665,6 +667,10 @@ class ProcessCameraProviderTest {
 
         // Should not throw exception
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_UNSPECIFIED)
+        assertThat(cameraCoordinator.concurrentCameraSelectors).isEmpty()
+        assertThat(cameraCoordinator.activeConcurrentCameraInfos).isEmpty()
     }
 
     @Test
@@ -841,7 +847,6 @@ class ProcessCameraProviderTest {
     }
 
     private fun createConcurrentCameraAppConfig(): CameraXConfig {
-        val cameraCoordinator = FakeCameraCoordinator()
         val combination0 = mapOf(
             "0" to CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build(),
             "1" to CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build())

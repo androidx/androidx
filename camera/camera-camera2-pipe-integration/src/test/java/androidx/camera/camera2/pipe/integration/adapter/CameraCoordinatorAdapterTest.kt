@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.impl.CameraInfoInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -122,5 +123,23 @@ class CameraCoordinatorAdapterTest {
         verify(mockCameraGraphCreator).setConcurrentModeOn(false)
         assertThat(cameraCoordinatorAdapter.cameraOperatingMode)
             .isEqualTo(CAMERA_OPERATING_MODE_SINGLE)
+    }
+
+    @Test
+    fun shutdown() {
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos = mutableListOf(
+            FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("0")),
+            FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("1")))
+
+        cameraCoordinatorAdapter.shutdown()
+
+        assertThat(cameraCoordinatorAdapter.cameraInternalMap).isEmpty()
+        assertThat(cameraCoordinatorAdapter.activeConcurrentCameraInfos).isEmpty()
+        assertThat(cameraCoordinatorAdapter.concurrentCameraIdMap).isEmpty()
+        assertThat(cameraCoordinatorAdapter.concurrentCameraIdsSet).isEmpty()
+        assertThat(cameraCoordinatorAdapter.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_UNSPECIFIED)
+        assertThat(cameraCoordinatorAdapter.concurrentModeOn).isFalse()
     }
 }
