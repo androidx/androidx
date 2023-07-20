@@ -32,12 +32,14 @@ import androidx.compose.ui.unit.dp
  *
  * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
  *                           layout adaptation decisions like [WindowSizeClass].
+ * @param hingePolicy [HingePolicy] that decides how layouts are supposed to address hinges.
  * @return an [AdaptiveLayoutDirective] to be used to decide adaptive layout states.
  */
 // TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
 fun calculateStandardAdaptiveLayoutDirective(
-    windowAdaptiveInfo: WindowAdaptiveInfo
+    windowAdaptiveInfo: WindowAdaptiveInfo,
+    hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): AdaptiveLayoutDirective {
     val maxHorizontalPartitions: Int
     val gutterOuterVertical: Dp
@@ -76,7 +78,8 @@ fun calculateStandardAdaptiveLayoutDirective(
         GutterSizes(
             gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
         ),
-        maxVerticalPartitions
+        maxVerticalPartitions,
+        getExcludedBounds(windowAdaptiveInfo.posture, hingePolicy)
     )
 }
 
@@ -90,12 +93,14 @@ fun calculateStandardAdaptiveLayoutDirective(
  *
  * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
  *                           layout adaptation decisions like [WindowSizeClass].
+ * @param hingePolicy [HingePolicy] that decides how layouts are supposed to address hinges.
  * @return an [AdaptiveLayoutDirective] to be used to decide adaptive layout states.
  */
 // TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
 fun calculateDenseAdaptiveLayoutDirective(
-    windowAdaptiveInfo: WindowAdaptiveInfo
+    windowAdaptiveInfo: WindowAdaptiveInfo,
+    hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): AdaptiveLayoutDirective {
     val maxHorizontalPartitions: Int
     val gutterOuterVertical: Dp
@@ -134,8 +139,19 @@ fun calculateDenseAdaptiveLayoutDirective(
         GutterSizes(
             gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
         ),
-        maxVerticalPartitions
+        maxVerticalPartitions,
+        getExcludedBounds(windowAdaptiveInfo.posture, hingePolicy)
     )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun getExcludedBounds(posture: Posture, hingePolicy: HingePolicy): List<Rect> {
+    return when (hingePolicy) {
+        HingePolicy.AvoidSeparating -> posture.separatingHingeBounds
+        HingePolicy.AvoidOccluding -> posture.occludingHingeBounds
+        HingePolicy.AlwaysAvoid -> posture.allHingeBounds
+        else -> emptyList()
+    }
 }
 
 /**
@@ -216,5 +232,37 @@ class GutterSizes(
         result = 31 * result + outerHorizontal.hashCode()
         result = 31 * result + innerHorizontal.hashCode()
         return result
+    }
+}
+
+/** Policies that indicate how hinges are supposed to be addressed in an adaptive layout. */
+@Immutable
+@kotlin.jvm.JvmInline
+value class HingePolicy private constructor(private val value: Int) {
+    override fun toString(): String {
+        return "HingePolicy." + when (this) {
+            AlwaysAvoid -> "AlwaysAvoid"
+            AvoidSeparating -> "AvoidOccludingAndSeparating"
+            AvoidOccluding -> "AvoidOccludingOnly"
+            NeverAvoid -> "NeverAvoid"
+            else -> ""
+        }
+    }
+
+    companion object {
+        /** When rendering content in a layout, always avoid where hinges are. */
+        val AlwaysAvoid = HingePolicy(0)
+        /**
+         * When rendering content in a layout, avoid hinges that are separating. Note that an
+         * occluding hinge is supposed to be separating as well but not vice versa.
+         */
+        val AvoidSeparating = HingePolicy(1)
+        /**
+         * When rendering content in a layout, avoid hinges that are occluding. Note that an
+         * occluding hinge is supposed to be separating as well but not vice versa.
+         */
+        val AvoidOccluding = HingePolicy(2)
+        /** When rendering content in a layout, never avoid any hinges, separating or not. */
+        val NeverAvoid = HingePolicy(3)
     }
 }

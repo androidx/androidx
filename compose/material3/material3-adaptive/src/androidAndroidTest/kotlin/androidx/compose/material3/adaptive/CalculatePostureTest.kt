@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive
 
 import android.graphics.Rect
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.window.layout.FoldingFeature
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -160,6 +161,97 @@ class CalculatePostureTest {
         )
 
         assertThat(posture.isTabletop).isFalse()
+    }
+
+    @Test
+    fun test_calculatePosture_separatingBounds() {
+        val mockHingeBounds1 = Rect(1, 1, 2, 2)
+        val mockHingeBounds2 = Rect(2, 2, 3, 3)
+        val mockHingeBounds3 = Rect(3, 3, 4, 4)
+        val posture = calculatePosture(
+            listOf(
+                MockFoldingFeature(
+                    isSeparating = false,
+                    occlusionType = FoldingFeature.OcclusionType.FULL,
+                    bounds = mockHingeBounds1
+                ),
+                MockFoldingFeature(
+                    isSeparating = true,
+                    occlusionType = FoldingFeature.OcclusionType.FULL,
+                    bounds = mockHingeBounds2
+                ),
+                MockFoldingFeature(
+                    isSeparating = true,
+                    occlusionType = FoldingFeature.OcclusionType.NONE,
+                    bounds = mockHingeBounds3
+                ),
+            )
+        )
+
+        assertThat(posture.separatingHingeBounds.size).isEqualTo(2)
+        assertThat(posture.separatingHingeBounds[0]).isEqualTo(mockHingeBounds2.toComposeRect())
+        assertThat(posture.separatingHingeBounds[1]).isEqualTo(mockHingeBounds3.toComposeRect())
+    }
+
+    @Test
+    fun test_calculatePosture_occludingBounds() {
+        val mockHingeBounds1 = Rect(1, 1, 2, 2)
+        val mockHingeBounds2 = Rect(2, 2, 3, 3)
+        val mockHingeBounds3 = Rect(3, 3, 4, 4)
+        val posture = calculatePosture(
+            listOf(
+                MockFoldingFeature(
+                    isSeparating = false,
+                    occlusionType = FoldingFeature.OcclusionType.FULL,
+                    bounds = mockHingeBounds1
+                ),
+                MockFoldingFeature(
+                    isSeparating = true,
+                    occlusionType = FoldingFeature.OcclusionType.FULL,
+                    bounds = mockHingeBounds2
+                ),
+                MockFoldingFeature(
+                    isSeparating = true,
+                    occlusionType = FoldingFeature.OcclusionType.NONE,
+                    bounds = mockHingeBounds3
+                ),
+            )
+        )
+
+        assertThat(posture.occludingHingeBounds.size).isEqualTo(2)
+        assertThat(posture.occludingHingeBounds[0]).isEqualTo(mockHingeBounds1.toComposeRect())
+        assertThat(posture.occludingHingeBounds[1]).isEqualTo(mockHingeBounds2.toComposeRect())
+    }
+
+    @Test
+    fun test_calculatePosture_allBounds() {
+        val mockHingeBounds1 = Rect(1, 1, 2, 2)
+        val mockHingeBounds2 = Rect(2, 2, 3, 3)
+        val mockHingeBounds3 = Rect(3, 3, 4, 4)
+        val posture = calculatePosture(
+            listOf(
+                MockFoldingFeature(
+                    isSeparating = false,
+                    occlusionType = FoldingFeature.OcclusionType.FULL,
+                    bounds = mockHingeBounds1
+                ),
+                MockFoldingFeature(
+                    isSeparating = true,
+                    occlusionType = FoldingFeature.OcclusionType.FULL,
+                    bounds = mockHingeBounds2
+                ),
+                MockFoldingFeature(
+                    isSeparating = true,
+                    occlusionType = FoldingFeature.OcclusionType.NONE,
+                    bounds = mockHingeBounds3
+                ),
+            )
+        )
+
+        assertThat(posture.allHingeBounds.size).isEqualTo(3)
+        assertThat(posture.allHingeBounds[0]).isEqualTo(mockHingeBounds1.toComposeRect())
+        assertThat(posture.allHingeBounds[1]).isEqualTo(mockHingeBounds2.toComposeRect())
+        assertThat(posture.allHingeBounds[2]).isEqualTo(mockHingeBounds3.toComposeRect())
     }
 }
 
