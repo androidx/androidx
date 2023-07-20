@@ -39,6 +39,10 @@ android {
     buildFeatures {
         aidl = true
     }
+    lint {
+        // Temporarily disabled due to flakiness (see b/291607684).
+        disable "RequireUnstableAidlAnnotation"
+    }
     sourceSets {
         main.java.srcDirs += [
         ]
