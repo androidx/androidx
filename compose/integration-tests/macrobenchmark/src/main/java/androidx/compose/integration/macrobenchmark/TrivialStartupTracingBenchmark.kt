@@ -49,9 +49,8 @@ class TrivialStartupTracingBenchmark(
 
         try {
             val perfettoSdkTraceSection = TraceSectionMetric(
-                "androidx.compose.integration.macrobenchmark.target." +
-                    "TrivialStartupTracingActivity.onCreate.<anonymous>" +
-                    " (TrivialStartupTracingActivity.kt:34)"
+                "%TrivialStartupTracingActivity.onCreate%" +
+                    " (TrivialStartupTracingActivity.kt:%)"
             )
             benchmarkRule.measureStartup(
                 compilationMode = compilationMode,
@@ -67,8 +66,11 @@ class TrivialStartupTracingBenchmark(
             if (!isFullTracingEnabled &&
                 e.message?.contains("Unable to read any metrics during benchmark") == true
             ) {
-                // this is expected, we don't expect Perfetto SDK Tracing section present
-                // when full tracing is disabled
+                // We are relying on the fact that Macrobenchmark will throw an exception when it
+                // cannot find any metrics, and given we are looking for one specific metric
+                // (a Composable function emitted by Compose Tracing), we are able to tell if
+                // Compose Tracing is working (enabled) or not, both of which we want to verify in
+                // this test.
             } else throw e // this is a legitimate failure
         }
     } finally {
