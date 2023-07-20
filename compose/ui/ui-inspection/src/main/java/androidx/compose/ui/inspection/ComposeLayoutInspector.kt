@@ -28,6 +28,7 @@ import androidx.compose.ui.inspection.inspector.NodeParameterReference
 import androidx.compose.ui.inspection.proto.StringTable
 import androidx.compose.ui.inspection.proto.convert
 import androidx.compose.ui.inspection.proto.toComposableRoot
+import androidx.compose.ui.inspection.util.NO_ANCHOR_ID
 import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.compose.ui.unit.IntOffset
 import androidx.inspection.Connection
@@ -178,16 +179,19 @@ class ComposeLayoutInspector(
         getParametersCommand: GetParametersCommand,
         callback: CommandCallback
     ) {
-        val foundComposable = if (delayParameterExtractions && !cachedHasAllParameters) {
-            getComposableFromAnchor(getParametersCommand.anchorHash)
-        } else {
-            getComposableNodes(
-                getParametersCommand.rootViewId,
-                getParametersCommand.skipSystemComposables,
-                true,
-                getParametersCommand.generation
-            )?.lookup?.get(getParametersCommand.composableId)
-        }
+        val foundComposable =
+            if (delayParameterExtractions && !cachedHasAllParameters &&
+                getParametersCommand.anchorHash != NO_ANCHOR_ID
+            ) {
+                getComposableFromAnchor(getParametersCommand.anchorHash)
+            } else {
+                getComposableNodes(
+                    getParametersCommand.rootViewId,
+                    getParametersCommand.skipSystemComposables,
+                    true,
+                    getParametersCommand.generation
+                )?.lookup?.get(getParametersCommand.composableId)
+            }
         val semanticsNode = getCachedComposableNodes(
             getParametersCommand.rootViewId
         )?.lookup?.get(getParametersCommand.composableId)
@@ -256,16 +260,19 @@ class ComposeLayoutInspector(
             getParameterDetailsCommand.reference.parameterIndex,
             getParameterDetailsCommand.reference.compositeIndexList
         )
-        val foundComposable = if (delayParameterExtractions && !cachedHasAllParameters) {
-            getComposableFromAnchor(reference.anchorId)
-        } else {
-            getComposableNodes(
-                getParameterDetailsCommand.rootViewId,
-                getParameterDetailsCommand.skipSystemComposables,
-                true,
-                getParameterDetailsCommand.generation
-            )?.lookup?.get(reference.nodeId)
-        }
+        val foundComposable =
+            if (delayParameterExtractions && !cachedHasAllParameters &&
+                reference.anchorId != NO_ANCHOR_ID
+            ) {
+                getComposableFromAnchor(reference.anchorId)
+            } else {
+                getComposableNodes(
+                    getParameterDetailsCommand.rootViewId,
+                    getParameterDetailsCommand.skipSystemComposables,
+                    true,
+                    getParameterDetailsCommand.generation
+                )?.lookup?.get(reference.nodeId)
+            }
         val semanticsNode = getCachedComposableNodes(
             getParameterDetailsCommand.rootViewId
         )?.lookup?.get(getParameterDetailsCommand.reference.composableId)
