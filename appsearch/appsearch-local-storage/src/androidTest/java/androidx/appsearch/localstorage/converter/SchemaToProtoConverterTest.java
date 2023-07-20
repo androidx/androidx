@@ -128,6 +128,8 @@ public class SchemaToProtoConverterTest {
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setJoinableValueType(AppSearchSchema.StringPropertyConfig
                                 .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        // TODO(b/274157614): Export this to framework when we can access hidden
+                        //  APIs.
                         // @exportToFramework:startStrip()
                         // TODO(b/274157614) start exporting this when it is unhidden in framework
                         .setDeletionPropagation(true)
@@ -137,7 +139,9 @@ public class SchemaToProtoConverterTest {
 
         JoinableConfig joinableConfig = JoinableConfig.newBuilder()
                 .setValueType(JoinableConfig.ValueType.Code.QUALIFIED_ID)
+                // @exportToFramework:startStrip()
                 .setPropagateDelete(true)
+                // @exportToFramework:endStrip()
                 .build();
 
         SchemaTypeConfigProto expectedAlbumProto = SchemaTypeConfigProto.newBuilder()

@@ -233,7 +233,11 @@ public abstract class AppSearchSessionInternalTestBase {
                                         .setJoinableValueType(
                                                 StringPropertyConfig
                                                         .JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                        // TODO(b/274157614): Export this to framework when we
+                                        //  can access hidden APIs.
+                                        // @exportToFramework:startStrip()
                                         .setDeletionPropagation(true)
+                                        // @exportToFramework:endStrip()
                                         .build())
                         .build();
 
