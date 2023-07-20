@@ -18,6 +18,10 @@ package androidx.room.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
 import androidx.room.integration.kotlintestapp.vo.Book
+import androidx.room.integration.kotlintestapp.vo.Playlist
+import androidx.room.integration.kotlintestapp.vo.PlaylistSongXRef
+import androidx.room.integration.kotlintestapp.vo.PlaylistWithSongs
+import androidx.room.integration.kotlintestapp.vo.Song
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -30,7 +34,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.take
@@ -315,6 +318,75 @@ class FlowQueryTest : TestDatabaseTest() {
             .isEqualTo(TestUtil.BOOK_1)
         assertThat(results[1])
             .isNull()
+
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun playlistSongs_async_update(): Unit = runBlocking {
+        val musicDao = database.musicDao()
+        val song1 = Song(
+            1,
+            "I Know Places",
+            "Taylor Swift",
+            "1989",
+            195,
+            2014
+        );
+        val song2 = Song(
+            2,
+            "Blank Space",
+            "Taylor Swift",
+            "1989",
+            241,
+            2014
+        )
+        musicDao.addSongs(song1, song2)
+        musicDao.addPlaylists(
+            Playlist(1),
+            Playlist(2)
+        )
+        musicDao.addPlaylistSongRelations(PlaylistSongXRef(1, 1))
+
+        val latches = Array(3) { CountDownLatch(1) }
+        val results = mutableListOf<PlaylistWithSongs>()
+        var collectCall = 0
+        val job = async(Dispatchers.IO) {
+            musicDao.getPlaylistsWithSongsFlow(1).collect {
+                if (collectCall >= latches.size) {
+                    fail("Should have only collected 3 results.")
+                }
+                results.add(it)
+                latches[collectCall].countDown()
+                collectCall++
+            }
+        }
+
+        latches[0].await()
+        assertThat(results.size).isEqualTo(1)
+        results[0].let { playlist ->
+            assertThat(playlist.songs.size).isEqualTo(1)
+            assertThat(playlist.songs[0]).isEqualTo(song1)
+        }
+
+        musicDao.addPlaylistSongRelations(PlaylistSongXRef(1, 2))
+
+        latches[1].await()
+        assertThat(results.size).isEqualTo(2)
+        results[1].let { playlist ->
+            assertThat(playlist.songs.size).isEqualTo(2)
+            assertThat(playlist.songs[0]).isEqualTo(song1)
+            assertThat(playlist.songs[1]).isEqualTo(song2)
+        }
+
+        musicDao.removePlaylistSongRelations(PlaylistSongXRef(1, 2))
+
+        latches[2].await()
+        assertThat(results.size).isEqualTo(3)
+        results[2].let { playlist ->
+            assertThat(playlist.songs.size).isEqualTo(1)
+            assertThat(playlist.songs[0]).isEqualTo(song1)
+        }
 
         job.cancelAndJoin()
     }

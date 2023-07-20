@@ -20,6 +20,7 @@ import androidx.collection.LongSparseArray
 import androidx.collection.SparseArrayCompat
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.MapInfo
 import androidx.room.Query
@@ -32,6 +33,9 @@ import androidx.room.integration.kotlintestapp.vo.AlbumWithSongs
 import androidx.room.integration.kotlintestapp.vo.Artist
 import androidx.room.integration.kotlintestapp.vo.Image
 import androidx.room.integration.kotlintestapp.vo.ImageFormat
+import androidx.room.integration.kotlintestapp.vo.Playlist
+import androidx.room.integration.kotlintestapp.vo.PlaylistSongXRef
+import androidx.room.integration.kotlintestapp.vo.PlaylistWithSongs
 import androidx.room.integration.kotlintestapp.vo.ReleasedAlbum
 import androidx.room.integration.kotlintestapp.vo.Song
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -41,6 +45,7 @@ import com.google.common.collect.ImmutableSetMultimap
 import io.reactivex.Flowable
 import java.nio.ByteBuffer
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 @JvmDefaultWithCompatibility
 @Dao
@@ -53,6 +58,16 @@ interface MusicDao {
 
     @Insert
     fun addAlbums(vararg albums: Album)
+
+    @Insert
+    fun addPlaylists(vararg playlists: Playlist)
+
+    @Insert
+    fun addPlaylistSongRelations(vararg relations: PlaylistSongXRef)
+
+    @Delete
+    fun removePlaylistSongRelations(vararg relations: PlaylistSongXRef)
+
     @Insert
     fun addImages(vararg images: Image)
 
@@ -355,4 +370,8 @@ interface MusicDao {
     @MapInfo(keyColumn = "mImageYear", valueColumn = "mTitle")
     @RewriteQueriesToDropUnusedColumns
     fun getNestedMapWithMapInfoKeyAndValue(): Map<Long, Map<Artist, Map<Album, List<String>>>>
+
+    @Transaction
+    @Query("SELECT * FROM Playlist WHERE mPlaylistId = :id")
+    fun getPlaylistsWithSongsFlow(id: Int): Flow<PlaylistWithSongs>
 }
