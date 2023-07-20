@@ -293,6 +293,8 @@ internal class TextFieldDecoratorModifierNode(
         if (!enabled) disabled()
 
         setText { newText ->
+            if (readOnly || !enabled) return@setText false
+
             textFieldState.editProcessor.update(
                 listOf(
                     DeleteAllCommand,
@@ -324,6 +326,8 @@ internal class TextFieldDecoratorModifierNode(
             }
         }
         insertTextAtCursor { newText ->
+            if (readOnly || !enabled) return@insertTextAtCursor false
+
             textFieldState.editProcessor.update(
                 listOf(
                     // Finish composing text first because when the field is focused the IME
@@ -377,8 +381,11 @@ internal class TextFieldDecoratorModifierNode(
         textFieldSelectionState.isFocused = focusState.isFocused
 
         if (focusState.isFocused) {
-            startInputSession()
-            // TODO(halilibo): bringIntoView
+            // Deselect when losing focus even if readonly.
+            if (enabled && !readOnly) {
+                startInputSession()
+                // TODO(halilibo): bringIntoView
+            }
         } else {
             disposeInputSession()
             textFieldState.deselect()
