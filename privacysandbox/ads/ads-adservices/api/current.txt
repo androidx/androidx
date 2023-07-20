@@ -126,6 +126,12 @@ package androidx.privacysandbox.ads.adservices.common {
     property public final String identifier;
   }
 
+  public sealed interface ExperimentalFeatures {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.RegisterSourceOptIn {
+  }
+
 }
 
 package androidx.privacysandbox.ads.adservices.customaudience {
@@ -249,6 +255,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? getMeasurementApiStatus(kotlin.coroutines.Continuation<? super java.lang.Integer>);
     method public static final androidx.privacysandbox.ads.adservices.measurement.MeasurementManager? obtain(android.content.Context context);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerSource(android.net.Uri attributionSource, android.view.InputEvent? inputEvent, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.RegisterSourceOptIn public abstract suspend Object? registerSource(androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerTrigger(android.net.Uri trigger, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebSource(androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public abstract suspend Object? registerWebTrigger(androidx.privacysandbox.ads.adservices.measurement.WebTriggerRegistrationRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -259,6 +266,20 @@ package androidx.privacysandbox.ads.adservices.measurement {
 
   public static final class MeasurementManager.Companion {
     method public androidx.privacysandbox.ads.adservices.measurement.MeasurementManager? obtain(android.content.Context context);
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.RegisterSourceOptIn public final class SourceRegistrationRequest {
+    ctor public SourceRegistrationRequest(java.util.List<? extends android.net.Uri> registrationUris, optional android.view.InputEvent? inputEvent);
+    method public android.view.InputEvent? getInputEvent();
+    method public java.util.List<android.net.Uri> getRegistrationUris();
+    property public final android.view.InputEvent? inputEvent;
+    property public final java.util.List<android.net.Uri> registrationUris;
+  }
+
+  public static final class SourceRegistrationRequest.Builder {
+    ctor public SourceRegistrationRequest.Builder(java.util.List<? extends android.net.Uri> registrationUris);
+    method public androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest build();
+    method public androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest.Builder setInputEvent(android.view.InputEvent inputEvent);
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebSourceParams {
