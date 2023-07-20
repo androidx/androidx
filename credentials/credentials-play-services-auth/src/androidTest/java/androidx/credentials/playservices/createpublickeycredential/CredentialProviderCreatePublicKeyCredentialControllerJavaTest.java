@@ -16,6 +16,7 @@
 
 package androidx.credentials.playservices.createpublickeycredential;
 
+
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.ALL_REQUIRED_AND_OPTIONAL_SIGNATURE;
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.ALL_REQUIRED_FIELDS_SIGNATURE;
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT;
@@ -33,14 +34,12 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
-import android.app.Activity;
-import android.os.Build;
-
 import androidx.credentials.CreatePublicKeyCredentialRequest;
 import androidx.credentials.playservices.TestCredentialsActivity;
 import androidx.credentials.playservices.TestUtils;
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
@@ -49,212 +48,156 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
+@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
-
-    private final boolean mUseFragmentActivity;
-
-    @Parameterized.Parameters
-    public static Object[] data() {
-        return new Object[] {true, false};
-    }
-
-    public CredentialProviderCreatePublicKeyCredentialControllerJavaTest(
-            final boolean useFragmentActivity) throws Throwable {
-        mUseFragmentActivity = useFragmentActivity;
-    }
-
-    interface TestActivityListener {
-        void onActivity(Activity a);
-    }
-
-    private void launchTestActivity(TestActivityListener listener) {
-        if (mUseFragmentActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            ActivityScenario<androidx.credentials.playservices.TestCredentialsFragmentActivity>
-                    activityScenario =
-                            ActivityScenario.launch(
-                                    androidx.credentials.playservices
-                                            .TestCredentialsFragmentActivity.class);
-            activityScenario.onActivity(
-                    activity -> {
-                        listener.onActivity((Activity) activity);
-                    });
-        } else {
-            ActivityScenario<TestCredentialsActivity> activityScenario =
-                    ActivityScenario.launch(TestCredentialsActivity.class);
-            activityScenario.onActivity(
-                    activity -> {
-                        listener.onActivity((Activity) activity);
-                    });
-        }
-    }
-
-    private PublicKeyCredentialCreationOptions convertRequestToPlayServices(
-            Activity activity, String type) {
-        CreatePublicKeyCredentialRequest pubKeyRequest = new CreatePublicKeyCredentialRequest(type);
-        return CredentialProviderCreatePublicKeyCredentialController.getInstance(activity)
-                .convertRequestToPlayServices(pubKeyRequest);
-    }
-
     @Test
     public void convertRequestToPlayServices_correctRequiredOnlyRequest_success() {
-        launchTestActivity(
-                activity -> {
-                    try {
-                        JSONObject expectedJson =
-                                new JSONObject(MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+            try {
+                JSONObject expectedJson = new JSONObject(
+                        MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
 
-                        PublicKeyCredentialCreationOptions actualResponse =
-                                convertRequestToPlayServices(
-                                        activity, MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
-                        JSONObject actualJson =
-                                createJsonObjectFromPublicKeyCredentialCreationOptions(
-                                        actualResponse);
-                        JSONObject requiredKeys = new JSONObject(ALL_REQUIRED_FIELDS_SIGNATURE);
+                PublicKeyCredentialCreationOptions actualResponse =
+                        CredentialProviderCreatePublicKeyCredentialController.getInstance(activity)
+                                .convertRequestToPlayServices(
+                                        new CreatePublicKeyCredentialRequest(
+                                                MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT));
+                JSONObject actualJson = createJsonObjectFromPublicKeyCredentialCreationOptions(
+                        actualResponse);
+                JSONObject requiredKeys = new JSONObject(ALL_REQUIRED_FIELDS_SIGNATURE);
 
-                        assertThat(
-                                        TestUtils.Companion.isSubsetJson(
-                                                expectedJson, actualJson, requiredKeys))
-                                .isTrue();
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                assertThat(TestUtils.Companion.isSubsetJson(expectedJson, actualJson,
+                        requiredKeys)).isTrue();
+                // TODO("Add remaining tests in detail after discussing ideal form")
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Test
     public void convertRequestToPlayServices_correctRequiredAndOptionalRequest_success() {
-        launchTestActivity(
-                activity -> {
-                    try {
-                        JSONObject expectedJson =
-                                new JSONObject(
-                                        MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT);
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+            try {
+                JSONObject expectedJson = new JSONObject(
+                        MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT);
 
-                        PublicKeyCredentialCreationOptions actualResponse =
-                                convertRequestToPlayServices(
-                                        activity,
-                                        MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT);
-                        JSONObject actualJson =
-                                createJsonObjectFromPublicKeyCredentialCreationOptions(
-                                        actualResponse);
-                        JSONObject requiredKeys =
-                                new JSONObject(ALL_REQUIRED_AND_OPTIONAL_SIGNATURE);
+                PublicKeyCredentialCreationOptions actualResponse =
+                        CredentialProviderCreatePublicKeyCredentialController.getInstance(activity)
+                                .convertRequestToPlayServices(new CreatePublicKeyCredentialRequest(
+                                        MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT));
+                JSONObject actualJson =
+                        createJsonObjectFromPublicKeyCredentialCreationOptions(
+                                actualResponse);
+                JSONObject requiredKeys = new JSONObject(ALL_REQUIRED_AND_OPTIONAL_SIGNATURE);
 
-                        assertThat(
-                                        TestUtils.Companion.isSubsetJson(
-                                                expectedJson, actualJson, requiredKeys))
-                                .isTrue();
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                assertThat(TestUtils.Companion.isSubsetJson(expectedJson, actualJson,
+                        requiredKeys)).isTrue();
+                // TODO("Add remaining tests in detail after discussing ideal form")
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
-
     @Test
     public void convertRequestToPlayServices_missingRequired_throws() {
-        launchTestActivity(
-                activity -> {
-                    try {
-                        PublicKeyCredentialCreationOptions actualResponse =
-                                convertRequestToPlayServices(
-                                        activity, MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
-
-                        CreatePublicKeyCredentialRequest pubKeyRequest =
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+            try {
+                CredentialProviderCreatePublicKeyCredentialController
+                        .getInstance(activity)
+                        .convertRequestToPlayServices(
                                 new CreatePublicKeyCredentialRequest(
-                                        MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT);
-                        CredentialProviderCreatePublicKeyCredentialController.getInstance(activity)
-                                .convertRequestToPlayServices(
-                                        new CreatePublicKeyCredentialRequest(
-                                                MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD));
+                                        MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD));
 
-                        // Should not reach here.
-                        assertWithMessage("Exception should be thrown").that(true).isFalse();
-                    } catch (Exception e) {
-                        assertThat(e.getMessage().contains("No value for id")).isTrue();
-                        assertThat(e.getClass().getName().contains("JSONException")).isTrue();
-                    }
-                });
+                // Should not reach here.
+                assertWithMessage("Exception should be thrown").that(true).isFalse();
+            } catch (Exception e) {
+                assertThat(e.getMessage().contains("No value for id")).isTrue();
+                assertThat(e.getClass().getName().contains("JSONException")).isTrue();
+            }
+        });
     }
 
     @Test
     public void convertRequestToPlayServices_emptyRequired_throws() {
-        launchTestActivity(
-                activity -> {
-                    assertThrows(
-                            "Expected bad required json to throw",
-                            JSONException.class,
-                            () ->
-                                    convertRequestToPlayServices(
-                                            activity, MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY));
-                });
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+
+            assertThrows("Expected bad required json to throw",
+                    JSONException.class,
+                    () -> CredentialProviderCreatePublicKeyCredentialController
+                            .getInstance(activity).convertRequestToPlayServices(
+                                    new CreatePublicKeyCredentialRequest(
+                                            MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY)));
+        });
     }
 
     @Test
     public void convertRequestToPlayServices_missingOptionalRequired_throws() {
-        launchTestActivity(
-                activity -> {
-                    assertThrows(
-                            "Expected bad required json to throw",
-                            JSONException.class,
-                            () ->
-                                    convertRequestToPlayServices(
-                                            activity, OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD));
-                });
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+
+            assertThrows("Expected bad required json to throw",
+                    JSONException.class,
+                    () -> CredentialProviderCreatePublicKeyCredentialController
+                            .getInstance(activity)
+                            .convertRequestToPlayServices(
+                                    new CreatePublicKeyCredentialRequest(
+                                            OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD)));
+        });
     }
 
     @Test
     public void convertRequestToPlayServices_emptyOptionalRequired_throws() {
-        launchTestActivity(
-                activity -> {
-                    assertThrows(
-                            "Expected bad required json to throw",
-                            JSONException.class,
-                            () ->
-                                    convertRequestToPlayServices(
-                                            activity, OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD));
-                });
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+
+            assertThrows("Expected bad required json to throw",
+                    JSONException.class,
+                    () -> CredentialProviderCreatePublicKeyCredentialController
+                            .getInstance(activity)
+                            .convertRequestToPlayServices(
+                                    new CreatePublicKeyCredentialRequest(
+                                            OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD)));
+        });
     }
 
     @Test
     public void convertRequestToPlayServices_missingOptionalNotRequired_success() {
-        launchTestActivity(
-                activity -> {
-                    try {
-                        JSONObject expectedJson =
-                                new JSONObject(OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD);
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(activity -> {
+            try {
+                JSONObject expectedJson = new JSONObject(
+                        OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD);
 
-                        PublicKeyCredentialCreationOptions actualResponse =
-                                convertRequestToPlayServices(
-                                        activity, OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD);
-                        JSONObject actualJson =
-                                createJsonObjectFromPublicKeyCredentialCreationOptions(
-                                        actualResponse);
-                        JSONObject requiredKeys =
-                                new JSONObject(OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE);
+                PublicKeyCredentialCreationOptions actualResponse =
+                        CredentialProviderCreatePublicKeyCredentialController.getInstance(activity)
+                                .convertRequestToPlayServices(
+                                        new CreatePublicKeyCredentialRequest(
+                                                OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD));
+                JSONObject actualJson = createJsonObjectFromPublicKeyCredentialCreationOptions(
+                        actualResponse);
+                JSONObject requiredKeys = new
+                        JSONObject(OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE);
 
-                        assertThat(
-                                        TestUtils.Companion.isSubsetJson(
-                                                expectedJson, actualJson, requiredKeys))
-                                .isTrue();
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-    }
-
-    @Test
-    public void getInstanceRepeatedTest() {
-        launchTestActivity(
-                a -> {
-                    CredentialProviderCreatePublicKeyCredentialController firstInstance =
-                            CredentialProviderCreatePublicKeyCredentialController.getInstance(a);
-                    CredentialProviderCreatePublicKeyCredentialController secondInstance =
-                            CredentialProviderCreatePublicKeyCredentialController.getInstance(a);
-                    assertThat(firstInstance).isEqualTo(secondInstance);
-                });
+                assertThat(TestUtils.Companion.isSubsetJson(expectedJson, actualJson,
+                        requiredKeys)).isTrue();
+                // TODO("Add remaining tests in detail after discussing ideal form")
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

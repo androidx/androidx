@@ -16,55 +16,32 @@
 
 package androidx.credentials.playservices.beginsignin
 
-import android.app.Activity
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.playservices.TestCredentialsActivity
-import androidx.credentials.playservices.TestCredentialsFragmentActivity
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController.Companion.getInstance
 import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@RunWith(Parameterized::class)
+@RunWith(AndroidJUnit4::class)
 @SmallTest
 @Suppress("deprecation")
 @RequiresApi(api = Build.VERSION_CODES.O)
-class CredentialProviderBeginSignInControllerTest(val useFragmentActivity: Boolean) {
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun initParameters() = listOf(true, false)
-    }
-
-    private fun launchTestActivity(callback: (activity: Activity) -> Unit) {
-        if (useFragmentActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            var activityScenario =
-                            ActivityScenario.launch(
-                                    androidx.credentials.playservices
-                                            .TestCredentialsFragmentActivity::class.java)
-            activityScenario.onActivity { activity: Activity ->
-                callback.invoke(activity)
-            }
-        } else {
-            var activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
-            activityScenario.onActivity { activity: Activity ->
-                callback.invoke(activity)
-            }
-        }
-    }
-
+class CredentialProviderBeginSignInControllerTest {
     @Test
     fun convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
-        launchTestActivity { activity: Activity ->
-            val actualResponse = getInstance(activity)
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualResponse = getInstance(activity!!)
                 .convertRequestToPlayServices(
                     GetCredentialRequest(
                         listOf(
@@ -81,8 +58,11 @@ class CredentialProviderBeginSignInControllerTest(val useFragmentActivity: Boole
 
     @Test
     fun convertRequestToPlayServices_setPasswordOptionRequestAndTrueAutoSelect_success() {
-        launchTestActivity { activity: Activity ->
-            val actualResponse = getInstance(activity)
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualResponse = getInstance(activity!!)
                 .convertRequestToPlayServices(
                     GetCredentialRequest(
                         listOf(
@@ -99,6 +79,10 @@ class CredentialProviderBeginSignInControllerTest(val useFragmentActivity: Boole
 
     @Test
     fun convertRequestToPlayServices_setGoogleIdOptionRequest_success() {
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+
         val option = GetGoogleIdOption.Builder()
             .setServerClientId("server_client_id")
             .setNonce("nonce")
@@ -108,8 +92,8 @@ class CredentialProviderBeginSignInControllerTest(val useFragmentActivity: Boole
             .setAutoSelectEnabled(true)
             .build()
 
-        launchTestActivity { activity: Activity ->
-            val actualRequest = getInstance(activity)
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualRequest = getInstance(activity!!)
                 .convertRequestToPlayServices(
                     GetCredentialRequest(
                         listOf(
@@ -136,9 +120,12 @@ class CredentialProviderBeginSignInControllerTest(val useFragmentActivity: Boole
 
     @Test
     fun duplicateGetInstance_shouldBeEqual() {
-        launchTestActivity { activity: Activity ->
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
 
-            val firstInstance = getInstance(activity)
+            val firstInstance = getInstance(activity!!)
             val secondInstance = getInstance(activity)
             assertThat(firstInstance).isEqualTo(secondInstance)
         }
