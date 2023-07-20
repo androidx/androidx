@@ -53,50 +53,32 @@ class DatePickerBenchmark {
 
     @Test
     fun datePicker_measure() {
-        benchmarkRule.benchmarkFirstMeasure(
-            caseFactory = datePickerTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkMeasureUntilStable(datePickerTestCaseFactory)
     }
 
     @Test
     fun dateInput_measure() {
-        benchmarkRule.benchmarkFirstMeasure(
-            caseFactory = dateInputTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkMeasureUntilStable(dateInputTestCaseFactory)
     }
 
     @Test
     fun datePicker_layout() {
-        benchmarkRule.benchmarkFirstLayout(
-            caseFactory = datePickerTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkLayoutUntilStable(datePickerTestCaseFactory)
     }
 
     @Test
     fun dateInput_layout() {
-        benchmarkRule.benchmarkFirstLayout(
-            caseFactory = dateInputTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkLayoutUntilStable(dateInputTestCaseFactory)
     }
 
     @Test
     fun datePicker_draw() {
-        benchmarkRule.benchmarkFirstDraw(
-            caseFactory = datePickerTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkDrawUntilStable(datePickerTestCaseFactory)
     }
 
     @Test
     fun dateInput_draw() {
-        benchmarkRule.benchmarkFirstDraw(
-            caseFactory = dateInputTestCaseFactory,
-            allowPendingChanges = true
-        )
+        benchmarkRule.benchmarkDrawUntilStable(dateInputTestCaseFactory)
     }
 }
 
