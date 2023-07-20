@@ -179,7 +179,7 @@ class RawQueryMethodProcessorTest {
 
     @Test
     fun pojo() {
-        val pojo = XClassName.get("foo.bar.MyClass", "MyPojo")
+        val pojo = XClassName.get("foo.bar", "MyClass", "MyPojo")
         singleQueryMethod(
             """
                 public class MyPojo {

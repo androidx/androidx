@@ -15,7 +15,7 @@ public class MySecondInterfaceClientProxy(
     public val sandboxedUiAdapter: SandboxedUiAdapter =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
 
-    public override fun doStuff(): Unit {
+    public override fun doStuff() {
         remote.doStuff()
     }
 
@@ -27,7 +27,7 @@ public class MySecondInterfaceClientProxy(
         isZOrderOnTop: Boolean,
         clientExecutor: Executor,
         client: SandboxedUiAdapter.SessionClient,
-    ): Unit {
+    ) {
         sandboxedUiAdapter.openSession(context, windowInputToken, initialWidth, initialHeight,
                 isZOrderOnTop, clientExecutor, client)
     }

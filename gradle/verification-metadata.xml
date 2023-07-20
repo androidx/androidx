@@ -405,6 +405,7 @@
          </trusted-key>
          <trusted-key id="db0597e3144342256bc81e3ec727d053c4481cf5" group="org.tensorflow"/>
          <trusted-key id="dbd744ace7ade6aa50dd591f66b50994442d2d40">
+            <trusting group="com.squareup"/>
             <trusting group="com.squareup.okhttp3"/>
             <trusting group="com.squareup.okio"/>
             <trusting group="com.squareup.wire"/>

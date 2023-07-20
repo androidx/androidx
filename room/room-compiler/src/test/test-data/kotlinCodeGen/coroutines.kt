@@ -18,7 +18,6 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.jvm.JvmStatic
@@ -74,7 +73,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -121,7 +120,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })

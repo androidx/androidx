@@ -23,7 +23,6 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -1048,7 +1047,7 @@ class XExecutableElementTest {
                 }
                 element.getDeclaredMethodByJvmName("ext5").let { method ->
                     assertThat(method.parameters[0].type.asTypeName())
-                        .isEqualTo(createXTypeVariableName("T"))
+                        .isEqualTo(XTypeName.getTypeVariableName("T"))
                 }
                 element.getDeclaredMethodByJvmName("ext6").let { method ->
                     assertThat(method.isSuspendFunction()).isTrue()
@@ -1069,7 +1068,7 @@ class XExecutableElementTest {
                     assertThat(method.isAbstract()).isTrue()
                     assertThat(method.isExtensionFunction()).isTrue()
                     assertThat(method.parameters[0].type.asTypeName())
-                        .isEqualTo(createXTypeVariableName("T"))
+                        .isEqualTo(XTypeName.getTypeVariableName("T"))
 
                     val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
                     assertThat(method.parameters[0].asMemberOf(fooImpl.type).asTypeName())

@@ -12,7 +12,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -30,7 +29,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`primitive`,`string`,`nullableString`,`fieldString`,`nullableFieldString`,`variablePrimitive`,`variableString`,`variableNullableString`,`variableFieldString`,`variableNullableFieldString`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindLong(2, entity.primitive)
                 statement.bindString(3, entity.string)
@@ -66,7 +65,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {

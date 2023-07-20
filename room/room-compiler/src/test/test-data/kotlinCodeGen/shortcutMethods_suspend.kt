@@ -11,7 +11,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -35,7 +34,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
             }
@@ -43,7 +42,7 @@ public class MyDao_Impl(
         this.__deletionAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
             public override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
             }
         }
@@ -51,7 +50,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
                 statement.bindLong(3, entity.pk.toLong())
@@ -62,7 +61,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
             }
@@ -70,7 +69,7 @@ public class MyDao_Impl(
             public override fun createQuery(): String =
                 "UPDATE `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
                 statement.bindLong(3, entity.pk.toLong())
