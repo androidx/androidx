@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
+import androidx.glance.EmittableCheckable
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -229,12 +230,8 @@ object CheckboxDefaults {
 
 internal class EmittableCheckBox(
     var colors: CheckBoxColors
-) : Emittable {
+) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier
-    var checked: Boolean = false
-    var text: String = ""
-    var style: TextStyle? = null
-    var maxLines: Int = Int.MAX_VALUE
 
     override fun copy(): Emittable = EmittableCheckBox(colors = colors).also {
         it.modifier = modifier
