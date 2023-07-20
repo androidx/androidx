@@ -806,10 +806,10 @@ public class ContextCompat {
      * @param context  Context to retrieve service from.
      * @param receiver The BroadcastReceiver to handle the broadcast.
      * @param filter   Selects the Intent broadcasts to be received.
-     * @param flags    Specify one of {@link #RECEIVER_EXPORTED}, if you wish for your receiver
-     *                 to be able to receiver broadcasts from other applications, or
-     *                 {@link #RECEIVER_NOT_EXPORTED} if you only want your receiver to be able
-     *                 to receive broadcasts from the system or your own app.
+     * @param flags    If this receiver is listening for broadcasts sent from the system or from
+     *                 other apps—even other apps that you own—use the {@link #RECEIVER_EXPORTED}
+     *                 flag. If instead this receiver is listening only for broadcasts sent by your
+     *                 app, use the {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, int)
@@ -832,11 +832,11 @@ public class ContextCompat {
      *                            required.
      * @param scheduler           Handler identifying the thread will receive the Intent. If
      *                            null, the main thread of the process will be used.
-     * @param flags               Specify one of {@link #RECEIVER_EXPORTED}, if you wish for your
-     *                            receiver to be able to receiver broadcasts from other
-     *                            applications, or {@link #RECEIVER_NOT_EXPORTED} if you only want
-     *                            your receiver to be able to receive broadcasts from the system
-     *                            or your own app.
+     * @param flags               If this receiver is listening for broadcasts sent from the
+     *                            system or from other apps—even other apps that you own—use the
+     *                            {@link #RECEIVER_EXPORTED} flag. If instead this receiver is
+     *                            listening only for broadcasts sent by your app, use the
+     *                            {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, String, Handler, int)
