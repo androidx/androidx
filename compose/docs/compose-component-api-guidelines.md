@@ -1165,7 +1165,7 @@ object ButtonDefaults {
 fun Button(
     onClick: () -> Unit,
     enabled: Boolean = true,
-    buttonColors: ButtonColors = ButtonDefaults.buttonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     content: @Composable RowScope.() -> Unit
 ) {
     val resolvedBackgroundColor = colors.backgroundColor(enabled)
