@@ -18,6 +18,7 @@ package androidx.privacysandbox.ads.adservices.topics
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,5 +41,31 @@ class GetTopicsRequestTest {
 
         // Verify equality.
         Truth.assertThat(request == request2).isTrue()
+    }
+
+    @Test
+    fun testToString_emptySdkName() {
+        val result = "GetTopicsRequest: adsSdkName=, shouldRecordObservation=true"
+        val request = GetTopicsRequest("", true)
+        Truth.assertThat(request.toString()).isEqualTo(result)
+
+        // Verify Builder.
+        val request2 = GetTopicsRequest.Builder()
+            .setShouldRecordObservation(true)
+            .build()
+        Truth.assertThat(request.toString()).isEqualTo(result)
+
+        // Verify equality.
+        Truth.assertThat(request == request2).isTrue()
+    }
+
+    @Test
+    fun testBuilder_setEmptyAdsSdkName_throwsError() {
+        assertThrows(IllegalStateException::class.java) {
+            GetTopicsRequest.Builder()
+                .setAdsSdkName("")
+                .setShouldRecordObservation(true)
+                .build()
+        }
     }
 }
