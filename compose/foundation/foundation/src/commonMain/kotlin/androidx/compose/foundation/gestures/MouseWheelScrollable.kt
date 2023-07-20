@@ -33,6 +33,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -146,11 +147,14 @@ private class AnimatedMouseWheelScrollNode(
             while (isActive) {
                 val event = channel.receive()
                 isAnimationRunning = true
-                scrollingLogic.animatedDispatchScroll(event, speed = 1f * density) {
-                    // Sum delta from all pending events to avoid multiple animation restarts.
-                    channel.sumOrNull()
+                try {
+                    scrollingLogic.animatedDispatchScroll(event, speed = 1f * density) {
+                        // Sum delta from all pending events to avoid multiple animation restarts.
+                        channel.sumOrNull()
+                    }
+                } finally {
+                    isAnimationRunning = false
                 }
-                isAnimationRunning = false
             }
         }
     }
@@ -229,38 +233,42 @@ private class AnimatedMouseWheelScrollNode(
         if (target.isLowScrollingDelta()) {
             return
         }
-        scrollableState.scroll {
-            var requiredAnimation = true
-            var lastValue = 0f
-            val anim = AnimationState(0f)
-            while (requiredAnimation) {
-                requiredAnimation = false
-                val durationMillis = (abs(target - anim.value) / speed)
-                    .roundToInt()
-                    .coerceAtMost(maxDurationMillis)
-                anim.animateTo(
-                    target,
-                    animationSpec = tween(
-                        durationMillis = durationMillis,
-                        easing = LinearEasing
-                    ),
-                    sequentialAnimation = true
-                ) {
-                    val delta = value - lastValue
-                    if (!delta.isLowScrollingDelta()) {
-                        val consumedDelta = scrollBy(delta)
-                        if (!(delta - consumedDelta).isLowScrollingDelta()) {
-                            cancelAnimation()
-                            return@animateTo
+        var requiredAnimation = true
+        var lastValue = 0f
+        val anim = AnimationState(0f)
+        while (requiredAnimation) {
+            requiredAnimation = false
+            val durationMillis = (abs(target - anim.value) / speed)
+                .roundToInt()
+                .coerceAtMost(maxDurationMillis)
+            try {
+                scrollableState.scroll {
+                    anim.animateTo(
+                        target,
+                        animationSpec = tween(
+                            durationMillis = durationMillis,
+                            easing = LinearEasing
+                        ),
+                        sequentialAnimation = true
+                    ) {
+                        val delta = value - lastValue
+                        if (!delta.isLowScrollingDelta()) {
+                            val consumedDelta = scrollBy(delta)
+                            if (!(delta - consumedDelta).isLowScrollingDelta()) {
+                                cancelAnimation()
+                                return@animateTo
+                            }
+                            lastValue += delta
                         }
-                        lastValue += delta
-                    }
-                    tryReceiveNext()?.let {
-                        target += it
-                        requiredAnimation = !(target - lastValue).isLowScrollingDelta()
-                        cancelAnimation()
+                        tryReceiveNext()?.let {
+                            target += it
+                            requiredAnimation = !(target - lastValue).isLowScrollingDelta()
+                            cancelAnimation()
+                        }
                     }
                 }
+            } catch (ignore: CancellationException) {
+                requiredAnimation = true
             }
         }
     }

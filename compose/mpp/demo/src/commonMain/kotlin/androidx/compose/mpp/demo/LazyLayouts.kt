@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
+import kotlinx.coroutines.CancellationException
 
 val LazyLayouts = Screen.Selection(
     "LazyLayouts",
@@ -52,7 +53,11 @@ private fun ExampleLazyColumn() {
     LaunchedEffect(Unit) {
         while (true) {
             withFrameMillis { }
-            state.scrollBy(2f)
+            try {
+                state.scrollBy(2f)
+            } catch (ignore: CancellationException) {
+                // Ignore cancelling by manual input
+            }
         }
     }
     LazyColumn(Modifier.fillMaxSize(), state = state) {
