@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -222,6 +224,27 @@ class TextButtonTest {
     }
 
     @Test
+    fun allows_custom_role() {
+        val overrideRole = Role.Checkbox
+
+        rule.setContentWithTheme {
+            TextButton(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
+            ) {
+                Text("Test")
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.Role,
+                overrideRole
+            )
+        )
+    }
+
+    @Test
     fun sets_correct_font() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
@@ -365,7 +388,7 @@ class TextButtonTest {
             status = Status.Disabled,
             colors = { TextButtonDefaults.filledTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
+                alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -391,7 +414,7 @@ class TextButtonTest {
             status = Status.Disabled,
             colors = { TextButtonDefaults.filledTonalTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
+                alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -416,9 +439,7 @@ class TextButtonTest {
         rule.verifyTextButtonColors(
             status = Status.Disabled,
             colors = { TextButtonDefaults.outlinedTextButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
-            ) },
+            expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
             ) }
@@ -449,7 +470,7 @@ class TextButtonTest {
         val status = Status.Disabled
         rule.verifyButtonBorderColor(
             expectedBorderColor = {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAndContainerAlpha)
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAlpha)
             },
             content = { modifier: Modifier ->
                 TextButton(

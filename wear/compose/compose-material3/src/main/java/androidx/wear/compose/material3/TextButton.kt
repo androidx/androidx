@@ -135,7 +135,7 @@ fun TextButton(
  * @param content The text to be drawn inside the toggle button.
  */
 @Composable
-public fun TextToggleButton(
+fun TextToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -194,7 +194,10 @@ object TextButtonDefaults {
     ): TextButtonColors {
         return textButtonColors(
             containerColor = containerColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+                disabledAlpha = DisabledContainerAlpha
+            ),
         )
     }
 
@@ -217,7 +220,10 @@ object TextButtonDefaults {
     ): TextButtonColors {
         return textButtonColors(
             containerColor = containerColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.toDisabledColor(
+                disabledAlpha = DisabledContainerAlpha
+            ),
         )
     }
 
@@ -256,9 +262,7 @@ object TextButtonDefaults {
     fun textButtonColors(
         containerColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
-        ),
+        disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): TextButtonColors = TextButtonColors(
         containerColor = containerColor,
@@ -291,7 +295,7 @@ object TextButtonDefaults {
      * unchecked and not enabled
      */
     @Composable
-    public fun textToggleButtonColors(
+    fun textToggleButtonColors(
         checkedContainerColor: Color = MaterialTheme.colorScheme.primary,
         checkedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
         uncheckedContainerColor: Color = MaterialTheme.colorScheme.surface,

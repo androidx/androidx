@@ -386,7 +386,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.filledButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
+                alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -412,7 +412,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.filledTonalButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
+                alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -461,9 +461,7 @@ class ButtonTest {
         rule.verifyButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
-            ) },
+            expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
             ) },
@@ -563,7 +561,9 @@ class ButtonTest {
     fun gives_disabled_outlined_button_correct_border_colors() {
         val status = Status.Disabled
         rule.verifyButtonBorderColor(
-            expectedBorderColor = { MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f) },
+            expectedBorderColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAlpha)
+            },
             content = { modifier: Modifier ->
                 OutlinedButton(
                     onClick = {},
