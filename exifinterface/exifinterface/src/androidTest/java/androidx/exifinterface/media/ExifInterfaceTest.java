@@ -606,10 +606,9 @@ public class ExifInterfaceTest {
 
     @Test
     @SmallTest
-    @Ignore("b/290382533")
     public void testSetGpsInfo() throws IOException {
         final String provider = "ExifInterfaceTest";
-        final long timestamp = System.currentTimeMillis();
+        final long timestamp = 1689328448000L; // 2023-07-14T09:54:32.000Z
         final float speedInMeterPerSec = 36.627533f;
         Location location = new Location(provider);
         location.setLatitude(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1]);
@@ -701,7 +700,6 @@ public class ExifInterfaceTest {
      */
     @Test
     @SmallTest
-    @Ignore("b/290382533")
     public void testGetSetDateTime() throws IOException {
         final long expectedGetDatetimeValue =
                 1454027547000L /* TAG_DATETIME value ("2016:01:29 18:32:27") converted to msec */
@@ -728,12 +726,12 @@ public class ExifInterfaceTest {
                 exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED));
 
         // Test setting datetime values
-        final long currentTimeStamp = System.currentTimeMillis();
+        final long newTimestamp = 1689328448000L; // 2023-07-14T09:54:32.000Z
         final long expectedDatetimeOffsetLongValue = 32400000L;
-        exif.setDateTime(currentTimeStamp);
+        exif.setDateTime(newTimestamp);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
+        assertEquals(newTimestamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
 
         // Test that setting null throws NPE
         try {
