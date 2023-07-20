@@ -40,7 +40,6 @@ import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
@@ -67,8 +66,7 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
 
-        val replacement = getSuggestedReplacementName(node as KotlinUFunctionCallExpression)
-            ?: return
+        val replacement = getSuggestedReplacementName(node) ?: return
 
         context.report(
             issue = AutoboxingStateCreation,
@@ -130,7 +128,7 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     }
 
     private fun getSuggestedReplacementName(
-        invocation: KotlinUFunctionCallExpression
+        invocation: UCallExpression
     ): Name? {
         if (!usesStructuralEqualityPolicy(invocation)) return null
 
@@ -150,13 +148,13 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     }
 
     private fun usesStructuralEqualityPolicy(
-        invocation: KotlinUFunctionCallExpression
+        invocation: UCallExpression
     ): Boolean {
         val policyExpr = invocation.valueArguments.getOrNull(MUTATION_POLICY_PARAM_IDX)
             ?.skipParenthesizedExprDown()
             ?: return true // No argument passed; we're using the default policy
 
-        val policyMethod = (policyExpr as? KotlinUFunctionCallExpression)?.resolve()
+        val policyMethod = (policyExpr as? UCallExpression)?.resolve()
             ?: return false // Argument isn't a direct function call. Assume it's a more complex
                             // policy, or isn't always the structural equality policy.
 
