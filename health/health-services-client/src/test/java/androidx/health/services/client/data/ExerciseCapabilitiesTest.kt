@@ -31,8 +31,8 @@ class ExerciseCapabilitiesTest {
             EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
                 ExerciseType.WALKING
             ).supportedDataTypes
-        ).isEqualTo(
-            ImmutableSet.of(DataType.STEPS)
+        ).containsExactly(
+            DataType.STEPS
         )
     }
 
@@ -93,6 +93,9 @@ class ExerciseCapabilitiesTest {
         assertThat(capabilities.autoPauseAndResumeEnabledExercises).containsExactlyElementsIn(
             EXERCISE_CAPABILITIES.autoPauseAndResumeEnabledExercises
         )
+        assertThat(capabilities.supportedBatchingModeOverrides).containsExactlyElementsIn(
+            EXERCISE_CAPABILITIES.supportedBatchingModeOverrides
+        )
     }
 
     @Test
@@ -105,6 +108,9 @@ class ExerciseCapabilitiesTest {
         )
         assertThat(emptyCapabilities.autoPauseAndResumeEnabledExercises).containsExactlyElementsIn(
             roundTripEmptyCapabilities.autoPauseAndResumeEnabledExercises
+        )
+        assertThat(emptyCapabilities.supportedBatchingModeOverrides).containsExactlyElementsIn(
+            roundTripEmptyCapabilities.supportedBatchingModeOverrides
         )
     }
 
@@ -153,6 +159,7 @@ class ExerciseCapabilitiesTest {
             )
 
         private val EXERCISE_CAPABILITIES: ExerciseCapabilities =
-            ExerciseCapabilities(EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING)
+            ExerciseCapabilities(EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING,
+                ImmutableSet.of(BatchingMode.HEART_RATE_5_SECONDS))
     }
 }
