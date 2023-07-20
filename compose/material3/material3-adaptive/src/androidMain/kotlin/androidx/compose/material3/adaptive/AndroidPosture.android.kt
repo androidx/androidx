@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.window.layout.FoldingFeature
 
 /**
@@ -27,6 +29,9 @@ fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
     var hasVerticalHinge = false
     var isTableTop = false
     var hasSeparatingHinge = false
+    val separatingHingeBounds = mutableListOf<Rect>()
+    val occludingHingeBounds = mutableListOf<Rect>()
+    val allHingeBounds = mutableListOf<Rect>()
     foldingFeatures.forEach {
         if (it.orientation == FoldingFeature.Orientation.VERTICAL) {
             hasVerticalHinge = true
@@ -38,6 +43,21 @@ fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
             it.state == FoldingFeature.State.HALF_OPENED) {
             isTableTop = true
         }
+        val hingeBounds = it.bounds.toComposeRect()
+        allHingeBounds.add(hingeBounds)
+        if (it.isSeparating) {
+            separatingHingeBounds.add(hingeBounds)
+        }
+        if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
+            occludingHingeBounds.add(hingeBounds)
+        }
     }
-    return Posture(hasVerticalHinge, isTableTop, hasSeparatingHinge)
+    return Posture(
+        hasVerticalHinge,
+        isTableTop,
+        hasSeparatingHinge,
+        separatingHingeBounds,
+        occludingHingeBounds,
+        allHingeBounds
+    )
 }

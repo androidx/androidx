@@ -24,8 +24,8 @@ package androidx.compose.material3.adaptive {
   }
 
   public final class AdaptiveLayoutDirectiveKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateDenseAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateStandardAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateDenseAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int hingePolicy);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.AdaptiveLayoutDirective calculateStandardAdaptiveLayoutDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int hingePolicy);
   }
 
   public final class AndroidPosture_androidKt {
@@ -51,6 +51,21 @@ package androidx.compose.material3.adaptive {
     property public final float innerVertical;
     property public final float outerHorizontal;
     property public final float outerVertical;
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class HingePolicy {
+    field public static final androidx.compose.material3.adaptive.HingePolicy.Companion Companion;
+  }
+
+  public static final class HingePolicy.Companion {
+    method public int getAlwaysAvoid();
+    method public int getAvoidOccluding();
+    method public int getAvoidSeparating();
+    method public int getNeverAvoid();
+    property public final int AlwaysAvoid;
+    property public final int AvoidOccluding;
+    property public final int AvoidSeparating;
+    property public final int NeverAvoid;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ListDetailPaneScaffoldDefaults {
@@ -97,13 +112,19 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class Posture {
-    ctor public Posture(optional boolean hasVerticalHinge, optional boolean isTabletop, optional boolean hasSeparatingHinge);
+    ctor public Posture(optional boolean hasVerticalHinge, optional boolean isTabletop, optional boolean hasSeparatingHinge, optional java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds);
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getAllHingeBounds();
     method public boolean getHasSeparatingHinge();
     method public boolean getHasVerticalHinge();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getOccludingHingeBounds();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingHingeBounds();
     method public boolean isTabletop();
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds;
     property public final boolean hasSeparatingHinge;
     property public final boolean hasVerticalHinge;
     property public final boolean isTabletop;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldAdaptStrategies {

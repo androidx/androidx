@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -162,5 +163,155 @@ class AdaptiveLayoutDirectiveTest {
         assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
         assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
         assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
+    }
+
+    @Test
+    fun test_calculateStandardAdaptiveLayoutDirective_alwaysAvoidHinge() {
+        val occludingHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+        )
+        val allHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+            Rect(2F, 2F, 3F, 3F)
+        )
+        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(
+                    allHingeBounds = allHingeBounds,
+                    occludingHingeBounds = occludingHingeBounds
+                )
+            ),
+            HingePolicy.AlwaysAvoid
+        )
+
+        assertThat(layoutDirective.excludedBounds).isEqualTo(allHingeBounds)
+    }
+
+    @Test
+    fun test_calculateStandardAdaptiveLayoutDirective_avoidOccludingHinge() {
+        val occludingHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+        )
+        val allHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+            Rect(2F, 2F, 3F, 3F)
+        )
+        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(
+                    allHingeBounds = allHingeBounds,
+                    occludingHingeBounds = occludingHingeBounds
+                )
+            ),
+            HingePolicy.AvoidOccluding
+        )
+
+        assertThat(layoutDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+    }
+
+    @Test
+    fun test_calculateStandardAdaptiveLayoutDirective_neverAvoidHinge() {
+        val occludingHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+        )
+        val allHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+            Rect(2F, 2F, 3F, 3F)
+        )
+        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(
+                    allHingeBounds = allHingeBounds,
+                    occludingHingeBounds = occludingHingeBounds
+                )
+            ),
+            HingePolicy.NeverAvoid
+        )
+
+        assertThat(layoutDirective.excludedBounds).isEmpty()
+    }
+
+    @Test
+    fun test_calculateDenseAdaptiveLayoutDirective_alwaysAvoidHinge() {
+        val occludingHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+        )
+        val allHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+            Rect(2F, 2F, 3F, 3F)
+        )
+        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(
+                    allHingeBounds = allHingeBounds,
+                    occludingHingeBounds = occludingHingeBounds
+                )
+            ),
+            HingePolicy.AlwaysAvoid
+        )
+
+        assertThat(layoutDirective.excludedBounds).isEqualTo(allHingeBounds)
+    }
+
+    @Test
+    fun test_calculateDenseAdaptiveLayoutDirective_avoidOccludingHinge() {
+        val occludingHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+        )
+        val allHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+            Rect(2F, 2F, 3F, 3F)
+        )
+        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(
+                    allHingeBounds = allHingeBounds,
+                    occludingHingeBounds = occludingHingeBounds
+                )
+            ),
+            HingePolicy.AvoidOccluding
+        )
+
+        assertThat(layoutDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+    }
+
+    @Test
+    fun test_calculateDenseAdaptiveLayoutDirective_neverAvoidHinge() {
+        val occludingHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+        )
+        val allHingeBounds = listOf(
+            Rect(0F, 0F, 1F, 1F),
+            Rect(1F, 1F, 2F, 2F),
+            Rect(2F, 2F, 3F, 3F)
+        )
+        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(
+                    allHingeBounds = allHingeBounds,
+                    occludingHingeBounds = occludingHingeBounds
+                )
+            ),
+            HingePolicy.NeverAvoid
+        )
+
+        assertThat(layoutDirective.excludedBounds).isEmpty()
     }
 }
