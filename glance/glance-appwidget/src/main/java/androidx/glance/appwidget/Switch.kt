@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
+import androidx.glance.EmittableCheckable
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -226,12 +227,8 @@ private fun SwitchElement(
 
 internal class EmittableSwitch(
     var colors: SwitchColors
-) : Emittable {
+) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier
-    var checked: Boolean = false
-    var text: String = ""
-    var style: TextStyle? = null
-    var maxLines: Int = Int.MAX_VALUE
 
     override fun copy(): Emittable = EmittableSwitch(colors = colors).also {
         it.modifier = modifier
