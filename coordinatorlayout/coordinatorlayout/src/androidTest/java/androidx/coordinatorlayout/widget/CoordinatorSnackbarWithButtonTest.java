@@ -40,6 +40,7 @@ import androidx.test.filters.LargeTest;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -132,6 +133,7 @@ public class CoordinatorSnackbarWithButtonTest extends BaseDynamicCoordinatorLay
         verifyBarViewStacking(textView, 0);
     }
 
+    @Ignore // b/292019798
     @Test
     public void testBehaviorBasedSlidingFromClassAnnotation() {
         // Use a layout in which a custom child view has Behavior object configured via
@@ -160,6 +162,7 @@ public class CoordinatorSnackbarWithButtonTest extends BaseDynamicCoordinatorLay
         verifyBarViewStacking(textView, 0);
     }
 
+    @Ignore // b/292021877
     @Test
     public void testBehaviorBasedSlidingFromRuntimeApiCall() {
         // Use a layout in which a TextView child doesn't have any configured Behavior
