@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.observers;
+package androidx.lifecycle.observers
 
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 
-@SuppressWarnings("deprecation")
-public class Base implements LifecycleObserver {
-
+open class Base : LifecycleObserver {
+    @Suppress("DEPRECATION")
     @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void onCreate() {
-    }
+    open fun onCreate() {}
 }
