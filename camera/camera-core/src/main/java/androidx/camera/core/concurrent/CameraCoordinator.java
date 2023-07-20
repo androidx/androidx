@@ -130,6 +130,11 @@ public interface CameraCoordinator {
     void removeListener(@NonNull ConcurrentCameraModeListener listener);
 
     /**
+     * Clean up all the resources when CameraX shutdown.
+     */
+    void shutdown();
+
+    /**
      * Interface for concurrent camera mode update.
      *
      * <p>Everytime user changes {@link CameraOperatingMode}, the observer will be notified and

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
@@ -25,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.concurrent.CameraCoordinator
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode
 import androidx.camera.core.impl.CameraInternal
 
@@ -33,17 +35,15 @@ class CameraCoordinatorAdapter(
     cameraDevices: CameraDevices,
     private val cameraGraphCreator: CameraGraphCreator
 ) : CameraCoordinator {
-    private val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
-
-    private var concurrentCameraIdsSet: Set<Set<CameraId>> = mutableSetOf()
-    private var concurrentCameraIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
-    private var activeConcurrentCameraInfosList: MutableList<CameraInfo> = mutableListOf()
-
-    private var concurrentMode: Int = CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
-    private var concurrentModeOn = false
+    @VisibleForTesting val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
+    @VisibleForTesting var concurrentCameraIdsSet = mutableSetOf<Set<CameraId>>()
+    @VisibleForTesting var concurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
+    @VisibleForTesting var activeConcurrentCameraInfosList = mutableListOf<CameraInfo>()
+    @VisibleForTesting var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
+    @VisibleForTesting var concurrentModeOn = false
 
     init {
-        concurrentCameraIdsSet = cameraDevices.awaitConcurrentCameraIds()!!
+        concurrentCameraIdsSet = cameraDevices.awaitConcurrentCameraIds()!!.toMutableSet()
         for (cameraIdSet in concurrentCameraIdsSet) {
             val cameraIdsList = cameraIdSet.toList()
             if (cameraIdsList.size >= 2) {
@@ -128,5 +128,14 @@ class CameraCoordinatorAdapter(
     }
 
     override fun removeListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
+    }
+
+    override fun shutdown() {
+        cameraInternalMap.clear()
+        concurrentCameraIdsSet.clear()
+        concurrentCameraIdMap.clear()
+        activeConcurrentCameraInfosList.clear()
+        concurrentMode = CAMERA_OPERATING_MODE_UNSPECIFIED
+        concurrentModeOn = false
     }
 }
