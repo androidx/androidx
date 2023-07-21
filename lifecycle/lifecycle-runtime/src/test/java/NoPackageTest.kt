@@ -14,43 +14,37 @@
  * limitations under the License.
  */
 
-import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.LifecycleRegistry.Companion.createUnsafe
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
-public class NoPackageTest {
-
-    private LifecycleOwner mLifecycleOwner;
-    private Lifecycle mLifecycle;
-    private LifecycleRegistry mRegistry;
+@RunWith(JUnit4::class)
+class NoPackageTest {
+    private lateinit var lifecycleOwner: LifecycleOwner
+    private lateinit var lifecycle: Lifecycle
+    private lateinit var registry: LifecycleRegistry
 
     @Before
-    public void init() {
-        mLifecycleOwner = mock(LifecycleOwner.class);
-        mLifecycle = mock(Lifecycle.class);
-        when(mLifecycleOwner.getLifecycle()).thenReturn(mLifecycle);
-        mRegistry = LifecycleRegistry.createUnsafe(mLifecycleOwner);
+    fun init() {
+        lifecycleOwner = mock(LifecycleOwner::class.java)
+        lifecycle = mock(Lifecycle::class.java)
+        `when`(lifecycleOwner.lifecycle).thenReturn(lifecycle)
+        registry = createUnsafe(lifecycleOwner)
     }
 
     @Test
-    public void testNoPackage() {
-        NoPackageObserver observer = mock(NoPackageObserver.class);
-        mRegistry.addObserver(observer);
-        mRegistry.handleLifecycleEvent(ON_CREATE);
-        verify(observer).onCreate();
+    fun testNoPackage() {
+        val observer = mock(NoPackageObserver::class.java)
+        registry.addObserver(observer)
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        verify(observer).onCreate()
     }
-
 }
-
