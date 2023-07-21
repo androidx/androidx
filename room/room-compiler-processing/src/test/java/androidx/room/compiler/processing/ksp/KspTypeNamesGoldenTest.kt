@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
@@ -24,8 +26,6 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.TypeName
 import org.junit.Test
 

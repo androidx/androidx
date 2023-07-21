@@ -89,6 +89,8 @@ package androidx.kruth {
   }
 
   public final class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
+    method public androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends V>... entries);
+    method public androidx.kruth.Ordered containsAtLeastEntriesIn(java.util.Map<K,? extends V> expectedMap);
     method public androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends V>... entries);
     method public androidx.kruth.Ordered containsExactlyEntriesIn(java.util.Map<K,? extends V> expectedMap);
     method public void containsKey(Object? key);
@@ -162,6 +164,7 @@ package androidx.kruth {
   }
 
   public final class ThrowableSubject<T extends java.lang.Throwable> extends androidx.kruth.Subject<T> {
+    method public androidx.kruth.ThrowableSubject<java.lang.Throwable> hasCauseThat();
     method public androidx.kruth.StringSubject hasMessageThat();
   }
 
