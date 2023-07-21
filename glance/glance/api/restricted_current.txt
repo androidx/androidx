@@ -405,13 +405,17 @@ package androidx.glance.semantics {
 
   public final class SemanticsProperties {
     method public androidx.glance.semantics.SemanticsPropertyKey<java.util.List<java.lang.String>> getContentDescription();
+    method public androidx.glance.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
     property public final androidx.glance.semantics.SemanticsPropertyKey<java.util.List<java.lang.String>> ContentDescription;
+    property public final androidx.glance.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
     field public static final androidx.glance.semantics.SemanticsProperties INSTANCE;
   }
 
   public final class SemanticsPropertiesKt {
     method public static String getContentDescription(androidx.glance.semantics.SemanticsPropertyReceiver);
+    method public static String getTestTag(androidx.glance.semantics.SemanticsPropertyReceiver);
     method public static void setContentDescription(androidx.glance.semantics.SemanticsPropertyReceiver, String);
+    method public static void setTestTag(androidx.glance.semantics.SemanticsPropertyReceiver, String);
   }
 
   public final class SemanticsPropertyKey<T> {
