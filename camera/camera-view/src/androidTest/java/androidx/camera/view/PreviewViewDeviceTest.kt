@@ -1063,8 +1063,13 @@ class PreviewViewDeviceTest(
     private fun updateCropRectAndWaitForIdle(cropRect: Rect) {
         for (surfaceRequest in surfaceRequestList) {
             surfaceRequest.updateTransformationInfo(
-                SurfaceRequest.TransformationInfo.of(cropRect, 0, Surface.ROTATION_0,
-                    /*hasCameraTransform=*/true, /*sensorToBufferTransform=*/Matrix()
+                SurfaceRequest.TransformationInfo.of(
+                    cropRect,
+                    0,
+                    Surface.ROTATION_0,
+                    /*hasCameraTransform=*/true,
+                    /*sensorToBufferTransform=*/Matrix(),
+                    /*mirroring=*/false
                 )
             )
         }

@@ -521,7 +521,7 @@ public class SurfaceEdge {
         if (mProviderSurfaceRequest != null) {
             mProviderSurfaceRequest.updateTransformationInfo(TransformationInfo.of(
                     mCropRect, mRotationDegrees, mTargetRotation, hasCameraTransform(),
-                    mSensorToBufferTransform));
+                    mSensorToBufferTransform, mMirroring));
         }
     }
 

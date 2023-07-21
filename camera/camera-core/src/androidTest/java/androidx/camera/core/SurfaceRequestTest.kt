@@ -283,8 +283,9 @@ class SurfaceRequestTest {
         val infoReference = AtomicReference<SurfaceRequest.TransformationInfo>()
 
         // Act.
-        request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
-                newValue: SurfaceRequest.TransformationInfo ->
+        request.setTransformationInfoListener(
+            CameraXExecutors.directExecutor()
+        ) { newValue: SurfaceRequest.TransformationInfo ->
             infoReference.set(
                 newValue
             )
@@ -299,8 +300,9 @@ class SurfaceRequestTest {
         // Arrange.
         val request = createNewRequest(FAKE_SIZE)
         val infoReference = AtomicReference<SurfaceRequest.TransformationInfo>()
-        request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
-                newValue: SurfaceRequest.TransformationInfo ->
+        request.setTransformationInfoListener(
+            CameraXExecutors.directExecutor()
+        ) { newValue: SurfaceRequest.TransformationInfo ->
             infoReference.set(
                 newValue
             )
@@ -408,8 +410,14 @@ class SurfaceRequestTest {
     companion object {
         private val FAKE_SIZE: Size by lazy { Size(0, 0) }
         private val FAKE_INFO: SurfaceRequest.TransformationInfo by lazy {
-            SurfaceRequest.TransformationInfo.of(Rect(), 0, Surface.ROTATION_0,
-                /*hasCameraTransform=*/true, /*sensorToBufferTransform=*/Matrix()
+            SurfaceRequest.TransformationInfo.of(
+                Rect(),
+                0,
+                Surface.ROTATION_0,
+                /*hasCameraTransform=*/
+                true, /*sensorToBufferTransform=*/
+                Matrix(), /*mirroring=*/
+                false
             )
         }
         private val NO_OP_RESULT_LISTENER = Consumer { _: SurfaceRequest.Result? -> }
