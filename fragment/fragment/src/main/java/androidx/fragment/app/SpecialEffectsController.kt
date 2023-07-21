@@ -530,6 +530,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         var isStarted = false
             private set
 
+        var isAwaitingContainerChanges = true
+
         val effects = mutableListOf<Effect>()
 
         init {
