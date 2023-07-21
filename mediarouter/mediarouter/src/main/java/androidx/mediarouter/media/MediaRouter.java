@@ -905,7 +905,8 @@ public final class MediaRouter {
         if (DEBUG) {
             Log.d(TAG, "addRemoteControlClient: " + remoteControlClient);
         }
-        getGlobalRouter().addRemoteControlClient(remoteControlClient);
+        getGlobalRouter()
+                .addRemoteControlClient((android.media.RemoteControlClient) remoteControlClient);
     }
 
     /**
@@ -925,7 +926,8 @@ public final class MediaRouter {
         if (DEBUG) {
             Log.d(TAG, "removeRemoteControlClient: " + remoteControlClient);
         }
-        getGlobalRouter().removeRemoteControlClient(remoteControlClient);
+        getGlobalRouter()
+                .removeRemoteControlClient((android.media.RemoteControlClient) remoteControlClient);
     }
 
     /**
@@ -1054,7 +1056,6 @@ public final class MediaRouter {
         return getGlobalRouter().isMediaTransferEnabled();
     }
 
-    /** */
     @RestrictTo(LIBRARY)
     public static boolean isGroupVolumeUxEnabled() {
         if (sGlobal == null) {
@@ -2161,19 +2162,16 @@ public final class MediaRouter {
                         : DynamicRouteDescriptor.UNSELECTED;
             }
 
-            /** */
             @RestrictTo(LIBRARY)
             public boolean isUnselectable() {
                 return mDynamicDescriptor == null || mDynamicDescriptor.isUnselectable();
             }
 
-            /** */
             @RestrictTo(LIBRARY)
             public boolean isGroupable() {
                 return mDynamicDescriptor != null && mDynamicDescriptor.isGroupable();
             }
 
-            /** */
             @RestrictTo(LIBRARY)
             public boolean isTransferable() {
                 return mDynamicDescriptor != null && mDynamicDescriptor.isTransferable();
@@ -2609,11 +2607,13 @@ public final class MediaRouter {
                     @Override
                     public void onActiveChanged() {
                         if (mRccMediaSession != null) {
+                            android.media.RemoteControlClient remoteControlClient =
+                                    (android.media.RemoteControlClient)
+                                            mRccMediaSession.getRemoteControlClient();
                             if (mRccMediaSession.isActive()) {
-                                addRemoteControlClient(mRccMediaSession.getRemoteControlClient());
+                                addRemoteControlClient(remoteControlClient);
                             } else {
-                                removeRemoteControlClient(
-                                        mRccMediaSession.getRemoteControlClient());
+                                removeRemoteControlClient(remoteControlClient);
                             }
                         }
                     }
@@ -3153,7 +3153,7 @@ public final class MediaRouter {
             if (mSelectedRouteController == controller) {
                 selectRoute(chooseFallbackRoute(), UNSELECT_REASON_STOPPED);
             }
-            //TODO: Maybe release a member route controller if the given controller is a member of
+            // TODO: Maybe release a member route controller if the given controller is a member of
             // the selected route.
         }
 
@@ -3630,7 +3630,7 @@ public final class MediaRouter {
             }
         }
 
-        public void addRemoteControlClient(Object rcc) {
+        public void addRemoteControlClient(android.media.RemoteControlClient rcc) {
             int index = findRemoteControlClientRecord(rcc);
             if (index < 0) {
                 RemoteControlClientRecord record = new RemoteControlClientRecord(rcc);
@@ -3638,7 +3638,7 @@ public final class MediaRouter {
             }
         }
 
-        public void removeRemoteControlClient(Object rcc) {
+        public void removeRemoteControlClient(android.media.RemoteControlClient rcc) {
             int index = findRemoteControlClientRecord(rcc);
             if (index >= 0) {
                 RemoteControlClientRecord record = mRemoteControlClients.remove(index);
@@ -3656,14 +3656,18 @@ public final class MediaRouter {
                 setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
             } else {
                 if (mRccMediaSession != null) {
-                    removeRemoteControlClient(mRccMediaSession.getRemoteControlClient());
+                    removeRemoteControlClient(
+                            (android.media.RemoteControlClient)
+                                    mRccMediaSession.getRemoteControlClient());
                     mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
                 }
                 mRccMediaSession = session;
                 if (session != null) {
                     session.addOnActiveChangeListener(mSessionActiveListener);
                     if (session.isActive()) {
-                        addRemoteControlClient(session.getRemoteControlClient());
+                        addRemoteControlClient(
+                                (android.media.RemoteControlClient)
+                                        session.getRemoteControlClient());
                     }
                 }
             }
@@ -3688,7 +3692,7 @@ public final class MediaRouter {
             return null;
         }
 
-        private int findRemoteControlClientRecord(Object rcc) {
+        private int findRemoteControlClientRecord(android.media.RemoteControlClient rcc) {
             final int count = mRemoteControlClients.size();
             for (int i = 0; i < count; i++) {
                 RemoteControlClientRecord record = mRemoteControlClients.get(i);
@@ -3879,13 +3883,13 @@ public final class MediaRouter {
             private final RemoteControlClientCompat mRccCompat;
             private boolean mDisconnected;
 
-            public RemoteControlClientRecord(Object rcc) {
+            RemoteControlClientRecord(android.media.RemoteControlClient rcc) {
                 mRccCompat = RemoteControlClientCompat.obtain(mApplicationContext, rcc);
                 mRccCompat.setVolumeCallback(this);
                 updatePlaybackInfo();
             }
 
-            public Object getRemoteControlClient() {
+            public android.media.RemoteControlClient getRemoteControlClient() {
                 return mRccCompat.getRemoteControlClient();
             }
 

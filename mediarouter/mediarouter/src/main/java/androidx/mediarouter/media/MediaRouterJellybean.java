@@ -205,8 +205,8 @@ final class MediaRouterJellybean {
 
         public static void setRemoteControlClient(
                 @NonNull android.media.MediaRouter.UserRouteInfo route,
-                @Nullable Object rccObj) {
-            route.setRemoteControlClient((android.media.RemoteControlClient) rccObj);
+                @Nullable android.media.RemoteControlClient rcc) {
+            route.setRemoteControlClient(rcc);
         }
 
         private UserRouteInfo() {
