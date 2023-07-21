@@ -7,6 +7,7 @@ package androidx.benchmark.junit4 {
 
   public final class BenchmarkRule implements org.junit.rules.TestRule {
     ctor public BenchmarkRule();
+    ctor @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public BenchmarkRule(androidx.benchmark.MicrobenchmarkConfig config);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public androidx.benchmark.BenchmarkState getState();
   }

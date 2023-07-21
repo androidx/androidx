@@ -31,12 +31,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 @VisibleForTesting
 public var argumentSource: Bundle? = null
 
-/**
- * Allows tests to override profiler
- */
-@VisibleForTesting
-internal var profilerOverride: Profiler? = null
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Arguments {
     // public properties are shared by micro + macro benchmarks
@@ -76,9 +70,7 @@ object Arguments {
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
     internal val iterations: Int?
-    private val _profiler: Profiler?
     internal val profiler: Profiler?
-        get() = if (profilerOverride != null) profilerOverride else _profiler
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
     internal val thermalThrottleSleepDurationSeconds: Long
@@ -171,7 +163,7 @@ object Arguments {
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
-        _profiler = arguments.getProfiler(outputEnable)
+        profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
                 ?.toInt()
@@ -180,10 +172,10 @@ object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
                 ?.toLong()
                 ?: 5
-        if (_profiler != null) {
+        if (profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
-                "Profiler ${_profiler.javaClass.simpleName}, freq " +
+                "Profiler ${profiler.javaClass.simpleName}, freq " +
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }
@@ -222,7 +214,7 @@ object Arguments {
     fun methodTracingEnabled(): Boolean {
         return when {
             dryRunMode -> false
-            _profiler == MethodTracing -> true
+            profiler == MethodTracing -> true
             else -> false
         }
     }
