@@ -6,7 +6,7 @@
 # Owners for each library group:
 /activity*          @sanura-njaka @jbw0033 @ianhanniballake
 /appcompat/*        @alanv
-/biometric/*        @dlam
+/biometric/*        @jbolinger
 /collection/*       @dlam
 /compose/compiler/* @jimgoog @lelandrichardson
 /compose/runtime/*  @jimgoog @lelandrichardson
