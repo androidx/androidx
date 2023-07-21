@@ -2952,6 +2952,7 @@ class AndroidLayoutDrawTest {
     @Test
     fun instancesKeepDelegates() {
         var color by mutableStateOf(Color.Red)
+        var size by mutableStateOf(30)
         var m: Measurable? = null
         val layoutCaptureModifier = object : LayoutModifier {
             override fun MeasureScope.measure(
@@ -2960,15 +2961,22 @@ class AndroidLayoutDrawTest {
             ): MeasureResult {
                 m = measurable
                 val p = measurable.measure(constraints)
-                drawLatch.countDown()
                 return layout(p.width, p.height) {
                     p.place(0, 0)
                 }
             }
         }
+        val drawCaptureModifier = object : DrawModifier {
+            override fun ContentDrawScope.draw() {
+                drawLatch.countDown()
+            }
+        }
         activityTestRule.runOnUiThread {
             activity.setContent {
-                FixedSize(30, layoutCaptureModifier.background(color)) {}
+                FixedSize(
+                    size = size,
+                    modifier = layoutCaptureModifier.background(color).then(drawCaptureModifier)
+                ) {}
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -2977,6 +2985,7 @@ class AndroidLayoutDrawTest {
 
         activityTestRule.runOnUiThread {
             m = null
+            size = 40
             color = Color.Blue
         }
 
