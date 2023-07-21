@@ -251,17 +251,16 @@ private fun Placeable.PlacementScope.measureAndPlacePanesWithLocalBounds(
         }.measuredWidth += allocatableWidth - totalPreferredWidth
     } else if (allocatableWidth < totalPreferredWidth) {
         // Scale down all panes to fit in the available space.
-        val scale = allocatableWidth / totalPreferredWidth
+        val scale = allocatableWidth.toFloat() / totalPreferredWidth
         measurables.forEach {
-            it.measuredWidth *= scale
+            it.measuredWidth = (it.measuredWidth * scale).toInt()
         }
     }
-    val spacerSizeInt = spacerSize.toInt()
     var positionX = partitionBounds.left
     measurables.forEach {
         it.measure(Constraints.fixed(it.measuredWidth, partitionBounds.height))
             .place(positionX, partitionBounds.top)
-        positionX += it.measuredWidth + spacerSizeInt
+        positionX += it.measuredWidth + spacerSize
     }
 }
 
