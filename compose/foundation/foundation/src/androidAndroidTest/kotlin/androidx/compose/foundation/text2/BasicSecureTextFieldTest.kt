@@ -21,6 +21,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -328,6 +330,40 @@ class BasicSecureTextFieldTest {
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial")
             assertThat(state.text.toString()).isEqualTo("Hello World!")
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun toolbarDoesNotShowCopyOrCut() {
+        var copyOptionAvailable = false
+        var cutOptionAvailable = false
+        var showMenuRequested = false
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
+                showMenuRequested = true
+                copyOptionAvailable = onCopyRequested != null
+                cutOptionAvailable = onCutRequested != null
+            },
+            onHideMenu = {}
+        )
+        val state = TextFieldState("Hello")
+        rule.setContent {
+            CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
+                BasicSecureTextField(
+                    state = state,
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
+
+        rule.runOnIdle {
+            assertThat(showMenuRequested).isTrue()
+            assertThat(copyOptionAvailable).isFalse()
+            assertThat(cutOptionAvailable).isFalse()
         }
     }
 }
