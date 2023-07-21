@@ -657,6 +657,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         protected void layoutRange(RecyclerView.Recycler recycler, int start, int end) {
+            layoutRange(recycler, start, end, /* disappearingViewPositions= */ null);
+        }
+
+        protected void layoutRange(RecyclerView.Recycler recycler, int start, int end,
+                HashSet<Integer> disappearingViewPositions) {
             assertScrap(recycler);
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
@@ -680,7 +685,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 }
                 assertEquals("getViewForPosition should return correct position",
                         i, getPosition(view));
-                addView(view);
+                if (disappearingViewPositions != null && disappearingViewPositions.contains(i)) {
+                    addDisappearingView(view);
+                } else {
+                    addView(view);
+                }
                 measureChildWithMargins(view, 0, 0);
                 if (getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL) {
                     layoutDecorated(view, getWidth() - getDecoratedMeasuredWidth(view), top,
@@ -860,6 +869,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
         @Nullable RecyclerView.LayoutParams mLayoutParams;
+        boolean mCancelViewPropertyAnimatorsInOnDetach;
 
         public TestAdapter(int count) {
             this(count, null);
@@ -895,6 +905,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         @Override
         public void onViewDetachedFromWindow(TestViewHolder holder) {
             super.onViewDetachedFromWindow(holder);
+            if (mCancelViewPropertyAnimatorsInOnDetach) {
+                holder.itemView.animate().cancel();
+            }
             mAttachmentCounter.onViewDetached(holder);
         }
 
